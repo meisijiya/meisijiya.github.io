@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,进,房间门">
+
+
+<title>02-短信登录-基于session方案 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">老江湖的博客</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">文章</a>
+                
+                <a class="menu-item" href="/category">分类</a>
+                
+                <a class="menu-item" href="/tag">标签</a>
+                
+                <a class="menu-item" href="/timeLine">时间线</a>
+                
+                <a class="menu-item" href="/about">关于</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">老江湖的博客</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">文章</a>
+                
+                <a class="menu-item" href="/category">分类</a>
+                
+                <a class="menu-item" href="/tag">标签</a>
+                
+                <a class="menu-item" href="/timeLine">时间线</a>
+                
+                <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">02-短信登录-基于session方案</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >九月 20, 2025&nbsp;&nbsp;21:17:42</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84%E7%AC%94%E8%AE%B0/">黑马点评笔记</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><hr>
+<h1 id="前置：基于Session实现登录"><a href="#前置：基于Session实现登录" class="headerlink" title="前置：基于Session实现登录"></a>前置：基于Session实现登录</h1><h2 id="HttpSession-对象"><a href="#HttpSession-对象" class="headerlink" title="HttpSession 对象"></a>HttpSession 对象</h2><p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/HttpSession/3159840?fr=aladdin">HttpSession_百度百科</a> <a target="_blank" rel="noopener" href="https://www.runoob.com/servlet/servlet-session-tracking.html">Servlet Session 跟踪 | 菜鸟教程</a></p>
+<p>Servlet提供了HttpSession接口，该接口中提供了一种跨多个页面请求或访问网站时识别用户以及存储有关用户信息的方式。<br>Servlet 容器使用这个接口来创建一个 HTTP 客户端和 HTTP 服务器之间的 session 会话。会话持续一个指定的时间段，跨多个连接或页面请求。</p>
+<h2 id="RestController"><a href="#RestController" class="headerlink" title="@RestController"></a>@RestController</h2><p>结合了 <code>@Controller</code> 和 <code>@ResponseBody</code>。<br>被被标记的类中，每个方法的返回值都会以JSON或XML的形式直接写入HTTP响应体中（@ResponseBody）。<br>@Controller处理客户端发起的请求，并负责返回适当的视图（View）作为响应，搭配上@ResponseBody，使得以方法的返回值作为响应的主题内容，而不是解析为视图。</p>
+<h2 id="Spring中处理HTTP请求映射的注解"><a href="#Spring中处理HTTP请求映射的注解" class="headerlink" title="Spring中处理HTTP请求映射的注解"></a>Spring中处理HTTP请求映射的注解</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/users&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span>&#123; <span class="meta">@PostMapping(&quot;/create&quot;)</span>/<span class="meta">@GetMapping(&quot;list&quot;)</span></span><br><span class="line"><span class="keyword">public</span> XXX  xxx&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>@<strong>RequestMapping</strong></p>
+<p>将web请求映射到具体方法上，标注在方法上。也可标注在类上，标注在类上时，表示类中所有响应请求的方法都是以该路径为父路径。</p>
+<p>@<strong>PostMapping</strong></p>
+<p>组合注解。<br>是<code>@RequestMapping(method=RequestMethod.POST)</code>的缩写。它用于处理HTTP POST请求的方法，只能标注在方法上。使用<code>@PostMapping</code>注解的方法将仅响应POST请求。</p>
+<p>@<strong>GetMapping</strong></p>
+<p>组合注解。<br>是<code>@RequestMapping(method = RequestMethod.GET)</code>的缩写。它用于处理HTTP GET请求的方法，也只能标注在方法上。使用<code>@GetMapping</code>注解的方法将仅响应GET请求。</p>
+<h2 id="SpringMVC接收前端传递的参数的注解"><a href="#SpringMVC接收前端传递的参数的注解" class="headerlink" title="SpringMVC接收前端传递的参数的注解"></a>SpringMVC接收前端传递的参数的注解</h2><p><code>@RequestParam</code> 和 <code>@RequestBody </code>都是从 <code>HttpServletRequest request</code> 中取参的，而 <code>@PathVariable</code> 是映射 URI 请求参数中的占位符到目标方法的参数中的.</p>
+<ol>
+<li><p>@<strong>RequestParam</strong>  请求格式为：<code>http://...?...=...&amp;...=...</code><br>接收参数如下</p>
+<ul>
+<li>defaultValue 如果本次请求没有携带这个参数，或者参数为空，那么就会启用默认值</li>
+<li>name 绑定本次参数的名称，要跟URL上面的一样</li>
+<li>required 这个参数不是必须的，如果为 true，不传参数会报错</li>
+<li>value 跟name一样的作用，是name属性的一个别名</li>
+</ul>
+</li>
+<li><p>@<strong>RequestBody</strong>  两种接收方式： 一种是建立与 JSON 数据与之对应的实体，二是直接使用 Map&lt;String,Object&gt; 对象接收。<br>使用需要满足如下条件：</p>
+<ul>
+<li>Content-Type 为 application&#x2F;json，确保传递是 JSON 数据；</li>
+<li>参数转化的配置必须统一，否则无法接收数据，比如 json、request 混用等</li>
+</ul>
+</li>
+<li><p>@<strong>PathVariable</strong>     请求格式：<code>.../&#123;&#125;/&#123;&#125;</code>同<code>.../&#123;&#125;?...=...</code><br> 接收参数如下</p>
+<ul>
+<li>name 绑定参数的名称，<strong>默认不传递时，绑定为同名的形参。</strong> 赋值但名称不一致时则报错</li>
+<li>value 跟name一样的作用，是name属性的一个别名</li>
+<li>required 这个参数不是必须的，如果为 true，不传参数会报错</li>
+</ul>
+<p>需要注意两点：</p>
+<ul>
+<li>参数接收类型使用<strong>基本类型</strong></li>
+<li>如果@PathVariable标明参数名称，则<strong>参数名称必须和URL中参数名称一致</strong></li>
+</ul>
+</li>
+</ol>
+<p>1、在 GET 请求中可以使用 <strong>@RequestParam</strong>，不能使用 @RequestBody，@RequestBody 是用来获取请求体中的参数，因为 GET 请求没有请求体，所以不能使用。</p>
+<p>2.在post请求中</p>
+<ul>
+<li>@RequestParam 适用于获取<u><strong>键值对</strong></u>形式的请求参数，来源包括 URL 查询字符串、application&#x2F;x-www-form-urlencoded 格式的请求体（表单默认格式）、multipart&#x2F;form-data 格式中的普通字段（非文件类型）。</li>
+<li>@RequestBody 用于接收请求体中的完整数据，适用于<u><strong>非键值</strong></u>对形式的结构化数据（如 application&#x2F;json、application&#x2F;xml 等），通过消息转换器将请求体内容解析为目标 Java 对象。</li>
+<li>特殊场景：multipart&#x2F;form-data 格式中的文件上传需用 @RequestPart；<br>application&#x2F;x-www-form-urlencoded 格式为键值对结构，不适合用 @RequestBody 接收（会得到原始字符串，非推荐用法）。</li>
+</ul>
+<p>3、一个方法中，可以同时使用<strong>多个</strong> @RequestParam ，但是只能使用<strong>一个</strong> @RequestBody，否则会报错。</p>
+<p>4、@PathVariable 起到的作用就是 URI 请求参数中的<u>占位符</u>到<u>目标方法参数</u>的映射。</p>
+<p>5、前端请求的  Content-Type ，<strong>默认值</strong>为 <code>application/x-www-form-urlencoded</code>，在这种格式下，后端直接使用 @RequestParam 就可以直接获取指定的参数，但是一旦前端传递的是 JSON 数据，也就是 Content-Type 的值为 <code>application/json</code>，那么使用 @RequestParam 是取不到值的，不但取不到值还报错。</p>
+<h2 id="Mybatis-plus"><a href="#Mybatis-plus" class="headerlink" title="Mybatis-plus"></a>Mybatis-plus</h2><p>优秀的 ORM 框架，致力于简化和提高 Java 应用程序对数据库访问的效率。</p>
+<h3 id="Transactional"><a href="#Transactional" class="headerlink" title="@Transactional"></a>@Transactional</h3><p>只能应用到接口方法、类、还有public方法上。<br>一般在@service标记的类上添加，可以将整个service类纳入Spring事务管理，采用统一的事务管理方式。</p>
+<p>常用属性总结：</p>
+<ul>
+<li><code>propagation</code>：控制事务传播行为（如是否复用父事务），默认<code>REQUIRED</code>；</li>
+<li><code>isolation</code>：设置事务隔离级别（解决并发问题），默认用数据库默认值；</li>
+<li><code>rollbackFor</code>&#x2F;<code>noRollbackFor</code>：指定需要 &#x2F; 不需要回滚的异常类型；</li>
+<li><code>readOnly</code>：标记只读事务（优化查询性能），默认<code>false</code>；</li>
+<li><code>timeout</code>：设置事务超时时间（防止长事务，单位秒），默认无限制。</li>
+</ul>
+<h3 id="BaseMapper、IService和ServiceImpl"><a href="#BaseMapper、IService和ServiceImpl" class="headerlink" title="BaseMapper、IService和ServiceImpl"></a>BaseMapper、IService和ServiceImpl</h3><p>在典型的三层架构中：</p>
+<ul>
+<li>Controller 层：接收请求、返回结果</li>
+<li>Service 层：业务逻辑编排</li>
+<li>DAO 层 (Mapper)：直接操作数据库</li>
+</ul>
+<p>MyBatis-Plus 提供了 BaseMapper 简化了 DAO 层的 CRUD，而在 Service 层，通常需要编写一堆相似的增删改查逻辑。为此，MyBatis-Plus 提供了 IService 接口 + ServiceImpl 实现类，将通用逻辑抽象出来。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">IService&lt;T&gt;   ←——  通用 Service 接口（定义通用方法）</span><br><span class="line">   ↑</span><br><span class="line">ServiceImpl&lt;M extends BaseMapper&lt;T&gt;, T&gt;   ←——  通用 Service 实现类</span><br><span class="line">   ↑</span><br><span class="line">自定义 Service 实现类（继承 ServiceImpl）</span><br></pre></td></tr></table></figure>
+
+<h5 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h5><ol>
+<li>必须继承 ServiceImpl 吗？</li>
+</ol>
+<ul>
+<li>不是必须。你也可以只用 BaseMapper，在 Controller 里直接调用。但这样会让业务层缺失，代码耦合度较高，推荐通过 ServiceImpl 来隔离业务逻辑与持久化。</li>
+</ul>
+<ol start="2">
+<li>如果要写自定义方法怎么办？</li>
+</ol>
+<ul>
+<li>直接在 Service 接口和实现类中新增即可</li>
+</ul>
+<ol start="3">
+<li>与 Mapper 的关系？</li>
+</ol>
+<ul>
+<li>Mapper：最贴近数据库，负责 SQL 层</li>
+<li>ServiceImpl：封装 Mapper，并为业务提供统一接口</li>
+</ul>
+<h5 id="最佳实践："><a href="#最佳实践：" class="headerlink" title="最佳实践："></a>最佳实践：</h5><ul>
+<li>接口分离：定义 Service 接口，避免直接在 Controller 注入 ServiceImpl</li>
+<li>扩展业务逻辑：在继承的 ServiceImpl 上增加自己的方法，不要随意修改通用方法</li>
+<li>批量操作：使用 saveBatch、updateBatchById 提升性能</li>
+<li>LambdaQueryWrapper：结合 ServiceImpl 的查询方法，写法更简洁安全</li>
+</ul>
+<h4 id="BaseMapper"><a href="#BaseMapper" class="headerlink" title="BaseMapper"></a>BaseMapper</h4><p>主要作用是定义 DAO 层的数据库操作方法，例如数据的增删改查等。</p>
+<p>通过智能的SQL生成机制，只要继承并指定对应的实体类，即可直接使用这些通用方法，无需手动编写 SQL 语句，从而减少了代码量和重复劳动。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个继承 BaseMapper 的自定义 Mapper 接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">XXXMapper</span> <span class="keyword">extends</span> <span class="title class_">BaseMapper</span>&lt;xxx&gt; &#123;</span><br><span class="line">    <span class="comment">// 无需手写SQL，Mybatis-Plus 根据命名规范自动生成SQL</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="IService"><a href="#IService" class="headerlink" title="IService"></a>IService</h4><p>将常见的业务操作抽象化，包括保存、删除、更新、查询等。通过继承 <code>IService</code> 接口，并指定对应的实体类，即可直接使用这些通用方法，无需手动编写业务逻辑代码，使得代码更加简洁和易于维护。</p>
+<p>封装的方法分为七类：save、remove、update、get、list、count、page（分页查询）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个继承 IService 的自定义 Service 接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">XXXService</span> <span class="keyword">extends</span> <span class="title class_">IService</span>&lt;xxx&gt; &#123;</span><br><span class="line">    <span class="comment">// 定义常用的业务逻辑方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="ServiceImpl"><a href="#ServiceImpl" class="headerlink" title="ServiceImpl"></a>ServiceImpl</h4><p>是 <code>IService</code> 接口的默认实现。是针对业务逻辑层的实现，并调用 BaseMapper 来操作数据库。还额外赋予了一些更加高级的查询操作，如 <code>lambdaQuery</code>、<code>page</code> 等</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//源码</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ServiceImpl</span>&lt;M <span class="keyword">extends</span> <span class="title class_">BaseMapper</span>&lt;T&gt;, T&gt; <span class="keyword">implements</span> <span class="title class_">IService</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">protected</span> M baseMapper;    </span><br><span class="line">    <span class="comment">//...方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>常见方法如下：</strong></p>
+<ol>
+<li>新增</li>
+</ol>
+<ul>
+<li>save(T entity)</li>
+<li>saveBatch(Collection<T> entityList)</li>
+<li>saveOrUpdate(T entity)</li>
+</ul>
+<ol start="2">
+<li>删除</li>
+</ol>
+<ul>
+<li>removeById(Serializable id)</li>
+<li>removeByIds(Collection&lt;? extends Serializable&gt; idList)</li>
+<li>remove(Wrapper<T> queryWrapper)</li>
+</ul>
+<ol start="3">
+<li>修改</li>
+</ol>
+<ul>
+<li>updateById(T entity)</li>
+<li>update(T entity, Wrapper<T> updateWrapper)</li>
+<li>updateBatchById(Collection<T> entityList)</li>
+</ul>
+<ol start="4">
+<li>查询</li>
+</ol>
+<ul>
+<li>getById(Serializable id)</li>
+<li>listByIds(Collection&lt;? extends Serializable&gt; idList)</li>
+<li>list(Wrapper<T> queryWrapper)</li>
+<li>page(Page<T> page, Wrapper<T> queryWrapper)</li>
+<li>getOne(Wrapper<T> queryWrapper)</li>
+</ul>
+<ol start="5">
+<li>统计与判断</li>
+</ol>
+<ul>
+<li>count()</li>
+<li>exists(Wrapper<T> queryWrapper)</li>
+</ul>
+<p><code>ServiceImpl</code> 对事务管理提供了支持。通过 <code>@Transactional</code> 注解，能够轻松地实现事务的控制。</p>
+<p>实践代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在业务逻辑实现中继承 ServiceImpl，轻松构建业务方法</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">XXXServiceImpl</span> <span class="keyword">extends</span> <span class="title class_">ServiceImpl</span>&lt;M, T&gt; <span class="keyword">implements</span> <span class="title class_">XXXService</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>传入的参数为 M 和 T：</p>
+<ul>
+<li>M：Mapper 接口类型</li>
+<li>T：对应实体类的类型</li>
+</ul>
+<h3 id="Wrapper"><a href="#Wrapper" class="headerlink" title="Wrapper"></a>Wrapper</h3><ul>
+<li>不直接关联 Mapper 接口，需手动传递给 Mapper 方法执行查询。</li>
+<li>需调用 Mapper 方法（如 <code>selectList(wrapper)</code>）</li>
+<li>分两步：先构建条件，再调用 Mapper</li>
+<li>运用于复杂逻辑（如条件复用、动态判断）</li>
+</ul>
+<h4 id="QueryWrapper"><a href="#QueryWrapper" class="headerlink" title="QueryWrapper"></a>QueryWrapper</h4><p>查询构造器，通过链式调用，灵活直观地进行复杂SQL查询，而无需手动编写SQL语句。不直接关联 Mapper 接口，需手动传递给 Mapper 方法执行查询。</p>
+<p>操作流程：</p>
+<ol>
+<li>创建QueryWrapper实例<br><code>QueryWrapper&lt;实体类（代表数据库中的一张表）&gt; wrapper = new QueryWrapper&lt;&gt;()</code></li>
+<li>添加查询条件（方法），支持链式调用<ol>
+<li><code>eq</code>：等于  <code>ne</code>：不等于</li>
+<li><code>gt</code>：大于  <code>ge</code>：大于等于</li>
+<li><code>lt</code>：小于  <code>le</code>：小于等于</li>
+<li><code>(not)like(left/right)</code>：模糊匹配 <code>(not)between</code> 区间</li>
+<li><code>(not)in</code>：(不)在某个集合中</li>
+<li><code>and</code>   <code>or</code></li>
+<li><code>nested</code> - 嵌套条件</li>
+<li><code>orderby</code> 排序</li>
+<li><code>select</code></li>
+<li><code>last</code>在 SQL 末尾追加自定义片段  <code>apply</code>添加动态SQL片段</li>
+</ol>
+</li>
+<li>执行查询<br>构造好的QueryWrapper，通过传递给Mybatis-Plus的Mapper接口方法来执行查询。<br><code>返回值  x = xxxMapper.xxx方法(wrapper)</code></li>
+</ol>
+<h5 id="QueryWrapper与其他Wrapper的区别"><a href="#QueryWrapper与其他Wrapper的区别" class="headerlink" title="QueryWrapper与其他Wrapper的区别"></a>QueryWrapper与其他Wrapper的区别</h5><ul>
+<li><p>QueryWrapper：专注于构建 SELECT 查询的条件。</p>
+</li>
+<li><p>UpdateWrapper：用于构建 UPDATE 语句，支持条件和 SET 子句。（set）</p>
+</li>
+<li><p>LambdaQueryWrapper：QueryWrapper 的 Lambda 版本，使用 Lambda 表达式指定字段。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 效果同QueryWrapper示例，但用Lambda引用字段</span></span><br><span class="line">LambdaQueryWrapper&lt;User&gt; lambdaQuery = <span class="keyword">new</span> <span class="title class_">LambdaQueryWrapper</span>&lt;&gt;();</span><br><span class="line">lambdaQuery.gt(User::getAge, <span class="number">18</span>)  <span class="comment">// 用Lambda表达式引用字段，编译期检查</span></span><br><span class="line">           .like(User::getUsername, <span class="string">&quot;张&quot;</span>);</span><br><span class="line">List&lt;User&gt; userList = userMapper.selectList(lambdaQuery);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>LambdaUpdateWrapper：UpdateWrapper 的 Lambda 版本。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 效果同UpdateWrapper示例，用Lambda引用字段</span></span><br><span class="line">LambdaUpdateWrapper&lt;User&gt; lambdaUpdate = <span class="keyword">new</span> <span class="title class_">LambdaUpdateWrapper</span>&lt;&gt;();</span><br><span class="line">lambdaUpdate.set(User::getAge, <span class="number">20</span>)</span><br><span class="line">            .set(User::getStatus, <span class="number">1</span>)</span><br><span class="line">            .eq(User::getId, <span class="number">1</span>)</span><br><span class="line">            .eq(User::getUsername, <span class="string">&quot;张三&quot;</span>);</span><br><span class="line">userMapper.update(<span class="literal">null</span>, lambdaUpdate);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="ChainWrapper"><a href="#ChainWrapper" class="headerlink" title="ChainWrapper"></a>ChainWrapper</h3><ul>
+<li>内置 Mapper，创建时绑定</li>
+<li>自带执行方法（如 <code>list()</code>、<code>update()</code>）</li>
+<li>链式调用，一步完成条件 + 执行</li>
+<li>简单查询 &#x2F; 更新，追求代码简洁</li>
+</ul>
+<h4 id="QueryChainWrapper"><a href="#QueryChainWrapper" class="headerlink" title="QueryChainWrapper"></a>QueryChainWrapper</h4><p><strong><code>query()</code> 方法</strong>是 <code>BaseMapper</code> 接口提供的一个默认方法</p>
+<ol>
+<li>快速创建 <code>QueryChainWrapper</code> 实例（自动绑定当前 Mapper）；</li>
+<li>支持直接链式调用查询条件方法（<code>eq</code>、<code>like</code> 等）和执行方法（<code>list</code>、<code>one</code> 等）；</li>
+<li>让代码更简洁，减少手动创建包装器的模板代码。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简化方式：通过 mapper.query() 获取 QueryChainWrapper</span></span><br><span class="line">List&lt;User&gt; users = userMapper.query()  <span class="comment">// 直接获取链式查询包装器</span></span><br><span class="line">    .eq(<span class="string">&quot;status&quot;</span>, <span class="number">1</span>)</span><br><span class="line">    .list();</span><br></pre></td></tr></table></figure>
+
+<p><strong>query() 方法与 Service 层的结合</strong></p>
+<p>在 Service 实现类中（通常继承 <code>ServiceImpl&lt;M extends BaseMapper&lt;T&gt;, T&gt;</code>），调用 <code>BaseMapper</code> 提供的 <code>query()</code> 方法，获取 <code>QueryChainWrapper&lt;User&gt;</code> 实例，进一步简化代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User user=query().eq(<span class="string">&quot;phone&quot;</span>,phone).one();</span><br></pre></td></tr></table></figure>
+
+<p><strong>若不用链式查询，等价代码如下</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">QueryWrapper&lt;User&gt; queryWrapper = <span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;&gt;();</span><br><span class="line">queryWrapper.eq(<span class="string">&quot;phone&quot;</span>, phone);</span><br><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userMapper.selectOne(queryWrapper); <span class="comment">// 手动调用 Mapper 方法</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>QueryChainWrapper：</strong></p>
+<ul>
+<li><p><strong>作用</strong>：用于构建查询条件（<code>WHERE</code>、<code>ORDER BY</code> 等），并直接执行查询操作（如查询列表、单条数据、数量等）。</p>
+</li>
+<li><p>核心方法：</p>
+<ul>
+<li>条件方法：<code>eq()</code>（等于）、<code>like()</code>（模糊查询）、<code>orderBy()</code>（排序）等（与 <code>QueryWrapper</code> 一致）。</li>
+<li>执行方法：<code>list()</code>（查询列表）、<code>one()</code>（查询单条）、<code>count()</code>（查询数量）等。</li>
+</ul>
+</li>
+<li><pre><code class="java">// 常规方法，链式查询：查询name为&quot;张三&quot;且age≥18的用户列表
+List&lt;User&gt; users = new QueryChainWrapper&lt;&gt;(userMapper)
+    .eq(&quot;name&quot;, &quot;张三&quot;)
+    .ge(&quot;age&quot;, 18)
+    .orderByDesc(&quot;create_time&quot;)
+    .list(); // 直接执行查询
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### UpdateChainWrapper</span><br><span class="line"></span><br><span class="line">- **作用**：用于构建更新条件（`SET` 字段值 + `WHERE` 条件），并直接执行更新操作。</span><br><span class="line"></span><br><span class="line">- 核心方法：</span><br><span class="line"></span><br><span class="line">  - 字段方法：`set()`（设置更新字段）、`setSql()`（直接写 SQL 片段）等。</span><br><span class="line">  - 条件方法：`eq()`、`in()` 等（与 `UpdateWrapper` 一致）。</span><br><span class="line">  - 执行方法：`update()`（执行更新）。</span><br><span class="line"></span><br><span class="line">- ```java</span><br><span class="line">  // 链式更新：将name为&quot;张三&quot;的用户age改为20</span><br><span class="line">  boolean success = new UpdateChainWrapper&lt;&gt;(userMapper)</span><br><span class="line">      .set(&quot;age&quot;, 20)</span><br><span class="line">      .eq(&quot;name&quot;, &quot;张三&quot;)</span><br><span class="line">      .update(); // 直接执行更新</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+<h2 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h2><p>在 Tomcat 处理 HTTP 请求的流程中，<strong>每个用户请求都会由 Tomcat 线程池中的</strong>「独立线程」<strong>处理</strong>（线程从池内取出 → 处理请求 → 用完回收）。由于不同用户的请求由<strong>不同线程</strong>执行，且线程会经过 <code>Controller</code>、<code>Service</code>、<code>DAO</code> 等多层组件调用，此时需要一种机制，让 <strong>“当前请求的专属数据” 能在线程内的各组件间共享，同时又不与其他线程的请求数据冲突</strong> —— 这正是 <code>ThreadLocal</code> 的核心价值。</p>
+<p><u><strong>ThreadLocal的作用与适配性</strong>：</u></p>
+<p><code>ThreadLocal</code> 的原理是 <strong>为每个线程维护一份「独立的变量副本」</strong>：</p>
+<p>当 Tomcat 的工作线程开始处理请求时，会把「当前请求的上下文数据」（比如用户身份信息、事务管理器、自定义的请求作用域数据等）存入 <code>ThreadLocal</code>；</p>
+<p>之后，在该线程执行过程中（从 <code>Controller</code> 接收参数，到 <code>Service</code> 处理业务，再到 <code>DAO</code> 操作数据库），所有组件都能从 <code>ThreadLocal</code> 中获取 <strong>“当前请求专属”</strong> 的数据，且不会与其他线程（其他用户的请求）的数据产生冲突。</p>
+<p><u><strong>总结</strong>：</u></p>
+<p>因为 “每个用户请求对应独立线程” 的特性，<code>ThreadLocal</code> 能让<strong>每个线程只操作自己的那份数据</strong>，既保证了 “同一请求内多组件共享数据”，又天然实现了 “线程隔离”，完美适配 Web 应用中 “请求 - 线程 - 多组件协作” 的场景。</p>
+<h2 id="拦截器HandlerInterceptor"><a href="#拦截器HandlerInterceptor" class="headerlink" title="拦截器HandlerInterceptor"></a>拦截器HandlerInterceptor</h2><p>Spring MVC 的 HandlerInterceptor 是贯彻 AOP 思想、用于拦截 Spring MVC 请求的核心组件，仅作用于 Spring MVC 处理的请求，生命周期由 Spring 管理，可在<strong>请求到 Controller 前、Controller 执行后、视图渲染完成后</strong>三个阶段插入自定义逻辑，实现权限验证、日志记录、资源清理等横切需求。</p>
+<p>其核心有 3 个方法：</p>
+<ul>
+<li><code>preHandle</code>（正序执行）：请求前置处理，返回<code>true</code>则继续请求，<code>false</code>则中断，常用于登录校验；</li>
+<li><code>postHandle</code>（逆序执行）：Controller 执行后、视图渲染前处理，可修改<code>ModelAndView</code>，如加全局数据；</li>
+<li><code>afterCompletion</code>（逆序执行）：请求全流程结束后执行（无论成败），用于资源清理，如关连接、清<code>ThreadLocal</code>。</li>
+</ul>
+<p>拦截器通过<code>HandlerExecutionChain</code>封装成链，执行规则为 “preHandle 正序、后两个方法逆序”；与 Servlet Filter 相比，它对 Spring MVC 请求控制更精细，配置依赖<code>WebMvcConfigurer</code>，还可通过<code>Ordered</code>&#x2F;<code>@Order</code>排序、<code>MappedInterceptor</code>动态匹配路径，优化时需避免耗时操作、控制作用范围。</p>
+<p>要使拦截器生效，需要配置拦截器<br>需要在实现了WebMvcConfigurer的配置类（@Configuration），编写addInterceptors(InterceptroRegistry registry)方法，使用注册器registry通过addInterceptor方法来配置拦截路径。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.InterceptorRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.WebMvcConfigurer;</span><br><span class="line"><span class="comment">// 拦截器配置类（@Configuration 标记为Spring配置类）</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MvcInterceptorConfig</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 注册拦截器，并配置拦截/排除路径</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 注册自定义的LoginInterceptor</span></span><br><span class="line">        registry.addInterceptor(<span class="keyword">new</span> <span class="title class_">LoginInterceptor</span>())</span><br><span class="line">                <span class="comment">// 2. 配置「需要拦截」的路径（Ant风格，/** 表示所有请求）</span></span><br><span class="line">                .addPathPatterns(<span class="string">&quot;/**&quot;</span>) </span><br><span class="line">                <span class="comment">// 3. 配置「不需要拦截」的路径（排除登录、静态资源等）</span></span><br><span class="line">                .excludePathPatterns(</span><br><span class="line">                        <span class="string">&quot;/login&quot;</span>,          <span class="comment">// 登录接口（未登录时需访问，不拦截）</span></span><br><span class="line">                        <span class="string">&quot;/register&quot;</span>,       <span class="comment">// 注册接口（同理不拦截）</span></span><br><span class="line">                        <span class="string">&quot;/static/**&quot;</span>,      <span class="comment">// 静态资源（CSS、JS、图片等，不拦截）</span></span><br><span class="line">                        <span class="string">&quot;/error&quot;</span>           <span class="comment">// 错误页面（如404、500，不拦截）</span></span><br><span class="line">                );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>若需注册多个拦截器（如 “登录拦截器”+“日志拦截器”），可在 <code>addInterceptors</code> 中多次调用</p>
+<h2 id="使用Hutool工具类进行对象属性拷贝"><a href="#使用Hutool工具类进行对象属性拷贝" class="headerlink" title="使用Hutool工具类进行对象属性拷贝"></a>使用Hutool工具类进行对象属性拷贝</h2><p>Hutool 提供了 <code>BeanUtil</code> 和 <code>CollUtil</code> 工具类，可简洁实现实体类对象及 List 集合的属性拷贝（相同属性值复制），无需手动编写 set&#x2F;get 代码。</p>
+<p>以下是具体实现方式：</p>
+<ol>
+<li><p>实体类对象拷贝（单个对象）</p>
+<p>使用 <code>BeanUtil.copyProperties</code> 方法，自动复制两个对象间名称和类型相同的属性。</p>
+</li>
+<li><p>List 集合拷贝（批量对象）</p>
+<p>通过 <code>BeanUtil.copyProperties</code> 结合流处理，批量拷贝集合中所有对象的属性。</p>
+</li>
+</ol>
+<p>拷贝规则：</p>
+<ul>
+<li>仅复制<strong>名称和类型均相同</strong>的属性（类型需兼容，如 <code>int</code> 与 <code>Integer</code> 可互转）。</li>
+<li>目标对象中独有的属性（如 <code>UserDTO</code> 的 <code>extra</code>）会被忽略，源对象中独有的属性也不会影响目标对象。</li>
+</ul>
+<p>注意事项：</p>
+<ul>
+<li>若属性名不同，可通过 <code>BeanUtil.copyProperties</code> 的重载方法自定义映射规则（如 <code>CopyOptions</code>）。</li>
+</ul>
+<h2 id="隐藏用户信息"><a href="#隐藏用户信息" class="headerlink" title="隐藏用户信息"></a>隐藏用户信息</h2><p>前后端数据交互的标准最佳实践：</p>
+<p>通过DTO对象类进行前后端传递数据。entity类负责跟数据库交换数据。</p>
+<ul>
+<li>Entity 类（与数据库交互，含敏感字段）</li>
+<li>DTO 类（前后端传输，隐藏敏感信息）</li>
+</ul>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><h3 id="发送验证码"><a href="#发送验证码" class="headerlink" title="发送验证码"></a>发送验证码</h3><p>IUserService声明，UserServiceImpl实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">sendCode</span><span class="params">(String phone, HttpSession session)</span> &#123;</span><br><span class="line">    <span class="comment">// 1.校验手机号</span></span><br><span class="line">    <span class="keyword">if</span> (RegexUtils.isPhoneInvalid(phone)) &#123;</span><br><span class="line">        <span class="comment">// 2.如果不符合，返回错误信息</span></span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;手机号格式错误！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 3.符合，生成验证码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> RandomUtil.randomNumbers(<span class="number">6</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4.保存验证码到 session</span></span><br><span class="line">    session.setAttribute(<span class="string">&quot;code&quot;</span>,code);</span><br><span class="line">    <span class="comment">// 5.发送验证码</span></span><br><span class="line">    log.debug(<span class="string">&quot;发送短信验证码成功，验证码：&#123;&#125;&quot;</span>, code);</span><br><span class="line">    <span class="comment">// 返回ok</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">public</span> Result <span class="title function_">login</span><span class="params">(LoginFormDTO loginForm, HttpSession session)</span> &#123;</span><br><span class="line">       <span class="comment">// 1.校验手机号</span></span><br><span class="line">       <span class="type">String</span> <span class="variable">phone</span> <span class="operator">=</span> loginForm.getPhone();</span><br><span class="line">       <span class="keyword">if</span> (RegexUtils.isPhoneInvalid(phone)) &#123;</span><br><span class="line">           <span class="comment">// 2.如果不符合，返回错误信息</span></span><br><span class="line">           <span class="keyword">return</span> Result.fail(<span class="string">&quot;手机号格式错误！&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">// 3.校验验证码</span></span><br><span class="line">       <span class="type">Object</span> <span class="variable">cacheCode</span> <span class="operator">=</span> session.getAttribute(<span class="string">&quot;code&quot;</span>);</span><br><span class="line">       <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> loginForm.getCode();</span><br><span class="line">       <span class="keyword">if</span>(cacheCode == <span class="literal">null</span> || !cacheCode.toString().equals(code))&#123;</span><br><span class="line">           <span class="comment">//3.不一致，报错</span></span><br><span class="line">           <span class="keyword">return</span> Result.fail(<span class="string">&quot;验证码错误&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">// 4.验证码一致，查询用户</span></span><br><span class="line">       User user=query().eq(<span class="string">&quot;phone&quot;</span>,phone).one();</span><br><span class="line">       <span class="keyword">if</span>(user == <span class="literal">null</span>)&#123;</span><br><span class="line">           <span class="comment">// 5.用户不存在，创建</span></span><br><span class="line">           user =  createUserWithPhone(phone);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//6.保护用户信息到session</span></span><br><span class="line">       session.setAttribute(<span class="string">&quot;user&quot;</span>,user);</span><br><span class="line">       <span class="comment">//7.返回ok</span></span><br><span class="line">       <span class="keyword">return</span> Result.ok();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> User <span class="title function_">createUserWithPhone</span><span class="params">(String phone)</span> &#123;</span><br><span class="line">       <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">       user.setPhone(phone);</span><br><span class="line">       <span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="登录校验拦截器"><a href="#登录校验拦截器" class="headerlink" title="登录校验拦截器"></a>登录校验拦截器</h3><p>拦截器代码，在utils包下创建</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoginInterceptor</span> <span class="keyword">implements</span> <span class="title class_">HandlerInterceptor</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterCompletion</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//1.获取session</span></span><br><span class="line">        <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> request.getSession();</span><br><span class="line">        <span class="comment">//2.获取session中的用户</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">user</span> <span class="operator">=</span> session.getAttribute(<span class="string">&quot;user&quot;</span>);</span><br><span class="line">        <span class="comment">//3.判断用户是否存在</span></span><br><span class="line">        <span class="keyword">if</span>(user != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">//4.不存在就拦截，返回401状态码</span></span><br><span class="line">            response.setStatus(<span class="number">401</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//5.存在,保存用户信息到ThreadLocal</span></span><br><span class="line">        <span class="type">UserDTO</span> <span class="variable">userDTO</span> <span class="operator">=</span> BeanUtil.copyProperties(user, UserDTO.class);</span><br><span class="line">        UserHolder.saveUser(userDTO);</span><br><span class="line">        <span class="comment">//6.放行</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>添加拦截器，配置类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MvcConfig</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate stringRedisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> &#123;</span><br><span class="line">        <span class="comment">// 登录拦截器</span></span><br><span class="line">        registry.addInterceptor(<span class="keyword">new</span> <span class="title class_">LoginInterceptor</span>())</span><br><span class="line">                .excludePathPatterns(</span><br><span class="line">                        <span class="string">&quot;/shop/**&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/voucher/**&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/shop-type/**&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/upload/**&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/blog/hot&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/user/code&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/user/login&quot;</span></span><br><span class="line">                ).order(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>永久链接:</span>
+        <span><a href="https://meisijiya.github.io/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/02-%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95-%E5%9F%BA%E4%BA%8Esession%E6%96%B9%E6%A1%88/">https://meisijiya.github.io/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/02-%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95-%E5%9F%BA%E4%BA%8Esession%E6%96%B9%E6%A1%88/</a></span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span>Do you believe in <strong>DESTINY</strong>? <br> 如有侵权请告知删除🙏</span>
+      </p>
+      
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/session/"># session</a>
+          
+          <a href="/tags/Hutool%E5%B7%A5%E5%85%B7/"># Hutool工具</a>
+          
+          <a href="/tags/Mybatis-plus/"># Mybatis-plus</a>
+          
+          <a href="/tags/SpringMVC/"># SpringMVC</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/01-%E6%80%BB%E8%A7%88/"
+        >01-总览</a
+      >
+       
+      <a class="next" rel="next" href="/2025/09/17/%E6%96%B0%E5%A2%9E%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD/"
+        >新增评论功能</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem;"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById('giscus-container');
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = '';
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute('data-repo', 'meisijiya/meisijiya.github.io');
+
+   // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute('data-repo-id', 'R_kgDOPwTrpQ');
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwDOPwTrpc4CviGR');
+
+    // 其他常规推荐设置
+    script.setAttribute('data-mapping', 'pathname');           // 用页面路径匹配评论帖
+    script.setAttribute('data-strict', '0');                   // 若无匹配帖则创建新帖
+    script.setAttribute('data-reactions-enabled', '1');        // 启用表情反应
+    script.setAttribute('data-emit-metadata', '0');            // 不输出元数据
+    script.setAttribute('data-input-position', 'top');         // 输入框在评论上方
+    script.setAttribute('data-theme', theme);                
+    script.setAttribute('data-lang', 'zh-CN');                 // 中文界面
+    script.setAttribute('crossorigin', 'anonymous');           // 跨域资源安全
+    script.async = true;                                       
+     
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector('.toggleBtn'),
+      document.getElementById('mobile-toggle-theme')
+    ];
+    buttons.forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

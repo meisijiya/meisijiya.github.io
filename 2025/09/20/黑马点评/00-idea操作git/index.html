@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,进,房间门">
+
+
+<title>00-idea操作git | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">老江湖的博客</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">文章</a>
+                
+                <a class="menu-item" href="/category">分类</a>
+                
+                <a class="menu-item" href="/tag">标签</a>
+                
+                <a class="menu-item" href="/timeLine">时间线</a>
+                
+                <a class="menu-item" href="/about">关于</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">老江湖的博客</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">文章</a>
+                
+                <a class="menu-item" href="/category">分类</a>
+                
+                <a class="menu-item" href="/tag">标签</a>
+                
+                <a class="menu-item" href="/timeLine">时间线</a>
+                
+                <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">00-idea操作git</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >九月 20, 2025&nbsp;&nbsp;21:30:55</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84%E7%AC%94%E8%AE%B0/">黑马点评笔记</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><hr>
+<h2 id="常见指令"><a href="#常见指令" class="headerlink" title="常见指令"></a>常见指令</h2><p><img src="/images/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/image-20250920110038797.png" alt="image-20250920110038797.png"></p>
+<h2 id="IDEA中的git菜单选项详解"><a href="#IDEA中的git菜单选项详解" class="headerlink" title="IDEA中的git菜单选项详解"></a>IDEA中的git菜单选项详解</h2><p><img src="/images/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/image-20250920112451308.png" alt="image-20250920112451308.png"></p>
+<p>以下是对该 Git 相关菜单中各选项的详细解释（以常见 IDE 如 IntelliJ IDEA 的 Git 集成为例）：</p>
+<h3 id="1-提交-I-…（Ctrl-K）"><a href="#1-提交-I-…（Ctrl-K）" class="headerlink" title="1. 提交 (I)…（Ctrl+K）"></a>1. 提交 (I)…（<code>Ctrl+K</code>）</h3><ul>
+<li>功能：将<strong>本地工作区</strong>的修改提交到<strong>本地 Git 仓库</strong>。</li>
+<li>操作：点击后弹出 “提交” 窗口，可选择要提交的文件、填写提交信息（如功能更新、问题修复的描述），最终在本地仓库生成一条新的提交记录（但不影响远程仓库）。</li>
+</ul>
+<h3 id="2-推送…（Ctrl-Shift-K）"><a href="#2-推送…（Ctrl-Shift-K）" class="headerlink" title="2. 推送…（Ctrl+Shift+K）"></a>2. 推送…（<code>Ctrl+Shift+K</code>）</h3><ul>
+<li>功能：将<strong>本地仓库</strong>的提交推送到<strong>远程仓库</strong>（如 GitHub、GitLab 等）。</li>
+<li>场景：本地多次<code>commit</code>后，通过 “推送” 一次性把这些提交同步到远程，远程仓库会完整保留本地的多条提交记录（每条提交的哈希、信息、时间都会记录）。</li>
+</ul>
+<h3 id="3-更新项目-U-…（Ctrl-T）"><a href="#3-更新项目-U-…（Ctrl-T）" class="headerlink" title="3. 更新项目 (U)…（Ctrl+T）"></a>3. 更新项目 (U)…（<code>Ctrl+T</code>）</h3><ul>
+<li>功能：拉取远程仓库的最新更新，并<strong>自动合并</strong>到本地当前分支（相当于 “拉取 + 合并” 的组合操作）。</li>
+<li>作用：确保本地代码与远程仓库的最新状态同步，常用于多人协作时更新他人的提交。</li>
+</ul>
+<h3 id="4-拉取…"><a href="#4-拉取…" class="headerlink" title="4. 拉取…"></a>4. 拉取…</h3><ul>
+<li>功能：从远程仓库<strong>拉取最新提交到本地仓库</strong>，但<strong>不自动合并</strong>到当前工作分支。</li>
+<li>特点：仅更新本地的 “远程分支引用”，如需合并到当前工作分支，需后续手动执行 “合并” 操作（或用 “更新项目”）。</li>
+</ul>
+<h3 id="5-提取"><a href="#5-提取" class="headerlink" title="5. 提取"></a>5. 提取</h3><ul>
+<li>功能：类似<code>git fetch</code>，从远程仓库获取提交对象、分支信息等，但<strong>完全不影响本地工作分支</strong>（更偏向 “底层数据同步”，一般用于精细控制或调试，普通开发更常用 “拉取” 或 “更新项目”）。</li>
+</ul>
+<h3 id="6-合并…"><a href="#6-合并…" class="headerlink" title="6. 合并…"></a>6. 合并…</h3><ul>
+<li>功能：将<strong>指定分支</strong>的提交合并到<strong>当前分支</strong>。</li>
+<li>场景：比如在<code>feature</code>分支开发后，要把<code>master</code>分支的最新代码合并进来，或把<code>feature</code>分支合并到<code>master</code>准备发布。合并时会自动处理（或提示解决）冲突。</li>
+</ul>
+<h3 id="7-变基…"><a href="#7-变基…" class="headerlink" title="7. 变基…"></a>7. 变基…</h3><ul>
+<li>功能：执行<code>git rebase</code>操作，将当前分支的提交 “变基” 到目标分支的最新提交上，使提交历史更<strong>线性整洁</strong>。</li>
+<li>对比 “合并”：合并会产生 “合并提交”，而<strong>变基会重写提交历史</strong>（把当前分支的提交 “接” 在目标分支最新提交之后），更适合多人协作时保持分支历史清晰。</li>
+<li>git多次提交到本地仓库,然后一次性提交到远程仓库,远程仓库会记录到多次提交<br>要消除历史提交，只保留合并后的单一提交记录，可以使用<strong>变基</strong></li>
+</ul>
+<h3 id="8-分支-B-…（Ctrl-Shift-）"><a href="#8-分支-B-…（Ctrl-Shift-）" class="headerlink" title="8. 分支 (B)…（Ctrl+Shift+）"></a>8. 分支 (B)…（<code>Ctrl+Shift+</code>）</h3><ul>
+<li>功能：分支的综合管理，包括<strong>查看所有分支、切换分支、删除分支</strong>等。</li>
+<li>操作：点击后可浏览本地 &#x2F; 远程分支列表，快速切换工作分支（如从<code>master</code>切到<code>feature/login</code>）。</li>
+</ul>
+<h3 id="9-新建分支…"><a href="#9-新建分支…" class="headerlink" title="9. 新建分支…"></a>9. 新建分支…</h3><ul>
+<li>功能：基于<strong>当前分支或指定提交</strong>，创建一个新的分支。</li>
+<li>场景：开发新功能时，从<code>master</code>分支新建<code>feature/xxx</code>分支，实现 “分支隔离开发”。</li>
+</ul>
+<h3 id="10-新建标记…"><a href="#10-新建标记…" class="headerlink" title="10. 新建标记…"></a>10. 新建标记…</h3><ul>
+<li>功能：创建 Git<strong>标签（Tag）</strong>，用于标记重要版本（如发布版本<code>v1.0.0</code>）。</li>
+<li>作用：标签是 “不可变的提交引用”，方便后续快速定位到某个版本（如回退到发布版本、生成版本包）。</li>
+</ul>
+<h3 id="11-重置-HEAD…"><a href="#11-重置-HEAD…" class="headerlink" title="11. 重置 HEAD…"></a>11. 重置 HEAD…</h3><ul>
+<li>功能：重置<code>HEAD</code>指针的位置（<code>HEAD</code>是当前分支的 “当前提交” 引用），用于<strong>撤销提交</strong>。</li>
+<li>选项：<ul>
+<li><code>--soft</code>：保留修改到 “暂存区”（可重新提交）；</li>
+<li><code>--mixed</code>（默认）：保留修改到 “工作区”（未暂存，需重新添加）；</li>
+<li><code>--hard</code>：直接丢弃修改（慎用，会丢失未提交的变更）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="12-显示-Git-日志"><a href="#12-显示-Git-日志" class="headerlink" title="12. 显示 Git 日志"></a>12. 显示 Git 日志</h3><ul>
+<li>功能：查看当前分支的<strong>提交历史</strong>，包括每个提交的哈希值、作者、时间、提交信息等。</li>
+<li>作用：用于追溯代码变更记录（如谁在什么时候改了哪部分代码）。</li>
+</ul>
+<h3 id="13-补丁文件"><a href="#13-补丁文件" class="headerlink" title="13. 补丁文件"></a>13. 补丁文件</h3><ul>
+<li>功能：生成 &#x2F; 应用 ** 补丁（Patch）** 文件，将提交的变更导出为文本文件，或从补丁文件导入变更。</li>
+<li>场景：无直接远程连接时，通过补丁分享代码变更（如给第三方提交代码时，先导出补丁再发送）。</li>
+</ul>
+<h3 id="14-未提交的更改-U"><a href="#14-未提交的更改-U" class="headerlink" title="14. 未提交的更改 (U)"></a>14. 未提交的更改 (U)</h3><ul>
+<li>功能：查看<strong>工作区中尚未提交</strong>的修改（包括新增、修改、删除的文件）。</li>
+<li>作用：提交前确认变更内容，避免误提交无关文件。</li>
+</ul>
+<h3 id="15-选定目录"><a href="#15-选定目录" class="headerlink" title="15. 选定目录"></a>15. 选定目录</h3><ul>
+<li>功能：对<strong>指定目录</strong>执行 Git 操作（如仅提交该目录下的修改、查看该目录的版本历史）。</li>
+<li>场景：大型项目中，聚焦某个模块的变更管理。</li>
+</ul>
+<h3 id="16-GitHub"><a href="#16-GitHub" class="headerlink" title="16. GitHub"></a>16. GitHub</h3><ul>
+<li>功能：与<strong>GitHub 平台集成</strong>的操作（如登录 GitHub 账号、创建远程仓库、将本地仓库关联到 GitHub 等）。</li>
+<li>作用：简化与 GitHub 的交互（如一键 “推送到 GitHub”）。</li>
+</ul>
+<h3 id="17-管理远程…"><a href="#17-管理远程…" class="headerlink" title="17. 管理远程…"></a>17. 管理远程…</h3><ul>
+<li>功能：配置<strong>远程仓库</strong>的信息（如添加、删除、修改远程仓库的 URL）。</li>
+<li>示例：本地仓库关联远程时，可通过这里设置<code>origin</code>的地址为<code>https://github.com/xxx/repo.git</code>。</li>
+</ul>
+<h3 id="18-克隆…"><a href="#18-克隆…" class="headerlink" title="18. 克隆…"></a>18. 克隆…</h3><ul>
+<li>功能：从<strong>远程仓库克隆</strong>一个完整的仓库到本地（包括所有分支、提交历史）。</li>
+<li>场景：首次获取他人 &#x2F; 团队的项目时使用。</li>
+</ul>
+<h3 id="19-VCS-操作弹出窗口…（Alt-）"><a href="#19-VCS-操作弹出窗口…（Alt-）" class="headerlink" title="19. VCS 操作弹出窗口…（Alt+）"></a>19. VCS 操作弹出窗口…（<code>Alt+</code>）</h3><ul>
+<li>功能：打开<strong>综合 VCS 操作面板</strong>，聚合更多 Git（或其他版本控制）的精细操作，方便快速访问。</li>
+</ul>
+<p>这些选项覆盖了 Git“本地提交、远程同步、分支管理、版本追溯” 等核心流程，帮助开发者在 IDE 中高效完成版本控制。</p>
+<h2 id="Git-提交历史右键菜单"><a href="#Git-提交历史右键菜单" class="headerlink" title="Git 提交历史右键菜单"></a>Git 提交历史右键菜单</h2><p><img src="/images/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/image-20250920113236657.png" alt="image-20250920113236657.png"></p>
+<p>以下是对该 Git 提交历史右键菜单各选项的详细解释（基于 IDE 如 IntelliJ IDEA 的 Git 集成）：</p>
+<h3 id="1-复制修订号（Ctrl-Alt-Shift-C）"><a href="#1-复制修订号（Ctrl-Alt-Shift-C）" class="headerlink" title="1. 复制修订号（Ctrl+Alt+Shift+C）"></a>1. 复制修订号（<code>Ctrl+Alt+Shift+C</code>）</h3><ul>
+<li>作用：复制当前提交的<strong>哈希值</strong>（Git 提交的唯一标识，形如 <code>a1b2c3...</code>）。</li>
+<li>场景：需在命令行引用该提交（如 <code>git show &lt;哈希&gt;</code>）、分享特定提交时，快速获取标识。</li>
+</ul>
+<h3 id="2-创建补丁…"><a href="#2-创建补丁…" class="headerlink" title="2. 创建补丁…"></a>2. 创建补丁…</h3><ul>
+<li>作用：将当前提交的<strong>代码变更</strong>导出为「补丁文件（<code>.patch</code>）」。</li>
+<li>场景：无直接 Git 远程连接时，通过补丁文件传递代码变更（他人可执行 <code>git apply &lt;补丁文件&gt;</code> 应用变更）。</li>
+</ul>
+<h3 id="3-优选（对应-git-cherry-pick）"><a href="#3-优选（对应-git-cherry-pick）" class="headerlink" title="3. 优选（对应 git cherry-pick）"></a>3. 优选（对应 <code>git cherry-pick</code>）</h3><ul>
+<li>作用：将当前提交（不属于当前分支）<strong>复制到当前分支</strong>，生成新提交。</li>
+<li>场景：把其他分支的 “单个有用提交”（如<code>feature</code>分支的某个修复）合并到当前分支，无需拉取整个分支。</li>
+</ul>
+<h3 id="4-签出修订"><a href="#4-签出修订" class="headerlink" title="4. 签出修订"></a>4. 签出修订</h3><ul>
+<li>作用：将工作区 &#x2F; 暂存区<strong>切换到当前提交的代码状态</strong>（即 “检出” 该提交）。</li>
+<li>场景：查看历史版本代码，或基于旧提交新建分支（如 <code>git checkout &lt;哈希&gt; -b new-branch</code>）。</li>
+</ul>
+<h3 id="5-在修订中显示仓库"><a href="#5-在修订中显示仓库" class="headerlink" title="5. 在修订中显示仓库"></a>5. 在修订中显示仓库</h3><ul>
+<li>作用：以当前提交为视角，展示<strong>仓库整体的文件结构与内容</strong>。</li>
+<li>场景：查看该提交时仓库的完整状态（哪些文件被改 &#x2F; 增 &#x2F; 删）。</li>
+</ul>
+<h3 id="6-与本地比较"><a href="#6-与本地比较" class="headerlink" title="6. 与本地比较"></a>6. 与本地比较</h3><ul>
+<li>作用：对比当前提交的代码与<strong>本地工作区</strong>的代码差异。</li>
+<li>场景：确认本地变更与历史提交是否冲突，或查看本地对历史版本的修改。</li>
+</ul>
+<h3 id="7-将当前分支重置到此处…"><a href="#7-将当前分支重置到此处…" class="headerlink" title="7. 将当前分支重置到此处…"></a>7. 将当前分支重置到此处…</h3><ul>
+<li><p>作用：把当前分支的HEAD 指针移动到当前提交，并可选择重置模式（–soft&#x2F;–mixed&#x2F;–hard</p>
+<p>）：</p>
+<ul>
+<li><code>--soft</code>：仅移动<code>HEAD</code>，变更保留在<strong>暂存区</strong>；</li>
+<li><code>--mixed</code>（默认）：移动<code>HEAD</code>，暂存区重置，变更保留在<strong>工作区</strong>；</li>
+<li><code>--hard</code>：移动<code>HEAD</code>，暂存区 &#x2F; 工作区均重置（<strong>丢弃本地未提交变更</strong>，慎用）。</li>
+</ul>
+</li>
+<li><p>场景：回退分支到历史提交，按需保留 &#x2F; 丢弃后续变更。</p>
+</li>
+</ul>
+<h3 id="8-还原提交（对应-git-revert）"><a href="#8-还原提交（对应-git-revert）" class="headerlink" title="8. 还原提交（对应 git revert）"></a>8. 还原提交（对应 <code>git revert</code>）</h3><ul>
+<li>作用：创建<strong>新提交</strong>，抵消当前提交的变更（不删除历史提交，而是 “反向修正”）。</li>
+<li>场景：已推送到远程的提交需回退时，避免改写历史（不影响协作）。</li>
+</ul>
+<h3 id="9-撤销提交…（对应-git-reset-交互）"><a href="#9-撤销提交…（对应-git-reset-交互）" class="headerlink" title="9. 撤销提交…（对应 git reset 交互）"></a>9. 撤销提交…（对应 <code>git reset</code> 交互）</h3><ul>
+<li>作用：回退当前分支到该提交之前，并交互选择如何处理后续变更（类似 “重置分支” 的友好界面）。</li>
+</ul>
+<h3 id="10-编辑提交消息…（F2）"><a href="#10-编辑提交消息…（F2）" class="headerlink" title="10. 编辑提交消息…（F2）"></a>10. 编辑提交消息…（<code>F2</code>）</h3><ul>
+<li>作用：修改当前提交的<strong>提交信息（commit message）</strong>。</li>
+<li>场景：提交后发现消息写错，若未推送到远程可直接修改；已推送则需强制推送（慎用于协作分支）。</li>
+</ul>
+<h3 id="11-Fixup…（对应-git-rebase-i-的-fixup）"><a href="#11-Fixup…（对应-git-rebase-i-的-fixup）" class="headerlink" title="11. Fixup…（对应 git rebase -i 的 fixup）"></a>11. Fixup…（对应 <code>git rebase -i</code> 的 <code>fixup</code>）</h3><ul>
+<li>作用：将当前提交<strong>合并到前一个提交</strong>，并<strong>丢弃当前提交的消息</strong>。</li>
+<li>场景：修复前一个提交的小问题，无需保留 “修复提交” 的独立记录，让历史更整洁。</li>
+</ul>
+<h3 id="12-压缩到…"><a href="#12-压缩到…" class="headerlink" title="12. 压缩到…"></a>12. 压缩到…</h3><ul>
+<li>作用：将当前提交<strong>合并到指定提交</strong>，可选择是否保留提交消息（比<code>Fixup</code>更灵活的合并）。</li>
+</ul>
+<h3 id="13-删除提交"><a href="#13-删除提交" class="headerlink" title="13. 删除提交"></a>13. 删除提交</h3><ul>
+<li>作用：从提交历史中<strong>移除当前提交</strong>（通常通过「交互式变基」实现）。</li>
+<li>注意：若提交已推送到远程，删除后需强制推送，可能影响协作。</li>
+</ul>
+<h3 id="14-从这里进行交互式变基…（对应-git-rebase-i）"><a href="#14-从这里进行交互式变基…（对应-git-rebase-i）" class="headerlink" title="14. 从这里进行交互式变基…（对应 git rebase -i）"></a>14. 从这里进行交互式变基…（对应 <code>git rebase -i</code>）</h3><ul>
+<li>作用：启动<strong>交互式变基</strong>，可对 “当前提交之后的所有提交” 进行编辑（合并、拆分、改消息等）。</li>
+<li>场景：整理提交历史（如把多个小提交合并为一个有意义的大提交），让分支历史更线性。</li>
+</ul>
+<h3 id="15-推送此前所有提交…"><a href="#15-推送此前所有提交…" class="headerlink" title="15. 推送此前所有提交…"></a>15. 推送此前所有提交…</h3><ul>
+<li>作用：将当前提交及之前<strong>所有本地未推送的提交</strong>推送到远程仓库。</li>
+<li>场景：同步本地积累的多次提交到远程。</li>
+</ul>
+<h3 id="16-新建分支…"><a href="#16-新建分支…" class="headerlink" title="16. 新建分支…"></a>16. 新建分支…</h3><ul>
+<li>作用：基于<strong>当前提交</strong>创建新分支。</li>
+<li>场景：从历史版本开始开发新功能，或保存当前提交的状态到独立分支。</li>
+</ul>
+<h3 id="17-新建标记…（对应-git-tag）"><a href="#17-新建标记…（对应-git-tag）" class="headerlink" title="17. 新建标记…（对应 git tag）"></a>17. 新建标记…（对应 <code>git tag</code>）</h3><ul>
+<li>作用：为当前提交创建<strong>Git 标签</strong>（如<code>v1.0.0</code>），标记重要版本。</li>
+<li>场景：标记发布版本、里程碑，方便后续快速定位。</li>
+</ul>
+<h3 id="18-转到子提交（向左箭头）"><a href="#18-转到子提交（向左箭头）" class="headerlink" title="18. 转到子提交（向左箭头）"></a>18. 转到子提交（向左箭头）</h3><ul>
+<li>作用：在提交历史的 “父子关系” 中，切换到当前提交的<strong>子提交</strong>（即基于当前提交后续创建的提交）。</li>
+<li>场景：浏览提交历史的 “后续发展”。</li>
+</ul>
+<h3 id="19-转到父提交（向右箭头）"><a href="#19-转到父提交（向右箭头）" class="headerlink" title="19. 转到父提交（向右箭头）"></a>19. 转到父提交（向右箭头）</h3><ul>
+<li>作用：切换到当前提交的<strong>父提交</strong>（即当前提交基于哪个提交创建）。</li>
+<li>场景：回溯提交历史的 “来源”。</li>
+</ul>
+<h3 id="20-在-GitHub-上打开"><a href="#20-在-GitHub-上打开" class="headerlink" title="20. 在 GitHub 上打开"></a>20. 在 GitHub 上打开</h3><ul>
+<li>作用：若项目托管在 GitHub，在浏览器中打开<strong>当前提交的 GitHub 网页详情</strong>。</li>
+<li>场景：快速查看该提交在 GitHub 上的变更、讨论等信息。</li>
+</ul>
+<h2 id="这些选项覆盖了-Git“提交管理、历史编辑、分支-标签操作”-等核心场景，帮助在-IDE-中高效操作版本控制。"><a href="#这些选项覆盖了-Git“提交管理、历史编辑、分支-标签操作”-等核心场景，帮助在-IDE-中高效操作版本控制。" class="headerlink" title="这些选项覆盖了 Git“提交管理、历史编辑、分支 &#x2F; 标签操作” 等核心场景，帮助在 IDE 中高效操作版本控制。"></a>这些选项覆盖了 Git“提交管理、历史编辑、分支 &#x2F; 标签操作” 等核心场景，帮助在 IDE 中高效操作版本控制。</h2></div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>永久链接:</span>
+        <span><a href="https://meisijiya.github.io/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/00-idea%E6%93%8D%E4%BD%9Cgit/">https://meisijiya.github.io/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/00-idea%E6%93%8D%E4%BD%9Cgit/</a></span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span>Do you believe in <strong>DESTINY</strong>? <br> 如有侵权请告知删除🙏</span>
+      </p>
+      
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/git/"># git</a>
+          
+          <a href="/tags/idea/"># idea</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+       
+      <a class="next" rel="next" href="/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/01-%E6%80%BB%E8%A7%88/"
+        >01-总览</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem;"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById('giscus-container');
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = '';
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute('data-repo', 'meisijiya/meisijiya.github.io');
+
+   // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute('data-repo-id', 'R_kgDOPwTrpQ');
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwDOPwTrpc4CviGR');
+
+    // 其他常规推荐设置
+    script.setAttribute('data-mapping', 'pathname');           // 用页面路径匹配评论帖
+    script.setAttribute('data-strict', '0');                   // 若无匹配帖则创建新帖
+    script.setAttribute('data-reactions-enabled', '1');        // 启用表情反应
+    script.setAttribute('data-emit-metadata', '0');            // 不输出元数据
+    script.setAttribute('data-input-position', 'top');         // 输入框在评论上方
+    script.setAttribute('data-theme', theme);                
+    script.setAttribute('data-lang', 'zh-CN');                 // 中文界面
+    script.setAttribute('crossorigin', 'anonymous');           // 跨域资源安全
+    script.async = true;                                       
+     
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector('.toggleBtn'),
+      document.getElementById('mobile-toggle-theme')
+    ];
+    buttons.forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

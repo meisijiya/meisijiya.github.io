@@ -1,0 +1,794 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>老江湖来咯</title>
+    <url>/2025/09/16/%E8%80%81%E6%B1%9F%E6%B9%96%E6%9D%A5%E5%92%AF/</url>
+    <content><![CDATA[<p>老江湖来咯，哈哈哈哈哈哈哈哈哈哈</p>
+]]></content>
+      <categories>
+        <category>碎碎念</category>
+      </categories>
+      <tags>
+        <tag>开心</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>记录搭建博客流程😗</title>
+    <url>/2025/09/16/%E8%AE%B0%E5%BD%95%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%B5%81%E7%A8%8B%F0%9F%98%97/</url>
+    <content><![CDATA[<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p><strong>记录一下博客搭建流程，为了能够以后更好的复现。</strong></p>
+<h1 id="框架及工具"><a href="#框架及工具" class="headerlink" title="框架及工具"></a>框架及工具</h1><ol>
+<li><strong>前端框架：hexo</strong></li>
+<li><strong>后台管理系统插件：hexo pro</strong></li>
+<li><strong>静态网站托管：github page</strong></li>
+<li><strong>免费的 CDN 加速站点：cloudflare</strong></li>
+</ol>
+<h1 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h1><p><strong>需要准备 node 环境和 git</strong></p>
+<p><strong>可以使用到 node 的版本管理工具****nvm</strong> 来下载 node。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 访问 nvm 的 GitHub 仓库页面：https://github.com/nvm-sh/nvm</span><br><span class="line"># 可以在 Releases 页面（https://github.com/coreybutler/nvm-windows/releases）找到 nvm-setup.zip 安装文件并下载。</span><br><span class="line"># 解压并运行安装程序，按照提示进行安装。</span><br><span class="line"># nvm -v可以检查是否安装成功</span><br><span class="line"></span><br><span class="line">#NVM换源</span><br><span class="line">将如下代码加入settings.txt文件中。</span><br><span class="line">node_mirror: https://npmmirror.com/mirrors/node</span><br><span class="line">npm_mirror: https://npmmirror.com/mirrors/npm</span><br><span class="line"></span><br><span class="line">#NVM命令</span><br><span class="line">nvm version                # 查看NVM版本，是否安装成功</span><br><span class="line">nvm list available         # 查看可安装的node版本</span><br><span class="line">nvm list                   # 查看已安装的node版本</span><br><span class="line">nvm install 版本号          # 安装node</span><br><span class="line">nvm uninstall 版本号        # 卸载node</span><br><span class="line">nvm use 版本号              # 切换使用node版本</span><br><span class="line">nvm current                # 当前使用node版本</span><br><span class="line">nvm node_mirror [url]      # 切换node镜像[https://npm.taobao.org/mirrors/node/]</span><br><span class="line">nvm npm_mirror [url]       # 切换npm镜像[https://npm.taobao.org/mirrors/npm/]</span><br><span class="line">nvm alias default version  # 设置默认版本 </span><br><span class="line"></span><br><span class="line">#其他</span><br><span class="line">npm install -g yarn           # 全局安装yarn</span><br><span class="line">npm install -g gitbook-cli   # 全局安装gitbook</span><br></pre></td></tr></table></figure>
+
+<p><strong>通过 nvm 下载前需要把已经安装的 node 卸载</strong></p>
+<p><strong>可以通过 Geek 卸载</strong><a href="https://geekuninstaller.com/download">Geek Uninstaller - Download</a></p>
+<p><strong>通过 nvm 来下载：</strong></p>
+<p><strong>1.打开终端（Windows 上是命令提示符或 PowerShell）</strong></p>
+<p><strong>2.</strong><code>nvm list available</code> 这个可以列出可以安装的 node 所有的版本</p>
+<p><strong>3.选择您想要安装的版本，例如安装 Node.js 版本 16.18.0 ，输入以下命令：</strong><code>nvm install 16.18.0</code></p>
+<p><strong>4.然后可以使用 nvm list 查看自己下载的版本</strong></p>
+<p><strong>5.nvm use 16.18.0 安装完成后，可以使用命令切换到已安装的版本</strong></p>
+<p><strong>6.再次 node -v 就可以看到安装的版本了</strong></p>
+<h1 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h1><h2 id="初始化-hexo-项目"><a href="#初始化-hexo-项目" class="headerlink" title="初始化 hexo 项目"></a>初始化 hexo 项目</h2><p><strong>先安装 Hexo</strong><a href="https://hexo.io/zh-cn/docs/">文档 | Hexo</a></p>
+<p><code>npm install -g hexo-cli</code></p>
+<p><strong>创建文件夹，并进入到该文件夹的命令提示符（cmd）</strong></p>
+<p><strong>输入</strong><code>hexo init</code> 项目就会初始化</p>
+<p><strong>出现</strong>Start blogging with Hexo!<strong>表示成功</strong></p>
+<p><strong>紧接着执行</strong><code>npm install</code></p>
+<p><strong>初始化后，您的项目文件夹将如下所示：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── _config.yml   #hexo的主配置文件</span><br><span class="line">├── package.json    #项目的依赖管理文件</span><br><span class="line">├── scaffolds   #模板文件夹</span><br><span class="line">├── source  #资源文件夹</span><br><span class="line">|   ├── _drafts #存放草稿文章</span><br><span class="line">|   └── _posts  #存放已经发布的文章</span><br><span class="line">└── themes  #主题文件夹</span><br></pre></td></tr></table></figure>
+
+<p><strong>本地部署指令：</strong><code>hexo server</code> 或 <code>hexo s</code></p>
+<p><img src="/images/image_1758027855954.png" alt="image_1758027855954.png"></p>
+<p><strong>访问 🔗，即可看到刚刚部署的网页了。</strong></p>
+<h2 id="安装-hexo-pro-插件"><a href="#安装-hexo-pro-插件" class="headerlink" title="安装 hexo pro 插件"></a>安装 hexo pro 插件</h2><p><a href="https://github.com/wuzheng228/hexo-pro?tab=readme-ov-file">wuzheng228&#x2F;hexo-pro</a></p>
+<p><strong>接下来安装 hexo pro 插件</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 1. 安装 Hexo Pro 插件</span><br><span class="line">npm install --save hexo-pro</span><br><span class="line"># 2. 启动 Hexo 服务器</span><br><span class="line">hexo server</span><br><span class="line"># 3. 访问后台管理页面</span><br><span class="line">http://localhost:4000/pro/</span><br></pre></td></tr></table></figure>
+
+<p><strong>界面如下：</strong></p>
+<p><img src="/images/image_1758027894359.png" alt="image_1758027894359.png"></p>
+<p><strong>接下来我们就可以在这个系统里轻松地上传内容、更改配置、部署。</strong></p>
+<h2 id="更改-hexo-配置"><a href="#更改-hexo-配置" class="headerlink" title="更改 hexo 配置"></a>更改 hexo 配置</h2><p><strong>更改</strong><code>_config.yml</code> 的配置内容的操作自行根据官网文档来改。这边不多赘述。</p>
+<p><a href="https://hexo.io/zh-cn/docs/configuration">配置 | Hexo</a></p>
+<h2 id="配置-github-pages"><a href="#配置-github-pages" class="headerlink" title="配置 github pages"></a>配置 github pages</h2><p><a href="https://docs.github.com/zh/pages">GitHub Pages 文档 - GitHub 文档</a></p>
+<p><strong>首先默认大家有 GitHub 账户。</strong></p>
+<h3 id="创建仓库（官网非常详细，我就粘下来啦）"><a href="#创建仓库（官网非常详细，我就粘下来啦）" class="headerlink" title="创建仓库（官网非常详细，我就粘下来啦）"></a>创建仓库（官网非常详细，我就粘下来啦）</h3><ol>
+<li><strong>在任何页面的右上角，选择 ，然后单击“新建存储库”。</strong><br><img src="https://docs.github.com/assets/cb-29762/images/help/repository/repo-create-global-nav-update.png" alt="GitHub 下拉菜单的屏幕截图，其中显示了用于创建新项的选项。 菜单项“新建存储库”用深橙色框标出。"></li>
+<li>**输入 **<code>username.github.io</code> 作为存储库名称。 将 <code>username</code> 替换为你的 GitHub 用户名。 例如，如果用户名为 <code>octocat</code>，则存储库名称应为 <code>octocat.github.io</code>。<br><img src="https://docs.github.com/assets/cb-48480/images/help/pages/create-repository-name-pages.png" alt="存储库中 GitHub Pages 设置的屏幕截图。 存储库名称字段包含文本“octocat.github.io”，并用深橙色框出。"></li>
+<li><strong>选择仓库可见性。 有关详细信息，请参阅“</strong><a href="https://docs.github.com/zh/repositories/creating-and-managing-repositories/about-repositories#about-repository-visibility">关于仓库</a>”。<strong>（默认 public）</strong></li>
+<li><strong>选择“使用 README 初始化此存储库”。****（可选）</strong></li>
+<li><strong>单击“创建存储库”。</strong></li>
+</ol>
+<h3 id="部署代码"><a href="#部署代码" class="headerlink" title="部署代码"></a>部署代码</h3><h4 id="连接-GitHub-的两种方式"><a href="#连接-GitHub-的两种方式" class="headerlink" title="连接 GitHub 的两种方式"></a>连接 GitHub 的两种方式</h4><h5 id="第一种使用-HTTPS-连接"><a href="#第一种使用-HTTPS-连接" class="headerlink" title="第一种使用 HTTPS 连接"></a>第一种使用 HTTPS 连接</h5><p><strong>复制 GitHub 链接</strong></p>
+<p><img src="/images/image_1758027908938.png" alt="image_1758027908938.png"></p>
+<h5 id="第二种使用-SSH-连接"><a href="#第二种使用-SSH-连接" class="headerlink" title="第二种使用 SSH 连接"></a>第二种使用 SSH 连接</h5><p><strong>如果选择 SSH 则需要</strong><a href="https://docs.github.com/zh/authentication/connecting-to-github-with-ssh">通过 SSH 连接到 GitHub - GitHub 文档</a></p>
+<ol>
+<li><p><strong>执行以下命令生成 ssh 公钥，此公钥用于你的计算机连接 Github</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ssh-keygen -t rsa -C &quot;你的邮箱&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>如下：</strong></p>
+<p><img src="/images/image_1758027942801.png" alt="image_1758027942801.png"></p>
+<p><strong>之后打开 C 盘下用户文件夹下的.ssh 的文件夹，会看到 id_rsa.pub</strong></p>
+<p><strong>用记事本打开上述图片中的公钥（id_rsa.pub），复制里面的内容，然后开始在 github 中配置 ssh 密钥。</strong></p>
+</li>
+<li><p><strong>将 SSH KEY 配置到 GitHub</strong> <strong>进入 github，点击右上角头像 选择</strong><code>settings</code>，进入设置页后选择 <code>SSH and GPG keys</code>，名字随便起，公钥填到 <code>Key</code> 那一栏。</p>
+</li>
+<li><p><strong>测试连接，输入以下命令</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ssh -T git@github.com</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/image_1758027954099.png" alt="image_1758027954099.png"></p>
+<p><strong>出现连接到账户的信息，说明已经大功告成。</strong></p>
+</li>
+</ol>
+<h4 id="配置连接方式"><a href="#配置连接方式" class="headerlink" title="配置连接方式"></a>配置连接方式</h4><p>注意：通过Hexo Pro部署目前只能通过HTTPS的链接。</p>
+<p><strong>接下来只需要修改_config.yml 中最后一行的 deploy 的属性</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  type: git </span><br><span class="line">  repo: #粘贴刚才所复制的HTTPS链接</span><br><span class="line">  branch: main #注意是main，不是master</span><br><span class="line">  message: &#x27;Site updated: &#123;&#123; now(&quot;YYYY-MM-DD HH:mm:ss&quot;) &#125;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：</strong> yml 格式的文件，对应低一级的字段要在上级字段前至少空两格</p>
+<p><strong>现在我们在部署这栏中填写我们的仓库地址</strong></p>
+<p><img src="/images/image_1758027963812.png" alt="image_1758027963812.png"></p>
+<p><strong>仓库地址格式: username&#x2F;repository</strong></p>
+<p><strong>紧接着点击执行部署即可。</strong></p>
+<p><strong>然后就可以访问啦。😁</strong></p>
+<h5 id="使用ssh部署，只能通过命令行"><a href="#使用ssh部署，只能通过命令行" class="headerlink" title="使用ssh部署，只能通过命令行"></a>使用ssh部署，只能通过命令行</h5><p>也是先把仓库链接填上</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: git@github.com:meisijiya/meisijiya.github.io.git</span><br><span class="line">  branch: main</span><br><span class="line">  message: &#x27;Site updated: &#123;&#123; now(&quot;YYYY-MM-DD HH:mm:ss&quot;) &#125;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>部署的命令如下：</p>
+<ol>
+<li>hexo clean：删除之前生成的文件，若未生成过静态文件，可忽略此命令。</li>
+<li>hexo generate：生成静态文章，可以用 <code>hexo g</code> 缩写</li>
+<li>hexo deploy：部署文章，可以用 <code>hexo d</code> 缩写</li>
+</ol>
+<h4 id="以下内容备用（一般执行完上面的步骤就可以了）"><a href="#以下内容备用（一般执行完上面的步骤就可以了）" class="headerlink" title="以下内容备用（一般执行完上面的步骤就可以了）"></a>以下内容备用（一般执行完上面的步骤就可以了）</h4><ol>
+<li><p><strong>在存储库名称下，单击 “设置”。 如果看不到“设置”选项卡，请选择“”下拉菜单，然后单击“设置”。</strong><br><img src="https://docs.github.com/assets/cb-28260/images/help/repository/repo-actions-settings.png" alt="存储库标头的屏幕截图，其中显示了选项卡。 “设置”选项卡以深橙色边框突出显示。"></p>
+</li>
+<li><p><strong>在边栏的“代码和自动化”部分中，单击“ Pages”。</strong></p>
+</li>
+<li><p><strong>在“生成和部署”的“源”下，选择“从分支进行部署”。</strong></p>
+</li>
+<li><p><strong>在“生成和部署”的“分支”下，使用分支下拉菜单并选择发布源。</strong><br><img src="https://docs.github.com/assets/cb-47265/images/help/pages/publishing-source-drop-down.png" alt="GitHub 存储库中 Pages 设置的屏幕截图。 用于为发布源选择分支的菜单（标有“无”）用深橙色框出。"><br><strong>8、9 的操作如下：</strong></p>
+<p><img src="/images/image_1758027982247.png" alt="image_1758027982247.png"></p>
+</li>
+<li><p>（可选）打开存储库的<code>README.md</code> 文件。 <code>README.md</code> 文件是你将为站点编写内容的位置。 您可以编辑文件或暂时保留默认内容。</p>
+</li>
+<li><p>访问 <code>username.github.io</code> 以查看新网站。 请注意，对站点的更改在推送到 GitHub 后，最长可能需要 10 分钟才会发布。</p>
+</li>
+</ol>
+<h3 id="更改标题和说明（粘自官网）"><a href="#更改标题和说明（粘自官网）" class="headerlink" title="更改标题和说明（粘自官网）"></a>更改标题和说明（粘自官网）</h3><p>默认情况下，站点的标题为 <code>username.github.io</code>。 可通过编辑存储库中的 <code>_config.yml</code> 文件来更改标题。 您还可以为您的网站添加说明。</p>
+<ol>
+<li><strong>单击存储库的“代码”选项卡。</strong></li>
+<li>在文件列表中，单击 <code>_config.yml</code> 以打开该文件。</li>
+<li><strong>单击 编辑文件。</strong></li>
+<li><code>_config.yml</code> 文件已包含指定站点主题的行。 添加一个新行，其中 <code>title:</code> 后跟所需的标题。 添加一个新行，其中 <code>description:</code> 后跟所需的描述。 例如：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">theme: jekyll-theme-minimal</span><br><span class="line">title: Octocat&#x27;s homepage</span><br><span class="line">description: Bookmark this to keep an eye on my project updates!</span><br></pre></td></tr></table></figure></li>
+<li><strong>编辑完文件后，单击“提交更改”。</strong></li>
+</ol>
+<h2 id="购买域名并更换域名"><a href="#购买域名并更换域名" class="headerlink" title="购买域名并更换域名"></a>购买域名并更换域名</h2><h3 id="域名购买"><a href="#域名购买" class="headerlink" title="域名购买"></a>域名购买</h3><p><strong>参考如下：</strong><a href="https://blog.csdn.net/weixin_69912448/article/details/139128729">全网最全的域名解析和网站备案-CSDN 博客</a></p>
+<h3 id="替换域名"><a href="#替换域名" class="headerlink" title="替换域名"></a>替换域名</h3><p><img src="/images/image_1758028036322.png" alt="image_1758028036322.png"></p>
+<p><strong>每次 deploy 的时候这里都会被重置为空</strong></p>
+<p><strong>解决方法是在你博客项目下的****public 文件夹</strong>中创建一个名为 <strong>CNAME</strong> 的文件,注意，该文件无后缀。</p>
+<p><strong>用文本编辑器打开并填入你的域名（注意，不需要加入 https:&#x2F;&#x2F;，只需要域名）</strong></p>
+<p><strong>这样就不用每部署一次就来填写一次自己的域名了。</strong></p>
+<p><strong>此时访问你的域名，就会直接跳转到你的 github page 项目中。</strong></p>
+<h2 id="使用-cloudflare-做-cdn-加速"><a href="#使用-cloudflare-做-cdn-加速" class="headerlink" title="使用 cloudflare 做 cdn 加速"></a>使用 cloudflare 做 cdn 加速</h2><p><strong>当然也有别的选择如，Vercel、Netlify、Railway、Render、Fleek、Zeabur</strong></p>
+<p>**这里我选择 cloudflare  **<a href="https://dash.cloudflare.com/">https://dash.cloudflare.com/</a></p>
+<p><strong>在</strong><code>账户主页</code> 那一栏，点击 <code>加入域</code></p>
+<p><img src="/images/image_1758028126256.png" alt="image_1758028126256.png"></p>
+<p><strong>添加域名，然后点继续，接着选择免费计划即可。</strong></p>
+<p><strong>接下来添加 DNS 记录</strong></p>
+<p><strong>点击添加记录</strong></p>
+<p><strong>名称一栏填 @，地址填下面出现的四个 ip 地址</strong></p>
+<p><img src="/images/image_1758028177924.png" alt="image_1758028177924.png"></p>
+<p><img src="/images/image_1758028187146.png" alt="image_1758028187146.png"></p>
+<p><strong>使域名指向 github 的 IPv4 地址，这四个 IP（</strong><code>185.199.108.153</code>、<code>185.199.109.153</code>、<code>185.199.110.153</code>、<code>185.199.111.153</code>）是 GitHub Pages 官方指定的用于内容分发的 IP，配置后域名会指向 GitHub 的服务器，从而能访问部署在 GitHub Pages 上的内容。</p>
+<p>**保持后等待即可，因为 **<strong>DNS 解析依赖 “缓存” 和 “全球节点同步”</strong>，这两个机制决定了配置变更不会立即生效。</p>
+<h1 id="进阶–使用-Chic-主题"><a href="#进阶–使用-Chic-主题" class="headerlink" title="进阶–使用 Chic 主题"></a>进阶–使用 Chic 主题</h1><p><a href="https://hexo.io/themes/">Themes | Hexo</a></p>
+<p><strong>选择喜欢的主题，点击进入开发者产品的 readme 来一步一步配置即可。</strong></p>
+<p><strong>我选择 Chic 这个主题，因为简单哈哈哈，当然也简洁美。🥰</strong></p>
+<p><a href="https://github.com/Siricee/hexo-theme-Chic/blob/master/README-CN.md">hexo-theme-Chic&#x2F;README-CN.md at master · Siricee&#x2F;hexo-theme-Chic</a></p>
+<p><strong>操作步骤</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd your-blog/themes #进入到themes文件夹中</span><br><span class="line"></span><br><span class="line">git clone https://github.com/Siricee/hexo-theme-Chic.git Chic #打开cmd，然后输入该指令克隆即可</span><br><span class="line"></span><br><span class="line">// Modify theme setting in _config.yml to Chic.</span><br><span class="line">###需要我们在主配置文件_config.yml中，修改theme的值为Chic</span><br></pre></td></tr></table></figure>
+
+<p><strong>然后我们可以看到&#x2F;theme&#x2F;Chic 这个文件夹中有_config.yml 配置文件，修改值来改变样式即可</strong></p>
+<p><strong>添加 Tag、Category 页面</strong></p>
+<p><strong>Hexo 初始化没有 tag、category 页面，需要自行添加，本主题请按以下步骤进行:</strong></p>
+<p><strong>执行命令</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hexo new page tag</span><br><span class="line">hexo new page category</span><br></pre></td></tr></table></figure>
+
+<p><strong>进入页面目录</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd source/tag</span><br></pre></td></tr></table></figure>
+
+<p><strong>增加 layout 字段</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// source\tag\index.md</span><br><span class="line">---</span><br><span class="line">title: Tag</span><br><span class="line">layout: tag</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p><strong>category 页面同理，layout 字段键值为 category。</strong></p>
+<h1 id="剩下的内容再更新吧，谢谢观看"><a href="#剩下的内容再更新吧，谢谢观看" class="headerlink" title="剩下的内容再更新吧，谢谢观看"></a>剩下的内容再更新吧，谢谢观看</h1>]]></content>
+      <categories>
+        <category>搭建博客</category>
+      </categories>
+      <tags>
+        <tag>学习记录</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>新增评论功能</title>
+    <url>/2025/09/17/%E6%96%B0%E5%A2%9E%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD/</url>
+    <content><![CDATA[<h1 id="使用giscus增加博客评论功能"><a href="#使用giscus增加博客评论功能" class="headerlink" title="使用giscus增加博客评论功能"></a>使用giscus增加博客评论功能</h1><p>利用 <a href="https://docs.github.com/en/discussions">GitHub Discussions</a> 实现的评论系统</p>
+<ul>
+<li><a href="https://github.com/giscus/giscus">开源</a>。🌏</li>
+<li>无跟踪，无广告，永久免费。📡 🚫</li>
+<li>无需数据库。所有数据均储存在 GitHub Discussions 中。:octocat:</li>
+<li>支持<a href="https://github.com/giscus/giscus/blob/main/ADVANCED-USAGE.md#data-theme">自定义主题</a>！🌗</li>
+<li>支持<a href="https://github.com/giscus/giscus/blob/main/CONTRIBUTING.md#adding-localizations">多种语言</a>。🌐</li>
+<li><a href="https://github.com/giscus/giscus/blob/main/ADVANCED-USAGE.md">高可配置性</a>。🔧</li>
+<li>自动从 GitHub 拉取新评论与编辑。🔃</li>
+<li><a href="https://github.com/giscus/giscus/blob/main/SELF-HOSTING.md">可自建服务</a>！🤳</li>
+</ul>
+<p>不同主题不同配置方法</p>
+<p>以下是大佬的文章：</p>
+<p><a href="https://jachinzhang1.github.io/2025/02/04/hexo%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F/">hexo 博客添加评论系统 | Jachin’s Blog</a></p>
+<h1 id="附上适合本主题的大佬链接"><a href="#附上适合本主题的大佬链接" class="headerlink" title="附上适合本主题的大佬链接"></a>附上适合本主题的大佬链接</h1><p><a href="https://evannzhongg.github.io/2025/03/24/Hexo-and-Chic-themes-add-Giscus-comment-system/#Hexo-Chic-%E4%B8%BB%E9%A2%98%E9%9B%86%E6%88%90-Giscus-%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F%E8%AF%A6%E7%BB%86%E6%95%99%E7%A8%8B">Hexo and Chic themes add Giscus comment system | Hexo</a></p>
+]]></content>
+      <categories>
+        <category>搭建博客</category>
+      </categories>
+      <tags>
+        <tag>学习记录</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>02-短信登录-基于session方案</title>
+    <url>/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/02-%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95-%E5%9F%BA%E4%BA%8Esession%E6%96%B9%E6%A1%88/</url>
+    <content><![CDATA[<hr>
+<h1 id="前置：基于Session实现登录"><a href="#前置：基于Session实现登录" class="headerlink" title="前置：基于Session实现登录"></a>前置：基于Session实现登录</h1><h2 id="HttpSession-对象"><a href="#HttpSession-对象" class="headerlink" title="HttpSession 对象"></a>HttpSession 对象</h2><p><a href="https://baike.baidu.com/item/HttpSession/3159840?fr=aladdin">HttpSession_百度百科</a> <a href="https://www.runoob.com/servlet/servlet-session-tracking.html">Servlet Session 跟踪 | 菜鸟教程</a></p>
+<p>Servlet提供了HttpSession接口，该接口中提供了一种跨多个页面请求或访问网站时识别用户以及存储有关用户信息的方式。<br>Servlet 容器使用这个接口来创建一个 HTTP 客户端和 HTTP 服务器之间的 session 会话。会话持续一个指定的时间段，跨多个连接或页面请求。</p>
+<h2 id="RestController"><a href="#RestController" class="headerlink" title="@RestController"></a>@RestController</h2><p>结合了 <code>@Controller</code> 和 <code>@ResponseBody</code>。<br>被被标记的类中，每个方法的返回值都会以JSON或XML的形式直接写入HTTP响应体中（@ResponseBody）。<br>@Controller处理客户端发起的请求，并负责返回适当的视图（View）作为响应，搭配上@ResponseBody，使得以方法的返回值作为响应的主题内容，而不是解析为视图。</p>
+<h2 id="Spring中处理HTTP请求映射的注解"><a href="#Spring中处理HTTP请求映射的注解" class="headerlink" title="Spring中处理HTTP请求映射的注解"></a>Spring中处理HTTP请求映射的注解</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/users&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span>&#123; <span class="meta">@PostMapping(&quot;/create&quot;)</span>/<span class="meta">@GetMapping(&quot;list&quot;)</span></span><br><span class="line"><span class="keyword">public</span> XXX  xxx&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>@<strong>RequestMapping</strong></p>
+<p>将web请求映射到具体方法上，标注在方法上。也可标注在类上，标注在类上时，表示类中所有响应请求的方法都是以该路径为父路径。</p>
+<p>@<strong>PostMapping</strong></p>
+<p>组合注解。<br>是<code>@RequestMapping(method=RequestMethod.POST)</code>的缩写。它用于处理HTTP POST请求的方法，只能标注在方法上。使用<code>@PostMapping</code>注解的方法将仅响应POST请求。</p>
+<p>@<strong>GetMapping</strong></p>
+<p>组合注解。<br>是<code>@RequestMapping(method = RequestMethod.GET)</code>的缩写。它用于处理HTTP GET请求的方法，也只能标注在方法上。使用<code>@GetMapping</code>注解的方法将仅响应GET请求。</p>
+<h2 id="SpringMVC接收前端传递的参数的注解"><a href="#SpringMVC接收前端传递的参数的注解" class="headerlink" title="SpringMVC接收前端传递的参数的注解"></a>SpringMVC接收前端传递的参数的注解</h2><p><code>@RequestParam</code> 和 <code>@RequestBody </code>都是从 <code>HttpServletRequest request</code> 中取参的，而 <code>@PathVariable</code> 是映射 URI 请求参数中的占位符到目标方法的参数中的.</p>
+<ol>
+<li><p>@<strong>RequestParam</strong>  请求格式为：<code>http://...?...=...&amp;...=...</code><br>接收参数如下</p>
+<ul>
+<li>defaultValue 如果本次请求没有携带这个参数，或者参数为空，那么就会启用默认值</li>
+<li>name 绑定本次参数的名称，要跟URL上面的一样</li>
+<li>required 这个参数不是必须的，如果为 true，不传参数会报错</li>
+<li>value 跟name一样的作用，是name属性的一个别名</li>
+</ul>
+</li>
+<li><p>@<strong>RequestBody</strong>  两种接收方式： 一种是建立与 JSON 数据与之对应的实体，二是直接使用 Map&lt;String,Object&gt; 对象接收。<br>使用需要满足如下条件：</p>
+<ul>
+<li>Content-Type 为 application&#x2F;json，确保传递是 JSON 数据；</li>
+<li>参数转化的配置必须统一，否则无法接收数据，比如 json、request 混用等</li>
+</ul>
+</li>
+<li><p>@<strong>PathVariable</strong>     请求格式：<code>.../&#123;&#125;/&#123;&#125;</code>同<code>.../&#123;&#125;?...=...</code><br> 接收参数如下</p>
+<ul>
+<li>name 绑定参数的名称，<strong>默认不传递时，绑定为同名的形参。</strong> 赋值但名称不一致时则报错</li>
+<li>value 跟name一样的作用，是name属性的一个别名</li>
+<li>required 这个参数不是必须的，如果为 true，不传参数会报错</li>
+</ul>
+<p>需要注意两点：</p>
+<ul>
+<li>参数接收类型使用<strong>基本类型</strong></li>
+<li>如果@PathVariable标明参数名称，则<strong>参数名称必须和URL中参数名称一致</strong></li>
+</ul>
+</li>
+</ol>
+<p>1、在 GET 请求中可以使用 <strong>@RequestParam</strong>，不能使用 @RequestBody，@RequestBody 是用来获取请求体中的参数，因为 GET 请求没有请求体，所以不能使用。</p>
+<p>2.在post请求中</p>
+<ul>
+<li>@RequestParam 适用于获取<u><strong>键值对</strong></u>形式的请求参数，来源包括 URL 查询字符串、application&#x2F;x-www-form-urlencoded 格式的请求体（表单默认格式）、multipart&#x2F;form-data 格式中的普通字段（非文件类型）。</li>
+<li>@RequestBody 用于接收请求体中的完整数据，适用于<u><strong>非键值</strong></u>对形式的结构化数据（如 application&#x2F;json、application&#x2F;xml 等），通过消息转换器将请求体内容解析为目标 Java 对象。</li>
+<li>特殊场景：multipart&#x2F;form-data 格式中的文件上传需用 @RequestPart；<br>application&#x2F;x-www-form-urlencoded 格式为键值对结构，不适合用 @RequestBody 接收（会得到原始字符串，非推荐用法）。</li>
+</ul>
+<p>3、一个方法中，可以同时使用<strong>多个</strong> @RequestParam ，但是只能使用<strong>一个</strong> @RequestBody，否则会报错。</p>
+<p>4、@PathVariable 起到的作用就是 URI 请求参数中的<u>占位符</u>到<u>目标方法参数</u>的映射。</p>
+<p>5、前端请求的  Content-Type ，<strong>默认值</strong>为 <code>application/x-www-form-urlencoded</code>，在这种格式下，后端直接使用 @RequestParam 就可以直接获取指定的参数，但是一旦前端传递的是 JSON 数据，也就是 Content-Type 的值为 <code>application/json</code>，那么使用 @RequestParam 是取不到值的，不但取不到值还报错。</p>
+<h2 id="Mybatis-plus"><a href="#Mybatis-plus" class="headerlink" title="Mybatis-plus"></a>Mybatis-plus</h2><p>优秀的 ORM 框架，致力于简化和提高 Java 应用程序对数据库访问的效率。</p>
+<h3 id="Transactional"><a href="#Transactional" class="headerlink" title="@Transactional"></a>@Transactional</h3><p>只能应用到接口方法、类、还有public方法上。<br>一般在@service标记的类上添加，可以将整个service类纳入Spring事务管理，采用统一的事务管理方式。</p>
+<p>常用属性总结：</p>
+<ul>
+<li><code>propagation</code>：控制事务传播行为（如是否复用父事务），默认<code>REQUIRED</code>；</li>
+<li><code>isolation</code>：设置事务隔离级别（解决并发问题），默认用数据库默认值；</li>
+<li><code>rollbackFor</code>&#x2F;<code>noRollbackFor</code>：指定需要 &#x2F; 不需要回滚的异常类型；</li>
+<li><code>readOnly</code>：标记只读事务（优化查询性能），默认<code>false</code>；</li>
+<li><code>timeout</code>：设置事务超时时间（防止长事务，单位秒），默认无限制。</li>
+</ul>
+<h3 id="BaseMapper、IService和ServiceImpl"><a href="#BaseMapper、IService和ServiceImpl" class="headerlink" title="BaseMapper、IService和ServiceImpl"></a>BaseMapper、IService和ServiceImpl</h3><p>在典型的三层架构中：</p>
+<ul>
+<li>Controller 层：接收请求、返回结果</li>
+<li>Service 层：业务逻辑编排</li>
+<li>DAO 层 (Mapper)：直接操作数据库</li>
+</ul>
+<p>MyBatis-Plus 提供了 BaseMapper 简化了 DAO 层的 CRUD，而在 Service 层，通常需要编写一堆相似的增删改查逻辑。为此，MyBatis-Plus 提供了 IService 接口 + ServiceImpl 实现类，将通用逻辑抽象出来。</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">IService&lt;T&gt;   ←——  通用 Service 接口（定义通用方法）</span><br><span class="line">   ↑</span><br><span class="line">ServiceImpl&lt;M extends BaseMapper&lt;T&gt;, T&gt;   ←——  通用 Service 实现类</span><br><span class="line">   ↑</span><br><span class="line">自定义 Service 实现类（继承 ServiceImpl）</span><br></pre></td></tr></table></figure>
+
+<h5 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h5><ol>
+<li>必须继承 ServiceImpl 吗？</li>
+</ol>
+<ul>
+<li>不是必须。你也可以只用 BaseMapper，在 Controller 里直接调用。但这样会让业务层缺失，代码耦合度较高，推荐通过 ServiceImpl 来隔离业务逻辑与持久化。</li>
+</ul>
+<ol start="2">
+<li>如果要写自定义方法怎么办？</li>
+</ol>
+<ul>
+<li>直接在 Service 接口和实现类中新增即可</li>
+</ul>
+<ol start="3">
+<li>与 Mapper 的关系？</li>
+</ol>
+<ul>
+<li>Mapper：最贴近数据库，负责 SQL 层</li>
+<li>ServiceImpl：封装 Mapper，并为业务提供统一接口</li>
+</ul>
+<h5 id="最佳实践："><a href="#最佳实践：" class="headerlink" title="最佳实践："></a>最佳实践：</h5><ul>
+<li>接口分离：定义 Service 接口，避免直接在 Controller 注入 ServiceImpl</li>
+<li>扩展业务逻辑：在继承的 ServiceImpl 上增加自己的方法，不要随意修改通用方法</li>
+<li>批量操作：使用 saveBatch、updateBatchById 提升性能</li>
+<li>LambdaQueryWrapper：结合 ServiceImpl 的查询方法，写法更简洁安全</li>
+</ul>
+<h4 id="BaseMapper"><a href="#BaseMapper" class="headerlink" title="BaseMapper"></a>BaseMapper</h4><p>主要作用是定义 DAO 层的数据库操作方法，例如数据的增删改查等。</p>
+<p>通过智能的SQL生成机制，只要继承并指定对应的实体类，即可直接使用这些通用方法，无需手动编写 SQL 语句，从而减少了代码量和重复劳动。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 定义一个继承 BaseMapper 的自定义 Mapper 接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">XXXMapper</span> <span class="keyword">extends</span> <span class="title class_">BaseMapper</span>&lt;xxx&gt; &#123;</span><br><span class="line">    <span class="comment">// 无需手写SQL，Mybatis-Plus 根据命名规范自动生成SQL</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="IService"><a href="#IService" class="headerlink" title="IService"></a>IService</h4><p>将常见的业务操作抽象化，包括保存、删除、更新、查询等。通过继承 <code>IService</code> 接口，并指定对应的实体类，即可直接使用这些通用方法，无需手动编写业务逻辑代码，使得代码更加简洁和易于维护。</p>
+<p>封装的方法分为七类：save、remove、update、get、list、count、page（分页查询）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 定义一个继承 IService 的自定义 Service 接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">XXXService</span> <span class="keyword">extends</span> <span class="title class_">IService</span>&lt;xxx&gt; &#123;</span><br><span class="line">    <span class="comment">// 定义常用的业务逻辑方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="ServiceImpl"><a href="#ServiceImpl" class="headerlink" title="ServiceImpl"></a>ServiceImpl</h4><p>是 <code>IService</code> 接口的默认实现。是针对业务逻辑层的实现，并调用 BaseMapper 来操作数据库。还额外赋予了一些更加高级的查询操作，如 <code>lambdaQuery</code>、<code>page</code> 等</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//源码</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ServiceImpl</span>&lt;M <span class="keyword">extends</span> <span class="title class_">BaseMapper</span>&lt;T&gt;, T&gt; <span class="keyword">implements</span> <span class="title class_">IService</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">protected</span> M baseMapper;    </span><br><span class="line">    <span class="comment">//...方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>常见方法如下：</strong></p>
+<ol>
+<li>新增</li>
+</ol>
+<ul>
+<li>save(T entity)</li>
+<li>saveBatch(Collection<T> entityList)</li>
+<li>saveOrUpdate(T entity)</li>
+</ul>
+<ol start="2">
+<li>删除</li>
+</ol>
+<ul>
+<li>removeById(Serializable id)</li>
+<li>removeByIds(Collection&lt;? extends Serializable&gt; idList)</li>
+<li>remove(Wrapper<T> queryWrapper)</li>
+</ul>
+<ol start="3">
+<li>修改</li>
+</ol>
+<ul>
+<li>updateById(T entity)</li>
+<li>update(T entity, Wrapper<T> updateWrapper)</li>
+<li>updateBatchById(Collection<T> entityList)</li>
+</ul>
+<ol start="4">
+<li>查询</li>
+</ol>
+<ul>
+<li>getById(Serializable id)</li>
+<li>listByIds(Collection&lt;? extends Serializable&gt; idList)</li>
+<li>list(Wrapper<T> queryWrapper)</li>
+<li>page(Page<T> page, Wrapper<T> queryWrapper)</li>
+<li>getOne(Wrapper<T> queryWrapper)</li>
+</ul>
+<ol start="5">
+<li>统计与判断</li>
+</ol>
+<ul>
+<li>count()</li>
+<li>exists(Wrapper<T> queryWrapper)</li>
+</ul>
+<p><code>ServiceImpl</code> 对事务管理提供了支持。通过 <code>@Transactional</code> 注解，能够轻松地实现事务的控制。</p>
+<p>实践代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 在业务逻辑实现中继承 ServiceImpl，轻松构建业务方法</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">XXXServiceImpl</span> <span class="keyword">extends</span> <span class="title class_">ServiceImpl</span>&lt;M, T&gt; <span class="keyword">implements</span> <span class="title class_">XXXService</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>传入的参数为 M 和 T：</p>
+<ul>
+<li>M：Mapper 接口类型</li>
+<li>T：对应实体类的类型</li>
+</ul>
+<h3 id="Wrapper"><a href="#Wrapper" class="headerlink" title="Wrapper"></a>Wrapper</h3><ul>
+<li>不直接关联 Mapper 接口，需手动传递给 Mapper 方法执行查询。</li>
+<li>需调用 Mapper 方法（如 <code>selectList(wrapper)</code>）</li>
+<li>分两步：先构建条件，再调用 Mapper</li>
+<li>运用于复杂逻辑（如条件复用、动态判断）</li>
+</ul>
+<h4 id="QueryWrapper"><a href="#QueryWrapper" class="headerlink" title="QueryWrapper"></a>QueryWrapper</h4><p>查询构造器，通过链式调用，灵活直观地进行复杂SQL查询，而无需手动编写SQL语句。不直接关联 Mapper 接口，需手动传递给 Mapper 方法执行查询。</p>
+<p>操作流程：</p>
+<ol>
+<li>创建QueryWrapper实例<br><code>QueryWrapper&lt;实体类（代表数据库中的一张表）&gt; wrapper = new QueryWrapper&lt;&gt;()</code></li>
+<li>添加查询条件（方法），支持链式调用<ol>
+<li><code>eq</code>：等于  <code>ne</code>：不等于</li>
+<li><code>gt</code>：大于  <code>ge</code>：大于等于</li>
+<li><code>lt</code>：小于  <code>le</code>：小于等于</li>
+<li><code>(not)like(left/right)</code>：模糊匹配 <code>(not)between</code> 区间</li>
+<li><code>(not)in</code>：(不)在某个集合中</li>
+<li><code>and</code>   <code>or</code></li>
+<li><code>nested</code> - 嵌套条件</li>
+<li><code>orderby</code> 排序</li>
+<li><code>select</code></li>
+<li><code>last</code>在 SQL 末尾追加自定义片段  <code>apply</code>添加动态SQL片段</li>
+</ol>
+</li>
+<li>执行查询<br>构造好的QueryWrapper，通过传递给Mybatis-Plus的Mapper接口方法来执行查询。<br><code>返回值  x = xxxMapper.xxx方法(wrapper)</code></li>
+</ol>
+<h5 id="QueryWrapper与其他Wrapper的区别"><a href="#QueryWrapper与其他Wrapper的区别" class="headerlink" title="QueryWrapper与其他Wrapper的区别"></a>QueryWrapper与其他Wrapper的区别</h5><ul>
+<li><p>QueryWrapper：专注于构建 SELECT 查询的条件。</p>
+</li>
+<li><p>UpdateWrapper：用于构建 UPDATE 语句，支持条件和 SET 子句。（set）</p>
+</li>
+<li><p>LambdaQueryWrapper：QueryWrapper 的 Lambda 版本，使用 Lambda 表达式指定字段。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 效果同QueryWrapper示例，但用Lambda引用字段</span></span><br><span class="line">LambdaQueryWrapper&lt;User&gt; lambdaQuery = <span class="keyword">new</span> <span class="title class_">LambdaQueryWrapper</span>&lt;&gt;();</span><br><span class="line">lambdaQuery.gt(User::getAge, <span class="number">18</span>)  <span class="comment">// 用Lambda表达式引用字段，编译期检查</span></span><br><span class="line">           .like(User::getUsername, <span class="string">&quot;张&quot;</span>);</span><br><span class="line">List&lt;User&gt; userList = userMapper.selectList(lambdaQuery);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>LambdaUpdateWrapper：UpdateWrapper 的 Lambda 版本。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 效果同UpdateWrapper示例，用Lambda引用字段</span></span><br><span class="line">LambdaUpdateWrapper&lt;User&gt; lambdaUpdate = <span class="keyword">new</span> <span class="title class_">LambdaUpdateWrapper</span>&lt;&gt;();</span><br><span class="line">lambdaUpdate.set(User::getAge, <span class="number">20</span>)</span><br><span class="line">            .set(User::getStatus, <span class="number">1</span>)</span><br><span class="line">            .eq(User::getId, <span class="number">1</span>)</span><br><span class="line">            .eq(User::getUsername, <span class="string">&quot;张三&quot;</span>);</span><br><span class="line">userMapper.update(<span class="literal">null</span>, lambdaUpdate);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="ChainWrapper"><a href="#ChainWrapper" class="headerlink" title="ChainWrapper"></a>ChainWrapper</h3><ul>
+<li>内置 Mapper，创建时绑定</li>
+<li>自带执行方法（如 <code>list()</code>、<code>update()</code>）</li>
+<li>链式调用，一步完成条件 + 执行</li>
+<li>简单查询 &#x2F; 更新，追求代码简洁</li>
+</ul>
+<h4 id="QueryChainWrapper"><a href="#QueryChainWrapper" class="headerlink" title="QueryChainWrapper"></a>QueryChainWrapper</h4><p><strong><code>query()</code> 方法</strong>是 <code>BaseMapper</code> 接口提供的一个默认方法</p>
+<ol>
+<li>快速创建 <code>QueryChainWrapper</code> 实例（自动绑定当前 Mapper）；</li>
+<li>支持直接链式调用查询条件方法（<code>eq</code>、<code>like</code> 等）和执行方法（<code>list</code>、<code>one</code> 等）；</li>
+<li>让代码更简洁，减少手动创建包装器的模板代码。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 简化方式：通过 mapper.query() 获取 QueryChainWrapper</span></span><br><span class="line">List&lt;User&gt; users = userMapper.query()  <span class="comment">// 直接获取链式查询包装器</span></span><br><span class="line">    .eq(<span class="string">&quot;status&quot;</span>, <span class="number">1</span>)</span><br><span class="line">    .list();</span><br></pre></td></tr></table></figure>
+
+<p><strong>query() 方法与 Service 层的结合</strong></p>
+<p>在 Service 实现类中（通常继承 <code>ServiceImpl&lt;M extends BaseMapper&lt;T&gt;, T&gt;</code>），调用 <code>BaseMapper</code> 提供的 <code>query()</code> 方法，获取 <code>QueryChainWrapper&lt;User&gt;</code> 实例，进一步简化代码。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">User user=query().eq(<span class="string">&quot;phone&quot;</span>,phone).one();</span><br></pre></td></tr></table></figure>
+
+<p><strong>若不用链式查询，等价代码如下</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">QueryWrapper&lt;User&gt; queryWrapper = <span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;&gt;();</span><br><span class="line">queryWrapper.eq(<span class="string">&quot;phone&quot;</span>, phone);</span><br><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userMapper.selectOne(queryWrapper); <span class="comment">// 手动调用 Mapper 方法</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>QueryChainWrapper：</strong></p>
+<ul>
+<li><p><strong>作用</strong>：用于构建查询条件（<code>WHERE</code>、<code>ORDER BY</code> 等），并直接执行查询操作（如查询列表、单条数据、数量等）。</p>
+</li>
+<li><p>核心方法：</p>
+<ul>
+<li>条件方法：<code>eq()</code>（等于）、<code>like()</code>（模糊查询）、<code>orderBy()</code>（排序）等（与 <code>QueryWrapper</code> 一致）。</li>
+<li>执行方法：<code>list()</code>（查询列表）、<code>one()</code>（查询单条）、<code>count()</code>（查询数量）等。</li>
+</ul>
+</li>
+<li><pre><code class="java">// 常规方法，链式查询：查询name为&quot;张三&quot;且age≥18的用户列表
+List&lt;User&gt; users = new QueryChainWrapper&lt;&gt;(userMapper)
+    .eq(&quot;name&quot;, &quot;张三&quot;)
+    .ge(&quot;age&quot;, 18)
+    .orderByDesc(&quot;create_time&quot;)
+    .list(); // 直接执行查询
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">#### UpdateChainWrapper</span><br><span class="line"></span><br><span class="line">- **作用**：用于构建更新条件（`SET` 字段值 + `WHERE` 条件），并直接执行更新操作。</span><br><span class="line"></span><br><span class="line">- 核心方法：</span><br><span class="line"></span><br><span class="line">  - 字段方法：`set()`（设置更新字段）、`setSql()`（直接写 SQL 片段）等。</span><br><span class="line">  - 条件方法：`eq()`、`in()` 等（与 `UpdateWrapper` 一致）。</span><br><span class="line">  - 执行方法：`update()`（执行更新）。</span><br><span class="line"></span><br><span class="line">- ```java</span><br><span class="line">  // 链式更新：将name为&quot;张三&quot;的用户age改为20</span><br><span class="line">  boolean success = new UpdateChainWrapper&lt;&gt;(userMapper)</span><br><span class="line">      .set(&quot;age&quot;, 20)</span><br><span class="line">      .eq(&quot;name&quot;, &quot;张三&quot;)</span><br><span class="line">      .update(); // 直接执行更新</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+<h2 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h2><p>在 Tomcat 处理 HTTP 请求的流程中，<strong>每个用户请求都会由 Tomcat 线程池中的</strong>「独立线程」<strong>处理</strong>（线程从池内取出 → 处理请求 → 用完回收）。由于不同用户的请求由<strong>不同线程</strong>执行，且线程会经过 <code>Controller</code>、<code>Service</code>、<code>DAO</code> 等多层组件调用，此时需要一种机制，让 <strong>“当前请求的专属数据” 能在线程内的各组件间共享，同时又不与其他线程的请求数据冲突</strong> —— 这正是 <code>ThreadLocal</code> 的核心价值。</p>
+<p><u><strong>ThreadLocal的作用与适配性</strong>：</u></p>
+<p><code>ThreadLocal</code> 的原理是 <strong>为每个线程维护一份「独立的变量副本」</strong>：</p>
+<p>当 Tomcat 的工作线程开始处理请求时，会把「当前请求的上下文数据」（比如用户身份信息、事务管理器、自定义的请求作用域数据等）存入 <code>ThreadLocal</code>；</p>
+<p>之后，在该线程执行过程中（从 <code>Controller</code> 接收参数，到 <code>Service</code> 处理业务，再到 <code>DAO</code> 操作数据库），所有组件都能从 <code>ThreadLocal</code> 中获取 <strong>“当前请求专属”</strong> 的数据，且不会与其他线程（其他用户的请求）的数据产生冲突。</p>
+<p><u><strong>总结</strong>：</u></p>
+<p>因为 “每个用户请求对应独立线程” 的特性，<code>ThreadLocal</code> 能让<strong>每个线程只操作自己的那份数据</strong>，既保证了 “同一请求内多组件共享数据”，又天然实现了 “线程隔离”，完美适配 Web 应用中 “请求 - 线程 - 多组件协作” 的场景。</p>
+<h2 id="拦截器HandlerInterceptor"><a href="#拦截器HandlerInterceptor" class="headerlink" title="拦截器HandlerInterceptor"></a>拦截器HandlerInterceptor</h2><p>Spring MVC 的 HandlerInterceptor 是贯彻 AOP 思想、用于拦截 Spring MVC 请求的核心组件，仅作用于 Spring MVC 处理的请求，生命周期由 Spring 管理，可在<strong>请求到 Controller 前、Controller 执行后、视图渲染完成后</strong>三个阶段插入自定义逻辑，实现权限验证、日志记录、资源清理等横切需求。</p>
+<p>其核心有 3 个方法：</p>
+<ul>
+<li><code>preHandle</code>（正序执行）：请求前置处理，返回<code>true</code>则继续请求，<code>false</code>则中断，常用于登录校验；</li>
+<li><code>postHandle</code>（逆序执行）：Controller 执行后、视图渲染前处理，可修改<code>ModelAndView</code>，如加全局数据；</li>
+<li><code>afterCompletion</code>（逆序执行）：请求全流程结束后执行（无论成败），用于资源清理，如关连接、清<code>ThreadLocal</code>。</li>
+</ul>
+<p>拦截器通过<code>HandlerExecutionChain</code>封装成链，执行规则为 “preHandle 正序、后两个方法逆序”；与 Servlet Filter 相比，它对 Spring MVC 请求控制更精细，配置依赖<code>WebMvcConfigurer</code>，还可通过<code>Ordered</code>&#x2F;<code>@Order</code>排序、<code>MappedInterceptor</code>动态匹配路径，优化时需避免耗时操作、控制作用范围。</p>
+<p>要使拦截器生效，需要配置拦截器<br>需要在实现了WebMvcConfigurer的配置类（@Configuration），编写addInterceptors(InterceptroRegistry registry)方法，使用注册器registry通过addInterceptor方法来配置拦截路径。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.InterceptorRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.WebMvcConfigurer;</span><br><span class="line"><span class="comment">// 拦截器配置类（@Configuration 标记为Spring配置类）</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MvcInterceptorConfig</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 注册拦截器，并配置拦截/排除路径</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 注册自定义的LoginInterceptor</span></span><br><span class="line">        registry.addInterceptor(<span class="keyword">new</span> <span class="title class_">LoginInterceptor</span>())</span><br><span class="line">                <span class="comment">// 2. 配置「需要拦截」的路径（Ant风格，/** 表示所有请求）</span></span><br><span class="line">                .addPathPatterns(<span class="string">&quot;/**&quot;</span>) </span><br><span class="line">                <span class="comment">// 3. 配置「不需要拦截」的路径（排除登录、静态资源等）</span></span><br><span class="line">                .excludePathPatterns(</span><br><span class="line">                        <span class="string">&quot;/login&quot;</span>,          <span class="comment">// 登录接口（未登录时需访问，不拦截）</span></span><br><span class="line">                        <span class="string">&quot;/register&quot;</span>,       <span class="comment">// 注册接口（同理不拦截）</span></span><br><span class="line">                        <span class="string">&quot;/static/**&quot;</span>,      <span class="comment">// 静态资源（CSS、JS、图片等，不拦截）</span></span><br><span class="line">                        <span class="string">&quot;/error&quot;</span>           <span class="comment">// 错误页面（如404、500，不拦截）</span></span><br><span class="line">                );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>若需注册多个拦截器（如 “登录拦截器”+“日志拦截器”），可在 <code>addInterceptors</code> 中多次调用</p>
+<h2 id="使用Hutool工具类进行对象属性拷贝"><a href="#使用Hutool工具类进行对象属性拷贝" class="headerlink" title="使用Hutool工具类进行对象属性拷贝"></a>使用Hutool工具类进行对象属性拷贝</h2><p>Hutool 提供了 <code>BeanUtil</code> 和 <code>CollUtil</code> 工具类，可简洁实现实体类对象及 List 集合的属性拷贝（相同属性值复制），无需手动编写 set&#x2F;get 代码。</p>
+<p>以下是具体实现方式：</p>
+<ol>
+<li><p>实体类对象拷贝（单个对象）</p>
+<p>使用 <code>BeanUtil.copyProperties</code> 方法，自动复制两个对象间名称和类型相同的属性。</p>
+</li>
+<li><p>List 集合拷贝（批量对象）</p>
+<p>通过 <code>BeanUtil.copyProperties</code> 结合流处理，批量拷贝集合中所有对象的属性。</p>
+</li>
+</ol>
+<p>拷贝规则：</p>
+<ul>
+<li>仅复制<strong>名称和类型均相同</strong>的属性（类型需兼容，如 <code>int</code> 与 <code>Integer</code> 可互转）。</li>
+<li>目标对象中独有的属性（如 <code>UserDTO</code> 的 <code>extra</code>）会被忽略，源对象中独有的属性也不会影响目标对象。</li>
+</ul>
+<p>注意事项：</p>
+<ul>
+<li>若属性名不同，可通过 <code>BeanUtil.copyProperties</code> 的重载方法自定义映射规则（如 <code>CopyOptions</code>）。</li>
+</ul>
+<h2 id="隐藏用户信息"><a href="#隐藏用户信息" class="headerlink" title="隐藏用户信息"></a>隐藏用户信息</h2><p>前后端数据交互的标准最佳实践：</p>
+<p>通过DTO对象类进行前后端传递数据。entity类负责跟数据库交换数据。</p>
+<ul>
+<li>Entity 类（与数据库交互，含敏感字段）</li>
+<li>DTO 类（前后端传输，隐藏敏感信息）</li>
+</ul>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><h3 id="发送验证码"><a href="#发送验证码" class="headerlink" title="发送验证码"></a>发送验证码</h3><p>IUserService声明，UserServiceImpl实现</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">sendCode</span><span class="params">(String phone, HttpSession session)</span> &#123;</span><br><span class="line">    <span class="comment">// 1.校验手机号</span></span><br><span class="line">    <span class="keyword">if</span> (RegexUtils.isPhoneInvalid(phone)) &#123;</span><br><span class="line">        <span class="comment">// 2.如果不符合，返回错误信息</span></span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;手机号格式错误！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 3.符合，生成验证码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> RandomUtil.randomNumbers(<span class="number">6</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4.保存验证码到 session</span></span><br><span class="line">    session.setAttribute(<span class="string">&quot;code&quot;</span>,code);</span><br><span class="line">    <span class="comment">// 5.发送验证码</span></span><br><span class="line">    log.debug(<span class="string">&quot;发送短信验证码成功，验证码：&#123;&#125;&quot;</span>, code);</span><br><span class="line">    <span class="comment">// 返回ok</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"> <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">public</span> Result <span class="title function_">login</span><span class="params">(LoginFormDTO loginForm, HttpSession session)</span> &#123;</span><br><span class="line">       <span class="comment">// 1.校验手机号</span></span><br><span class="line">       <span class="type">String</span> <span class="variable">phone</span> <span class="operator">=</span> loginForm.getPhone();</span><br><span class="line">       <span class="keyword">if</span> (RegexUtils.isPhoneInvalid(phone)) &#123;</span><br><span class="line">           <span class="comment">// 2.如果不符合，返回错误信息</span></span><br><span class="line">           <span class="keyword">return</span> Result.fail(<span class="string">&quot;手机号格式错误！&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">// 3.校验验证码</span></span><br><span class="line">       <span class="type">Object</span> <span class="variable">cacheCode</span> <span class="operator">=</span> session.getAttribute(<span class="string">&quot;code&quot;</span>);</span><br><span class="line">       <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> loginForm.getCode();</span><br><span class="line">       <span class="keyword">if</span>(cacheCode == <span class="literal">null</span> || !cacheCode.toString().equals(code))&#123;</span><br><span class="line">           <span class="comment">//3.不一致，报错</span></span><br><span class="line">           <span class="keyword">return</span> Result.fail(<span class="string">&quot;验证码错误&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">// 4.验证码一致，查询用户</span></span><br><span class="line">       User user=query().eq(<span class="string">&quot;phone&quot;</span>,phone).one();</span><br><span class="line">       <span class="keyword">if</span>(user == <span class="literal">null</span>)&#123;</span><br><span class="line">           <span class="comment">// 5.用户不存在，创建</span></span><br><span class="line">           user =  createUserWithPhone(phone);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//6.保护用户信息到session</span></span><br><span class="line">       session.setAttribute(<span class="string">&quot;user&quot;</span>,user);</span><br><span class="line">       <span class="comment">//7.返回ok</span></span><br><span class="line">       <span class="keyword">return</span> Result.ok();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> User <span class="title function_">createUserWithPhone</span><span class="params">(String phone)</span> &#123;</span><br><span class="line">       <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">       user.setPhone(phone);</span><br><span class="line">       <span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="登录校验拦截器"><a href="#登录校验拦截器" class="headerlink" title="登录校验拦截器"></a>登录校验拦截器</h3><p>拦截器代码，在utils包下创建</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoginInterceptor</span> <span class="keyword">implements</span> <span class="title class_">HandlerInterceptor</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterCompletion</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//1.获取session</span></span><br><span class="line">        <span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> request.getSession();</span><br><span class="line">        <span class="comment">//2.获取session中的用户</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">user</span> <span class="operator">=</span> session.getAttribute(<span class="string">&quot;user&quot;</span>);</span><br><span class="line">        <span class="comment">//3.判断用户是否存在</span></span><br><span class="line">        <span class="keyword">if</span>(user != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">//4.不存在就拦截，返回401状态码</span></span><br><span class="line">            response.setStatus(<span class="number">401</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//5.存在,保存用户信息到ThreadLocal</span></span><br><span class="line">        <span class="type">UserDTO</span> <span class="variable">userDTO</span> <span class="operator">=</span> BeanUtil.copyProperties(user, UserDTO.class);</span><br><span class="line">        UserHolder.saveUser(userDTO);</span><br><span class="line">        <span class="comment">//6.放行</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>添加拦截器，配置类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MvcConfig</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate stringRedisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> &#123;</span><br><span class="line">        <span class="comment">// 登录拦截器</span></span><br><span class="line">        registry.addInterceptor(<span class="keyword">new</span> <span class="title class_">LoginInterceptor</span>())</span><br><span class="line">                .excludePathPatterns(</span><br><span class="line">                        <span class="string">&quot;/shop/**&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/voucher/**&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/shop-type/**&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/upload/**&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/blog/hot&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/user/code&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/user/login&quot;</span></span><br><span class="line">                ).order(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>黑马点评笔记</category>
+      </categories>
+      <tags>
+        <tag>session</tag>
+        <tag>Hutool工具</tag>
+        <tag>Mybatis-plus</tag>
+        <tag>SpringMVC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>01-总览</title>
+    <url>/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/01-%E6%80%BB%E8%A7%88/</url>
+    <content><![CDATA[<hr>
+<h1 id="黑马点评的收获概览"><a href="#黑马点评的收获概览" class="headerlink" title="黑马点评的收获概览"></a>黑马点评的收获概览</h1><h2 id="极大的提高基础编程能力"><a href="#极大的提高基础编程能力" class="headerlink" title="极大的提高基础编程能力"></a>极大的提高基础编程能力</h2><ol>
+<li>Java8新特性<ol>
+<li><strong>stream流</strong>的用法</li>
+<li><strong>函数式编程</strong></li>
+</ol>
+</li>
+<li>深化mybatis plus<ol>
+<li>mp的高级用法，sql与api穿插解决问题</li>
+<li>mp框架的一些小问题（比如，list查id的时候，是乱序的），能够如何去优化</li>
+</ol>
+</li>
+<li>模型转换概念（pojo、entity、vo、dto、requires）</li>
+<li><strong>线程池</strong>的实际使用</li>
+<li>java阻塞队列初识</li>
+</ol>
+<h2 id="深度学习redis所有数据结构用法，深度理解缓存概念"><a href="#深度学习redis所有数据结构用法，深度理解缓存概念" class="headerlink" title="深度学习redis所有数据结构用法，深度理解缓存概念"></a>深度学习redis所有数据结构用法，深度理解缓存概念</h2><ol>
+<li>8种数据结构，每种都匹配了实际的开发需求功能</li>
+<li>对于缓存的知识讲解全面，cache aside等业界常用缓存方案</li>
+<li>深度练习springboot中的redis的api</li>
+</ol>
+<h2 id="对具体业务理解能力的提高"><a href="#对具体业务理解能力的提高" class="headerlink" title="对具体业务理解能力的提高"></a>对具体业务理解能力的提高</h2><h2 id="提高编程效率，更加高效的使用工具类，编写工具类"><a href="#提高编程效率，更加高效的使用工具类，编写工具类" class="headerlink" title="提高编程效率，更加高效的使用工具类，编写工具类"></a>提高编程效率，更加高效的使用工具类，编写工具类</h2><ol>
+<li>使用hutool工具包</li>
+<li>结合泛型高级应用与函数式编程，手搓适合自己的工具类</li>
+</ol>
+<h2 id="面试能力的提升"><a href="#面试能力的提升" class="headerlink" title="面试能力的提升"></a>面试能力的提升</h2><ol>
+<li>能够掌握分布式锁、缓存击穿、缓存穿透、缓存雪崩等面试必考点</li>
+<li>redisson源码解读，掌握redis的高级用法，看门狗机制，muti-lock机制等面试加分亮点</li>
+</ol>
+<h2 id="进阶技能拓展"><a href="#进阶技能拓展" class="headerlink" title="进阶技能拓展"></a>进阶技能拓展</h2><ol>
+<li>redis秒杀场景教学<ol>
+<li>原子性的深度理解与应用</li>
+<li>多种秒杀方案讲解，针对单体和微服务并发情况展开。</li>
+</ol>
+</li>
+<li>学会lua脚本的基本编写，了解lua脚本的使用场景。lua脚本就是做原子性的业务，也可以做在nginx服务器的脚本去调redis。</li>
+<li>学会nginx轻量服务器的搭建以及各种使用场景</li>
+<li>多级缓存的的搭建，本地缓存caffine的使用</li>
+<li>feed流的两种模式</li>
+</ol>
+<h1 id="希望我能够做到"><a href="#希望我能够做到" class="headerlink" title="希望我能够做到"></a>希望我能够做到</h1><ol>
+<li>提升业务熟练度⬆</li>
+<li>提升写sql的熟练度⬆</li>
+</ol>
+<h1 id="如何转化到自己的简历上"><a href="#如何转化到自己的简历上" class="headerlink" title="如何转化到自己的简历上"></a>如何转化到自己的简历上</h1><ol>
+<li>更换内容</li>
+<li>技术点嵌套<ol>
+<li>缓存解决方案</li>
+<li>秒杀-分布式锁</li>
+<li>多级缓存</li>
+</ol>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>黑马点评笔记</category>
+      </categories>
+      <tags>
+        <tag>学习大纲</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>00-idea操作git</title>
+    <url>/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/00-idea%E6%93%8D%E4%BD%9Cgit/</url>
+    <content><![CDATA[<hr>
+<h2 id="常见指令"><a href="#常见指令" class="headerlink" title="常见指令"></a>常见指令</h2><p><img src="/images/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/image-20250920110038797.png" alt="image-20250920110038797.png"></p>
+<h2 id="IDEA中的git菜单选项详解"><a href="#IDEA中的git菜单选项详解" class="headerlink" title="IDEA中的git菜单选项详解"></a>IDEA中的git菜单选项详解</h2><p><img src="/images/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/image-20250920112451308.png" alt="image-20250920112451308.png"></p>
+<p>以下是对该 Git 相关菜单中各选项的详细解释（以常见 IDE 如 IntelliJ IDEA 的 Git 集成为例）：</p>
+<h3 id="1-提交-I-…（Ctrl-K）"><a href="#1-提交-I-…（Ctrl-K）" class="headerlink" title="1. 提交 (I)…（Ctrl+K）"></a>1. 提交 (I)…（<code>Ctrl+K</code>）</h3><ul>
+<li>功能：将<strong>本地工作区</strong>的修改提交到<strong>本地 Git 仓库</strong>。</li>
+<li>操作：点击后弹出 “提交” 窗口，可选择要提交的文件、填写提交信息（如功能更新、问题修复的描述），最终在本地仓库生成一条新的提交记录（但不影响远程仓库）。</li>
+</ul>
+<h3 id="2-推送…（Ctrl-Shift-K）"><a href="#2-推送…（Ctrl-Shift-K）" class="headerlink" title="2. 推送…（Ctrl+Shift+K）"></a>2. 推送…（<code>Ctrl+Shift+K</code>）</h3><ul>
+<li>功能：将<strong>本地仓库</strong>的提交推送到<strong>远程仓库</strong>（如 GitHub、GitLab 等）。</li>
+<li>场景：本地多次<code>commit</code>后，通过 “推送” 一次性把这些提交同步到远程，远程仓库会完整保留本地的多条提交记录（每条提交的哈希、信息、时间都会记录）。</li>
+</ul>
+<h3 id="3-更新项目-U-…（Ctrl-T）"><a href="#3-更新项目-U-…（Ctrl-T）" class="headerlink" title="3. 更新项目 (U)…（Ctrl+T）"></a>3. 更新项目 (U)…（<code>Ctrl+T</code>）</h3><ul>
+<li>功能：拉取远程仓库的最新更新，并<strong>自动合并</strong>到本地当前分支（相当于 “拉取 + 合并” 的组合操作）。</li>
+<li>作用：确保本地代码与远程仓库的最新状态同步，常用于多人协作时更新他人的提交。</li>
+</ul>
+<h3 id="4-拉取…"><a href="#4-拉取…" class="headerlink" title="4. 拉取…"></a>4. 拉取…</h3><ul>
+<li>功能：从远程仓库<strong>拉取最新提交到本地仓库</strong>，但<strong>不自动合并</strong>到当前工作分支。</li>
+<li>特点：仅更新本地的 “远程分支引用”，如需合并到当前工作分支，需后续手动执行 “合并” 操作（或用 “更新项目”）。</li>
+</ul>
+<h3 id="5-提取"><a href="#5-提取" class="headerlink" title="5. 提取"></a>5. 提取</h3><ul>
+<li>功能：类似<code>git fetch</code>，从远程仓库获取提交对象、分支信息等，但<strong>完全不影响本地工作分支</strong>（更偏向 “底层数据同步”，一般用于精细控制或调试，普通开发更常用 “拉取” 或 “更新项目”）。</li>
+</ul>
+<h3 id="6-合并…"><a href="#6-合并…" class="headerlink" title="6. 合并…"></a>6. 合并…</h3><ul>
+<li>功能：将<strong>指定分支</strong>的提交合并到<strong>当前分支</strong>。</li>
+<li>场景：比如在<code>feature</code>分支开发后，要把<code>master</code>分支的最新代码合并进来，或把<code>feature</code>分支合并到<code>master</code>准备发布。合并时会自动处理（或提示解决）冲突。</li>
+</ul>
+<h3 id="7-变基…"><a href="#7-变基…" class="headerlink" title="7. 变基…"></a>7. 变基…</h3><ul>
+<li>功能：执行<code>git rebase</code>操作，将当前分支的提交 “变基” 到目标分支的最新提交上，使提交历史更<strong>线性整洁</strong>。</li>
+<li>对比 “合并”：合并会产生 “合并提交”，而<strong>变基会重写提交历史</strong>（把当前分支的提交 “接” 在目标分支最新提交之后），更适合多人协作时保持分支历史清晰。</li>
+<li>git多次提交到本地仓库,然后一次性提交到远程仓库,远程仓库会记录到多次提交<br>要消除历史提交，只保留合并后的单一提交记录，可以使用<strong>变基</strong></li>
+</ul>
+<h3 id="8-分支-B-…（Ctrl-Shift-）"><a href="#8-分支-B-…（Ctrl-Shift-）" class="headerlink" title="8. 分支 (B)…（Ctrl+Shift+）"></a>8. 分支 (B)…（<code>Ctrl+Shift+</code>）</h3><ul>
+<li>功能：分支的综合管理，包括<strong>查看所有分支、切换分支、删除分支</strong>等。</li>
+<li>操作：点击后可浏览本地 &#x2F; 远程分支列表，快速切换工作分支（如从<code>master</code>切到<code>feature/login</code>）。</li>
+</ul>
+<h3 id="9-新建分支…"><a href="#9-新建分支…" class="headerlink" title="9. 新建分支…"></a>9. 新建分支…</h3><ul>
+<li>功能：基于<strong>当前分支或指定提交</strong>，创建一个新的分支。</li>
+<li>场景：开发新功能时，从<code>master</code>分支新建<code>feature/xxx</code>分支，实现 “分支隔离开发”。</li>
+</ul>
+<h3 id="10-新建标记…"><a href="#10-新建标记…" class="headerlink" title="10. 新建标记…"></a>10. 新建标记…</h3><ul>
+<li>功能：创建 Git<strong>标签（Tag）</strong>，用于标记重要版本（如发布版本<code>v1.0.0</code>）。</li>
+<li>作用：标签是 “不可变的提交引用”，方便后续快速定位到某个版本（如回退到发布版本、生成版本包）。</li>
+</ul>
+<h3 id="11-重置-HEAD…"><a href="#11-重置-HEAD…" class="headerlink" title="11. 重置 HEAD…"></a>11. 重置 HEAD…</h3><ul>
+<li>功能：重置<code>HEAD</code>指针的位置（<code>HEAD</code>是当前分支的 “当前提交” 引用），用于<strong>撤销提交</strong>。</li>
+<li>选项：<ul>
+<li><code>--soft</code>：保留修改到 “暂存区”（可重新提交）；</li>
+<li><code>--mixed</code>（默认）：保留修改到 “工作区”（未暂存，需重新添加）；</li>
+<li><code>--hard</code>：直接丢弃修改（慎用，会丢失未提交的变更）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="12-显示-Git-日志"><a href="#12-显示-Git-日志" class="headerlink" title="12. 显示 Git 日志"></a>12. 显示 Git 日志</h3><ul>
+<li>功能：查看当前分支的<strong>提交历史</strong>，包括每个提交的哈希值、作者、时间、提交信息等。</li>
+<li>作用：用于追溯代码变更记录（如谁在什么时候改了哪部分代码）。</li>
+</ul>
+<h3 id="13-补丁文件"><a href="#13-补丁文件" class="headerlink" title="13. 补丁文件"></a>13. 补丁文件</h3><ul>
+<li>功能：生成 &#x2F; 应用 ** 补丁（Patch）** 文件，将提交的变更导出为文本文件，或从补丁文件导入变更。</li>
+<li>场景：无直接远程连接时，通过补丁分享代码变更（如给第三方提交代码时，先导出补丁再发送）。</li>
+</ul>
+<h3 id="14-未提交的更改-U"><a href="#14-未提交的更改-U" class="headerlink" title="14. 未提交的更改 (U)"></a>14. 未提交的更改 (U)</h3><ul>
+<li>功能：查看<strong>工作区中尚未提交</strong>的修改（包括新增、修改、删除的文件）。</li>
+<li>作用：提交前确认变更内容，避免误提交无关文件。</li>
+</ul>
+<h3 id="15-选定目录"><a href="#15-选定目录" class="headerlink" title="15. 选定目录"></a>15. 选定目录</h3><ul>
+<li>功能：对<strong>指定目录</strong>执行 Git 操作（如仅提交该目录下的修改、查看该目录的版本历史）。</li>
+<li>场景：大型项目中，聚焦某个模块的变更管理。</li>
+</ul>
+<h3 id="16-GitHub"><a href="#16-GitHub" class="headerlink" title="16. GitHub"></a>16. GitHub</h3><ul>
+<li>功能：与<strong>GitHub 平台集成</strong>的操作（如登录 GitHub 账号、创建远程仓库、将本地仓库关联到 GitHub 等）。</li>
+<li>作用：简化与 GitHub 的交互（如一键 “推送到 GitHub”）。</li>
+</ul>
+<h3 id="17-管理远程…"><a href="#17-管理远程…" class="headerlink" title="17. 管理远程…"></a>17. 管理远程…</h3><ul>
+<li>功能：配置<strong>远程仓库</strong>的信息（如添加、删除、修改远程仓库的 URL）。</li>
+<li>示例：本地仓库关联远程时，可通过这里设置<code>origin</code>的地址为<code>https://github.com/xxx/repo.git</code>。</li>
+</ul>
+<h3 id="18-克隆…"><a href="#18-克隆…" class="headerlink" title="18. 克隆…"></a>18. 克隆…</h3><ul>
+<li>功能：从<strong>远程仓库克隆</strong>一个完整的仓库到本地（包括所有分支、提交历史）。</li>
+<li>场景：首次获取他人 &#x2F; 团队的项目时使用。</li>
+</ul>
+<h3 id="19-VCS-操作弹出窗口…（Alt-）"><a href="#19-VCS-操作弹出窗口…（Alt-）" class="headerlink" title="19. VCS 操作弹出窗口…（Alt+）"></a>19. VCS 操作弹出窗口…（<code>Alt+</code>）</h3><ul>
+<li>功能：打开<strong>综合 VCS 操作面板</strong>，聚合更多 Git（或其他版本控制）的精细操作，方便快速访问。</li>
+</ul>
+<p>这些选项覆盖了 Git“本地提交、远程同步、分支管理、版本追溯” 等核心流程，帮助开发者在 IDE 中高效完成版本控制。</p>
+<h2 id="Git-提交历史右键菜单"><a href="#Git-提交历史右键菜单" class="headerlink" title="Git 提交历史右键菜单"></a>Git 提交历史右键菜单</h2><p><img src="/images/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/image-20250920113236657.png" alt="image-20250920113236657.png"></p>
+<p>以下是对该 Git 提交历史右键菜单各选项的详细解释（基于 IDE 如 IntelliJ IDEA 的 Git 集成）：</p>
+<h3 id="1-复制修订号（Ctrl-Alt-Shift-C）"><a href="#1-复制修订号（Ctrl-Alt-Shift-C）" class="headerlink" title="1. 复制修订号（Ctrl+Alt+Shift+C）"></a>1. 复制修订号（<code>Ctrl+Alt+Shift+C</code>）</h3><ul>
+<li>作用：复制当前提交的<strong>哈希值</strong>（Git 提交的唯一标识，形如 <code>a1b2c3...</code>）。</li>
+<li>场景：需在命令行引用该提交（如 <code>git show &lt;哈希&gt;</code>）、分享特定提交时，快速获取标识。</li>
+</ul>
+<h3 id="2-创建补丁…"><a href="#2-创建补丁…" class="headerlink" title="2. 创建补丁…"></a>2. 创建补丁…</h3><ul>
+<li>作用：将当前提交的<strong>代码变更</strong>导出为「补丁文件（<code>.patch</code>）」。</li>
+<li>场景：无直接 Git 远程连接时，通过补丁文件传递代码变更（他人可执行 <code>git apply &lt;补丁文件&gt;</code> 应用变更）。</li>
+</ul>
+<h3 id="3-优选（对应-git-cherry-pick）"><a href="#3-优选（对应-git-cherry-pick）" class="headerlink" title="3. 优选（对应 git cherry-pick）"></a>3. 优选（对应 <code>git cherry-pick</code>）</h3><ul>
+<li>作用：将当前提交（不属于当前分支）<strong>复制到当前分支</strong>，生成新提交。</li>
+<li>场景：把其他分支的 “单个有用提交”（如<code>feature</code>分支的某个修复）合并到当前分支，无需拉取整个分支。</li>
+</ul>
+<h3 id="4-签出修订"><a href="#4-签出修订" class="headerlink" title="4. 签出修订"></a>4. 签出修订</h3><ul>
+<li>作用：将工作区 &#x2F; 暂存区<strong>切换到当前提交的代码状态</strong>（即 “检出” 该提交）。</li>
+<li>场景：查看历史版本代码，或基于旧提交新建分支（如 <code>git checkout &lt;哈希&gt; -b new-branch</code>）。</li>
+</ul>
+<h3 id="5-在修订中显示仓库"><a href="#5-在修订中显示仓库" class="headerlink" title="5. 在修订中显示仓库"></a>5. 在修订中显示仓库</h3><ul>
+<li>作用：以当前提交为视角，展示<strong>仓库整体的文件结构与内容</strong>。</li>
+<li>场景：查看该提交时仓库的完整状态（哪些文件被改 &#x2F; 增 &#x2F; 删）。</li>
+</ul>
+<h3 id="6-与本地比较"><a href="#6-与本地比较" class="headerlink" title="6. 与本地比较"></a>6. 与本地比较</h3><ul>
+<li>作用：对比当前提交的代码与<strong>本地工作区</strong>的代码差异。</li>
+<li>场景：确认本地变更与历史提交是否冲突，或查看本地对历史版本的修改。</li>
+</ul>
+<h3 id="7-将当前分支重置到此处…"><a href="#7-将当前分支重置到此处…" class="headerlink" title="7. 将当前分支重置到此处…"></a>7. 将当前分支重置到此处…</h3><ul>
+<li><p>作用：把当前分支的HEAD 指针移动到当前提交，并可选择重置模式（–soft&#x2F;–mixed&#x2F;–hard</p>
+<p>）：</p>
+<ul>
+<li><code>--soft</code>：仅移动<code>HEAD</code>，变更保留在<strong>暂存区</strong>；</li>
+<li><code>--mixed</code>（默认）：移动<code>HEAD</code>，暂存区重置，变更保留在<strong>工作区</strong>；</li>
+<li><code>--hard</code>：移动<code>HEAD</code>，暂存区 &#x2F; 工作区均重置（<strong>丢弃本地未提交变更</strong>，慎用）。</li>
+</ul>
+</li>
+<li><p>场景：回退分支到历史提交，按需保留 &#x2F; 丢弃后续变更。</p>
+</li>
+</ul>
+<h3 id="8-还原提交（对应-git-revert）"><a href="#8-还原提交（对应-git-revert）" class="headerlink" title="8. 还原提交（对应 git revert）"></a>8. 还原提交（对应 <code>git revert</code>）</h3><ul>
+<li>作用：创建<strong>新提交</strong>，抵消当前提交的变更（不删除历史提交，而是 “反向修正”）。</li>
+<li>场景：已推送到远程的提交需回退时，避免改写历史（不影响协作）。</li>
+</ul>
+<h3 id="9-撤销提交…（对应-git-reset-交互）"><a href="#9-撤销提交…（对应-git-reset-交互）" class="headerlink" title="9. 撤销提交…（对应 git reset 交互）"></a>9. 撤销提交…（对应 <code>git reset</code> 交互）</h3><ul>
+<li>作用：回退当前分支到该提交之前，并交互选择如何处理后续变更（类似 “重置分支” 的友好界面）。</li>
+</ul>
+<h3 id="10-编辑提交消息…（F2）"><a href="#10-编辑提交消息…（F2）" class="headerlink" title="10. 编辑提交消息…（F2）"></a>10. 编辑提交消息…（<code>F2</code>）</h3><ul>
+<li>作用：修改当前提交的<strong>提交信息（commit message）</strong>。</li>
+<li>场景：提交后发现消息写错，若未推送到远程可直接修改；已推送则需强制推送（慎用于协作分支）。</li>
+</ul>
+<h3 id="11-Fixup…（对应-git-rebase-i-的-fixup）"><a href="#11-Fixup…（对应-git-rebase-i-的-fixup）" class="headerlink" title="11. Fixup…（对应 git rebase -i 的 fixup）"></a>11. Fixup…（对应 <code>git rebase -i</code> 的 <code>fixup</code>）</h3><ul>
+<li>作用：将当前提交<strong>合并到前一个提交</strong>，并<strong>丢弃当前提交的消息</strong>。</li>
+<li>场景：修复前一个提交的小问题，无需保留 “修复提交” 的独立记录，让历史更整洁。</li>
+</ul>
+<h3 id="12-压缩到…"><a href="#12-压缩到…" class="headerlink" title="12. 压缩到…"></a>12. 压缩到…</h3><ul>
+<li>作用：将当前提交<strong>合并到指定提交</strong>，可选择是否保留提交消息（比<code>Fixup</code>更灵活的合并）。</li>
+</ul>
+<h3 id="13-删除提交"><a href="#13-删除提交" class="headerlink" title="13. 删除提交"></a>13. 删除提交</h3><ul>
+<li>作用：从提交历史中<strong>移除当前提交</strong>（通常通过「交互式变基」实现）。</li>
+<li>注意：若提交已推送到远程，删除后需强制推送，可能影响协作。</li>
+</ul>
+<h3 id="14-从这里进行交互式变基…（对应-git-rebase-i）"><a href="#14-从这里进行交互式变基…（对应-git-rebase-i）" class="headerlink" title="14. 从这里进行交互式变基…（对应 git rebase -i）"></a>14. 从这里进行交互式变基…（对应 <code>git rebase -i</code>）</h3><ul>
+<li>作用：启动<strong>交互式变基</strong>，可对 “当前提交之后的所有提交” 进行编辑（合并、拆分、改消息等）。</li>
+<li>场景：整理提交历史（如把多个小提交合并为一个有意义的大提交），让分支历史更线性。</li>
+</ul>
+<h3 id="15-推送此前所有提交…"><a href="#15-推送此前所有提交…" class="headerlink" title="15. 推送此前所有提交…"></a>15. 推送此前所有提交…</h3><ul>
+<li>作用：将当前提交及之前<strong>所有本地未推送的提交</strong>推送到远程仓库。</li>
+<li>场景：同步本地积累的多次提交到远程。</li>
+</ul>
+<h3 id="16-新建分支…"><a href="#16-新建分支…" class="headerlink" title="16. 新建分支…"></a>16. 新建分支…</h3><ul>
+<li>作用：基于<strong>当前提交</strong>创建新分支。</li>
+<li>场景：从历史版本开始开发新功能，或保存当前提交的状态到独立分支。</li>
+</ul>
+<h3 id="17-新建标记…（对应-git-tag）"><a href="#17-新建标记…（对应-git-tag）" class="headerlink" title="17. 新建标记…（对应 git tag）"></a>17. 新建标记…（对应 <code>git tag</code>）</h3><ul>
+<li>作用：为当前提交创建<strong>Git 标签</strong>（如<code>v1.0.0</code>），标记重要版本。</li>
+<li>场景：标记发布版本、里程碑，方便后续快速定位。</li>
+</ul>
+<h3 id="18-转到子提交（向左箭头）"><a href="#18-转到子提交（向左箭头）" class="headerlink" title="18. 转到子提交（向左箭头）"></a>18. 转到子提交（向左箭头）</h3><ul>
+<li>作用：在提交历史的 “父子关系” 中，切换到当前提交的<strong>子提交</strong>（即基于当前提交后续创建的提交）。</li>
+<li>场景：浏览提交历史的 “后续发展”。</li>
+</ul>
+<h3 id="19-转到父提交（向右箭头）"><a href="#19-转到父提交（向右箭头）" class="headerlink" title="19. 转到父提交（向右箭头）"></a>19. 转到父提交（向右箭头）</h3><ul>
+<li>作用：切换到当前提交的<strong>父提交</strong>（即当前提交基于哪个提交创建）。</li>
+<li>场景：回溯提交历史的 “来源”。</li>
+</ul>
+<h3 id="20-在-GitHub-上打开"><a href="#20-在-GitHub-上打开" class="headerlink" title="20. 在 GitHub 上打开"></a>20. 在 GitHub 上打开</h3><ul>
+<li>作用：若项目托管在 GitHub，在浏览器中打开<strong>当前提交的 GitHub 网页详情</strong>。</li>
+<li>场景：快速查看该提交在 GitHub 上的变更、讨论等信息。</li>
+</ul>
+<h2 id="这些选项覆盖了-Git“提交管理、历史编辑、分支-标签操作”-等核心场景，帮助在-IDE-中高效操作版本控制。"><a href="#这些选项覆盖了-Git“提交管理、历史编辑、分支-标签操作”-等核心场景，帮助在-IDE-中高效操作版本控制。" class="headerlink" title="这些选项覆盖了 Git“提交管理、历史编辑、分支 &#x2F; 标签操作” 等核心场景，帮助在 IDE 中高效操作版本控制。"></a>这些选项覆盖了 Git“提交管理、历史编辑、分支 &#x2F; 标签操作” 等核心场景，帮助在 IDE 中高效操作版本控制。</h2>]]></content>
+      <categories>
+        <category>黑马点评笔记</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
+        <tag>idea</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>欢迎来到老江湖的世界</title>
+    <url>/%E6%AC%A2%E8%BF%8E%E6%9D%A5%E5%88%B0%E8%80%81%E6%B1%9F%E6%B9%96%E7%9A%84%E4%B8%96%E7%95%8C/index.html</url>
+    <content><![CDATA[<p>老江湖进房间门，这故事得从去年说起，说来话长，我们长话短说…</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>tag</title>
+    <url>/tag/index.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>category</title>
+    <url>/category/index.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>关于我</title>
+    <url>/about/index.html</url>
+    <content><![CDATA[<p>我有个可爱的女友，希望我们能够长长久久。</p>
+<p>❤️ 老江湖爱房间门。</p>
+<h2 id="博客的由来"><a href="#博客的由来" class="headerlink" title="博客的由来"></a>博客的由来</h2><p>老江湖拿来记录学习情况，以及分享老江湖和房间门的趣事。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>照片墙</title>
+    <url>/%E7%85%A7%E7%89%87%E5%A2%99/index.html</url>
+    <content><![CDATA[<p>开发中ing…</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>时间线</title>
+    <url>/timeLine/index.html</url>
+    <content><![CDATA[<h3 id="2024-10-5🎉"><a href="#2024-10-5🎉" class="headerlink" title="2024.10.5🎉"></a>2024.10.5🎉</h3><p>老江湖和房间门确认关系的日子。</p>
+<h3 id="2024-10-12"><a href="#2024-10-12" class="headerlink" title="2024.10.12"></a>2024.10.12</h3><p>老江湖给房间门过的第一个生日🎂</p>
+<h3 id="2024-10-21"><a href="#2024-10-21" class="headerlink" title="2024.10.21"></a>2024.10.21</h3><p>房间门给老江湖过的第一个生日🎂</p>
+]]></content>
+  </entry>
+</search>
