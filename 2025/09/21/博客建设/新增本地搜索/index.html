@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,进,房间门">
+
+
+<title>新增本地搜索 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container">
+          <a href="javascript:;" onclick="toggleSearchInput()">🔍</a>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">文章</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">文章</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div class="search-container mobile-container">
+          <a class="menu-item" href="javascript:;" onclick="toggleSearchInput()"
+            >🔍</a
+          >
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script>
+  var mobileBtn = function f() {
+    var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+    var mobileMenu = document.getElementById("mobile-menu");
+    if (toggleMenu.classList.contains("active")) {
+      toggleMenu.classList.remove("active");
+      mobileMenu.classList.remove("active");
+    } else {
+      toggleMenu.classList.add("active");
+      mobileMenu.classList.add("active");
+    }
+  };
+
+  function toggleSearchInput() {
+    const inputs = document.querySelectorAll(".nav-search-input");
+    const results = document.querySelectorAll(".nav-search-result");
+    inputs.forEach((input) => {
+      input.classList.toggle("active");
+      if (input.classList.contains("active")) input.focus();
+    });
+    results.forEach((r) => (r.style.display = "none"));
+  }
+
+  // 点击外部区域隐藏搜索框和结果容器的函数
+  function handleClickOutsideSearch(event) {
+    const searchContainers = document.querySelectorAll(".search-container");
+    searchContainers.forEach((container) => {
+      const searchInput = container.querySelector(".nav-search-input");
+      const searchIcon = container.querySelector("a");
+
+      // 如果点击的元素不是搜索输入框或搜索图标，则隐藏搜索框和结果容器
+      if (
+        !searchInput.contains(event.target) &&
+        !searchIcon.contains(event.target)
+      ) {
+        searchInput.classList.remove("active");
+        searchInput.value = ""
+        // 根据输入框ID确定对应的结果容器
+        let resultContainer;
+        if (searchInput.id === "nav-search-input-mobile") {
+          // 移动端结果容器
+          resultContainer = document.querySelector(
+            ".navbar-mobile .nav-search-result"
+          );
+        } else {
+          // 桌面端结果容器
+          resultContainer = document.getElementById(
+            "nav-search-result-desktop"
+          );
+        }
+
+        if (resultContainer) {
+          resultContainer.style.display = "none";
+          resultContainer.innerHTML = ""; // 清空结果容器内容
+        }
+      }
+    });
+  }
+
+  // 添加全局点击事件监听器
+  document.addEventListener("click", function (event) {
+    handleClickOutsideSearch(event);
+  });
+
+  // 新增：搜索功能实现
+  let searchData = []; // 全局变量存储搜索数据
+
+  // 页面加载完成后获取搜索数据
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/search.xml")
+      .then((res) => res.text())
+      .then((xmlText) => {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+        const entries = xml.getElementsByTagName("entry");
+        for (let entry of entries) {
+          searchData.push({
+            title: entry.getElementsByTagName("title")[0]?.textContent || "",
+            content:
+              entry.getElementsByTagName("content")[0]?.textContent || "",
+            url: entry.getElementsByTagName("url")[0]?.textContent || "",
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load search data:", err);
+      });
+  });
+
+  // 新增：导航搜索方法
+  function navSearch(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    // 查找对应的搜索结果容器
+    let resultContainer;
+
+    if (inputElement.id === "nav-search-input-desktop") {
+      // 桌面端
+      resultContainer = document.getElementById("nav-search-result-desktop");
+    } else if (inputElement.id === "nav-search-input-mobile") {
+      // 移动端
+      resultContainer =
+        inputElement.parentNode.querySelector(".nav-search-result");
+    }
+
+    if (!resultContainer) return;
+
+    resultContainer.innerHTML = "";
+
+    if (!keyword) {
+      resultContainer.style.display = "none";
+      return;
+    }
+
+    // 显示结果容器
+    resultContainer.style.display = "block";
+
+    // 过滤搜索数据
+    const results = searchData.filter(
+      (data) =>
+        (data.title && data.title.toLowerCase().includes(keyword)) ||
+        (data.content && data.content.toLowerCase().includes(keyword))
+    );
+
+    if (results.length === 0) {
+      resultContainer.innerHTML =
+        '<p class="no-result">没有结果哟，换个关键词试试吧</p>';
+      return;
+    }
+
+    // 限制显示结果数量
+    const maxResults = 10;
+    const limitedResults = results.slice(0, maxResults);
+
+    // 构建结果HTML
+    const html = limitedResults
+      .map((item) => {
+        // 提取包含关键字的内容片段
+        let contentSnippet = "";
+        if (item.content) {
+          // 找到包含关键字的内容片段
+          const contentLower = item.content.toLowerCase();
+          const keywordIndex = contentLower.indexOf(keyword);
+
+          // 提取关键字前后的内容
+          const start = Math.max(0, keywordIndex - 3 * keyword.length);
+          const end = Math.min(
+            item.content.length,
+            keywordIndex + 3 * keyword.length
+          );
+          contentSnippet = item.content.substring(start, end);
+        // 高亮关键字
+      const keywordRegex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      contentSnippet = contentSnippet.replace(
+        keywordRegex,
+        "<mark>$1</mark>"
+      );
+        }
+
+        return `<div class="search-result-item">
+  <a href="${item.url}">
+    <div>标题：${item.title}</div>
+    <div>内容：${contentSnippet}</div>
+  </a>
+</div>`;
+      })
+      .join("");
+    resultContainer.innerHTML = html;
+  }
+</script>
+<style>
+  /* 手机端使用flexbox布局搜索容器 */
+  .mobile-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    flex-grow: 1;
+    max-width: calc(100% - 40px);
+  }
+
+
+  .search-result-item {
+  border: 1px solid #ddd; /* 边框 */
+  margin: 4px 0; /* 外层间距 */
+  padding: 0; /* 无内边距 */
+  background: #fff; /* 背景色 */
+}
+
+.search-result-item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-result-item div {
+  padding: 3px 8px; /* 紧凑的内边距 */
+  margin: 0; /* 无外边距 */
+  line-height: 1.3; /* 紧凑的行高 */
+  word-wrap: break-word; /* 允许长单词换行 */
+  white-space: normal; /* 允许正常换行 */
+}
+
+.search-result-item div:first-child {
+  border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */
+}
+
+
+</style>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">新增本地搜索</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >九月 21, 2025&nbsp;&nbsp;14:07:01</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">搭建博客</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><hr>
+<p>参考原文<a target="_blank" rel="noopener" href="https://evannzhongg.github.io/2025/03/27/Custom-Search-Integration-for-Hexo-Chic/">Custom Search Integration for Hexo Chic | Hexo</a></p>
+<p>tip：改了改，感觉我的有点屎山（不太会前端，得恶补一下js）</p>
+<h2 id="1-基于hexo-generator-searchdb实现的本地搜索"><a href="#1-基于hexo-generator-searchdb实现的本地搜索" class="headerlink" title="1.基于hexo-generator-searchdb实现的本地搜索"></a>1.基于<a target="_blank" rel="noopener" href="https://github.com/next-theme/hexo-generator-searchdb">hexo-generator-searchdb</a>实现的本地搜索</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-searchdb <span class="comment">#安装插件依赖</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-配置根目录的-config-yml"><a href="#2-配置根目录的-config-yml" class="headerlink" title="2.配置根目录的_config.yml"></a>2.配置根目录的<code>_config.yml</code></h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.xml</span> </span><br><span class="line">  <span class="attr">field:</span> <span class="string">all</span></span><br><span class="line">  <span class="attr">content:</span> <span class="literal">true</span> </span><br><span class="line">  <span class="attr">format:</span> <span class="string">striptags</span> </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>path - 生成的数据库文件的路径。支持.json和.xml格式。如果未提供文件扩展名，默认将使用JSON格式。 </li>
+<li>field - 你想要搜索的范围，你可以选择： post（默认）- 仅涵盖你博客的所有文章。 page - 仅涵盖你博客的所有页面。 all - 涵盖你博客的所有文章和页面。 </li>
+<li>content - 是否包含每篇文章的完整内容。如果为false，生成的结果仅包含标题和其他元信息，不包含正文。默认值为true。</li>
+<li>format - 页面内容的形式，选项有： striptags（默认）- 原始html字符串被压缩，并移除所有标签。 html - 原始html字符串被压缩。 raw - 每个文章或页面的markdown文本。</li>
+</ul>
+<h2 id="3-新建-search-css"><a href="#3-新建-search-css" class="headerlink" title="3.新建 search.css"></a>3.<strong>新建 search.css</strong></h2><p><strong>建议路径</strong>: <code>themes/hexo-theme-Chic/source/css/search.css</code></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 搜索框容器 */</span></span><br><span class="line"><span class="selector-class">.search-container</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: relative;</span><br><span class="line">  <span class="attribute">display</span>: inline-block;</span><br><span class="line">  <span class="attribute">vertical-align</span>: middle;</span><br><span class="line">  <span class="attribute">margin-right</span>: <span class="number">10px</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.search-container</span> <span class="selector-tag">a</span> &#123;</span><br><span class="line">  <span class="attribute">padding-right</span>: <span class="number">6px</span>;</span><br><span class="line">  <span class="attribute">cursor</span>: pointer;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">1.1em</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.nav-search-input</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>: none;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">6px</span> <span class="number">10px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ccc</span>;</span><br><span class="line">  <span class="attribute">border-radius</span>: <span class="number">4px</span>;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">260px</span>;</span><br><span class="line">  <span class="attribute">transition</span>: all <span class="number">0.3s</span> ease;</span><br><span class="line">  <span class="attribute">vertical-align</span>: middle;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.nav-search-input</span><span class="selector-class">.active</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>: inline-block;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.nav-search-result</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: absolute;</span><br><span class="line">  <span class="attribute">top</span>: <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">left</span>: <span class="number">0</span>;</span><br><span class="line">  <span class="attribute">background</span>: white;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ccc</span>;</span><br><span class="line">  <span class="attribute">border-radius</span>: <span class="number">6px</span>;</span><br><span class="line">  <span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">12px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.15</span>);</span><br><span class="line">  <span class="attribute">margin-top</span>: <span class="number">6px</span>;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">0.4em</span>;</span><br><span class="line">  <span class="attribute">min-width</span>: <span class="number">260px</span>;</span><br><span class="line">  <span class="attribute">max-height</span>: <span class="number">360px</span>;</span><br><span class="line">  <span class="attribute">overflow-y</span>: auto;</span><br><span class="line">  <span class="attribute">display</span>: none;</span><br><span class="line">  <span class="attribute">z-index</span>: <span class="number">999</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 搜索卡片 */</span></span><br><span class="line"><span class="selector-class">.search-card</span> &#123;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">4px</span> <span class="number">6px</span>;</span><br><span class="line">  <span class="attribute">margin-bottom</span>: <span class="number">3px</span>;</span><br><span class="line">  <span class="attribute">border-bottom</span>: <span class="number">1px</span> solid <span class="number">#eee</span>;</span><br><span class="line">  <span class="attribute">transition</span>: background <span class="number">0.2s</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.search-card</span><span class="selector-pseudo">:last-child</span> &#123;</span><br><span class="line">  <span class="attribute">border-bottom</span>: none;</span><br><span class="line">  <span class="attribute">margin-bottom</span>: <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.search-card</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="number">#f9f9f9</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.search-card-title</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>: block;</span><br><span class="line">  <span class="attribute">font-weight</span>: bold;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#1a0dab</span>;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">1em</span>;</span><br><span class="line">  <span class="attribute">line-height</span>: <span class="number">1.2em</span>;</span><br><span class="line">  <span class="attribute">text-decoration</span>: none;</span><br><span class="line">  <span class="attribute">margin</span>: <span class="number">0</span>;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">0</span>;</span><br><span class="line">  <span class="attribute">text-align</span>: left;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.search-card-title</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">  <span class="attribute">text-decoration</span>: underline;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.search-card-snippet</span> &#123;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">0.88em</span>;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#444</span>;</span><br><span class="line">  <span class="attribute">margin-top</span>: <span class="number">2px</span>;</span><br><span class="line">  <span class="attribute">line-height</span>: <span class="number">1.3em</span>;</span><br><span class="line">  <span class="attribute">display</span>: -webkit-box;</span><br><span class="line">  -webkit-<span class="selector-tag">line</span>-clamp: <span class="number">2</span>;</span><br><span class="line">  -webkit-<span class="attribute">box-orient</span>: vertical;</span><br><span class="line">  <span class="attribute">overflow</span>: hidden;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 🌙 暗色主题适配 */</span></span><br><span class="line"><span class="selector-class">.dark-theme</span> <span class="selector-class">.nav-search-input</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#1e1e1e</span>;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#eee</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#555</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.dark-theme</span> <span class="selector-class">.nav-search-result</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#2a2a2a</span>;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#eee</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#555</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.dark-theme</span> <span class="selector-class">.search-card</span> &#123;</span><br><span class="line">  <span class="attribute">border-bottom</span>: <span class="number">1px</span> solid <span class="number">#444</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.dark-theme</span> <span class="selector-class">.search-card</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="number">#333</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.dark-theme</span> <span class="selector-class">.search-card-title</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#4ea1ff</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.dark-theme</span> <span class="selector-class">.search-card-snippet</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#ccc</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 移动端适配 */</span></span><br><span class="line"><span class="comment">/* iPadmini适配 */</span></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">min-width</span>: <span class="number">481px</span>) <span class="keyword">and</span> (<span class="attribute">max-width</span>: <span class="number">767px</span>) &#123;</span><br><span class="line">  <span class="selector-class">.search-container</span> <span class="selector-tag">a</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: none;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">max-width</span>: <span class="number">768px</span>) &#123;</span><br><span class="line"></span><br><span class="line">  <span class="selector-class">.nav-search-input</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">90%</span>;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">margin</span>: <span class="number">10px</span> auto;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/* 暗色主题下的移动端结果容器 */</span></span><br><span class="line">  <span class="selector-class">.dark-theme</span> <span class="selector-class">.nav-search-result</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#2a2a2a</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 全局定位的移动端搜索结果 */</span></span><br><span class="line"><span class="keyword">@media</span> (<span class="attribute">max-width</span>: <span class="number">768px</span>) &#123;</span><br><span class="line">  <span class="selector-class">.nav-search-result</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: fixed;           <span class="comment">/* 相对于视窗定位 */</span></span><br><span class="line">    <span class="attribute">top</span>: <span class="number">20%</span>;                  <span class="comment">/* 距离顶部20% */</span></span><br><span class="line">    <span class="attribute">left</span>: <span class="number">5%</span>;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">5%</span>;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">9999</span>;             <span class="comment">/* 更高的层级 */</span></span><br><span class="line">    <span class="attribute">max-height</span>: <span class="number">60vh</span>;          <span class="comment">/* 更大的最大高度 */</span></span><br><span class="line">    <span class="attribute">margin</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">8px</span> <span class="number">24px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.2</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-修改主题配置"><a href="#4-修改主题配置" class="headerlink" title="4.修改主题配置"></a>4.修改主题配置</h2><p>打开<code>theme/Chic/_config.yml</code> ，在 <code>stylesheets </code>下增加一行 <code>search.css</code> 确保加载样式文件：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">stylesheets:</span><br><span class="line">  - /css/style.css</span><br><span class="line">  - /css/search.css</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-修改-header-ejs"><a href="#5-修改-header-ejs" class="headerlink" title="5.修改 header.ejs"></a>5.修改 <code>header.ejs</code></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br></pre></td><td class="code"><pre><span class="line">&lt;header&gt;</span><br><span class="line">  &lt;nav class=&quot;navbar&quot;&gt;</span><br><span class="line">    &lt;div class=&quot;container&quot;&gt;</span><br><span class="line">      &lt;div class=&quot;navbar-header header-logo&quot;&gt;</span><br><span class="line">        &lt;a href=&quot;&lt;%- config.root %&gt;&quot;&gt;&lt;%= theme.navname %&gt;&lt;/a&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">      &lt;div class=&quot;menu navbar-right&quot;&gt;</span><br><span class="line">        &lt;!-- 在电脑端的导航链接区域添加搜索功能 --&gt;</span><br><span class="line">        &lt;div class=&quot;search-container&quot;&gt;</span><br><span class="line">          &lt;a href=&quot;javascript:;&quot; onclick=&quot;toggleSearchInput()&quot;&gt;🔍&lt;/a&gt;</span><br><span class="line">          &lt;input</span><br><span class="line">            type=&quot;text&quot;</span><br><span class="line">            id=&quot;nav-search-input-desktop&quot;</span><br><span class="line">            class=&quot;nav-search-input&quot;</span><br><span class="line">            placeholder=&quot;想知道我什么秘密呢，搜搜看吧&quot;</span><br><span class="line">            oninput=&quot;navSearch(this)&quot;</span><br><span class="line">          /&gt;</span><br><span class="line">          &lt;div id=&quot;nav-search-result-desktop&quot; class=&quot;nav-search-result&quot;&gt;&lt;/div&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line"></span><br><span class="line">        &lt;% for (var i in theme.nav)&#123; %&gt;</span><br><span class="line">        &lt;a class=&quot;menu-item&quot; href=&quot;&lt;%- url_for(theme.nav[i]) %&gt;&quot;&gt;&lt;%= i %&gt;&lt;/a&gt;</span><br><span class="line">        &lt;% &#125; %&gt;</span><br><span class="line"></span><br><span class="line">        &lt;input id=&quot;switch_default&quot; type=&quot;checkbox&quot; class=&quot;switch_default&quot; /&gt;</span><br><span class="line">        &lt;label for=&quot;switch_default&quot; class=&quot;toggleBtn&quot;&gt;&lt;/label&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  &lt;/nav&gt;</span><br><span class="line"></span><br><span class="line">  &lt;%# mobile %&gt;</span><br><span class="line">  &lt;nav class=&quot;navbar-mobile&quot; id=&quot;nav-mobile&quot;&gt;</span><br><span class="line">    &lt;div class=&quot;container&quot;&gt;</span><br><span class="line">      &lt;div class=&quot;navbar-header&quot;&gt;</span><br><span class="line">        &lt;div&gt;</span><br><span class="line">          &lt;a href=&quot;&lt;%- config.root %&gt;&quot;&gt;&lt;%= theme.navname %&gt;&lt;/a</span><br><span class="line">          &gt;&lt;a id=&quot;mobile-toggle-theme&quot;&gt;·&amp;nbsp;Light&lt;/a&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line"></span><br><span class="line">        &lt;div class=&quot;menu-toggle&quot; onclick=&quot;mobileBtn()&quot;&gt;</span><br><span class="line">          &lt;svg</span><br><span class="line">            class=&quot;menu-icon&quot;</span><br><span class="line">            xmlns=&quot;http://www.w3.org/2000/svg&quot;</span><br><span class="line">            width=&quot;32&quot;</span><br><span class="line">            height=&quot;32&quot;</span><br><span class="line">            viewBox=&quot;0 0 24 24&quot;</span><br><span class="line">          &gt;</span><br><span class="line">            &lt;path</span><br><span class="line">              fill=&quot;currentColor&quot;</span><br><span class="line">              d=&quot;M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z&quot;</span><br><span class="line">            /&gt;</span><br><span class="line">          &lt;/svg&gt;</span><br><span class="line">          &lt;svg</span><br><span class="line">            class=&quot;close-icon&quot;</span><br><span class="line">            xmlns=&quot;http://www.w3.org/2000/svg&quot;</span><br><span class="line">            width=&quot;32&quot;</span><br><span class="line">            height=&quot;32&quot;</span><br><span class="line">            viewBox=&quot;0 0 24 24&quot;</span><br><span class="line">          &gt;</span><br><span class="line">            &lt;!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --&gt;</span><br><span class="line">            &lt;path</span><br><span class="line">              fill=&quot;currentColor&quot;</span><br><span class="line">              d=&quot;m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z&quot;</span><br><span class="line">            /&gt;</span><br><span class="line">          &lt;/svg&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line"></span><br><span class="line">      &lt;div class=&quot;menu&quot; id=&quot;mobile-menu&quot;&gt;</span><br><span class="line">        &lt;% for (var i in theme.nav)&#123; %&gt;</span><br><span class="line">        &lt;a class=&quot;menu-item&quot; href=&quot;&lt;%- url_for(theme.nav[i]) %&gt;&quot;&gt;&lt;%= i %&gt;&lt;/a&gt;</span><br><span class="line">        &lt;% &#125; %&gt;</span><br><span class="line">        &lt;!-- 手机模式搜索框 --&gt;</span><br><span class="line">        &lt;div class=&quot;search-container mobile-container&quot;&gt;</span><br><span class="line">          &lt;a class=&quot;menu-item&quot; href=&quot;javascript:;&quot; onclick=&quot;toggleSearchInput()&quot;</span><br><span class="line">            &gt;🔍&lt;/a</span><br><span class="line">          &gt;</span><br><span class="line">          &lt;input</span><br><span class="line">            type=&quot;text&quot;</span><br><span class="line">            id=&quot;nav-search-input-mobile&quot;</span><br><span class="line">            class=&quot;nav-search-input&quot;</span><br><span class="line">            placeholder=&quot;想知道我什么秘密呢，搜搜看吧&quot;</span><br><span class="line">            oninput=&quot;navSearch(this)&quot;</span><br><span class="line">          /&gt;</span><br><span class="line">          &lt;div id=&quot;nav-search-result-mobile&quot; class=&quot;nav-search-result&quot;&gt;&lt;/div&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  &lt;/nav&gt;</span><br><span class="line">&lt;/header&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">  var mobileBtn = function f() &#123;</span><br><span class="line">    var toggleMenu = document.getElementsByClassName(&quot;menu-toggle&quot;)[0];</span><br><span class="line">    var mobileMenu = document.getElementById(&quot;mobile-menu&quot;);</span><br><span class="line">    if (toggleMenu.classList.contains(&quot;active&quot;)) &#123;</span><br><span class="line">      toggleMenu.classList.remove(&quot;active&quot;);</span><br><span class="line">      mobileMenu.classList.remove(&quot;active&quot;);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      toggleMenu.classList.add(&quot;active&quot;);</span><br><span class="line">      mobileMenu.classList.add(&quot;active&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  function toggleSearchInput() &#123;</span><br><span class="line">    const inputs = document.querySelectorAll(&quot;.nav-search-input&quot;);</span><br><span class="line">    const results = document.querySelectorAll(&quot;.nav-search-result&quot;);</span><br><span class="line">    inputs.forEach((input) =&gt; &#123;</span><br><span class="line">      input.classList.toggle(&quot;active&quot;);</span><br><span class="line">      if (input.classList.contains(&quot;active&quot;)) input.focus();</span><br><span class="line">    &#125;);</span><br><span class="line">    results.forEach((r) =&gt; (r.style.display = &quot;none&quot;));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // 点击外部区域隐藏搜索框和结果容器的函数</span><br><span class="line">  function handleClickOutsideSearch(event) &#123;</span><br><span class="line">    const searchContainers = document.querySelectorAll(&quot;.search-container&quot;);</span><br><span class="line">    searchContainers.forEach((container) =&gt; &#123;</span><br><span class="line">      const searchInput = container.querySelector(&quot;.nav-search-input&quot;);</span><br><span class="line">      const searchIcon = container.querySelector(&quot;a&quot;);</span><br><span class="line"></span><br><span class="line">      // 如果点击的元素不是搜索输入框或搜索图标，则隐藏搜索框和结果容器</span><br><span class="line">      if (</span><br><span class="line">        !searchInput.contains(event.target) &amp;&amp;</span><br><span class="line">        !searchIcon.contains(event.target)</span><br><span class="line">      ) &#123;</span><br><span class="line">        searchInput.classList.remove(&quot;active&quot;);</span><br><span class="line">        searchInput.value = &quot;&quot;</span><br><span class="line">        // 根据输入框ID确定对应的结果容器</span><br><span class="line">        let resultContainer;</span><br><span class="line">        if (searchInput.id === &quot;nav-search-input-mobile&quot;) &#123;</span><br><span class="line">          // 移动端结果容器</span><br><span class="line">          resultContainer = document.querySelector(</span><br><span class="line">            &quot;.navbar-mobile .nav-search-result&quot;</span><br><span class="line">          );</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">          // 桌面端结果容器</span><br><span class="line">          resultContainer = document.getElementById(</span><br><span class="line">            &quot;nav-search-result-desktop&quot;</span><br><span class="line">          );</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (resultContainer) &#123;</span><br><span class="line">          resultContainer.style.display = &quot;none&quot;;</span><br><span class="line">          resultContainer.innerHTML = &quot;&quot;; // 清空结果容器内容</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // 添加全局点击事件监听器</span><br><span class="line">  document.addEventListener(&quot;click&quot;, function (event) &#123;</span><br><span class="line">    handleClickOutsideSearch(event);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  // 新增：搜索功能实现</span><br><span class="line">  let searchData = []; // 全局变量存储搜索数据</span><br><span class="line"></span><br><span class="line">  // 页面加载完成后获取搜索数据</span><br><span class="line">  document.addEventListener(&quot;DOMContentLoaded&quot;, function () &#123;</span><br><span class="line">    fetch(&quot;&lt;%- config.root %&gt;search.xml&quot;)</span><br><span class="line">      .then((res) =&gt; res.text())</span><br><span class="line">      .then((xmlText) =&gt; &#123;</span><br><span class="line">        const parser = new DOMParser();</span><br><span class="line">        const xml = parser.parseFromString(xmlText, &quot;text/xml&quot;);</span><br><span class="line">        const entries = xml.getElementsByTagName(&quot;entry&quot;);</span><br><span class="line">        for (let entry of entries) &#123;</span><br><span class="line">          searchData.push(&#123;</span><br><span class="line">            title: entry.getElementsByTagName(&quot;title&quot;)[0]?.textContent || &quot;&quot;,</span><br><span class="line">            content:</span><br><span class="line">              entry.getElementsByTagName(&quot;content&quot;)[0]?.textContent || &quot;&quot;,</span><br><span class="line">            url: entry.getElementsByTagName(&quot;url&quot;)[0]?.textContent || &quot;&quot;,</span><br><span class="line">          &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;)</span><br><span class="line">      .catch((err) =&gt; &#123;</span><br><span class="line">        console.error(&quot;Failed to load search data:&quot;, err);</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  // 新增：导航搜索方法</span><br><span class="line">  function navSearch(inputElement) &#123;</span><br><span class="line">    const keyword = inputElement.value.trim().toLowerCase();</span><br><span class="line">    // 查找对应的搜索结果容器</span><br><span class="line">    let resultContainer;</span><br><span class="line"></span><br><span class="line">    if (inputElement.id === &quot;nav-search-input-desktop&quot;) &#123;</span><br><span class="line">      // 桌面端</span><br><span class="line">      resultContainer = document.getElementById(&quot;nav-search-result-desktop&quot;);</span><br><span class="line">    &#125; else if (inputElement.id === &quot;nav-search-input-mobile&quot;) &#123;</span><br><span class="line">      // 移动端</span><br><span class="line">      resultContainer =</span><br><span class="line">        inputElement.parentNode.querySelector(&quot;.nav-search-result&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (!resultContainer) return;</span><br><span class="line"></span><br><span class="line">    resultContainer.innerHTML = &quot;&quot;;</span><br><span class="line"></span><br><span class="line">    if (!keyword) &#123;</span><br><span class="line">      resultContainer.style.display = &quot;none&quot;;</span><br><span class="line">      return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 显示结果容器</span><br><span class="line">    resultContainer.style.display = &quot;block&quot;;</span><br><span class="line"></span><br><span class="line">    // 过滤搜索数据</span><br><span class="line">    const results = searchData.filter(</span><br><span class="line">      (data) =&gt;</span><br><span class="line">        (data.title &amp;&amp; data.title.toLowerCase().includes(keyword)) ||</span><br><span class="line">        (data.content &amp;&amp; data.content.toLowerCase().includes(keyword))</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    if (results.length === 0) &#123;</span><br><span class="line">      resultContainer.innerHTML =</span><br><span class="line">        &#x27;&lt;p class=&quot;no-result&quot;&gt;没有结果哟，换个关键词试试吧&lt;/p&gt;&#x27;;</span><br><span class="line">      return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 限制显示结果数量</span><br><span class="line">    const maxResults = 10;</span><br><span class="line">    const limitedResults = results.slice(0, maxResults);</span><br><span class="line"></span><br><span class="line">    // 构建结果HTML</span><br><span class="line">    const html = limitedResults</span><br><span class="line">      .map((item) =&gt; &#123;</span><br><span class="line">        // 提取包含关键字的内容片段</span><br><span class="line">        let contentSnippet = &quot;&quot;;</span><br><span class="line">        if (item.content) &#123;</span><br><span class="line">          // 找到包含关键字的内容片段</span><br><span class="line">          const contentLower = item.content.toLowerCase();</span><br><span class="line">          const keywordIndex = contentLower.indexOf(keyword);</span><br><span class="line"></span><br><span class="line">          // 提取关键字前后的内容</span><br><span class="line">          const start = Math.max(0, keywordIndex - 3 * keyword.length);</span><br><span class="line">          const end = Math.min(</span><br><span class="line">            item.content.length,</span><br><span class="line">            keywordIndex + 3 * keyword.length</span><br><span class="line">          );</span><br><span class="line">          contentSnippet = item.content.substring(start, end);</span><br><span class="line">        // 高亮关键字</span><br><span class="line">      const keywordRegex = new RegExp(`($&#123;keyword.replace(/[.*+?^$&#123;&#125;()|[\]\\]/g, &#x27;\\$&amp;&#x27;)&#125;)`, &#x27;gi&#x27;);</span><br><span class="line">      contentSnippet = contentSnippet.replace(</span><br><span class="line">        keywordRegex,</span><br><span class="line">        &quot;&lt;mark&gt;$1&lt;/mark&gt;&quot;</span><br><span class="line">      );</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return `&lt;div class=&quot;search-result-item&quot;&gt;</span><br><span class="line">  &lt;a href=&quot;$&#123;item.url&#125;&quot;&gt;</span><br><span class="line">    &lt;div&gt;标题：$&#123;item.title&#125;&lt;/div&gt;</span><br><span class="line">    &lt;div&gt;内容：$&#123;contentSnippet&#125;&lt;/div&gt;</span><br><span class="line">  &lt;/a&gt;</span><br><span class="line">&lt;/div&gt;`;</span><br><span class="line">      &#125;)</span><br><span class="line">      .join(&quot;&quot;);</span><br><span class="line">    resultContainer.innerHTML = html;</span><br><span class="line">  &#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;style&gt;</span><br><span class="line">  /* 手机端使用flexbox布局搜索容器 */</span><br><span class="line">  .mobile-container &#123;</span><br><span class="line">    display: flex;</span><br><span class="line">    align-items: center;</span><br><span class="line">    flex-direction: row;</span><br><span class="line">    margin-bottom: 10px;</span><br><span class="line">    margin-left: 10px;</span><br><span class="line">    flex-grow: 1;</span><br><span class="line">    max-width: calc(100% - 40px);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  .search-result-item &#123;</span><br><span class="line">  border: 1px solid #ddd; /* 边框 */</span><br><span class="line">  margin: 4px 0; /* 外层间距 */</span><br><span class="line">  padding: 0; /* 无内边距 */</span><br><span class="line">  background: #fff; /* 背景色 */</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">.search-result-item a &#123;</span><br><span class="line">  display: block;</span><br><span class="line">  text-decoration: none;</span><br><span class="line">  color: inherit;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">.search-result-item div &#123;</span><br><span class="line">  padding: 3px 8px; /* 紧凑的内边距 */</span><br><span class="line">  margin: 0; /* 无外边距 */</span><br><span class="line">  line-height: 1.3; /* 紧凑的行高 */</span><br><span class="line">  word-wrap: break-word; /* 允许长单词换行 */</span><br><span class="line">  white-space: normal; /* 允许正常换行 */</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">.search-result-item div:first-child &#123;</span><br><span class="line">  border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;/style&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="6-实现效果"><a href="#6-实现效果" class="headerlink" title="6.实现效果"></a>6.实现效果</h2><ul>
+<li>点击图标展示搜索框</li>
+<li>实时匹配文章标题&#x2F;内容</li>
+<li>结果以卡片形式展示</li>
+<li>黑色模式样式自动选择</li>
+<li>点击空白地方隐藏结果 + 清空文本</li>
+<li>移动端页面适配</li>
+</ul>
+<h2 id="7-新生成并运行-Hexo"><a href="#7-新生成并运行-Hexo" class="headerlink" title="7. 新生成并运行 Hexo"></a>7. 新生成并运行 Hexo</h2><p>需要通过hexo g生成本地数据库</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo g</span><br><span class="line">hexo s</span><br></pre></td></tr></table></figure>
+
+</div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>永久链接:</span>
+        <span><a href="https://meisijiya.github.io/2025/09/21/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%96%B0%E5%A2%9E%E6%9C%AC%E5%9C%B0%E6%90%9C%E7%B4%A2/">https://meisijiya.github.io/2025/09/21/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%96%B0%E5%A2%9E%E6%9C%AC%E5%9C%B0%E6%90%9C%E7%B4%A2/</a></span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span>Do you believe in <strong>DESTINY</strong>? <br> 如有侵权请告知删除🙏</span>
+      </p>
+      
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%8D%9A%E5%AE%A2%E5%8A%9F%E8%83%BD/"># 博客功能</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2025/09/21/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%94%B9%E5%96%84%E9%BB%91%E6%9A%97%E6%A8%A1%E5%BC%8F%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%A0%81%E6%98%BE%E7%A4%BA/"
+        >改善黑暗模式中的代码显示</a
+      >
+       
+      <a class="next" rel="next" href="/2025/09/21/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%96%B0%E5%A2%9E%E4%BB%A3%E7%A0%81%E5%A4%8D%E5%88%B6%E6%8C%89%E9%92%AE%E5%8A%9F%E8%83%BD/"
+        >新增代码复制按钮功能</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem;"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById('giscus-container');
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = '';
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute('data-repo', 'meisijiya/meisijiya.github.io');
+
+   // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute('data-repo-id', 'R_kgDOPwTrpQ');
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwDOPwTrpc4CviGR');
+
+    // 其他常规推荐设置
+    script.setAttribute('data-mapping', 'pathname');           // 用页面路径匹配评论帖
+    script.setAttribute('data-strict', '0');                   // 若无匹配帖则创建新帖
+    script.setAttribute('data-reactions-enabled', '1');        // 启用表情反应
+    script.setAttribute('data-emit-metadata', '0');            // 不输出元数据
+    script.setAttribute('data-input-position', 'top');         // 输入框在评论上方
+    script.setAttribute('data-theme', theme);                
+    script.setAttribute('data-lang', 'zh-CN');                 // 中文界面
+    script.setAttribute('crossorigin', 'anonymous');           // 跨域资源安全
+    script.async = true;                                       
+     
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector('.toggleBtn'),
+      document.getElementById('mobile-toggle-theme')
+    ];
+    buttons.forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+<script src="/js/code-copy.js"></script>
+
+
+    </div>
+</body>
+
+</html>

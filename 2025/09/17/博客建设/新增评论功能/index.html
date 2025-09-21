@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,进,房间门">
 
 
-<title>分类: 搭建博客 | 欢迎来到老江湖的博客</title>
+<title>新增评论功能 | 欢迎来到老江湖的博客</title>
 
 
 
@@ -402,68 +402,235 @@
 </style>
 
             <div class="main">
-                
-
-
-    
-<div class="container">
-  <div class="post-wrap categories">
-    <h2 class="post-title">-&nbsp;分类&nbsp;·&nbsp;搭建博客-</h2>
-  </div>
-  <div class="post-wrap archive">
-    
-    
-        
-
-        
-            <h3>2025</h3>
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2025/09/21/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%94%B9%E5%96%84%E9%BB%91%E6%9A%97%E6%A8%A1%E5%BC%8F%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%A0%81%E6%98%BE%E7%A4%BA/">改善黑暗模式中的代码显示</a>
-            <span class="archive-item-date">九月 21, 2025</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2025/09/21/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%96%B0%E5%A2%9E%E6%9C%AC%E5%9C%B0%E6%90%9C%E7%B4%A2/">新增本地搜索</a>
-            <span class="archive-item-date">九月 21, 2025</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2025/09/21/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%96%B0%E5%A2%9E%E4%BB%A3%E7%A0%81%E5%A4%8D%E5%88%B6%E6%8C%89%E9%92%AE%E5%8A%9F%E8%83%BD/">新增代码复制按钮功能</a>
-            <span class="archive-item-date">九月 21, 2025</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2025/09/17/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%96%B0%E5%A2%9E%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD/">新增评论功能</a>
-            <span class="archive-item-date">九月 17, 2025</span>
-        </article>
-    
-        
-
-        
-
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2025/09/16/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E8%AE%B0%E5%BD%95%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%B5%81%E7%A8%8B%F0%9F%98%97/">记录搭建博客流程😗</a>
-            <span class="archive-item-date">九月 16, 2025</span>
-        </article>
-    
-    
-</div>
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
 </div>
 
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">新增评论功能</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >九月 17, 2025&nbsp;&nbsp;8:44:15</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">搭建博客</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><h1 id="使用giscus增加博客评论功能"><a href="#使用giscus增加博客评论功能" class="headerlink" title="使用giscus增加博客评论功能"></a>使用giscus增加博客评论功能</h1><p>利用 <a target="_blank" rel="noopener" href="https://docs.github.com/en/discussions">GitHub Discussions</a> 实现的评论系统</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/giscus/giscus">开源</a>。🌏</li>
+<li>无跟踪，无广告，永久免费。📡 🚫</li>
+<li>无需数据库。所有数据均储存在 GitHub Discussions 中。:octocat:</li>
+<li>支持<a target="_blank" rel="noopener" href="https://github.com/giscus/giscus/blob/main/ADVANCED-USAGE.md#data-theme">自定义主题</a>！🌗</li>
+<li>支持<a target="_blank" rel="noopener" href="https://github.com/giscus/giscus/blob/main/CONTRIBUTING.md#adding-localizations">多种语言</a>。🌐</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/giscus/giscus/blob/main/ADVANCED-USAGE.md">高可配置性</a>。🔧</li>
+<li>自动从 GitHub 拉取新评论与编辑。🔃</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/giscus/giscus/blob/main/SELF-HOSTING.md">可自建服务</a>！🤳</li>
+</ul>
+<p>不同主题不同配置方法</p>
+<p>以下是大佬的文章：</p>
+<p><a target="_blank" rel="noopener" href="https://jachinzhang1.github.io/2025/02/04/hexo%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F/">hexo 博客添加评论系统 | Jachin’s Blog</a></p>
+<h1 id="附上适合本主题的大佬链接"><a href="#附上适合本主题的大佬链接" class="headerlink" title="附上适合本主题的大佬链接"></a>附上适合本主题的大佬链接</h1><p><a target="_blank" rel="noopener" href="https://evannzhongg.github.io/2025/03/24/Hexo-and-Chic-themes-add-Giscus-comment-system/#Hexo-Chic-%E4%B8%BB%E9%A2%98%E9%9B%86%E6%88%90-Giscus-%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F%E8%AF%A6%E7%BB%86%E6%95%99%E7%A8%8B">Hexo and Chic themes add Giscus comment system | Hexo</a></p>
+</div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>永久链接:</span>
+        <span><a href="https://meisijiya.github.io/2025/09/17/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%96%B0%E5%A2%9E%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD/">https://meisijiya.github.io/2025/09/17/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%96%B0%E5%A2%9E%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD/</a></span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span>Do you believe in <strong>DESTINY</strong>? <br> 如有侵权请告知删除🙏</span>
+      </p>
+      
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/"># 学习记录</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/02-%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95-%E5%9F%BA%E4%BA%8Esession%E6%96%B9%E6%A1%88/"
+        >02-短信登录-基于session方案</a
+      >
+       
+      <a class="next" rel="next" href="/2025/09/16/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E8%AE%B0%E5%BD%95%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E6%B5%81%E7%A8%8B%F0%9F%98%97/"
+        >记录搭建博客流程😗</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem;"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById('giscus-container');
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = '';
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute('data-repo', 'meisijiya/meisijiya.github.io');
+
+   // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute('data-repo-id', 'R_kgDOPwTrpQ');
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwDOPwTrpc4CviGR');
+
+    // 其他常规推荐设置
+    script.setAttribute('data-mapping', 'pathname');           // 用页面路径匹配评论帖
+    script.setAttribute('data-strict', '0');                   // 若无匹配帖则创建新帖
+    script.setAttribute('data-reactions-enabled', '1');        // 启用表情反应
+    script.setAttribute('data-emit-metadata', '0');            // 不输出元数据
+    script.setAttribute('data-input-position', 'top');         // 输入框在评论上方
+    script.setAttribute('data-theme', theme);                
+    script.setAttribute('data-lang', 'zh-CN');                 // 中文界面
+    script.setAttribute('crossorigin', 'anonymous');           // 跨域资源安全
+    script.async = true;                                       
+     
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector('.toggleBtn'),
+      document.getElementById('mobile-toggle-theme')
+    ];
+    buttons.forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  });
+</script>
+
+  </article>
+</div>
 
             </div>
             <footer id="footer" class="footer">
