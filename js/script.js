@@ -28,40 +28,76 @@
     };
 })();
 
-
 document.ready(
-    // toggleTheme function.
-    // this script shouldn't be changed.
     () => {
-        const pagebody = document.getElementsByTagName('body')[0]
+        var _Blog = window._Blog || {};
+        const currentTheme = window.localStorage && window.localStorage.getItem('theme');
+        const isDark = currentTheme === 'dark';
+        const pagebody = document.getElementsByTagName('body')[0];
 
-        const default_theme = 'light' // 'dark'
+        // 获取代码高亮样式 link 元素
+        const hljsTheme = document.getElementById('hljs-theme');
 
-        function setTheme(status = 'light') {
-            if (status === 'dark') {
-                window.sessionStorage.theme = 'dark'
-                pagebody.classList.add('dark-theme');
-                document.getElementById("switch_default").checked = true
-                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
-            } else {
-                window.sessionStorage.theme = 'light'
-                pagebody.classList.remove('dark-theme');
-                document.getElementById("switch_default").checked = false
-                document.getElementById("mobile-toggle-theme").innerText = "· Light"
-            }
+        function updateCodeHighlightStyle(isDarkMode) {
+            if (!hljsTheme) return;
+            const newHref = isDarkMode
+                ? "https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github-dark.css"
+                : "https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css";
+            hljsTheme.setAttribute('href', newHref);
+        }
+
+
+        // 初始化切换按钮状态
+        if (isDark) {
+            document.getElementById("switch_default").checked = true;
+            document.getElementById("mobile-toggle-theme").innerText = "· Dark";
+            pagebody.classList.add('dark-theme');
+        } else {
+            document.getElementById("switch_default").checked = false;
+            document.getElementById("mobile-toggle-theme").innerText = "· Light";
+            pagebody.classList.remove('dark-theme');
+        }
+
+        // 初始同步代码高亮样式
+        updateCodeHighlightStyle(isDark);
+
+        _Blog.toggleTheme = function () {
+            const toggleBtn = document.getElementsByClassName('toggleBtn')[0];
+            const mobileBtn = document.getElementById('mobile-toggle-theme');
+
+            // 桌面端切换按钮
+            toggleBtn.addEventListener('click', () => {
+                const isNowDark = !pagebody.classList.contains('dark-theme');
+                if (isNowDark) {
+                    pagebody.classList.add('dark-theme');
+                    mobileBtn.innerText = "· Dark";
+                } else {
+                    pagebody.classList.remove('dark-theme');
+                    mobileBtn.innerText = "· Light";
+                }
+                window.localStorage &&
+                window.localStorage.setItem('theme', isNowDark ? 'dark' : 'light');
+
+                updateCodeHighlightStyle(isNowDark);
+            });
+
+            // 移动端切换按钮
+            mobileBtn.addEventListener('click', () => {
+                const isNowDark = !pagebody.classList.contains('dark-theme');
+                if (isNowDark) {
+                    pagebody.classList.add('dark-theme');
+                    mobileBtn.innerText = "· Dark";
+                } else {
+                    pagebody.classList.remove('dark-theme');
+                    mobileBtn.innerText = "· Light";
+                }
+                window.localStorage &&
+                window.localStorage.setItem('theme', isNowDark ? 'dark' : 'light');
+
+                updateCodeHighlightStyle(isNowDark);
+            });
         };
 
-        setTheme(window.sessionStorage.theme ?? default_theme)
-
-        document.getElementsByClassName('toggleBtn')[0].addEventListener('click', () => {
-            window.sessionStorage.theme = window.sessionStorage.theme === 'dark' ? 'light' : 'dark'
-            setTheme(window.sessionStorage.theme)
-            document.getElementById("switch_default").checked = window.sessionStorage.theme === 'light'
-        })
-        document.getElementById('mobile-toggle-theme').addEventListener('click', () => {
-            window.sessionStorage.theme = window.sessionStorage.theme === 'dark' ? 'light' : 'dark'
-            setTheme(window.sessionStorage.theme)
-            document.getElementById("mobile-toggle-theme").innerText = window.sessionStorage.theme === 'light' ? "· Light" : "· Dark"
-        })
+        _Blog.toggleTheme();
     }
 );

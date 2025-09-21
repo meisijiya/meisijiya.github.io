@@ -791,4 +791,67 @@ Git 提交历史右键菜单
 2024.10.21房间门给老江湖过的第一个生日🎂
 ]]></content>
   </entry>
+  <entry>
+    <title></title>
+    <url>/js/code-copy.js</url>
+    <content><![CDATA[document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('figure.highlight').forEach((figure) => {
+    if (figure.querySelector('.copy-btn')) return;
+
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'copy-btn';
+    copyBtn.title = '复制';
+
+    // 缩小后的复制图标（14*15）
+    const copyIcon = `
+      
+        
+      
+    `;
+
+    // 成功后显示的勾（14*15）
+    const checkIcon = `
+      
+        
+      
+    `;
+
+    copyBtn.innerHTML = copyIcon;
+
+    // 按钮样式（浅灰底、缩小）
+    Object.assign(copyBtn.style, {
+      position: 'absolute',
+      top: '8px',
+      right: '8px',
+      padding: '4px',
+      background: '#aaa', 
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      opacity: '0.85',
+      zIndex: 1000,
+      transition: 'opacity 0.2s ease',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.15)'
+    });
+
+    copyBtn.addEventListener('mouseover', () => copyBtn.style.opacity = '1');
+    copyBtn.addEventListener('mouseout', () => copyBtn.style.opacity = '0.85');
+
+    copyBtn.addEventListener('click', () => {
+      const code = figure.querySelector('td.code');
+      const text = code ? code.innerText : '';
+      navigator.clipboard.writeText(text).then(() => {
+        copyBtn.innerHTML = checkIcon;
+        setTimeout(() => {
+          copyBtn.innerHTML = copyIcon;
+        }, 1000);
+      });
+    });
+
+    figure.style.position = 'relative';
+    figure.appendChild(copyBtn);
+  });
+});
+]]></content>
+  </entry>
 </search>
