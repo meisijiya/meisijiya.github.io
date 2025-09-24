@@ -841,6 +841,44 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
       </tags>
   </entry>
   <entry>
+    <title>添加网站统计功能</title>
+    <url>/2025/09/24/%E6%B7%BB%E5%8A%A0%E7%BD%91%E7%AB%99%E7%BB%9F%E8%AE%A1%E5%8A%9F%E8%83%BD/</url>
+    <content><![CDATA[
+使用umami来统计网站数据
+
+打开https://us.umami.is/
+注册
+
+用户信息随便填
+填好网站名字、域名
+数据保存到美国就行
+然后将提供的js代码复制到自己的代码中
+
+我把js代码复制到\themes\Chic\layout\layout.ejs中
+&lt;!DOCTYPE html&gt;&lt;html lang=&quot;&lt;%= config.language %&gt;&quot;&gt;&lt;head&gt;    &lt;%- partial(&#x27;_partial/head&#x27;,&#123;cache: true&#125;) %&gt;&lt;/head&gt;&lt;body&gt;    &lt;script&gt;        // this function is used to check current theme before page loaded.        (() =&gt; &#123;            const pagebody = document.getElementsByTagName(&#x27;body&#x27;)[0]            function setTheme(status) &#123;                if (status === &#x27;dark&#x27;) &#123;                    window.sessionStorage.theme = &#x27;dark&#x27;                    pagebody.classList.add(&#x27;dark-theme&#x27;);                &#125; else if (status === &#x27;light&#x27;) &#123;                    window.sessionStorage.theme = &#x27;light&#x27;                    pagebody.classList.remove(&#x27;dark-theme&#x27;);                &#125;            &#125;;            setTheme(window.sessionStorage.theme)        &#125;)();    &lt;/script&gt;    &lt;div class=&quot;wrapper&quot;&gt;        &lt;%- partial(&#x27;_partial/header&#x27;,&#123;cache: true&#125;) %&gt;            &lt;div class=&quot;main&quot;&gt;                &lt;%- body %&gt;            &lt;/div&gt;            &lt;%- partial(&#x27;_partial/footer&#x27;,&#123;cache: true&#125;) %&gt;    &lt;/div&gt;&lt;/body&gt;&lt;!-- umami 填入自己的 --&gt;&lt;script defer src=&quot;https://cloud.umami.is/script.js&quot; data-website-id=&quot;填入自己的&quot;&gt;&lt;/script&gt;&lt;/html&gt;
+
+接着，在打开官网，找到自己的网站，点击edit。
+
+然后复制这个链接
+
+为了实现 umami 统计页面的反向代理而不改变 URL
+我们可以创建一个Hexo页面来实现反向代理。
+在\source\tongji\index.md中添加
+
+然后在\themes\Chic_config.yml中添加这个页面的链接
+# navigatior itemsnav:  归档: /archives  分类: /category  标签: /tag  时间线: /timeLine  网站统计: /tongji #新增  关于: /about
+
+然后就大功告成。
+]]></content>
+      <categories>
+        <category>搭建博客</category>
+      </categories>
+      <tags>
+        <tag>博客功能</tag>
+        <tag>umami</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>欢迎来到老江湖的世界</title>
     <url>/%E6%AC%A2%E8%BF%8E%E6%9D%A5%E5%88%B0%E8%80%81%E6%B1%9F%E6%B9%96%E7%9A%84%E4%B8%96%E7%95%8C/index.html</url>
     <content><![CDATA[老江湖进房间门，这故事得从去年说起，说来话长，我们长话短说…
@@ -939,6 +977,14 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
     figure.appendChild(copyBtn);
   });
 });
+]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/tongji/index.html</url>
+    <content><![CDATA[
+
+
 ]]></content>
   </entry>
 </search>
