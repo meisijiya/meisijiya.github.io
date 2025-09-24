@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
       background: '#aaa', 
       border: 'none',
       borderRadius: '4px',
-      cursor: 'pointer',
+      cursor: 'pointer', 
       opacity: '0.85',
       zIndex: 1000,
       transition: 'opacity 0.2s ease',
