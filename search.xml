@@ -903,12 +903,6 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
 ]]></content>
   </entry>
   <entry>
-    <title>照片墙</title>
-    <url>/%E7%85%A7%E7%89%87%E5%A2%99/index.html</url>
-    <content><![CDATA[开发中ing…
-]]></content>
-  </entry>
-  <entry>
     <title>时间线</title>
     <url>/timeLine/index.html</url>
     <content><![CDATA[2024.10.5🎉老江湖和房间门确认关系的日子。
@@ -984,6 +978,1819 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
     <url>/tongji/index.html</url>
     <content><![CDATA[
 
+
+]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/%E7%85%A7%E7%89%87%E5%A2%99/index.html</url>
+    <content><![CDATA[
+
+  
+    
+    
+    照片墙展示
+    
+    
+    
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3B82F6",
+              secondary: "#6B7280",
+              accent: "#EC4899",
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
+    
+    
+      @layer utilities {
+        .content-auto {
+          content-visibility: auto;
+        }
+        .masonry-grid {
+          column-count: 1;
+          column-gap: 1rem;
+        }
+        @screen md {
+          .masonry-grid {
+            column-count: 2;
+          }
+        }
+        @screen lg {
+          .masonry-grid {
+            column-count: 3;
+          }
+        }
+        @screen xl {
+          .masonry-grid {
+            column-count: 4;
+          }
+        }
+        .masonry-item {
+          break-inside: avoid;
+          margin-bottom: 1rem;
+        }
+        .glass-effect {
+          backdrop-filter: blur(8px);
+          background-color: rgba(255, 255, 255, 0.15);
+        }
+        .photo-hover {
+          transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .photo-info {
+          opacity: 0;
+          transform: translateY(10px);
+          transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .photo-container:hover .photo-hover {
+          filter: brightness(0.7);
+        }
+        .photo-container:hover .photo-info {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    
+  
+  
+    
+    
+      
+      
+    
+    
+    
+      
+      
+        
+      
+      
+      
+        
+      
+      
+      
+        
+        
+      
+    
+
+    
+    
+      
+        老江湖的照片墙
+      
+      
+        记录生活中的美好瞬间，每一张照片都有一个故事
+      
+    
+
+    
+
+    
+    
+      
+        
+        
+          
+            
+            
+              
+                山间湖泊
+                大自然的壮丽景色
+              
+            
+          
+        
+
+        
+        
+          
+            
+            
+              
+                城市夜景
+                都市的繁华与活力
+              
+            
+          
+        
+
+        
+        
+          
+            
+            
+              
+                森林小径
+                宁静的自然之路
+              
+            
+          
+        
+
+        
+        
+          
+            
+            
+              
+                海边日落
+                一天中最美的时刻
+              
+            
+          
+        
+
+        
+        
+          
+            
+            
+              
+                群山云海
+                仙境般的自然景观
+              
+            
+          
+        
+
+        
+        
+          
+            
+            
+              
+                午后时光
+                悠闲的咖啡馆时光
+              
+            
+          
+        
+
+        
+        
+          
+            
+            
+              
+                绽放的花朵
+                生命的美好与绚烂
+              
+            
+          
+        
+
+        
+        
+          
+            
+            
+              
+                历史印记
+                古老建筑的岁月痕迹
+              
+            
+          
+        
+      
+    
+
+    
+    
+      
+      
+        
+          
+        
+        
+          
+            
+          
+          
+            
+            
+              
+              •
+              
+            
+            
+              
+            
+          
+        
+      
+    
+
+        
+    
+      
+      
+        
+          
+            
+          
+          背景音乐
+          是否开启背景音乐以获得更好的浏览体验？ 开启后可以在左上角关闭音乐
+          
+            
+              不开启
+            
+            
+              开启音乐
+            
+          
+        
+      
+    
+
+    
+      // 照片数据
+      const photos = [
+        {
+          id: 0,
+          src: "https://picsum.photos/id/10/600/800",
+          alt: "山间湖泊风景照，远处有雪山",
+          title: "山间湖泊",
+          date: "2023年6月15日",
+          location: "阿尔卑斯山脉",
+          description:
+            "这张照片拍摄于清晨的阿尔卑斯山脉，湖面平静如镜，倒映着远处的雪山。空气清新，带着一丝凉意，周围只有鸟鸣声打破宁静。这是大自然最纯粹的馈赠，让人感受到生命的美好与宁静。",
+        },
+        {
+          id: 1,
+          src: "https://picsum.photos/id/20/600/400",
+          alt: "城市建筑夜景，灯光璀璨",
+          title: "城市夜景",
+          date: "2023年8月2日",
+          location: "上海外滩",
+          description:
+            "夜幕降临，华灯初上，这座城市展现出与白天截然不同的魅力。高楼大厦的灯光勾勒出城市的天际线，黄浦江上游轮缓缓驶过，带来流动的光影。站在这里，能感受到都市的脉搏与活力。",
+        },
+        {
+          id: 2,
+          src: "https://picsum.photos/id/30/600/600",
+          alt: "森林中的小径，阳光透过树叶洒下",
+          title: "森林小径",
+          date: "2023年5月18日",
+          location: "北欧森林",
+          description:
+            "清晨的阳光透过茂密的树叶，在小径上洒下斑驳的光影。空气中弥漫着湿润的泥土气息和植物的清香，偶尔有小动物穿过小路，留下匆忙的足迹。这条小径仿佛通往童话世界，每一步都充满惊喜。",
+        },
+        {
+          id: 3,
+          src: "https://picsum.photos/id/40/600/500",
+          alt: "海边日落，天空呈现橙红色",
+          title: "海边日落",
+          date: "2023年7月20日",
+          location: "马尔代夫",
+          description:
+            "夕阳西下，天空被染成了绚丽的橙红色。海浪轻轻拍打着沙滩，留下白色的泡沫。远处的渔船缓缓归来，构成了一幅宁静而美丽的画面。这是一天中最温柔的时刻，让人忘却所有烦恼。",
+        },
+        {
+          id: 4,
+          src: "https://picsum.photos/id/50/600/700",
+          alt: "山脉全景，云雾缭绕",
+          title: "群山云海",
+          date: "2023年4月5日",
+          location: "黄山",
+          description:
+            "清晨登上山顶，眼前的景象令人惊叹。连绵起伏的群山被云海环绕，宛如仙境。阳光穿过云层，照亮了部分山峰，形成了壮丽的光影效果。站在这里，仿佛置身于天宫，感受大自然的鬼斧神工。",
+        },
+        {
+          id: 5,
+          src: "https://picsum.photos/id/60/600/450",
+          alt: "咖啡馆一角，有咖啡杯和书籍",
+          title: "午后时光",
+          date: "2023年9月10日",
+          location: "街角咖啡馆",
+          description:
+            "一个悠闲的周末午后，阳光透过玻璃窗洒进咖啡馆。点一杯拿铁，配上一本好书，享受这份难得的宁静。窗外人来人往，窗内时光静好，这是都市生活中难得的放松时刻。",
+        },
+        {
+          id: 6,
+          src: "https://picsum.photos/id/70/600/850",
+          alt: "花卉特写，色彩鲜艳",
+          title: "绽放的花朵",
+          date: "2023年3月25日",
+          location: "自家花园",
+          description:
+            "春天来了，花园里的花争相绽放。这朵花在阳光下显得格外鲜艳，花瓣上的露珠折射出七彩的光芒。凑近一闻，淡淡的花香沁人心脾。每一朵花的绽放都是生命的奇迹，值得我们细细品味。",
+        },
+        {
+          id: 7,
+          src: "https://picsum.photos/id/80/600/550",
+          alt: "古建筑细节，展示历史感",
+          title: "历史印记",
+          date: "2023年10月5日",
+          location: "古城墙",
+          description:
+            "这处古建筑见证了数百年的历史变迁，墙上的每一道痕迹都诉说着过去的故事。抚摸着粗糙的砖石，仿佛能感受到时光的流逝。保护这些历史遗迹，就是保护我们共同的文化记忆。",
+        },
+      ];
+
+      // DOM 元素
+      const modal = document.getElementById("photoModal");
+      const modalContent = document.getElementById("modalContent");
+      const modalImage = document.getElementById("modalImage");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalDate = document.getElementById("modalDate");
+      const modalLocation = document.getElementById("modalLocation");
+      const modalDescription = document.getElementById("modalDescription");
+      const closeModal = document.getElementById("closeModal");
+      const modalOverlay = document.getElementById("modalOverlay");
+      const photoContainers = document.querySelectorAll(".photo-container");
+      const musicToggle = document.getElementById("musicToggle");
+      const backgroundMusic = document.getElementById("backgroundMusic");
+
+      // 打开模态框
+      function openModal(photo) {
+        modalImage.src = photo.src;
+        modalImage.alt = photo.alt;
+        modalTitle.textContent = photo.title;
+        modalDate.innerHTML = `${photo.date}`;
+        modalLocation.innerHTML = `${photo.location}`;
+        modalDescription.textContent = photo.description;
+
+        modal.classList.remove("opacity-0", "pointer-events-none");
+        setTimeout(() => {
+          modalContent.classList.remove("scale-95");
+          modalContent.classList.add("scale-100");
+        }, 10);
+
+        document.body.style.overflow = "hidden";
+      }
+
+      // 关闭模态框
+      function closeModalFunc() {
+        modalContent.classList.remove("scale-100");
+        modalContent.classList.add("scale-95");
+        setTimeout(() => {
+          modal.classList.add("opacity-0", "pointer-events-none");
+          document.body.style.overflow = "";
+        }, 300);
+      }
+
+      // 照片点击事件
+      photoContainers.forEach((container) => {
+        container.addEventListener("click", () => {
+          const index = parseInt(container.dataset.index);
+          openModal(photos[index]);
+        });
+
+        // 鼠标移动视差效果
+        container.addEventListener("mousemove", (e) => {
+          const rect = container.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          const xPos = (x / rect.width - 0.5) * 10;
+          const yPos = (y / rect.height - 0.5) * 10;
+
+          const img = container.querySelector("img");
+          img.style.transform = `translate(${xPos}px, ${yPos}px)`;
+        });
+
+        // 鼠标离开时恢复
+        container.addEventListener("mouseleave", () => {
+          const img = container.querySelector("img");
+          img.style.transform = "translate(0, 0)";
+        });
+      });
+
+      // 关闭模态框事件
+      closeModal.addEventListener("click", closeModalFunc);
+      modalOverlay.addEventListener("click", closeModalFunc);
+
+      // 音乐控制
+      musicToggle.addEventListener("click", () => {
+        if (backgroundMusic.paused) {
+          backgroundMusic.play().catch((e) => {
+            console.log("播放失败:", e);
+            alert("自动播放被浏览器阻止，请手动点击播放按钮");
+          });
+          musicToggle.innerHTML = '';
+        } else {
+          backgroundMusic.pause();
+          musicToggle.innerHTML = '';
+        }
+      });
+
+ // 键盘ESC关闭模态框
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Escape" &&
+          !modal.classList.contains("pointer-events-none")
+        ) {
+          closeModalFunc();
+        }
+      });
+
+      // 音乐提示模态框
+      const musicModal = document.getElementById("musicModal");
+      const confirmMusic = document.getElementById("confirmMusic");
+      const cancelMusic = document.getElementById("cancelMusic");
+
+      // 页面加载完成后显示音乐提示
+      window.addEventListener('load', () => {
+        // 添加一个微小的延迟以确保页面完全加载
+        setTimeout(() => {
+          musicModal.classList.remove("opacity-0", "pointer-events-none");
+          const musicModalContent = musicModal.querySelector('div.relative');
+          setTimeout(() => {
+            musicModalContent.classList.remove("scale-95");
+            musicModalContent.classList.add("scale-100");
+          }, 10);
+        }, 1000);
+      });
+
+      // 确认播放音乐
+      confirmMusic.addEventListener("click", () => {
+        closeMusicModal();
+        backgroundMusic.play().catch((e) => {
+          console.log("播放失败:", e);
+          // 播放失败时更新按钮状态
+          musicToggle.innerHTML = '';
+        });
+        musicToggle.innerHTML = '';
+      });
+
+      // 取消播放音乐
+      cancelMusic.addEventListener("click", closeMusicModal);
+
+      // 关闭音乐提示模态框
+      function closeMusicModal() {
+        const musicModalContent = musicModal.querySelector('div.relative');
+        musicModalContent.classList.remove("scale-100");
+        musicModalContent.classList.add("scale-95");
+        setTimeout(() => {
+          musicModal.classList.add("opacity-0", "pointer-events-none");
+        }, 300);
+      }
+
+    
+  
+
+]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/manager/photo-manager.html</url>
+    <content><![CDATA[
+
+
+    
+    
+    照片管理器
+    
+    
+    
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#6B7280',
+                        accent: '#EC4899',
+                    }
+                }
+            }
+        }
+    
+    
+        .glass-effect {
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+    
+
+
+    
+        
+            照片管理器
+            添加和管理您的照片墙内容
+        
+
+        
+            
+            
+                添加新照片
+                
+                    
+                        照片URL
+                        
+                    
+                    
+                        照片描述 (alt)
+                        
+                    
+                    
+                        照片标题
+                        
+                    
+                    
+                        拍摄日期
+                        
+                    
+                    
+                        拍摄地点
+                        
+                    
+                    
+                        详细描述
+                        
+                    
+                    
+                        
+                            重置
+                        
+                        
+                            添加照片
+                        
+                    
+                
+            
+
+            
+            
+                照片列表
+                
+                    暂无照片
+                
+                
+                生成代码
+                
+                    
+                        生成照片墙代码
+                    
+                    
+                    
+                        复制代码
+                    
+                
+            
+        
+    
+
+    
+        // 存储照片的数组
+        let photos = [];
+
+        // DOM 元素
+        const photoForm = document.getElementById('photoForm');
+        const photoList = document.getElementById('photoList');
+        const generateCodeBtn = document.getElementById('generateCode');
+        const generatedCode = document.getElementById('generatedCode');
+        const copyCodeBtn = document.getElementById('copyCode');
+
+        // 添加照片表单提交处理
+        photoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const newPhoto = {
+                id: Date.now(), // 使用时间戳作为唯一ID
+                src: document.getElementById('photoSrc').value,
+                alt: document.getElementById('photoAlt').value,
+                title: document.getElementById('photoTitle').value,
+                date: document.getElementById('photoDate').value,
+                location: document.getElementById('photoLocation').value,
+                description: document.getElementById('photoDescription').value
+            };
+            
+            // 添加到照片数组
+            photos.push(newPhoto);
+            
+            // 更新照片列表显示
+            updatePhotoList();
+            
+            // 重置表单
+            photoForm.reset();
+            
+            alert('照片已添加！');
+        });
+
+        // 更新照片列表显示
+        function updatePhotoList() {
+            if (photos.length === 0) {
+                photoList.innerHTML = '暂无照片';
+                return;
+            }
+            
+            photoList.innerHTML = photos.map(photo => `
+                
+                    
+                    
+                        ${photo.title}
+                        ${photo.alt}
+                        
+                            
+                                 删除
+                            
+                        
+                    
+                
+            `).join('');
+        }
+
+        // 删除照片
+        function removePhoto(id) {
+            if (confirm('确定要删除这张照片吗？')) {
+                photos = photos.filter(photo => photo.id !== id);
+                updatePhotoList();
+            }
+        }
+
+        // 生成照片墙代码
+        generateCodeBtn.addEventListener('click', function() {
+            if (photos.length === 0) {
+                alert('请先添加一些照片！');
+                return;
+            }
+            
+            // 生成照片数据部分
+            const photoDataCode = `const photos = [\n${photos.map((photo, index) => `    {
+        id: ${index},
+        src: "${photo.src}",
+        alt: "${photo.alt}",
+        title: "${photo.title}",
+        date: "${photo.date}",
+        location: "${photo.location}",
+        description: "${photo.description}"
+    }`).join(',\n')}\n];`;
+            
+            // 生成照片HTML部分
+            const photoHTMLCode = photos.map((photo, index) => `            
+            
+                
+                    
+                    
+                        
+                            ${photo.title}
+                            ${photo.alt}
+                        
+                    
+                
+            `).join('\n\n');
+            
+            // 组合完整代码
+            const fullCode = `// 照片数据\n${photoDataCode}\n\n// 照片墙HTML\n${photoHTMLCode}`;
+            
+            // 显示生成的代码
+            generatedCode.value = fullCode;
+            generatedCode.classList.remove('hidden');
+            copyCodeBtn.classList.remove('hidden');
+        });
+
+        // 复制代码到剪贴板
+        copyCodeBtn.addEventListener('click', function() {
+            generatedCode.select();
+            document.execCommand('copy');
+            alert('代码已复制到剪贴板！');
+        });
+    
+
+]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/Timer/index.html</url>
+    <content><![CDATA[
+
+
+    
+    
+    任务计时器 | 高效管理你的时间
+    
+    
+    
+    
+    
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        danger: '#EF4444',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    
+    
+    
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .timer-shadow {
+                box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
+            }
+            .card-hover {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            .progress-bar {
+                height: 8px;
+                border-radius: 4px;
+                background-color: #E5E7EB;
+                overflow: hidden;
+            }
+            .progress-value {
+                height: 100%;
+                transition: width 0.3s ease;
+            }
+        }
+        
+        /* 添加与博客主题一致的样式 */
+        body {
+            background-color: #fbfbfb;
+            color: #161209;
+            font-family: 'Microsoft Jhenghei', Lantinghei SC, 'lanting', PingFang SC, Seguo UI, Microsoft Yahei, Arial;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        
+        body.dark-theme {
+            background-color: #292a2d;
+            color: #a9a9b3;
+        }
+        
+        /* 使内容居中并限制最大宽度 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 1em;
+            padding-right: 1em;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: #fbfbfb;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: background-color 0.2s ease;
+        }
+        
+        .dark-theme header {
+            background-color: #292a2d;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            transition: all 0.2s ease;
+        }
+        
+        .dark-theme .btn {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+        }
+        
+        .dark-theme .btn:hover {
+            background-color: #4a4a4a;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .dark-theme .card {
+            background-color: #333336;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        /* 表格样式 */
+        .dark-theme table thead {
+            background-color: #444448;
+        }
+        
+        .dark-theme table td,
+        .dark-theme table th {
+            border-color: #555559;
+        }
+        
+        /* 进度条样式 */
+        .dark-theme .progress-bar {
+            background-color: #555559;
+        }
+        
+        /* 输入框样式 */
+        .form-input {
+            background-color: #ffffff;
+            border-color: #d1d5db;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        
+        .dark-theme .form-input {
+            background-color: #2d2d30;
+            border-color: #555559;
+            color: #e0e0e0;
+        }
+        
+        .dark-theme .form-input:focus {
+            border-color: #3B82F6;
+        }
+        
+        /* 模态框样式 */
+        .dark-theme #task-modal {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background-color: #292a2d;
+            color: #a9a9b3;
+        }
+        
+        /* 链接样式 */
+        a {
+            color: #161209;
+            transition: color 0.2s ease;
+        }
+        
+        .dark-theme a {
+            color: #a9a9b3;
+        }
+        
+        .dark-theme a:hover {
+            color: #ffffff;
+        }
+    
+
+
+    
+    
+        
+           
+                
+                任务计时器
+            
+            
+            
+                计时器
+                任务管理
+                历史记录
+            
+            
+            
+                
+            
+        
+        
+        
+        
+            计时器
+            任务管理
+            历史记录
+        
+    
+
+    
+        
+        
+            
+                 数据已保存
+            
+        
+        
+        
+        
+            
+                
+                    专注计时器
+                    为你的任务设定时间，提高工作效率
+                
+                
+                
+                    
+                    
+                        未选择任务
+                        请从任务列表中选择一个任务开始计时
+                        
+                        
+                        
+                            
+                                进度: 0%
+                                已用时 / 目标时长
+                            
+                            
+                                
+                            
+                        
+                    
+                    
+                    
+                    
+                        
+                            00:00:00
+                        
+                        
+                            
+                                准备就绪
+                            
+                        
+                    
+                    
+                    
+                    
+                        
+                             开始
+                        
+                        
+                             暂停
+                        
+                        
+                             重置
+                        
+                        
+                             完成
+                        
+                    
+                
+            
+        
+        
+        
+        
+            
+                
+                    任务管理
+                    
+                         添加任务
+                    
+                
+                
+                
+                
+                    
+                
+                
+                
+                
+                    
+                    还没有任务，点击"添加任务"按钮创建你的第一个任务吧
+                
+            
+        
+        
+        
+        
+            
+                历史记录
+                
+                
+                
+                    
+                        
+                            
+                                
+                                    任务名称
+                                    时长
+                                    开始时间
+                                    状态
+                                
+                            
+                            
+                                
+                            
+                        
+                    
+                
+                
+                
+                
+                    
+                    暂无计时历史记录
+                
+            
+        
+    
+    
+    
+    
+        
+            
+                添加新任务
+                
+                    
+                
+            
+            
+            
+                
+                
+                
+                    任务名称
+                    
+                
+                
+                
+                    任务描述 (可选)
+                    
+                
+                
+                
+                    目标时长
+                    
+                        
+                            
+                        
+                        
+                            
+                        
+                        
+                            
+                        
+                    
+                    设置完成该任务的计划用时
+                
+                
+                
+                    取消
+                    保存任务
+                
+            
+        
+    
+    
+    
+    
+    
+        // 全局状态管理
+        const state = {
+            tasks: [],
+            history: [],
+            currentTask: null,
+            timer: null,
+            seconds: 0,
+            isRunning: false,
+            // 本地存储键名
+            storageKey: 'taskTimerData'
+        };
+        
+        // DOM 元素
+        const elements = {
+            timerDisplay: document.getElementById('timer-display'),
+            timerStatus: document.getElementById('timer-status'),
+            startTimerBtn: document.getElementById('start-timer'),
+            pauseTimerBtn: document.getElementById('pause-timer'),
+            resetTimerBtn: document.getElementById('reset-timer'),
+            completeTaskBtn: document.getElementById('complete-task'),
+            currentTaskName: document.getElementById('current-task-name'),
+            currentTaskDescription: document.getElementById('current-task-description'),
+            currentTaskProgressContainer: document.getElementById('current-task-progress-container'),
+            currentTaskProgressBar: document.getElementById('current-task-progress-bar'),
+            currentTaskProgressText: document.getElementById('current-task-progress-text'),
+            currentTaskTimeInfo: document.getElementById('current-task-time-info'),
+            taskList: document.getElementById('task-list'),
+            emptyTasks: document.getElementById('empty-tasks'),
+            historyList: document.getElementById('history-list'),
+            emptyHistory: document.getElementById('empty-history'),
+            addTaskButton: document.getElementById('add-task-button'),
+            taskModal: document.getElementById('task-modal'),
+            modalContent: document.getElementById('modal-content'),
+            modalTitle: document.getElementById('modal-title'),
+            closeModal: document.getElementById('close-modal'),
+            cancelTask: document.getElementById('cancel-task'),
+            taskForm: document.getElementById('task-form'),
+            taskId: document.getElementById('task-id'),
+            taskName: document.getElementById('task-name'),
+            taskDescription: document.getElementById('task-description'),
+            taskHours: document.getElementById('task-hours'),
+            taskMinutes: document.getElementById('task-minutes'),
+            taskSeconds: document.getElementById('task-seconds'),
+            mobileMenuButton: document.getElementById('mobile-menu-button'),
+            mobileMenu: document.getElementById('mobile-menu'),
+            storageStatus: document.getElementById('storage-status')
+        };
+        
+        // 本地存储相关函数
+        const saveToLocalStorage = () => {
+            try {
+                // 准备要保存的数据
+                const dataToSave = {
+                    tasks: state.tasks,
+                    history: state.history
+                };
+                
+                localStorage.setItem(state.storageKey, JSON.stringify(dataToSave));
+                
+                // 更新存储状态指示器
+                updateStorageStatus(true);
+            } catch (error) {
+                console.error('保存数据到本地存储失败:', error);
+                updateStorageStatus(false);
+            }
+        };
+        
+        const loadFromLocalStorage = () => {
+            try {
+                const savedData = localStorage.getItem(state.storageKey);
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    
+                    // 恢复任务数据
+                    if (Array.isArray(parsedData.tasks)) {
+                        state.tasks = parsedData.tasks;
+                    }
+                    
+                    // 恢复历史记录
+                    if (Array.isArray(parsedData.history)) {
+                        state.history = parsedData.history;
+                    }
+                    
+                    return true;
+                }
+            } catch (error) {
+                console.error('从本地存储加载数据失败:', error);
+            }
+            
+            return false;
+        };
+        
+        const updateStorageStatus = (isSaved) => {
+            if (isSaved) {
+                elements.storageStatus.innerHTML = `
+                    
+                         数据已保存
+                    
+                `;
+            } else {
+                elements.storageStatus.innerHTML = `
+                    
+                         数据保存失败
+                    
+                `;
+            }
+        };
+        
+        // 工具函数
+        const formatTime = (seconds) => {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return [
+                h.toString().padStart(2, '0'),
+                m.toString().padStart(2, '0'),
+                s.toString().padStart(2, '0')
+            ].join(':');
+        };
+        
+        const formatDuration = (seconds) => {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        };
+        
+        // 计算进度百分比
+        const calculateProgress = (current, target) => {
+            if (target  {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            
+            // 确定是今天还是昨天
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            if (now >= today) {
+                return `今天 ${hours}:${minutes}`;
+            } else if (now >= yesterday) {
+                return `昨天 ${hours}:${minutes}`;
+            } else {
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const day = now.getDate().toString().padStart(2, '0');
+                return `${month}/${day} ${hours}:${minutes}`;
+            }
+        };
+        
+        // 渲染函数
+        const renderTimer = () => {
+            elements.timerDisplay.textContent = formatTime(state.seconds);
+            
+            // 更新当前任务进度
+            if (state.currentTask && state.currentTask.targetDuration > 0) {
+                const totalTime = state.currentTask.duration + state.seconds;
+                const progress = calculateProgress(totalTime, state.currentTask.targetDuration);
+                
+                elements.currentTaskProgressBar.style.width = `${progress}%`;
+                elements.currentTaskProgressText.textContent = `进度: ${progress}%`;
+                elements.currentTaskTimeInfo.textContent = `${formatDuration(totalTime)} / ${formatDuration(state.currentTask.targetDuration)}`;
+                
+                // 当进度超过100%时改变颜色
+                if (progress >= 100) {
+                    elements.currentTaskProgressBar.classList.remove('bg-primary');
+                    elements.currentTaskProgressBar.classList.add('bg-accent');
+                } else {
+                    elements.currentTaskProgressBar.classList.remove('bg-accent');
+                    elements.currentTaskProgressBar.classList.add('bg-primary');
+                }
+            }
+            
+            if (state.isRunning) {
+                elements.timerStatus.textContent = '正在计时';
+                elements.timerStatus.className = 'inline-block px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm';
+                elements.startTimerBtn.classList.add('hidden');
+                elements.pauseTimerBtn.classList.remove('hidden');
+                elements.completeTaskBtn.classList.remove('hidden');
+            } else {
+                if (state.currentTask) {
+                    elements.timerStatus.textContent = '已暂停';
+                    elements.timerStatus.className = 'inline-block px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-sm';
+                    elements.startTimerBtn.classList.remove('hidden');
+                    elements.pauseTimerBtn.classList.add('hidden');
+                    elements.completeTaskBtn.classList.remove('hidden');
+                } else {
+                    elements.timerStatus.textContent = '准备就绪';
+                    elements.timerStatus.className = 'inline-block px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm';
+                    elements.startTimerBtn.classList.remove('hidden');
+                    elements.pauseTimerBtn.classList.add('hidden');
+                    elements.completeTaskBtn.classList.add('hidden');
+                }
+            }
+        };
+        
+        const renderCurrentTask = () => {
+            if (state.currentTask) {
+                elements.currentTaskName.textContent = state.currentTask.name;
+                elements.currentTaskDescription.textContent = state.currentTask.description || '无描述';
+                
+                // 显示或隐藏进度条
+                if (state.currentTask.targetDuration > 0) {
+                    elements.currentTaskProgressContainer.classList.remove('hidden');
+                } else {
+                    elements.currentTaskProgressContainer.classList.add('hidden');
+                }
+            } else {
+                elements.currentTaskName.textContent = '未选择任务';
+                elements.currentTaskDescription.textContent = '请从任务列表中选择一个任务开始计时';
+                elements.currentTaskProgressContainer.classList.add('hidden');
+            }
+            
+            renderTimer();
+        };
+        
+        const renderTasks = () => {
+            elements.taskList.innerHTML = '';
+            
+            if (state.tasks.length === 0) {
+                elements.taskList.classList.add('hidden');
+                elements.emptyTasks.classList.remove('hidden');
+                return;
+            }
+            
+            elements.taskList.classList.remove('hidden');
+            elements.emptyTasks.classList.add('hidden');
+            
+            state.tasks.forEach(task => {
+                const taskCard = document.createElement('div');
+                taskCard.className = 'bg-white rounded-xl p-5 shadow-sm card-hover card';
+                taskCard.dataset.taskId = task.id;
+                
+                // 计算任务进度
+                const progress = task.targetDuration > 0 ? calculateProgress(task.duration, task.targetDuration) : 0;
+                const progressColor = progress >= 100 ? 'bg-accent' : 'bg-primary';
+                
+                // 格式化目标时长显示
+                const targetDurationText = task.targetDuration > 0 ? formatDuration(task.targetDuration) : '未设置';
+                
+                taskCard.innerHTML = `
+                    
+                        
+                            ${task.name}
+                            ${task.description || '无描述'}
+                            
+                            ${task.targetDuration > 0 ? `
+                            
+                                
+                                    
+                                         完成度: ${progress}%
+                                    
+                                    
+                                         目标: ${targetDurationText}
+                                    
+                                
+                                
+                                    
+                                
+                            
+                            ` : ''}
+                            
+                            
+                                
+                                     已用时: ${formatDuration(task.duration)}
+                                
+                                
+                                     最后更新: ${task.lastUpdated || '从未'}
+                                
+                            
+                        
+                        
+                            
+                                
+                            
+                            
+                                
+                            
+                            
+                                
+                            
+                            
+                                
+                            
+                        
+                    
+                `;
+                
+                elements.taskList.appendChild(taskCard);
+                
+                // 添加事件监听
+                taskCard.querySelector('.start-task-btn').addEventListener('click', () => {
+                    selectTask(task.id);
+                });
+                
+                taskCard.querySelector('.edit-task-btn').addEventListener('click', () => {
+                    editTask(task.id);
+                });
+                
+                taskCard.querySelector('.reset-task-btn').addEventListener('click', () => {
+                    resetTaskProgress(task.id);
+                });
+                
+                taskCard.querySelector('.delete-task-btn').addEventListener('click', () => {
+                    deleteTask(task.id);
+                });
+            });
+        };
+        
+        const renderHistory = () => {
+            elements.historyList.innerHTML = '';
+            
+            if (state.history.length === 0) {
+                elements.historyList.classList.add('hidden');
+                elements.emptyHistory.classList.remove('hidden');
+                return;
+            }
+            
+            elements.historyList.classList.remove('hidden');
+            elements.emptyHistory.classList.add('hidden');
+            
+            // 按时间倒序显示（最新的在前面）
+            const sortedHistory = [...state.history].sort((a, b) => b.id - a.id);
+            
+            sortedHistory.forEach(record => {
+                const row = document.createElement('tr');
+                
+                const statusClass = record.status === 'completed' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-yellow-100 text-yellow-800';
+                    
+                const statusText = record.status === 'completed' ? '已完成' : '未完成';
+                
+                row.innerHTML = `
+                    
+                        ${record.taskName}
+                    
+                    
+                        ${formatDuration(record.duration)}
+                    
+                    
+                        ${record.startTime}
+                    
+                    
+                        
+                            ${statusText}
+                        
+                    
+                `;
+                
+                elements.historyList.appendChild(row);
+            });
+        };
+        
+        // 计时器控制函数
+        const startTimer = () => {
+            if (state.isRunning || !state.currentTask) return;
+            
+            state.isRunning = true;
+            state.timer = setInterval(() => {
+                state.seconds++;
+                renderTimer();
+                
+                // 每30秒自动保存一次
+                if (state.seconds % 30 === 0) {
+                    saveToLocalStorage();
+                }
+            }, 1000);
+            
+            renderTimer();
+        };
+        
+        const pauseTimer = () => {
+            if (!state.isRunning) return;
+            
+            clearInterval(state.timer);
+            state.isRunning = false;
+            renderTimer();
+            
+            // 暂停时保存数据
+            saveToLocalStorage();
+        };
+        
+        const resetTimer = () => {
+            if (!state.isRunning) return;
+            
+            clearInterval(state.timer);
+            state.isRunning = false;
+            state.seconds = 0;
+            renderTimer();
+            
+            // 重置时保存数据
+            saveToLocalStorage();
+        };
+        
+        const completeTask = () => {
+            if (!state.currentTask) return;
+            
+            pauseTimer();
+            
+            // 更新任务总时长
+            const taskIndex = state.tasks.findIndex(t => t.id === state.currentTask.id);
+            if (taskIndex !== -1) {
+                state.tasks[taskIndex].duration += state.seconds;
+                state.tasks[taskIndex].lastUpdated = getCurrentTimeString().split(' ')[0];
+            }
+            
+            // 添加到历史记录
+            const startTime = getCurrentTimeString();
+            
+            state.history.push({
+                id: Date.now(),
+                taskId: state.currentTask.id,
+                taskName: state.currentTask.name,
+                duration: state.seconds,
+                startTime: startTime,
+                status: 'completed'
+            });
+            
+            // 重置计时器
+            state.currentTask = null;
+            state.seconds = 0;
+            
+            // 重新渲染
+            renderCurrentTask();
+            renderTimer();
+            renderTasks();
+            renderHistory();
+            
+            // 完成任务后保存数据
+            saveToLocalStorage();
+            
+            // 显示完成提示
+            alert('任务已完成！');
+        };
+        
+        // 任务管理函数
+        const selectTask = (taskId) => {
+            // 如果有正在运行的计时器，先暂停
+            if (state.isRunning) {
+                pauseTimer();
+            }
+            
+            // 查找任务
+            const task = state.tasks.find(t => t.id === taskId);
+            if (task) {
+                state.currentTask = task;
+                state.seconds = 0;
+                renderCurrentTask();
+                
+                // 滚动到计时器
+                document.getElementById('timer').scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+        
+        const addTask = () => {
+            elements.modalTitle.textContent = '添加新任务';
+            elements.taskId.value = '';
+            elements.taskName.value = '';
+            elements.taskDescription.value = '';
+            elements.taskHours.value = '';
+            elements.taskMinutes.value = '';
+            elements.taskSeconds.value = '';
+            
+            openModal();
+        };
+        
+        const editTask = (taskId) => {
+            const task = state.tasks.find(t => t.id === taskId);
+            if (task) {
+                elements.modalTitle.textContent = '编辑任务';
+                elements.taskId.value = task.id;
+                elements.taskName.value = task.name;
+                elements.taskDescription.value = task.description || '';
+                
+                // 分解目标时长为小时、分钟、秒
+                if (task.targetDuration > 0) {
+                    const hours = Math.floor(task.targetDuration / 3600);
+                    const minutes = Math.floor((task.targetDuration % 3600) / 60);
+                    const seconds = task.targetDuration % 60;
+                    
+                    elements.taskHours.value = hours;
+                    elements.taskMinutes.value = minutes;
+                    elements.taskSeconds.value = seconds;
+                } else {
+                    elements.taskHours.value = '';
+                    elements.taskMinutes.value = '';
+                    elements.taskSeconds.value = '';
+                }
+                
+                openModal();
+            }
+        };
+        
+        // 删除任务功能
+        const deleteTask = (taskId) => {
+            if (confirm('确定要删除这个任务吗？此操作无法撤销。')) {
+                // 如果删除的是当前正在计时的任务，先重置计时器
+                if (state.currentTask && state.currentTask.id === taskId) {
+                    resetTimer();
+                    state.currentTask = null;
+                    renderCurrentTask();
+                }
+                
+                // 从任务列表中删除任务
+                state.tasks = state.tasks.filter(task => task.id !== taskId);
+                
+                // 从历史记录中删除与该任务相关的记录
+                state.history = state.history.filter(record => record.taskId !== taskId);
+                
+                // 重新渲染界面
+                renderTasks();
+                renderHistory();
+                
+                // 保存数据
+                saveToLocalStorage();
+            }
+        };
+        
+        // 重置任务进度功能
+        const resetTaskProgress = (taskId) => {
+            if (confirm('确定要重置这个任务的进度吗？这将清除该任务的所有累计时间。')) {
+                const taskIndex = state.tasks.findIndex(t => t.id === taskId);
+                
+                if (taskIndex !== -1) {
+                    // 重置任务进度
+                    state.tasks[taskIndex].duration = 0;
+                    state.tasks[taskIndex].lastUpdated = getCurrentTimeString().split(' ')[0];
+                    
+                    // 如果是当前任务，也重置计时器
+                    if (state.currentTask && state.currentTask.id === taskId) {
+                        resetTimer();
+                        renderTimer();
+                    }
+                    
+                    // 重新渲染界面
+                    renderTasks();
+                    
+                    // 保存数据
+                    saveToLocalStorage();
+                }
+            }
+        };
+        
+        const saveTask = (e) => {
+            e.preventDefault();
+            
+            const id = elements.taskId.value ? parseInt(elements.taskId.value) : Date.now();
+            const name = elements.taskName.value.trim();
+            const description = elements.taskDescription.value.trim();
+            
+            // 计算目标时长（秒）
+            const hours = parseInt(elements.taskHours.value) || 0;
+            const minutes = parseInt(elements.taskMinutes.value) || 0;
+            const seconds = parseInt(elements.taskSeconds.value) || 0;
+            const targetDuration = hours * 3600 + minutes * 60 + seconds;
+            
+            if (!name) return;
+            
+            const taskIndex = state.tasks.findIndex(t => t.id === id);
+            
+            if (taskIndex !== -1) {
+                // 更新现有任务
+                state.tasks[taskIndex].name = name;
+                state.tasks[taskIndex].description = description;
+                state.tasks[taskIndex].targetDuration = targetDuration;
+                state.tasks[taskIndex].lastUpdated = getCurrentTimeString().split(' ')[0];
+                
+                // 如果是当前任务，更新当前任务信息
+                if (state.currentTask && state.currentTask.id === id) {
+                    state.currentTask.name = name;
+                    state.currentTask.description = description;
+                    state.currentTask.targetDuration = targetDuration;
+                    renderCurrentTask();
+                }
+            } else {
+                // 添加新任务
+                state.tasks.push({
+                    id: id,
+                    name: name,
+                    description: description,
+                    duration: 0,
+                    targetDuration: targetDuration,
+                    lastUpdated: getCurrentTimeString().split(' ')[0]
+                });
+            }
+            
+            closeModal();
+            renderTasks();
+            
+            // 保存任务后保存数据
+            saveToLocalStorage();
+        };
+        
+        // 模态框控制函数
+        const openModal = () => {
+            elements.taskModal.classList.remove('hidden');
+            // 触发动画
+            setTimeout(() => {
+                elements.modalContent.classList.remove('scale-95', 'opacity-0');
+                elements.modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            
+            // 聚焦到任务名称输入框
+            elements.taskName.focus();
+        };
+        
+        const closeModal = () => {
+            elements.modalContent.classList.remove('scale-100', 'opacity-100');
+            elements.modalContent.classList.add('scale-95', 'opacity-0');
+            
+            // 完全隐藏模态框
+            setTimeout(() => {
+                elements.taskModal.classList.add('hidden');
+            }, 300);
+        };
+        
+        // 移动端菜单控制
+        const toggleMobileMenu = () => {
+            elements.mobileMenu.classList.toggle('hidden');
+        };
+        
+        // 事件监听
+        elements.startTimerBtn.addEventListener('click', startTimer);
+        elements.pauseTimerBtn.addEventListener('click', pauseTimer);
+        elements.resetTimerBtn.addEventListener('click', resetTimer);
+        elements.completeTaskBtn.addEventListener('click', completeTask);
+        elements.addTaskButton.addEventListener('click', addTask);
+        elements.closeModal.addEventListener('click', closeModal);
+        elements.cancelTask.addEventListener('click', closeModal);
+        elements.taskForm.addEventListener('submit', saveTask);
+        elements.mobileMenuButton.addEventListener('click', toggleMobileMenu);
+        
+        // 点击模态框外部关闭
+        elements.taskModal.addEventListener('click', (e) => {
+            if (e.target === elements.taskModal) {
+                closeModal();
+            }
+        });
+        
+        // 页面关闭前保存数据
+        window.addEventListener('beforeunload', () => {
+            if (state.isRunning) {
+                pauseTimer();
+                
+                // 如果有关联任务，保存当前计时
+                if (state.currentTask) {
+                    const taskIndex = state.tasks.findIndex(t => t.id === state.currentTask.id);
+                    if (taskIndex !== -1) {
+                        state.tasks[taskIndex].duration += state.seconds;
+                        state.tasks[taskIndex].lastUpdated = getCurrentTimeString().split(' ')[0];
+                        
+                        // 添加未完成记录
+                        const startTime = getCurrentTimeString();
+                        state.history.push({
+                            id: Date.now(),
+                            taskId: state.currentTask.id,
+                            taskName: state.currentTask.name,
+                            duration: state.seconds,
+                            startTime: startTime,
+                            status: 'incomplete'
+                        });
+                    }
+                }
+            }
+            
+            saveToLocalStorage();
+        });
+        
+        // 初始化
+        const init = () => {
+            // 从本地存储加载数据
+            const loaded = loadFromLocalStorage();
+            
+            // // 如果没有加载到数据，添加一些示例任务
+            // if (!loaded || state.tasks.length === 0) {
+            //     state.tasks = [
+            //         { 
+            //             id: 1, 
+            //             name: '完成项目报告', 
+            //             description: '撰写并提交季度项目进展报告', 
+            //             duration: 5025, 
+            //             targetDuration: 10800, // 3小时
+            //             lastUpdated: '今天' 
+            //         },
+            //         { 
+            //             id: 2, 
+            //             name: '学习JavaScript', 
+            //             description: '学习异步编程和Promise相关知识', 
+            //             duration: 11722, 
+            //             targetDuration: 14400, // 4小时
+            //             lastUpdated: '昨天' 
+            //         }
+            //     ];
+                
+            //     state.history = [
+            //         { id: 1, taskId: 1, taskName: '完成项目报告', duration: 6330, startTime: '今天 09:30', status: 'completed' },
+            //         { id: 2, taskId: 2, taskName: '学习JavaScript', duration: 7510, startTime: '昨天 14:20', status: 'completed' },
+            //         { id: 3, taskId: 3, taskName: '准备会议材料', duration: 3322, startTime: '昨天 10:15', status: 'incomplete' }
+            //     ];
+                
+            //     // 保存示例数据
+            //     saveToLocalStorage();
+            // }
+            
+            renderTimer();
+            renderCurrentTask();
+            renderTasks();
+            renderHistory();
+        };
+        
+        // 启动应用
+        init();
+    
 
 ]]></content>
   </entry>

@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>标签: 学习大纲 | 欢迎来到老江湖的博客</title>
+<title>欢迎来到老江湖的博客</title>
 
 
 
@@ -410,31 +410,230 @@
 </style>
 
             <div class="main">
+                <div class="container">
+    <article class="post-wrap page">
+        
+        <h2 class="post-title"></h2>
+        
+        <section class="post-content">
+            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>照片管理器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#6B7280',
+                        accent: '#EC4899',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-effect {
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-800">照片管理器</h1>
+            <p class="text-gray-600 mt-2">添加和管理您的照片墙内容</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- 添加照片表单 -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">添加新照片</h2>
+                <form id="photoForm" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="photoSrc">照片URL</label>
+                        <input type="text" id="photoSrc" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="https://example.com/photo.jpg" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="photoAlt">照片描述 (alt)</label>
+                        <input type="text" id="photoAlt" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="照片的简短描述" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="photoTitle">照片标题</label>
+                        <input type="text" id="photoTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="照片标题" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="photoDate">拍摄日期</label>
+                        <input type="text" id="photoDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="2023年1月1日" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="photoLocation">拍摄地点</label>
+                        <input type="text" id="photoLocation" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="拍摄地点" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="photoDescription">详细描述</label>
+                        <textarea id="photoDescription" class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="3" placeholder="照片的详细描述和背后的故事" required></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="reset" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                            重置
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            添加照片
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 照片列表和代码生成 -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">照片列表</h2>
+                <div id="photoList" class="space-y-4 mb-6 max-h-96 overflow-y-auto">
+                    <p class="text-gray-500 text-center py-4">暂无照片</p>
+                </div>
                 
+                <h2 class="text-xl font-bold text-gray-800 mb-4">生成代码</h2>
+                <div class="space-y-4">
+                    <button id="generateCode" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        生成照片墙代码
+                    </button>
+                    <textarea id="generatedCode" class="w-full h-64 px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm hidden" readonly></textarea>
+                    <button id="copyCode" class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors hidden">
+                        复制代码
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    
-<div class="container">
-  <div class="post-wrap tags">
-    <h2 class="post-title">-&nbsp;标签&nbsp;·&nbsp;学习大纲-</h2>
-  </div>
-  <div class="post-wrap archive">
-    
-    
-        
+    <script>
+        // 存储照片的数组
+        let photos = [];
 
-        
-            <h3>2025</h3>
-        
+        // DOM 元素
+        const photoForm = document.getElementById('photoForm');
+        const photoList = document.getElementById('photoList');
+        const generateCodeBtn = document.getElementById('generateCode');
+        const generatedCode = document.getElementById('generatedCode');
+        const copyCodeBtn = document.getElementById('copyCode');
 
-        <article class="archive-item">
-            <a class="archive-item-link" href="/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/01-%E6%80%BB%E8%A7%88/">01-总览</a>
-            <span class="archive-item-date">九月 20, 2025</span>
-        </article>
-    
-    
+        // 添加照片表单提交处理
+        photoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const newPhoto = {
+                id: Date.now(), // 使用时间戳作为唯一ID
+                src: document.getElementById('photoSrc').value,
+                alt: document.getElementById('photoAlt').value,
+                title: document.getElementById('photoTitle').value,
+                date: document.getElementById('photoDate').value,
+                location: document.getElementById('photoLocation').value,
+                description: document.getElementById('photoDescription').value
+            };
+            
+            // 添加到照片数组
+            photos.push(newPhoto);
+            
+            // 更新照片列表显示
+            updatePhotoList();
+            
+            // 重置表单
+            photoForm.reset();
+            
+            alert('照片已添加！');
+        });
+
+        // 更新照片列表显示
+        function updatePhotoList() {
+            if (photos.length === 0) {
+                photoList.innerHTML = '<p class="text-gray-500 text-center py-4">暂无照片</p>';
+                return;
+            }
+            
+            photoList.innerHTML = photos.map(photo => `
+                <div class="border border-gray-200 rounded-lg p-4 flex items-start">
+                    <img src="${photo.src}" alt="${photo.alt}" class="w-16 h-16 object-cover rounded mr-4">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800">${photo.title}</h3>
+                        <p class="text-gray-600 text-sm truncate">${photo.alt}</p>
+                        <div class="flex justify-end mt-2">
+                            <button onclick="removePhoto(${photo.id})" class="text-red-600 hover:text-red-800 text-sm">
+                                <i class="fa fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 删除照片
+        function removePhoto(id) {
+            if (confirm('确定要删除这张照片吗？')) {
+                photos = photos.filter(photo => photo.id !== id);
+                updatePhotoList();
+            }
+        }
+
+        // 生成照片墙代码
+        generateCodeBtn.addEventListener('click', function() {
+            if (photos.length === 0) {
+                alert('请先添加一些照片！');
+                return;
+            }
+            
+            // 生成照片数据部分
+            const photoDataCode = `const photos = [\n${photos.map((photo, index) => `    {
+        id: ${index},
+        src: "${photo.src}",
+        alt: "${photo.alt}",
+        title: "${photo.title}",
+        date: "${photo.date}",
+        location: "${photo.location}",
+        description: "${photo.description}"
+    }`).join(',\n')}\n];`;
+            
+            // 生成照片HTML部分
+            const photoHTMLCode = photos.map((photo, index) => `            <!-- 照片项 ${index + 1} -->
+            <div class="masonry-item photo-container group cursor-pointer" data-index="${index}">
+                <div class="relative overflow-hidden rounded-lg shadow-xl">
+                    <img src="${photo.src}" alt="${photo.alt}" class="w-full h-auto photo-hover">
+                    <div class="absolute inset-0 flex items-end p-4 photo-info glass-effect">
+                        <div>
+                            <h3 class="text-white font-bold text-xl">${photo.title}</h3>
+                            <p class="text-white/90">${photo.alt}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>`).join('\n\n');
+            
+            // 组合完整代码
+            const fullCode = `// 照片数据\n${photoDataCode}\n\n// 照片墙HTML\n${photoHTMLCode}`;
+            
+            // 显示生成的代码
+            generatedCode.value = fullCode;
+            generatedCode.classList.remove('hidden');
+            copyCodeBtn.classList.remove('hidden');
+        });
+
+        // 复制代码到剪贴板
+        copyCodeBtn.addEventListener('click', function() {
+            generatedCode.select();
+            document.execCommand('copy');
+            alert('代码已复制到剪贴板！');
+        });
+    </script>
+</body>
+</html>
+        </section>
+    </article>
 </div>
-</div>
-
 
             </div>
             <footer id="footer" class="footer">
