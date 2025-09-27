@@ -1994,9 +1994,9 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             }
         }
         // 添加全局点击音效函数
-        function playClickSound() {
-            playSound('click');
-        }
+        // function playClickSound() {
+        //     playSound('click');
+        // }
 
         // 待办事项管理
         class TodoManager {
@@ -2623,7 +2623,7 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             });
         }
 
-        // 初始化主题
+  /// 初始化主题
         function initTheme() {
             // 移除可能存在的dark类
             document.documentElement.classList.remove('dark');
@@ -2638,13 +2638,26 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             }
             
             // 主题切换按钮
-            document.getElementById('theme-toggle').addEventListener('click', () => {
-                const isDark = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('darkMode', isDark);
-                playSound('click');
-            });
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                // 移除之前可能添加的事件监听器
+                themeToggle.removeEventListener('click', toggleTheme);
+                
+                // 添加新的事件监听器
+                themeToggle.addEventListener('click', toggleTheme);
+            } else {
+                console.warn('Theme toggle button not found');
+            }
         }
 
+        // 主题切换处理函数
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', isDark);
+            playSound('click');
+        }
+
+        
         // 初始化音效设置
         function initSoundSettings() {
             const soundToggle = document.getElementById('sound-toggle');
@@ -2712,7 +2725,7 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
                 });
             });
             
-            // 清除设置数据
+          // 清除设置数据
             document.getElementById('clear-settings-btn').addEventListener('click', () => {
                 showConfirmModal(() => {
                     localStorage.removeItem('darkMode');
@@ -2720,9 +2733,11 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
                     localStorage.removeItem('bgImageData');
                     
                     // 重新初始化设置
-                    initTheme();
-                    initSoundSettings();
-                    initBackground();
+                    setTimeout(() => {
+                        initTheme();
+                        initSoundSettings();
+                        initBackground();
+                    }, 0);
                     
                     // 关闭菜单
                     document.getElementById('menu-panel').classList.remove('translate-x-0');
@@ -2730,18 +2745,20 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
                 });
             });
             
-            // 清除所有数据
+             // 清除所有数据
             document.getElementById('clear-all-btn').addEventListener('click', () => {
                 showConfirmModal(() => {
                     // 清除所有本地存储
                     localStorage.clear();
                     
                     // 重新初始化应用
-                    taskManager.clearAllTasks();
-                    todoManager.clearAllTodos();
-                    initTheme();
-                    initSoundSettings();
-                    initBackground();
+                    setTimeout(() => {
+                        const taskManager = new TaskManager();
+                        const todoManager = new TodoManager();
+                        initTheme();
+                        initSoundSettings();
+                        initBackground();
+                    }, 0);
                     
                     // 关闭菜单
                     document.getElementById('menu-panel').classList.remove('translate-x-0');
