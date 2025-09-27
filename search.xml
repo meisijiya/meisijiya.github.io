@@ -1550,7 +1550,7 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
     
     
     
-    
+   
         tailwind.config = {
             theme: {
                 extend: {
@@ -1565,7 +1565,8 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
                         sans: ['Inter', 'system-ui', 'sans-serif'],
                     },
                 }
-            }
+            },
+            darkMode: 'class'
         }
     
  
@@ -1608,6 +1609,11 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
         }
         .panel-text {
             @apply text-dark dark:text-light;
+        }
+        /* 添加触摸设备支持 */
+        .touch-device {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
     }
 
@@ -1946,23 +1952,30 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
     
 
     
-            tailwind.config = {
-        theme: {
-            extend: {
-                colors: {
-                    primary: '#3B82F6',
-                    secondary: '#10B981',
-                    danger: '#EF4444',
-                    dark: '#1E293B',
-                    light: '#F8FAFC'
-                },
-                fontFamily: {
-                    sans: ['Inter', 'system-ui', 'sans-serif'],
-                },
-            }
-        },
-        darkMode: 'class'
-    }
+         
+        // 添加触摸事件支持函数
+        function addTouchSupport(element, callback) {
+            let touchStartTime = 0;
+            
+            element.addEventListener('touchstart', (e) => {
+                touchStartTime = Date.now();
+                // 防止页面滚动
+                if (element.classList.contains('no-scroll')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            element.addEventListener('touchend', (e) => {
+                const touchDuration = Date.now() - touchStartTime;
+                // 只有当触摸时间少于200ms才触发点击事件，避免与滚动冲突
+                if (touchDuration < 200) {
+                    callback(e);
+                }
+            });
+            
+            // 保持原有的点击事件
+            element.addEventListener('click', callback);
+        }
         // 音效控制
         const sounds = {
             start: document.getElementById('sound-start'),
@@ -2444,22 +2457,22 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             // 设置事件监听
             setupEventListeners() {
                 // 开始计时器
-                document.getElementById('start-timer').addEventListener('click', () => {
+                addTouchSupport(document.getElementById('start-timer'), () => {
                     this.startTimer();
                 });
                 
                 // 暂停计时器
-                document.getElementById('pause-timer').addEventListener('click', () => {
+                addTouchSupport(document.getElementById('pause-timer'), () => {
                     this.stopTimer();
                 });
                 
                 // 重置计时器
-                document.getElementById('reset-timer').addEventListener('click', () => {
+                addTouchSupport(document.getElementById('reset-timer'), () => {
                     this.resetTimer();
                 });
                 
                 // 添加任务按钮
-                document.getElementById('add-task-btn').addEventListener('click', () => {
+                addTouchSupport(document.getElementById('add-task-btn'), () => {
                     document.getElementById('task-form').reset();
                     document.getElementById('task-id').value = '';
                     document.getElementById('task-hours').value = 0;
@@ -2538,57 +2551,88 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             playSound('click');
         }
 
-        // 初始化标签切换
+           // 初始化标签切换
         function initTabs() {
             const tasksTab = document.getElementById('tasks-tab');
             const todosTab = document.getElementById('todos-tab');
             const tasksPanel = document.getElementById('tasks-panel');
             const todosPanel = document.getElementById('todos-panel');
             
-            tasksTab.addEventListener('click', () => {
+            // 确保元素存在
+            if (!tasksTab || !todosTab || !tasksPanel || !todosPanel) {
+                console.warn('Tab elements not found');
+                return;
+            }
+            
+            // 移除可能存在的重复事件监听器
+            const newTasksTab = tasksTab.cloneNode(true);
+            tasksTab.parentNode.replaceChild(newTasksTab, tasksTab);
+            
+            const newTodosTab = todosTab.cloneNode(true);
+            todosTab.parentNode.replaceChild(newTodosTab, todosTab);
+            
+            // 任务标签切换函数
+            function switchToTasks(e) {
+                e.preventDefault();
+                
                 // 激活任务标签
-                tasksTab.classList.add('text-primary', 'border-b-2', 'border-primary');
-                tasksTab.classList.remove('text-gray-500', 'dark:text-gray-400');
+                newTasksTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+                newTasksTab.classList.remove('text-gray-500', 'dark:text-gray-400');
                 
                 // 取消待办标签
-                todosTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
-                todosTab.classList.add('text-gray-500', 'dark:text-gray-400');
+                newTodosTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                newTodosTab.classList.add('text-gray-500', 'dark:text-gray-400');
                 
                 // 显示任务面板，隐藏待办面板
                 tasksPanel.classList.remove('hidden');
                 todosPanel.classList.add('hidden');
                 
                 playSound('click');
-            });
+            }
             
-            todosTab.addEventListener('click', () => {
+            // 待办标签切换函数
+            function switchToTodos(e) {
+                e.preventDefault();
+                
                 // 激活待办标签
-                todosTab.classList.add('text-primary', 'border-b-2', 'border-primary');
-                todosTab.classList.remove('text-gray-500', 'dark:text-gray-400');
+                newTodosTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+                newTodosTab.classList.remove('text-gray-500', 'dark:text-gray-400');
                 
                 // 取消任务标签
-                tasksTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
-                tasksTab.classList.add('text-gray-500', 'dark:text-gray-400');
+                newTasksTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                newTasksTab.classList.add('text-gray-500', 'dark:text-gray-400');
                 
                 // 显示待办面板，隐藏任务面板
                 todosPanel.classList.remove('hidden');
                 tasksPanel.classList.add('hidden');
                 
                 // 聚焦到待办输入框
-                document.getElementById('todo-input').focus();
+                const todoInput = document.getElementById('todo-input');
+                if (todoInput) {
+                    todoInput.focus();
+                }
                 
                 playSound('click');
-            });
+            }
+            
+            // 为标签添加事件监听器（支持鼠标和触摸）
+            newTasksTab.addEventListener('click', switchToTasks);
+            newTasksTab.addEventListener('touchstart', switchToTasks);
+            
+            newTodosTab.addEventListener('click', switchToTodos);
+            newTodosTab.addEventListener('touchstart', switchToTodos);
         }
+        
 
-         // 初始化背景
+
+        // 初始化背景
         function initBackground() {
             const bgImageData = localStorage.getItem('bgImageData');
             const bgContainer = document.getElementById('background-container');
             const bgImage = document.getElementById('background-image');
             
             // 默认背景图片URL
-            const defaultBgUrl = 'https://oss.itbaima.cn/hub/928/image-202509265tux8zysa.png';
+            const defaultBgUrl = 'https://oss.itbaima.cn/hub/928/image-202509276f4i3vi5a.png';
             
             if (bgImageData) {
                 bgImage.src = bgImageData;
@@ -2632,38 +2676,77 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             });
         }
 
-  /// 初始化主题
+          // 初始化主题
         function initTheme() {
-            // 移除可能存在的dark类
-            document.documentElement.classList.remove('dark');
-            
             // 检查用户偏好
             const isDarkMode = localStorage.getItem('darkMode') === 'true' || 
                               (localStorage.getItem('darkMode') === null && 
                                window.matchMedia('(prefers-color-scheme: dark)').matches);
             
+            console.log('Initializing theme. Dark mode preference:', isDarkMode);
+            
+            // 根据偏好设置dark类
             if (isDarkMode) {
                 document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
             }
+            
+            // 更新主题切换按钮的图标状态
+            updateThemeButtonIcons(isDarkMode);
             
             // 主题切换按钮
             const themeToggle = document.getElementById('theme-toggle');
             if (themeToggle) {
-                // 移除之前可能添加的事件监听器
-                themeToggle.removeEventListener('click', toggleTheme);
+                // 清理所有可能的事件监听器
+                const newThemeToggle = themeToggle.cloneNode(true);
+                themeToggle.parentNode.replaceChild(newThemeToggle, themeToggle);
                 
                 // 添加新的事件监听器
-                themeToggle.addEventListener('click', toggleTheme);
+                newThemeToggle.addEventListener('click', toggleTheme);
+                newThemeToggle.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    toggleTheme();
+                });
             } else {
                 console.warn('Theme toggle button not found');
             }
         }
 
-        // 主题切换处理函数
-        function toggleTheme() {
+ // 主题切换处理函数
+        function toggleTheme(e) {
+            if (e) e.preventDefault();
+            
+            // 切换dark类
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('darkMode', isDark);
+            
+            // 强制更新按钮图标
+            updateThemeButtonIcons(isDark);
+            
             playSound('click');
+            
+            // 调试信息
+            console.log('Theme toggled. Dark mode:', isDark);
+        }
+        
+        // 更新主题按钮图标
+        function updateThemeButtonIcons(isDark) {
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                const moonIcon = themeToggle.querySelector('.fa-moon-o');
+                const sunIcon = themeToggle.querySelector('.fa-sun-o');
+                
+                if (isDark) {
+                    // 显示太阳图标（暗色模式）
+                    if (moonIcon) moonIcon.classList.add('hidden');
+                    if (sunIcon) sunIcon.classList.remove('hidden');
+                } else {
+                    // 显示月亮图标（亮色模式）
+                    if (moonIcon) moonIcon.classList.remove('hidden');
+                    if (sunIcon) sunIcon.classList.add('hidden');
+                }
+            }
         }
 
 
@@ -2679,13 +2762,26 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
                 playSound('click');
             });
         }
-
-        // 初始化菜单
+ // 初始化菜单
         function initMenu() {
             const menuBtn = document.getElementById('menu-btn');
             const menuPanel = document.getElementById('menu-panel');
             
-            menuBtn.addEventListener('click', () => {
+            // 确保菜单按钮存在
+            if (!menuBtn || !menuPanel) {
+                console.warn('Menu button or panel not found');
+                return;
+            }
+            
+            // 移除可能存在的重复事件监听器
+            menuBtn.removeEventListener('click', toggleMenuHandler);
+            menuBtn.removeEventListener('touchstart', toggleMenuHandler);
+            
+            // 菜单切换函数
+            function toggleMenuHandler(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 const isOpen = menuPanel.classList.contains('translate-x-0');
                 
                 if (isOpen) {
@@ -2697,21 +2793,36 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
                 }
                 
                 playSound('click');
-            });
+            }
+            
+            // 同时支持鼠标点击和触摸
+            menuBtn.addEventListener('click', toggleMenuHandler);
+            menuBtn.addEventListener('touchstart', toggleMenuHandler);
             
             // 点击外部关闭菜单
-            document.addEventListener('click', (e) => {
-                if (!menuPanel.contains(e.target) && e.target !== menuBtn && !menuBtn.contains(e.target)) {
-                    menuPanel.classList.remove('translate-x-0');
-                    menuPanel.classList.add('translate-x-full');
+            function closeMenu(e) {
+                // 检查菜单是否打开
+                if (menuPanel.classList.contains('translate-x-0')) {
+                    // 检查点击目标是否在菜单外部
+                    if (!menuPanel.contains(e.target) && e.target !== menuBtn && !menuBtn.contains(e.target)) {
+                        menuPanel.classList.remove('translate-x-0');
+                        menuPanel.classList.add('translate-x-full');
+                    }
                 }
-            });
+            }
+            
+            // 同时监听鼠标和触摸事件
+            document.removeEventListener('click', closeMenu);
+            document.removeEventListener('touchstart', closeMenu);
+            document.addEventListener('click', closeMenu);
+            document.addEventListener('touchstart', closeMenu, { passive: true });
         }
+           
 
-        // 初始化数据清理功能
+         // 初始化数据清理功能
         function initDataCleaning(taskManager, todoManager) {
             // 清除计时任务数据
-            document.getElementById('clear-tasks-btn').addEventListener('click', () => {
+            addTouchSupport(document.getElementById('clear-tasks-btn'), () => {
                 const confirmTitle = document.getElementById('confirm-title');
                 const confirmMessage = document.getElementById('confirm-message');
                 
@@ -2724,7 +2835,7 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             });
             
             // 清除待办事项数据
-            document.getElementById('clear-todos-btn').addEventListener('click', () => {
+            addTouchSupport(document.getElementById('clear-todos-btn'), () => {
                 const confirmTitle = document.getElementById('confirm-title');
                 const confirmMessage = document.getElementById('confirm-message');
                 
@@ -2737,7 +2848,7 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             });
             
             // 清除背景缓存
-            document.getElementById('clear-bg-cache-btn').addEventListener('click', () => {
+            addTouchSupport(document.getElementById('clear-bg-cache-btn'), () => {
                 const confirmTitle = document.getElementById('confirm-title');
                 const confirmMessage = document.getElementById('confirm-message');
                 
@@ -2753,7 +2864,7 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             });
             
           // 清除设置数据
-            document.getElementById('clear-settings-btn').addEventListener('click', () => {
+            addTouchSupport(document.getElementById('clear-settings-btn'), () => {
                 const confirmTitle = document.getElementById('confirm-title');
                 const confirmMessage = document.getElementById('confirm-message');
                 
@@ -2779,7 +2890,7 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             });
             
              // 清除所有数据
-            document.getElementById('clear-all-btn').addEventListener('click', () => {
+            addTouchSupport(document.getElementById('clear-all-btn'), () => {
                 const confirmTitle = document.getElementById('confirm-title');
                 const confirmMessage = document.getElementById('confirm-message');
                 
@@ -2808,17 +2919,16 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
 
         // 初始化帮助按钮
         function initHelpButton() {
-            document.getElementById('help-btn').addEventListener('click', showHelpModal);
-            document.getElementById('close-help').addEventListener('click', hideHelpModal);
+            addTouchSupport(document.getElementById('help-btn'), showHelpModal);
+            addTouchSupport(document.getElementById('close-help'), hideHelpModal);
         }
 
         // 初始化主页按钮
         function initHomeButton() {
-            document.getElementById('Home').addEventListener('click', () => {
+            addTouchSupport(document.getElementById('Home'), () => {
                 window.location.href = '/';
             });
         }
-
 
         // 请求通知权限
         function requestNotificationPermission() {
@@ -2827,7 +2937,7 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             }
         }
 
-        // 初始化应用
+         // 初始化应用
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
             initBackground();
@@ -2840,9 +2950,14 @@ pre,code,pre code,.highlight &#123;    background: inherit !important;    color:
             const taskManager = new TaskManager();
             const todoManager = new TodoManager();
             initDataCleaning(taskManager, todoManager);
+            
+            // 为所有按钮添加触摸支持
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.classList.add('touch-device');
+            });
         });
     
-
 
 
 ]]></content>
