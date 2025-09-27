@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>任务计时器与待办事项</title>
     <!-- <link rel="icon" href="https://cdn.jsdelivr.net/gh/yunyoujun/cdn/img/favicon.ico"></link> -->
+     <link rel="icon" href="C:\Users\22923\Desktop\blog\source\images\金毛.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -883,17 +884,25 @@
                 }
             }
 
-            // 重置计时器
+             // 重置计时器
             resetTimer() {
                 if (!this.currentTaskId) return;
                 
                 const task = this.tasks.find(task => task.id === this.currentTaskId);
                 if (task) {
-                    task.remainingTime = task.totalSeconds;
-                    this.saveTasks();
-                    this.updateTimerDisplay();
-                    this.renderTasks();
-                    playSound('click');
+                    const confirmTitle = document.getElementById('confirm-title');
+                    const confirmMessage = document.getElementById('confirm-message');
+                    
+                    confirmTitle.textContent = '重置计时器';
+                    confirmMessage.textContent = `您确定要重置当前任务"${task.name}"的计时器吗？这将丢失当前进度。`;
+                    
+                    showConfirmModal(() => {
+                        task.remainingTime = task.totalSeconds;
+                        this.saveTasks();
+                        this.updateTimerDisplay();
+                        this.renderTasks();
+                        playSound('click');
+                    });
                 }
             }
 
@@ -1269,7 +1278,7 @@
             playSound('click');
         }
 
-        
+
         // 初始化音效设置
         function initSoundSettings() {
             const soundToggle = document.getElementById('sound-toggle');
