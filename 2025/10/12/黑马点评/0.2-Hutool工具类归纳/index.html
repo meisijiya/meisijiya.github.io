@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>老婆21岁生日快乐 | 欢迎来到老江湖的博客</title>
+<title>0.1-Hutool工具类归纳 | 欢迎来到老江湖的博客</title>
 
 
 
@@ -477,7 +477,7 @@
 </script>  
   <article class="post-wrap">
     <header class="post-header">
-      <h1 class="post-title">老婆21岁生日快乐</h1>
+      <h1 class="post-title">0.1-Hutool工具类归纳</h1>
       
       <div class="post-meta">
          作者:
@@ -493,7 +493,7 @@
         <span class="post-category"
           ><br />
           分类: 
-          <a href="/categories/%E6%88%BF%E9%97%B4%E9%97%A8/">房间门</a>
+          <a href="/categories/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/">黑马点评</a>
           
         </span>
         
@@ -501,12 +501,296 @@
       
     </header>
 
-    <div class="post-content"><h1 style="text-align: center;">老婆生日快乐</h1>
-
-<p>臭老婆今天是你的生日，我没搞什么特别复杂的花样，就想跟你说：往后的日子，还想继续跟你一起 “臭气相投”</p>
-<p>我的臭老婆，愿你新的一岁，能少点烦恼，多点开心；愿你想要的都能慢慢实现，而我能一直在你身边，陪你吃遍想吃的，玩遍想玩的，把每一个生日都过成我们专属的小美好。</p>
-<p>生日快乐呀，我最最可爱的臭老婆！</p>
-<img src="https://oss.itbaima.cn/hub/928/image-20251011uxxy2lx08.jpeg" style="width: 100%; height: auto%;">
+    <div class="post-content"><h1 id="黑马点评项目中常用-Hutool-工具类及方法归纳"><a href="#黑马点评项目中常用-Hutool-工具类及方法归纳" class="headerlink" title="黑马点评项目中常用 Hutool 工具类及方法归纳"></a>黑马点评项目中常用 Hutool 工具类及方法归纳</h1><p>Hutool 是一款轻量级 Java 工具类库，封装了开发中高频需求的通用功能，能大幅减少重复代码。在黑马点评（电商 &#x2F; 本地生活类项目）中，以下工具类及方法使用频率极高，按业务场景分类整理如下：</p>
+<h2 id="一、字符串处理工具：StrUtil"><a href="#一、字符串处理工具：StrUtil" class="headerlink" title="一、字符串处理工具：StrUtil"></a>一、字符串处理工具：<code>StrUtil</code></h2><p><strong>核心场景</strong>：用户输入校验（判空）、手机号 &#x2F; 用户名脱敏、验证码生成、字符串拼接等。</p>
+<table>
+<thead>
+<tr>
+<th>常用方法</th>
+<th>项目业务场景示例</th>
+<th>方法作用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>StrUtil.isBlank(CharSequence str)</code></td>
+<td>校验用户输入的 “昵称”“地址” 是否为空</td>
+<td>判断字符串是否为 <code>null</code>&#x2F; 空串 &#x2F; 空白符（比 <code>StringUtils.isEmpty</code> 更全面）</td>
+</tr>
+<tr>
+<td><code>StrUtil.isNotBlank(CharSequence str)</code></td>
+<td>校验 “手机号”“验证码” 是否非空（非空才执行后续逻辑）</td>
+<td>与 <code>isBlank</code> 相反，非空时返回 <code>true</code></td>
+</tr>
+<tr>
+<td><code>StrUtil.hide(CharSequence str, int startInclude, int endExclude)</code></td>
+<td>用户列表中手机号脱敏（如 138****1234）</td>
+<td>隐藏字符串指定区间内容，用 <code>*</code> 替换</td>
+</tr>
+<tr>
+<td><code>StrUtil.randomString(int length)</code></td>
+<td>生成 6 位短信验证码（数字 + 字母混合）</td>
+<td>生成指定长度的随机字符串（默认大小写字母 + 数字）</td>
+</tr>
+<tr>
+<td><code>StrUtil.format(String template, Object... args)</code></td>
+<td>拼接订单日志（如 “订单 {1} 支付金额 {2} 元”）</td>
+<td>格式化字符串（替代 <code>String.format</code>，性能更优）</td>
+</tr>
+<tr>
+<td><code>StrUtil.subAfter(CharSequence str, CharSequence separator, boolean isLast)</code></td>
+<td>从 URL 中提取参数（如从 “&#x2F;order&#x2F;123” 提取 “123”）</td>
+<td>截取分隔符之后的字符串，支持是否取最后一个分隔符</td>
+</tr>
+</tbody></table>
+<h2 id="二、日期时间工具：DateUtil"><a href="#二、日期时间工具：DateUtil" class="headerlink" title="二、日期时间工具：DateUtil"></a>二、日期时间工具：<code>DateUtil</code></h2><p><strong>核心场景</strong>：订单时间格式化、优惠券有效期判断、日志时间记录、时间差计算（如订单超时）。</p>
+<table>
+<thead>
+<tr>
+<th>常用方法</th>
+<th>项目业务场景示例</th>
+<th>方法作用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DateUtil.format(Date date, String format)</code></td>
+<td>订单列表展示时间（如 “2024-05-20 14:30:00”）</td>
+<td>自定义日期格式（常用格式：<code>yyyy-MM-dd HH:mm:ss</code>）</td>
+</tr>
+<tr>
+<td><code>DateUtil.now()</code></td>
+<td>记录操作日志的当前时间（如 “20240520143000”）</td>
+<td>获取当前时间字符串，默认格式 <code>yyyyMMddHHmmss</code></td>
+</tr>
+<tr>
+<td><code>DateUtil.parse(String dateStr, String format)</code></td>
+<td>解析前端传递的优惠券生效时间（如 “2024-06-01”）</td>
+<td>将字符串按指定格式转为 <code>Date</code> 对象</td>
+</tr>
+<tr>
+<td><code>DateUtil.between(Date start, Date end, ChronoUnit unit)</code></td>
+<td>计算订单超时时间（如 “订单创建后 30 分钟未支付则超时”）</td>
+<td>计算两个时间的差值，指定单位（<code>MINUTES</code>&#x2F;<code>HOURS</code>&#x2F;<code>DAYS</code>）</td>
+</tr>
+<tr>
+<td><code>DateUtil.offset(Date date, DateField field, int offset)</code></td>
+<td>生成优惠券有效期（如 “领取后 7 天有效”）</td>
+<td>对指定日期进行偏移（如 <code>DateField.DAY_OF_YEAR</code>, 7 表示加 7 天）</td>
+</tr>
+<tr>
+<td><code>DateUtil.isExpired(Date date)</code></td>
+<td>判断优惠券是否过期（对比当前时间）</td>
+<td>判断指定日期是否已过期（早于当前时间）</td>
+</tr>
+</tbody></table>
+<h2 id="三、集合工具：CollUtil"><a href="#三、集合工具：CollUtil" class="headerlink" title="三、集合工具：CollUtil"></a>三、集合工具：<code>CollUtil</code></h2><p><strong>核心场景</strong>：购物车商品列表处理、优惠券规则筛选、用户标签集合操作、分页数据处理。</p>
+<table>
+<thead>
+<tr>
+<th>常用方法</th>
+<th>项目业务场景示例</th>
+<th>方法作用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CollUtil.isEmpty(Collection&lt;?&gt; coll)</code></td>
+<td>校验购物车是否为空（空则提示 “购物车无商品”）</td>
+<td>判断集合是否为 <code>null</code> 或空集合</td>
+</tr>
+<tr>
+<td><code>CollUtil.newArrayList(T... elements)</code></td>
+<td>快速创建商品列表集合（避免 <code>new ArrayList&lt;&gt;()</code> 重复写）</td>
+<td>可变参数创建 List，简化代码</td>
+</tr>
+<tr>
+<td><code>CollUtil.filter(Collection&lt;?&gt; coll, Predicate&lt;?&gt; predicate)</code></td>
+<td>筛选用户可用的优惠券（过滤已过期、未满足门槛的券）</td>
+<td>按条件过滤集合元素，返回符合条件的新集合</td>
+</tr>
+<tr>
+<td><code>CollUtil.getFirst(Collection&lt;?&gt; coll)</code></td>
+<td>获取用户最新领取的优惠券（集合按时间排序后取第一个）</td>
+<td>获取集合第一个元素（避免下标越界）</td>
+</tr>
+<tr>
+<td><code>CollUtil.groupBy(Collection&lt;?&gt; coll, Function&lt;?, ?&gt; keyFunction)</code></td>
+<td>按 “优惠券类型” 分组展示（如满减券、折扣券）</td>
+<td>按指定 key 对集合分组，返回 <code>Map&lt;key, List&lt;元素&gt;&gt;</code></td>
+</tr>
+</tbody></table>
+<h2 id="四、HTTP-请求工具：HttpUtil"><a href="#四、HTTP-请求工具：HttpUtil" class="headerlink" title="四、HTTP 请求工具：HttpUtil"></a>四、HTTP 请求工具：<code>HttpUtil</code></h2><p><strong>核心场景</strong>：调用第三方接口（如短信服务、地图服务、支付回调）、获取远程资源（如商品图片）。</p>
+<table>
+<thead>
+<tr>
+<th>常用方法</th>
+<th>项目业务场景示例</th>
+<th>方法作用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>HttpUtil.get(String url, Map&lt;String, Object&gt; paramMap)</code></td>
+<td>调用地图 API 获取用户所在城市（传递经纬度参数）</td>
+<td>发送 GET 请求，自动拼接参数，返回响应字符串</td>
+</tr>
+<tr>
+<td><code>HttpUtil.post(String url, Map&lt;String, Object&gt; paramMap)</code></td>
+<td>调用短信服务接口发送验证码（传递手机号、模板参数）</td>
+<td>发送 POST 请求（表单格式 <code>application/x-www-form-urlencoded</code>）</td>
+</tr>
+<tr>
+<td><code>HttpUtil.postJson(String url, String jsonStr)</code></td>
+<td>调用支付接口提交订单（传递 JSON 格式的订单数据）</td>
+<td>发送 JSON 格式的 POST 请求（Content-Type: application&#x2F;json）</td>
+</tr>
+<tr>
+<td><code>HttpUtil.downloadFile(String url, File destFile)</code></td>
+<td>下载商品详情页的远程图片到本地服务器</td>
+<td>直接下载远程文件到指定路径，无需手动处理流</td>
+</tr>
+</tbody></table>
+<h2 id="五、加密工具：SecureUtil"><a href="#五、加密工具：SecureUtil" class="headerlink" title="五、加密工具：SecureUtil"></a>五、加密工具：<code>SecureUtil</code></h2><p><strong>核心场景</strong>：用户密码加密存储、接口签名校验（如防止请求篡改）、数据脱敏加密。</p>
+<table>
+<thead>
+<tr>
+<th>常用方法</th>
+<th>项目业务场景示例</th>
+<th>方法作用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SecureUtil.md5(String str)</code></td>
+<td>对用户密码进行 MD5 加密（加盐后存储，如 <code>md5(password + salt)</code>）</td>
+<td>生成 32 位小写 MD5 哈希值（不可逆加密，用于密码存储）</td>
+</tr>
+<tr>
+<td><code>SecureUtil.bcrypt(String password)</code></td>
+<td>更安全的密码加密（替代 MD5，自动生成盐值）</td>
+<td>BCrypt 加密（带随机盐值，每次加密结果不同，验证时自动匹配盐值）</td>
+</tr>
+<tr>
+<td><code>SecureUtil.hmacMd5(String key, String content)</code></td>
+<td>接口请求签名（如 API 调用时用密钥生成签名，防止篡改）</td>
+<td>HMAC-MD5 加密（带密钥，需双方持有相同密钥验证）</td>
+</tr>
+<tr>
+<td><code>SecureUtil.des(String data, String key, String iv)</code></td>
+<td>对敏感数据（如用户身份证号）进行 DES 加密存储</td>
+<td>DES 对称加密（需密钥和向量 IV，可逆，用于敏感数据保护）</td>
+</tr>
+</tbody></table>
+<h2 id="六、Bean-转换工具：BeanUtil"><a href="#六、Bean-转换工具：BeanUtil" class="headerlink" title="六、Bean 转换工具：BeanUtil"></a>六、Bean 转换工具：<code>BeanUtil</code></h2><p><strong>核心场景</strong>：DTO 与 Entity 转换（如前端传递的<code>UserLoginDTO</code>转数据库<code>User</code>实体）、Map 与 Bean 转换（如第三方接口响应转本地对象）。</p>
+<table>
+<thead>
+<tr>
+<th>常用方法</th>
+<th>项目业务场景示例</th>
+<th>方法作用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>BeanUtil.copyProperties(Object source, Object target)</code></td>
+<td>将<code>OrderDTO</code>的属性复制到<code>Order</code>实体（忽略 null 值）</td>
+<td>浅拷贝 Bean 属性，默认忽略 null 值（避免覆盖目标对象已有值）</td>
+</tr>
+<tr>
+<td><code>BeanUtil.toBean(Map&lt;String, Object&gt; map, Class&lt;T&gt; clazz)</code></td>
+<td>将第三方接口返回的 Map 转成<code>PaymentResult</code>对象</td>
+<td>Map 键值对转 Bean（键需与 Bean 属性名一致）</td>
+</tr>
+<tr>
+<td><code>BeanUtil.toMap(Object bean)</code></td>
+<td>将<code>User</code>实体转成 Map，用于构建 Redis 缓存的 Hash 结构</td>
+<td>Bean 转 Map（属性名作为 key，属性值作为 value）</td>
+</tr>
+<tr>
+<td><code>BeanUtil.copyProperties(Object source, Object target, String... ignoreProperties)</code></td>
+<td>复制订单数据时忽略 “createTime”（由数据库自动生成）</td>
+<td>拷贝时排除指定属性，灵活控制字段映射</td>
+</tr>
+</tbody></table>
+<h2 id="七、JSON-处理工具类-JSONUtil"><a href="#七、JSON-处理工具类-JSONUtil" class="headerlink" title="七、JSON 处理工具类:JSONUtil"></a>七、JSON 处理工具类:<code>JSONUtil</code></h2><p>.<strong>轻量级且高效的 JSON 处理工具类</strong>，旨在简化 Java 中 JSON 数据的序列化、反序列化及各类操作，</p>
+<table>
+<thead>
+<tr>
+<th>常用方法</th>
+<th>项目业务场景示例</th>
+<th>方法作用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>JSONUtil.toJsonStr(Object obj)</code></td>
+<td>将用户实体（User）转 JSON 响应给前端</td>
+<td>对象（Bean&#x2F;Map&#x2F;List&#x2F; 集合等）转 JSON 字符串</td>
+</tr>
+<tr>
+<td><code>JSONUtil.toBean(String json, Class&lt;T&gt; clazz)</code></td>
+<td>解析前端传递的 JSON 格式用户信息为<code>UserDTO</code>对象</td>
+<td>JSON 字符串转指定类型 Java 对象</td>
+</tr>
+<tr>
+<td><code>JSONUtil.parseObj(String jsonStr)</code></td>
+<td>解析第三方接口返回的 JSON 为<code>JSONObject</code>，获取特定字段</td>
+<td>把 JSON 字符串解析为<code>JSONObject</code>，支持键值操作</td>
+</tr>
+<tr>
+<td><code>JSONUtil.createObj()</code>&#x2F;<code>JSONUtil.createArray()</code></td>
+<td>动态构建 JSON（如构造带状态码和数据的接口响应 JSON）</td>
+<td>链式创建 JSON 对象 &#x2F; 数组，灵活组装数据结构</td>
+</tr>
+<tr>
+<td><code>JSONUtil.toJsonPrettyStr(Object obj)</code></td>
+<td>生成格式化的 JSON 日志（如接口请求 &#x2F; 响应日志），便于调试</td>
+<td>生成带缩进、换行的美化版 JSON 字符串</td>
+</tr>
+<tr>
+<td><code>JSONUtil.parseFromXml(String xmlStr)</code></td>
+<td>将 XML 格式的配置文件内容转为 JSON 处理（如旧系统配置迁移）</td>
+<td>XML 字符串转 JSON，简化异构数据交互</td>
+</tr>
+<tr>
+<td><code>JSONUtil.toXmlStr(JSONObject jsonObj)</code></td>
+<td>将 JSON 格式的业务数据转 XML，适配旧系统接口</td>
+<td>JSON 转 XML 字符串，支持格式兼容场景</td>
+</tr>
+</tbody></table>
+<h2 id="八、其他高频工具类"><a href="#八、其他高频工具类" class="headerlink" title="八、其他高频工具类"></a>八、其他高频工具类</h2><table>
+<thead>
+<tr>
+<th>工具类</th>
+<th>核心场景</th>
+<th>常用方法示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>IoUtil</code></td>
+<td>流操作（如读取配置文件、处理文件上传流）</td>
+<td><code>IoUtil.read(inputStream, CharsetUtil.UTF_8)</code>（读取流为字符串）</td>
+</tr>
+<tr>
+<td><code>FileUtil</code></td>
+<td>文件操作（如创建商品图片目录、删除过期文件）</td>
+<td><code>FileUtil.mkdir(filePath)</code>（创建目录）、<code>FileUtil.delete(file)</code>（删除文件）</td>
+</tr>
+<tr>
+<td><code>ValidatorUtil</code></td>
+<td>参数校验（如手机号、邮箱格式校验）</td>
+<td><code>ValidatorUtil.isMobile(mobile)</code>（校验手机号）、<code>ValidatorUtil.isEmail(email)</code>（校验邮箱）</td>
+</tr>
+<tr>
+<td><code>NumberUtil</code></td>
+<td>数字处理（如金额计算、保留小数）</td>
+<td><code>NumberUtil.add(a, b)</code>（精确加法）、<code>NumberUtil.round(number, 2)</code>（保留 2 位小数）</td>
+</tr>
+<tr>
+<td><code>ResourceUtil</code></td>
+<td>读取 classpath 资源（如配置文件、模板文件）</td>
+<td><code>ResourceUtil.readUtf8Str(&quot;config.properties&quot;)</code>（读取配置文件）</td>
+</tr>
+</tbody></table>
+<h2 id="九、使用原则总结"><a href="#九、使用原则总结" class="headerlink" title="九、使用原则总结"></a>九、使用原则总结</h2><ol>
+<li><strong>优先复用</strong>：Hutool 工具类已覆盖 90% 以上的通用场景，避免重复造轮子（如字符串判空直接用<code>StrUtil.isBlank</code>，而非自己写<code>if (str == null || str.trim().equals(&quot;&quot;))</code>）；</li>
+<li><strong>注意参数</strong>：部分工具类方法需指定编码（如<code>IoUtil</code>用<code>CharsetUtil.UTF_8</code>）、格式（如<code>DateUtil</code>用<code>yyyy-MM-dd HH:mm:ss</code>），避免默认值不匹配；</li>
+<li><strong>结合业务</strong>：工具类需与项目场景结合（如密码加密用<code>SecureUtil.bcrypt</code>而非 MD5，安全性更高），而非盲目使用。</li>
+</ol>
 </div>
 
     
@@ -548,9 +832,7 @@
         <span>标签:</span>
         <span class="tag">
            
-          <a href="/tags/%E5%BC%80%E5%BF%83/"># 开心</a>
-          
-          <a href="/tags/%E8%80%81%E5%A9%86%E7%94%9F%E6%97%A5/"># 老婆生日</a>
+          <a href="/tags/Hutool/"># Hutool</a>
            
         </span>
       </div>
@@ -562,12 +844,12 @@
     </section>
     <section class="post-nav">
       
-      <a class="prev" rel="prev" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/01-%E6%80%BB%E8%A7%88/"
-        >01-总览</a
+      <a class="prev" rel="prev" href="/2025/10/12/%E8%80%81%E5%A9%8621%E5%B2%81%E7%94%9F%E6%97%A5%E5%BF%AB%E4%B9%90/"
+        >老婆21岁生日快乐</a
       >
        
-      <a class="next" rel="next" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/0.2-Hutool%E5%B7%A5%E5%85%B7%E7%B1%BB%E5%BD%92%E7%BA%B3/"
-        >0.1-Hutool工具类归纳</a
+      <a class="next" rel="next" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/02-%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95-%E5%9F%BA%E4%BA%8Esession/"
+        >02-短信登录-基于session</a
       >
       
     </section>

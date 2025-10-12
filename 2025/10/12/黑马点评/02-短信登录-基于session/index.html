@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>02-短信登录-基于session方案 | 欢迎来到老江湖的博客</title>
+<title>02-短信登录-基于session | 欢迎来到老江湖的博客</title>
 
 
 
@@ -477,7 +477,7 @@
 </script>  
   <article class="post-wrap">
     <header class="post-header">
-      <h1 class="post-title">02-短信登录-基于session方案</h1>
+      <h1 class="post-title">02-短信登录-基于session</h1>
       
       <div class="post-meta">
          作者:
@@ -486,14 +486,14 @@
         <span class="post-time">
           <br />日期:
           <a href="#"
-            >九月 20, 2025&nbsp;&nbsp;21:17:42</a
+            >十月 12, 2025&nbsp;&nbsp;0:00:00</a
           >
         </span>
          
         <span class="post-category"
           ><br />
           分类: 
-          <a href="/categories/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84%E7%AC%94%E8%AE%B0/">黑马点评笔记</a>
+          <a href="/categories/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/">黑马点评</a>
           
         </span>
         
@@ -501,8 +501,7 @@
       
     </header>
 
-    <div class="post-content"><hr>
-<h1 id="前置：基于Session实现登录"><a href="#前置：基于Session实现登录" class="headerlink" title="前置：基于Session实现登录"></a>前置：基于Session实现登录</h1><h2 id="HttpSession-对象"><a href="#HttpSession-对象" class="headerlink" title="HttpSession 对象"></a>HttpSession 对象</h2><p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/HttpSession/3159840?fr=aladdin">HttpSession_百度百科</a> <a target="_blank" rel="noopener" href="https://www.runoob.com/servlet/servlet-session-tracking.html">Servlet Session 跟踪 | 菜鸟教程</a></p>
+    <div class="post-content"><h1 id="前置：基于Session实现登录"><a href="#前置：基于Session实现登录" class="headerlink" title="前置：基于Session实现登录"></a>前置：基于Session实现登录</h1><h2 id="HttpSession-对象"><a href="#HttpSession-对象" class="headerlink" title="HttpSession 对象"></a>HttpSession 对象</h2><p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/HttpSession/3159840?fr=aladdin">HttpSession_百度百科</a> <a target="_blank" rel="noopener" href="https://www.runoob.com/servlet/servlet-session-tracking.html">Servlet Session 跟踪 | 菜鸟教程</a></p>
 <p>Servlet提供了HttpSession接口，该接口中提供了一种跨多个页面请求或访问网站时识别用户以及存储有关用户信息的方式。<br>Servlet 容器使用这个接口来创建一个 HTTP 客户端和 HTTP 服务器之间的 session 会话。会话持续一个指定的时间段，跨多个连接或页面请求。</p>
 <h2 id="RestController"><a href="#RestController" class="headerlink" title="@RestController"></a>@RestController</h2><p>结合了 <code>@Controller</code> 和 <code>@ResponseBody</code>。<br>被被标记的类中，每个方法的返回值都会以JSON或XML的形式直接写入HTTP响应体中（@ResponseBody）。<br>@Controller处理客户端发起的请求，并负责返回适当的视图（View）作为响应，搭配上@ResponseBody，使得以方法的返回值作为响应的主题内容，而不是解析为视图。</p>
 <h2 id="Spring中处理HTTP请求映射的注解"><a href="#Spring中处理HTTP请求映射的注解" class="headerlink" title="Spring中处理HTTP请求映射的注解"></a>Spring中处理HTTP请求映射的注解</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/users&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span>&#123; <span class="meta">@PostMapping(&quot;/create&quot;)</span>/<span class="meta">@GetMapping(&quot;list&quot;)</span></span><br><span class="line"><span class="keyword">public</span> XXX  xxx&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -513,45 +512,148 @@
 <p>组合注解。<br>是<code>@RequestMapping(method=RequestMethod.POST)</code>的缩写。它用于处理HTTP POST请求的方法，只能标注在方法上。使用<code>@PostMapping</code>注解的方法将仅响应POST请求。</p>
 <p>@<strong>GetMapping</strong></p>
 <p>组合注解。<br>是<code>@RequestMapping(method = RequestMethod.GET)</code>的缩写。它用于处理HTTP GET请求的方法，也只能标注在方法上。使用<code>@GetMapping</code>注解的方法将仅响应GET请求。</p>
-<h2 id="SpringMVC接收前端传递的参数的注解"><a href="#SpringMVC接收前端传递的参数的注解" class="headerlink" title="SpringMVC接收前端传递的参数的注解"></a>SpringMVC接收前端传递的参数的注解</h2><p><code>@RequestParam</code> 和 <code>@RequestBody </code>都是从 <code>HttpServletRequest request</code> 中取参的，而 <code>@PathVariable</code> 是映射 URI 请求参数中的占位符到目标方法的参数中的.</p>
-<ol>
-<li><p>@<strong>RequestParam</strong>  请求格式为：<code>http://...?...=...&amp;...=...</code><br>接收参数如下</p>
-<ul>
-<li>defaultValue 如果本次请求没有携带这个参数，或者参数为空，那么就会启用默认值</li>
-<li>name 绑定本次参数的名称，要跟URL上面的一样</li>
-<li>required 这个参数不是必须的，如果为 true，不传参数会报错</li>
-<li>value 跟name一样的作用，是name属性的一个别名</li>
-</ul>
-</li>
-<li><p>@<strong>RequestBody</strong>  两种接收方式： 一种是建立与 JSON 数据与之对应的实体，二是直接使用 Map&lt;String,Object&gt; 对象接收。<br>使用需要满足如下条件：</p>
-<ul>
-<li>Content-Type 为 application&#x2F;json，确保传递是 JSON 数据；</li>
-<li>参数转化的配置必须统一，否则无法接收数据，比如 json、request 混用等</li>
-</ul>
-</li>
-<li><p>@<strong>PathVariable</strong>     请求格式：<code>.../&#123;&#125;/&#123;&#125;</code>同<code>.../&#123;&#125;?...=...</code><br> 接收参数如下</p>
-<ul>
-<li>name 绑定参数的名称，<strong>默认不传递时，绑定为同名的形参。</strong> 赋值但名称不一致时则报错</li>
-<li>value 跟name一样的作用，是name属性的一个别名</li>
-<li>required 这个参数不是必须的，如果为 true，不传参数会报错</li>
-</ul>
-<p>需要注意两点：</p>
-<ul>
-<li>参数接收类型使用<strong>基本类型</strong></li>
-<li>如果@PathVariable标明参数名称，则<strong>参数名称必须和URL中参数名称一致</strong></li>
-</ul>
-</li>
+<h2 id="SpringMVC接收前端传递的参数的注解"><a href="#SpringMVC接收前端传递的参数的注解" class="headerlink" title="SpringMVC接收前端传递的参数的注解"></a>SpringMVC接收前端传递的参数的注解</h2><h3 id="一、核心注解总览（核心区别）"><a href="#一、核心注解总览（核心区别）" class="headerlink" title="一、核心注解总览（核心区别）"></a>一、核心注解总览（核心区别）</h3><table>
+<thead>
+<tr>
+<th>注解</th>
+<th>参数来源</th>
+<th>核心场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@RequestParam</code></td>
+<td>URL 查询串 &#x2F; 表单键值对</td>
+<td>接收零散的键值对参数（如<code>?name=xxx&amp;age=18</code>）</td>
+</tr>
+<tr>
+<td><code>@RequestBody</code></td>
+<td>请求体（Request Body）</td>
+<td>接收完整结构化数据（如 JSON&#x2F;XML）</td>
+</tr>
+<tr>
+<td><code>@PathVariable</code></td>
+<td>URI 路径占位符</td>
+<td>接收 URL 路径中的参数（如<code>/user/&#123;id&#125;</code>）</td>
+</tr>
+</tbody></table>
+<h3 id="二、各注解详细解析"><a href="#二、各注解详细解析" class="headerlink" title="二、各注解详细解析"></a>二、各注解详细解析</h3><h4 id="1-RequestParam（键值对参数接收）"><a href="#1-RequestParam（键值对参数接收）" class="headerlink" title="1. @RequestParam（键值对参数接收）"></a>1. @RequestParam（键值对参数接收）</h4><h5 id="核心作用"><a href="#核心作用" class="headerlink" title="核心作用"></a>核心作用</h5><p>接收 URL 查询串（<code>?key=value</code>）或表单（默认<code>application/x-www-form-urlencoded</code>）中的<strong>零散键值对参数</strong>。</p>
+<h5 id="请求格式"><a href="#请求格式" class="headerlink" title="请求格式"></a>请求格式</h5><p><code>http://xxx.com/xxx?key1=value1&amp;key2=value2</code>（查询串）</p>
+<p>或 表单提交（默认格式）</p>
+<h5 id="核心属性"><a href="#核心属性" class="headerlink" title="核心属性"></a>核心属性</h5><table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name/value</code></td>
+<td>绑定前端参数名（必须与 URL &#x2F; 表单的参数名一致，<code>name</code>和<code>value</code>是别名关系）</td>
+</tr>
+<tr>
+<td><code>required</code></td>
+<td>是否必填：<code>true</code>（默认）→ 不传参数报错；<code>false</code>→ 不传参数不报错</td>
+</tr>
+<tr>
+<td><code>defaultValue</code></td>
+<td>可选参数的默认值（当参数未传或为空时生效，自动类型转换）</td>
+</tr>
+</tbody></table>
+<h5 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 接收 ?name=张三&amp;age=18，age可选（默认20）</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/test&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">test</span><span class="params">(<span class="meta">@RequestParam(&quot;name&quot;)</span> String username, </span></span><br><span class="line"><span class="params">                   <span class="meta">@RequestParam(value = &quot;age&quot;, required = false, defaultValue = &quot;20&quot;)</span> Integer age)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;name:&quot;</span> + username + <span class="string">&quot;, age:&quot;</span> + age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-RequestBody（请求体结构化数据接收）"><a href="#2-RequestBody（请求体结构化数据接收）" class="headerlink" title="2. @RequestBody（请求体结构化数据接收）"></a>2. @RequestBody（请求体结构化数据接收）</h4><h5 id="核心作用-1"><a href="#核心作用-1" class="headerlink" title="核心作用"></a>核心作用</h5><p>接收请求体中的<strong>完整结构化数据</strong>（如 JSON&#x2F;XML），将其直接转为 Java 对象或 Map。</p>
+<h5 id="前提条件"><a href="#前提条件" class="headerlink" title="前提条件"></a>前提条件</h5><ol>
+<li>前端 <code>Content-Type</code> 必须设为 <code>application/json</code>（或<code>application/xml</code>）；</li>
+<li>后端参数转化配置统一（避免 JSON 和普通表单混用）。</li>
 </ol>
-<p>1、在 GET 请求中可以使用 <strong>@RequestParam</strong>，不能使用 @RequestBody，@RequestBody 是用来获取请求体中的参数，因为 GET 请求没有请求体，所以不能使用。</p>
-<p>2.在post请求中</p>
-<ul>
-<li>@RequestParam 适用于获取<u><strong>键值对</strong></u>形式的请求参数，来源包括 URL 查询字符串、application&#x2F;x-www-form-urlencoded 格式的请求体（表单默认格式）、multipart&#x2F;form-data 格式中的普通字段（非文件类型）。</li>
-<li>@RequestBody 用于接收请求体中的完整数据，适用于<u><strong>非键值</strong></u>对形式的结构化数据（如 application&#x2F;json、application&#x2F;xml 等），通过消息转换器将请求体内容解析为目标 Java 对象。</li>
-<li>特殊场景：multipart&#x2F;form-data 格式中的文件上传需用 @RequestPart；<br>application&#x2F;x-www-form-urlencoded 格式为键值对结构，不适合用 @RequestBody 接收（会得到原始字符串，非推荐用法）。</li>
+<h5 id="接收方式"><a href="#接收方式" class="headerlink" title="接收方式"></a>接收方式</h5><table>
+<thead>
+<tr>
+<th>接收类型</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>自定义实体类</td>
+<td>数据结构固定（如 User、Order 类）</td>
+</tr>
+<tr>
+<td><code>Map&lt;String, Object&gt;</code></td>
+<td>数据结构不固定（灵活接收键值对）</td>
+</tr>
+</tbody></table>
+<h5 id="使用示例-1"><a href="#使用示例-1" class="headerlink" title="使用示例"></a>使用示例</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 接收JSON请求体：&#123;&quot;name&quot;:&quot;张三&quot;,&quot;age&quot;:18&#125;</span></span><br><span class="line"><span class="meta">@RequestMapping(value = &quot;/addUser&quot;, method = RequestMethod.POST)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">addUser</span><span class="params">(<span class="meta">@RequestBody</span> User user)</span> &#123; <span class="comment">// User类需有name、age字段及get/set</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;新增用户：&quot;</span> + user.getName();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 用Map接收（灵活场景）</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/addData&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">addData</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;String, Object&gt; data)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;数据：&quot;</span> + data.get(<span class="string">&quot;key1&quot;</span>) + <span class="string">&quot;,&quot;</span> + data.get(<span class="string">&quot;key2&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-PathVariable（URI-路径参数接收）"><a href="#3-PathVariable（URI-路径参数接收）" class="headerlink" title="3. @PathVariable（URI 路径参数接收）"></a>3. @PathVariable（URI 路径参数接收）</h4><h5 id="核心作用-2"><a href="#核心作用-2" class="headerlink" title="核心作用"></a>核心作用</h5><p>将 URL 路径中的<strong>占位符</strong>（<code>&#123;参数名&#125;</code>）映射到方法参数，用于 RESTful 风格接口。</p>
+<h5 id="请求格式-1"><a href="#请求格式-1" class="headerlink" title="请求格式"></a>请求格式</h5><p><code>http://xxx.com/xxx/&#123;param1&#125;/&#123;param2&#125;</code>（如<code>/user/123</code>，<code>123</code>是<code>id</code>的占位值）</p>
+<p>也支持混合查询串：<code>/user/&#123;id&#125;?name=张三</code>（<code>id</code>用 @PathVariable，<code>name</code>用 @RequestParam）</p>
+<h5 id="核心属性-1"><a href="#核心属性-1" class="headerlink" title="核心属性"></a>核心属性</h5><table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name/value</code></td>
+<td>绑定路径占位符名称（与 URL 中<code>&#123;&#125;</code>内的名称一致，<code>name</code>和<code>value</code>是别名）</td>
+</tr>
+<tr>
+<td><code>required</code></td>
+<td>是否必填：<code>true</code>（默认）→ 路径无该占位符报错；<code>false</code>→ 可选</td>
+</tr>
+</tbody></table>
+<h5 id="关键使用要点"><a href="#关键使用要点" class="headerlink" title="关键使用要点"></a>关键使用要点</h5><ol>
+<li>建议用<strong>基本类型 &#x2F; 包装类</strong>接收参数（如<code>int</code>、<code>Long</code>）；</li>
+<li>若显式指定<code>name/value</code>，必须与 URL 占位符名称一致（如<code>@PathVariable(&quot;id&quot;) Long userId</code>，URL 需是<code>/user/&#123;id&#125;</code>）；</li>
+<li>未指定<code>name/value</code>时，默认绑定<strong>同名参数</strong>（如 URL<code>/user/&#123;id&#125;</code>，参数<code>@PathVariable Long id</code>）。</li>
+</ol>
+<h5 id="使用示例-2"><a href="#使用示例-2" class="headerlink" title="使用示例"></a>使用示例</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 接收 /user/123 → id=123</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user/&#123;id&#125;&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">getUser</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long userId)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;用户ID：&quot;</span> + userId;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 混合查询串：/user/123?name=张三</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user/&#123;id&#125;&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">getUser</span><span class="params">(<span class="meta">@PathVariable</span> Long id, <span class="meta">@RequestParam</span> String name)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;ID：&quot;</span> + id + <span class="string">&quot;，姓名：&quot;</span> + name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、不同请求方式（GET-POST）的注解适配规则"><a href="#三、不同请求方式（GET-POST）的注解适配规则" class="headerlink" title="三、不同请求方式（GET&#x2F;POST）的注解适配规则"></a>三、不同请求方式（GET&#x2F;POST）的注解适配规则</h3><h4 id="1-GET-请求"><a href="#1-GET-请求" class="headerlink" title="1. GET 请求"></a>1. GET 请求</h4><ul>
+<li><strong>可用注解</strong>：<code>@RequestParam</code>（查查询串）、<code>@PathVariable</code>（查路径占位符）；</li>
+<li><strong>禁用注解</strong>：<code>@RequestBody</code>（GET 请求无请求体，无法获取数据）。</li>
 </ul>
-<p>3、一个方法中，可以同时使用<strong>多个</strong> @RequestParam ，但是只能使用<strong>一个</strong> @RequestBody，否则会报错。</p>
-<p>4、@PathVariable 起到的作用就是 URI 请求参数中的<u>占位符</u>到<u>目标方法参数</u>的映射。</p>
-<p>5、前端请求的  Content-Type ，<strong>默认值</strong>为 <code>application/x-www-form-urlencoded</code>，在这种格式下，后端直接使用 @RequestParam 就可以直接获取指定的参数，但是一旦前端传递的是 JSON 数据，也就是 Content-Type 的值为 <code>application/json</code>，那么使用 @RequestParam 是取不到值的，不但取不到值还报错。</p>
+<h4 id="2-POST-请求"><a href="#2-POST-请求" class="headerlink" title="2. POST 请求"></a>2. POST 请求</h4><p>根据前端传递数据的格式，选择不同注解：</p>
+<table>
+<thead>
+<tr>
+<th>前端数据格式</th>
+<th>推荐注解</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>URL 查询串（<code>?key=value</code>）</td>
+<td><code>@RequestParam</code></td>
+<td>同 GET 的查询串接收方式</td>
+</tr>
+<tr>
+<td>表单默认格式（<code>application/x-www-form-urlencoded</code>）</td>
+<td><code>@RequestParam</code></td>
+<td>接收表单中的键值对参数</td>
+</tr>
+<tr>
+<td>JSON&#x2F;XML（<code>application/json</code>）</td>
+<td><code>@RequestBody</code></td>
+<td>接收请求体中的完整结构化数据</td>
+</tr>
+<tr>
+<td>文件上传（<code>multipart/form-data</code>）</td>
+<td><code>@RequestPart</code></td>
+<td>专门接收文件（非文件字段仍用<code>@RequestParam</code>）</td>
+</tr>
+</tbody></table>
+<p>⚠️ 注意：<code>application/x-www-form-urlencoded</code> 格式**不推荐用<code>@RequestBody</code>**（会接收原始字符串，解析繁琐且不符合设计初衷）。</p>
+<h3 id="四、关键注意事项"><a href="#四、关键注意事项" class="headerlink" title="四、关键注意事项"></a>四、关键注意事项</h3><ol>
+<li><strong>注解数量限制</strong>：一个方法中可使用**多个<code>@RequestParam</code><strong>（接收多个键值对），但只能使用</strong>一个<code>@RequestBody</code>**（请求体只有一个，多了会报错）；</li>
+<li>Content-Type 影响：<ul>
+<li>前端默认<code>Content-Type</code>是<code>application/x-www-form-urlencoded</code> → 用<code>@RequestParam</code>；</li>
+<li>前端传 JSON（<code>application/json</code>）→ 必须用<code>@RequestBody</code>，用<code>@RequestParam</code>会取不到值且报错；</li>
+</ul>
+</li>
+<li><code>@PathVariable</code>的参数名一致性：显式指定<code>name/value</code>时，必须与 URL 占位符名称完全匹配，否则无法映射。</li>
+</ol>
 <h2 id="Mybatis-plus"><a href="#Mybatis-plus" class="headerlink" title="Mybatis-plus"></a>Mybatis-plus</h2><p>优秀的 ORM 框架，致力于简化和提高 Java 应用程序对数据库访问的效率。</p>
 <h3 id="Transactional"><a href="#Transactional" class="headerlink" title="@Transactional"></a>@Transactional</h3><p>只能应用到接口方法、类、还有public方法上。<br>一般在@service标记的类上添加，可以将整个service类纳入Spring事务管理，采用统一的事务管理方式。</p>
 <p>常用属性总结：</p>
@@ -830,15 +932,7 @@ List&lt;User&gt; users = new QueryChainWrapper&lt;&gt;(userMapper)
       <div>
         <span>标签:</span>
         <span class="tag">
-           
-          <a href="/tags/session/"># session</a>
           
-          <a href="/tags/Hutool%E5%B7%A5%E5%85%B7/"># Hutool工具</a>
-          
-          <a href="/tags/Mybatis-plus/"># Mybatis-plus</a>
-          
-          <a href="/tags/SpringMVC/"># SpringMVC</a>
-           
         </span>
       </div>
       <div>
@@ -849,12 +943,12 @@ List&lt;User&gt; users = new QueryChainWrapper&lt;&gt;(userMapper)
     </section>
     <section class="post-nav">
       
-      <a class="prev" rel="prev" href="/2025/09/20/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/01-%E6%80%BB%E8%A7%88/"
-        >01-总览</a
+      <a class="prev" rel="prev" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/0.2-Hutool%E5%B7%A5%E5%85%B7%E7%B1%BB%E5%BD%92%E7%BA%B3/"
+        >0.1-Hutool工具类归纳</a
       >
        
-      <a class="next" rel="next" href="/2025/09/17/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/%E6%96%B0%E5%A2%9E%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD/"
-        >新增评论功能</a
+      <a class="next" rel="next" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/04-%E5%95%86%E6%88%B7%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98/"
+        >04-商户查询缓存</a
       >
       
     </section>

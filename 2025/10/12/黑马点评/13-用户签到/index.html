@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>老婆21岁生日快乐 | 欢迎来到老江湖的博客</title>
+<title>13-用户签到 | 欢迎来到老江湖的博客</title>
 
 
 
@@ -477,7 +477,7 @@
 </script>  
   <article class="post-wrap">
     <header class="post-header">
-      <h1 class="post-title">老婆21岁生日快乐</h1>
+      <h1 class="post-title">13-用户签到</h1>
       
       <div class="post-meta">
          作者:
@@ -493,7 +493,7 @@
         <span class="post-category"
           ><br />
           分类: 
-          <a href="/categories/%E6%88%BF%E9%97%B4%E9%97%A8/">房间门</a>
+          <a href="/categories/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/">黑马点评</a>
           
         </span>
         
@@ -501,12 +501,78 @@
       
     </header>
 
-    <div class="post-content"><h1 style="text-align: center;">老婆生日快乐</h1>
+    <div class="post-content"><blockquote>
+<p>三个&gt;是无符号的右移，而两个&gt;是有符号的右移</p>
+</blockquote>
+<h1 id="用户签到"><a href="#用户签到" class="headerlink" title="用户签到"></a>用户签到</h1><h2 id="一、签到功能的存储优化：BitMap（位图）"><a href="#一、签到功能的存储优化：BitMap（位图）" class="headerlink" title="一、签到功能的存储优化：BitMap（位图）"></a>一、签到功能的存储优化：BitMap（位图）</h2><p>传统用数据库表（如<code>tb_sign</code>）存储签到记录，会因 “用户 + 日期” 的维度组合产生大量冗余数据。而 <strong>BitMap（位图）</strong> 利用<strong>位运算</strong>极大压缩存储成本：</p>
+<ul>
+<li>原理：用 <strong>1 个 bit（0&#x2F;1）</strong> 表示 “某用户某天是否签到”，1 字节（8bit）可存储 8 天的签到状态；</li>
+<li>Redis 支持：基于 String 类型实现，通过<code>SETBIT</code>&#x2F;<code>GETBIT</code>等命令操作，单个 Key 最大支持<code>2^32</code>个 bit（约 512MB，可覆盖超大规模场景）。</li>
+</ul>
+<p><u>Redis中是利用string类型数据结构实现BitMap，因此最大上限是512M，转换为bit则是 2^32个bit位。</u></p>
+<p>正因为BitMap底层是基于String数据结构，因此其操作也都封装在字符串相关操作中了。</p>
+<p><strong>BitMap的操作命令有</strong>：</p>
+<ul>
+<li>SETBIT：向指定位置（offset）存入一个0或1</li>
+<li>GETBIT ：获取指定位置（offset）的bit值</li>
+<li>BITCOUNT ：统计BitMap中值为1的bit位的数量</li>
+<li>BITFIELD ：操作（查询、修改、自增）BitMap中bit数组中的指定位置（offset）的值</li>
+<li>BITFIELD_RO ：获取BitMap中bit数组，并以十进制形式返回</li>
+<li>BITOP ：将多个BitMap的结果做位运算（与 、或、异或）</li>
+<li>BITPOS ：查找bit数组中指定范围内第一个0或1出现的位置</li>
+</ul>
+<h2 id="二、签到功能实现（Redis-BitMap）"><a href="#二、签到功能实现（Redis-BitMap）" class="headerlink" title="二、签到功能实现（Redis BitMap）"></a>二、签到功能实现（Redis BitMap）</h2><p><strong>业务需求</strong>：用户每日签到，记录状态并统计<strong>连续签到天数</strong>。</p>
+<h3 id="1-单日签到（SETBIT）"><a href="#1-单日签到（SETBIT）" class="headerlink" title="1. 单日签到（SETBIT）"></a>1. 单日签到（<code>SETBIT</code>）</h3><ul>
+<li><strong>Key 设计</strong>：<code>sign:&#123;userId&#125;:&#123;yyyyMM&#125;</code>（按 “用户 + 年月” 分组，便于按月统计）；</li>
+<li><strong>Offset 计算</strong>：当月第<code>n</code>天的偏移量为<code>n-1</code>（如 5 号的偏移量是 4）；</li>
+</ul>
+<p>UserController</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostMapping(&quot;/sign&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">sign</span><span class="params">()</span>&#123;</span><br><span class="line">   <span class="keyword">return</span> userService.sign();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>臭老婆今天是你的生日，我没搞什么特别复杂的花样，就想跟你说：往后的日子，还想继续跟你一起 “臭气相投”</p>
-<p>我的臭老婆，愿你新的一岁，能少点烦恼，多点开心；愿你想要的都能慢慢实现，而我能一直在你身边，陪你吃遍想吃的，玩遍想玩的，把每一个生日都过成我们专属的小美好。</p>
-<p>生日快乐呀，我最最可爱的臭老婆！</p>
-<img src="https://oss.itbaima.cn/hub/928/image-20251011uxxy2lx08.jpeg" style="width: 100%; height: auto%;">
+<p>UserServiceImpl</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">sign</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 1.获取当前登录用户</span></span><br><span class="line">    <span class="type">Long</span> <span class="variable">userId</span> <span class="operator">=</span> UserHolder.getUser().getId();</span><br><span class="line">    <span class="comment">// 2.获取日期</span></span><br><span class="line">    <span class="type">LocalDateTime</span> <span class="variable">now</span> <span class="operator">=</span> LocalDateTime.now();</span><br><span class="line">    <span class="comment">// 3.拼接key</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">keySuffix</span> <span class="operator">=</span> now.format(DateTimeFormatter.ofPattern(<span class="string">&quot;:yyyyMM&quot;</span>));</span><br><span class="line">    <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> USER_SIGN_KEY + userId + keySuffix;</span><br><span class="line">    <span class="comment">// 4.获取今天是本月的第几天</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">dayOfMonth</span> <span class="operator">=</span> now.getDayOfMonth();</span><br><span class="line">    <span class="comment">// 5.写入Redis SETBIT key offset 1</span></span><br><span class="line">    stringRedisTemplate.opsForValue().setBit(key, dayOfMonth - <span class="number">1</span>, <span class="literal">true</span>);</span><br><span class="line">    <span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-连续签到统计（BITFIELD-位运算）"><a href="#2-连续签到统计（BITFIELD-位运算）" class="headerlink" title="2. 连续签到统计（BITFIELD + 位运算）"></a>2. 连续签到统计（<code>BITFIELD</code> + 位运算）</h3><p><strong>核心逻辑</strong>：从 “当天” 向前遍历 BitMap，统计连续为<code>1</code>的位数（即连续签到天数）。</p>
+<ul>
+<li>步骤：<ol>
+<li>用<code>BITFIELD</code>获取 “当月截止今天” 的所有签到位（返回十进制数）；</li>
+<li>通过  <strong>位与（&amp;）</strong> 和 <strong>右移（&gt;&gt;&gt;）</strong> 遍历每一位，统计连续<code>1</code>的次数；</li>
+</ol>
+</li>
+</ul>
+<p><strong>UserController</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/sign/count&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">signCount</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> userService.signCount();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>UserServiceImpl</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">signCount</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 1.获取当前登录用户</span></span><br><span class="line">    <span class="type">Long</span> <span class="variable">userId</span> <span class="operator">=</span> UserHolder.getUser().getId();</span><br><span class="line">    <span class="comment">// 2.获取日期</span></span><br><span class="line">    <span class="type">LocalDateTime</span> <span class="variable">now</span> <span class="operator">=</span> LocalDateTime.now();</span><br><span class="line">    <span class="comment">// 3.拼接key</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">keySuffix</span> <span class="operator">=</span> now.format(DateTimeFormatter.ofPattern(<span class="string">&quot;:yyyyMM&quot;</span>));</span><br><span class="line">    <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> USER_SIGN_KEY + userId + keySuffix;</span><br><span class="line">    <span class="comment">// 4.获取今天是本月的第几天</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">dayOfMonth</span> <span class="operator">=</span> now.getDayOfMonth();</span><br><span class="line">    <span class="comment">// 5.获取本月截止今天为止的所有的签到记录，返回的是一个十进制的数字 BITFIELD sign:5:202203 GET u14 0</span></span><br><span class="line">    List&lt;Long&gt; result = stringRedisTemplate.opsForValue().bitField(</span><br><span class="line">            key,</span><br><span class="line">            BitFieldSubCommands.create()<span class="comment">//创建一个 BitField 命令的构建器，用于定义对位图的操作,用于读取连续的位数据并转换为整数。</span></span><br><span class="line">                    .get(<span class="comment">//表示读取一个 无符号整数（unsigned），长度为 dayOfMonth 位（即当月已过的天数）</span></span><br><span class="line">                        BitFieldSubCommands</span><br><span class="line">                         .BitFieldType</span><br><span class="line">                         .unsigned(dayOfMonth))<span class="comment">//指定要执行的是 &quot;读取位&quot; 操作</span></span><br><span class="line">                     .valueAt(<span class="number">0</span>)<span class="comment">//指定从位图的 偏移量 0 开始读取（即从当月第 1 天对应的位开始）</span></span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">if</span> (result == <span class="literal">null</span> || result.isEmpty()) &#123;</span><br><span class="line">        <span class="comment">// 没有任何签到结果</span></span><br><span class="line">        <span class="keyword">return</span> Result.ok(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">Long</span> <span class="variable">num</span> <span class="operator">=</span> result.get(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (num == <span class="literal">null</span> || num == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> Result.ok(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 6.循环遍历</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="comment">// 6.1.让这个数字与1做与运算，得到数字的最后一个bit位  // 判断这个bit位是否为0</span></span><br><span class="line">        <span class="keyword">if</span> ((num &amp; <span class="number">1</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 如果为0，说明未签到，结束</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果不为0，说明已签到，计数器+1</span></span><br><span class="line">            count++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 把数字右移一位，抛弃最后一个bit位，继续下一个bit位</span></span><br><span class="line">        num &gt;&gt;&gt;= <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> Result.ok(count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、BitMap-的拓展：缓存穿透优化"><a href="#三、BitMap-的拓展：缓存穿透优化" class="headerlink" title="三、BitMap 的拓展：缓存穿透优化"></a>三、BitMap 的拓展：缓存穿透优化</h2><p><strong>缓存穿透</strong>：请求 “数据库和缓存都不存在的数据”，导致每次请求直击数据库，压力剧增。</p>
+<p><strong>BitMap 优化思路</strong>：</p>
+<ul>
+<li>用 BitMap 维护 “数据库存在的 ID 集合”（将 ID 通过<strong>哈希映射</strong>到 BitMap 的位上，存在则置<code>1</code>）；</li>
+<li>请求到达时，先通过 BitMap 判断 “ID 是否可能存在”：<ul>
+<li>若 BitMap 对应位为<code>0</code>，直接拦截（确定不存在）；</li>
+<li>若为<code>1</code>，再查询缓存 &#x2F; 数据库（存在概率高，减少无效查询）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>优势</strong>：相比 “维护 ID 列表”，BitMap 存储更紧凑（1 亿 ID 仅需约 12MB），且哈希映射的时间复杂度为<code>O(1)</code>。</p>
+<h2 id="四、关键技术点"><a href="#四、关键技术点" class="headerlink" title="四、关键技术点"></a>四、关键技术点</h2><ol>
+<li><p><strong>BitMap 的存储效率</strong>：</p>
+<p>1 亿条签到记录，若用数据库表需约 2GB 存储，而 BitMap 仅需约 12MB（<code>1亿 / 8 / 1024 / 1024 ≈ 12MB</code>），存储成本大幅降低。</p>
+</li>
+<li><p><strong>BitMap 命令特性</strong>：</p>
+<ul>
+<li><code>SETBIT</code>&#x2F;<code>GETBIT</code>：高效操作单个位；</li>
+<li><code>BITFIELD</code>：批量操作连续位（如一次性获取 “当月前 n 天” 的签到数据）；</li>
+<li><code>BITCOUNT</code>：统计所有为<code>1</code>的位（可直接用于 “当月总签到次数” 统计）。</li>
+</ul>
+</li>
+<li><p><strong>连续签到算法</strong>：</p>
+<p>利用 “位与（&amp;）” 判断最后一位是否为<code>1</code>，再通过 “右移（&gt;&gt;&gt;）” 遍历前一位，直到遇到<code>0</code>，统计连续<code>1</code>的次数。</p>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>用户签到模块通过<strong>Redis BitMap</strong>实现了 “低存储成本 + 高效位运算” 的签到与统计，同时 BitMap 可拓展用于缓存穿透等场景，是 Redis “巧用位操作压缩成本” 的典型实践。核心是理解 “用 bit 表示状态，通过位运算高效处理批量状态” 的设计思想。</p>
 </div>
 
     
@@ -547,11 +613,7 @@
       <div>
         <span>标签:</span>
         <span class="tag">
-           
-          <a href="/tags/%E5%BC%80%E5%BF%83/"># 开心</a>
           
-          <a href="/tags/%E8%80%81%E5%A9%86%E7%94%9F%E6%97%A5/"># 老婆生日</a>
-           
         </span>
       </div>
       <div>
@@ -562,12 +624,12 @@
     </section>
     <section class="post-nav">
       
-      <a class="prev" rel="prev" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/01-%E6%80%BB%E8%A7%88/"
-        >01-总览</a
+      <a class="prev" rel="prev" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/11-%E5%A5%BD%E5%8F%8B%E5%85%B3%E6%B3%A8/"
+        >11-好友关注</a
       >
        
-      <a class="next" rel="next" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/0.2-Hutool%E5%B7%A5%E5%85%B7%E7%B1%BB%E5%BD%92%E7%BA%B3/"
-        >0.1-Hutool工具类归纳</a
+      <a class="next" rel="next" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/12-%E9%99%84%E8%BF%91%E5%95%86%E9%93%BA/"
+        >12-附近商铺</a
       >
       
     </section>
