@@ -3612,115 +3612,103 @@ PFMERGE destkey sourcekey [sourcekey ...]：将多个 HLL 合并为一个（用�
   <entry>
     <title>Lombok快速上手</title>
     <url>/2025/10/15/java/Lombok%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</url>
-    <content><![CDATA[
-@Data在实体类上加 @Data 注解，自动为该类生成 getter 和 setter 方法，以及 equals、hashCode 和 toString 方法。
+    <content><![CDATA[@Data在实体类上加 @Data 注解，自动为该类生成 *getter 和 setter 方法，以及 equals、*hashCode 和 toString 方法。
 Lombok 实现代码生成的原理，其利用注解处理器机制，在编译过程中动态添加方法。干涉编译过程，实现代码生成。
 
 **@Data**：一站式注解，等价于 @Getter @Setter @RequiredArgsConstructor @ToString @EqualsAndHashCode，适合普通数据类（允许修改字段）。
-
-@Value：只读版本，等价于
-@Getter @FieldDefaults(makeFinal=true, level=PRIVATE) @AllArgsConstructor @ToString @EqualsAndHashCode，类和字段自动为final（不可修改）。
-
-注意：Java 17+ 的 Record 类型可替代 @Value（Record 天生不可变，自动生成 equals&#x2F;hashCode 等），更推荐使用。
+@Value：只读版本，等价于@Getter @FieldDefaults(makeFinal=true, level=PRIVATE) @AllArgsConstructor @ToString @EqualsAndHashCode，类和字段自动为 final（不可修改）。
+**注意：Java 17+ 的 **Record 类型可替代 @Value（Record 天生不可变，自动生成 equals&#x2F;hashCode 等），更推荐使用。
 
 
 
-@Getter@Getter直接添加到类上或是字段上。命名规则：get+字段名首字母大写；
+@Getter@Getter 直接添加到类上或是字段上。命名规则：get+ 字段名首字母大写；
 
-添加到类上时，将为类中所有字段添加Getter方法
+添加到类上时，将为类中所有字段添加 Getter 方法
 添加到字段上时，仅对此字段生效
 
-访问权限：@Getter(AccessLevel.xxx) 有PUBLIC、PACKAGE、PRIVATE、PROTECTED、MODULE（仅限模块内使用，与PACKAGE类似，相当于不添加任何访问权限关键字。）、NONE
-添加额外注解： @Getter(onMethod_ = &#123; xxx... &#125;)，花括号里面为注解。 如：@Getter(onMethod_ = &#123; @Deprecated &#125;)
-懒加载（一开始的时候此字段没有值，当我们需要的时候再将值添加到此处；字段必须是private且final的），lazy=true：单例模式
-@Setter参数与@Getter用法一致，命名规则：set+字段名首字母大写；唯一一个不一样的参数为onParam，它可以在形参上的额外添加的自定义注解。
+访问权限：@Getter(AccessLevel.xxx)  有 PUBLIC、PACKAGE、PRIVATE、PROTECTED、MODULE（仅限模块内使用，与 PACKAGE 类似，相当于不添加任何访问权限关键字。）、NONE
+**添加额外注解： **@Getter(onMethod_ = &#123; xxx... &#125;)，花括号里面为注解。 如：@Getter(onMethod_ = &#123; @Deprecated &#125;)
+懒加载（一开始的时候此字段没有值，当我们需要的时候再将值添加到此处；字段必须是 private 且 final 的），lazy=true：单例模式
+@Setter参数与@Getter 用法一致，命名规则：set+ 字段名首字母大写；唯一一个不一样的参数为 onParam，它可以在形参上的额外添加的自定义注解。
 
-如果我们手动编写了对应字段的Getter或Setter方法（按照上述命名规则进行判断）那么Lombok提供的注解将不会生效，也不会覆盖我们自己编写的方法，但是仅限于同名不同参的情况;
-如果出现同名不同参数的情况导致误判，我们也可以使用@Tolerate注解使Lombok忽略它的存在，继续生成。
+如果我们手动编写了对应字段的 Getter 或 Setter 方法（按照上述命名规则进行判断）那么 Lombok 提供的注解将不会生效，也不会覆盖我们自己编写的方法，但是仅限于同名不同参的情况;
+如果出现同名不同参数的情况导致误判，我们也可以使用@Tolerate 注解使 Lombok 忽略它的存在，继续生成。
 
 构造方法Lombok 提供了三个用于处理构造方法的注解：
 
 @NoArgsConstructor：为类生成无参构造方法（不包含任何参数）。
-
 access：指定构造方法的访问修饰符（默认 public），其可选值为 AccessLevel 枚举。
-force：当类中包含 final 字段时，默认情况下使用 @NoArgsConstructor 会报错（因为 final 字段必须初始化）。若设置 force = true，Lombok 会强制生成无参构造，并将 final 字段初始化为默认值（如 0、false、null 等）。
+force：当类中包含 final 字段时，默认情况下使用 @NoArgsConstructor 会报错（因为 final 字段必须初始化）。** **若设置 force = true，Lombok 会强制生成无参构造，并将 final 字段初始化为默认值（如 0、false、null 等）。
 
 
 @AllArgsConstructor：为类生成包含所有字段的构造方法（无论字段是否为 final、是否有初始值）。
-
 access：同 @NoArgsConstructor，指定构造方法的访问修饰符（默认 public）。
-
-构造参数的顺序与类中字段声明的顺序一致。
+构造参数的顺序与类中字段****声明的顺序一致。
 
 
 
 
 @RequiredArgsConstructor：为类生成包含必要字段的构造方法。
-
 access：同前两个注解，指定访问修饰符（默认 public）。
-
 staticName：若指定该参数（如 staticName = &quot;of&quot;），则不生成构造方法，而是生成一个静态工厂方法，通过该方法创建实例。
-
 「必要字段」定义：
 被 final 修饰且未初始化的字段（必须在构造时赋值）。
-被 @NonNull 注解标记的字段（无论是否为 final，需保证非空）。
+**被 **@NonNull 注解标记的字段（无论是否为 final，需保证非空）。
 
 
 
 
 
 
-@ToString最简单的toString方法生成，只需要在类上添加一个@ToString注解即可。
-@ToString常用参数：
+@ToString最简单的 toString 方法生成，只需要在类上添加一个@ToString 注解即可。
+@ToString 常用参数：
 
 exclude：
-
-指定需要排除的字段，这些字段不会出现在 toString() 的结果中。默认值：空数组
-
+指定需要****排除的字段，这些字段不会出现在 toString() 的结果中。默认值：空数组
 默认值：空数组@ToString(exclude = &#123;&quot;password&quot;, &quot;age&quot;&#125;) // 排除password和age字段
-- `of`：  - 指定需要**包含**的字段（白名单），仅这些字段会出现在 `toString()` 结果中（与 `exclude` 互斥，不能同时使用）。**默认值**：空数组（若未指定，默认包含所有字段）  - ```java    @ToString(of = &#123;&quot;username&quot;, &quot;email&quot;&#125;) // 只包含这两个字段
+* `of`：  * **指定需要****包含**的字段（白名单），仅这些字段会出现在 `toString()` 结果中（与 `exclude` 互斥，不能同时使用）。**默认值**：空数组（若未指定，默认包含所有字段）  * ```    @ToString(of = &#123;&quot;username&quot;, &quot;email&quot;&#125;) // 只包含这两个字段
 
 
 
 
 includeFieldNames：
-
 控制是否在 toString() 中显示字段名（如 name=张三 中的 name=）。默认值：true（显示字段名）
-
 @ToString(includeFieldNames = false) // 打印结果不显示字段名
-- `callSuper`：  - 控制是否在 `toString()` 中**包含父类的 `toString()` 结果**。**默认值**：`false`（不包含父类信息）  - ```java    @ToString(callSuper = true) // 包含父类的toString结果
+* `callSuper`：  * **控制是否在 **`toString()` 中**包含父类的 `toString()` 结果**。**默认值**：`false`（不包含父类信息）  * ```    @ToString(callSuper = true) // 包含父类的toString结果
 
 
 
 
 doNotUseGetters：
-
-控制是否直接访问字段（而非通过 getter 方法）获取值。默认值：false
-
+控制是否****直接访问字段（而非通过 getter 方法）获取值。默认值：false
 @ToString(doNotUseGetters = true) // 直接访问字段，不调用getter
-- `onlyExplicitlyIncluded`：  - 仅包含被 `@ToString.Include` 注解标记的字段或方法（精确控制包含内容）。**默认值**：`false`（默认包含所有字段，除非被 `exclude` 排除）  - `@ToString.Include` 用于标记需要包含的字段或方法，可单独修饰字段或方法（方法会被执行并将返回值加入 `toString`）。## @EqualsAndHashCode自动生成 `equals()` 和 `hashCode()` 方法，默认基于类中**所有非静态、非 transient 字段**进行判断和计算，避免手动编写时的冗余和错误。| 参数 / 注解              | 作用                                                      | 注意事项                                                     || ------------------------ | --------------------------------------------------------- | ------------------------------------------------------------ || `exclude`                | 排除指定字段（不参与 equals/hashCode）                    | 与 `of` 互斥，不可同时使用                                   || `of`                     | 仅包含指定字段（白名单，仅这些字段参与）                  | 与 `exclude` 互斥                                            || `callSuper`              | 是否包含父类的 equals/hashCode 结果（即父类字段是否参与） | 默认 `false`；父类未重写 equals 时（用 Object 实现），开启可能导致逻辑错误 || `onlyExplicitlyIncluded` | 仅包含被 `@Include` 标记的字段 / 方法                     | 需配合 `@EqualsAndHashCode.Include` 使用                     || `@Include`               | 标记参与计算的字段 / 方法（支持方法返回值）               | 可通过 `replaces = &quot;字段名&quot;` 替代指定字段的比较              || `@Exclude`               | 标记不参与计算的字段                                      | 无需开启 `onlyExplicitlyIncluded`，直接生效                  || `cacheStrategy`          | 控制 hashCode 缓存策略（`NEVER`/`LAZY`）                  | `LAZY` 适合不可变类（字段值不变），可变类使用可能导致哈希值与实际状态不一致 |1. **方法参与计算**：   `@EqualsAndHashCode.Include` 可标记无参方法，其返回值会纳入 equals 和 hashCode 计算。例如：   ```java   @EqualsAndHashCode(onlyExplicitlyIncluded = true)   public class User &#123;       private String name;       private int age;              @EqualsAndHashCode.Include(name = &quot;adult&quot;)       public boolean isAdult() &#123; // 用方法结果参与比较           return age &gt;= 18;       &#125;   &#125;
+* `onlyExplicitlyIncluded`：  * **仅包含被 **`@ToString.Include` 注解标记的字段或方法（精确控制包含内容）。**默认值**：`false`（默认包含所有字段，除非被 `exclude` 排除）  * `@ToString.Include` 用于标记需要包含的字段或方法，可单独修饰字段或方法（方法会被执行并将返回值加入 `toString`）。## @EqualsAndHashCode**自动生成 **`equals()` 和 `hashCode()` 方法，默认基于类中**所有非静态、非 transient 字段**进行判断和计算，避免手动编写时的冗余和错误。| **参数 / 注解**          | **作用**                                                      | **注意事项**                                                                  || ------------------------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------- || `exclude`                | **排除指定字段（不参与 equals/hashCode）**                    | **与**`of` 互斥，不可同时使用                                                 || `of`                     | **仅包含指定字段（白名单，仅这些字段参与）**                  | **与**`exclude` 互斥                                                          || `callSuper`              | **是否包含父类的 equals/hashCode 结果（即父类字段是否参与）** | **默认**`false`；父类未重写 equals 时（用 Object 实现），开启可能导致逻辑错误 || `onlyExplicitlyIncluded` | **仅包含被**`@Include` 标记的字段 / 方法                      | **需配合**`@EqualsAndHashCode.Include` 使用                                   || `@Include`               | **标记参与计算的字段 / 方法（支持方法返回值）**               | **可通过**`replaces = &quot;字段名&quot;` 替代指定字段的比较                            || `@Exclude`               | **标记不参与计算的字段**                                      | **无需开启**`onlyExplicitlyIncluded`，直接生效                                || `cacheStrategy`          | **控制 hashCode 缓存策略（**`NEVER`/`LAZY`）                  | `LAZY` 适合不可变类（字段值不变），可变类使用可能导致哈希值与实际状态不一致   |1. **方法参与计算**：   `@EqualsAndHashCode.Include` 可标记无参方法，其返回值会纳入 equals 和 hashCode 计算。例如：
+ @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+ public class User &#123;
+   private String name;
+   private int age;
+   
+   @EqualsAndHashCode.Include(name = &quot;adult&quot;)
+   public boolean isAdult() &#123; // 用方法结果参与比较
+       return age &gt;= 18;
+   &#125;
 
 
 
+ } 2. **`replaces` 属性**：   **用方法结果替代指定字段的比较，例如：** @EqualsAndHashCode(onlyExplicitlyIncluded &#x3D; true) public class User {     private int id;          @EqualsAndHashCode.Include(replaces &#x3D; “id”) &#x2F;&#x2F; 替代 id 字段的比较     public int normalizedId() {         return Math.abs(id); &#x2F;&#x2F; 用绝对值参与比较     } } &#96;&#96;&#96;
 
 
 
-replaces 属性：
-用方法结果替代指定字段的比较，例如：
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)public class User &#123;    private int id;        @EqualsAndHashCode.Include(replaces = &quot;id&quot;) // 替代 id 字段的比较    public int normalizedId() &#123;        return Math.abs(id); // 用绝对值参与比较    &#125;&#125;
-
-缓存策略（LAZY）：
-第一次计算 hashCode 后缓存结果，后续直接返回，适合不可变类（字段值不会修改）。若字段可变，缓存的哈希值会与实际状态脱节，导致集合（如 HashMap）操作异常。
-
-可变类慎用 cacheStrategy = LAZY，避免哈希值与对象实际状态不一致。
+缓存策略（LAZY）：第一次计算 hashCode 后缓存结果，后续直接返回，适合****不可变类（字段值不会修改）。若字段可变，缓存的哈希值会与实际状态脱节，导致集合（如 HashMap）操作异常。
+**可变类慎用 **cacheStrategy = LAZY，避免哈希值与对象实际状态不一致。
 
 
 
-Accessors强化注解Lombok为我们提供了一个@Accessors注解，用于配置lombok如何生成和查找getters和setters 即 用于强化 getter 和 setter 方法的生成规则，提供更灵活的访问器风格（如链式调用、fluent 风格等）
+Accessors 强化注解Lombok 为我们提供了一个@Accessors 注解，用于配置 lombok 如何生成和查找 getters 和 setters 即 用于强化 getter 和 setter 方法的生成规则，提供更灵活的访问器风格（如链式调用、fluent 风格等）
 常用参数：
 
 fluent（流畅风格、简化前缀）
-生成的 getter&#x2F;setter 方法名直接使用字段名，而非默认的 getXxx()&#x2F;setXxx(...)。默认值：false
+生成的 getter&#x2F;setter 方法名直接使用****字段名，而非默认的 getXxx()&#x2F;setXxx(...)。默认值：false
 
 
 chain（链式调用）
@@ -3743,8 +3731,7 @@ prefix（字段前缀）
   <entry>
     <title>Mybatis快速上手</title>
     <url>/2025/10/15/java/Mybatis%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</url>
-    <content><![CDATA[
-一、Mybatis 简介与快速上手1.1 什么是 Mybatis
+    <content><![CDATA[一、Mybatis 简介与快速上手1.1 什么是 Mybatis
 核心定位：Mybatis 是一款持久层框架，专注于解决 Java 应用与数据库交互的问题，属于 ORM（对象关系映射）技术的一种实现。
 历史背景：前身是 Apache 的 iBatis 框架，2010 年迁移到 Google Code 并更名为 Mybatis，后托管于 GitHub，目前最新稳定版为 3.5.x（2025.10）。
 解决的问题：
@@ -3758,7 +3745,7 @@ prefix（字段前缀）
 1.2 环境搭建基础依赖配置
 Maven 依赖（核心 + 数据库驱动）：
 
-&lt;!-- Mybatis核心依赖 --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.mybatis&lt;/groupId&gt;    &lt;artifactId&gt;mybatis&lt;/artifactId&gt;    &lt;version&gt;3.5.16&lt;/version&gt;&lt;/dependency&gt;&lt;!-- MySQL驱动（根据数据库类型选择） --&gt;&lt;dependency&gt;    &lt;groupId&gt;mysql&lt;/groupId&gt;    &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;    &lt;version&gt;8.0.33&lt;/version&gt; &lt;!-- 适配MySQL 8.x --&gt;&lt;/dependency&gt;
+&lt;!-- Mybatis核心依赖 --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.mybatis&lt;/groupId&gt;    &lt;artifactId&gt;mybatis&lt;/artifactId&gt;    &lt;version&gt;3.5.16&lt;/version&gt;&lt;/dependency&gt;&lt;!-- MySQL驱动（根据数据库类型选择） --&gt;&lt;dependency&gt;    &lt;groupId&gt;mysql&lt;/groupId&gt;    &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;    &lt;version&gt;8.0.33&lt;/version&gt; &lt;!-- 适配MySQL 8.x --&gt;&lt;/dependency&gt;
 
 
 Gradle 依赖：
@@ -3766,12 +3753,12 @@ Gradle 依赖：
 implementation &#x27;org.mybatis:mybatis:3.5.16&#x27;implementation &#x27;mysql:mysql-connector-java:8.0.33&#x27;
 
 1.3 配置文件结构（mybatis-config.xml）Mybatis 核心配置文件包含框架全局设置，标签顺序有严格要求（properties → settings → typeAliases → … → environments → mappers）
-&lt;configuration&gt;    &lt;!-- 1. 引入外部配置文件（如数据库连接信息） --&gt;    &lt;properties resource=&quot;db.properties&quot;/&gt;    &lt;!-- 2. 全局设置 --&gt;    &lt;settings&gt;        &lt;!-- 开启驼峰命名自动映射（数据库user_name → 实体userName） --&gt;        &lt;setting name=&quot;mapUnderscoreToCamelCase&quot; value=&quot;true&quot;/&gt;        &lt;!-- 开启日志（可选LOG4J、SLF4J等） --&gt;        &lt;setting name=&quot;logImpl&quot; value=&quot;LOG4J&quot;/&gt;        &lt;!-- 二级缓存开关 --&gt;        &lt;setting name=&quot;cacheEnabled&quot; value=&quot;true&quot;/&gt;    &lt;/settings&gt;    &lt;!-- 3. 类型别名（简化类名书写） --&gt;    &lt;typeAliases&gt;        &lt;!-- 单个类别名 --&gt;        &lt;typeAlias type=&quot;com.example.pojo.User&quot; alias=&quot;User&quot;/&gt;        &lt;!-- 包扫描（默认别名为类名首字母小写，如User→user） --&gt;        &lt;package name=&quot;com.example.pojo&quot;/&gt;    &lt;/typeAliases&gt;    &lt;!-- 4. 环境配置（可配置多环境，default指定默认环境） --&gt;    &lt;environments default=&quot;development&quot;&gt;        &lt;environment id=&quot;development&quot;&gt;            &lt;!-- 事务管理器：JDBC（依赖数据库事务）/MANAGED（交给容器管理） --&gt;            &lt;transactionManager type=&quot;JDBC&quot;/&gt;            &lt;!-- 数据源：POOLED（连接池）/UNPOOLED（无连接池）/JNDI（容器数据源） --&gt;            &lt;dataSource type=&quot;POOLED&quot;&gt;                &lt;property name=&quot;driver&quot; value=&quot;$&#123;db.driver&#125;&quot;/&gt; &lt;!-- 从properties文件获取 --&gt;                &lt;property name=&quot;url&quot; value=&quot;$&#123;db.url&#125;&quot;/&gt;                &lt;property name=&quot;username&quot; value=&quot;$&#123;db.username&#125;&quot;/&gt;                &lt;property name=&quot;password&quot; value=&quot;$&#123;db.password&#125;&quot;/&gt;            &lt;/dataSource&gt;        &lt;/environment&gt;    &lt;/environments&gt;    &lt;!-- 5. 映射器（注册SQL映射文件或接口） --&gt;    &lt;mappers&gt;        &lt;!-- 方式1：资源路径（XML文件） --&gt;        &lt;mapper resource=&quot;mappers/UserMapper.xml&quot;/&gt;        &lt;!-- 方式2：接口全类名（需XML与接口同包同名） --&gt;        &lt;mapper class=&quot;com.example.mapper.UserMapper&quot;/&gt;        &lt;!-- 方式3：包扫描（批量注册接口） --&gt;        &lt;package name=&quot;com.example.mapper&quot;/&gt;    &lt;/mappers&gt;&lt;/configuration&gt;
+&lt;configuration&gt;    &lt;!-- 1. 引入外部配置文件（如数据库连接信息） --&gt;    &lt;properties resource=&quot;db.properties&quot;/&gt;    &lt;!-- 2. 全局设置 --&gt;    &lt;settings&gt;        &lt;!-- 开启驼峰命名自动映射（数据库user_name → 实体userName） --&gt;        &lt;setting name=&quot;mapUnderscoreToCamelCase&quot; value=&quot;true&quot;/&gt;        &lt;!-- 开启日志（可选LOG4J、SLF4J等） --&gt;        &lt;setting name=&quot;logImpl&quot; value=&quot;LOG4J&quot;/&gt;        &lt;!-- 二级缓存开关 --&gt;        &lt;setting name=&quot;cacheEnabled&quot; value=&quot;true&quot;/&gt;    &lt;/settings&gt;    &lt;!-- 3. 类型别名（简化类名书写） --&gt;    &lt;typeAliases&gt;        &lt;!-- 单个类别名 --&gt;        &lt;typeAlias type=&quot;com.example.pojo.User&quot; alias=&quot;User&quot;/&gt;        &lt;!-- 包扫描（默认别名为类名首字母小写，如User→user） --&gt;        &lt;package name=&quot;com.example.pojo&quot;/&gt;    &lt;/typeAliases&gt;    &lt;!-- 4. 环境配置（可配置多环境，default指定默认环境） --&gt;    &lt;environments default=&quot;development&quot;&gt;        &lt;environment id=&quot;development&quot;&gt;            &lt;!-- 事务管理器：JDBC（依赖数据库事务）/MANAGED（交给容器管理） --&gt;            &lt;transactionManager type=&quot;JDBC&quot;/&gt;            &lt;!-- 数据源：POOLED（连接池）/UNPOOLED（无连接池）/JNDI（容器数据源） --&gt;            &lt;dataSource type=&quot;POOLED&quot;&gt;                &lt;property name=&quot;driver&quot; value=&quot;$&#123;db.driver&#125;&quot;/&gt; &lt;!-- 从properties文件获取 --&gt;                &lt;property name=&quot;url&quot; value=&quot;$&#123;db.url&#125;&quot;/&gt;                &lt;property name=&quot;username&quot; value=&quot;$&#123;db.username&#125;&quot;/&gt;                &lt;property name=&quot;password&quot; value=&quot;$&#123;db.password&#125;&quot;/&gt;            &lt;/dataSource&gt;        &lt;/environment&gt;    &lt;/environments&gt;    &lt;!-- 5. 映射器（注册SQL映射文件或接口） --&gt;    &lt;mappers&gt;        &lt;!-- 方式1：资源路径（XML文件） --&gt;        &lt;mapper resource=&quot;mappers/UserMapper.xml&quot;/&gt;        &lt;!-- 方式2：接口全类名（需XML与接口同包同名） --&gt;        &lt;mapper class=&quot;com.example.mapper.UserMapper&quot;/&gt;        &lt;!-- 方式3：包扫描（批量注册接口） --&gt;        &lt;package name=&quot;com.example.mapper&quot;/&gt;    &lt;/mappers&gt;&lt;/configuration&gt;
 
-补充：db.properties文件示例：
+补充：db.properties 文件示例：
 db.driver=com.mysql.cj.jdbc.Driverdb.url=jdbc:mysql://localhost:3306/test?useSSL=false&amp;serverTimezone=UTCdb.username=rootdb.password=123456
 
-1.4 基础使用示例（工具类 + 核心 API）工具类封装（MybatisUtil）public class MybatisUtil &#123;    // SqlSessionFactory是线程安全的，全局只需要一个实例    private static SqlSessionFactory sqlSessionFactory;    static &#123;        try &#123;            // 1. 加载配置文件（InputStream/Reader均可）            InputStream is = Resources.getResourceAsStream(&quot;mybatis-config.xml&quot;);            // 2. 创建SqlSessionFactory（建造者模式）            sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);        &#125; catch (IOException e) &#123;            throw new RuntimeException(&quot;初始化SqlSessionFactory失败&quot;, e);        &#125;    &#125;    /**     * 获取SqlSession实例     * @param autoCommit 是否自动提交事务（DML操作建议关闭自动提交）     * @return SqlSession（线程不安全，需单独获取）     */    public static SqlSession openSession(boolean autoCommit) &#123;        return sqlSessionFactory.openSession(autoCommit);    &#125;    // 简化调用：默认不自动提交    public static SqlSession openSession() &#123;        return openSession(false);    &#125;&#125;
+1.4 基础使用示例（工具类 + 核心 API）工具类封装（MybatisUtil）public class MybatisUtil &#123;    // SqlSessionFactory是线程安全的，全局只需要一个实例    private static SqlSessionFactory sqlSessionFactory;    static &#123;        try &#123;            // 1. 加载配置文件（InputStream/Reader均可）            InputStream is = Resources.getResourceAsStream(&quot;mybatis-config.xml&quot;);            // 2. 创建SqlSessionFactory（建造者模式）            sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);        &#125; catch (IOException e) &#123;            throw new RuntimeException(&quot;初始化SqlSessionFactory失败&quot;, e);        &#125;    &#125;    /**     * 获取SqlSession实例     * @param autoCommit 是否自动提交事务（DML操作建议关闭自动提交）     * @return SqlSession（线程不安全，需单独获取）     */    public static SqlSession openSession(boolean autoCommit) &#123;        return sqlSessionFactory.openSession(autoCommit);    &#125;    // 简化调用：默认不自动提交    public static SqlSession openSession() &#123;        return openSession(false);    &#125;&#125;
 
 核心 API 说明
 SqlSessionFactory：工厂类，负责创建 SqlSession，全局唯一，线程安全。
@@ -3788,32 +3775,29 @@ SqlSession：会话对象，封装了数据库连接，提供 CRUD 方法，线�
 数据定义语言(DDL)、数据查询语言（DQL）、数据操纵语言（DML）、数据控制语言（DCL）
 
 1.5 MyBatis 与 JDBC 的对比（解决 JDBC 的核心痛点）JDBC 操作数据库的典型流程：
-// JDBC原生代码（冗余且繁琐）Connection conn = null;PreparedStatement ps = null;ResultSet rs = null;try &#123;    // 1. 加载驱动（硬编码）    Class.forName(&quot;com.mysql.cj.jdbc.Driver&quot;);    // 2. 创建连接（URL/账号/密码硬编码）    conn = DriverManager.getConnection(&quot;jdbc:mysql://localhost:3306/test&quot;, &quot;root&quot;, &quot;123456&quot;);    // 3. 编写SQL（字符串拼接易引发注入）    String sql = &quot;select * from user where id = &quot; + id; // 存在SQL注入风险    ps = conn.prepareStatement(sql);    // 4. 执行查询    rs = ps.executeQuery();    // 5. 手动封装结果集（重复劳动）    User user = new User();    while (rs.next()) &#123;        user.setId(rs.getInt(&quot;id&quot;));        user.setName(rs.getString(&quot;name&quot;));        // ... 更多字段映射    &#125;&#125; catch (Exception e) &#123;    e.printStackTrace();&#125; finally &#123;    // 6. 手动关闭资源（繁琐且易遗漏）    if (rs != null) try &#123; rs.close(); &#125; catch (SQLException e) &#123;&#125;    if (ps != null) try &#123; ps.close(); &#125; catch (SQLException e) &#123;&#125;    if (conn != null) try &#123; conn.close(); &#125; catch (SQLException e) &#123;&#125;&#125;
+// JDBC原生代码（冗余且繁琐）Connection conn = null;PreparedStatement ps = null;ResultSet rs = null;try &#123;    // 1. 加载驱动（硬编码）    Class.forName(&quot;com.mysql.cj.jdbc.Driver&quot;);    // 2. 创建连接（URL/账号/密码硬编码）    conn = DriverManager.getConnection(&quot;jdbc:mysql://localhost:3306/test&quot;, &quot;root&quot;, &quot;123456&quot;);    // 3. 编写SQL（字符串拼接易引发注入）    String sql = &quot;select * from user where id = &quot; + id; // 存在SQL注入风险    ps = conn.prepareStatement(sql);    // 4. 执行查询    rs = ps.executeQuery();    // 5. 手动封装结果集（重复劳动）    User user = new User();    while (rs.next()) &#123;        user.setId(rs.getInt(&quot;id&quot;));        user.setName(rs.getString(&quot;name&quot;));        // ... 更多字段映射    &#125;&#125; catch (Exception e) &#123;    e.printStackTrace();&#125; finally &#123;    // 6. 手动关闭资源（繁琐且易遗漏）    if (rs != null) try &#123; rs.close(); &#125; catch (SQLException e) &#123;&#125;    if (ps != null) try &#123; ps.close(); &#125; catch (SQLException e) &#123;&#125;    if (conn != null) try &#123; conn.close(); &#125; catch (SQLException e) &#123;&#125;&#125;
 
 MyBatis 的优化点：
 
 消除硬编码：通过配置文件管理数据库连接信息和 SQL
-防注入：使用#&#123;&#125;预编译参数（替代 JDBC 的字符串拼接）
+防注入：使用#&#123;&#125; 预编译参数（替代 JDBC 的字符串拼接）
 自动映射：结果集自动封装为 Java 对象（无需手动rs.getXXX()）
 资源管理：自动处理连接、Statement、ResultSet 的创建与关闭
-事务简化：通过SqlSession的commit()&#x2F;rollback()统一管理
+事务简化：通过SqlSession 的 commit()&#x2F;rollback() 统一管理
 
 1.6 初次使用的细节补充
-Mapper 配置文件的 DTD 引入：在 XML 映射文件头部添加 DTD 约束，确保标签格式正确（IDE 会自动提示）：
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;!DOCTYPE mapper        PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;        &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
-
-环境配置细节：environments标签的default属性需与某个environment的id一致；transactionManager的MANAGED类型会将事务交给容器（如 Spring）管理，此时 MyBatis 不做任何事务处理。
-
+Mapper 配置文件的 DTD 引入：在 XML 映射文件头部添加 DTD 约束，确保标签格式正确（IDE 会自动提示）：&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;!DOCTYPE mapper        PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;        &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
+环境配置细节：environments 标签的 default 属性需与某个 environment 的 id 一致；transactionManager 的 MANAGED 类型会将事务交给容器（如 Spring）管理，此时 MyBatis 不做任何事务处理。
 
 1.7 XML 格式规范与特殊字符处理（1）基本格式规则
-根节点唯一：核心配置文件根节点为&lt;configuration&gt;，映射文件为&lt;mapper&gt;
-标签嵌套严格：子标签必须符合 MyBatis 规定的顺序（如configuration的子标签顺序不可乱）
+根节点唯一：核心配置文件根节点为&lt;configuration&gt;，映射文件为 &lt;mapper&gt;
+标签嵌套严格：子标签必须符合 MyBatis 规定的顺序（如configuration 的子标签顺序不可乱）
 属性值引号：单引号或双引号均可，建议统一使用双引号
 
-（2）特殊字符处理（转义字符与 CDATA）当 SQL 中包含&lt;、&gt;、&amp;等特殊字符时，有两种处理方式：
+（2）特殊字符处理（转义字符与 CDATA）当 SQL 中包含&lt;、&gt;、&amp; 等特殊字符时，有两种处理方式：
 
 转义字符：
-&lt;!-- 原SQL：select * from user where age &lt; 18 --&gt;&lt;select id=&quot;selectYoungUser&quot; resultType=&quot;User&quot;&gt;    select * from user where age &amp;lt; 18 &lt;!-- &amp;lt; 对应 &lt; --&gt;&lt;/select&gt;
+&lt;!-- 原SQL：select * from user where age &lt; 18 --&gt;&lt;select id=&quot;selectYoungUser&quot; resultType=&quot;User&quot;&gt;    select * from user where age &lt; 18 &lt;!-- &lt; 对应 &lt; --&gt;&lt;/select&gt;
 
 XML 中常用的转义字符归纳如下：
 
@@ -3830,7 +3814,7 @@ XML 中常用的转义字符归纳如下：
 和
 
 
-&amp;lt或 &lt;
+&amp;lt 或 &lt;
 &lt;
 小于号
 
@@ -3861,14 +3845,13 @@ XML 中常用的转义字符归纳如下：
 
 
 
-CDATA 区域
-（无需转义，适合复杂 SQL）：
+CDATA 区域（无需转义，适合复杂 SQL）：
 &lt;select id=&quot;selectYoungUser&quot; resultType=&quot;User&quot;&gt;    &lt;![CDATA[        select * from user where age &lt; 18 and status &amp; 1 = 1    ]]&gt;&lt;/select&gt;
 
 （3）Java 解析 XML 示例（了解 MyBatis 底层原理）MyBatis 通过 DOM 解析 XML 配置文件，简化示例：
-// 解析MyBatis映射文件中的SQLpublic class XmlParser &#123;    public static void main(String[] args) throws Exception &#123;        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();        DocumentBuilder builder = factory.newDocumentBuilder();        Document doc = builder.parse(Resources.getResourceAsStream(&quot;mappers/UserMapper.xml&quot;));                // 获取select标签的SQL内容        Node node = doc.getElementsByTagName(&quot;select&quot;).item(0);        String sql = node.getTextContent().trim();        System.out.println(&quot;解析到的SQL：&quot; + sql);    &#125;&#125;
+// 解析MyBatis映射文件中的SQLpublic class XmlParser &#123;    public static void main(String[] args) throws Exception &#123;        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();        DocumentBuilder builder = factory.newDocumentBuilder();        Document doc = builder.parse(Resources.getResourceAsStream(&quot;mappers/UserMapper.xml&quot;));        // 获取select标签的SQL内容        Node node = doc.getElementsByTagName(&quot;select&quot;).item(0);        String sql = node.getTextContent().trim();        System.out.println(&quot;解析到的SQL：&quot; + sql);    &#125;&#125;
 
-二、核心查询操作详解2.1 基础查询配置（XML 映射文件）UserMapper.xml核心标签说明：
+二、核心查询操作详解2.1 基础查询配置（XML 映射文件）UserMapper.xml 核心标签说明：
 &lt;mapper namespace=&quot;userMapper&quot;&gt; &lt;!-- 命名空间：区分不同映射文件的SQL --&gt;    &lt;!-- 1. 简单查询 --&gt;    &lt;select         id=&quot;selectAllUser&quot;  &lt;!-- SQL唯一标识（与namespace组合为全限定名）--&gt;        resultType=&quot;User&quot;   &lt;!-- 结果类型（单个对象/集合元素类型） --&gt;        timeout=&quot;30&quot;&gt;       &lt;!-- 超时时间（秒） --&gt;        select * from user    &lt;/select&gt;    &lt;!-- 2. 条件查询（单个参数） --&gt;    &lt;select         id=&quot;selectUserById&quot;         parameterType=&quot;int&quot;  &lt;!-- 参数类型（可省略，Mybatis自动推断） --&gt;        resultType=&quot;User&quot;&gt;        select * from user where id = #&#123;id&#125;  &lt;!-- #&#123;id&#125;：参数占位符（预编译，防SQL注入） --&gt;    &lt;/select&gt;    &lt;!-- 3. 多条件查询（注意参数传递方式） --&gt;    &lt;select id=&quot;selectUserByIdAndAge&quot; resultType=&quot;User&quot;&gt;        select * from user where id = #&#123;id&#125; and age = #&#123;age&#125;    &lt;/select&gt;&lt;/mapper&gt;
 
 2.2 Java 调用方式（3 种常用方式）方式 1：直接通过 SqlSession 调用（指定全限定名）try (SqlSession session = MybatisUtil.openSession()) &#123;    // 全限定名 = namespace + id    User user = session.selectOne(&quot;userMapper.selectUserById&quot;, 1);     List&lt;User&gt; users = session.selectList(&quot;userMapper.selectAllUser&quot;);&#125;
@@ -3885,16 +3868,16 @@ Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();params.put(&quot;id&quo
 
 方式 3：通过实体类传递参数// 实体类@Datapublic class UserQuery &#123;    private int id;    private int age;&#125;// XML中使用#&#123;属性名&#125;&lt;select id=&quot;selectByQuery&quot; resultType=&quot;User&quot;&gt;    select * from user where id = #&#123;id&#125; and age = #&#123;age&#125;&lt;/select&gt;// 调用UserQuery query = new UserQuery();query.setId(1);query.setAge(18);User user = session.selectOne(&quot;selectByQuery&quot;, query);
 
-2.3 字段映射问题解决（3 种方案）当实体类字段与数据库列名不一致时（如实体uid vs 数据库id），需手动映射：
+2.3 字段映射问题解决（3 种方案）当实体类字段与数据库列名不一致时（如实体uid vs 数据库 id），需手动映射：
 方案 1：resultMap（最常用，XML 配置）&lt;!-- 定义映射规则 --&gt;&lt;resultMap id=&quot;userMap&quot; type=&quot;User&quot;&gt;    &lt;id property=&quot;uid&quot; column=&quot;id&quot;/&gt; &lt;!-- 主键映射 --&gt;    &lt;result property=&quot;username&quot; column=&quot;name&quot;/&gt; &lt;!-- 普通字段映射 --&gt;    &lt;result property=&quot;userAge&quot; column=&quot;age&quot;/&gt;&lt;/resultMap&gt;&lt;!-- 使用映射规则 --&gt;&lt;select id=&quot;selectUserById&quot; resultMap=&quot;userMap&quot;&gt;    select * from user where id = #&#123;id&#125;&lt;/select&gt;
 
 方案 2：SQL 别名（简单场景）&lt;select id=&quot;selectUserById&quot; resultType=&quot;User&quot;&gt;    select id as uid, name as username, age as userAge from user where id = #&#123;id&#125;&lt;/select&gt;
 
-方案 3：全局驼峰映射（针对下划线命名）在mybatis-config.xml中开启：
+方案 3：全局驼峰映射（针对下划线命名）在mybatis-config.xml 中开启：
 &lt;settings&gt;    &lt;setting name=&quot;mapUnderscoreToCamelCase&quot; value=&quot;true&quot;/&gt;&lt;/settings&gt;
 
 
-效果：数据库user_name → 实体userName，user_age → userAge
+效果：数据库user_name → 实体 userName，user_age → userAge
 
 三、接口绑定与注解开发3.1 接口绑定（推荐方式）核心原理：通过动态代理，将 Mapper 接口与 XML 映射文件绑定，无需编写实现类。
 步骤 1：定义 Mapper 接口public interface UserMapper &#123;    // 方法名 = XML中select的id    // 参数类型 = parameterType    // 返回值类型 = resultType/resultMap    User selectUserById(int id);    List&lt;User&gt; selectAllUser();    int insertUser(User user);    int updateUserAge(@Param(&quot;id&quot;) int id, @Param(&quot;age&quot;) int age);    int deleteUserById(int id);&#125;
@@ -3948,7 +3931,7 @@ Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();params.put(&quot;id&quo
 @Options(useGeneratedKeys &#x3D; true, keyProperty &#x3D; “id”)
 
 
-示例代码public interface UserMapper &#123;    // 基础查询    @Select(&quot;SELECT * FROM user WHERE id = #&#123;id&#125;&quot;)    User selectUserById(int id);        // 插入并返回自增主键    @Options(useGeneratedKeys = true, keyProperty = &quot;id&quot;) // 主键回写至实体id属性    @Insert(&quot;INSERT INTO user(name, age) VALUES(#&#123;name&#125;, #&#123;age&#125;)&quot;)    int insertUser(User user);        // 结果映射（解决字段不一致）    @Results(&#123;        @Result(property = &quot;uid&quot;, column = &quot;id&quot;),       // 主键映射        @Result(property = &quot;username&quot;, column = &quot;name&quot;) // 普通字段映射    &#125;)    @Select(&quot;SELECT * FROM user&quot;)    List&lt;User&gt; selectAllUser();        // 动态SQL（注解中用&lt;script&gt;包裹）    @Select(&quot;&lt;script&gt;&quot; +            &quot;SELECT * FROM user WHERE 1=1&quot; +            &quot;&lt;if test=&#x27;name != null&#x27;&gt; AND name = #&#123;name&#125;&lt;/if&gt;&quot; +            &quot;&lt;if test=&#x27;age != null&#x27;&gt; AND age = #&#123;age&#125;&lt;/if&gt;&quot; +            &quot;&lt;/script&gt;&quot;)    List&lt;User&gt; selectByCondition(User user);&#125;
+示例代码public interface UserMapper &#123;    // 基础查询    @Select(&quot;SELECT * FROM user WHERE id = #&#123;id&#125;&quot;)    User selectUserById(int id);    // 插入并返回自增主键    @Options(useGeneratedKeys = true, keyProperty = &quot;id&quot;) // 主键回写至实体id属性    @Insert(&quot;INSERT INTO user(name, age) VALUES(#&#123;name&#125;, #&#123;age&#125;)&quot;)    int insertUser(User user);    // 结果映射（解决字段不一致）    @Results(&#123;        @Result(property = &quot;uid&quot;, column = &quot;id&quot;),       // 主键映射        @Result(property = &quot;username&quot;, column = &quot;name&quot;) // 普通字段映射    &#125;)    @Select(&quot;SELECT * FROM user&quot;)    List&lt;User&gt; selectAllUser();    // 动态SQL（注解中用&lt;script&gt;包裹）    @Select(&quot;&lt;script&gt;&quot; +            &quot;SELECT * FROM user WHERE 1=1&quot; +            &quot;&lt;if test=&#x27;name != null&#x27;&gt; AND name = #&#123;name&#125;&lt;/if&gt;&quot; +            &quot;&lt;if test=&#x27;age != null&#x27;&gt; AND age = #&#123;age&#125;&lt;/if&gt;&quot; +            &quot;&lt;/script&gt;&quot;)    List&lt;User&gt; selectByCondition(User user);&#125;
 
 四、复杂关系查询（关联映射）4.1 一对一查询（如 User 与 UserDetail）实体类设计@Datapublic class User &#123;    private int id;    private String name;    private UserDetail detail; // 一对一关联（一个用户对应一个详情）&#125;@Datapublic class UserDetail &#123;    private int id;    private String address;    private Date registerTime;&#125;
 
@@ -3957,14 +3940,14 @@ Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();params.put(&quot;id&quo
 方式 2：嵌套查询（子查询，多次查询）&lt;resultMap id=&quot;userWithDetail&quot; type=&quot;User&quot;&gt;    &lt;id property=&quot;id&quot; column=&quot;id&quot;/&gt;    &lt;result property=&quot;name&quot; column=&quot;name&quot;/&gt;    &lt;association         property=&quot;detail&quot;         javaType=&quot;UserDetail&quot;        column=&quot;id&quot;                   &lt;!-- 传递给子查询的参数（user的id） --&gt;        select=&quot;selectUserDetail&quot;/&gt;   &lt;!-- 子查询的id --&gt;&lt;/resultMap&gt;&lt;!-- 主查询 --&gt;&lt;select id=&quot;selectUserWithDetail&quot; resultMap=&quot;userWithDetail&quot;&gt;    select * from user where id = #&#123;id&#125;&lt;/select&gt;&lt;!-- 子查询（根据user_id查详情） --&gt;&lt;select id=&quot;selectUserDetail&quot; resultType=&quot;UserDetail&quot;&gt;    select * from user_detail where user_id = #&#123;id&#125;&lt;/select&gt;
 
 注意：嵌套查询可能导致 N+1 问题（查询 1 个用户引发 1 次主查询 + N 次子查询），建议优先用关联查询。
-多参数传递association标签的column属性支持多列传递（用于子查询需要多个参数的场景）：
+多参数传递association 标签的 column 属性支持多列传递（用于子查询需要多个参数的场景）：
 &lt;resultMap id=&quot;userWithDetail&quot; type=&quot;User&quot;&gt;    &lt;id property=&quot;id&quot; column=&quot;id&quot;/&gt;    &lt;result property=&quot;name&quot; column=&quot;name&quot;/&gt;    &lt;association         property=&quot;detail&quot;         javaType=&quot;UserDetail&quot;        column=&quot;&#123;userId=id, status=status&#125;&quot; &lt;!-- 多列参数（key为子查询参数名，value为当前查询列名） --&gt;        select=&quot;selectUserDetailByMultiParams&quot;/&gt;&lt;/resultMap&gt;&lt;!-- 子查询接收多参数 --&gt;&lt;select id=&quot;selectUserDetailByMultiParams&quot; resultType=&quot;UserDetail&quot;&gt;    select * from user_detail where user_id = #&#123;userId&#125; and status = #&#123;status&#125;&lt;/select&gt;
 
 4.2 一对多查询（如 User 与 Book）实体类设计@Datapublic class User &#123;    private int id;    private String name;    private List&lt;Book&gt; books; // 一对多关联（一个用户有多本书）&#125;@Datapublic class Book &#123;    private int id;    private String title;    private int userId; // 关联用户id&#125;
 
 实现方式（关联查询）&lt;resultMap id=&quot;userWithBooks&quot; type=&quot;User&quot;&gt;    &lt;id property=&quot;id&quot; column=&quot;id&quot;/&gt;    &lt;result property=&quot;name&quot; column=&quot;name&quot;/&gt;    &lt;!-- collection：一对多关联 --&gt;    &lt;collection         property=&quot;books&quot;    &lt;!-- 集合属性名 --&gt;        ofType=&quot;Book&quot;&gt;      &lt;!-- 集合元素类型（区别于javaType） --&gt;        &lt;id property=&quot;id&quot; column=&quot;book_id&quot;/&gt;        &lt;result property=&quot;title&quot; column=&quot;title&quot;/&gt;        &lt;result property=&quot;userId&quot; column=&quot;user_id&quot;/&gt;    &lt;/collection&gt;&lt;/resultMap&gt;&lt;select id=&quot;selectUserWithBooks&quot; resultMap=&quot;userWithBooks&quot;&gt;    SELECT         u.id, u.name,         b.id as book_id, b.title, b.user_id     FROM user u     LEFT JOIN book b ON u.id = b.user_id     WHERE u.id = #&#123;id&#125;&lt;/select&gt;
 
-加载方式collection标签的fetchType属性控制加载方式（eager立即加载 &#x2F; lazy延迟加载）：
+加载方式collection 标签的 fetchType 属性控制加载方式（eager 立即加载 &#x2F; lazy 延迟加载）：
 &lt;resultMap id=&quot;userWithBooks&quot; type=&quot;User&quot;&gt;    &lt;id property=&quot;id&quot; column=&quot;id&quot;/&gt;    &lt;result property=&quot;name&quot; column=&quot;name&quot;/&gt;    &lt;collection         property=&quot;books&quot;         ofType=&quot;Book&quot;        column=&quot;id&quot;        select=&quot;selectBooksByUserId&quot;        fetchType=&quot;lazy&quot;/&gt; &lt;!-- 延迟加载：只有调用user.getBooks()时才执行子查询 --&gt;&lt;/resultMap&gt;&lt;select id=&quot;selectBooksByUserId&quot; resultType=&quot;Book&quot;&gt;    select * from book where user_id = #&#123;id&#125;&lt;/select&gt;
 
 延迟加载配置（需在全局设置中开启）：
@@ -3973,12 +3956,12 @@ Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();params.put(&quot;id&quo
 五、DML 操作与事务5.1 增删改操作（XML 配置）插入操作（含自增主键）&lt;insert     id=&quot;insertUser&quot;     parameterType=&quot;User&quot;    useGeneratedKeys=&quot;true&quot;  &lt;!-- 开启自增主键获取 --&gt;    keyProperty=&quot;id&quot;&gt;        &lt;!-- 主键值回写至实体的id属性 --&gt;    INSERT INTO user(name, age) VALUES(#&#123;name&#125;, #&#123;age&#125;)&lt;/insert&gt;
 
 
-调用后可通过user.getId()获取自动生成的主键
+调用后可通过user.getId() 获取自动生成的主键
 
 非自增主键（如 UUID）的获取方式：
 &lt;insert id=&quot;insertUserWithUUID&quot;&gt;    &lt;!-- 插入前生成UUID --&gt;    &lt;selectKey         keyProperty=&quot;id&quot;    &lt;!-- 主键回写至实体的id属性 --&gt;        resultType=&quot;String&quot; &lt;!-- 主键类型 --&gt;        order=&quot;BEFORE&quot;&gt;     &lt;!-- 执行时机：BEFORE（插入前）/AFTER（插入后） --&gt;        SELECT REPLACE(UUID(), &#x27;-&#x27;, &#x27;&#x27;) AS id    &lt;/selectKey&gt;    INSERT INTO user(id, name) VALUES(#&#123;id&#125;, #&#123;name&#125;)&lt;/insert&gt;
 
-联合主键场景（keyColumn指定数据库列名）：
+联合主键场景（keyColumn 指定数据库列名）：
 &lt;insert id=&quot;insertOrderItem&quot; useGeneratedKeys=&quot;true&quot;         keyProperty=&quot;itemId&quot; keyColumn=&quot;item_id&quot;&gt; &lt;!-- 多主键用逗号分隔：keyColumn=&quot;col1,col2&quot; --&gt;    INSERT INTO order_item(order_id, product_id, quantity)     VALUES(#&#123;orderId&#125;, #&#123;productId&#125;, #&#123;quantity&#125;)&lt;/insert&gt;
 
 
@@ -3989,7 +3972,7 @@ Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();params.put(&quot;id&quo
 删除操作&lt;delete id=&quot;deleteUserById&quot; parameterType=&quot;int&quot;&gt;    DELETE FROM user WHERE id = #&#123;id&#125;&lt;/delete&gt;
 
 5.2 事务管理Mybatis 事务默认依赖 JDBC 事务管理器，需手动控制提交 &#x2F; 回滚。
-事务操作流程try (SqlSession session = MybatisUtil.openSession()) &#123; // 关闭自动提交（默认）    UserMapper mapper = session.getMapper(UserMapper.class);        try &#123;        // 执行多个DML操作        mapper.insertUser(user1);        mapper.updateUser(user2);                session.commit(); // 全部成功则提交    &#125; catch (Exception e) &#123;        session.rollback(); // 失败则回滚        throw new RuntimeException(&quot;事务执行失败&quot;, e);    &#125;&#125;
+事务操作流程try (SqlSession session = MybatisUtil.openSession()) &#123; // 关闭自动提交（默认）    UserMapper mapper = session.getMapper(UserMapper.class);    try &#123;        // 执行多个DML操作        mapper.insertUser(user1);        mapper.updateUser(user2);        session.commit(); // 全部成功则提交    &#125; catch (Exception e) &#123;        session.rollback(); // 失败则回滚        throw new RuntimeException(&quot;事务执行失败&quot;, e);    &#125;&#125;
 
 事务特性
 原子性：多个操作要么全成功，要么全失败
@@ -4000,7 +3983,7 @@ Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();params.put(&quot;id&quo
 六、动态 SQL 与缓存6.1 动态 SQL（XML 标签详解）动态 SQL 用于根据条件动态生成 SQL 语句，避免字符串拼接的繁琐与风险。
 （1）if 标签（条件判断）&lt;select id=&quot;selectByCondition&quot; resultType=&quot;User&quot;&gt;    SELECT * FROM user WHERE 1=1    &lt;if test=&quot;name != null and name != &#x27;&#x27;&quot;&gt; &lt;!-- test中用OGNL表达式 --&gt;        AND name = #&#123;name&#125;    &lt;/if&gt;    &lt;if test=&quot;age != null&quot;&gt;        AND age = #&#123;age&#125;    &lt;/if&gt;&lt;/select&gt;
 
-动态 SQL 中if标签的复杂场景
+动态 SQL 中 if 标签的复杂场景
 &lt;!-- 多条件模糊查询 + 范围查询 --&gt;&lt;select id=&quot;selectUserByAdvancedCondition&quot; resultType=&quot;User&quot;&gt;    SELECT * FROM user    &lt;where&gt;        &lt;if test=&quot;name != null and name != &#x27;&#x27;&quot;&gt;            AND name LIKE CONCAT(&#x27;%&#x27;, #&#123;name&#125;, &#x27;%&#x27;) &lt;!-- 模糊查询拼接 --&gt;        &lt;/if&gt;        &lt;if test=&quot;ageRange != null&quot;&gt; &lt;!-- 传入Map&lt;String, Integer&gt; ageRange，包含min和max --&gt;            AND age BETWEEN #&#123;ageRange.min&#125; AND #&#123;ageRange.max&#125;        &lt;/if&gt;        &lt;if test=&quot;statusList != null and statusList.size() &gt; 0&quot;&gt; &lt;!-- 传入List&lt;Integer&gt; --&gt;            AND status IN            &lt;foreach collection=&quot;statusList&quot; item=&quot;s&quot; open=&quot;(&quot; separator=&quot;,&quot; close=&quot;)&quot;&gt;                #&#123;s&#125;            &lt;/foreach&gt;        &lt;/if&gt;    &lt;/where&gt;&lt;/select&gt;
 
 （2）where 标签（自动处理 AND&#x2F;OR）&lt;select id=&quot;selectByCondition&quot; resultType=&quot;User&quot;&gt;    SELECT * FROM user    &lt;where&gt; &lt;!-- 自动移除首个AND/OR --&gt;        &lt;if test=&quot;name != null&quot;&gt;AND name = #&#123;name&#125;&lt;/if&gt;        &lt;if test=&quot;age != null&quot;&gt;AND age = #&#123;age&#125;&lt;/if&gt;    &lt;/where&gt;&lt;/select&gt;
@@ -4043,13 +4026,13 @@ STATEMENT：每次查询都执行 SQL（适合需要实时数据的场景）
 作用范围：同一个 Mapper 接口的不同 SqlSession 共享缓存。
 开启步骤：
 
-​	1、全局配置开启（默认已开启）：
+**	**1、全局配置开启（默认已开启）：
 &lt;settings&gt;    &lt;setting name=&quot;cacheEnabled&quot; value=&quot;true&quot;/&gt;&lt;/settings&gt;
 
-​	2、在 Mapper.xml 中声明缓存：
+**	**2、在 Mapper.xml 中声明缓存：
 &lt;!-- 缓存配置 --&gt;&lt;cache     eviction=&quot;LRU&quot;        &lt;!-- 回收策略：LRU（最近最少使用）/FIFO（先进先出）等 --&gt;    flushInterval=&quot;60000&quot; &lt;!-- 刷新间隔（毫秒） --&gt;    size=&quot;512&quot;            &lt;!-- 最大缓存对象数 --&gt;    readOnly=&quot;true&quot;/&gt;     &lt;!-- 是否只读（true：返回缓存对象副本，性能好） --&gt;
 
-​	3、实体类需实现 Serializable 接口（二级缓存可能涉及序列化）
+**	**3、实体类需实现 Serializable 接口（二级缓存可能涉及序列化）
 
 缓存控制：
 useCache=&quot;false&quot;：当前查询不使用缓存（如实时性要求高的数据）
@@ -4064,33 +4047,27 @@ flushCache=&quot;true&quot;：执行后清空缓存（增删改默认 true，查
 问题示例：两个 SqlSession 操作同一数据，Session1 更新后未同步到二级缓存，导致 Session2 读取旧数据。
 // Session1更新数据try (SqlSession session1 = MybatisUtil.openSession()) &#123;    session1.getMapper(UserMapper.class).updateUserAge(1, 20);    session1.commit(); // 提交后会清空UserMapper的二级缓存&#125;// Session2查询（此时二级缓存已清空，会查数据库）try (SqlSession session2 = MybatisUtil.openSession()) &#123;    User user = session2.getMapper(UserMapper.class).selectUserById(1); // 得到最新数据&#125;
 
-解决：MyBatis 在 DML 操作后会自动清空当前 Mapper 的二级缓存（因flushCache=&quot;true&quot;默认开启），确保缓存一致性。
+解决：MyBatis 在 DML 操作后会自动清空当前 Mapper 的二级缓存（因 flushCache=&quot;true&quot; 默认开启），确保缓存一致性。
 （3）eviction 属性的缓存淘汰算法
 &lt;cache     eviction=&quot;FIFO&quot; &lt;!-- 可选值：                     LRU（最近最少使用，默认）                     FIFO（先进先出）                     SOFT（软引用，内存不足时淘汰）                     WEAK（弱引用，垃圾回收时淘汰）                    --&gt;    size=&quot;1000&quot;/&gt; &lt;!-- 最多缓存1000个对象 --&gt;
 
 6.2.3 自定义缓存实现（1）自定义 Cache 类public class MyRedisCache implements Cache &#123;    private final String id; // 缓存唯一标识（Mapper接口全类名）    private RedisTemplate&lt;String, Object&gt; redisTemplate; // 假设已配置RedisTemplate    public MyRedisCache(String id) &#123;        this.id = id;    &#125;    @Override    public String getId() &#123; return id; &#125;    @Override    public void putObject(Object key, Object value) &#123;        // 存入Redis，设置过期时间        redisTemplate.opsForValue().set(key.toString(), value, 30, TimeUnit.MINUTES);    &#125;    @Override    public Object getObject(Object key) &#123;        // 从Redis获取        return redisTemplate.opsForValue().get(key.toString());    &#125;    @Override    public Object removeObject(Object key) &#123;        // 从Redis删除        redisTemplate.delete(key.toString());        return null;    &#125;    @Override    public void clear() &#123;        // 清空当前Mapper的缓存（通过key前缀匹配删除）        Set&lt;String&gt; keys = redisTemplate.keys(id + &quot;:*&quot;);        if (keys != null) redisTemplate.delete(keys);    &#125;    @Override    public int getSize() &#123;        // 获取缓存数量（简化实现）        return redisTemplate.keys(id + &quot;:*&quot;).size();    &#125;&#125;
 
 （2）启用自定义缓存（XML 或注解）
-XML 方式（在 Mapper.xml 中）：
-&lt;cache type=&quot;com.example.cache.MyRedisCache&quot;/&gt;
-
-注解方式（在 Mapper 接口上）：
-@CacheNamespace(implementation = MyRedisCache.class)public interface UserMapper &#123; ... &#125;
+XML 方式（在 Mapper.xml 中）：&lt;cache type=&quot;com.example.cache.MyRedisCache&quot;/&gt;
+注解方式（在 Mapper 接口上）：@CacheNamespace(implementation = MyRedisCache.class)public interface UserMapper &#123; ... &#125;
 
 6.2.4 缓存控制属性详解
-useCache：控制查询是否使用二级缓存（默认true）
-&lt;select id=&quot;selectUserById&quot; resultType=&quot;User&quot; useCache=&quot;false&quot;&gt; &lt;!-- 不使用二级缓存 --&gt;    select * from user where id = #&#123;id&#125;&lt;/select&gt;
+useCache：控制查询是否使用二级缓存（默认 true）&lt;select id=&quot;selectUserById&quot; resultType=&quot;User&quot; useCache=&quot;false&quot;&gt; &lt;!-- 不使用二级缓存 --&gt;    select * from user where id = #&#123;id&#125;&lt;/select&gt;
+flushCache：控制操作后是否清空二级缓存（DML 默认 true，查询默认 false）&lt;select id=&quot;selectUserById&quot; resultType=&quot;User&quot; flushCache=&quot;true&quot;&gt; &lt;!-- 查询后清空二级缓存 --&gt;    select * from user where id = #&#123;id&#125;&lt;/select&gt;
 
-flushCache：控制操作后是否清空二级缓存（DML 默认true，查询默认false）
-&lt;select id=&quot;selectUserById&quot; resultType=&quot;User&quot; flushCache=&quot;true&quot;&gt; &lt;!-- 查询后清空二级缓存 --&gt;    select * from user where id = #&#123;id&#125;&lt;/select&gt;
-
-七、高级特性（选学）7.1 类型处理器（TypeHandler）用于 Java 类型与 JDBC 类型的自定义转换（如 String→自定义对象、Date→LocalDate）。
+七、高级特性（选学）7.1 类型处理器（TypeHandler）用于 Java 类型与 JDBC 类型的自定义转换（如 String→ 自定义对象、Date→LocalDate）。
 自定义类型处理器示例// 自定义String与MyString的转换@MappedJdbcTypes(JdbcType.VARCHAR) // 关联JDBC类型@MappedTypes(MyString.class)       // 关联Java类型public class MyStringHandler extends BaseTypeHandler&lt;MyString&gt; &#123;    // 设置参数（Java→JDBC）    @Override    public void setNonNullParameter(PreparedStatement ps, int i,                                   MyString parameter, JdbcType jdbcType) throws SQLException &#123;        ps.setString(i, parameter.getValue()); // 存储自定义对象的字符串值    &#125;    // 从结果集获取（JDBC→Java）    @Override    public MyString getNullableResult(ResultSet rs, String columnName) throws SQLException &#123;        return new MyString(rs.getString(columnName));    &#125;    // 其他重载方法（按列索引获取）    @Override    public MyString getNullableResult(ResultSet rs, int columnIndex) throws SQLException &#123;        return new MyString(rs.getString(columnIndex));    &#125;    @Override    public MyString getNullableResult(CallableStatement cs, int columnIndex) throws SQLException &#123;        return new MyString(cs.getString(columnIndex));    &#125;&#125;
 
 注册类型处理器&lt;typeHandlers&gt;    &lt;typeHandler handler=&quot;com.example.handler.MyStringHandler&quot;/&gt;&lt;/typeHandlers&gt;
 
 7.2 拦截器（插件）用于在 SQL 执行过程中插入自定义逻辑（如日志记录、性能监控、SQL 改写）。
-自定义拦截器示例@Intercepts(&#123; // 声明拦截的目标方法    @Signature(        type = Executor.class,       // 拦截的接口        method = &quot;query&quot;,            // 拦截的方法名        args = &#123;MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class&#125; // 方法参数    )&#125;)public class LogInterceptor implements Interceptor &#123;    // 拦截逻辑    @Override    public Object intercept(Invocation invocation) throws Throwable &#123;        // 1. 前置处理（如记录开始时间）        long start = System.currentTimeMillis();                // 2. 执行原方法        Object result = invocation.proceed();                // 3. 后置处理（如记录执行时间）        long end = System.currentTimeMillis();        System.out.println(&quot;SQL执行时间：&quot; + (end - start) + &quot;ms&quot;);                return result;    &#125;    // 生成代理对象    @Override    public Object plugin(Object target) &#123;        return Plugin.wrap(target, this);    &#125;    // 设置属性（从配置文件读取）    @Override    public void setProperties(Properties properties) &#123;        // 可通过properties获取配置参数    &#125;&#125;
+自定义拦截器示例@Intercepts(&#123; // 声明拦截的目标方法    @Signature(        type = Executor.class,       // 拦截的接口        method = &quot;query&quot;,            // 拦截的方法名        args = &#123;MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class&#125; // 方法参数    )&#125;)public class LogInterceptor implements Interceptor &#123;    // 拦截逻辑    @Override    public Object intercept(Invocation invocation) throws Throwable &#123;        // 1. 前置处理（如记录开始时间）        long start = System.currentTimeMillis();        // 2. 执行原方法        Object result = invocation.proceed();        // 3. 后置处理（如记录执行时间）        long end = System.currentTimeMillis();        System.out.println(&quot;SQL执行时间：&quot; + (end - start) + &quot;ms&quot;);        return result;    &#125;    // 生成代理对象    @Override    public Object plugin(Object target) &#123;        return Plugin.wrap(target, this);    &#125;    // 设置属性（从配置文件读取）    @Override    public void setProperties(Properties properties) &#123;        // 可通过properties获取配置参数    &#125;&#125;
 
 注册拦截器&lt;plugins&gt;    &lt;plugin interceptor=&quot;com.example.interceptor.LogInterceptor&quot;&gt;        &lt;!-- 可选：设置拦截器属性 --&gt;        &lt;property name=&quot;logLevel&quot; value=&quot;INFO&quot;/&gt;    &lt;/plugin&gt;&lt;/plugins&gt;
 
@@ -4098,7 +4075,7 @@ flushCache：控制操作后是否清空二级缓存（DML 默认true，查询�
 连接池配置：使用 POOLED 数据源，并合理设置连接池参数（初始大小、最大活跃数等）
 日志配置：开发环境开启 DEBUG 日志，生产环境关闭或设为 INFO，便于调试与性能优化
 类型别名：使用包扫描方式配置，减少全类名书写
-驼峰映射：开启mapUnderscoreToCamelCase，减少 resultMap 配置
+驼峰映射：开启 mapUnderscoreToCamelCase，减少 resultMap 配置
 
 8.2 开发规范
 SQL 与代码分离：复杂 SQL 写在 XML 中，简单 SQL 用注解，提高可维护性
@@ -4112,22 +4089,22 @@ Mapper 接口方法名与 XML 中 id 保持一致
 
 
 8.3 性能优化批量操作：
-批量插入 &#x2F; 更新使用ExecutorType.BATCH模式
+批量插入 &#x2F; 更新使用ExecutorType.BATCH 模式
 避免循环调用单条 SQL（N 次网络请求）
 
-使用ExecutorType.BATCH模式的完整示例及日志分析：
-try (SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH)) &#123; // 批处理执行器    UserMapper mapper = session.getMapper(UserMapper.class);    long start = System.currentTimeMillis();        for (int i = 0; i &lt; 1000; i++) &#123;        User user = new User();        user.setName(&quot;user&quot; + i);        mapper.insertUser(user);                // 每500条提交一次（避免内存溢出）        if (i % 500 == 0) &#123;            session.flushStatements(); // 刷入数据库（未提交事务）        &#125;    &#125;    session.commit(); // 最终提交    System.out.println(&quot;耗时：&quot; + (System.currentTimeMillis() - start) + &quot;ms&quot;);&#125;
+使用ExecutorType.BATCH 模式的完整示例及日志分析：
+try (SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH)) &#123; // 批处理执行器    UserMapper mapper = session.getMapper(UserMapper.class);    long start = System.currentTimeMillis();    for (int i = 0; i &lt; 1000; i++) &#123;        User user = new User();        user.setName(&quot;user&quot; + i);        mapper.insertUser(user);        // 每500条提交一次（避免内存溢出）        if (i % 500 == 0) &#123;            session.flushStatements(); // 刷入数据库（未提交事务）        &#125;    &#125;    session.commit(); // 最终提交    System.out.println(&quot;耗时：&quot; + (System.currentTimeMillis() - start) + &quot;ms&quot;);&#125;
 
-日志分析：批处理模式下，MyBatis 会将 SQL 语句预编译一次，多次设置参数后批量执行，日志中只会出现一次Preparing: INSERT INTO user(...)，避免了单条插入的多次预编译开销。
+日志分析：批处理模式下，MyBatis 会将 SQL 语句预编译一次，多次设置参数后批量执行，日志中只会出现一次 Preparing: INSERT INTO user(...)，避免了单条插入的多次预编译开销。
 分页查询：分页查询实现（PageHelper 插件）
-Mybatis 本身不直接支持分页，推荐使用第三方插件PageHelper简化分页逻辑：
-​	添加依赖（Maven）：
+Mybatis 本身不直接支持分页，推荐使用第三方插件PageHelper 简化分页逻辑：
+**	**添加依赖（Maven）：
 &lt;dependency&gt;    &lt;groupId&gt;com.github.pagehelper&lt;/groupId&gt;    &lt;artifactId&gt;pagehelper&lt;/artifactId&gt;    &lt;version&gt;5.3.3&lt;/version&gt;&lt;/dependency&gt;
 
-​	配置插件（在mybatis-config.xml的&lt;plugins&gt;标签中）：
+**	**配置插件（在 mybatis-config.xml 的 &lt;plugins&gt; 标签中）：
 &lt;plugin interceptor=&quot;com.github.pagehelper.PageInterceptor&quot;&gt;    &lt;!-- 数据库方言（可选，自动检测） --&gt;    &lt;property name=&quot;helperDialect&quot; value=&quot;mysql&quot;/&gt;    &lt;!-- 分页参数合理化（页码&lt;=0查第一页，页码&gt;总页数查最后一页） --&gt;    &lt;property name=&quot;reasonable&quot; value=&quot;true&quot;/&gt;&lt;/plugin&gt;
 
-​	使用方式：
+**	**使用方式：
 try (SqlSession session = MybatisUtil.openSession()) &#123;    UserMapper mapper = session.getMapper(UserMapper.class);    // 1. 设置分页参数（页码从1开始，每页10条）    PageHelper.startPage(1, 10);    // 2. 执行查询（无需修改SQL，插件自动拼接LIMIT）    List&lt;User&gt; users = mapper.selectAllUser();    // 3. 封装分页结果    Page&lt;User&gt; page = (Page&lt;User&gt;) users;    System.out.println(&quot;总条数：&quot; + page.getTotal());    System.out.println(&quot;总页数：&quot; + page.getPages());    System.out.println(&quot;当前页数据：&quot; + page.getResult());&#125;
 
 缓存策略：
@@ -4141,43 +4118,36 @@ try (SqlSession session = MybatisUtil.openSession()) &#123;    UserMapper mapper
 
 通过以上内容，可以系统掌握 Mybatis 的核心用法、高级特性及最佳实践，在实际开发中根据场景灵活选择配置与实现方式，提升开发效率与系统性能。
 九、常见问题与解决方案9.1 映射文件相关错误
-错误 1：org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)
-原因：Mapper 接口与 XML 映射文件未正确绑定
-解决：
+错误 1：org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)原因：Mapper 接口与 XML 映射文件未正确绑定解决：
 
-确保 XML 的namespace与接口全类名一致
-确保 XML 中id与接口方法名一致
-检查 XML 文件是否在mybatis-config.xml的&lt;mappers&gt;中注册
+确保 XML 的namespace 与接口全类名一致
+确保 XML 中id 与接口方法名一致
+检查 XML 文件是否在mybatis-config.xml 的 &lt;mappers&gt; 中注册
 
 
-错误 2：java.io.IOException: Could not find resource mappers/UserMapper.xml
-原因：XML 文件路径错误或未被 Maven 打包
-解决：
+错误 2：java.io.IOException: Could not find resource mappers/UserMapper.xml原因：XML 文件路径错误或未被 Maven 打包解决：
 
-Maven 项目中，XML 文件若放在src/main/java下，需在pom.xml中添加资源过滤：
+Maven 项目中，XML 文件若放在src/main/java 下，需在 pom.xml 中添加资源过滤：
 
 &lt;build&gt;    &lt;resources&gt;        &lt;resource&gt;            &lt;directory&gt;src/main/java&lt;/directory&gt;            &lt;includes&gt;                &lt;include&gt;**/*.xml&lt;/include&gt;            &lt;/includes&gt;        &lt;/resource&gt;    &lt;/resources&gt;&lt;/build&gt;
 
 9.2 字段映射错误
-错误：查询结果字段为null（实体类属性与数据库列名不一致）
-解决：
-
+错误：查询结果字段为null（实体类属性与数据库列名不一致）解决：
 开启驼峰映射（mapUnderscoreToCamelCase=true）
-使用resultMap手动定义映射关系
+使用resultMap 手动定义映射关系
 在 SQL 中给列名添加别名（如id as userId）
 
 
 
 9.3 事务相关错误
-错误：插入数据后数据库无记录（未提交事务）
-原因：Mybatis 默认关闭自动提交，DML 操作需手动commit()解决：执行session.commit()或开启自动提交（openSession(true)）
-
+错误：插入数据后数据库无记录（未提交事务）原因：Mybatis 默认关闭自动提交，DML 操作需手动commit() 解决：执行 session.commit() 或开启自动提交（openSession(true)）
 
 十、Mybatis 与 Spring 整合10.1 核心依赖（Maven）&lt;!-- Spring核心 --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework&lt;/groupId&gt;    &lt;artifactId&gt;spring-context&lt;/artifactId&gt;    &lt;version&gt;5.3.24&lt;/version&gt;&lt;/dependency&gt;&lt;!-- Spring JDBC（事务管理） --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework&lt;/groupId&gt;    &lt;artifactId&gt;spring-jdbc&lt;/artifactId&gt;    &lt;version&gt;5.3.24&lt;/version&gt;&lt;/dependency&gt;&lt;!-- Mybatis-Spring整合包 --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.mybatis&lt;/groupId&gt;    &lt;artifactId&gt;mybatis-spring&lt;/artifactId&gt;    &lt;version&gt;2.0.7&lt;/version&gt;&lt;/dependency&gt;
 
 10.2 Spring 配置文件（applicationContext.xml）&lt;!-- 1. 数据源（替换Mybatis原生数据源） --&gt;&lt;bean id=&quot;dataSource&quot; class=&quot;org.springframework.jdbc.datasource.DriverManagerDataSource&quot;&gt;    &lt;property name=&quot;driverClassName&quot; value=&quot;com.mysql.cj.jdbc.Driver&quot;/&gt;    &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://localhost:3306/test?useSSL=false&quot;/&gt;    &lt;property name=&quot;username&quot; value=&quot;root&quot;/&gt;    &lt;property name=&quot;password&quot; value=&quot;123456&quot;/&gt;&lt;/bean&gt;&lt;!-- 2. SqlSessionFactory（由Spring管理） --&gt;&lt;bean id=&quot;sqlSessionFactory&quot; class=&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;&gt;    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;    &lt;!-- 加载Mybatis核心配置 --&gt;    &lt;property name=&quot;configLocation&quot; value=&quot;classpath:mybatis-config.xml&quot;/&gt;    &lt;!-- 扫描映射文件 --&gt;    &lt;property name=&quot;mapperLocations&quot; value=&quot;classpath:mappers/*.xml&quot;/&gt;&lt;/bean&gt;&lt;!-- 3. Mapper接口扫描（自动生成代理对象） --&gt;&lt;bean class=&quot;org.mybatis.spring.mapper.MapperScannerConfigurer&quot;&gt;    &lt;property name=&quot;basePackage&quot; value=&quot;com.example.mapper&quot;/&gt; &lt;!-- Mapper接口所在包 --&gt;&lt;/bean&gt;&lt;!-- 4. 事务管理器 --&gt;&lt;bean id=&quot;transactionManager&quot; class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;&lt;/bean&gt;&lt;!-- 开启事务注解 --&gt;&lt;tx:annotation-driven transaction-manager=&quot;transactionManager&quot;/&gt;
 
-10.3 整合后使用方式// 1. 注入Mapper接口（Spring自动管理）@Servicepublic class UserService &#123;    @Autowired    private UserMapper userMapper;    // 2. 事务控制（通过注解）    @Transactional    public void addUser(User user) &#123;        userMapper.insertUser(user);    &#125;&#125;]]></content>
+10.3 整合后使用方式// 1. 注入Mapper接口（Spring自动管理）@Servicepublic class UserService &#123;    @Autowired    private UserMapper userMapper;    // 2. 事务控制（通过注解）    @Transactional    public void addUser(User user) &#123;        userMapper.insertUser(user);    &#125;&#125;
+]]></content>
       <categories>
         <category>java</category>
       </categories>
@@ -4188,8 +4158,7 @@ Maven 项目中，XML 文件若放在src/main/java下，需在pom.xml中添加�
   <entry>
     <title>Mybatis-plus快速上手</title>
     <url>/2025/10/15/java/Mybatis-plus%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</url>
-    <content><![CDATA[
-一、环境说明
+    <content><![CDATA[一、环境说明
 技术栈版本：SpringBoot3、JDK17、IntelliJ IDEA、MyBatisPlus 3.5.11
 核心依赖（关键版本）：
 mybatis-plus-spring-boot3-starter:3.5.11
@@ -4208,50 +4177,38 @@ lombok（简化实体类）
 内置代码生成器、分页插件（支持多数据库）
 
 1.2 环境准备
-建库建表 SQL：
-CREATE DATABASE `mybatis_plus_demo` DEFAULT CHARACTER SET utf8mb4;CREATE TABLE `user` (  `id` int NOT NULL AUTO_INCREMENT,  `name` varchar(255) DEFAULT NULL,  `age` int DEFAULT NULL,  `email` varchar(255) DEFAULT NULL,  `status` varchar(255) DEFAULT NULL,  `create_time` datetime DEFAULT NULL,  `update_time` datetime DEFAULT NULL,  PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=1571093847 DEFAULT CHARSET=utf8mb4;
-
-配置文件（application.yml）：
-spring:  datasource:    url: jdbc:mysql://你的数据库地址?useSSL=false&amp;serverTimezone=UTC    username: root    password: root    driver-class-name: com.mysql.cj.jdbc.Drivermybatis-plus:  configuration:    log-impl:org.apache.ibatis.logging.stdout.StdOutImpl # 打印SQL
-
+建库建表 SQL：CREATE DATABASE `mybatis_plus_demo` DEFAULT CHARACTER SET utf8mb4;CREATE TABLE `user` (  `id` int NOT NULL AUTO_INCREMENT,  `name` varchar(255) DEFAULT NULL,  `age` int DEFAULT NULL,  `email` varchar(255) DEFAULT NULL,  `status` varchar(255) DEFAULT NULL,  `create_time` datetime DEFAULT NULL,  `update_time` datetime DEFAULT NULL,  PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=1571093847 DEFAULT CHARSET=utf8mb4;
+配置文件（application.yml）：spring:  datasource:    url: jdbc:mysql://你的数据库地址?useSSL=false&amp;serverTimezone=UTC    username: root    password: root    driver-class-name: com.mysql.cj.jdbc.Drivermybatis-plus:  configuration:    log-impl:org.apache.ibatis.logging.stdout.StdOutImpl # 打印SQL
 核心代码：
-
-实体类：
- @Data@TableName(value = &quot;user&quot;, autoResultMap = true)public class User &#123; 	@TableId(type = IdType.AUTO)     private Integer id;     private String name;     private Integer age;     private String email; &#125;
-
-Mapper 接口：
-@Mapperpublic interface UserMapper extends BaseMapper&lt;User&gt; &#123; &#125;
-
-启动类：添加@MapperScan(&quot;com.lglbc.mybatisplusdemo.mapper&quot;)
-
+实体类： @Data@TableName(value = &quot;user&quot;, autoResultMap = true)public class User &#123;    @TableId(type = IdType.AUTO)     private Integer id;     private String name;     private Integer age;     private String email; &#125;
+Mapper 接口：@Mapperpublic interface UserMapper extends BaseMapper&lt;User&gt; &#123; &#125;
+启动类：添加 @MapperScan(&quot;com.lglbc.mybatisplusdemo.mapper&quot;)
 
 
 
 1.3 基础 CRUD 操作（测试用例）
 插入：userMapper.insert(user)
-
 @Test
  public void testInsert() &#123;
  User user = new User();
-        user.setAge(10);
-        user.setName(&quot;ljh&quot;);
-        user.setEmail(&quot;ljh@fjm&quot;);
-        userMapper.insert(user);
+        user.setAge(10);
+        user.setName(&quot;ljh&quot;);
+        user.setEmail(&quot;ljh@fjm&quot;);
+        userMapper.insert(user);
  &#125;
-- 查询：`selectById(id)`、`selectList(null)`（查所有）  - ```java    // 根据ID查询    @Test     public void testSelectById() &#123;     User user = userMapper.selectById(12);     System.out.println(user);     &#125;     // 查询所有    @Test     public void testSelect() &#123;     List&lt;User&gt; users = userMapper.selectList(null);            users.forEach(System.out::println);     &#125;
+* **查询：**`selectById(id)`、`selectList(null)`（查所有）  * ```    // 根据ID查询    @Test     public void testSelectById() &#123;     User user = userMapper.selectById(12);     System.out.println(user);     &#125;     // 查询所有    @Test     public void testSelect() &#123;     List&lt;User&gt; users = userMapper.selectList(null);            users.forEach(System.out::println);     &#125;
 
 
 
 
 更新：updateById(user)
-
 @Test
  public void testUpdate() &#123;
  User user = userMapper.selectById(12);
-        user.setName(&quot;更新&quot;);
-        userMapper.updateById(user);
+        user.setName(&quot;更新&quot;);
+        userMapper.updateById(user);
  &#125;
-- 删除：`deleteById(id)`  - ```java    @Test     public void testDelete() &#123;            userMapper.deleteById(1);     &#125;
+* **删除：**`deleteById(id)`  * ```    @Test     public void testDelete() &#123;            userMapper.deleteById(1);     &#125;
 
 
 
@@ -4259,12 +4216,11 @@ Mapper 接口：
 
 第 2 章：IService 接口2.1 基础配置
 Service 接口：
-
 public interface UserService extends IService&lt;User&gt; &#123;
-     // 可以在此添加⾃定义⽅法
-    List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge);
+     // 可以在此添加⾃定义⽅法
+    List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge);
 &#125;
-- Service 实现类：  - ```java    @Service     public class UserServiceImpl extends ServiceImpl&lt;UserMapper, User&gt; implements UserService &#123;         @Override         public List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge) &#123;             LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();             wrapper.between(User::getAge, minAge, maxAge);             return this.list(wrapper);         &#125;     &#125;
+* **Service 实现类：**  * ```    @Service     public class UserServiceImpl extends ServiceImpl&lt;UserMapper, User&gt; implements UserService &#123;         @Override         public List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge) &#123;             LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();             wrapper.between(User::getAge, minAge, maxAge);             return this.list(wrapper);         &#125;     &#125;
 
 
 
@@ -4299,15 +4255,15 @@ getById(id)、getOne(wrapper)、list()、list(wrapper)、count(wrapper)
 
 
 分页
-配置PaginationInnerInterceptor后，调用page(new Page&lt;&gt;(1,2), wrapper)
+配置PaginationInnerInterceptor 后，调用 page(new Page&lt;&gt;(1,2), wrapper)
 
 
 IService 接口提供了比 BaseMapper 更丰富的 CRUD 操作，以下通过具体测试用例（基于 JUnit）演示各核心方法的使用，所有示例均来自课程文档中的实战代码。
 一、保存操作包含单条数据保存与批量数据保存，批量保存可指定每批处理条数以优化性能。
-// 1. 测试保存单个实体@Test void testSave() &#123;    User user = new User();     user.setName(&quot;张三&quot;);     user.setAge(25);     user.setEmail(&quot;zhangsan@example.com&quot;);     boolean result = userService.save(user); // 单条保存核心方法    System.out.println(&quot;保存结果: &quot; + result);&#125;// 2. 测试批量保存（每1000条为一批，避免内存溢出）@Test void testSaveBatch() &#123;    List&lt;User&gt; users = new ArrayList&lt;&gt;();     for (int i = 0; i &lt; 5; i++) &#123;        User user = new User();        user.setName(&quot;用户&quot; + i);         user.setAge(20 + i);         users.add(user);    &#125;    boolean result = userService.saveBatch(users, 1000); // 批量保存核心方法（指定批次大小）    System.out.println(&quot;批量保存结果:&quot; + result);&#125;
+// 1. 测试保存单个实体@Test void testSave() &#123;    User user = new User();     user.setName(&quot;张三&quot;);     user.setAge(25);     user.setEmail(&quot;zhangsan@example.com&quot;);     boolean result = userService.save(user); // 单条保存核心方法    System.out.println(&quot;保存结果: &quot; + result);&#125;// 2. 测试批量保存（每1000条为一批，避免内存溢出）@Test void testSaveBatch() &#123;    List&lt;User&gt; users = new ArrayList&lt;&gt;();     for (int i = 0; i &lt; 5; i++) &#123;        User user = new User();        user.setName(&quot;用户&quot; + i);         user.setAge(20 + i);         users.add(user);    &#125;    boolean result = userService.saveBatch(users, 1000); // 批量保存核心方法（指定批次大小）    System.out.println(&quot;批量保存结果:&quot; + result);&#125;
 
 二、保存或更新操作根据实体是否包含 ID 自动判断：ID 存在则执行更新，ID 不存在则执行插入，支持单条与批量操作。
-// 1. 单条保存或更新（按ID判断）@Testvoid testSaveOrUpdate() &#123;     User user = new User();     user.setId(1L); // ID存在，执行更新；ID不存在，执行插入    user.setName(&quot;更新后的名字&quot;);    boolean result = userService.saveOrUpdate(user); // 单条保存或更新核心方法    System.out.println(&quot;保存或更新结果:&quot; + result);&#125;// 2. 批量保存或更新@Testvoid testSaveOrUpdateBatch() &#123;     List&lt;User&gt; users = userService.list(); // 先查询已有数据    users.forEach(user -&gt; user.setName(user.getName() + &quot;_updated&quot;)); // 批量修改字段    boolean result = userService.saveOrUpdateBatch(users); // 批量保存或更新核心方法    System.out.println(&quot;批量保存或更新结果:&quot; + result);&#125;
+// 1. 单条保存或更新（按ID判断）@Testvoid testSaveOrUpdate() &#123;     User user = new User();     user.setId(1L); // ID存在，执行更新；ID不存在，执行插入    user.setName(&quot;更新后的名字&quot;);    boolean result = userService.saveOrUpdate(user); // 单条保存或更新核心方法    System.out.println(&quot;保存或更新结果:&quot; + result);&#125;// 2. 批量保存或更新@Testvoid testSaveOrUpdateBatch() &#123;     List&lt;User&gt; users = userService.list(); // 先查询已有数据    users.forEach(user -&gt; user.setName(user.getName() + &quot;_updated&quot;)); // 批量修改字段    boolean result = userService.saveOrUpdateBatch(users); // 批量保存或更新核心方法    System.out.println(&quot;批量保存或更新结果:&quot; + result);&#125;
 
 三、删除操作支持按 ID、按条件（Map &#x2F; 条件构造器）、批量删除，覆盖多种删除场景。
 // 1. 根据ID删除@Testvoid testRemoveById() &#123;     boolean result = userService.removeById(1L); // 按ID删除核心方法    System.out.println(&quot;删除结果:&quot; + result);&#125;// 2. 根据Map条件删除（Map的key为字段名，value为字段值）@Testvoid testRemoveByMap() &#123;     Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();    map.put(&quot;name&quot;, &quot;张三&quot;);     map.put(&quot;age&quot;, 25); // 条件：name=张三 且 age=25    boolean result = userService.removeByMap(map); // 按Map条件删除核心方法    System.out.println(&quot;根据Map条件删除结果:&quot; + result);&#125;// 3. 根据条件构造器删除（支持复杂条件）@Testvoid testRemove() &#123;     LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();     wrapper.eq(User::getName, &quot;张三&quot;).gt(User::getAge, 20); // 条件：name=张三 且 age&gt;20    boolean result = userService.remove(wrapper); // 按条件构造器删除核心方法    System.out.println(&quot;根据条件构造器删除结果:&quot; + result);&#125;// 4. 批量删除（按ID集合）@Testvoid testRemoveByIds() &#123;     List&lt;Long&gt; ids = Arrays.asList(1L, 2L, 3L); // 待删除的ID集合    boolean result = userService.removeByIds(ids); // 批量删除核心方法    System.out.println(&quot;批量删除结果:&quot; + result);&#125;
@@ -4316,24 +4272,24 @@ IService 接口提供了比 BaseMapper 更丰富的 CRUD 操作，以下通过�
 // 1. 根据ID更新@Testvoid testUpdateById() &#123;     User user = userService.getById(1L); // 先查询待更新数据    user.setName(&quot;新名字&quot;); // 修改字段    boolean result = userService.updateById(user); // 按ID更新核心方法    System.out.println(&quot;更新结果:&quot; + result);&#125;// 2. 根据条件更新（统一修改符合条件的记录）@Testvoid testUpdate() &#123;     UpdateWrapper&lt;User&gt; wrapper = new UpdateWrapper&lt;&gt;();     wrapper.set(&quot;name&quot;, &quot;统一新名字&quot;).gt(&quot;age&quot;, 20); // 操作：name设为&quot;统一新名字&quot;；条件：age&gt;20    boolean result = userService.update(wrapper); // 按条件更新核心方法    System.out.println(&quot;条件更新结果:&quot; + result);&#125;// 3. 批量更新（按ID集合批量修改）@Testvoid testUpdateBatchById() &#123;     List&lt;User&gt; users = userService.list(); // 先查询已有数据    users.forEach(user -&gt; user.setAge(user.getAge() + 1)); // 批量修改age字段（+1）    boolean result = userService.updateBatchById(users); // 批量更新核心方法    System.out.println(&quot;批量更新结果:&quot; + result);&#125;
 
 五、查询操作覆盖单条查询、列表查询、数量统计等场景，支持按 ID、按条件查询，且兼容 Lambda 条件构造器。
-// 1. 根据ID查询单条数据@Testvoid testGetById() &#123;     User user = userService.getById(1L); // 按ID查询核心方法    System.out.println(user);&#125;// 2. 根据条件查询单条数据（若有多条，默认抛异常，可设置allowMultipleResults=true允许返回第一条）@Testvoid testGetOne() &#123;     LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();     wrapper.gt(User::getAge, 20); // 条件：age&gt;20    User user = userService.getOne(wrapper); // 按条件查询单条核心方法    System.out.println(user);&#125;// 3. 查询列表（查询所有/按条件查询）@Testvoid testList() &#123;     // 3.1 查询所有数据    List&lt;User&gt; users = userService.list(); // 查询所有核心方法    users.forEach(System.out::println);        // 3.2 按条件查询列表    LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();     wrapper.like(User::getName, &quot;张&quot;); // 条件：name包含&quot;张&quot;    List&lt;User&gt; filteredUsers = userService.list(wrapper); // 按条件查询列表核心方法    filteredUsers.forEach(System.out::println);&#125;// 4. 查询记录总数（统计所有/按条件统计）@Testvoid testCount() &#123;     // 4.1 统计所有记录数    long count = userService.count(); // 统计所有核心方法    System.out.println(&quot;总记录数: &quot; + count);        // 4.2 按条件统计记录数    LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();     wrapper.gt(User::getAge, 20); // 条件：age&gt;20    long filteredCount = userService.count(wrapper); // 按条件统计核心方法    System.out.println(&quot;年龄大于20的记录数:&quot; + filteredCount);&#125;
+// 1. 根据ID查询单条数据@Testvoid testGetById() &#123;     User user = userService.getById(1L); // 按ID查询核心方法    System.out.println(user);&#125;// 2. 根据条件查询单条数据（若有多条，默认抛异常，可设置allowMultipleResults=true允许返回第一条）@Testvoid testGetOne() &#123;     LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();     wrapper.gt(User::getAge, 20); // 条件：age&gt;20    User user = userService.getOne(wrapper); // 按条件查询单条核心方法    System.out.println(user);&#125;// 3. 查询列表（查询所有/按条件查询）@Testvoid testList() &#123;     // 3.1 查询所有数据    List&lt;User&gt; users = userService.list(); // 查询所有核心方法    users.forEach(System.out::println);    // 3.2 按条件查询列表    LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();     wrapper.like(User::getName, &quot;张&quot;); // 条件：name包含&quot;张&quot;    List&lt;User&gt; filteredUsers = userService.list(wrapper); // 按条件查询列表核心方法    filteredUsers.forEach(System.out::println);&#125;// 4. 查询记录总数（统计所有/按条件统计）@Testvoid testCount() &#123;     // 4.1 统计所有记录数    long count = userService.count(); // 统计所有核心方法    System.out.println(&quot;总记录数: &quot; + count);    // 4.2 按条件统计记录数    LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();     wrapper.gt(User::getAge, 20); // 条件：age&gt;20    long filteredCount = userService.count(wrapper); // 按条件统计核心方法    System.out.println(&quot;年龄大于20的记录数:&quot; + filteredCount);&#125;
 
 六、分页查询操作需先配置分页插件（PaginationInnerInterceptor），再通过 page() 方法实现分页，支持无条件 &#x2F; 有条件分页。
-// 1. 配置分页插件（全局配置，需在配置类中声明）@Configuration public class MybatisPlusConfig &#123;    @Bean    public MybatisPlusInterceptor mybatisPlusInterceptor() &#123;         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();        interceptor.addInnerInterceptor(new PaginationInnerInterceptor()); // 注册分页插件        return interceptor;    &#125;&#125;// 2. 分页查询测试@Testvoid testPage() &#123;     Page&lt;User&gt; page = new Page&lt;&gt;(1, 2); // 构建分页对象：当前页（1）、每页条数（2）        // 2.1 无条件分页    Page&lt;User&gt; result1 = userService.page(page); // 无条件分页核心方法    System.out.println(&quot;总记录数:&quot; + result1.getTotal());     result1.getRecords().forEach(System.out::println); // 打印当前页数据        // 2.2 有条件分页    LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();     wrapper.gt(User::getAge, 20); // 条件：age&gt;20    Page&lt;User&gt; result2 = userService.page(page, wrapper); // 有条件分页核心方法    System.out.println(&quot;年龄大于20的记录数:&quot; + result2.getTotal());    result2.getRecords().forEach(System.out::println);&#125;
+// 1. 配置分页插件（全局配置，需在配置类中声明）@Configuration public class MybatisPlusConfig &#123;    @Bean    public MybatisPlusInterceptor mybatisPlusInterceptor() &#123;         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();        interceptor.addInnerInterceptor(new PaginationInnerInterceptor()); // 注册分页插件        return interceptor;    &#125;&#125;// 2. 分页查询测试@Testvoid testPage() &#123;     Page&lt;User&gt; page = new Page&lt;&gt;(1, 2); // 构建分页对象：当前页（1）、每页条数（2）    // 2.1 无条件分页    Page&lt;User&gt; result1 = userService.page(page); // 无条件分页核心方法    System.out.println(&quot;总记录数:&quot; + result1.getTotal());     result1.getRecords().forEach(System.out::println); // 打印当前页数据    // 2.2 有条件分页    LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();     wrapper.gt(User::getAge, 20); // 条件：age&gt;20    Page&lt;User&gt; result2 = userService.page(page, wrapper); // 有条件分页核心方法    System.out.println(&quot;年龄大于20的记录数:&quot; + result2.getTotal());    result2.getRecords().forEach(System.out::println);&#125;
 
 七、链式调用操作通过 Lambda 链式语法简化查询、更新、删除逻辑，代码更简洁易读。
-@Testvoid testChain() &#123;     // 1. 查询链式调用：age&gt;20 且 name包含&quot;张&quot;，直接返回列表    List&lt;User&gt; users = userService.lambdaQuery()                                  .gt(User::getAge, 20)                                  .like(User::getName, &quot;张&quot;)                                  .list();    users.forEach(System.out::println);        // 2. 更新链式调用：name=张三 的用户，将age设为30    boolean updateResult = userService.lambdaUpdate()                                      .eq(User::getName, &quot;张三&quot;)                                      .set(User::getAge, 30)                                      .update();    System.out.println(&quot;更新结果:&quot; + updateResult);        // 3. 删除链式调用：name=李四 的用户，直接执行删除    boolean removeResult = userService.lambdaUpdate()                                       .eq(User::getName, &quot;李四&quot;)                                      .remove();    System.out.println(&quot;删除结果:&quot; + removeResult);&#125;
+@Testvoid testChain() &#123;     // 1. 查询链式调用：age&gt;20 且 name包含&quot;张&quot;，直接返回列表    List&lt;User&gt; users = userService.lambdaQuery()                                  .gt(User::getAge, 20)                                  .like(User::getName, &quot;张&quot;)                                  .list();    users.forEach(System.out::println);    // 2. 更新链式调用：name=张三 的用户，将age设为30    boolean updateResult = userService.lambdaUpdate()                                      .eq(User::getName, &quot;张三&quot;)                                      .set(User::getAge, 30)                                      .update();    System.out.println(&quot;更新结果:&quot; + updateResult);    // 3. 删除链式调用：name=李四 的用户，直接执行删除    boolean removeResult = userService.lambdaUpdate()                                       .eq(User::getName, &quot;李四&quot;)                                      .remove();    System.out.println(&quot;删除结果:&quot; + removeResult);&#125;
 
 2.3 链式调用示例// 查询：年龄&gt;20且名字含“张”userService    .lambdaQuery()    .gt(User::getAge, 20)    .like(User::getName, &quot;张&quot;)    .list();// 更新：名字=“张三”的用户年龄设为30userService    .lambdaUpdate()    .eq(User::getName, &quot;张三&quot;)    .set(User::getAge, 30)    .update();//删除：删除名字=“李四”的用户 userService     .lambdaUpdate()     .eq(User::getName, &quot;李四&quot;)     .remove();
 
-2.4 自定义方法在 Service 接口定义List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge)，实现类用LambdaQueryWrapper实现条件查询。
-一、Service 接口定义（自定义方法声明）在 UserService 接口中继承 IService&lt;User&gt;，并添加自定义方法 selectByAgeRange，用于根据传入的最小年龄和最大年龄查询用户列表。
+2.4 自定义方法在 Service 接口定义List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge)，实现类用 LambdaQueryWrapper 实现条件查询。
+一、Service 接口定义（自定义方法声明）**在 **UserService 接口中继承 IService&lt;User&gt;，并添加自定义方法 selectByAgeRange，用于根据传入的最小年龄和最大年龄查询用户列表。
 import com.baomidou.mybatisplus.extension.service.IService;import java.util.List;// 继承IService&lt;User&gt;获得基础CRUD能力，同时声明自定义方法public interface UserService extends IService&lt;User&gt; &#123;    // 自定义方法：根据年龄范围（minAge~maxAge）查询用户列表    List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge);&#125;
 
-二、Service 实现类（自定义方法逻辑实现）创建 UserServiceImpl 类，继承 ServiceImpl&lt;UserMapper, User&gt; 并实现 UserService 接口，在自定义方法中通过 LambdaQueryWrapper 构建 “年龄在 minAge 和 maxAge 之间” 的查询条件，最终调用 this.list(wrapper) 执行查询。
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;import org.springframework.stereotype.Service;import java.util.List;@Service // 交给Spring容器管理，确保能被注入使用public class UserServiceImpl extends ServiceImpl&lt;UserMapper, User&gt; implements UserService &#123;    // 实现自定义方法：按年龄范围查询    @Override    public List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge) &#123;        // 1. 创建LambdaQueryWrapper（类型安全，避免字段硬编码）        LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();                // 2. 构建条件：年龄 between minAge 和 maxAge（包含边界值）        wrapper.between(User::getAge, minAge, maxAge);                // 3. 调用list()方法执行查询，返回符合条件的用户列表        return this.list(wrapper);    &#125;&#125;
+二、Service 实现类（自定义方法逻辑实现）**创建 **UserServiceImpl 类，继承 ServiceImpl&lt;UserMapper, User&gt; 并实现 UserService 接口，在自定义方法中通过 LambdaQueryWrapper 构建 “年龄在 minAge 和 maxAge 之间” 的查询条件，最终调用 this.list(wrapper) 执行查询。
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;import org.springframework.stereotype.Service;import java.util.List;@Service // 交给Spring容器管理，确保能被注入使用public class UserServiceImpl extends ServiceImpl&lt;UserMapper, User&gt; implements UserService &#123;    // 实现自定义方法：按年龄范围查询    @Override    public List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge) &#123;        // 1. 创建LambdaQueryWrapper（类型安全，避免字段硬编码）        LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();        // 2. 构建条件：年龄 between minAge 和 maxAge（包含边界值）        wrapper.between(User::getAge, minAge, maxAge);        // 3. 调用list()方法执行查询，返回符合条件的用户列表        return this.list(wrapper);    &#125;&#125;
 
-2.5批量操作性能优化在处理大批量数据时，直接执行全量批量操作可能导致内存占用过高（甚至 OOM）、数据库连接压力过大等问题。IService 接口的批量操作性能优化核心方案为分批处理，通过控制单次批量操作的数据量，平衡内存消耗与数据库交互效率。
+2.5 批量操作性能优化在处理大批量数据时，直接执行全量批量操作可能导致内存占用过高（甚至 OOM）、数据库连接压力过大等问题。IService 接口的批量操作性能优化核心方案为****分批处理，通过控制单次批量操作的数据量，平衡内存消耗与数据库交互效率。
 针对大批量数据（如万级、十万级数据）的批量新增、更新等操作，不直接调用无批次限制的批量方法（如 saveBatch(users)），而是手动指定单次批次大小，将全量数据拆分为多批逐步执行，避免一次性加载大量数据到内存。
 @Test void testBatchPerformance() &#123;    // 1. 模拟大批量数据（示例：10万条用户数据）    List&lt;User&gt; users = new ArrayList&lt;&gt;();     for (int i = 0; i &lt; 100000; i++) &#123;        User user = new User();        user.setName(&quot;用户_&quot; + i); // 构造用户姓名        user.setAge(i % 100); // 构造用户年龄（0-99随机分布）        users.add(user);    &#125;    // 2. 分批执行批量插入：每1000条数据为一批    boolean result = userService.saveBatch(users, 1000);     System.out.println(&quot;批量插入结果:&quot; + result);&#125;
 
@@ -4379,26 +4335,26 @@ eq(StringUtils.isNotBlank(name), User::getName, name)（非空才加条件）
 inSql(User::getId, &quot;select id from user where age &gt; 20&quot;)
 
 
-一、基础查询条件一、等值 &#x2F; 不等值查询通过 eq（等于）、ne（不等于）方法构建字段与值的匹配条件，Lambda 方式直接引用实体类字段（如 User::getName），避免硬编码字段名导致的错误。
+一、基础查询条件一、等值 &#x2F; 不等值查询**通过 **eq（等于）、ne（不等于）方法构建字段与值的匹配条件，Lambda 方式直接引用实体类字段（如 User::getName），避免硬编码字段名导致的错误。
 // Lambda方式：查询姓名为“张三”且年龄不等于18的用户LambdaQueryWrapper&lt;User&gt; lambdaWrapper = new LambdaQueryWrapper&lt;&gt;();lambdaWrapper.eq(User::getName, &quot;张三&quot;) // 等值条件：name = &quot;张三&quot;             .ne(User::getAge, 18);    // 不等值条件：age != 18
 
-二、范围查询通过 gt（大于）、ge（大于等于）、lt（小于）、le（小于等于）、between（区间包含）方法构建数值型字段的范围条件，适用于年龄、时间等字段的范围筛选。
+二、范围查询**通过 **gt（大于）、ge（大于等于）、lt（小于）、le（小于等于）、between（区间包含）方法构建数值型字段的范围条件，适用于年龄、时间等字段的范围筛选。
 // Lambda方式：查询年龄大于18、大于等于20、小于30、小于等于25，且在20-30区间内的用户LambdaQueryWrapper&lt;User&gt; lambdaWrapper = new LambdaQueryWrapper&lt;&gt;();lambdaWrapper.gt(User::getAge, 18)     // 范围条件：age &gt; 18             .ge(User::getAge, 20)     // 范围条件：age &gt;= 20             .lt(User::getAge, 30)     // 范围条件：age &lt; 30             .le(User::getAge, 25)     // 范围条件：age &lt;= 25             .between(User::getAge, 20, 30); // 区间条件：age BETWEEN 20 AND 30
 
-三、模糊查询通过 like（全模糊，% 值 %）、likeLeft（左模糊，% 值）、likeRight（右模糊，值 %）、notLike（不包含，NOT LIKE % 值 %）方法构建字符串字段的模糊匹配条件，适用于姓名、邮箱等字段的模糊搜索。
+三、模糊查询**通过 **like（全模糊，% 值 %）、likeLeft（左模糊，% 值）、likeRight（右模糊，值 %）、notLike（不包含，NOT LIKE % 值 %）方法构建字符串字段的模糊匹配条件，适用于姓名、邮箱等字段的模糊搜索。
 // Lambda方式：查询姓名包含“张”、以“张”结尾、以“张”开头，且不包含“李”的用户LambdaQueryWrapper&lt;User&gt; lambdaWrapper = new LambdaQueryWrapper&lt;&gt;();lambdaWrapper.like(User::getName, &quot;张&quot;)     // 全模糊：name LIKE %张%             .likeLeft(User::getName, &quot;张&quot;) // 左模糊：name LIKE %张             .likeRight(User::getName, &quot;张&quot;)// 右模糊：name LIKE 张%             .notLike(User::getName, &quot;李&quot;); // 不包含：name NOT LIKE %李%
 
-二、复杂条件组合一、AND&#x2F;OR 条件组合（多条件并列与分支）通过 and() 和 or() 方法实现多条件的并列或分支组合，Lambda 表达式内可嵌套子条件，确保查询逻辑与业务需求一致。适用于 “满足 A 条件且（满足 B 或 C 条件）”“满足 A 条件或（满足 B 且 C 条件）” 等场景。
-示例代码（查询逻辑：姓名为 “张三” 或 “李四”，且 年龄大于 20；或 年龄大于 20 且小于 30）：
+二、复杂条件组合一、AND&#x2F;OR 条件组合（多条件并列与分支）**通过 **and() 和 or() 方法实现多条件的并列或分支组合，Lambda 表达式内可嵌套子条件，确保查询逻辑与业务需求一致。适用于 “满足 A 条件且（满足 B 或 C 条件）”“满足 A 条件或（满足 B 且 C 条件）” 等场景。
+示例代码（查询逻辑：姓名为 “张三” 或 “李四”，****且 年龄大于 20；或 年龄大于 20 且小于 30）：
 LambdaQueryWrapper&lt;User&gt; lambdaWrapper = new LambdaQueryWrapper&lt;&gt;();// 1. and() 内嵌套 OR 分支：整体为“（姓名=张三 或 姓名=李四）”的条件，与后续条件用 AND 连接lambdaWrapper.and(w -&gt; w.eq(User::getName, &quot;张三&quot;).or().eq(User::getName, &quot;李四&quot;))             // 2. or() 内嵌套 AND 分支：整体为“（年龄&gt;20 且 年龄&lt;30）”的条件，与前面条件用 OR 连接             .or(w -&gt; w.gt(User::getAge, 20).lt(User::getAge, 30));
 
 上述代码中，and() 和 or() 方法的参数为 Lambda 表达式，用于定义分支内的子条件，避免因条件优先级混乱导致的查询错误，且字段引用（如 User::getName）无硬编码风险。
-二、嵌套条件（强制条件优先级）通过 nested() 方法将一组子条件包裹为 “嵌套块”，强制该组子条件优先执行，适用于 “（满足 A 或 B 条件）且（满足 C 且 D 条件）” 等需要明确优先级的场景（类似 SQL 中的括号分组）。
-示例代码（查询逻辑：（姓名为 “张三” 或 “李四”）且（年龄大于 20 且小于 30））：
+二、嵌套条件（强制条件优先级）**通过 **nested() 方法将一组子条件包裹为 “嵌套块”，强制该组子条件优先执行，适用于 “（满足 A 或 B 条件）且（满足 C 且 D 条件）” 等需要明确优先级的场景（类似 SQL 中的括号分组）。
+示例代码（查询逻辑：（姓名为 “张三” 或 “李四”）****且（年龄大于 20 且小于 30））：
 LambdaQueryWrapper&lt;User&gt; lambdaWrapper = new LambdaQueryWrapper&lt;&gt;();// 1. nested() 包裹第一个子条件块：（姓名=张三 或 姓名=李四），优先执行lambdaWrapper.nested(w -&gt; w.eq(User::getName, &quot;张三&quot;).or().eq(User::getName, &quot;李四&quot;))             // 2. and() 连接第二个子条件块：（年龄&gt;20 且 年龄&lt;30），与嵌套块用 AND 连接             .and(w -&gt; w.gt(User::getAge, 20).lt(User::getAge, 30));
 
-与普通 and()&#x2F;or() 组合不同，nested() 明确标识子条件块的优先级，即使后续条件复杂，也能保证嵌套块内的逻辑优先执行，避免 SQL 解析时的优先级错乱。
-三、排序与分页一、排序（控制结果集顺序）通过 orderByAsc（升序）和 orderByDesc（降序）方法指定排序字段，支持单字段或多字段排序，Lambda 方式直接引用实体类字段，避免字段名硬编码错误。
+**与普通 **and()&#x2F;or() 组合不同，nested() 明确标识子条件块的优先级，即使后续条件复杂，也能保证嵌套块内的逻辑优先执行，避免 SQL 解析时的优先级错乱。
+三、排序与分页一、排序（控制结果集顺序）**通过 **orderByAsc（升序）和 orderByDesc（降序）方法指定排序字段，支持单字段或多字段排序，Lambda 方式直接引用实体类字段，避免字段名硬编码错误。
 
 核心逻辑
 
@@ -4413,69 +4369,68 @@ LambdaQueryWrapper&lt;User&gt; lambdaWrapper = new LambdaQueryWrapper&lt;&gt;();
 // Lambda方式：按年龄升序、ID升序，再按创建时间降序排序LambdaQueryWrapper&lt;User&gt; lambdaWrapper = new LambdaQueryWrapper&lt;&gt;();lambdaWrapper.orderByAsc(User::getAge, User::getId)  // 多字段升序：先age，再id             .orderByDesc(User::getCreateTime);       // 单字段降序：create_time// 执行查询，结果按上述规则排序List&lt;User&gt; sortedUsers = userMapper.selectList(lambdaWrapper);
 
 上述排序逻辑对应文档中 Lambda 方式的排序实现，通过链式调用明确排序规则，可读性与可维护性更强。
-二、分页（大数据量分批获取）分页需先配置分页插件，再通过 Page 对象指定分页参数（当前页、每页大小），结合 LambdaQueryWrapper 实现条件分页查询，支持获取总记录数、当前页数据等关键信息。
+二、分页（大数据量分批获取）**分页需先配置分页插件，再通过 **Page 对象指定分页参数（当前页、每页大小），结合 LambdaQueryWrapper 实现条件分页查询，支持获取总记录数、当前页数据等关键信息。
 1. 前置步骤：配置分页插件
-需在配置类中注册 PaginationInnerInterceptor 插件（指定数据库类型），确保分页功能生效：
+**需在配置类中注册 **PaginationInnerInterceptor 插件（指定数据库类型），确保分页功能生效：
 @Configurationpublic class MybatisPlusConfig &#123;    @Bean    public MybatisPlusInterceptor mybatisPlusInterceptor() &#123;        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();        // 注册分页插件，指定数据库类型（如MySQL）        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));        return interceptor;    &#125;&#125;
 
 上述分页插件配置为文档中生产环境的标准配置，是分页查询的前提。
 2. 分页查询示例（Lambda 方式）
-通过 Page 对象定义分页参数，结合 selectPage 方法执行分页查询，返回的 Page 对象包含总记录数、当前页数据等信息：
+**通过 **Page 对象定义分页参数，结合 selectPage 方法执行分页查询，返回的 Page 对象包含总记录数、当前页数据等信息：
 // 1. 构建分页对象：参数1=当前页（从1开始），参数2=每页大小Page&lt;User&gt; page = new Page&lt;&gt;(1, 10);  // 第1页，每页10条数据// 2. 构建Lambda查询条件：查询年龄&gt;20的用户LambdaQueryWrapper&lt;User&gt; lambdaWrapper = new LambdaQueryWrapper&lt;&gt;();lambdaWrapper.gt(User::getAge, 20);// 3. 执行分页查询：调用selectPage方法，传入分页对象与查询条件Page&lt;User&gt; resultPage = userMapper.selectPage(page, lambdaWrapper);// 4. 解析分页结果long total = resultPage.getTotal();  // 获取总记录数List&lt;User&gt; currentPageUsers = resultPage.getRecords();  // 获取当前页数据System.out.println(&quot;总记录数：&quot; + total);System.out.println(&quot;第1页数据：&quot; + currentPageUsers);
 
-该分页逻辑与文档中 Lambda 方式的分页实现一致，通过分页插件与 Page 对象配合，高效处理大数据量查询，避免一次性加载过多数据导致内存溢出。
-四、字段选择（筛选返回字段）通过 select 方法指定需要查询的实体类字段，仅返回目标字段数据（而非全表字段），减少数据传输量与数据库查询开销，适用于只需要部分字段的场景。
+**该分页逻辑与文档中 Lambda 方式的分页实现一致，通过分页插件与 **Page 对象配合，高效处理大数据量查询，避免一次性加载过多数据导致内存溢出。
+四、字段选择（筛选返回字段）**通过 **select 方法指定需要查询的实体类字段，仅返回目标字段数据（而非全表字段），减少数据传输量与数据库查询开销，适用于只需要部分字段的场景。
 
 核心逻辑
 
 
 语法：select(实体类::目标字段1, 实体类::目标字段2, ...)
-作用：仅查询指定字段，例如只查 id、name、age，不查 email、createTime 等无关字段。
+**作用：仅查询指定字段，例如只查 **id、name、age，不查 email、createTime 等无关字段。
 
 
 示例代码
 
 // Lambda方式：仅查询用户的id、name、age字段，排除其他字段LambdaQueryWrapper&lt;User&gt; lambdaWrapper = new LambdaQueryWrapper&lt;&gt;();lambdaWrapper.select(User::getId, User::getName, User::getAge)  // 指定返回字段             .eq(User::getAge, 25);  // 附加查询条件：年龄=25// 执行查询，返回的User对象中仅id、name、age有值，其他字段为nullList&lt;User&gt; partialUsers = userMapper.selectList(lambdaWrapper);
 
-该实现与文档中 Lambda 方式的字段选择逻辑完全一致，通过 select 方法精准控制返回字段，优化查询性能。
+**该实现与文档中 Lambda 方式的字段选择逻辑完全一致，通过 **select 方法精准控制返回字段，优化查询性能。
 3.3 更新构造器示例// LambdaUpdateWrapper：更新名字=“张三”的用户LambdaUpdateWrapper&lt;User&gt; lambdaUpdate = new LambdaUpdateWrapper&lt;&gt;();lambdaUpdate.set(User::getAge,30)    .set(User::getEmail,&quot;new@example.com&quot;)    .eq(User::getName, &quot;张三&quot;);userMapper.update(null, lambdaUpdate);//UpdateWrapperUpdateWrapper&lt;User&gt; updateWrapper = new UpdateWrapper&lt;&gt;(); updateWrapper.set(&quot;age&quot;, 30)     .set(&quot;email&quot;, &quot;new@example.com&quot;)     .eq(&quot;name&quot;, &quot;张三&quot;); userMapper.update(null, updateWrapper);
 
-3.4动态条件构建根据参数有效性（非空 &#x2F; 非空白）决定是否添加查询条件，避免因参数无效导致的冗余 SQL 或错误查询，通过参数有效性判断实现条件的动态开关，避免编写大量 if-else 逻辑。
+3.4 动态条件构建根据参数有效性（非空 &#x2F; 非空白）决定是否添加查询条件，避免因参数无效导致的冗余 SQL 或错误查询，通过参数有效性判断实现条件的动态开关，避免编写大量 if-else 逻辑。
 // 定义可能为空的查询参数String name = &quot;张三&quot;;    // 示例：姓名参数（非空）Integer minAge = 20;    // 示例：最小年龄参数（非空）Integer maxAge = 30;    // 示例：最大年龄参数（非空）// 1. 创建LambdaQueryWrapperLambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();// 2. 动态添加条件：仅当参数有效时，条件才生效wrapper.eq(StringUtils.isNotBlank(name), User::getName, name)  // 姓名非空白时，添加“name=张三”       .gt(minAge != null, User::getAge, minAge)              // 最小年龄非空时，添加“age&gt;20”       .lt(maxAge != null, User::getAge, maxAge);             // 最大年龄非空时，添加“age&lt;30”// 执行查询：最终条件为“name=张三 AND age&gt;20 AND age&lt;30”List&lt;User&gt; users = userMapper.selectList(wrapper);
 
-3.5子查询（Lambda 方式）子查询是将一个查询结果作为另一个查询的条件（如 IN 子句），MyBatis-Plus 支持传统字符串拼接、Lambda 语法及更安全的 “子 Wrapper” 三种方式，其中 Lambda 方式避免字段硬编码，“子 Wrapper” 方式进一步减少 SQL 注入风险。
+3.5 子查询（Lambda 方式）**子查询是将一个查询结果作为另一个查询的条件（如 **IN 子句），MyBatis-Plus 支持传统字符串拼接、Lambda 语法及更安全的 “子 Wrapper” 三种方式，其中 Lambda 方式避免字段硬编码，“子 Wrapper” 方式进一步减少 SQL 注入风险。
 // 传统⽅式queryWrapper.inSql(&quot;id&quot;, &quot;select id from user where age &gt; 20&quot;); // Lambda⽅式lambdaWrapper.inSql(User::getId, &quot;select id from user where age &gt; 20&quot;); // 更安全的⼦查询⽅式LambdaQueryWrapper&lt;User&gt; subWrapper = new LambdaQueryWrapper&lt;&gt;(); subWrapper     .select(User::getId)     .gt(User::getAge, 20); lambdaWrapper     .in(User::getId, userMapper.selectObjs(subWrapper))
 
 3.6 最佳实践
-优先使⽤Lambda⽅式：类型安全，重构友好
-合理使⽤动态条件：避免构建过于复杂的条件 
-注意SQL注⼊⻛险：避免直接拼接⽤户输⼊ 
+优先使⽤ Lambda ⽅式：类型安全，重构友好
+**合理使⽤动态条件：避免构建过于复杂的条件 **
+**注意 SQL 注⼊⻛险：避免直接拼接⽤户输⼊ **
 批量操作优化：对于⼤批量数据，使⽤分批处理
 
 第 4 章：流式查询（处理大数据）4.1 两种实现方式
 ResultHandler 方式（推荐）：
 // Mapper接口定义@Select(&quot;SELECT * FROM user $&#123;ew.customSqlSegment&#125;&quot;)@Options(resultSetType = ResultSetType.FORWARD_ONLY)@ResultType(User.class)void selectStream(@Param(Constants.WRAPPER) Wrapper&lt;User&gt; wrapper, ResultHandler&lt;User&gt; handler);// 使用：逐行处理数据，避免OOMuserMapper.selectStream(Wrappers.emptyWrapper(), context -&gt; &#123;  User user = context.getResultObject();  // 处理逻辑  System.out.println(&quot;已处理第&quot; + context.getResultCount() + &quot;条&quot;);&#125;);
-
 Cursor 方式（Java8+，需事务）：
 // Mapper定义@Select(&quot;SELECT * FROM user LIMIT #&#123;limit&#125;&quot;)Cursor&lt;User&gt; scan(@Param(&quot;limit&quot;) int limit);// 使用（try-with-resources自动关闭）@Transactional // 必须加事务，保持连接try (Cursor&lt;User&gt; cursor = userMapper.scan(100000)) &#123;  cursor.forEach(user -&gt; &#123; /* 处理逻辑 */ &#125;);&#125;
 
-注意：必须⼿动关闭Cursor或使⽤try-with-resources
+注意：必须⼿动关闭 Cursor 或使⽤ try-with-resources
 
 
-4.2结合MyBatis-Plus 特性的实现结合 MyBatis-Plus 特性的流式查询主要包含通用 BaseMapper 流式查询与带条件的分页流式处理两类，核心是借助 BaseMapper 原生方法 + ResultHandler 实现数据逐行 &#x2F; 分批处理，避免大数据量加载导致的内存溢出（OOM）。
-1、通用 BaseMapper 流式查询无需自定义 Mapper 接口方法，直接使用 BaseMapper 自带的selectList方法，通过传入Wrappers.emptyWrapper()（无额外查询条件时）和ResultHandler接口，实现对查询结果的逐行流式处理。该方式支持 BaseMapper 的所有查询方法（如带条件的selectList），无需额外扩展，简化开发流程。
-// 直接调用BaseMapper的selectList方法，实现流式查询userMapper.selectList(    Wrappers.emptyWrapper(), // 无额外查询条件（若需条件，可替换为LambdaQueryWrapper）    new ResultHandler&lt;User&gt;() &#123; // 结果处理器：逐行处理查询到的数据        @Override        public void handleResult(ResultContext&lt;? extends User&gt; context) &#123;            // 1. 获取当前流式处理的单条数据            User currentUser = context.getResultObject();                        // 2. 自定义数据处理逻辑（如数据校验、格式转换、写入文件等）            // 示例：打印当前处理的数据ID            System.out.println(&quot;正在处理用户ID：&quot; + currentUser.getId());                        // 注意：此处逻辑需轻量化，避免阻塞流式处理        &#125;    &#125;);
+4.2 结合 MyBatis-Plus 特性的实现结合 MyBatis-Plus 特性的流式查询主要包含****通用 BaseMapper 流式查询与带条件的分页流式处理两类，核心是借助 BaseMapper 原生方法 + ResultHandler 实现数据逐行 &#x2F; 分批处理，避免大数据量加载导致的内存溢出（OOM）。
+1、通用 BaseMapper 流式查询无需自定义 Mapper 接口方法，直接使用 BaseMapper 自带的selectList 方法，通过传入 Wrappers.emptyWrapper()（无额外查询条件时）和 ResultHandler 接口，实现对查询结果的逐行流式处理。该方式支持 BaseMapper 的所有查询方法（如带条件的 selectList），无需额外扩展，简化开发流程。
+// 直接调用BaseMapper的selectList方法，实现流式查询userMapper.selectList(    Wrappers.emptyWrapper(), // 无额外查询条件（若需条件，可替换为LambdaQueryWrapper）    new ResultHandler&lt;User&gt;() &#123; // 结果处理器：逐行处理查询到的数据        @Override        public void handleResult(ResultContext&lt;? extends User&gt; context) &#123;            // 1. 获取当前流式处理的单条数据            User currentUser = context.getResultObject();            // 2. 自定义数据处理逻辑（如数据校验、格式转换、写入文件等）            // 示例：打印当前处理的数据ID            System.out.println(&quot;正在处理用户ID：&quot; + currentUser.getId());            // 注意：此处逻辑需轻量化，避免阻塞流式处理        &#125;    &#125;);
 
 
-**Wrappers.emptyWrapper()**：当无需筛选条件（查询全表数据）时使用，若需添加查询条件（如年龄 &gt; 20），可替换为Wrappers.lambdaQuery().gt(User::getAge, 20)，兼容所有 Lambda 条件构造器用法；
-**ResultContext**：用于获取流式处理的上下文信息，核心方法getResultObject()获取当前行数据，还可通过getResultCount()获取已处理的数据总数；
-支持范围：文档明确说明 “支持所有 BaseMapper 的查询方法”，即 BaseMapper 中带ResultHandler参数的查询方法（如selectByMap、selectOne等），均可用此方式实现流式处理。
+**Wrappers.emptyWrapper()**：当无需筛选条件（查询全表数据）时使用，若需添加查询条件（如年龄 &gt; 20），可替换为 Wrappers.lambdaQuery().gt(User::getAge, 20)，兼容所有 Lambda 条件构造器用法；
+**ResultContext**：用于获取流式处理的上下文信息，核心方法 getResultObject() 获取当前行数据，还可通过 getResultCount() 获取已处理的数据总数；
+支持范围：文档明确说明 “支持所有 BaseMapper 的查询方法”，即 BaseMapper 中带 ResultHandler 参数的查询方法（如 selectByMap、selectOne 等），均可用此方式实现流式处理。
 
-2、带条件的分页流式处理针对 “需筛选条件 + 大数据量分批处理” 场景，结合分页（控制每批数据量） 与Lambda 条件（筛选目标数据），通过 BaseMapper 的selectList方法传入Page（分页参数）、LambdaQueryWrapper（查询条件）和ResultHandler（批量处理逻辑），实现 “按批次流式处理符合条件的数据”，精准控制内存占用。
-// 1. 构建分页对象：控制每批处理的数据量（当前页=1，每页大小=10000，即每批处理1万条）Page&lt;User&gt; page = new Page&lt;&gt;(1, 10000); // 2. 构建Lambda查询条件：筛选“年龄&gt;20”的用户（可根据业务扩展条件）LambdaQueryWrapper&lt;User&gt; wrapper = Wrappers.lambdaQuery();wrapper.gt(User::getAge, 20); // 筛选条件：age &gt; 20// 3. 调用BaseMapper的selectList，实现分页流式处理userMapper.selectList(    page,          // 分页参数：控制每批数据量    wrapper,       // 条件构造器：筛选目标数据    context -&gt; &#123;   // 结果处理器：批量处理当前批次的数据        // 1. 获取当前批次中的单条数据        User user = context.getResultObject();                // 2. 批量处理逻辑（如批量写入数据库、批量导出Excel等）        // 示例：将当前用户数据添加到临时集合，累计到1000条时统一处理        tempUserList.add(user);        if (tempUserList.size() &gt;= 1000) &#123;            batchExport(tempUserList); // 自定义批量导出方法            tempUserList.clear(); // 清空集合，释放内存        &#125;    &#125;);
+2、带条件的分页流式处理针对 “需筛选条件 + 大数据量分批处理” 场景，结合****分页（控制每批数据量） 与 Lambda 条件（筛选目标数据），通过 BaseMapper 的 selectList 方法传入 Page（分页参数）、LambdaQueryWrapper（查询条件）和 ResultHandler（批量处理逻辑），实现 “按批次流式处理符合条件的数据”，精准控制内存占用。
+// 1. 构建分页对象：控制每批处理的数据量（当前页=1，每页大小=10000，即每批处理1万条）Page&lt;User&gt; page = new Page&lt;&gt;(1, 10000); // 2. 构建Lambda查询条件：筛选“年龄&gt;20”的用户（可根据业务扩展条件）LambdaQueryWrapper&lt;User&gt; wrapper = Wrappers.lambdaQuery();wrapper.gt(User::getAge, 20); // 筛选条件：age &gt; 20// 3. 调用BaseMapper的selectList，实现分页流式处理userMapper.selectList(    page,          // 分页参数：控制每批数据量    wrapper,       // 条件构造器：筛选目标数据    context -&gt; &#123;   // 结果处理器：批量处理当前批次的数据        // 1. 获取当前批次中的单条数据        User user = context.getResultObject();        // 2. 批量处理逻辑（如批量写入数据库、批量导出Excel等）        // 示例：将当前用户数据添加到临时集合，累计到1000条时统一处理        tempUserList.add(user);        if (tempUserList.size() &gt;= 1000) &#123;            batchExport(tempUserList); // 自定义批量导出方法            tempUserList.clear(); // 清空集合，释放内存        &#125;    &#125;);
 
 
-分页参数作用：Page&lt;&gt;(1, 10000)中 “10000” 为每批处理的最大条数，即使待处理数据总量为 100 万条，也会自动拆分为 100 批（每批 1 万条）逐步处理，避免一次性加载 100 万条数据到内存；
+分页参数作用：Page&lt;&gt;(1, 10000) 中 “10000” 为每批处理的最大条数，即使待处理数据总量为 100 万条，也会自动拆分为 100 批（每批 1 万条）逐步处理，避免一次性加载 100 万条数据到内存；
 条件与流式结合：Lambda 条件（gt(User::getAge, 20)）先筛选出符合条件的数据，再按分页批量流式处理，避免对无关数据进行无效处理，提升效率；
 批量处理优势：相比 “逐行处理”，“每批 1 万条 + 批量逻辑” 减少 IO 次数（如批量写入文件 &#x2F; 数据库），平衡内存占用与处理效率。
 
@@ -4515,38 +4470,30 @@ Cursor
 结果集类型必须为FORWARD_ONLY
 
 第 5 章：枚举映射（自动转换）5.1 两种实现方式
-@EnumValue 注解（推荐）：通过 @EnumValue 直接标记枚举中 “需存入数据库的属性”，MyBatis-Plus 会自动将该属性值与数据库字段关联，支持 String、Integer 等多种类型。
-public enum GenderEnum &#123;  MALE(&quot;M&quot;, &quot;男性&quot;), FEMALE(&quot;F&quot;, &quot;女性&quot;);  @EnumValue // 标记存入数据库的值  private final String code;  private final String desc;  // 构造器+getter&#125;
-
-实现 IEnum 接口：通过实现 MyBatis-Plus 提供的 IEnum 接口，并覆写 getValue() 方法，指定 “存入数据库的枚举值”。该方式需强绑定接口，灵活性略低于 @EnumValue 注解。
-public enum StatusEnum implements IEnum&lt;Integer&gt; &#123;  LOCK(1, &quot;锁定&quot;), DISABLE(2, &quot;禁用&quot;);  private final int value;  private final String desc;  @Override public Integer getValue() &#123; return this.value; &#125; // 必须实现&#125;
+@EnumValue 注解（推荐）： **通过 **@EnumValue 直接标记枚举中 “需存入数据库的属性”，MyBatis-Plus 会自动将该属性值与数据库字段关联，支持 String、Integer 等多种类型。public enum GenderEnum &#123;  MALE(&quot;M&quot;, &quot;男性&quot;), FEMALE(&quot;F&quot;, &quot;女性&quot;);  @EnumValue // 标记存入数据库的值  private final String code;  private final String desc;  // 构造器+getter&#125;
+实现 IEnum 接口： **通过实现 MyBatis-Plus 提供的 **IEnum 接口，并覆写 getValue() 方法，指定 “存入数据库的枚举值”。该方式需强绑定接口，灵活性略低于 @EnumValue 注解。public enum StatusEnum implements IEnum&lt;Integer&gt; &#123;  LOCK(1, &quot;锁定&quot;), DISABLE(2, &quot;禁用&quot;);  private final int value;  private final String desc;  @Override public Integer getValue() &#123; return this.value; &#125; // 必须实现&#125;
 
 5.2 配置差异
 3.5.2 + 版本：无需额外配置，直接在实体类用枚举字段即可；
+3.5.2 之前：需在 application.yml 配置枚举包路径：mybatis-plus:  type-enums-package: com.example.enums
 
-3.5.2 之前：需在 application.yml 配置枚举包路径：
-mybatis-plus:  type-enums-package: com.example.enums
-
-5.3实体类与数据库设计（对应关系）1. 实体类中使用枚举在实体类（如 User）中直接声明枚举类型属性，无需额外注解（除 @Data 等 Lombok 注解）。
+5.3 实体类与数据库设计（对应关系）1. 实体类中使用枚举**在实体类（如 **User）中直接声明枚举类型属性，无需额外注解（除 @Data 等 Lombok 注解）。
 import lombok.Data;import com.baomidou.mybatisplus.annotation.TableName;@Data@TableName(&quot;user&quot;) // 关联数据库表public class User &#123;    private Long id; // 主键    private String name; // 用户名    // 枚举属性1：使用IEnum接口的枚举（对应数据库status字段）    private StatusEnum status;     // 枚举属性2：使用@EnumValue注解的枚举（对应数据库gender字段）    private GenderEnum gender; &#125;
 
-2. 数据库表设计数据库表字段类型需与枚举的 “映射值类型” 一致（如 StatusEnum 的 value 为 int，数据库字段设为 INT；GenderEnum 的 code 为 String，数据库字段设为 CHAR(1)）。
+2. 数据库表设计**数据库表字段类型需与枚举的 “映射值类型” 一致（如 **StatusEnum 的 value 为 int，数据库字段设为 INT；GenderEnum 的 code 为 String，数据库字段设为 CHAR(1)）。
 CREATE TABLE user (    id BIGINT PRIMARY KEY AUTO_INCREMENT, -- 主键自增    name VARCHAR(50) NOT NULL COMMENT &#x27;用户名&#x27;, -- 用户名    status INT DEFAULT 1 COMMENT &#x27;状态（1=锁定，2=禁用）&#x27;, -- 对应StatusEnum的value（int类型）    gender CHAR(1) COMMENT &#x27;性别（M=男性，F=女性）&#x27; -- 对应GenderEnum的code（char(1)类型）) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 5.4 常见问题
 枚举值为 null：检查数据库字段类型与枚举值类型匹配（如 tinyint 不能映射 boolean）；
-JSON 序列化：用 Jackson 时添加@JsonValue注解指定序列化值（如@JsonValue private final String code）。
+JSON 序列化：用 Jackson 时添加 @JsonValue 注解指定序列化值（如 @JsonValue private final String code）。
 
 第 6 章：自动填充（审计字段）MyBatis-Plus 提供了强⼤的⾃动填充功能，可以⾃动为创建时间、更新时间等公共字段赋值，极⼤简化了开发⼯作。以下是完 整的实现⽅案：
 6.1 基础配置
-实体类标注填充规则：
-@Datapublic class User &#123;  @TableField(fill = FieldFill.INSERT) // 插入时填充（创建时间/创建人）  private LocalDateTime createTime;  @TableField(fill = FieldFill.INSERT_UPDATE) // 插入+更新时填充（更新时间/更新人）  private LocalDateTime updateTime;  @TableField(fill = FieldFill.INSERT)  private Long createUser;&#125;
-
-实现 MetaObjectHandler：
-@Component // 必须交给Spring管理public class MyMetaObjectHandler implements MetaObjectHandler &#123;  @Override  public void insertFill(MetaObject metaObject) &#123;    // 严格模式：字段类型必须匹配（推荐）    this.strictInsertFill(metaObject, &quot;createTime&quot;, LocalDateTime.class, LocalDateTime.now());    this.strictInsertFill(metaObject, &quot;createUser&quot;, Long.class, getCurrentUserId());    this.strictInsertFill(metaObject, &quot;updateTime&quot;, LocalDateTime.class, LocalDateTime.now());  &#125;  @Override  public void updateFill(MetaObject metaObject) &#123;    this.strictUpdateFill(metaObject, &quot;updateTime&quot;, LocalDateTime.class, LocalDateTime.now());    this.strictUpdateFill(metaObject, &quot;updateUser&quot;, Long.class, getCurrentUserId());  &#125;  // 用ThreadLocal获取当前用户ID（登录时设置）  private Long getCurrentUserId() &#123; return BaseContext.getCurrentId(); &#125;&#125;
+实体类标注填充规则：@Datapublic class User &#123;  @TableField(fill = FieldFill.INSERT) // 插入时填充（创建时间/创建人）  private LocalDateTime createTime;  @TableField(fill = FieldFill.INSERT_UPDATE) // 插入+更新时填充（更新时间/更新人）  private LocalDateTime updateTime;  @TableField(fill = FieldFill.INSERT)  private Long createUser;&#125;
+实现 MetaObjectHandler：@Component // 必须交给Spring管理public class MyMetaObjectHandler implements MetaObjectHandler &#123;  @Override  public void insertFill(MetaObject metaObject) &#123;    // 严格模式：字段类型必须匹配（推荐）    this.strictInsertFill(metaObject, &quot;createTime&quot;, LocalDateTime.class, LocalDateTime.now());    this.strictInsertFill(metaObject, &quot;createUser&quot;, Long.class, getCurrentUserId());    this.strictInsertFill(metaObject, &quot;updateTime&quot;, LocalDateTime.class, LocalDateTime.now());  &#125;  @Override  public void updateFill(MetaObject metaObject) &#123;    this.strictUpdateFill(metaObject, &quot;updateTime&quot;, LocalDateTime.class, LocalDateTime.now());    this.strictUpdateFill(metaObject, &quot;updateUser&quot;, Long.class, getCurrentUserId());  &#125;  // 用ThreadLocal获取当前用户ID（登录时设置）  private Long getCurrentUserId() &#123; return BaseContext.getCurrentId(); &#125;&#125;
 
 6.2 高级功能
-ThreadLocal 存储用户：BaseContext类用static ThreadLocal&lt;Long&gt;存当前用户 ID，登录拦截器中设置；
+ThreadLocal 存储用户：BaseContext 类用 static ThreadLocal&lt;Long&gt; 存当前用户 ID，登录拦截器中设置；
 
 public class BaseContext &#123;
      private static ThreadLocal&lt;Long&gt; threadLocal = new ThreadLocal&lt;&gt;();
@@ -4557,92 +4504,42 @@ public class BaseContext &#123;
          return threadLocal.get();
          &#125;
  &#125;
-
-- 在登录过滤器或拦截器中设置⽤户ID：  ```java  //登录成功后设置  BaseContext.setCurrentId(loginUser.getId())
-
-
-
-
-填充模式：
-
-严格模式（strictInsertFill）：字段类型不匹配则不填充，安全性高；
-非严格模式（setFieldValByName）：更灵活，但易出错。
-
-// 严格模式（推荐）this.strictInsertFill(metaObject, &quot;createTime&quot;, LocalDateTime.class, LocalDateTime.now()); // ⾮严格模式metaObject.setValue(&quot;createTime&quot;, new Date());
-
-6.3 常见问题
-填充不生效：检查@Component是否添加、实体字段名与填充方法一致、strict 模式下类型匹配；
-时间类型：推荐用LocalDateTime（JDK8+），避免Date的线程安全问题。
-
-第 7 章：主键策略7.1 策略类型（IdType 枚举）
-
-
-策略值
-描述
-
-
-
-AUTO
-数据库自增（需表字段设 AUTO_INCREMENT）
-
-
-NONE
-跟随全局配置（默认全局为 ASSIGN_ID）
-
-
-INPUT
-手动设置主键（或实现 IKeyGenerator）
-
-
-ASSIGN_ID
-自动分配 ID（默认雪花算法，支持 Long&#x2F;String）
-
-
-ASSIGN_UUID
-自动分配 UUID（String 类型，无中划线）
-
-
-7.2 配置优先级
-局部注解（最高）：@TableId(type = IdType.AUTO) private Long id；
-@Data public class Permission &#123;    @TableId(value = &quot;id&quot;, type = IdType.AUTO) // 数据库⾃增    private Long id;    @TableId(type = IdType.ASSIGN_ID) // 雪花算法（默认）    private String orderId; &#125;
-
-全局配置（中）：
-mybatis-plus:  global-config:    db-config:      id-type: assign_id # 全局默认雪花算法
-
-默认策略（最低）：未配置时默认  ASSIGN_ID。
-
-
-7.3 策略详解
-雪花算法（ASSIGN_ID）： 默认实现类： DefaultIdentifierGenerator
-
-64 位 ID（1 符号位 + 41 时间戳 + 10 机器 ID+12 序列号），支持分布式，每秒生成 400 万 + ID；
-
-
-数据库自增（AUTO）：需表字段设AUTO_INCREMENT，适合单机项目；
-
-实体类配置：
- @TableId(type = IdType.AUTO)private Long id;
-
-
-UUID（ASSIGN_UUID）：无需数据库依赖，适合字符串主键场景。
-
-@TableId(type = IdType.ASSIGN_UUID)
- private String uuid;
-#### 7.4 自定义策略实现`IdentifierGenerator`接口：```java@Componentpublic class CustomIdGenerator implements IdentifierGenerator &#123;  @Override  public Long nextId(Object entity) &#123;    return IdWorker.getId(); // 自定义ID生成逻辑  &#125;&#125;
+* **在登录过滤器或拦截器中设置⽤户 ID：**
+//登录成功后设置
+BaseContext.setCurrentId(loginUser.getId())
+* **填充模式：**  * **严格模式（**`strictInsertFill`）：字段类型不匹配则不填充，安全性高；  * **非严格模式（**`setFieldValByName`）：更灵活，但易出错。
+// 严格模式（推荐）
+this.strictInsertFill(metaObject, &quot;createTime&quot;, LocalDateTime.class, LocalDateTime.now());
+ // ⾮严格模式
+metaObject.setValue(&quot;createTime&quot;, new Date());
+#### 6.3 常见问题* **填充不生效**：检查 `@Component` 是否添加、实体字段名与填充方法一致、strict 模式下类型匹配；* **时间类型**：推荐用 `LocalDateTime`（JDK8+），避免 `Date` 的线程安全问题。### 第 7 章：主键策略#### 7.1 策略类型（IdType 枚举）| **策略值**       | **描述**                                          || ---------------- | ------------------------------------------------- || **AUTO**         | **数据库自增（需表字段设 AUTO\_INCREMENT）**      || **NONE**         | **跟随全局配置（默认全局为 ASSIGN\_ID）**         || **INPUT**        | **手动设置主键（或实现 IKeyGenerator）**          || **ASSIGN\_ID**   | **自动分配 ID（默认雪花算法，支持 Long/String）** || **ASSIGN\_UUID** | **自动分配 UUID（String 类型，无中划线）**        |#### 7.2 配置优先级1. **局部注解（最高）**：`@TableId(type = IdType.AUTO) private Long id`；
+ @Data
+public class Permission &#123;
+   @TableId(value = &quot;id&quot;, type = IdType.AUTO) // 数据库⾃增
+   private Long id;
+   @TableId(type = IdType.ASSIGN_ID) // 雪花算法（默认）
+   private String orderId;
+&#125;
+ 2. **全局配置（中）：**
+ mybatis-plus:
+ global-config:
+   db-config:
+     id-type: assign_id # 全局默认雪花算法
 
 
 
+ 3. **默认策略（最低）**：未配置时默认 `ASSIGN_ID`。#### 7.3 策略详解* **雪花算法（ASSIGN\_ID）**： 默认实现类：`DefaultIdentifierGenerator`  * **64 位 ID（1 符号位 + 41 时间戳 + 10 机器 ID+12 序列号），支持分布式，每秒生成 400 万 + ID；*** **数据库自增（AUTO）**：需表字段设 `AUTO_INCREMENT`，适合单机项目；  * **实体类配置：**
+   @TableId(type &#x3D; IdType.AUTO)  private Long id;  * **UUID（ASSIGN\_UUID）**：无需数据库依赖，适合字符串主键场景。  * ```    @TableId(type = IdType.ASSIGN_UUID)     private String uuid;
 
+
+7.4 自定义策略实现IdentifierGenerator 接口：
+@Componentpublic class CustomIdGenerator implements IdentifierGenerator &#123;  @Override  public Long nextId(Object entity) &#123;    return IdWorker.getId(); // 自定义ID生成逻辑  &#125;&#125;
 
 第 8 章：逻辑删除（软删除）8.1 基础实现
-数据库准备：添加逻辑删除字段ALTER TABLE user ADD COLUMN deleted TINYINT DEFAULT 0 COMMENT &#39;逻辑删除标识&#39;；
-
+数据库准备：添加逻辑删除字段 ALTER TABLE user ADD COLUMN deleted TINYINT DEFAULT 0 COMMENT &#39;逻辑删除标识&#39;；
 配置方式：
-
 方式 1：实体类注解@TableLogic private Integer deleted；
-
-方式 2：全局配置（推荐，统一规则）：
-mybatis-plus:  global-config:    db-config:      logic-delete-field: deleted # 实体类字段名      logic-delete-value: 1 # 已删除值      logic-not-delete-value: 0 # 未删除值
+方式 2：全局配置（推荐，统一规则）：mybatis-plus:  global-config:    db-config:      logic-delete-field: deleted # 实体类字段名      logic-delete-value: 1 # 已删除值      logic-not-delete-value: 0 # 未删除值
 
 
 
@@ -4652,15 +4549,15 @@ mybatis-plus:  global-config:    db-config:      logic-delete-field: deleted # �
 查询：自动添加WHERE deleted=0（无需手动写条件）；
 
 
-无感知使用：调用userMapper.deleteById(id)即可触发逻辑删除，与物理删除用法一致。
+无感知使用：调用 userMapper.deleteById(id) 即可触发逻辑删除，与物理删除用法一致。
 
 8.3 注意事项
-性能优化：为deleted字段加索引（ALTER TABLE user ADD INDEX idx_deleted (deleted)）；
-查询已删除数据：用wrapper.last(&quot;OR deleted = 1&quot;)关闭自动过滤；
-自定义 SQL：手写 SQL 需手动处理deleted条件。
+性能优化：为 deleted 字段加索引（ALTER TABLE user ADD INDEX idx_deleted (deleted)）；
+查询已删除数据：用 wrapper.last(&quot;OR deleted = 1&quot;) 关闭自动过滤；
+自定义 SQL：手写 SQL 需手动处理 deleted 条件。
 
-8.4高级用法
-查询包含已删除数据
+8.4 高级用法
+**查询包含已删除数据 **
 
 // 1. 创建LambdaQueryWrapper，查询ID为1的用户（包含已删除数据）LambdaQueryWrapper&lt;User&gt; wrapper = Wrappers.lambdaQuery();wrapper.eq(User::getId, 1L) // 基础条件：ID = 1       .last(&quot;OR deleted = 1&quot;); // 关键：追加条件，包含已删除数据（假设已删除值为1）// 2. 执行查询：返回ID=1的所有数据（无论是否删除）List&lt;User&gt; userList = userMapper.selectList(wrapper);
 
@@ -4682,37 +4579,31 @@ mybatis-plus:  global-config:    db-config:      logic-delete-field: deleted # �
 
 
 注解配置
-在实体类字段上用 @TableLogic(value = &quot;...&quot;, delval = &quot;...&quot;) 配置
+在实体类字段上用@TableLogic(value = &quot;...&quot;, delval = &quot;...&quot;) 配置
 最高
 
 
 全局配置
-在 application.yml 中通过 mybatis-plus.global-config.db-config 配置
+在application.yml 中通过 mybatis-plus.global-config.db-config 配置
 中间
 
 
 默认配置
-未任何配置时，默认 “未删除 &#x3D; 0，已删除 &#x3D; 1”，逻辑删除字段名为 deleted
+未任何配置时，默认 “未删除 &#x3D; 0，已删除 &#x3D; 1”，逻辑删除字段名为deleted
 最低
 
 
 第 9 章：多数据源（动态切换）9.1 基础配置
-引入依赖：
-&lt;dependency&gt;  &lt;groupId&gt;com.baomidou&lt;/groupId&gt;  &lt;artifactId&gt;dynamic-datasource-spring-boot-starter&lt;/artifactId&gt;  &lt;version&gt;3.6.1&lt;/version&gt;&lt;/dependency&gt;
-
-YAML 配置（主从分离示例）：
-spring:  datasource:    dynamic:      primary: master # 默认数据源      strict: false # 不严格匹配数据源（不存在时用默认）      datasource:        master:          url: jdbc:mysql://你的数据库url?useSSL=false&amp;serverTimezone=UTC          username: root          password: root        slave1:          url: jdbc:mysql://你的数据库url?useSSL=false&amp;serverTimezone=UTC          username: root          password: 123456
+引入依赖：&lt;dependency&gt;  &lt;groupId&gt;com.baomidou&lt;/groupId&gt;  &lt;artifactId&gt;dynamic-datasource-spring-boot-starter&lt;/artifactId&gt;  &lt;version&gt;3.6.1&lt;/version&gt;&lt;/dependency&gt;
+YAML 配置（主从分离示例）：spring:  datasource:    dynamic:      primary: master # 默认数据源      strict: false # 不严格匹配数据源（不存在时用默认）      datasource:        master:          url: jdbc:mysql://你的数据库url?useSSL=false&amp;serverTimezone=UTC          username: root          password: root        slave1:          url: jdbc:mysql://你的数据库url?useSSL=false&amp;serverTimezone=UTC          username: root          password: 123456
 
 9.2 核心使用方式
-注解切换（@DS）：
-@Service@DS(&quot;slave1&quot;) // 类级别默认数据源public class UserServiceImpl &#123;  @DS(&quot;master&quot;) // 方法级别覆盖（优先级更高）  public void saveUser(User user) &#123; userMapper.insert(user); &#125;&#125;
-
-编程式切换（动态场景）：
-try &#123;  DynamicDataSourceContextHolder.push(&quot;slave2&quot;); // 切换到slave2  // 执行数据库操作&#125; finally &#123;  DynamicDataSourceContextHolder.clear(); // 必须清理，避免连接泄漏&#125;
+注解切换（@DS）：@Service@DS(&quot;slave1&quot;) // 类级别默认数据源public class UserServiceImpl &#123;  @DS(&quot;master&quot;) // 方法级别覆盖（优先级更高）  public void saveUser(User user) &#123; userMapper.insert(user); &#125;&#125;
+编程式切换（动态场景）：try &#123;  DynamicDataSourceContextHolder.push(&quot;slave2&quot;); // 切换到slave2  // 执行数据库操作&#125; finally &#123;  DynamicDataSourceContextHolder.clear(); // 必须清理，避免连接泄漏&#125;
 
 9.3 最佳实践
 连接池：推荐配合 Druid 或 HikariCP 使用；
-事务：跨数据源操作需用@DSTransactional（而非@Transactional）；
+事务：跨数据源操作需用 @DSTransactional（而非 @Transactional）；
 监控：集成 Actuator 监控各数据源连接状态。
 
 第 10 章：类型处理器（字段转换）10.1 内置 JSON 处理器（常用）
@@ -4723,51 +4614,39 @@ try &#123;  DynamicDataSourceContextHolder.push(&quot;slave2&quot;); // 切换�
 @Data@TableName(autoResultMap = true)public class User &#123;  @TableField(typeHandler = JacksonTypeHandler.class)  private Map&lt;String, String&gt; contact; // 自动转为JSON存储到数据库&#125;
 
 
-引入依赖：
-&lt;dependency&gt;  &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;  &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;  &lt;version&gt;2.13.3&lt;/version&gt;&lt;/dependency&gt;
+引入依赖：&lt;dependency&gt;  &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;  &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;  &lt;version&gt;2.13.3&lt;/version&gt;&lt;/dependency&gt;
 
 
-测试：插入时contact（Map）自动转 JSON，查询时自动转 Map。
+测试：插入时 contact（Map）自动转 JSON，查询时自动转 Map。
 
 
 10.2 注意事项
-@TableName(autoResultMap = true)必须加，否则查询时无法反序列化；
+@TableName(autoResultMap = true) 必须加，否则查询时无法反序列化；
 字段为 null 时，检查类型处理器是否注册、数据库字段是否允许 NULL。
 
 第 11 章：扩展插件（生产必备）11.1 分页插件（PaginationInnerInterceptor）@Configurationpublic class MybatisPlusConfig &#123;  @Bean  public MybatisPlusInterceptor mybatisPlusInterceptor() &#123;    MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();    // 设置数据库类型（MySQL/Oracle等）    interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));    return interceptor;  &#125;&#125;// 使用：查询第1页，每页10条，条件“status=1”Page&lt;User&gt; page = new Page&lt;&gt;(1, 10);userMapper.selectPage(page, Wrappers.&lt;User&gt;query().eq(&quot;status&quot;, 1));System.out.println(&quot;总记录数：&quot; + page.getTotal());
 
 11.2 乐观锁插件（OptimisticLockerInnerInterceptor）
 作用：解决高并发数据冲突（基于版本号）；
-
 配置：
-
 实体类加版本字段：@Version private Integer version；
 注册插件（同上MybatisPlusConfig）；
 
 
-测试：
-User user1 = userMapper.selectById(1L); // version=1User user2 = userMapper.selectById(1L); // version=1user1.setName(&quot;A&quot;);userMapper.updateById(user1); // 成功，version=2user2.setName(&quot;B&quot;);userMapper.updateById(user2); // 失败，version不匹配
+测试：User user1 = userMapper.selectById(1L); // version=1User user2 = userMapper.selectById(1L); // version=1user1.setName(&quot;A&quot;);userMapper.updateById(user1); // 成功，version=2user2.setName(&quot;B&quot;);userMapper.updateById(user2); // 失败，version不匹配
 
 11.3 防全表操作插件（BlockAttackInnerInterceptor）
-作用：阻止delete null&#x2F;update null（避免误删全表）；
-
-配置：注册插件后，执行userMapper.delete(null)会抛出MybatisPlusException。
-@Bean public MybatisPlusInterceptor mybatisPlusInterceptor() &#123; MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();    interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor()); return interceptor; &#125; // 测试⾮法操作（会抛出异常）userMapper.delete(null); // 抛出MybatisPlusException userMapper.update(new User(), null); // 抛出异常
+作用：阻止 delete null&#x2F;update null（避免误删全表）；
+配置：注册插件后，执行 userMapper.delete(null) 会抛出 MybatisPlusException。@Bean public MybatisPlusInterceptor mybatisPlusInterceptor() &#123; MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();    interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor()); return interceptor; &#125; // 测试⾮法操作（会抛出异常）userMapper.delete(null); // 抛出MybatisPlusException userMapper.update(new User(), null); // 抛出异常
 
 11.4 动态表名插件（DynamicTableNameInnerInterceptor）
-作用：按规则动态切换表名（如分年表order_2024&#x2F;order_2025）；
-
-配置：
-interceptor.addInnerInterceptor(new DynamicTableNameInnerInterceptor() &#123;&#123;  setTableNameHandler((sql, tableName) -&gt; &#123;    if (&quot;order&quot;.equals(tableName)) &#123;      return &quot;order_&quot; + LocalDate.now().getYear(); // 动态拼接年份    &#125;    return tableName;  &#125;);&#125;&#125;);
+作用：按规则动态切换表名（如分年表 order_2024&#x2F;order_2025）；
+配置：interceptor.addInnerInterceptor(new DynamicTableNameInnerInterceptor() &#123;&#123;  setTableNameHandler((sql, tableName) -&gt; &#123;    if (&quot;order&quot;.equals(tableName)) &#123;      return &quot;order_&quot; + LocalDate.now().getYear(); // 动态拼接年份    &#125;    return tableName;  &#125;);&#125;&#125;);
 
 11.5 多租户插件（TenantLineInnerInterceptor）
-作用：数据隔离（自动给 SQL 加tenant_id = ?条件）；
-
-配置：
-interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(new TenantLineHandler() &#123;  @Override  public Expression getTenantId() &#123;    return new LongValue(1L); // 从上下文获取当前租户ID（如ThreadLocal）  &#125;  @Override  public String getTenantIdColumn() &#123;    return &quot;tenant_id&quot;; // 租户字段名  &#125;&#125;)); // 实体类需包含tenant_id字段@Data public class User &#123;     private Long tenantId; &#125;
-
-实体类需包含tenant_id字段。
-
+作用：数据隔离（自动给 SQL 加 tenant_id = ? 条件）；
+配置：interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(new TenantLineHandler() &#123;  @Override  public Expression getTenantId() &#123;    return new LongValue(1L); // 从上下文获取当前租户ID（如ThreadLocal）  &#125;  @Override  public String getTenantIdColumn() &#123;    return &quot;tenant_id&quot;; // 租户字段名  &#125;&#125;)); // 实体类需包含tenant_id字段@Data public class User &#123;     private Long tenantId; &#125;
+实体类需包含tenant_id 字段。
 
 11.6 插件执行顺序（推荐）
 多租户插件（TenantLineInnerInterceptor）
@@ -4779,11 +4658,8 @@ interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(new TenantLineHan
 interceptor.addInnerInterceptor(new TenantLineInnerInterceptor()); // 多租户第⼀interceptor.addInnerInterceptor(new DynamicTableNameInnerInterceptor()); // 动态表名第⼆interceptor.addInnerInterceptor(new PaginationInnerInterceptor()); // 分⻚第三interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor()); // 乐观锁第四interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor()); // 防全表最后
 
 第 12 章：代码生成（效率提升 200%）12.1 基础配置（FastAutoGenerator）
-引入依赖：
-&lt;dependency&gt;  &lt;groupId&gt;com.baomidou&lt;/groupId&gt;  &lt;artifactId&gt;mybatis-plus-generator&lt;/artifactId&gt;  &lt;version&gt;3.5.1&lt;/version&gt;&lt;/dependency&gt;
-
-生成器类：
-public class AutoCodeGenerator &#123;  public static void main(String[] args) throws IOException &#123;    String url = &quot;jdbc:mysql://10.211.55.7:3306/mybatis_plus_demo?useSSL=false&amp;serverTimezone=UTC&quot;;    String username = &quot;root&quot;;    String password = &quot;root&quot;;    String tableName = &quot;test_code_generator&quot;; // 多表用逗号分隔    String projectPath = System.getProperty(&quot;user.dir&quot;);        FastAutoGenerator.create(new DataSourceConfig.Builder(url, username, password))      // 全局配置：作者、输出路径      .globalConfig(builder -&gt; builder.author(&quot;乐哥聊编程&quot;).outputDir(projectPath + &quot;/src/main/java&quot;))      // 包配置：父包名、模块名、各层包名      .packageConfig(builder -&gt; builder        .parent(&quot;com.lglbc&quot;)        .moduleName(&quot;demo&quot;)        .entity(&quot;entity&quot;)        .mapper(&quot;mapper&quot;)        .service(&quot;service&quot;)        .controller(&quot;controller&quot;)      )      // 策略配置：表名、主键策略、命名规则      .strategyConfig(builder -&gt; builder        .addInclude(tableName.split(&quot;,&quot;))        .entityBuilder()        .idType(IdType.AUTO)        .naming(NamingStrategy.underline_to_camel) // 下划线转驼峰        .columnNaming(NamingStrategy.underline_to_camel)        .RestControllerStyle() // Controller加@RestController      )      .templateEngine(new FreemarkerTemplateEngine()) // 模板引擎      .execute();  &#125;&#125;
+引入依赖：&lt;dependency&gt;  &lt;groupId&gt;com.baomidou&lt;/groupId&gt;  &lt;artifactId&gt;mybatis-plus-generator&lt;/artifactId&gt;  &lt;version&gt;3.5.1&lt;/version&gt;&lt;/dependency&gt;
+生成器类：public class AutoCodeGenerator &#123;  public static void main(String[] args) throws IOException &#123;    String url = &quot;jdbc:mysql://10.211.55.7:3306/mybatis_plus_demo?useSSL=false&amp;serverTimezone=UTC&quot;;    String username = &quot;root&quot;;    String password = &quot;root&quot;;    String tableName = &quot;test_code_generator&quot;; // 多表用逗号分隔    String projectPath = System.getProperty(&quot;user.dir&quot;);    FastAutoGenerator.create(new DataSourceConfig.Builder(url, username, password))      // 全局配置：作者、输出路径      .globalConfig(builder -&gt; builder.author(&quot;乐哥聊编程&quot;).outputDir(projectPath + &quot;/src/main/java&quot;))      // 包配置：父包名、模块名、各层包名      .packageConfig(builder -&gt; builder        .parent(&quot;com.lglbc&quot;)        .moduleName(&quot;demo&quot;)        .entity(&quot;entity&quot;)        .mapper(&quot;mapper&quot;)        .service(&quot;service&quot;)        .controller(&quot;controller&quot;)      )      // 策略配置：表名、主键策略、命名规则      .strategyConfig(builder -&gt; builder        .addInclude(tableName.split(&quot;,&quot;))        .entityBuilder()        .idType(IdType.AUTO)        .naming(NamingStrategy.underline_to_camel) // 下划线转驼峰        .columnNaming(NamingStrategy.underline_to_camel)        .RestControllerStyle() // Controller加@RestController      )      .templateEngine(new FreemarkerTemplateEngine()) // 模板引擎      .execute();  &#125;&#125;
 
 12.2 生成文件
 自动生成：实体类（含@Data&#x2F;@TableName）、Mapper 接口、Service（含 IService&#x2F;ServiceImpl）、Controller（含 CRUD 接口）。

@@ -501,123 +501,111 @@
       
     </header>
 
-    <div class="post-content"><hr>
-<h2 id="Data"><a href="#Data" class="headerlink" title="@Data"></a>@Data</h2><p>在实体类上加 @Data 注解，自动为该类生成 <strong>getter</strong> 和 <strong>setter</strong> 方法，以及 <strong>equals</strong>、<strong>hashCode</strong> 和 <strong>toString</strong> 方法。</p>
-<p>Lombok 实现代码生成的原理，其利用注解处理器机制，在编译过程中动态添加方法。干涉编译过程，实现代码生成。</p>
+    <div class="post-content"><h2 id="Data"><a href="#Data" class="headerlink" title="@Data"></a>@Data</h2><p><strong>在实体类上加 @Data 注解，自动为该类生成 *<em><strong>getter</strong> 和 <strong>setter</strong> 方法，以及 <strong>equals</strong>、</em>*hashCode</strong> 和 <strong>toString</strong> 方法。</p>
+<p><strong>Lombok 实现代码生成的原理，其利用注解处理器机制，在编译过程中动态添加方法。干涉编译过程，实现代码生成。</strong></p>
 <ul>
-<li><p>**<code>@Data</code>**：一站式注解，等价于 <code>@Getter @Setter @RequiredArgsConstructor @ToString @EqualsAndHashCode</code>，适合普通数据类（允许修改字段）。</p>
-</li>
-<li><p><code>@Value</code>：只读版本，等价于</p>
-<p><code>@Getter @FieldDefaults(makeFinal=true, level=PRIVATE) @AllArgsConstructor @ToString @EqualsAndHashCode</code>，类和字段自动为<code>final</code>（不可修改）。</p>
-<ul>
-<li>注意：Java 17+ 的 <strong>Record 类型</strong>可替代 <code>@Value</code>（Record 天生不可变，自动生成 equals&#x2F;hashCode 等），更推荐使用。</li>
+<li>**<code>@Data</code>**：一站式注解，等价于 <code>@Getter @Setter @RequiredArgsConstructor @ToString @EqualsAndHashCode</code>，适合普通数据类（允许修改字段）。</li>
+<li><code>@Value</code>：只读版本，等价于<br><code>@Getter @FieldDefaults(makeFinal=true, level=PRIVATE) @AllArgsConstructor @ToString @EqualsAndHashCode</code>，类和字段自动为 <code>final</code>（不可修改）。<ul>
+<li>**注意：Java 17+ 的 **<strong>Record 类型</strong>可替代 <code>@Value</code>（Record 天生不可变，自动生成 equals&#x2F;hashCode 等），更推荐使用。</li>
 </ul>
 </li>
 </ul>
-<h2 id="Getter"><a href="#Getter" class="headerlink" title="@Getter"></a>@Getter</h2><p>@Getter直接添加到类上或是字段上。命名规则：get+字段名首字母大写；</p>
+<h2 id="Getter"><a href="#Getter" class="headerlink" title="@Getter"></a>@Getter</h2><p><strong>@Getter 直接添加到类上或是字段上。命名规则：get+ 字段名首字母大写；</strong></p>
 <ul>
-<li>添加到类上时，将为类中所有字段添加Getter方法</li>
-<li>添加到字段上时，仅对此字段生效</li>
+<li><strong>添加到类上时，将为类中所有字段添加 Getter 方法</strong></li>
+<li><strong>添加到字段上时，仅对此字段生效</strong></li>
 </ul>
-<p>访问权限：<code>@Getter(AccessLevel.xxx) </code><br>有PUBLIC、PACKAGE、PRIVATE、PROTECTED、MODULE（仅限模块内使用，与PACKAGE类似，相当于不添加任何访问权限关键字。）、NONE</p>
-<p>添加额外注解： <code>@Getter(onMethod_ = &#123; xxx... &#125;)</code>，花括号里面为注解。 如：<code>@Getter(onMethod_ = &#123; @Deprecated &#125;)</code></p>
-<p>懒加载（一开始的时候此字段没有值，当我们需要的时候再将值添加到此处；字段必须是private且final的），<code>lazy=true</code>：单例模式</p>
-<h2 id="Setter"><a href="#Setter" class="headerlink" title="@Setter"></a>@Setter</h2><p>参数与<code>@Getter</code>用法一致，命名规则：set+字段名首字母大写；唯一一个不一样的参数为<code>onParam</code>，它可以在形参上的额外添加的自定义注解。</p>
+<p><strong>访问权限：</strong><code>@Getter(AccessLevel.xxx) </code> <strong>有 PUBLIC、PACKAGE、PRIVATE、PROTECTED、MODULE（仅限模块内使用，与 PACKAGE 类似，相当于不添加任何访问权限关键字。）、NONE</strong></p>
+<p>**添加额外注解： **<code>@Getter(onMethod_ = &#123; xxx... &#125;)</code>，花括号里面为注解。 如：<code>@Getter(onMethod_ = &#123; @Deprecated &#125;)</code></p>
+<p><strong>懒加载（一开始的时候此字段没有值，当我们需要的时候再将值添加到此处；字段必须是 private 且 final 的），</strong><code>lazy=true</code>：单例模式</p>
+<h2 id="Setter"><a href="#Setter" class="headerlink" title="@Setter"></a>@Setter</h2><p><strong>参数与</strong><code>@Getter</code> 用法一致，命名规则：set+ 字段名首字母大写；唯一一个不一样的参数为 <code>onParam</code>，它可以在形参上的额外添加的自定义注解。</p>
 <blockquote>
-<p>如果我们手动编写了对应字段的Getter或Setter方法（按照上述命名规则进行判断）那么Lombok提供的注解将不会生效，也不会覆盖我们自己编写的方法，但是仅限于同名不同参的情况;</p>
-<p>如果出现同名不同参数的情况导致误判，我们也可以使用<code>@Tolerate</code>注解使Lombok忽略它的存在，继续生成。</p>
+<p><strong>如果我们手动编写了对应字段的 Getter 或 Setter 方法（按照上述命名规则进行判断）那么 Lombok 提供的注解将不会生效，也不会覆盖我们自己编写的方法，但是仅限于同名不同参的情况;</strong></p>
+<p><strong>如果出现同名不同参数的情况导致误判，我们也可以使用</strong><code>@Tolerate</code> 注解使 Lombok 忽略它的存在，继续生成。</p>
 </blockquote>
-<h2 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h2><p>Lombok 提供了三个用于处理构造方法的注解：</p>
+<h2 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h2><p><strong>Lombok 提供了三个用于处理构造方法的注解：</strong></p>
 <ol>
-<li><p><code>@NoArgsConstructor</code>：为类生成无参构造方法（不包含任何参数）。</p>
-<ul>
+<li><code>@NoArgsConstructor</code>：为类生成无参构造方法（不包含任何参数）。<ul>
 <li><code>access</code>：指定构造方法的访问修饰符（默认 <code>public</code>），其可选值为 <code>AccessLevel</code> 枚举。</li>
-<li><code>force</code>：当类中包含 <code>final</code> 字段时，默认情况下使用 <code>@NoArgsConstructor</code> 会报错（因为 <code>final</code> 字段必须初始化）。<br>若设置 <code>force = true</code>，Lombok 会强制生成无参构造，并将 <code>final</code> 字段初始化为默认值（如 <code>0</code>、<code>false</code>、<code>null</code> 等）。</li>
+<li><code>force</code>：当类中包含 <code>final</code> 字段时，默认情况下使用 <code>@NoArgsConstructor</code> 会报错（因为 <code>final</code> 字段必须初始化）。** **若设置 <code>force = true</code>，Lombok 会强制生成无参构造，并将 <code>final</code> 字段初始化为默认值（如 <code>0</code>、<code>false</code>、<code>null</code> 等）。</li>
 </ul>
 </li>
-<li><p><code>@AllArgsConstructor</code>：为类生成包含<strong>所有字段</strong>的构造方法（无论字段是否为 <code>final</code>、是否有初始值）。</p>
-<ul>
-<li><p><code>access</code>：同 <code>@NoArgsConstructor</code>，指定构造方法的访问修饰符（默认 <code>public</code>）。</p>
-<blockquote>
-<p>构造参数的顺序与类中字段<strong>声明的顺序一致</strong>。</p>
+<li><code>@AllArgsConstructor</code>：为类生成包含<strong>所有字段</strong>的构造方法（无论字段是否为 <code>final</code>、是否有初始值）。<ul>
+<li><code>access</code>：同 <code>@NoArgsConstructor</code>，指定构造方法的访问修饰符（默认 <code>public</code>）。<blockquote>
+<p><strong>构造参数的顺序与类中字段****声明的顺序一致</strong>。</p>
 </blockquote>
 </li>
 </ul>
 </li>
-<li><p><code>@RequiredArgsConstructor</code>：为类生成包含<strong>必要字段</strong>的构造方法。</p>
-<ul>
-<li><p><code>access</code>：同前两个注解，指定访问修饰符（默认 <code>public</code>）。</p>
-</li>
-<li><p><code>staticName</code>：若指定该参数（如 <code>staticName = &quot;of&quot;</code>），则不生成构造方法，而是生成一个<strong>静态工厂方法</strong>，通过该方法创建实例。</p>
-<blockquote>
+<li><code>@RequiredArgsConstructor</code>：为类生成包含<strong>必要字段</strong>的构造方法。<ul>
+<li><code>access</code>：同前两个注解，指定访问修饰符（默认 <code>public</code>）。</li>
+<li><code>staticName</code>：若指定该参数（如 <code>staticName = &quot;of&quot;</code>），则不生成构造方法，而是生成一个<strong>静态工厂方法</strong>，通过该方法创建实例。<blockquote>
 <h4 id="「必要字段」定义："><a href="#「必要字段」定义：" class="headerlink" title="「必要字段」定义："></a>「必要字段」定义：</h4><ul>
-<li>被 <code>final</code> 修饰且<strong>未初始化</strong>的字段（必须在构造时赋值）。</li>
-<li>被 <code>@NonNull</code> 注解标记的字段（无论是否为 <code>final</code>，需保证非空）。</li>
+<li><strong>被 <strong><code>final</code> 修饰且</strong>未初始化</strong>的字段（必须在构造时赋值）。</li>
+<li>**被 **<code>@NonNull</code> 注解标记的字段（无论是否为 <code>final</code>，需保证非空）。</li>
 </ul>
 </blockquote>
 </li>
 </ul>
 </li>
 </ol>
-<h2 id="ToString"><a href="#ToString" class="headerlink" title="@ToString"></a>@ToString</h2><p>最简单的toString方法生成，只需要在类上添加一个<code>@ToString</code>注解即可。</p>
-<p>@ToString常用参数：</p>
+<h2 id="ToString"><a href="#ToString" class="headerlink" title="@ToString"></a>@ToString</h2><p><strong>最简单的 toString 方法生成，只需要在类上添加一个</strong><code>@ToString</code> 注解即可。</p>
+<p><strong>@ToString 常用参数：</strong></p>
 <ul>
-<li><p><code>exclude</code>：</p>
-<ul>
-<li><p>指定需要<strong>排除</strong>的字段，这些字段不会出现在 <code>toString()</code> 的结果中。<strong>默认值</strong>：空数组</p>
-</li>
-<li><pre><code class="java">默认值：空数组@ToString(exclude = &#123;&quot;password&quot;, &quot;age&quot;&#125;) // 排除password和age字段
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- `of`：</span><br><span class="line"></span><br><span class="line">  - 指定需要**包含**的字段（白名单），仅这些字段会出现在 `toString()` 结果中（与 `exclude` 互斥，不能同时使用）。**默认值**：空数组（若未指定，默认包含所有字段）</span><br><span class="line"></span><br><span class="line">  - ```java</span><br><span class="line">    @ToString(of = &#123;&quot;username&quot;, &quot;email&quot;&#125;) // 只包含这两个字段</span><br></pre></td></tr></table></figure>
+<li><code>exclude</code>：<ul>
+<li><strong>指定需要****排除</strong>的字段，这些字段不会出现在 <code>toString()</code> 的结果中。<strong>默认值</strong>：空数组</li>
+<li><pre><code>默认值：空数组@ToString(exclude = &#123;&quot;password&quot;, &quot;age&quot;&#125;) // 排除password和age字段
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">* `of`：</span><br><span class="line">  * **指定需要****包含**的字段（白名单），仅这些字段会出现在 `toString()` 结果中（与 `exclude` 互斥，不能同时使用）。**默认值**：空数组（若未指定，默认包含所有字段）</span><br><span class="line">  * ```</span><br><span class="line">    @ToString(of = &#123;&quot;username&quot;, &quot;email&quot;&#125;) // 只包含这两个字段</span><br></pre></td></tr></table></figure>
 </code></pre>
 </li>
 </ul>
 </li>
-<li><p><code>includeFieldNames</code>：</p>
-<ul>
-<li><p>控制是否在 <code>toString()</code> 中显示<strong>字段名</strong>（如 <code>name=张三</code> 中的 <code>name=</code>）。<strong>默认值</strong>：<code>true</code>（显示字段名）</p>
-</li>
-<li><pre><code class="java">@ToString(includeFieldNames = false) // 打印结果不显示字段名
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- `callSuper`：</span><br><span class="line"></span><br><span class="line">  - 控制是否在 `toString()` 中**包含父类的 `toString()` 结果**。**默认值**：`false`（不包含父类信息）</span><br><span class="line"></span><br><span class="line">  - ```java</span><br><span class="line">    @ToString(callSuper = true) // 包含父类的toString结果</span><br></pre></td></tr></table></figure>
+<li><code>includeFieldNames</code>：<ul>
+<li><strong>控制是否在 <strong><code>toString()</code> 中显示</strong>字段名</strong>（如 <code>name=张三</code> 中的 <code>name=</code>）。<strong>默认值</strong>：<code>true</code>（显示字段名）</li>
+<li><pre><code>@ToString(includeFieldNames = false) // 打印结果不显示字段名
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">* `callSuper`：</span><br><span class="line">  * **控制是否在 **`toString()` 中**包含父类的 `toString()` 结果**。**默认值**：`false`（不包含父类信息）</span><br><span class="line">  * ```</span><br><span class="line">    @ToString(callSuper = true) // 包含父类的toString结果</span><br></pre></td></tr></table></figure>
 </code></pre>
 </li>
 </ul>
 </li>
-<li><p><code>doNotUseGetters</code>：</p>
-<ul>
-<li><p>控制是否<strong>直接访问字段</strong>（而非通过 getter 方法）获取值。<strong>默认值</strong>：<code>false</code></p>
-</li>
-<li><pre><code class="java">@ToString(doNotUseGetters = true) // 直接访问字段，不调用getter
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- `onlyExplicitlyIncluded`：</span><br><span class="line"></span><br><span class="line">  - 仅包含被 `@ToString.Include` 注解标记的字段或方法（精确控制包含内容）。**默认值**：`false`（默认包含所有字段，除非被 `exclude` 排除）</span><br><span class="line">  - `@ToString.Include` 用于标记需要包含的字段或方法，可单独修饰字段或方法（方法会被执行并将返回值加入 `toString`）。</span><br><span class="line"></span><br><span class="line">## @EqualsAndHashCode</span><br><span class="line"></span><br><span class="line">自动生成 `equals()` 和 `hashCode()` 方法，默认基于类中**所有非静态、非 transient 字段**进行判断和计算，避免手动编写时的冗余和错误。</span><br><span class="line"></span><br><span class="line">| 参数 / 注解              | 作用                                                      | 注意事项                                                     |</span><br><span class="line">| ------------------------ | --------------------------------------------------------- | ------------------------------------------------------------ |</span><br><span class="line">| `exclude`                | 排除指定字段（不参与 equals/hashCode）                    | 与 `of` 互斥，不可同时使用                                   |</span><br><span class="line">| `of`                     | 仅包含指定字段（白名单，仅这些字段参与）                  | 与 `exclude` 互斥                                            |</span><br><span class="line">| `callSuper`              | 是否包含父类的 equals/hashCode 结果（即父类字段是否参与） | 默认 `false`；父类未重写 equals 时（用 Object 实现），开启可能导致逻辑错误 |</span><br><span class="line">| `onlyExplicitlyIncluded` | 仅包含被 `@Include` 标记的字段 / 方法                     | 需配合 `@EqualsAndHashCode.Include` 使用                     |</span><br><span class="line">| `@Include`               | 标记参与计算的字段 / 方法（支持方法返回值）               | 可通过 `replaces = &quot;字段名&quot;` 替代指定字段的比较              |</span><br><span class="line">| `@Exclude`               | 标记不参与计算的字段                                      | 无需开启 `onlyExplicitlyIncluded`，直接生效                  |</span><br><span class="line">| `cacheStrategy`          | 控制 hashCode 缓存策略（`NEVER`/`LAZY`）                  | `LAZY` 适合不可变类（字段值不变），可变类使用可能导致哈希值与实际状态不一致 |</span><br><span class="line"></span><br><span class="line">1. **方法参与计算**：</span><br><span class="line"></span><br><span class="line">   `@EqualsAndHashCode.Include` 可标记无参方法，其返回值会纳入 equals 和 hashCode 计算。例如：</span><br><span class="line"></span><br><span class="line">   ```java</span><br><span class="line">   @EqualsAndHashCode(onlyExplicitlyIncluded = true)</span><br><span class="line">   public class User &#123;</span><br><span class="line">       private String name;</span><br><span class="line">       private int age;</span><br><span class="line">       </span><br><span class="line">       @EqualsAndHashCode.Include(name = &quot;adult&quot;)</span><br><span class="line">       public boolean isAdult() &#123; // 用方法结果参与比较</span><br><span class="line">           return age &gt;= 18;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<li><code>doNotUseGetters</code>：<ul>
+<li><strong>控制是否****直接访问字段</strong>（而非通过 getter 方法）获取值。<strong>默认值</strong>：<code>false</code></li>
+<li><pre><code>@ToString(doNotUseGetters = true) // 直接访问字段，不调用getter
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">* `onlyExplicitlyIncluded`：</span><br><span class="line">  * **仅包含被 **`@ToString.Include` 注解标记的字段或方法（精确控制包含内容）。**默认值**：`false`（默认包含所有字段，除非被 `exclude` 排除）</span><br><span class="line">  * `@ToString.Include` 用于标记需要包含的字段或方法，可单独修饰字段或方法（方法会被执行并将返回值加入 `toString`）。</span><br><span class="line"></span><br><span class="line">## @EqualsAndHashCode</span><br><span class="line"></span><br><span class="line">**自动生成 **`equals()` 和 `hashCode()` 方法，默认基于类中**所有非静态、非 transient 字段**进行判断和计算，避免手动编写时的冗余和错误。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">| **参数 / 注解**          | **作用**                                                      | **注意事项**                                                                  |</span><br><span class="line">| ------------------------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------- |</span><br><span class="line">| `exclude`                | **排除指定字段（不参与 equals/hashCode）**                    | **与**`of` 互斥，不可同时使用                                                 |</span><br><span class="line">| `of`                     | **仅包含指定字段（白名单，仅这些字段参与）**                  | **与**`exclude` 互斥                                                          |</span><br><span class="line">| `callSuper`              | **是否包含父类的 equals/hashCode 结果（即父类字段是否参与）** | **默认**`false`；父类未重写 equals 时（用 Object 实现），开启可能导致逻辑错误 |</span><br><span class="line">| `onlyExplicitlyIncluded` | **仅包含被**`@Include` 标记的字段 / 方法                      | **需配合**`@EqualsAndHashCode.Include` 使用                                   |</span><br><span class="line">| `@Include`               | **标记参与计算的字段 / 方法（支持方法返回值）**               | **可通过**`replaces = &quot;字段名&quot;` 替代指定字段的比较                            |</span><br><span class="line">| `@Exclude`               | **标记不参与计算的字段**                                      | **无需开启**`onlyExplicitlyIncluded`，直接生效                                |</span><br><span class="line">| `cacheStrategy`          | **控制 hashCode 缓存策略（**`NEVER`/`LAZY`）                  | `LAZY` 适合不可变类（字段值不变），可变类使用可能导致哈希值与实际状态不一致   |</span><br><span class="line"></span><br><span class="line">1. **方法参与计算**：</span><br><span class="line">   `@EqualsAndHashCode.Include` 可标记无参方法，其返回值会纳入 equals 和 hashCode 计算。例如：</span><br></pre></td></tr></table></figure>
+ @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+ public class User &#123;
+   private String name;
+   private int age;
+   
+   @EqualsAndHashCode.Include(name = &quot;adult&quot;)
+   public boolean isAdult() &#123; // 用方法结果参与比较
+       return age &gt;= 18;
+   &#125;
 </code></pre>
 </li>
 </ul>
+<p> }<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2. **`replaces` 属性**：</span><br><span class="line">   **用方法结果替代指定字段的比较，例如：**</span><br></pre></td></tr></table></figure><br> @EqualsAndHashCode(onlyExplicitlyIncluded &#x3D; true)<br> public class User {<br>     private int id;<br>     <br>     @EqualsAndHashCode.Include(replaces &#x3D; “id”) &#x2F;&#x2F; 替代 id 字段的比较<br>     public int normalizedId() {<br>         return Math.abs(id); &#x2F;&#x2F; 用绝对值参与比较<br>     }<br> }<br> &#96;&#96;&#96;</p>
 </li>
 </ul>
-<ol start="2">
-<li><p><strong><code>replaces</code> 属性</strong>：</p>
-<p>用方法结果替代指定字段的比较，例如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EqualsAndHashCode(onlyExplicitlyIncluded = true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> id;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@EqualsAndHashCode</span>.Include(replaces = <span class="string">&quot;id&quot;</span>) <span class="comment">// 替代 id 字段的比较</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">normalizedId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Math.abs(id); <span class="comment">// 用绝对值参与比较</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>缓存策略（<code>LAZY</code>）</strong>：</p>
-<p>第一次计算 hashCode 后缓存结果，后续直接返回，适合<strong>不可变类</strong>（字段值不会修改）。若字段可变，缓存的哈希值会与实际状态脱节，导致集合（如 HashMap）操作异常。</p>
-<blockquote>
-<p>可变类慎用 <code>cacheStrategy = LAZY</code>，避免哈希值与对象实际状态不一致。</p>
+<ol start="3">
+<li><strong>缓存策略（<code>LAZY</code>）</strong>：<br><strong>第一次计算 hashCode 后缓存结果，后续直接返回，适合****不可变类</strong>（字段值不会修改）。若字段可变，缓存的哈希值会与实际状态脱节，导致集合（如 HashMap）操作异常。<blockquote>
+<p>**可变类慎用 **<code>cacheStrategy = LAZY</code>，避免哈希值与对象实际状态不一致。</p>
 </blockquote>
 </li>
 </ol>
-<h2 id="Accessors强化注解"><a href="#Accessors强化注解" class="headerlink" title="Accessors强化注解"></a>Accessors强化注解</h2><p>Lombok为我们提供了一个<code>@Accessors</code>注解，用于配置lombok如何生成和查找getters和setters 即 用于<strong>强化 getter 和 setter 方法的生成规则</strong>，提供更灵活的访问器风格（如链式调用、fluent 风格等）</p>
+<h2 id="Accessors-强化注解"><a href="#Accessors-强化注解" class="headerlink" title="Accessors 强化注解"></a>Accessors 强化注解</h2><p><strong>Lombok 为我们提供了一个</strong><code>@Accessors</code> 注解，用于配置 lombok 如何生成和查找 getters 和 setters 即 用于<strong>强化 getter 和 setter 方法的生成规则</strong>，提供更灵活的访问器风格（如链式调用、fluent 风格等）</p>
 <p><strong>常用参数</strong>：</p>
 <ul>
 <li><code>fluent</code>（流畅风格、简化前缀）<ul>
-<li>生成的 getter&#x2F;setter 方法名直接使用<strong>字段名</strong>，而非默认的 <code>getXxx()</code>&#x2F;<code>setXxx(...)</code>。<strong>默认值</strong>：<code>false</code></li>
+<li><strong>生成的 getter&#x2F;setter 方法名直接使用****字段名</strong>，而非默认的 <code>getXxx()</code>&#x2F;<code>setXxx(...)</code>。<strong>默认值</strong>：<code>false</code></li>
 </ul>
 </li>
 <li><code>chain</code>（链式调用）<ul>
-<li>让 setter 方法返回当前对象（<code>this</code>），而非默认的 <code>void</code>，支持连续调用多个 setter。</li>
+<li><strong>让 setter 方法返回当前对象（</strong><code>this</code>），而非默认的 <code>void</code>，支持连续调用多个 setter。</li>
 </ul>
 </li>
 <li><code>prefix</code>（字段前缀）<ul>
-<li>指定字段的前缀，生成 getter&#x2F;setter 时会自动忽略前缀，仅保留后续部分作为方法名。</li>
+<li><strong>指定字段的前缀，生成 getter&#x2F;setter 时会自动忽略前缀，仅保留后续部分作为方法名。</strong></li>
 </ul>
 </li>
 </ul>
