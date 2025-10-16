@@ -4284,7 +4284,7 @@ IService 接口提供了比 BaseMapper 更丰富的 CRUD 操作，以下通过�
 
 2.4 自定义方法在 Service 接口定义List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge)，实现类用 LambdaQueryWrapper 实现条件查询。
 一、Service 接口定义（自定义方法声明）**在 **UserService 接口中继承 IService&lt;User&gt;，并添加自定义方法 selectByAgeRange，用于根据传入的最小年龄和最大年龄查询用户列表。
-import com.baomidou.mybatisplus.extension.service.IService;import java.util.List;// 继承IService&lt;User&gt;获得基础CRUD能力，同时声明自定义方法public interface UserService extends IService&lt;User&gt; &#123;    // 自定义方法：根据年龄范围（minAge~maxAge）查询用户列表    List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge);&#125;
+import com.baomidou.mybatisplus.extension.service.IService;import java.util.List;// 继承IService&lt;User&gt;获得基础CRUD能力，同时声明自定义方法public interface UserService extends IService&lt;User&gt; &#123;    // 自定义方法：根据年龄范围（minAge\x7emaxAge）查询用户列表    List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge);&#125;
 
 二、Service 实现类（自定义方法逻辑实现）**创建 **UserServiceImpl 类，继承 ServiceImpl&lt;UserMapper, User&gt; 并实现 UserService 接口，在自定义方法中通过 LambdaQueryWrapper 构建 “年龄在 minAge 和 maxAge 之间” 的查询条件，最终调用 this.list(wrapper) 执行查询。
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;import org.springframework.stereotype.Service;import java.util.List;@Service // 交给Spring容器管理，确保能被注入使用public class UserServiceImpl extends ServiceImpl&lt;UserMapper, User&gt; implements UserService &#123;    // 实现自定义方法：按年龄范围查询    @Override    public List&lt;User&gt; selectByAgeRange(Integer minAge, Integer maxAge) &#123;        // 1. 创建LambdaQueryWrapper（类型安全，避免字段硬编码）        LambdaQueryWrapper&lt;User&gt; wrapper = new LambdaQueryWrapper&lt;&gt;();        // 2. 构建条件：年龄 between minAge 和 maxAge（包含边界值）        wrapper.between(User::getAge, minAge, maxAge);        // 3. 调用list()方法执行查询，返回符合条件的用户列表        return this.list(wrapper);    &#125;&#125;
@@ -6776,6 +6776,130 @@ interceptor.addInnerInterceptor(new TenantLineInnerInterceptor()); // 多租户�
     
 
 
+]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/%E5%B8%83%E5%B8%83%E8%A7%A3%E7%AD%94/index.html</url>
+    <content><![CDATA[
+
+  
+    
+    
+    布布解答
+    
+    
+    
+      body {
+        background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+      }
+      .backdrop-blur-sm {
+        backdrop-filter: blur(4px);
+      }
+    
+  
+  
+    
+      
+        布布解答
+        
+        
+        
+          
+            
+          
+          
+            提交问题
+          
+        
+        
+        
+        
+          
+            
+          
+          
+            
+          
+          
+            重新提问
+          
+        
+      
+    
+
+    
+      // 获取DOM元素
+      const inputSection = document.getElementById('input-section');
+      const answerSection = document.getElementById('answer-section');
+      const questionInput = document.getElementById('question-input');
+      const submitBtn = document.getElementById('submit-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const answerContent = document.getElementById('answer-content');
+      const answerContentEn = document.getElementById('answer-content-en');
+      
+      // 提交问题
+      submitBtn.addEventListener('click', function() {
+        const question = questionInput.value.trim();
+        if (!question) {
+          alert('请输入问题');
+          return;
+        }
+        
+        // 显示加载状态
+        submitBtn.textContent = '加载中...';
+        submitBtn.disabled = true;
+        
+        // 模拟API调用（实际应替换为真实API）
+        axios.get('https://60api.09cdn.xyz/v2/answer')
+          .then(function (response) {
+            // 显示答案区域，隐藏输入区域
+            inputSection.classList.add('hidden');
+            answerSection.classList.remove('hidden');
+            
+            // 填充答案内容
+            answerContent.textContent = response.data.data.answer || '暂无中文回答';
+            answerContentEn.textContent = response.data.data.answer_en || 'No English answer available';
+          })
+          .catch(function (error) {
+            console.error(error);
+            answerContent.textContent = '获取答案失败，请稍后重试';
+            answerContentEn.textContent = '';
+            inputSection.classList.add('hidden');
+            answerSection.classList.remove('hidden');
+          })
+          .finally(() => {
+            // 恢复按钮状态
+            submitBtn.textContent = '提交问题';
+            submitBtn.disabled = false;
+          });
+      });
+      
+      // 重置页面
+      resetBtn.addEventListener('click', function() {
+        // 清空输入框
+        questionInput.value = '';
+        
+        // 隐藏答案区域，显示输入区域
+        answerSection.classList.add('hidden');
+        inputSection.classList.remove('hidden');
+        
+        // 重置焦点到输入框
+        questionInput.focus();
+      });
+      
+      // 回车提交
+      questionInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          submitBtn.click();
+        }
+      });
+    
+  
 ]]></content>
   </entry>
 </search>

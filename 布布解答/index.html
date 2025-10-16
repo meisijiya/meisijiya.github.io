@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>布布解答</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+      body {
+        background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+      }
+      .backdrop-blur-sm {
+        backdrop-filter: blur(4px);
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-md bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
+      <div class="p-6">
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">布布解答</h1>
+        
+        <!-- 输入区域 -->
+        <div id="input-section" class="space-y-4">
+          <div class="relative">
+            <input 
+              type="text" 
+              id="question-input" 
+              placeholder="请输入您的问题..." 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button 
+            id="submit-btn" 
+            class="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300"
+          >
+            提交问题
+          </button>
+        </div>
+        
+        <!-- 答案显示区域 -->
+        <div id="answer-section" class="hidden space-y-4">
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <p id="answer-content" class="text-gray-800"></p>
+          </div>
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <p id="answer-content-en" class="text-gray-800"></p>
+          </div>
+          <button 
+            id="reset-btn" 
+            class="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-300"
+          >
+            重新提问
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 获取DOM元素
+      const inputSection = document.getElementById('input-section');
+      const answerSection = document.getElementById('answer-section');
+      const questionInput = document.getElementById('question-input');
+      const submitBtn = document.getElementById('submit-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const answerContent = document.getElementById('answer-content');
+      const answerContentEn = document.getElementById('answer-content-en');
+      
+      // 提交问题
+      submitBtn.addEventListener('click', function() {
+        const question = questionInput.value.trim();
+        if (!question) {
+          alert('请输入问题');
+          return;
+        }
+        
+        // 显示加载状态
+        submitBtn.textContent = '加载中...';
+        submitBtn.disabled = true;
+        
+        // 模拟API调用（实际应替换为真实API）
+        axios.get('https://60api.09cdn.xyz/v2/answer')
+          .then(function (response) {
+            // 显示答案区域，隐藏输入区域
+            inputSection.classList.add('hidden');
+            answerSection.classList.remove('hidden');
+            
+            // 填充答案内容
+            answerContent.textContent = response.data.data.answer || '暂无中文回答';
+            answerContentEn.textContent = response.data.data.answer_en || 'No English answer available';
+          })
+          .catch(function (error) {
+            console.error(error);
+            answerContent.textContent = '获取答案失败，请稍后重试';
+            answerContentEn.textContent = '';
+            inputSection.classList.add('hidden');
+            answerSection.classList.remove('hidden');
+          })
+          .finally(() => {
+            // 恢复按钮状态
+            submitBtn.textContent = '提交问题';
+            submitBtn.disabled = false;
+          });
+      });
+      
+      // 重置页面
+      resetBtn.addEventListener('click', function() {
+        // 清空输入框
+        questionInput.value = '';
+        
+        // 隐藏答案区域，显示输入区域
+        answerSection.classList.add('hidden');
+        inputSection.classList.remove('hidden');
+        
+        // 重置焦点到输入框
+        questionInput.focus();
+      });
+      
+      // 回车提交
+      questionInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          submitBtn.click();
+        }
+      });
+    </script>
+  </body>
+</html>
