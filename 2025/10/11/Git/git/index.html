@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>git详解 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container">
+          <a href="javascript:;" onclick="toggleSearchInput()">🔍</a>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div class="search-container mobile-container">
+          <a class="menu-item" href="javascript:;" onclick="toggleSearchInput()"
+            >🔍</a
+          >
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script>
+  var mobileBtn = function f() {
+    var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+    var mobileMenu = document.getElementById("mobile-menu");
+    if (toggleMenu.classList.contains("active")) {
+      toggleMenu.classList.remove("active");
+      mobileMenu.classList.remove("active");
+    } else {
+      toggleMenu.classList.add("active");
+      mobileMenu.classList.add("active");
+    }
+  };
+
+  function toggleSearchInput() {
+    const inputs = document.querySelectorAll(".nav-search-input");
+    const results = document.querySelectorAll(".nav-search-result");
+    inputs.forEach((input) => {
+      input.classList.toggle("active");
+      if (input.classList.contains("active")) input.focus();
+    });
+    results.forEach((r) => (r.style.display = "none"));
+  }
+
+  // 点击外部区域隐藏搜索框和结果容器的函数
+  function handleClickOutsideSearch(event) {
+    const searchContainers = document.querySelectorAll(".search-container");
+    searchContainers.forEach((container) => {
+      const searchInput = container.querySelector(".nav-search-input");
+      const searchIcon = container.querySelector("a");
+
+      // 如果点击的元素不是搜索输入框或搜索图标，则隐藏搜索框和结果容器
+      if (
+        !searchInput.contains(event.target) &&
+        !searchIcon.contains(event.target)
+      ) {
+        searchInput.classList.remove("active");
+        searchInput.value = ""
+        // 根据输入框ID确定对应的结果容器
+        let resultContainer;
+        if (searchInput.id === "nav-search-input-mobile") {
+          // 移动端结果容器
+          resultContainer = document.querySelector(
+            ".navbar-mobile .nav-search-result"
+          );
+        } else {
+          // 桌面端结果容器
+          resultContainer = document.getElementById(
+            "nav-search-result-desktop"
+          );
+        }
+
+        if (resultContainer) {
+          resultContainer.style.display = "none";
+          resultContainer.innerHTML = ""; // 清空结果容器内容
+        }
+      }
+    });
+  }
+
+  // 添加全局点击事件监听器
+  document.addEventListener("click", function (event) {
+    handleClickOutsideSearch(event);
+  });
+
+  // 新增：搜索功能实现
+  let searchData = []; // 全局变量存储搜索数据
+
+  // 页面加载完成后获取搜索数据
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/search.xml")
+      .then((res) => res.text())
+      .then((xmlText) => {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+        const entries = xml.getElementsByTagName("entry");
+        for (let entry of entries) {
+          searchData.push({
+            title: entry.getElementsByTagName("title")[0]?.textContent || "",
+            content:
+              entry.getElementsByTagName("content")[0]?.textContent || "",
+            url: entry.getElementsByTagName("url")[0]?.textContent || "",
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load search data:", err);
+      });
+  });
+
+  // 新增：导航搜索方法
+  function navSearch(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    // 查找对应的搜索结果容器
+    let resultContainer;
+
+    if (inputElement.id === "nav-search-input-desktop") {
+      // 桌面端
+      resultContainer = document.getElementById("nav-search-result-desktop");
+    } else if (inputElement.id === "nav-search-input-mobile") {
+      // 移动端
+      resultContainer =
+        inputElement.parentNode.querySelector(".nav-search-result");
+    }
+
+    if (!resultContainer) return;
+
+    resultContainer.innerHTML = "";
+
+    if (!keyword) {
+      resultContainer.style.display = "none";
+      return;
+    }
+
+    // 显示结果容器
+    resultContainer.style.display = "block";
+
+    // 过滤搜索数据
+    const results = searchData.filter(
+      (data) =>
+        (data.title && data.title.toLowerCase().includes(keyword)) ||
+        (data.content && data.content.toLowerCase().includes(keyword))
+    );
+
+    if (results.length === 0) {
+      resultContainer.innerHTML =
+        '<p class="no-result">没有结果哟，换个关键词试试吧</p>';
+      return;
+    }
+
+    // 限制显示结果数量
+    const maxResults = 10;
+    const limitedResults = results.slice(0, maxResults);
+
+    // 构建结果HTML
+    const html = limitedResults
+      .map((item) => {
+        // 提取包含关键字的内容片段
+        let contentSnippet = "";
+        if (item.content) {
+          // 找到包含关键字的内容片段
+          const contentLower = item.content.toLowerCase();
+          const keywordIndex = contentLower.indexOf(keyword);
+
+          // 提取关键字前后的内容
+          const start = Math.max(0, keywordIndex - 3 * keyword.length);
+          const end = Math.min(
+            item.content.length,
+            keywordIndex + 3 * keyword.length
+          );
+          contentSnippet = item.content.substring(start, end);
+        // 高亮关键字
+      const keywordRegex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      contentSnippet = contentSnippet.replace(
+        keywordRegex,
+        "<mark>$1</mark>"
+      );
+        }
+
+        return `<div class="search-result-item">
+  <a href="${item.url}">
+    <div>标题：${item.title}</div>
+    <div>内容：${contentSnippet}</div>
+  </a>
+</div>`;
+      })
+      .join("");
+    resultContainer.innerHTML = html;
+  }
+</script>
+<style>
+  /* 手机端使用flexbox布局搜索容器 */
+  .mobile-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    flex-grow: 1;
+    max-width: calc(100% - 40px);
+  }
+
+
+  .search-result-item {
+  border: 1px solid #ddd; /* 边框 */
+  margin: 4px 0; /* 外层间距 */
+  padding: 0; /* 无内边距 */
+  background: #fff; /* 背景色 */
+}
+
+.search-result-item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-result-item div {
+  padding: 3px 8px; /* 紧凑的内边距 */
+  margin: 0; /* 无外边距 */
+  line-height: 1.3; /* 紧凑的行高 */
+  word-wrap: break-word; /* 允许长单词换行 */
+  white-space: normal; /* 允许正常换行 */
+}
+
+.search-result-item div:first-child {
+  border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */
+}
+
+
+</style>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">git详解</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 11, 2025&nbsp;&nbsp;23:37:15</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/Git/">Git</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><h2 id="初始化设置"><a href="#初始化设置" class="headerlink" title="初始化设置"></a>初始化设置</h2><p>Git的用户名和邮箱是每个仓库初始化后的必要配置（因为 Git 是分布式版本控制系统，所以需要填写用户名和邮箱作为一个标识。）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#配置全局用户名和邮箱</span></span><br><span class="line">git config --global user.name <span class="string">&quot;Your Name&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;your.email@example.com&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>配置好的 Git 的用户名和邮箱存储在 <code>C:\Users\账户名</code> 目录下的 <code>.gitconfig</code> 文件中</p>
+<p>可通过<code>git config --list</code>查看。</p>
+<p>当然，如果配置了全局用户名和邮箱（–global参数），下面内容是单独给仓库配置局部用户名和邮箱，因此可以选填，按需选择。</p>
+<blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置用户信息</span></span><br><span class="line">git config user.name <span class="string">&quot;Your Name&quot;</span></span><br><span class="line">git config user.email <span class="string">&quot;your.email@example.com&quot;</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>最后可以设置凭证助手，帮助自动管理代码仓库的用户名和密码（或令牌），避免每次操作都需要手动输入。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global credential.helper manager</span><br></pre></td></tr></table></figure>
+
+<h2 id="本地仓库初始化"><a href="#本地仓库初始化" class="headerlink" title="本地仓库初始化"></a>本地仓库初始化</h2><p>idea中创建项目可以通过创建面板中勾选<code>创建git仓库</code>即可。</p>
+<p>也可以进入到新建项目中的  顶层菜单栏–VCS–创建Git仓库。</p>
+<p>或者通过命令方法创建(初始化)本地git仓库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入项目目录</span></span><br><span class="line"><span class="built_in">cd</span> your-project-directory</span><br><span class="line"><span class="comment">#初始化git仓库</span></span><br><span class="line">git init</span><br></pre></td></tr></table></figure>
+
+<p>或克隆远程仓库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 克隆远程仓库到本地</span></span><br><span class="line">git <span class="built_in">clone</span> &lt;repository-url&gt;</span><br></pre></td></tr></table></figure>
+
+<p>验证仓库创建</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看仓库状态</span></span><br><span class="line">git status</span><br></pre></td></tr></table></figure>
+
+<h2 id="关联远程仓库"><a href="#关联远程仓库" class="headerlink" title="关联远程仓库"></a>关联远程仓库</h2><p>创建本地Git仓库后，会出现顶层菜单栏中的<code>Git</code>选项。点击<code>Git</code>选项后选择<code>管理远程</code>添加<strong>远程仓库url</strong>实现idea中管理远程仓库。</p>
+<p>当然现在还关联不了，显示</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git@gitee.com: Permission denied (publickey).</span><br><span class="line">fatal: Could not <span class="built_in">read</span> from remote repository.</span><br><span class="line">Please make sure you have the correct access rights</span><br><span class="line">and the repository exists.</span><br></pre></td></tr></table></figure>
+
+<p>因此我们需要选定连接方式来同远程仓库进行连接。目前以下两种方式最受欢迎。</p>
+<ul>
+<li><strong>HTTPS</strong>：需要个人访问令牌。即使没有配置个人访问令牌，也是可以 git clone 的，但是 git push 的时候需要输入用户名和个人访问令牌。</li>
+<li><strong>SSH</strong>：需要密钥对。如果没有配置密钥对，既不能 git clone，也不能 git push。</li>
+</ul>
+<h3 id="SSH"><a href="#SSH" class="headerlink" title="SSH"></a>SSH</h3><p>执行如下命令，生成 SSH 密钥对。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#-c的作用是给产生的密钥对加一个注释，推荐注释信息跟本台机器相关</span></span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;本机标识&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>生成的 SSH 密钥对存储在 <code>C:\Users\账户名\.ssh</code> 目录下</p>
+<ul>
+<li><code>id_rsa</code>  私钥</li>
+<li><code>id_rsa.pub</code> 公钥</li>
+</ul>
+<p>复制公钥里的内容，可通过<code>clip &lt; \x7e/.ssh/id_rsa.pub</code>命令去复制。</p>
+<p>将公钥拷贝到GitHub或Gitee上。一般在设置–安全设置–SSH公钥。</p>
+<p>测试是否能连接上。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#GitHub</span></span><br><span class="line">ssh -T git@github.com</span><br><span class="line"><span class="comment">#Gitee</span></span><br><span class="line">ssh -T git@gitee.com</span><br></pre></td></tr></table></figure>
+
+<p>连接上会有一段问候语。</p>
+<p>这时再点击顶层菜单栏中的<code>Git</code>选项–管理远程，添加<strong>远程仓库url</strong>。</p>
+<p>此时点击 idea中的  工具窗口–Git–左边栏–虚线↙️，此时能获取远程仓库信息。</p>
+<h3 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h3><p>使用HTTPS能够克隆远程仓库到本地，但是 <strong>每次fetch和push代码都需要输入账号和密码</strong>。</p>
+<p>一样的先将远程仓库url填入到Git–管理远程</p>
+<p>若在 IDEA 中推送代码时无需再次验证，是因为<strong>之前的凭证已经被 “缓存” 了</strong>（可能是 IDE 保存了你的登录状态，或系统 &#x2F; Git 工具已经存储了你的账号 + 密码 &#x2F; 令牌）</p>
+<blockquote>
+<p>[!tip]</p>
+<h4 id="HTTPS-的本质：需要身份验证"><a href="#HTTPS-的本质：需要身份验证" class="headerlink" title="HTTPS 的本质：需要身份验证"></a>HTTPS 的本质：需要身份验证</h4><p>HTTPS 协议本身要求提供<strong>用户名 + 密码（或平台的 “个人访问令牌”，如 GitHub&#x2F;Gitee 的令牌）</strong> 来完成身份验证（比如<code>git push</code>时，需要证明你有权限操作远程仓库）。</p>
+<h4 id="免重复验证的核心：凭证缓存"><a href="#免重复验证的核心：凭证缓存" class="headerlink" title="免重复验证的核心：凭证缓存"></a>免重复验证的核心：凭证缓存</h4><p>为了避免每次操作都输入账号密码，Git 支持 <strong>“凭证缓存”</strong> 机制 —— 把你的身份凭证（密码 &#x2F; 令牌）保存起来，后续自动复用：</p>
+<ul>
+<li><strong>系统级缓存</strong>：比如 Windows 的「凭据管理器」、macOS 的「钥匙串」，会存储 Git 的账号凭证；</li>
+<li><strong>Git 工具级缓存</strong>：可通过命令（如<code>git config --global credential.helper store</code>）配置本地缓存，把凭证存在项目或全局的配置文件中；</li>
+<li><strong>IDE 集成缓存</strong>：像 IntelliJ IDEA 这类开发工具，会和 Git 的凭证系统联动，甚至自身也会管理 Gitee&#x2F;GitHub 的登录状态（比如你在 IDE 中通过 “添加账户” 功能登录过平台，IDE 会保存这些凭证供后续 Git 操作使用）。</li>
+</ul>
+<h4 id="通过git-config-–list查看是否有credential-helper-manager"><a href="#通过git-config-–list查看是否有credential-helper-manager" class="headerlink" title="通过git config –list查看是否有credential.helper&#x3D;manager"></a>通过git config –list查看是否有credential.helper&#x3D;manager</h4><p><code>credential.helper=manager</code> 表示 Git 配置了「凭证管理器」（通常是 <code>git-credential-manager</code>，简称 GCM）作为凭证缓存工具。</p>
+<p>它的作用是：<strong>自动保存你通过 HTTPS 连接 Git 仓库时输入的账号、密码或令牌，并在后续操作中自动复用这些凭证</strong>，避免重复输入。</p>
+<p>在 Windows 系统中，这个管理器通常会将凭证存储在「系统凭据管理器」中（可通过 <code>控制面板 → 用户账户 → 凭据管理器</code> 查看 &#x2F; 管理已缓存的 Git 凭证）；在 macOS 或 Linux 上则可能与系统钥匙串集成。</p>
+</blockquote>
+<p>连接上后依然会有一段问候语。</p>
+<p>此时点击 idea中的  工具窗口–Git–左边栏–虚线↙️，此时能获取远程仓库信息。</p>
+<h2 id="Git相关基本概念"><a href="#Git相关基本概念" class="headerlink" title="Git相关基本概念"></a>Git相关基本概念</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><ul>
+<li><code>origin</code>：默认远程仓库。</li>
+<li><code>HEAD</code>：指向当前分支的指针。</li>
+<li><code>HEAD^</code>：上一个版本。</li>
+<li><code>HEAD~4</code>：上 4 个版本。</li>
+</ul>
+<h3 id="特殊文件"><a href="#特殊文件" class="headerlink" title="特殊文件"></a>特殊文件</h3><ul>
+<li><code>.git</code>：Git 仓库的元数据和对象数据库。</li>
+<li><code>.gitignore</code>：忽略文件（不需要提交到仓库的文件）。</li>
+<li><code>.gitattributes</code>：指定文件属性（如换行符）。</li>
+<li><code>.gitkeep</code>：使空目录能被提交。</li>
+<li><code>.gitmodules</code>：记录子模块的信息。</li>
+<li><code>.gitconfig</code>：记录 Git 的配置信息。</li>
+</ul>
+<h3 id="Git-的四个区域"><a href="#Git-的四个区域" class="headerlink" title="Git 的四个区域"></a>Git 的四个区域</h3><ul>
+<li>工作区（Working Directory）：你在电脑里能看到的目录。</li>
+<li>暂存区（Stage&#x2F;Index）：一般存放在 <code>.git</code> 目录下的 <code>index</code> 文件，因此暂存区有时也叫 “索引”。</li>
+<li>本地仓库（Repository）：工作区有隐藏目录 <code>.git</code>，它是 Git 的版本库（不算工作区）。</li>
+<li>远程仓库（Remote）：托管在远程服务器上的仓库。</li>
+</ul>
+<h3 id="Git-的三种状态"><a href="#Git-的三种状态" class="headerlink" title="Git 的三种状态"></a>Git 的三种状态</h3><ul>
+<li>已修改（Modified）：修改了文件，但未保存到暂存区。</li>
+<li>已暂存（Staged）：把修改后的文件放到暂存区。</li>
+<li>已提交（Committed）：把暂存区的文件提交到本地仓库。</li>
+</ul>
+<h3 id="Git指令概念"><a href="#Git指令概念" class="headerlink" title="Git指令概念"></a>Git指令概念</h3><p><img src="/images/Git/image-20251011193719834.png" alt="image-20251011193719834.png"></p>
+<h4 id="操作指令对应的中文翻译"><a href="#操作指令对应的中文翻译" class="headerlink" title="操作指令对应的中文翻译"></a>操作指令对应的中文翻译</h4><ul>
+<li><strong>Remote</strong>：远程仓库（托管在服务器上的 Git 仓库，如 GitHub&#x2F;Gitee 上的仓库）</li>
+<li><strong>fetch&#x2F;clone</strong>：获取 &#x2F; 克隆（<code>fetch</code>：拉取远程仓库的提交数据到本地仓库；<code>clone</code>：完整复制远程仓库到本地，包含所有历史记录）</li>
+<li><strong>Repository</strong>：本地仓库（存储版本历史的核心数据库，对应项目中的 <code>.git</code> 目录区域）</li>
+<li><strong>push</strong>：推送（将本地仓库的提交推送到远程仓库）</li>
+<li><strong>Index</strong>：暂存区（也叫 “索引”，是提交前的临时区域，用于准备下次提交的内容）</li>
+<li><strong>add</strong>：添加（将工作区的文件修改 “添加” 到暂存区，为提交做准备）</li>
+<li><strong>commit</strong>：提交（将暂存区的内容 “提交” 到本地仓库，生成新的版本记录）</li>
+<li><strong>checkout</strong>：检出&#x2F;签出（可用于<strong>切换分支</strong>，或<strong>从仓库 &#x2F; 暂存区恢复文件</strong>到工作区）</li>
+<li><strong>pull</strong>：拉取（相当于 <code>fetch</code> + <code>merge</code>，从远程仓库拉取数据并合并到当前分支）</li>
+<li><strong>workspace</strong>：工作区（本地编辑代码的目录，是能直接看到文件的 “工作目录” 区域）</li>
+</ul>
+<hr>
+<h4 id="添加和提交"><a href="#添加和提交" class="headerlink" title="添加和提交"></a>添加和提交</h4><ul>
+<li><p>添加一个文件到仓库</p>
+<p><code>git add &lt;file&gt;</code></p>
+</li>
+<li><p>添加所有文件到仓库</p>
+<p><code>git add .</code></p>
+</li>
+<li><p>提交所有暂存区的文件到仓库</p>
+<p><code>git commit -m &quot;message&quot;</code></p>
+</li>
+<li><p>提交所有已修改的文件到仓库</p>
+<p><code>git commit -am &quot;message&quot;</code></p>
+</li>
+</ul>
+<h4 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h4><ul>
+<li><p>查看所有本地分支（当前分支前有<code>*</code>；<code>-v</code>看远程分支，<code>-a</code> 看所有分支）</p>
+<p><code>git branch</code></p>
+</li>
+<li><p>创建一个新分支</p>
+<p><code>git branch &lt;branch-name&gt;</code></p>
+</li>
+<li><p>切换到指定分支，并更新工作区</p>
+<p><code>git checkout &lt;branch-name&gt;</code></p>
+</li>
+<li><p>创建一个新分支，并切换到该分支</p>
+<p><code>git checkout -b &lt;branch-name&gt;</code></p>
+</li>
+<li><p>删除一个已合并的分支</p>
+<p><code>git branch -d &lt;branch-name&gt;</code></p>
+</li>
+<li><p>删除一个分支（不管是否合并）</p>
+<p><code>git branch -D &lt;branch-name&gt;</code></p>
+</li>
+<li><p>给当前提交打标签（通常用于版本发布）</p>
+<p><code>git tag &lt;tag-name&gt;</code></p>
+</li>
+</ul>
+<h4 id="合并分支"><a href="#合并分支" class="headerlink" title="合并分支"></a>合并分支</h4><ul>
+<li><p>合并分支（<code>--no-ff</code> 禁用 Fast forward 模式，保留分支历史；<code>-ff</code>用 Fast forward 模式，历史成直线）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git merge --no-ff -m <span class="string">&quot;message&quot;</span> &lt;branch-name</span><br><span class="line"></span><br><span class="line">git merge --ff -m <span class="string">&quot;message&quot;</span> &lt;branch-name&gt;</span><br></pre></td></tr></table></figure></li>
+<li><p>合并 &amp; squash 所有提交到一个提交</p>
+<p><code>git merge --squash &lt;branch-name&gt;</code></p>
+</li>
+</ul>
+<h4 id="文件操作与版本回退"><a href="#文件操作与版本回退" class="headerlink" title="文件操作与版本回退"></a>文件操作与版本回退</h4><ul>
+<li><p>移动一个文件到新位置</p>
+<p><code>git mv &lt;file&gt; &lt;new-file&gt;</code></p>
+</li>
+<li><p>从工作区和暂存区删除文件，并暂存删除操作</p>
+<p><code>git rm &lt;file&gt;</code></p>
+</li>
+<li><p>只从暂存区删除文件（工作区文件不变）</p>
+<p><code>git rm --cached &lt;file&gt;</code></p>
+</li>
+<li><p>恢复文件到之前的版本</p>
+<p><code>git checkout &lt;file&gt; &lt;commit-id&gt;</code></p>
+</li>
+<li><p>创建新提交撤销指定提交（抵消后者所有变化并应用到当前分支）</p>
+<p><code>git revert &lt;commit-id&gt;</code></p>
+</li>
+<li><p>重置分支<code>HEAD </code>到指定提交（<code>--hard</code>重置工作区 + 暂存区；<code>--soft</code>重置暂存区；<code>--mixed</code> 重置工作区）</p>
+<p><code>git reset --mixed &lt;commit-id&gt;</code></p>
+</li>
+<li><p>撤销暂存文件，放回工作区（<code>git add</code> 的反向操作）</p>
+<p><code>git restore --staged &lt;file&gt;</code></p>
+</li>
+</ul>
+<h4 id="Rebase-变基"><a href="#Rebase-变基" class="headerlink" title="Rebase 变基"></a>Rebase 变基</h4><p>Rebase 可把本地未 push 的分叉提交历史整理成直线（多人协作时，不要对已推送到远程的分支执行 Rebase）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout &lt;dev&gt;</span><br><span class="line">git rebase &lt;main&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="撤销（Stash）"><a href="#撤销（Stash）" class="headerlink" title="撤销（Stash）"></a>撤销（Stash）</h4><ul>
+<li><p>储藏工作现场（<code>-u</code>包含未跟踪文件；<code>-a</code> 包含未跟踪 + 忽略文件；<code>&quot;message&quot;</code> 为存储说明）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git stash -u <span class="string">&quot;message&quot;</span></span><br><span class="line"></span><br><span class="line">git stash -a <span class="string">&quot;message&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>查看所有 stash</p>
+<p><code>git stash list</code></p>
+</li>
+<li><p>恢复最近一次 stash（并删除该 stash）</p>
+<p><code>git stash pop</code></p>
+</li>
+<li><p>恢复指定 stash（如 <code>stash@&#123;2&#125;</code> 是第 3 个 stash）</p>
+<p><code>git stash pop stash@&#123;2&#125;</code></p>
+</li>
+<li><p>重新应用最近一次 stash（不删除 stash）</p>
+<p><code>git stash apply</code></p>
+</li>
+<li><p>删除指定 stash</p>
+<p><code>git stash drop stash@&#123;2&#125;</code></p>
+</li>
+<li><p>删除所有 stash</p>
+<p><code>git stash clear</code></p>
+</li>
+</ul>
+<h4 id="查看"><a href="#查看" class="headerlink" title="查看"></a>查看</h4><ul>
+<li><p>列出未提交的新文件 &#x2F; 修改文件</p>
+<p><code>git status</code></p>
+</li>
+<li><p>查看提交历史（<code>--oneline</code>简化显示）</p>
+<p><code>git log --oneline</code></p>
+</li>
+<li><p>查看未暂存文件的更新内容</p>
+<p><code>git diff</code></p>
+</li>
+<li><p>查看两个提交之间的差异</p>
+<p><code>git diff &lt;commit-id&gt; &lt;commit-id&gt;</code></p>
+</li>
+</ul>
+<h4 id="远程仓库"><a href="#远程仓库" class="headerlink" title="远程仓库"></a>远程仓库</h4><ul>
+<li><p>添加远程仓库</p>
+<p><code>git remote add &lt;remote-name&gt; &lt;remote-url&gt;</code></p>
+</li>
+<li><p>查看远程仓库（含地址等详情）</p>
+<p><code>git remote -v</code></p>
+</li>
+<li><p>删除远程仓库</p>
+<p><code>git remote rm &lt;remote-name&gt;</code></p>
+</li>
+</ul>
+<h4 id="远程仓库进阶操作"><a href="#远程仓库进阶操作" class="headerlink" title="远程仓库进阶操作"></a>远程仓库进阶操作</h4><ul>
+<li><p>重命名远程仓库</p>
+<p><code>git remote rename &lt;old-name&gt; &lt;new-name&gt;</code></p>
+</li>
+<li><p>从远程仓库拉取代码</p>
+<p><code>git pull &lt;remote-name&gt; &lt;branch-name&gt;</code></p>
+</li>
+<li><p>fetch 默认拉取仓库（如<code>origin</code>）当前分支代码并合并到本地分支</p>
+<p><code>git pull</code></p>
+</li>
+<li><p>拉取并 Rebase 远程最新代码（保证提交历史线性）</p>
+<p><code>git pull --rebase</code></p>
+</li>
+<li><p>推送代码到远程仓库</p>
+<p><code>git push &lt;remote-name&gt; &lt;branch-name&gt;</code></p>
+</li>
+<li><p>获取所有远程分支</p>
+<p><code>git fetch &lt;remote-name&gt;</code></p>
+</li>
+<li><p>查看远程分支</p>
+<p><code>git branch -r</code></p>
+</li>
+<li><p>fetch 某一个特定的远程分支</p>
+<p><code>git fetch &lt;remote-name&gt; &lt;branch-name&gt;</code></p>
+</li>
+</ul>
+<h1 id="IDEA实操Git"><a href="#IDEA实操Git" class="headerlink" title="IDEA实操Git"></a>IDEA实操Git</h1><h2 id="合并和变基"><a href="#合并和变基" class="headerlink" title="合并和变基"></a>合并和变基</h2><h3 id="合并"><a href="#合并" class="headerlink" title="合并"></a>合并</h3><p>将分支 A <strong>合并</strong> 到分支 B（<code>git merge</code>）</p>
+<p>目标：把分支 A 的所有更改整合到分支 B，并保留合并记录。</p>
+<h4 id="IDEA-图形化操作："><a href="#IDEA-图形化操作：" class="headerlink" title="IDEA 图形化操作："></a>IDEA 图形化操作：</h4><ol>
+<li>右下角点击当前分支 → 切换到分支 B。</li>
+<li>顶部菜单 <code>Git → Merge Changes</code>，在弹出窗口选择分支 A，点击 <strong>Merge</strong>。</li>
+<li>若有冲突，IDEA 会提示 “Resolve Conflicts”，点击进入合并工具：<ul>
+<li>左侧为分支 B 的内容，右侧为分支 A 的内容，中间为合并结果。</li>
+<li>点击冲突行两侧的箭头选择保留内容，或直接编辑中间区域。</li>
+<li>完成后点击 <strong>Apply</strong>，再点击 <strong>Commit</strong> 完成合并。</li>
+</ul>
+</li>
+</ol>
+<h3 id="变基"><a href="#变基" class="headerlink" title="变基"></a>变基</h3><p>将分支 A <strong>变基</strong> 到分支 B（<code>git rebase</code>）</p>
+<p>目标：把分支 A 的提交 “重新基于” 分支 B 的最新提交，形成线性历史（仅推荐个人本地分支使用）。</p>
+<h4 id="IDEA-图形化操作：-1"><a href="#IDEA-图形化操作：-1" class="headerlink" title="IDEA 图形化操作："></a>IDEA 图形化操作：</h4><ol>
+<li>右下角切换到分支 A。</li>
+<li>顶部菜单 <code>Git → Rebase</code>，在弹出窗口选择 “目标分支 B”，点击 <strong>Rebase</strong>（变基）。</li>
+<li>若有冲突，IDEA 会提示 “Resolve conflicts”，处理方式同合并冲突。</li>
+<li>解决后点击 <strong>Continue Rebase</strong>，直到所有提交应用完成。</li>
+</ol>
+<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>核心步骤差异</th>
+<th>最终历史特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>合并（Merge）</td>
+<td>切换到目标分支 → 合并源分支 → 可能生成合并提交</td>
+<td>保留分支分叉，可见合并点</td>
+<td>公共分支（如 main）、需保留合并记录</td>
+</tr>
+<tr>
+<td>变基（Rebase）</td>
+<td>切换到源分支 → 基于目标分支变基 → 解决冲突后继续</td>
+<td>历史线性，无合并提交</td>
+<td>个人本地分支（未推送到远程）</td>
+</tr>
+</tbody></table>
+<p><strong>注意</strong>：变基会改写历史，<strong>绝对不要对已推送到远程并被他人使用的分支执行变基</strong>，否则会导致团队代码冲突。</p>
+</div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/git/"># git</a>
+          
+          <a href="/tags/idea/"># idea</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2025/10/11/Linux/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%9F%BA%E7%A1%80%E6%8C%87%E4%BB%A4%E6%80%BB%E7%BB%93/"
+        >命令行基础指令总结</a
+      >
+       
+      <a class="next" rel="next" href="/2025/09/24/%E6%B7%BB%E5%8A%A0%E7%BD%91%E7%AB%99%E7%BB%9F%E8%AE%A1%E5%8A%9F%E8%83%BD/"
+        >添加网站统计功能</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem;"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById('giscus-container');
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = '';
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute('data-repo', 'meisijiya/meisijiya.github.io');
+
+   // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute('data-repo-id', 'R_kgDOPwTrpQ');
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwDOPwTrpc4CviGR');
+
+    // 其他常规推荐设置
+    script.setAttribute('data-mapping', 'pathname');           // 用页面路径匹配评论帖
+    script.setAttribute('data-strict', '0');                   // 若无匹配帖则创建新帖
+    script.setAttribute('data-reactions-enabled', '1');        // 启用表情反应
+    script.setAttribute('data-emit-metadata', '0');            // 不输出元数据
+    script.setAttribute('data-input-position', 'top');         // 输入框在评论上方
+    script.setAttribute('data-theme', theme);                
+    script.setAttribute('data-lang', 'zh-CN');                 // 中文界面
+    script.setAttribute('crossorigin', 'anonymous');           // 跨域资源安全
+    script.async = true;                                       
+     
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector('.toggleBtn'),
+      document.getElementById('mobile-toggle-theme')
+    ];
+    buttons.forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+<script src="/js/code-copy.js"></script>
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

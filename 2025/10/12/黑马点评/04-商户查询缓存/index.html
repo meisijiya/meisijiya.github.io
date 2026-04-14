@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>04-商户查询缓存 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container">
+          <a href="javascript:;" onclick="toggleSearchInput()">🔍</a>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div class="search-container mobile-container">
+          <a class="menu-item" href="javascript:;" onclick="toggleSearchInput()"
+            >🔍</a
+          >
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script>
+  var mobileBtn = function f() {
+    var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+    var mobileMenu = document.getElementById("mobile-menu");
+    if (toggleMenu.classList.contains("active")) {
+      toggleMenu.classList.remove("active");
+      mobileMenu.classList.remove("active");
+    } else {
+      toggleMenu.classList.add("active");
+      mobileMenu.classList.add("active");
+    }
+  };
+
+  function toggleSearchInput() {
+    const inputs = document.querySelectorAll(".nav-search-input");
+    const results = document.querySelectorAll(".nav-search-result");
+    inputs.forEach((input) => {
+      input.classList.toggle("active");
+      if (input.classList.contains("active")) input.focus();
+    });
+    results.forEach((r) => (r.style.display = "none"));
+  }
+
+  // 点击外部区域隐藏搜索框和结果容器的函数
+  function handleClickOutsideSearch(event) {
+    const searchContainers = document.querySelectorAll(".search-container");
+    searchContainers.forEach((container) => {
+      const searchInput = container.querySelector(".nav-search-input");
+      const searchIcon = container.querySelector("a");
+
+      // 如果点击的元素不是搜索输入框或搜索图标，则隐藏搜索框和结果容器
+      if (
+        !searchInput.contains(event.target) &&
+        !searchIcon.contains(event.target)
+      ) {
+        searchInput.classList.remove("active");
+        searchInput.value = ""
+        // 根据输入框ID确定对应的结果容器
+        let resultContainer;
+        if (searchInput.id === "nav-search-input-mobile") {
+          // 移动端结果容器
+          resultContainer = document.querySelector(
+            ".navbar-mobile .nav-search-result"
+          );
+        } else {
+          // 桌面端结果容器
+          resultContainer = document.getElementById(
+            "nav-search-result-desktop"
+          );
+        }
+
+        if (resultContainer) {
+          resultContainer.style.display = "none";
+          resultContainer.innerHTML = ""; // 清空结果容器内容
+        }
+      }
+    });
+  }
+
+  // 添加全局点击事件监听器
+  document.addEventListener("click", function (event) {
+    handleClickOutsideSearch(event);
+  });
+
+  // 新增：搜索功能实现
+  let searchData = []; // 全局变量存储搜索数据
+
+  // 页面加载完成后获取搜索数据
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/search.xml")
+      .then((res) => res.text())
+      .then((xmlText) => {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+        const entries = xml.getElementsByTagName("entry");
+        for (let entry of entries) {
+          searchData.push({
+            title: entry.getElementsByTagName("title")[0]?.textContent || "",
+            content:
+              entry.getElementsByTagName("content")[0]?.textContent || "",
+            url: entry.getElementsByTagName("url")[0]?.textContent || "",
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load search data:", err);
+      });
+  });
+
+  // 新增：导航搜索方法
+  function navSearch(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    // 查找对应的搜索结果容器
+    let resultContainer;
+
+    if (inputElement.id === "nav-search-input-desktop") {
+      // 桌面端
+      resultContainer = document.getElementById("nav-search-result-desktop");
+    } else if (inputElement.id === "nav-search-input-mobile") {
+      // 移动端
+      resultContainer =
+        inputElement.parentNode.querySelector(".nav-search-result");
+    }
+
+    if (!resultContainer) return;
+
+    resultContainer.innerHTML = "";
+
+    if (!keyword) {
+      resultContainer.style.display = "none";
+      return;
+    }
+
+    // 显示结果容器
+    resultContainer.style.display = "block";
+
+    // 过滤搜索数据
+    const results = searchData.filter(
+      (data) =>
+        (data.title && data.title.toLowerCase().includes(keyword)) ||
+        (data.content && data.content.toLowerCase().includes(keyword))
+    );
+
+    if (results.length === 0) {
+      resultContainer.innerHTML =
+        '<p class="no-result">没有结果哟，换个关键词试试吧</p>';
+      return;
+    }
+
+    // 限制显示结果数量
+    const maxResults = 10;
+    const limitedResults = results.slice(0, maxResults);
+
+    // 构建结果HTML
+    const html = limitedResults
+      .map((item) => {
+        // 提取包含关键字的内容片段
+        let contentSnippet = "";
+        if (item.content) {
+          // 找到包含关键字的内容片段
+          const contentLower = item.content.toLowerCase();
+          const keywordIndex = contentLower.indexOf(keyword);
+
+          // 提取关键字前后的内容
+          const start = Math.max(0, keywordIndex - 3 * keyword.length);
+          const end = Math.min(
+            item.content.length,
+            keywordIndex + 3 * keyword.length
+          );
+          contentSnippet = item.content.substring(start, end);
+        // 高亮关键字
+      const keywordRegex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      contentSnippet = contentSnippet.replace(
+        keywordRegex,
+        "<mark>$1</mark>"
+      );
+        }
+
+        return `<div class="search-result-item">
+  <a href="${item.url}">
+    <div>标题：${item.title}</div>
+    <div>内容：${contentSnippet}</div>
+  </a>
+</div>`;
+      })
+      .join("");
+    resultContainer.innerHTML = html;
+  }
+</script>
+<style>
+  /* 手机端使用flexbox布局搜索容器 */
+  .mobile-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    flex-grow: 1;
+    max-width: calc(100% - 40px);
+  }
+
+
+  .search-result-item {
+  border: 1px solid #ddd; /* 边框 */
+  margin: 4px 0; /* 外层间距 */
+  padding: 0; /* 无内边距 */
+  background: #fff; /* 背景色 */
+}
+
+.search-result-item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-result-item div {
+  padding: 3px 8px; /* 紧凑的内边距 */
+  margin: 0; /* 无外边距 */
+  line-height: 1.3; /* 紧凑的行高 */
+  word-wrap: break-word; /* 允许长单词换行 */
+  white-space: normal; /* 允许正常换行 */
+}
+
+.search-result-item div:first-child {
+  border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */
+}
+
+
+</style>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">04-商户查询缓存</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 12, 2025&nbsp;&nbsp;0:00:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/">黑马点评</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><h2 id="缓存的目的"><a href="#缓存的目的" class="headerlink" title="缓存的目的"></a>缓存的目的</h2><ul>
+<li><strong>缓存的作用</strong>：一方面能降低后端（如数据库、服务器等）的负载；另一方面可提高读写效率，减少系统的响应时间。</li>
+<li><strong>缓存的成本</strong>：会产生数据一致性方面的代价，还需要付出代码维护成本以及运维成本。</li>
+</ul>
+<p>我们要怎么做</p>
+<p>例如：Mybatis提供的IService接口类中的getById方法只是简单的return getBaseMapper().selectById(id)，等于直接走数据库。要添加缓存功能，我们就要在实现类UserServiceImpl中添加Redis缓存</p>
+<h2 id="缓存更新策略"><a href="#缓存更新策略" class="headerlink" title="缓存更新策略"></a>缓存更新策略</h2><ol>
+<li><strong>Redis 缓存更新的核心目的</strong>：解决内存宝贵问题，避免缓存数据过多，主要靠三大机制 ——<ul>
+<li>内存淘汰：内存达<code>max-memory</code>时，Redis 自动按策略删 “不重要” 数据；</li>
+<li>超时剔除：数据到 TTL 后，Redis 自动删过期数据；</li>
+<li>主动更新：手动删缓存，核心用来解决 “缓存与数据库不一致”。</li>
+</ul>
+</li>
+<li><strong>数据库缓存不一致的核心解法</strong>：优先选 <strong>Cache Aside Pattern（人工编码方案）</strong>，其他方案（系统自动处理、异步同步）因灵活性 &#x2F; 适用场景限制，非首选。</li>
+<li><strong>Cache Aside Pattern 的标准操作（关键！）</strong>：<ul>
+<li>不更缓存，只删缓存：避免无效写操作，查询时再重新加载新数据到缓存；</li>
+<li>先更数据库，再删缓存：规避并发下 “旧数据覆盖新数据” 的风险；</li>
+<li>保证原子性：单体系统用事务，分布式系统用 TCC 等分布式事务方案，确保 “更库 + 删缓存” 要么都成、要么都败。</li>
+</ul>
+</li>
+</ol>
+<p>最终标准流程：<strong>更新数据库 → 删除对应缓存</strong>（查询时自动加载新数据到缓存），这是平衡一致性、性能的最优实践。</p>
+<h2 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h2><p>一、<strong>缓存穿透的定义</strong></p>
+<p>客户端请求的数据<strong>在缓存（Redis）和数据库中都不存在</strong>，导致缓存永远无法命中，所有请求直接冲击数据库，易造成数据库压力过载。</p>
+<p>二、<strong>两种核心解决方案对比</strong></p>
+<table>
+<thead>
+<tr>
+<th>方案类型</th>
+<th>原理</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>缓存空对象</strong></td>
+<td>数据库查询无结果时，在 Redis 中缓存一个<strong>空值（并设置短期 TTL）</strong>，后续请求由 Redis 拦截。</td>
+<td>实现简单，开发 &#x2F; 维护成本低</td>
+<td>1. 占用 Redis 额外内存（存大量空值）；2. 数据库新增数据时，Redis 空值过期前会导致<strong>短期数据不一致</strong>。</td>
+</tr>
+<tr>
+<td><strong>布隆过滤器</strong></td>
+<td>用<strong>二进制数组 + 多哈希函数</strong>，预先标记 “数据库中存在的数据”。请求先经布隆过滤器判断：- 若 “不存在”，直接拒绝；- 若 “可能存在”，再查 Redis &#x2F; 数据库。</td>
+<td>内存占用少，无空值冗余</td>
+<td>1. 实现复杂（需维护布隆过滤器结构）；2. 存在<strong>误判可能</strong>（哈希冲突导致 “不存在的数据被误判为存在”）。</td>
+</tr>
+</tbody></table>
+<p><strong>三、方案选择建议</strong></p>
+<ul>
+<li>若业务<strong>数据空值场景少、对实现复杂度敏感</strong>，选「缓存空对象」；</li>
+<li>若业务<strong>空值请求极多、对内存占用敏感</strong>，选「布隆过滤器」（需接受一定误判风险）。</li>
+</ul>
+<p>核心目标：拦截 “无效请求”，避免其持续冲击数据库。</p>
+<h2 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h2><p>一、<strong>缓存雪崩的定义</strong></p>
+<p>在<strong>同一时段</strong>内，大量缓存 Key 同时失效，或<strong>Redis 服务宕机</strong>，导致大量请求直接穿透缓存层，冲击数据库，造成数据库压力骤增甚至崩溃。</p>
+<p>二、<strong>核心解决方案</strong></p>
+<table>
+<thead>
+<tr>
+<th>方案类型</th>
+<th>原理与作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>给 Key 的 TTL 添加随机值</td>
+<td>为不同 Key 的过期时间引入随机波动，避免大量 Key “集体过期”，分散缓存失效的时间点，减少集中请求数据库的风险。</td>
+</tr>
+<tr>
+<td>利用 Redis 集群提高可用性</td>
+<td>通过 Redis 主从、哨兵、Cluster 等集群模式，避免单点 Redis 宕机导致整个缓存层失效，提升缓存服务的稳定性。</td>
+</tr>
+<tr>
+<td>缓存业务添加降级限流策略</td>
+<td>当缓存层（Redis）异常时，对请求进行<strong>降级</strong>（如返回默认值、跳过缓存直接走降级逻辑）或<strong>限流</strong>（限制并发请求数），减少对数据库的冲击。</td>
+</tr>
+<tr>
+<td>业务添加多级缓存</td>
+<td>引入 “本地缓存（如 Guava Cache）+ Redis” 等多级缓存架构，即使 Redis 层异常，本地缓存仍可拦截部分请求，进一步隔离数据库。</td>
+</tr>
+</tbody></table>
+<p>核心目标：通过<strong>分散缓存失效时间</strong>、<strong>提升缓存服务可靠性</strong>、<strong>流量控制</strong>、<strong>多级缓存隔离</strong>，避免数据库被 “突发的大量请求” 压垮。</p>
+<h2 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h2><p>一、<strong>问题定义</strong></p>
+<p>当一个<strong>被高并发访问</strong>、且<strong>缓存重建逻辑复杂</strong>的 Key 突然失效时，大量请求会瞬间穿透缓存，直接冲击数据库，导致数据库压力骤增。</p>
+<p>二、<strong>两种核心解决方案</strong></p>
+<table>
+<thead>
+<tr>
+<th>方案类型</th>
+<th>原理</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>互斥锁</strong></td>
+<td>缓存未命中时，通过<strong>互斥锁</strong>保证 “同一时间只有一个线程” 去查询数据库、重建缓存；其他线程获取锁失败后，等待重试。</td>
+<td>① 保证数据一致性（只有一个线程操作数据库 &#x2F; 缓存）；② 实现简单；③ 无额外内存消耗。</td>
+<td>① 线程需等待（串行执行），性能受影响；② 存在死锁风险。</td>
+</tr>
+<tr>
+<td><strong>逻辑过期</strong></td>
+<td>不依赖 Redis 的 TTL，而是在<strong>缓存 Value 中嵌入 “逻辑过期时间”</strong>。当检测到逻辑过期时：- 获锁线程<strong>异步开新线程</strong>重建缓存（重置逻辑过期时间），当前线程直接返回旧数据；- 其他线程获锁失败，直接返回旧数据。</td>
+<td>线程无需等待，高并发下响应性能好。</td>
+<td>① 无法保证<strong>强一致性</strong>（重建期间返回旧数据）；② 需额外存储逻辑过期时间，有内存消耗；③ 实现逻辑更复杂。</td>
+</tr>
+</tbody></table>
+<p>三、<strong>方案选择建议</strong></p>
+<ul>
+<li>若业务<strong>对数据一致性要求高</strong>、<strong>能接受一定性能损耗</strong>，选「互斥锁」；</li>
+<li>若业务<strong>对响应性能要求极高</strong>、<strong>可接受短期数据不一致</strong>，选「逻辑过期」。</li>
+</ul>
+<p>核心目标：避免高并发下 “大量线程同时查库” 的风险，平衡<strong>一致性</strong>与<strong>性能</strong>。</p>
+<h2 id="Java线程池Executor-ExecutorService"><a href="#Java线程池Executor-ExecutorService" class="headerlink" title="Java线程池Executor&#x2F;ExecutorService"></a>Java线程池Executor&#x2F;ExecutorService</h2><p>在 Java 并发编程中，<code>Executor</code>和<code>ExecutorService</code>是线程池框架的核心接口，它们简化了线程的创建、管理和任务执行流程，避免了频繁创建线程带来的性能开销。</p>
+<h3 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a>一、基本概念</h3><h4 id="1-Executor（顶层接口）"><a href="#1-Executor（顶层接口）" class="headerlink" title="1. Executor（顶层接口）"></a>1. Executor（顶层接口）</h4><p><code>Executor</code>是 Java 并发框架中最基础的接口，定义了<strong>任务执行的基本规范</strong>。它的核心思想是将 “任务提交” 与 “任务执行” 解耦 —— 用户只需提交任务，无需关心任务如何被线程执行、使用哪个线程执行、何时执行等细节。</p>
+<p><strong>定义</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Executor</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">execute</span><span class="params">(Runnable command)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Executor</code>接口仅包含一个方法<code>execute(Runnable)</code>，用于提交一个<code>Runnable</code>任务并执行。</p>
+<h4 id="2-ExecutorService（子接口）"><a href="#2-ExecutorService（子接口）" class="headerlink" title="2. ExecutorService（子接口）"></a>2. ExecutorService（子接口）</h4><p><code>ExecutorService</code>是<code>Executor</code>的子接口，它在<code>Executor</code>的基础上<strong>扩展了更多功能</strong>，尤其是对线程池生命周期的管理和带返回值的任务支持。</p>
+<p><code>ExecutorService</code>不仅能执行任务，还能：</p>
+<ul>
+<li>管理线程池的关闭（如优雅关闭、强制关闭）；</li>
+<li>提交带返回值的任务（<code>Callable</code>）；</li>
+<li>批量执行任务并获取结果；</li>
+<li>等待任务执行完成。</li>
+</ul>
+<h3 id="二、常用方法"><a href="#二、常用方法" class="headerlink" title="二、常用方法"></a>二、常用方法</h3><h4 id="1-Executor-的核心方法"><a href="#1-Executor-的核心方法" class="headerlink" title="1. Executor 的核心方法"></a>1. Executor 的核心方法</h4><p><code>Executor</code>接口仅定义了一个方法：</p>
+<ul>
+<li><p><code>void execute(Runnable command)</code></p>
+<p>作用：提交一个Runnable任务到线程池执行。</p>
+<p>特点：无返回值，无法获取任务执行结果；若任务执行中抛出异常，异常会被线程池内部消化（不会主动抛出）。</p>
+</li>
+</ul>
+<h4 id="2-ExecutorService-的常用方法"><a href="#2-ExecutorService-的常用方法" class="headerlink" title="2. ExecutorService 的常用方法"></a>2. ExecutorService 的常用方法</h4><p><code>ExecutorService</code>扩展了<code>Executor</code>，提供了更丰富的方法，主要分为<strong>任务提交</strong>、<strong>线程池关闭</strong>、<strong>任务结果获取</strong>三类：</p>
+<h5 id="（1）任务提交相关"><a href="#（1）任务提交相关" class="headerlink" title="（1）任务提交相关"></a>（1）任务提交相关</h5><ul>
+<li><p><code>Future&lt;?&gt; submit(Runnable task)</code></p>
+<p>作用：提交一个<code>Runnable</code>任务，返回一个<code>Future</code>对象。</p>
+<p>特点：<code>Future</code>的<code>get()</code>方法会在任务完成后返回<code>null</code>，可通过<code>isDone()</code>判断任务是否完成。</p>
+</li>
+<li><p><code>&lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result)</code></p>
+<p>作用：提交<code>Runnable</code>任务，指定一个结果对象；任务完成后，<code>Future.get()</code>会返回该结果对象。</p>
+</li>
+<li><p><code>&lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task)</code></p>
+<p>作用：提交一个<code>Callable&lt;T&gt;</code>任务（带返回值的任务），返回<code>Future&lt;T&gt;</code>对象。</p>
+<p>特点：<code>Callable</code>的<code>call()</code>方法有返回值且可抛出异常，通过<code>Future.get()</code>可获取返回值或捕获异常。</p>
+</li>
+</ul>
+<h5 id="（2）线程池关闭相关"><a href="#（2）线程池关闭相关" class="headerlink" title="（2）线程池关闭相关"></a>（2）线程池关闭相关</h5><p>线程池创建后默认是运行状态，需主动关闭以释放资源：</p>
+<ul>
+<li><p><code>void shutdown()</code></p>
+<p>作用：<strong>优雅关闭</strong>线程池。</p>
+<p>行为：不再接收新任务，但会等待已提交的任务（包括正在执行和队列中等待的）全部执行完成后关闭。</p>
+</li>
+<li><p><code>List&lt;Runnable&gt; shutdownNow()</code></p>
+<p>作用：<strong>强制关闭</strong>线程池。</p>
+<p>行为：立即尝试停止所有正在执行的任务，暂停处理队列中等待的任务，并返回未执行的任务列表。</p>
+</li>
+<li><p><code>boolean isShutdown()</code></p>
+<p>作用：判断线程池是否已调用<code>shutdown()</code>或<code>shutdownNow()</code>（即是否进入关闭流程）。</p>
+</li>
+<li><p><code>boolean isTerminated()</code></p>
+<p>作用：判断线程池是否已完全终止（所有任务执行完毕，资源已释放）。</p>
+</li>
+<li><p><code>boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException</code></p>
+<p>作用：阻塞当前线程，等待线程池终止（最多等待指定时间）。</p>
+<p>返回值：若线程池在超时前完全终止，返回<code>true</code>；否则返回<code>false</code>。</p>
+</li>
+</ul>
+<h5 id="（3）批量任务执行相关"><a href="#（3）批量任务执行相关" class="headerlink" title="（3）批量任务执行相关"></a>（3）批量任务执行相关</h5><ul>
+<li><p><code>List&lt;Future&lt;T&gt;&gt; invokeAll(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks) throws InterruptedException</code></p>
+<p>作用：提交多个<code>Callable</code>任务，等待所有任务完成后，返回包含所有任务结果的<code>Future</code>列表。</p>
+</li>
+<li><p><code>List&lt;Future&lt;T&gt;&gt; invokeAll(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks, long timeout, TimeUnit unit) throws InterruptedException</code></p>
+<p>作用：同上，但最多等待指定时间，超时未完成的任务会被取消。</p>
+</li>
+<li><p><code>T invokeAny(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks) throws InterruptedException, ExecutionException</code></p>
+<p>作用：提交多个<code>Callable</code>任务，只要有一个任务成功完成，就返回该任务的结果，其他未完成的任务会被取消。</p>
+</li>
+</ul>
+<h3 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h3><ul>
+<li><code>Executor</code>是最基础的接口，仅定义了<code>execute()</code>方法，用于提交无返回值的任务。</li>
+<li><code>ExecutorService</code>是<code>Executor</code>的扩展，增加了任务生命周期管理、带返回值任务支持等功能，是实际开发中使用的主要接口（常用实现类如<code>ThreadPoolExecutor</code>）。</li>
+</ul>
+<p>使用时，通常通过<code>Executors</code>工具类创建<code>ExecutorService</code>实例（如<code>Executors.newFixedThreadPool(5)</code>），再通过其方法提交任务和管理线程池。</p>
+<h2 id="函数式编程"><a href="#函数式编程" class="headerlink" title="函数式编程"></a>函数式编程</h2><p>Java 从 JDK 8 开始引入函数式编程特性，其设计理念是在保持面向对象核心的基础上，融入函数式编程的思想（如<strong>函数作为参数传递</strong>、<strong>强调不可变性</strong>等），主要通过 <code>Lambda 表达式</code>、<code>函数式接口</code>、<code>Stream API</code> 等特性实现。</p>
+<h3 id="一、基本概念-1"><a href="#一、基本概念-1" class="headerlink" title="一、基本概念"></a>一、基本概念</h3><h4 id="1-函数式接口（Functional-Interface）"><a href="#1-函数式接口（Functional-Interface）" class="headerlink" title="1. 函数式接口（Functional Interface）"></a>1. 函数式接口（Functional Interface）</h4><p>函数式接口是 Java 函数式编程的基础，它是<strong>只包含一个抽象方法的接口</strong>（可以包含默认方法和静态方法）。</p>
+<p>作用：为 <code>Lambda 表达式</code> 提供类型约束，Lambda 表达式本质上是函数式接口的匿名实现。</p>
+<p>JDK 中用 <code>@FunctionalInterface</code> 注解标记函数式接口（非强制，但会在编译时校验接口是否符合规范）。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 自定义函数式接口</span></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Calculator</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="title function_">calculate</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>; <span class="comment">// 唯一抽象方法</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 允许包含默认方法</span></span><br><span class="line">    <span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">printResult</span><span class="params">(<span class="type">int</span> result)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;结果：&quot;</span> + result);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>JDK 内置了大量常用函数式接口（如 <code>java.util.function</code> 包下的 <code>Function</code>、<code>Predicate</code> 等），避免重复定义。</p>
+<h4 id="2-Lambda-表达式"><a href="#2-Lambda-表达式" class="headerlink" title="2. Lambda 表达式"></a>2. Lambda 表达式</h4><p>Lambda 表达式是<strong>简洁表示匿名函数的语法</strong>，可以理解为 “可传递的代码块”，用于简化函数式接口的实现。</p>
+<p><strong>语法</strong>：<code>(参数列表) -&gt; &#123; 方法体 &#125;</code></p>
+<ul>
+<li>若参数列表只有一个参数，可省略括号（如 <code>x -&gt; x*2</code>）；</li>
+<li>若方法体只有一行代码，可省略大括号和 <code>return</code>（如 <code>(a,b) -&gt; a + b</code>）。</li>
+</ul>
+<p><strong>示例</strong>：用 Lambda 实现函数式接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用 Lambda 表达式实现 Calculator 接口</span></span><br><span class="line"><span class="type">Calculator</span> <span class="variable">add</span> <span class="operator">=</span> (a, b) -&gt; a + b;</span><br><span class="line">add.printResult(add.calculate(<span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// 输出：结果：5</span></span><br><span class="line"></span><br><span class="line"><span class="type">Calculator</span> <span class="variable">multiply</span> <span class="operator">=</span> (a, b) -&gt; a * b;</span><br><span class="line">multiply.printResult(multiply.calculate(<span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// 输出：结果：6</span></span><br></pre></td></tr></table></figure>
+
+<p>Lambda 表达式的类型由上下文推断（即它所赋值的函数式接口类型），因此必须与函数式接口的抽象方法签名匹配。</p>
+<h4 id="3-方法引用（Method-Reference）"><a href="#3-方法引用（Method-Reference）" class="headerlink" title="3. 方法引用（Method Reference）"></a>3. 方法引用（Method Reference）</h4><p>方法引用是 Lambda 表达式的简化形式，当 Lambda 表达式只是调用一个已存在的方法时，可直接引用该方法，使代码更简洁。</p>
+<p><strong>语法</strong>：<code>类名::方法名</code> 或 <code>对象::方法名</code>，分为 4 种类型：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>静态方法引用</td>
+<td><code>Integer::parseInt</code></td>
+<td>引用类的静态方法</td>
+</tr>
+<tr>
+<td>实例方法引用（对象）</td>
+<td><code>str::toUpperCase</code></td>
+<td>引用特定对象的实例方法</td>
+</tr>
+<tr>
+<td>实例方法引用（类）</td>
+<td><code>String::length</code></td>
+<td>引用类的任意对象的实例方法</td>
+</tr>
+<tr>
+<td>构造方法引用</td>
+<td><code>ArrayList::new</code></td>
+<td>引用类的构造方法</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        List&lt;String&gt; list = Arrays.asList(<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 用 Lambda 表达式遍历</span></span><br><span class="line">        list.forEach(s -&gt; System.out.println(s));</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 用方法引用简化（引用 System.out 的 println 方法）</span></span><br><span class="line">        list.forEach(System.out::println);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-不可变性（Immutability）"><a href="#4-不可变性（Immutability）" class="headerlink" title="4. 不可变性（Immutability）"></a>4. 不可变性（Immutability）</h4><p>函数式编程强调 “数据不可变”，即数据创建后不被修改，任何修改都会生成新的数据副本。</p>
+<p>Java 中可通过以下方式实现不可变性：</p>
+<ul>
+<li>使用 <code>final</code> 修饰变量（基本类型值不可变，引用类型引用不可变）；</li>
+<li>使用不可变集合（如 <code>Collections.unmodifiableList()</code> 或 Guava 的不可变集合）；</li>
+<li><code>Stream API</code> 操作不会修改原集合，而是返回新的流。</li>
+</ul>
+<h3 id="二、常用组件与方法"><a href="#二、常用组件与方法" class="headerlink" title="二、常用组件与方法"></a>二、常用组件与方法</h3><h4 id="1-常用函数式接口（java-util-function-包）"><a href="#1-常用函数式接口（java-util-function-包）" class="headerlink" title="1. 常用函数式接口（java.util.function 包）"></a>1. 常用函数式接口（<code>java.util.function</code> 包）</h4><p>JDK 内置了一系列函数式接口，覆盖常见场景，避免重复定义：</p>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>抽象方法</th>
+<th>功能描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Predicate&lt;T&gt;</code></td>
+<td><code>boolean test(T t)</code></td>
+<td>接收 T 类型参数，返回布尔值（判断）</td>
+<td><code>t -&gt; t &gt; 10</code>（判断是否大于 10）</td>
+</tr>
+<tr>
+<td><code>Function&lt;T,R&gt;</code></td>
+<td><code>R apply(T t)</code></td>
+<td>接收 T 类型参数，返回 R 类型结果（转换）</td>
+<td><code>s -&gt; s.length()</code>（字符串转长度）</td>
+</tr>
+<tr>
+<td><code>Consumer&lt;T&gt;</code></td>
+<td><code>void accept(T t)</code></td>
+<td>接收 T 类型参数，无返回值（消费）</td>
+<td><code>s -&gt; System.out.println(s)</code></td>
+</tr>
+<tr>
+<td><code>Supplier&lt;T&gt;</code></td>
+<td><code>T get()</code></td>
+<td>无参数，返回 T 类型结果（提供）</td>
+<td><code>() -&gt; new ArrayList&lt;&gt;()</code></td>
+</tr>
+<tr>
+<td><code>UnaryOperator&lt;T&gt;</code></td>
+<td><code>T apply(T t)</code></td>
+<td>接收 T 类型参数，返回 T 类型结果（一元运算）</td>
+<td><code>x -&gt; x * 2</code>（乘以 2）</td>
+</tr>
+<tr>
+<td><code>BinaryOperator&lt;T&gt;</code></td>
+<td><code>T apply(T a, T b)</code></td>
+<td>接收两个 T 类型参数，返回 T 类型结果（二元运算）</td>
+<td><code>(a,b) -&gt; a + b</code>（求和）</td>
+</tr>
+</tbody></table>
+<h4 id="2-Stream-API（核心工具）"><a href="#2-Stream-API（核心工具）" class="headerlink" title="2. Stream API（核心工具）"></a>2. Stream API（核心工具）</h4><p><code>Stream</code> 是 Java 函数式编程的核心工具，用于<strong>对集合进行高效的函数式操作</strong>（如过滤、转换、聚合等）。它不是数据结构，而是对数据的 “计算管道”，具有<strong>惰性求值</strong>（中间操作仅记录，终端操作才执行）和<strong>一次性消费</strong>（流只能被处理一次）的特点。</p>
+<p><strong>Stream 操作流程</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">数据源（集合/数组）→ 中间操作（过滤/转换）→ 终端操作（聚合/收集）</span><br></pre></td></tr></table></figure>
+
+<h5 id="（1）中间操作（返回新的-Stream，可链式调用）"><a href="#（1）中间操作（返回新的-Stream，可链式调用）" class="headerlink" title="（1）中间操作（返回新的 Stream，可链式调用）"></a>（1）中间操作（返回新的 Stream，可链式调用）</h5><ul>
+<li><p><code>filter(Predicate&lt;T&gt; p)</code>：过滤符合条件的元素</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; numbers = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line">numbers.stream()</span><br><span class="line">       .filter(n -&gt; n % <span class="number">2</span> == <span class="number">0</span>) <span class="comment">// 筛选偶数</span></span><br><span class="line">       .forEach(System.out::println); <span class="comment">// 输出：2 4</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>map(Function&lt;T,R&gt; f)</code>：将元素转换为另一种类型</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; words = Arrays.asList(<span class="string">&quot;a&quot;</span>, <span class="string">&quot;bb&quot;</span>, <span class="string">&quot;ccc&quot;</span>);</span><br><span class="line">words.stream()</span><br><span class="line">     .map(String::length) <span class="comment">// 转换为字符串长度</span></span><br><span class="line">     .forEach(System.out::println); <span class="comment">// 输出：1 2 3</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>flatMap(Function&lt;T,Stream&lt;R&gt;&gt; f)</code>：将元素转换为流后 “扁平化”（合并多个流）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;List&lt;Integer&gt;&gt; lists = Arrays.asList(</span><br><span class="line">    Arrays.asList(<span class="number">1</span>, <span class="number">2</span>), </span><br><span class="line">    Arrays.asList(<span class="number">3</span>, <span class="number">4</span>)</span><br><span class="line">);</span><br><span class="line">lists.stream()</span><br><span class="line">     .flatMap(List::stream) <span class="comment">// 转换为单个流 [1,2,3,4]</span></span><br><span class="line">     .forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>sorted()</code> &#x2F; <code>sorted(Comparator&lt;T&gt; c)</code>：排序</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">numbers.stream()</span><br><span class="line">       .sorted((a, b) -&gt; b - a) <span class="comment">// 降序排序</span></span><br><span class="line">       .forEach(System.out::println); <span class="comment">// 输出：5 4 3 2 1</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="（2）终端操作（触发计算，返回非-Stream-结果）"><a href="#（2）终端操作（触发计算，返回非-Stream-结果）" class="headerlink" title="（2）终端操作（触发计算，返回非 Stream 结果）"></a>（2）终端操作（触发计算，返回非 Stream 结果）</h5><ul>
+<li><p><code>forEach(Consumer&lt;T&gt; c)</code>：遍历元素</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">numbers.stream().forEach(n -&gt; System.out.print(n + <span class="string">&quot; &quot;</span>)); <span class="comment">// 输出：1 2 3 4 5</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>collect(Collector&lt;T,A,R&gt; c)</code>：将流收集为集合（如 List、Set、Map）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.stream.Collectors;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 收集为 List</span></span><br><span class="line">List&lt;Integer&gt; evenList = numbers.stream()</span><br><span class="line">                                .filter(n -&gt; n % <span class="number">2</span> == <span class="number">0</span>)</span><br><span class="line">                                .collect(Collectors.toList()); <span class="comment">// 结果：[2,4]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>reduce(BinaryOperator&lt;T&gt; op)</code>：将元素聚合为单个值（如求和、求积）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 求和（初始值为0，累加每个元素）</span></span><br><span class="line"><span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> numbers.stream()</span><br><span class="line">                 .reduce(<span class="number">0</span>, Integer::sum); <span class="comment">// 结果：15</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>count()</code>：统计元素数量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> <span class="variable">evenCount</span> <span class="operator">=</span> numbers.stream()</span><br><span class="line">                        .filter(n -&gt; n % <span class="number">2</span> == <span class="number">0</span>)</span><br><span class="line">                        .count(); <span class="comment">// 结果：2</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>anyMatch(Predicate&lt;T&gt; p)</code> &#x2F; <code>allMatch(Predicate&lt;T&gt; p)</code>：判断是否存在 &#x2F; 全部符合条件的元素</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">boolean</span> <span class="variable">hasEven</span> <span class="operator">=</span> numbers.stream().anyMatch(n -&gt; n % <span class="number">2</span> == <span class="number">0</span>); <span class="comment">// true</span></span><br><span class="line"><span class="type">boolean</span> <span class="variable">allEven</span> <span class="operator">=</span> numbers.stream().allMatch(n -&gt; n % <span class="number">2</span> == <span class="number">0</span>); <span class="comment">// false</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-Optional-类"><a href="#3-Optional-类" class="headerlink" title="3. Optional 类"></a>3. Optional 类</h4><p><code>Optional&lt;T&gt;</code> 是一个容器类，用于<strong>优雅处理空指针问题</strong>，避免显式的 <code>null</code> 判断，是函数式编程中处理可能缺失值的常用工具。</p>
+<p>常用方法：</p>
+<ul>
+<li><code>Optional.of(T value)</code>：创建包含非 null 值的 Optional（值为 null 则抛异常）；</li>
+<li><code>Optional.ofNullable(T value)</code>：创建可能包含 null 值的 Optional；</li>
+<li><code>isPresent()</code>：判断是否有值；</li>
+<li><code>ifPresent(Consumer&lt;T&gt; c)</code>：若有值则执行消费函数；</li>
+<li><code>orElse(T other)</code>：若为空则返回默认值；</li>
+<li><code>map(Function&lt;T,R&gt; f)</code>：转换 Optional 中的值。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Optional;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">        Optional&lt;String&gt; optional = Optional.ofNullable(str);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 若有值则转为大写并打印</span></span><br><span class="line">        optional.map(String::toUpperCase)</span><br><span class="line">                .ifPresent(System.out::println); <span class="comment">// 输出：HELLO</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 若为空则返回默认值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> Optional.ofNullable(<span class="literal">null</span>)</span><br><span class="line">                                .orElse(<span class="string">&quot;default&quot;</span>); <span class="comment">// 结果：&quot;default&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、总结-1"><a href="#三、总结-1" class="headerlink" title="三、总结"></a>三、总结</h3><p>Java 函数式编程的核心是<strong>通过 Lambda 表达式和函数式接口将函数作为参数传递</strong>，并结合 <code>Stream API</code> 实现对集合的声明式处理。其优势在于：</p>
+<ul>
+<li>代码更简洁（减少匿名类模板代码）；</li>
+<li>逻辑更清晰（专注 “做什么” 而非 “怎么做”）；</li>
+<li>易于并行处理（<code>Stream</code> 可通过 <code>parallelStream()</code> 实现并行操作）。</li>
+</ul>
+<p>实际开发中，函数式编程通常与面向对象编程结合使用，例如用 <code>Stream</code> 处理集合数据，用 <code>Optional</code> 避免空指针，用方法引用简化代码，从而提高开发效率和代码可读性。</p>
+<h2 id="代码实操"><a href="#代码实操" class="headerlink" title="代码实操"></a>代码实操</h2><h3 id="1-根据id查询商户并实现缓存"><a href="#1-根据id查询商户并实现缓存" class="headerlink" title="1.根据id查询商户并实现缓存"></a>1.根据id查询商户并实现缓存</h3><p><code>ShopServiceImpl</code>类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShopServiceImpl</span> <span class="keyword">extends</span> <span class="title class_">ServiceImpl</span>&lt;ShopMapper, Shop&gt; <span class="keyword">implements</span> <span class="title class_">IShopService</span> &#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate stringRedisTemplate;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">queryById</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">        String Key=CACHE_SHOP_KEY+id;</span><br><span class="line">        <span class="comment">// 1.从redis查询商铺缓存</span></span><br><span class="line">        String shopJson=stringRedisTemplate.opsForValue().get(Key);</span><br><span class="line">        <span class="comment">//2.判断是否存在</span></span><br><span class="line">        <span class="keyword">if</span>(StrUtil.isNotBlank(shopJson))&#123;</span><br><span class="line">            <span class="comment">// 3.存在直接返回</span></span><br><span class="line">            Shop shop= JSONUtil.toBean(shopJson, Shop.class);</span><br><span class="line">            <span class="keyword">return</span> Result.ok(shop);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 4.不存在，根据id查询数据库</span></span><br><span class="line">        <span class="type">Shop</span> <span class="variable">shop</span> <span class="operator">=</span> getById( id);</span><br><span class="line">        <span class="comment">// 5.数据库不存在，返回错误</span></span><br><span class="line">        <span class="keyword">if</span>(shop==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;店铺不存在&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//6.存在，写入redis</span></span><br><span class="line">        stringRedisTemplate.opsForValue().set(Key,JSONUtil.toJsonStr(shop));</span><br><span class="line">        <span class="keyword">return</span> Result.ok(shop);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-给商铺类型实现缓存"><a href="#2-给商铺类型实现缓存" class="headerlink" title="2.给商铺类型实现缓存"></a>2.给商铺类型实现缓存</h3><p><code>ShopTypeServiceImpl</code>类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShopTypeServiceImpl</span> <span class="keyword">extends</span> <span class="title class_">ServiceImpl</span>&lt;ShopTypeMapper, ShopType&gt; <span class="keyword">implements</span> <span class="title class_">IShopTypeService</span> &#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate stringRedisTemplate;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">queryTypeList</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> <span class="string">&quot;cache:shop_type_list&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 先尝试从Redis中获取</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> stringRedisTemplate.opsForValue().get(key);</span><br><span class="line">        <span class="keyword">if</span> (json != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">// Redis中存在数据，直接返回</span></span><br><span class="line">            List&lt;ShopType&gt; typeList = JSONUtil.toList(json, ShopType.class);</span><br><span class="line">            <span class="keyword">return</span> Result.ok(typeList);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 2. Redis中不存在，查询数据库</span></span><br><span class="line">        List&lt;ShopType&gt; typeList = query().orderByAsc(<span class="string">&quot;sort&quot;</span>).list();</span><br><span class="line">        <span class="comment">// 3. 将数据保存在Redis中</span></span><br><span class="line">        <span class="keyword">if</span> (!typeList.isEmpty()) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> JSONUtil.toJsonStr(typeList);</span><br><span class="line">            stringRedisTemplate.opsForValue().set(key, jsonStr);</span><br><span class="line">            <span class="comment">// 可以设置过期时间，例如30分钟</span></span><br><span class="line">             stringRedisTemplate.opsForValue().set(key, jsonStr, <span class="number">30</span>, TimeUnit.MINUTES);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 4. 将数据返回给前端</span></span><br><span class="line">        <span class="keyword">return</span> Result.ok(typeList);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-实现商铺和缓存与数据库双写一致"><a href="#3-实现商铺和缓存与数据库双写一致" class="headerlink" title="3.实现商铺和缓存与数据库双写一致"></a>3.实现商铺和缓存与数据库双写一致</h3><ol>
+<li><p>据id查询店铺时，如果缓存未命中，则查询数据库，将数据库结果写入缓存，并设置超时时间</p>
+</li>
+<li><p>根据id修改店铺时，先修改数据库，再删除缓存</p>
+</li>
+</ol>
+<p>修改<strong>ShopServiceImpl</strong>的queryById方法，设置redis缓存时添加过期时间</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//设置redis缓存时添加过期时间</span></span><br><span class="line">stringRedisTemplate.opsForValue().set(Key,JSONUtil.toJsonStr(shop),CACHE_SHOP_TTL, TimeUnit.MINUTES);</span><br></pre></td></tr></table></figure>
+
+<p>Controller层的updateShop接口中调用service中的update方法<br>采用删除策略，来解决双写问题，当我们<u>修改了数据之后，然后把缓存中的数据进行删除</u>，<u>查询时</u>发现缓存中没有数据，则会从mysql中<u>加载最新的数据</u>，从而避免数据库和缓存不一致的问题</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">update</span><span class="params">(Shop shop)</span> &#123;</span><br><span class="line">    Long id=shop.getId();</span><br><span class="line">    <span class="keyword">if</span>(id==<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;店铺id不能为空&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//1.更新数据库</span></span><br><span class="line">    updateById(shop);</span><br><span class="line">    <span class="comment">//2.删除缓存</span></span><br><span class="line"> stringRedisTemplate.delete(CACHE_SHOP_KEY+id);</span><br><span class="line">        <span class="keyword">return</span> Result.ok();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-编码解决商品查询的缓存穿透问题"><a href="#4-编码解决商品查询的缓存穿透问题" class="headerlink" title="4.编码解决商品查询的缓存穿透问题"></a>4.编码解决商品查询的缓存穿透问题</h3><p>改良ShopServiceImpI中的queryById方法</p>
+<ul>
+<li>添加判断命中是否空值；</li>
+<li>添加若不存在shop信息，则将空值写入Redis。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"> <span class="keyword">public</span> Result <span class="title function_">queryById</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">     String Key=CACHE_SHOP_KEY+id;</span><br><span class="line">     <span class="comment">// 1.从redis查询商铺缓存</span></span><br><span class="line">     String shopJson=stringRedisTemplate.opsForValue().get(Key);</span><br><span class="line">     <span class="comment">//2.判断是否存在</span></span><br><span class="line">     <span class="keyword">if</span>(StrUtil.isNotBlank(shopJson))&#123;</span><br><span class="line">         <span class="comment">// 3.存在直接返回</span></span><br><span class="line">         Shop shop= JSONUtil.toBean(shopJson, Shop.class);</span><br><span class="line">         <span class="keyword">return</span> Result.ok(shop);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="comment">/*  内容：添加判断命中的是否空值</span></span><br><span class="line"><span class="comment">         时间： 2025/9/24 00:18 */</span></span><br><span class="line">      <span class="keyword">if</span>(shopJson!=<span class="literal">null</span>)&#123;</span><br><span class="line">          <span class="comment">//返回一个错误信息</span></span><br><span class="line">          <span class="keyword">return</span> Result.fail(<span class="string">&quot;店铺不存在&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">     <span class="comment">// 4.不存在，根据id查询数据库</span></span><br><span class="line">     <span class="type">Shop</span> <span class="variable">shop</span> <span class="operator">=</span> getById( id);</span><br><span class="line">     <span class="comment">// 5.数据库不存在，返回错误</span></span><br><span class="line">     <span class="keyword">if</span>(shop==<span class="literal">null</span>)&#123;</span><br><span class="line">         <span class="comment">/*  内容：将空值写入Redis</span></span><br><span class="line"><span class="comment">             时间： 2025/9/24 00:20 */</span></span><br><span class="line">          stringRedisTemplate.opsForValue().set(Key,<span class="string">&quot;&quot;</span>,CACHE_NULL_TTL,TimeUnit.MINUTES);</span><br><span class="line">         <span class="keyword">return</span> Result.fail(<span class="string">&quot;店铺不存在&quot;</span>);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="comment">//6.存在，写入redis</span></span><br><span class="line">     <span class="comment">//设置redis缓存时添加过期时间</span></span><br><span class="line">     stringRedisTemplate.opsForValue().set(Key,JSONUtil.toJsonStr(shop),CACHE_SHOP_TTL, TimeUnit.MINUTES);</span><br><span class="line">     <span class="keyword">return</span> Result.ok(shop);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-缓存雪崩问题及解决"><a href="#5-缓存雪崩问题及解决" class="headerlink" title="5.缓存雪崩问题及解决"></a>5.缓存雪崩问题及解决</h3><ol>
+<li><p>添加随机数生成器：</p>
+<p>在文件中导入了java.util.Random类用于生成随机数</p>
+</li>
+<li><p>为正常缓存添加随机过期时间：</p>
+<p>将原来的固定过期时间CACHE_SHOP_TTL修改CACHE_SHOP_TTL + random.nextInt(10)，这样每个店铺缓存的过期时间会在原有基础上随机增加0-9分钟，避免大量缓存在同一时间过期</p>
+</li>
+<li><p>为空值缓存也添加随机过期时间：</p>
+<p>将原来用于解决缓存穿透的空值缓存过期时CACHE_NULL_TT，修改为CACHE_NULL_TTL + random.nextInt(5)，这样空值缓存也会有随机的过期时间，进一步分散过期时间点</p>
+</li>
+</ol>
+<h3 id="6-缓存击穿问题及解决"><a href="#6-缓存击穿问题及解决" class="headerlink" title="6.缓存击穿问题及解决"></a>6.缓存击穿问题及解决</h3><h4 id="6-1利用互斥锁解决缓存击穿问题"><a href="#6-1利用互斥锁解决缓存击穿问题" class="headerlink" title="6.1利用互斥锁解决缓存击穿问题"></a>6.1利用互斥锁解决缓存击穿问题</h4><p>利用Redis中的setnx命令来实现互斥锁。释放锁通过del命令来 删除</p>
+<p>在SpringDataRedis中是setIfAbsent</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">tryLock</span><span class="params">(String key)</span>&#123;</span><br><span class="line">        Boolean flag=stringRedisTemplate.opsForValue().setIfAbsent(key, <span class="string">&quot;1&quot;</span>, <span class="number">10</span>, TimeUnit.SECONDS);</span><br><span class="line">        <span class="keyword">return</span> BooleanUtil.isTrue(flag);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">unLock</span><span class="params">(String key)</span>&#123;</span><br><span class="line">        stringRedisTemplate.delete(key);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>定义queryWithMutex方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Shop <span class="title function_">queryWithMutex</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">        String Key=CACHE_SHOP_KEY+id;</span><br><span class="line">        <span class="comment">// 1.从redis查询商铺缓存</span></span><br><span class="line">        String shopJson=stringRedisTemplate.opsForValue().get(Key);</span><br><span class="line">        <span class="comment">//2.判断缓存是否命中</span></span><br><span class="line">        <span class="comment">//isNotBlank用于判断字符串是否‌不为空且不全是空白字符‌的方法</span></span><br><span class="line">        <span class="keyword">if</span>(StrUtil.isNotBlank(shopJson))&#123;</span><br><span class="line">            <span class="comment">// 3.存在直接返回</span></span><br><span class="line">            <span class="keyword">return</span> JSONUtil.toBean(shopJson, Shop.class);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//判断命中的值是否是空值</span></span><br><span class="line">        <span class="keyword">if</span> (shopJson != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">//是空值，则返回一个错误信息</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//4.未命中则尝试获取互斥锁</span></span><br><span class="line">        String lockKey=LOCK_SHOP_KEY+id;</span><br><span class="line">        <span class="type">Shop</span> <span class="variable">shop</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">boolean</span> isLock=tryLock(lockKey);</span><br><span class="line">            <span class="comment">//判断是否成功获取</span></span><br><span class="line">            <span class="keyword">if</span>(!isLock)&#123;</span><br><span class="line">                <span class="comment">//失败，则休眠重试</span></span><br><span class="line">                Thread.sleep(<span class="number">50</span>);</span><br><span class="line">                <span class="keyword">return</span> queryWithMutex(id);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//5.成功，根据id查询数据库</span></span><br><span class="line">            shop=getById(id);</span><br><span class="line">            <span class="keyword">if</span>(shop==<span class="literal">null</span>)&#123;</span><br><span class="line">                <span class="comment">//不存在，将空值写入Redis</span></span><br><span class="line">                stringRedisTemplate.opsForValue().set(Key,<span class="string">&quot;&quot;</span>,CACHE_NULL_TTL,TimeUnit.MINUTES);</span><br><span class="line">                <span class="comment">//返回错误信息</span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        <span class="comment">//6.写入Redis</span></span><br><span class="line">        <span class="comment">//设置redis缓存时添加过期时间，增加随机值防止缓存雪崩</span></span><br><span class="line">        <span class="type">Random</span> <span class="variable">random</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>();</span><br><span class="line">        <span class="type">long</span> <span class="variable">randomTTL</span> <span class="operator">=</span> CACHE_SHOP_TTL + random.nextInt(<span class="number">10</span>);</span><br><span class="line">        stringRedisTemplate.opsForValue().set(Key,JSONUtil.toJsonStr(shop),randomTTL, TimeUnit.MINUTES);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">        &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">//7.释放锁</span></span><br><span class="line">            unLock(lockKey);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//8.返回</span></span><br><span class="line">        <span class="keyword">return</span> shop;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-2利用逻辑过期解决缓存击穿问题"><a href="#6-2利用逻辑过期解决缓存击穿问题" class="headerlink" title="6.2利用逻辑过期解决缓存击穿问题"></a>6.2利用逻辑过期解决缓存击穿问题</h4><p>用到了线程池</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//缓存预热</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">saveShop2Redis</span><span class="params">(Long id, Long expireSeconds)</span> &#123;</span><br><span class="line">        <span class="comment">//1.查询店铺数据</span></span><br><span class="line">        <span class="type">Shop</span> <span class="variable">shop</span> <span class="operator">=</span> getById(id);</span><br><span class="line">        <span class="comment">//2.封装逻辑过期时间</span></span><br><span class="line">        <span class="type">RedisData</span> <span class="variable">redisData</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RedisData</span>();</span><br><span class="line">        redisData.setData(shop);</span><br><span class="line">        redisData.setExpireTime(LocalDateTime.now().plusSeconds(expireSeconds));</span><br><span class="line">        <span class="comment">//3.写入Redis</span></span><br><span class="line">        stringRedisTemplate.opsForValue().set(CACHE_SHOP_KEY+id,JSONUtil.toJsonStr(redisData));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//线程池</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">ExecutorService</span> <span class="variable">CACHE_REBUILD_EXECUTOR</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">10</span>);</span><br><span class="line">    <span class="comment">//逻辑过期解决缓存击穿</span></span><br><span class="line">    <span class="keyword">public</span> Shop <span class="title function_">queryWithLogicalExpire</span><span class="params">( Long id )</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> CACHE_SHOP_KEY + id;</span><br><span class="line">        <span class="comment">// 1.从redis查询商铺缓存</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> stringRedisTemplate.opsForValue().get(key);</span><br><span class="line">        <span class="comment">// 2.判断是否存在</span></span><br><span class="line">        <span class="keyword">if</span> (StrUtil.isBlank(json)) &#123;</span><br><span class="line">            <span class="comment">// 3.不存在，直接返回</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 4.命中，需要先把json反序列化为对象</span></span><br><span class="line">        <span class="type">RedisData</span> <span class="variable">redisData</span> <span class="operator">=</span> JSONUtil.toBean(json, RedisData.class);</span><br><span class="line">        <span class="type">Shop</span> <span class="variable">shop</span> <span class="operator">=</span> JSONUtil.toBean((JSONObject) redisData.getData(), Shop.class);</span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">expireTime</span> <span class="operator">=</span> redisData.getExpireTime();</span><br><span class="line">        <span class="comment">// 5.判断是否过期</span></span><br><span class="line">        <span class="keyword">if</span>(expireTime.isAfter(LocalDateTime.now())) &#123;</span><br><span class="line">            <span class="comment">// 5.1.未过期，直接返回店铺信息</span></span><br><span class="line">            <span class="keyword">return</span> shop;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 5.2.已过期，需要缓存重建</span></span><br><span class="line">        <span class="comment">// 6.缓存重建</span></span><br><span class="line">        <span class="comment">// 6.1.获取互斥锁</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">lockKey</span> <span class="operator">=</span> LOCK_SHOP_KEY + id;</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isLock</span> <span class="operator">=</span> tryLock(lockKey);</span><br><span class="line">        <span class="comment">// 6.2.判断是否获取锁成功</span></span><br><span class="line">        <span class="keyword">if</span> (isLock)&#123;</span><br><span class="line">            CACHE_REBUILD_EXECUTOR.submit( ()-&gt;&#123;</span><br><span class="line">                <span class="keyword">try</span>&#123;</span><br><span class="line">                    <span class="comment">//重建缓存</span></span><br><span class="line">                    <span class="built_in">this</span>.saveShop2Redis(id,<span class="number">20L</span>);</span><br><span class="line">                &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">                &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">                    unLock(lockKey);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 6.4.返回过期的商铺信息</span></span><br><span class="line">        <span class="keyword">return</span> shop;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="封装Redis工具类"><a href="#封装Redis工具类" class="headerlink" title="封装Redis工具类"></a>封装Redis工具类</h2><h3 id="一、代码"><a href="#一、代码" class="headerlink" title="一、代码"></a>一、代码</h3><p>基于StringRedisTemplate封装一个缓存工具类，满足下列需求：</p>
+<ul>
+<li><p>方法1：将任意Java对象序列化为json并存储在string类型的key中，并且可以设置TTL过期时间</p>
+</li>
+<li><p>方法2：将任意Java对象序列化为json并存储在string类型的key中，并且可以设置逻辑过期时间，用于处理缓存击穿问题</p>
+</li>
+<li><p>方法3：根据指定的key查询缓存，并反序列化为指定类型，利用缓存空值的方式解决缓存穿透问题</p>
+</li>
+<li><p>方法4：根据指定的key查询缓存，并反序列化为指定类型，需要利用逻辑过期解决缓存击穿问题</p>
+</li>
+</ul>
+<p>含有逻辑时间的类</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Data</span><br><span class="line">public class RedisData &#123;</span><br><span class="line">    private LocalDateTime expireTime;</span><br><span class="line">    private Object data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将逻辑进行封装</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CacheClient</span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> StringRedisTemplate stringRedisTemplate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">ExecutorService</span> <span class="variable">CACHE_REBUILD_EXECUTOR</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">CacheClient</span><span class="params">(StringRedisTemplate stringRedisTemplate)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.stringRedisTemplate = stringRedisTemplate;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//方法1：将任意Java对象序列化为json并存储在string类型的key中，并且可以设置TTL过期时间</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">set</span><span class="params">(String key, Object value, Long time, TimeUnit unit)</span> &#123;</span><br><span class="line">    stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(value), time, unit);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//方法2：将任意Java对象序列化为json并存储在string类型的key中，并且可以设置逻辑过期时间，用于处理缓存击穿问题</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setWithLogicalExpire</span><span class="params">(String key, Object value, Long time, TimeUnit unit)</span> &#123;</span><br><span class="line">    <span class="comment">// 设置逻辑过期</span></span><br><span class="line">    <span class="type">RedisData</span> <span class="variable">redisData</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RedisData</span>();</span><br><span class="line">    redisData.setData(value);</span><br><span class="line">    redisData.setExpireTime(LocalDateTime.now().plusSeconds(unit.toSeconds(time)));</span><br><span class="line">    <span class="comment">// 写入Redis</span></span><br><span class="line">    stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(redisData));</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//方法3：根据指定的key查询缓存，并反序列化为指定类型，利用缓存空值的方式解决缓存穿透问题</span></span><br><span class="line"><span class="keyword">public</span> &lt;R,ID&gt; R <span class="title function_">queryWithPassThrough</span><span class="params">(</span></span><br><span class="line"><span class="params">        String keyPrefix, ID id, Class&lt;R&gt; type, Function&lt;ID, R&gt; dbFallback, Long time, TimeUnit unit)</span>&#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> keyPrefix + id;</span><br><span class="line">    <span class="comment">// 1.从redis查询商铺缓存</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> stringRedisTemplate.opsForValue().get(key);</span><br><span class="line">    <span class="comment">// 2.判断是否存在</span></span><br><span class="line">    <span class="keyword">if</span> (StrUtil.isNotBlank(json)) &#123;</span><br><span class="line">        <span class="comment">// 3.存在，直接返回</span></span><br><span class="line">        <span class="keyword">return</span> JSONUtil.toBean(json, type);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 判断命中的是否是空值</span></span><br><span class="line">    <span class="keyword">if</span> (json != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 返回一个错误信息</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 4.不存在，根据id查询数据库</span></span><br><span class="line">    <span class="type">R</span> <span class="variable">r</span> <span class="operator">=</span> dbFallback.apply(id);</span><br><span class="line">    <span class="comment">// 5.不存在，返回错误</span></span><br><span class="line">    <span class="keyword">if</span> (r == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 将空值写入redis</span></span><br><span class="line">        stringRedisTemplate.opsForValue().set(key, <span class="string">&quot;&quot;</span>, CACHE_NULL_TTL, TimeUnit.MINUTES);</span><br><span class="line">        <span class="comment">// 返回错误信息</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 6.存在，写入redis</span></span><br><span class="line">    <span class="built_in">this</span>.set(key, r, time, unit);</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//方法4：根据指定的key查询缓存，并反序列化为指定类型，需要利用逻辑过期解决缓存击穿问题</span></span><br><span class="line"><span class="keyword">public</span> &lt;R, ID&gt; R <span class="title function_">queryWithLogicalExpire</span><span class="params">(</span></span><br><span class="line"><span class="params">        String keyPrefix, ID id, Class&lt;R&gt; type, Function&lt;ID, R&gt; dbFallback, Long time, TimeUnit unit)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> keyPrefix + id;</span><br><span class="line">    <span class="comment">// 1.从redis查询商铺缓存</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> stringRedisTemplate.opsForValue().get(key);</span><br><span class="line">    <span class="comment">// 2.判断是否存在</span></span><br><span class="line">    <span class="keyword">if</span> (StrUtil.isBlank(json)) &#123;</span><br><span class="line">        <span class="comment">// 3.存在，直接返回</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 4.命中，需要先把json反序列化为对象</span></span><br><span class="line">    <span class="type">RedisData</span> <span class="variable">redisData</span> <span class="operator">=</span> JSONUtil.toBean(json, RedisData.class);</span><br><span class="line">    <span class="type">R</span> <span class="variable">r</span> <span class="operator">=</span> JSONUtil.toBean((JSONObject) redisData.getData(), type);</span><br><span class="line">    <span class="type">LocalDateTime</span> <span class="variable">expireTime</span> <span class="operator">=</span> redisData.getExpireTime();</span><br><span class="line">    <span class="comment">// 5.判断是否过期</span></span><br><span class="line">    <span class="keyword">if</span>(expireTime.isAfter(LocalDateTime.now())) &#123;</span><br><span class="line">        <span class="comment">// 5.1.未过期，直接返回店铺信息</span></span><br><span class="line">        <span class="keyword">return</span> r;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 5.2.已过期，需要缓存重建</span></span><br><span class="line">    <span class="comment">// 6.缓存重建</span></span><br><span class="line">    <span class="comment">// 6.1.获取互斥锁</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">lockKey</span> <span class="operator">=</span> LOCK_SHOP_KEY + id;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">isLock</span> <span class="operator">=</span> tryLock(lockKey);</span><br><span class="line">    <span class="comment">// 6.2.判断是否获取锁成功</span></span><br><span class="line">    <span class="keyword">if</span> (isLock)&#123;</span><br><span class="line">        <span class="comment">// 6.3.成功，开启独立线程，实现缓存重建</span></span><br><span class="line">        CACHE_REBUILD_EXECUTOR.submit(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 查询数据库</span></span><br><span class="line">                <span class="type">R</span> <span class="variable">newR</span> <span class="operator">=</span> dbFallback.apply(id);</span><br><span class="line">                <span class="comment">// 重建缓存</span></span><br><span class="line">                <span class="built_in">this</span>.setWithLogicalExpire(key, newR, time, unit);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">            &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="comment">// 释放锁</span></span><br><span class="line">                unlock(lockKey);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 6.4.返回过期的商铺信息</span></span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//互斥锁方案</span></span><br><span class="line"><span class="keyword">public</span> &lt;R, ID&gt; R <span class="title function_">queryWithMutex</span><span class="params">(</span></span><br><span class="line"><span class="params">        String keyPrefix, ID id, Class&lt;R&gt; type, Function&lt;ID, R&gt; dbFallback, Long time, TimeUnit unit)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> keyPrefix + id;</span><br><span class="line">    <span class="comment">// 1.从redis查询商铺缓存</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">shopJson</span> <span class="operator">=</span> stringRedisTemplate.opsForValue().get(key);</span><br><span class="line">    <span class="comment">// 2.判断是否存在</span></span><br><span class="line">    <span class="keyword">if</span> (StrUtil.isNotBlank(shopJson)) &#123;</span><br><span class="line">        <span class="comment">// 3.存在，直接返回</span></span><br><span class="line">        <span class="keyword">return</span> JSONUtil.toBean(shopJson, type);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 判断命中的是否是空值</span></span><br><span class="line">    <span class="keyword">if</span> (shopJson != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 返回一个错误信息</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 4.实现缓存重建</span></span><br><span class="line">    <span class="comment">// 4.1.获取互斥锁</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">lockKey</span> <span class="operator">=</span> LOCK_SHOP_KEY + id;</span><br><span class="line">    <span class="type">R</span> <span class="variable">r</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isLock</span> <span class="operator">=</span> tryLock(lockKey);</span><br><span class="line">        <span class="comment">// 4.2.判断是否获取成功</span></span><br><span class="line">        <span class="keyword">if</span> (!isLock) &#123;</span><br><span class="line">            <span class="comment">// 4.3.获取锁失败，休眠并重试</span></span><br><span class="line">            Thread.sleep(<span class="number">50</span>);</span><br><span class="line">            <span class="keyword">return</span> queryWithMutex(keyPrefix, id, type, dbFallback, time, unit);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 4.4.获取锁成功，根据id查询数据库</span></span><br><span class="line">        r = dbFallback.apply(id);</span><br><span class="line">        <span class="comment">// 5.不存在，返回错误</span></span><br><span class="line">        <span class="keyword">if</span> (r == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 将空值写入redis</span></span><br><span class="line">            stringRedisTemplate.opsForValue().set(key, <span class="string">&quot;&quot;</span>, CACHE_NULL_TTL, TimeUnit.MINUTES);</span><br><span class="line">            <span class="comment">// 返回错误信息</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 6.存在，写入redis</span></span><br><span class="line">        <span class="built_in">this</span>.set(key, r, time, unit);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">    &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// 7.释放锁</span></span><br><span class="line">        unlock(lockKey);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 8.返回</span></span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">tryLock</span><span class="params">(String key)</span> &#123;</span><br><span class="line">    <span class="type">Boolean</span> <span class="variable">flag</span> <span class="operator">=</span> stringRedisTemplate.opsForValue().setIfAbsent(key, <span class="string">&quot;1&quot;</span>, <span class="number">10</span>, TimeUnit.SECONDS);</span><br><span class="line">    <span class="keyword">return</span> BooleanUtil.isTrue(flag);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">unlock</span><span class="params">(String key)</span> &#123;</span><br><span class="line">    stringRedisTemplate.delete(key);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在ShopServiceImpl 中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Resource</span></span><br><span class="line"><span class="keyword">private</span> CacheClient cacheClient;</span><br><span class="line"></span><br><span class="line"> <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">queryById</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">        <span class="comment">// 解决缓存穿透</span></span><br><span class="line">        <span class="type">Shop</span> <span class="variable">shop</span> <span class="operator">=</span> cacheClient</span><br><span class="line">                .queryWithPassThrough(CACHE_SHOP_KEY, id, Shop.class, <span class="built_in">this</span>::getById, CACHE_SHOP_TTL, TimeUnit.MINUTES);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 互斥锁解决缓存击穿</span></span><br><span class="line">        <span class="comment">// Shop shop = cacheClient</span></span><br><span class="line">        <span class="comment">//         .queryWithMutex(CACHE_SHOP_KEY, id, Shop.class, this::getById, CACHE_SHOP_TTL, TimeUnit.MINUTES);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 逻辑过期解决缓存击穿</span></span><br><span class="line">        <span class="comment">// Shop shop = cacheClient</span></span><br><span class="line">        <span class="comment">//         .queryWithLogicalExpire(CACHE_SHOP_KEY, id, Shop.class, this::getById, 20L, TimeUnit.SECONDS);</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (shop == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;店铺不存在！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 7.返回</span></span><br><span class="line">        <span class="keyword">return</span> Result.ok(shop);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="二、代码讲解"><a href="#二、代码讲解" class="headerlink" title="二、代码讲解"></a>二、代码讲解</h3><p>这段代码主要实现了一个基于 Redis 的缓存工具类<code>CacheClient</code>，并在<code>ShopServiceImpl</code>中展示了其用法。该工具类封装了多种缓存策略，用于解决缓存常见问题（缓存穿透、缓存击穿等），下面详细解释其内容：</p>
+<h4 id="一、核心类与依赖说明"><a href="#一、核心类与依赖说明" class="headerlink" title="一、核心类与依赖说明"></a>一、核心类与依赖说明</h4><ol>
+<li><strong>RedisData 类</strong>：用于存储带逻辑过期时间的数据，包含两个字段<ul>
+<li><code>expireTime</code>：逻辑过期时间（LocalDateTime 类型）</li>
+<li><code>data</code>：实际存储的业务数据（Object 类型）</li>
+</ul>
+</li>
+<li><strong>CacheClient 类</strong>：缓存工具类，核心功能类<ul>
+<li>依赖<code>StringRedisTemplate</code>：Spring 提供的 Redis 操作模板，用于执行 Redis 命令</li>
+<li>内置线程池<code>CACHE_REBUILD_EXECUTOR</code>：固定 10 个线程，用于缓存击穿时的异步缓存重建</li>
+<li>注解<code>@Slf4j</code>：提供日志功能；<code>@Component</code>：标记为 Spring 组件，可被自动注入</li>
+</ul>
+</li>
+</ol>
+<h4 id="二、CacheClient-核心方法解析"><a href="#二、CacheClient-核心方法解析" class="headerlink" title="二、CacheClient 核心方法解析"></a>二、CacheClient 核心方法解析</h4><h5 id="1-基础存储方法：set（解决基本缓存存储）"><a href="#1-基础存储方法：set（解决基本缓存存储）" class="headerlink" title="1. 基础存储方法：set（解决基本缓存存储）"></a>1. 基础存储方法：set（解决基本缓存存储）</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">set</span><span class="params">(String key, Object value, Long time, TimeUnit unit)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>功能</strong>：将任意 Java 对象序列化为 JSON，存储到 Redis 的 string 类型 key 中，并设置 TTL（物理过期时间）</li>
+<li>参数：<ul>
+<li><code>key</code>：Redis 的 key</li>
+<li><code>value</code>：要存储的 Java 对象</li>
+<li><code>time</code>：过期时间数值</li>
+<li><code>unit</code>：过期时间单位（如分钟、秒）</li>
+</ul>
+</li>
+<li>实现逻辑：<ul>
+<li>使用<code>JSONUtil.toJsonStr(value)</code>将对象序列化为 JSON 字符串</li>
+<li>调用<code>stringRedisTemplate.opsForValue().set()</code>方法存储，同时指定过期时间</li>
+</ul>
+</li>
+</ul>
+<h5 id="2-逻辑过期存储方法：setWithLogicalExpire（为解决缓存击穿做准备）"><a href="#2-逻辑过期存储方法：setWithLogicalExpire（为解决缓存击穿做准备）" class="headerlink" title="2. 逻辑过期存储方法：setWithLogicalExpire（为解决缓存击穿做准备）"></a>2. 逻辑过期存储方法：setWithLogicalExpire（为解决缓存击穿做准备）</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setWithLogicalExpire</span><span class="params">(String key, Object value, Long time, TimeUnit unit)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>功能</strong>：将对象存储到 Redis，并设置<strong>逻辑过期时间</strong>（而非 Redis 的物理过期），用于解决缓存击穿问题</li>
+<li>与 set 方法的区别：<ul>
+<li>不设置 Redis 的 TTL（key 永不过期）</li>
+<li>过期时间存储在<code>RedisData</code>对象中（逻辑层面的过期）</li>
+</ul>
+</li>
+<li>实现逻辑：<ul>
+<li>创建<code>RedisData</code>对象，封装业务数据<code>value</code>和过期时间（当前时间 + 指定时间）</li>
+<li>将<code>RedisData</code>对象序列化为 JSON，存储到 Redis</li>
+</ul>
+</li>
+</ul>
+<h5 id="3-缓存穿透解决方案：queryWithPassThrough"><a href="#3-缓存穿透解决方案：queryWithPassThrough" class="headerlink" title="3. 缓存穿透解决方案：queryWithPassThrough"></a>3. 缓存穿透解决方案：queryWithPassThrough</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;R,ID&gt; R <span class="title function_">queryWithPassThrough</span><span class="params">(</span></span><br><span class="line"><span class="params">    String keyPrefix, ID id, Class&lt;R&gt; type, Function&lt;ID, R&gt; dbFallback, Long time, TimeUnit unit)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>缓存穿透</strong>：指查询不存在的数据时，请求绕过缓存直接冲击数据库（因缓存中无该数据）</li>
+<li><strong>解决思路</strong>：缓存空值（若数据库中也不存在该数据，往 Redis 存一个空值，避免后续请求直接查库）</li>
+<li>参数说明：<ul>
+<li><code>keyPrefix</code>：key 的前缀（如 “shop:”）</li>
+<li><code>id</code>：业务 ID（如店铺 ID）</li>
+<li><code>type</code>：返回数据的类型（如 Shop.class）</li>
+<li><code>dbFallback</code>：数据库查询函数（当缓存未命中时调用，如<code>this::getById</code>）</li>
+<li><code>time</code>和<code>unit</code>：缓存过期时间</li>
+</ul>
+</li>
+<li>执行流程：<ol>
+<li>拼接 Redis 的 key（<code>keyPrefix + id</code>），查询 Redis</li>
+<li>若缓存存在（非空）：反序列化为对象并返回</li>
+<li>若缓存存在但为空（””）：说明数据库中也无此数据，返回 null（避免查库）</li>
+<li>若缓存不存在：调用<code>dbFallback</code>查数据库<ul>
+<li>若数据库也无数据：往 Redis 存空值（设置短期过期），返回 null</li>
+<li>若数据库有数据：将数据存入 Redis（设置过期时间），返回数据</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h5 id="4-缓存击穿解决方案-1：queryWithLogicalExpire"><a href="#4-缓存击穿解决方案-1：queryWithLogicalExpire" class="headerlink" title="4. 缓存击穿解决方案 1：queryWithLogicalExpire"></a>4. 缓存击穿解决方案 1：queryWithLogicalExpire</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;R, ID&gt; R <span class="title function_">queryWithLogicalExpire</span><span class="params">(...)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>缓存击穿</strong>：指热点 key 过期瞬间，大量请求同时访问该 key，导致请求全部冲击数据库</li>
+<li>逻辑过期解决思路：<ul>
+<li>热点 key 永不过期（Redis 的 TTL 不设置），但在<code>RedisData</code>中设置逻辑过期时间</li>
+<li>当逻辑过期时，仅让一个线程重建缓存，其他线程返回旧数据</li>
+</ul>
+</li>
+<li>执行流程：<ol>
+<li>查 Redis，若缓存不存在直接返回 null</li>
+<li>若缓存存在：反序列化为<code>RedisData</code>，解析出业务数据和逻辑过期时间</li>
+<li>若未过期：直接返回业务数据</li>
+<li>若已过期：<ul>
+<li>尝试获取互斥锁（<code>tryLock</code>）</li>
+<li>若获取锁成功：通过线程池异步执行缓存重建（查数据库→更新 Redis 的逻辑过期时间）</li>
+<li>无论是否获取锁，均返回旧数据（保证用户体验，避免阻塞）</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h5 id="5-缓存击穿解决方案-2：queryWithMutex（互斥锁方案）"><a href="#5-缓存击穿解决方案-2：queryWithMutex（互斥锁方案）" class="headerlink" title="5. 缓存击穿解决方案 2：queryWithMutex（互斥锁方案）"></a>5. 缓存击穿解决方案 2：queryWithMutex（互斥锁方案）</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;R, ID&gt; R <span class="title function_">queryWithMutex</span><span class="params">(...)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>互斥锁解决思路</strong>：热点 key 过期时，通过互斥锁保证同一时间只有一个线程能查数据库，其他线程等待重试</li>
+<li>执行流程：<ol>
+<li>查 Redis，若缓存存在直接返回</li>
+<li>若缓存不存在（或为空值）：<ul>
+<li>尝试获取互斥锁（<code>tryLock</code>）</li>
+<li>若获取失败：休眠 50ms 后重试（循环调用本方法）</li>
+<li>若获取成功：查数据库→更新缓存→释放锁→返回数据</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>与逻辑过期的区别：<ul>
+<li>互斥锁会阻塞等待，数据实时性高，但可能影响性能</li>
+<li>逻辑过期不阻塞，返回旧数据，性能好但存在短期数据不一致</li>
+</ul>
+</li>
+</ul>
+<h5 id="6-互斥锁工具方法"><a href="#6-互斥锁工具方法" class="headerlink" title="6. 互斥锁工具方法"></a>6. 互斥锁工具方法</h5><ul>
+<li><code>tryLock(String key)</code>：用 Redis 的<code>setIfAbsent</code>实现互斥锁（原子操作），设置 10 秒过期（避免死锁）</li>
+<li><code>unlock(String key)</code>：删除锁释放资源</li>
+</ul>
+<h4 id="三、ShopServiceImpl-中的使用"><a href="#三、ShopServiceImpl-中的使用" class="headerlink" title="三、ShopServiceImpl 中的使用"></a>三、ShopServiceImpl 中的使用</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">queryById</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">    <span class="comment">// 选择一种缓存策略（三选一）</span></span><br><span class="line">    <span class="type">Shop</span> <span class="variable">shop</span> <span class="operator">=</span> cacheClient.queryWithPassThrough(</span><br><span class="line">        CACHE_SHOP_KEY, id, Shop.class, <span class="built_in">this</span>::getById, CACHE_SHOP_TTL, TimeUnit.MINUTES);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (shop == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;店铺不存在！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> Result.ok(shop);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>说明</strong>：业务层通过调用<code>CacheClient</code>的方法实现缓存查询，无需关心缓存细节</li>
+<li>参数解释：<ul>
+<li><code>CACHE_SHOP_KEY</code>：缓存 key 前缀（如 “shop:”）</li>
+<li><code>this::getById</code>：数据库查询方法（当缓存未命中时调用 MyBatis 的 getById 方法）</li>
+<li><code>CACHE_SHOP_TTL</code>：缓存过期时间（如 30 分钟）</li>
+</ul>
+</li>
+</ul>
+<h4 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h4><p>该代码通过封装<code>CacheClient</code>工具类，实现了缓存的常见功能及问题解决方案：</p>
+<ul>
+<li>基础缓存存储（带 TTL）</li>
+<li>逻辑过期存储（为缓存击穿做准备）</li>
+<li>缓存穿透解决（缓存空值）</li>
+<li>缓存击穿解决（逻辑过期 + 异步重建 &#x2F; 互斥锁）</li>
+</ul>
+<p>通过这种封装，业务层可以灵活切换缓存策略，降低了缓存逻辑与业务逻辑的耦合度，提高了代码的可维护性。</p>
+</div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+          
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/02-%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95-%E5%9F%BA%E4%BA%8Esession/"
+        >02-短信登录-基于session</a
+      >
+       
+      <a class="next" rel="next" href="/2025/10/12/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/03-%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95-%E5%9F%BA%E4%BA%8ERedis%E6%96%B9%E6%A1%88/"
+        >03-短信登录-基于Redis方案</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem;"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById('giscus-container');
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = '';
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute('data-repo', 'meisijiya/meisijiya.github.io');
+
+   // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute('data-repo-id', 'R_kgDOPwTrpQ');
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwDOPwTrpc4CviGR');
+
+    // 其他常规推荐设置
+    script.setAttribute('data-mapping', 'pathname');           // 用页面路径匹配评论帖
+    script.setAttribute('data-strict', '0');                   // 若无匹配帖则创建新帖
+    script.setAttribute('data-reactions-enabled', '1');        // 启用表情反应
+    script.setAttribute('data-emit-metadata', '0');            // 不输出元数据
+    script.setAttribute('data-input-position', 'top');         // 输入框在评论上方
+    script.setAttribute('data-theme', theme);                
+    script.setAttribute('data-lang', 'zh-CN');                 // 中文界面
+    script.setAttribute('crossorigin', 'anonymous');           // 跨域资源安全
+    script.async = true;                                       
+     
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector('.toggleBtn'),
+      document.getElementById('mobile-toggle-theme')
+    ];
+    buttons.forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+<script src="/js/code-copy.js"></script>
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

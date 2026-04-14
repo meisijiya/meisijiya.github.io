@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>照片墙展示</title>
+    <link rel="icon" href="../images/金毛.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3B82F6",
+              secondary: "#6B7280",
+              accent: "#EC4899",
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer utilities {
+        .content-auto {
+          content-visibility: auto;
+        }
+        .masonry-grid {
+          column-count: 1;
+          column-gap: 1rem;
+        }
+        @screen md {
+          .masonry-grid {
+            column-count: 2;
+          }
+        }
+        @screen lg {
+          .masonry-grid {
+            column-count: 3;
+          }
+        }
+        @screen xl {
+          .masonry-grid {
+            column-count: 4;
+          }
+        }
+        .masonry-item {
+          break-inside: avoid;
+          margin-bottom: 1rem;
+        }
+        .glass-effect {
+          backdrop-filter: blur(8px);
+          background-color: rgba(255, 255, 255, 0.15);
+        }
+        .photo-hover {
+          transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .photo-info {
+          opacity: 0;
+          transform: translateY(10px);
+          transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .photo-container:hover .photo-hover {
+          filter: brightness(0.7);
+        }
+        .photo-container:hover .photo-info {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen font-sans">
+    <!-- 背景容器 - 请在此处添加您的背景图片 -->
+    <div
+      class="fixed inset-0 z-0 bg-cover bg-center"
+      style="background-image: url('https://oss.itbaima.cn/hub/928/image-20250926csrsw563r.png'); background-color: #f0f0f0"
+    >
+      <!-- 背景遮罩 -->
+      <div class="absolute inset-0 bg-black/30"></div>
+    </div>
+    <!-- 控制按钮区域 -->
+    <div class="fixed top-4 left-4 z-50 flex space-x-3">
+      <!-- 返回主页按钮 -->
+      <a
+        href="/"
+        class="w-12 h-12 rounded-full bg-white/20 glass-effect flex items-center justify-center text-white shadow-lg hover:bg-white/30 transition-all duration-300"
+      >
+        <i class="fa fa-home text-xl"></i>
+      </a>
+      <!-- 音乐控制按钮 -->
+      <button
+        id="musicToggle"
+        class="w-12 h-12 rounded-full bg-white/20 glass-effect flex items-center justify-center text-white shadow-lg hover:bg-white/30 transition-all duration-300"
+      >
+        <i class="fa fa-music text-xl"></i>
+      </button>
+      <!-- 背景音乐元素 -->
+      <audio id="backgroundMusic" loop>
+        <!-- 请替换为您的音乐文件路径 -->
+        <source src="music.mp3" type="audio/mpeg" />
+      </audio>
+    </div>
+
+    <!-- 页面标题 -->
+    <header class="relative z-10 pt-20 pb-10 text-center">
+      <h1
+        class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-white drop-shadow-lg"
+      >
+        老江湖的照片墙
+      </h1>
+      <p class="mt-3 text-white/80 max-w-2xl mx-auto text-lg">
+        记录生活中的美好瞬间，每一张照片都有一个故事
+      </p>
+    </header>
+
+    
+
+    <!-- 照片墙主体 -->
+    <main class="relative z-10 container mx-auto px-4 pb-20">
+      <div class="masonry-grid">
+     
+            <!-- 照片项 1 -->
+            <div class="masonry-item photo-container group cursor-pointer" data-index="0">
+                <div class="relative overflow-hidden rounded-lg shadow-xl">
+                    <img src="https://oss.itbaima.cn/hub/928/image-20250926zxxyud4i0.jpeg" alt="同房间门去广州拍的" class="w-full h-auto photo-hover">
+                    <div class="absolute inset-0 flex items-end p-4 photo-info glass-effect">
+                        <div>
+                            <h3 class="text-white font-bold text-xl">广州塔和房间门</h3>
+                            <p class="text-white/90">同房间门去广州拍的</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+    <!-- 照片详情模态框 -->
+    <div
+      id="photoModal"
+      class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+      <div
+        class="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        id="modalOverlay"
+      ></div>
+      <div
+        class="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-auto m-4 transform scale-95 transition-transform duration-300"
+        id="modalContent"
+      >
+        <button
+          id="closeModal"
+          class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/20 flex items-center justify-center text-white hover:bg-black/30 z-10 transition-all"
+        >
+          <i class="fa fa-times"></i>
+        </button>
+        <div class="grid md:grid-cols-2 gap-0">
+          <div class="bg-gray-100">
+            <img
+              id="modalImage"
+              src=""
+              alt="照片详情"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="p-6 md:p-8">
+            <h2
+              id="modalTitle"
+              class="text-2xl md:text-3xl font-bold text-gray-800 mb-4"
+            ></h2>
+            <div class="flex items-center text-sm text-gray-500 mb-6">
+              <span id="modalDate" class="flex items-center"
+                ><i class="fa fa-calendar-o mr-2"></i
+              ></span>
+              <span class="mx-3">•</span>
+              <span id="modalLocation" class="flex items-center"
+                ><i class="fa fa-map-marker mr-2"></i
+              ></span>
+            </div>
+            <div class="prose prose-gray max-w-none">
+              <p id="modalDescription"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- 音乐提示模态框 -->
+    <div id="musicModal" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+      <div class="relative bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6 transform scale-95 transition-transform duration-300">
+        <div class="text-center">
+          <div class="mx-auto w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-4">
+            <i class="fa fa-music text-blue-600 text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">背景音乐</h3>
+          <p class="text-gray-600 mb-6">是否开启背景音乐以获得更好的浏览体验？<br> 开启后可以在左上角关闭音乐</p>
+          <div class="flex space-x-3">
+            <button id="cancelMusic" class="flex-1 py-2 px-4 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
+              不开启
+            </button>
+            <button id="confirmMusic" class="flex-1 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              开启音乐
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 照片数据
+      const photos = [
+    {
+        id: 0,
+        src: "https://oss.itbaima.cn/hub/928/image-20250926zxxyud4i0.jpeg",
+        alt: "同房间门去广州拍的",
+        title: "广州塔和房间门",
+        date: "2024年11月8日",
+        location: "广州",
+        description: "我和房间门在校运会的三天假期跑去广州玩，在前往广州塔的路上，经过这个公园，我觉得很好的景，就让房间门站那，然后我就拍了。"
+    }
+];
+
+
+      // DOM 元素
+      const modal = document.getElementById("photoModal");
+      const modalContent = document.getElementById("modalContent");
+      const modalImage = document.getElementById("modalImage");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalDate = document.getElementById("modalDate");
+      const modalLocation = document.getElementById("modalLocation");
+      const modalDescription = document.getElementById("modalDescription");
+      const closeModal = document.getElementById("closeModal");
+      const modalOverlay = document.getElementById("modalOverlay");
+      const photoContainers = document.querySelectorAll(".photo-container");
+      const musicToggle = document.getElementById("musicToggle");
+      const backgroundMusic = document.getElementById("backgroundMusic");
+
+      // 打开模态框
+      function openModal(photo) {
+        modalImage.src = photo.src;
+        modalImage.alt = photo.alt;
+        modalTitle.textContent = photo.title;
+        modalDate.innerHTML = `<i class="fa fa-calendar-o mr-2"></i>${photo.date}`;
+        modalLocation.innerHTML = `<i class="fa fa-map-marker mr-2"></i>${photo.location}`;
+        modalDescription.textContent = photo.description;
+
+        modal.classList.remove("opacity-0", "pointer-events-none");
+        setTimeout(() => {
+          modalContent.classList.remove("scale-95");
+          modalContent.classList.add("scale-100");
+        }, 10);
+
+        document.body.style.overflow = "hidden";
+      }
+
+      // 关闭模态框
+      function closeModalFunc() {
+        modalContent.classList.remove("scale-100");
+        modalContent.classList.add("scale-95");
+        setTimeout(() => {
+          modal.classList.add("opacity-0", "pointer-events-none");
+          document.body.style.overflow = "";
+        }, 300);
+      }
+
+      // 照片点击事件
+      photoContainers.forEach((container) => {
+        container.addEventListener("click", () => {
+          const index = parseInt(container.dataset.index);
+          openModal(photos[index]);
+        });
+
+        // 鼠标移动视差效果
+        container.addEventListener("mousemove", (e) => {
+          const rect = container.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          const xPos = (x / rect.width - 0.5) * 10;
+          const yPos = (y / rect.height - 0.5) * 10;
+
+          const img = container.querySelector("img");
+          img.style.transform = `translate(${xPos}px, ${yPos}px)`;
+        });
+
+        // 鼠标离开时恢复
+        container.addEventListener("mouseleave", () => {
+          const img = container.querySelector("img");
+          img.style.transform = "translate(0, 0)";
+        });
+      });
+
+      // 关闭模态框事件
+      closeModal.addEventListener("click", closeModalFunc);
+      modalOverlay.addEventListener("click", closeModalFunc);
+
+      // 音乐控制
+      musicToggle.addEventListener("click", () => {
+        if (backgroundMusic.paused) {
+          backgroundMusic.play().catch((e) => {
+            console.log("播放失败:", e);
+            alert("自动播放被浏览器阻止，请手动点击播放按钮");
+          });
+          musicToggle.innerHTML = '<i class="fa fa-pause text-xl"></i>';
+        } else {
+          backgroundMusic.pause();
+          musicToggle.innerHTML = '<i class="fa fa-music text-xl"></i>';
+        }
+      });
+
+ // 键盘ESC关闭模态框
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Escape" &&
+          !modal.classList.contains("pointer-events-none")
+        ) {
+          closeModalFunc();
+        }
+      });
+
+      // 音乐提示模态框
+      const musicModal = document.getElementById("musicModal");
+      const confirmMusic = document.getElementById("confirmMusic");
+      const cancelMusic = document.getElementById("cancelMusic");
+
+      // 页面加载完成后显示音乐提示
+      window.addEventListener('load', () => {
+        // 添加一个微小的延迟以确保页面完全加载
+        setTimeout(() => {
+          musicModal.classList.remove("opacity-0", "pointer-events-none");
+          const musicModalContent = musicModal.querySelector('div.relative');
+          setTimeout(() => {
+            musicModalContent.classList.remove("scale-95");
+            musicModalContent.classList.add("scale-100");
+          }, 10);
+        }, 1000);
+      });
+
+      // 确认播放音乐
+      confirmMusic.addEventListener("click", () => {
+        closeMusicModal();
+        backgroundMusic.play().catch((e) => {
+          console.log("播放失败:", e);
+          // 播放失败时更新按钮状态
+          musicToggle.innerHTML = '<i class="fa fa-music text-xl"></i>';
+        });
+        musicToggle.innerHTML = '<i class="fa fa-pause text-xl"></i>';
+      });
+
+      // 取消播放音乐
+      cancelMusic.addEventListener("click", closeMusicModal);
+
+      // 关闭音乐提示模态框
+      function closeMusicModal() {
+        const musicModalContent = musicModal.querySelector('div.relative');
+        musicModalContent.classList.remove("scale-100");
+        musicModalContent.classList.add("scale-95");
+        setTimeout(() => {
+          musicModal.classList.add("opacity-0", "pointer-events-none");
+        }, 300);
+      }
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务计时器与待办事项</title>
+    <!-- <link rel="icon" href="https://cdn.jsdelivr.net/gh/yunyoujun/cdn/img/favicon.ico"></link> -->
+    <link rel="icon" href="../images/金毛.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+   <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        danger: '#EF4444',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            },
+            darkMode: 'class'
+        }
+    </script>
+ <style type="text/tailwindcss">
+    @layer utilities {
+        .content-auto {
+            content-visibility: auto;
+        }
+        .progress-animation {
+            transition: width 1s linear;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .menu-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .btn-hover {
+            @apply transition-all duration-300 hover:scale-105 active:scale-95;
+        }
+        .bg-blur {
+            backdrop-filter: blur(8px);
+        }
+        .todo-complete {
+            @apply line-through text-gray-500 dark:text-gray-400;
+        }
+        #timer-container {
+            @apply text-dark dark:text-light;
+        }
+        #timer-display {
+            @apply text-dark dark:text-light;
+        }
+        #current-task-name {
+            @apply text-dark dark:text-light;
+        }
+        .task-item-text {
+            @apply text-dark dark:text-light;
+        }
+        .todo-item-text {
+            @apply text-dark dark:text-light;
+        }
+        .panel-text {
+            @apply text-dark dark:text-light;
+        }
+        /* 添加触摸设备支持 */
+        .touch-device {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+    }
+</style>
+</head>
+<body class="min-h-screen bg-light dark:bg-dark text-dark dark:text-light transition-colors duration-300">
+    <!-- 背景图容器 -->
+    <div id="background-container" class="fixed inset-0 z-0  transition-opacity duration-500">
+        <img id="background-image" src="" alt="自定义背景图" class="w-full h-full object-cover">
+    </div>
+
+    <!-- 主容器 -->
+    <div class="relative z-10 container mx-auto px-4 py-8 max-w-6xl ">
+        <!-- 顶部导航 -->
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-blue-600 dark:text-blue-400">
+                <i class="fa fa-clock-o mr-2"></i>任务管理器
+            </h1>
+            <div class="flex gap-4">
+                <button id="Home" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 btn-hover">
+                    <i class="fa fa-home text-xl"></i>
+                </button>
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 btn-hover">
+                    <i class="fa fa-moon-o dark:hidden text-xl"></i>
+                    <i class="fa fa-sun-o hidden dark:block text-xl"></i>
+                </button>
+                <button id="help-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 btn-hover">
+                    <i class="fa fa-question text-xl"></i>
+                </button>
+                <button id="menu-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 btn-hover">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 菜单面板 -->
+        <div id="menu-panel" class="fixed right-4 top-16 w-64 bg-white dark:bg-gray-800 rounded-lg menu-shadow transform translate-x-full transition-transform duration-300 z-50 panel-text">
+            <div class="p-4 border-b dark:border-gray-700">
+                <h3 class="font-semibold text-lg">设置</h3>
+            </div>
+            <div class="p-4 space-y-4 panel-text">
+                <!-- 背景设置 -->
+                <div>
+                    <h4 class="font-medium mb-2">背景设置</h4>
+                    <div class="flex flex-col gap-2">
+                        <label class="flex items-center gap-2 p-2 border border-gray-300 dark:border-gray-600 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fa fa-image"></i>
+                            <span>选择本地图片</span>
+                            <input type="file" id="bg-image-upload" accept="image/*" class="hidden">
+                        </label>
+                        <button id="reset-bg-btn" class="flex items-center gap-2 p-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fa fa-refresh"></i>
+                            <span>恢复默认背景</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 音效设置 -->
+                <div>
+                    <h4 class="font-medium mb-2">音效设置</h4>
+                    <label class="flex items-center justify-between p-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <i class="fa fa-volume-up"></i>
+                            <span>启用互动音效</span>
+                        </span>
+                        <div class="relative inline-block w-10 h-5">
+                            <input type="checkbox" id="sound-toggle" class="peer sr-only" checked>
+                            <div class="w-10 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- 数据清理 -->
+                <div>
+                    <h4 class="font-medium mb-2">数据清理</h4>
+                    <div class="space-y-2">
+                        <button id="clear-tasks-btn" class="w-full flex items-center justify-between p-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <i class="fa fa-tasks"></i>
+                                <span>清除计时任务</span>
+                            </span>
+                            <i class="fa fa-trash text-danger"></i>
+                        </button>
+                        <button id="clear-todos-btn" class="w-full flex items-center justify-between p-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <i class="fa fa-check-square-o"></i>
+                                <span>清除待办事项</span>
+                            </span>
+                            <i class="fa fa-trash text-danger"></i>
+                        </button>
+                        <button id="clear-bg-cache-btn" class="w-full flex items-center justify-between p-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <i class="fa fa-picture-o"></i>
+                                <span>清除背景缓存</span>
+                            </span>
+                            <i class="fa fa-trash text-danger"></i>
+                        </button>
+                        <button id="clear-settings-btn" class="w-full flex items-center justify-between p-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <i class="fa fa-cog"></i>
+                                <span>清除设置数据</span>
+                            </span>
+                            <i class="fa fa-trash text-danger"></i>
+                        </button>
+                        <button id="clear-all-btn" class="w-full flex items-center justify-between p-2 border border-danger dark:border-danger rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-danger">
+                            <span class="flex items-center gap-2">
+                                <i class="fa fa-exclamation-triangle"></i>
+                                <span>清除所有数据</span>
+                            </span>
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 opacity-80 dark:opacity-90">
+            <!-- 计时器区域 -->
+            <div class="lg:col-span-2">
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 card-shadow h-full ">
+                    <div id="timer-container" class="flex flex-col items-center justify-center h-full">
+                        <h2 id="current-task-name" class="text-[clamp(1.2rem,3vw,1.8rem)] font-semibold mb-6 text-center">未选择任务</h2>
+                        
+                        <div class="w-full max-w-md mb-8">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                <div id="timer-progress" class="h-full bg-primary progress-animation w-0"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="timer-display" class="text-[clamp(2.5rem,8vw,5rem)] font-bold text-center mb-8">00:00:00</div>
+                        
+                        <div class="flex gap-4">
+                            <button id="start-timer" class="px-6 py-3 bg-primary text-white rounded-lg flex items-center gap-2 btn-hover disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <i class="fa fa-play"></i>
+                                <span>开始</span>
+                            </button>
+                            <button id="pause-timer" class="px-6 py-3 bg-gray-500 text-white rounded-lg flex items-center gap-2 btn-hover disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <i class="fa fa-pause"></i>
+                                <span>暂停</span>
+                            </button>
+                            <button id="reset-timer" class="px-6 py-3 bg-danger text-white rounded-lg flex items-center gap-2 btn-hover disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <i class="fa fa-refresh"></i>
+                                <span>重置</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 任务与待办事项切换区域 -->
+            <div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 card-shadow h-full flex flex-col panel-text">
+                    <!-- 切换标签 -->
+                    <div class="flex border-b dark:border-gray-700 mb-4">
+                        <button id="tasks-tab" class="px-4 py-2 font-medium text-primary border-b-2 border-primary">计时任务</button>
+                        <button id="todos-tab" class="px-4 py-2 font-medium text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary">待办事项</button>
+                    </div>
+                    
+                    <!-- 计时任务面板 -->
+                    <div id="tasks-panel" class="flex-1 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold panel-text">任务管理</h2>
+                            <button id="add-task-btn" class="p-2 bg-primary text-white rounded-full btn-hover">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="task-list" class="flex-1 overflow-y-auto space-y-4 mb-4 max-h-[calc(100vh-400px)]">
+                            <!-- 任务项将通过JS动态添加 -->
+                            <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                                <i class="fa fa-tasks text-4xl mb-2 opacity-50"></i>
+                                <p>暂无任务，点击添加按钮创建任务</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 待办事项面板 -->
+                    <div id="todos-panel" class="flex-1 flex flex-col hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold panel-text">待办事项</h2>
+                            <button id="add-todo-btn" class="p-2 bg-secondary text-white rounded-full btn-hover">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- 待办事项输入框 -->
+                        <div class="mb-4">
+                            <form id="todo-form" class="flex gap-2 panel-text">
+                                <input type="text" id="todo-input" placeholder="添加新的待办事项..." class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary">
+                                <button type="submit" class="p-2 bg-secondary text-white rounded-lg btn-hover">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div id="todo-list" class="flex-1 overflow-y-auto space-y-2 mb-4 max-h-[calc(100vh-400px)]">
+                            <!-- 待办事项将通过JS动态添加 -->
+                            <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                                <i class="fa fa-check-square-o text-4xl mb-2 opacity-50"></i>
+                                <p>暂无待办事项，添加你的第一个待办</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑任务模态框 -->
+    <div id="task-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4 panel-text">
+                <h3 id="modal-title" class="text-xl font-semibold">添加新任务</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 btn-hover">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="task-form">
+                <input type="hidden" id="task-id">
+                
+                <div class="mb-4">
+                    <label for="task-name" class="block mb-2 font-medium panel-text">任务名称</label>
+                    <input type="text" id="task-name" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary panel-text" required>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block mb-2 font-medium panel-text">任务时长</label>
+                    <div class="flex gap-2">
+                        <div class="flex-1 panel-text">
+                            <input type="number" id="task-hours" min="0" value="0" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <label for="task-hours" class="text-sm text-gray-500 dark:text-gray-400">小时</label>
+                        </div>
+                        <div class="flex-1 panel-text">
+                            <input type="number" id="task-minutes" min="0" max="59" value="25" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <label for="task-minutes" class="text-sm text-gray-500 dark:text-gray-400">分钟</label>
+                        </div>
+                        <div class="flex-1 panel-text">
+                            <input type="number" id="task-seconds" min="0" max="59" value="0" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <label for="task-seconds" class="text-sm text-gray-500 dark:text-gray-400">秒</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-4">
+                    <button type="button" id="cancel-task" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors panel-text">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 panel-text">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md transform scale-95 transition-transform duration-300">
+            <h3 id="confirm-title" class="text-xl font-semibold mb-2">确认操作</h3>
+            <p id="confirm-message" class="text-gray-600 dark:text-gray-300 mb-6">您确定要执行此操作吗？</p>
+            
+            <div class="flex justify-end gap-4">
+                <button id="confirm-cancel" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">取消</button>
+                <button id="confirm-ok" class="px-4 py-2 bg-danger text-white rounded-lg hover:bg-danger/90 transition-colors">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助说明弹窗 -->
+    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">操作说明</h3>
+                <button id="close-help" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 btn-hover">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-gray-700 dark:text-gray-300">
+                <div>
+                    <h4 class="font-medium text-lg mb-2 text-primary">计时任务</h4>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>点击"+"按钮添加新计时任务</li>
+                        <li>可以设置任务的小时、分钟和秒数</li>
+                        <li>点击任务项选择该任务进行计时</li>
+                        <li>选择任务后，点击"开始"按钮启动计时器</li>
+                        <li>计时器运行中可以点击"暂停"暂停计时，点击"重置"重新开始</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium text-lg mb-2 text-secondary">待办事项</h4>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>点击"待办事项"标签切换到待办事项面板</li>
+                        <li>在输入框中输入内容并点击"+"或按回车添加待办事项</li>
+                        <li>点击待办事项前的复选框标记为已完成</li>
+                        <li>点击删除图标可以删除待办事项</li>
+                        <li>已完成的待办事项会显示删除线</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium text-lg mb-2">设置功能</h4>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>点击菜单按钮（三条横线）打开设置面板</li>
+                        <li>可以上传本地图片作为背景，也可以恢复默认背景</li>
+                        <li>可以开启或关闭互动音效</li>
+                        <li>可以清理各类数据（计时任务、待办事项、设置数据或全部数据）</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium text-lg mb-2">其他功能</h4>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>点击月亮/太阳图标切换深色/浅色模式</li>
+                        <li>所有数据保存在本地，刷新页面不会丢失</li>
+                        <li>计时器支持后台运行，即使不打开页面也会继续计时</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+ <!-- 音效元素 -->
+    <audio id="sound-start" preload="auto">
+        <source src="./sound-start.wav" type="audio/wav">
+    </audio>
+    <audio id="sound-complete" preload="auto">
+        <source src="./sound-complete.wav" type="audio/wav">
+    </audio>
+    <audio id="sound-click" preload="auto">
+        <source src="./sound-click.wav" type="audio/wav">
+    </audio>
+    <audio id="sound-cancel" preload="auto">
+        <source src="./sound-cancel.wav" type="audio/wav">
+    </audio>
+    <audio id="sound-todo" preload="auto">
+        <source src="./sound-todo.wav" type="audio/wav">
+    </audio>
+
+    <script>
+         
+        // 添加触摸事件支持函数
+        function addTouchSupport(element, callback) {
+            let touchStartTime = 0;
+            
+            element.addEventListener('touchstart', (e) => {
+                touchStartTime = Date.now();
+                // 防止页面滚动
+                if (element.classList.contains('no-scroll')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            element.addEventListener('touchend', (e) => {
+                const touchDuration = Date.now() - touchStartTime;
+                // 只有当触摸时间少于200ms才触发点击事件，避免与滚动冲突
+                if (touchDuration < 200) {
+                    callback(e);
+                }
+            });
+            
+            // 保持原有的点击事件
+            element.addEventListener('click', callback);
+        }
+        // 音效控制
+        const sounds = {
+            start: document.getElementById('sound-start'),
+            complete: document.getElementById('sound-complete'),
+            click: document.getElementById('sound-click'),
+            cancel: document.getElementById('sound-cancel'),
+            todo: document.getElementById('sound-todo')
+        };
+
+        // 播放音效
+        function playSound(type) {
+            const soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+            if (soundEnabled && sounds[type]) {
+                // 先尝试播放音频，如果失败则在用户交互后重试
+                const sound = sounds[type];
+                sound.volume = 0.3;
+                const playPromise = sound.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('音效播放失败:', error);
+                        // 用户交互后重试
+                        const tryPlayAfterUserInteraction = () => {
+                            sound.play().catch(e => console.log('音效播放失败:', e));
+                            document.removeEventListener('click', tryPlayAfterUserInteraction);
+                        };
+                        document.addEventListener('click', tryPlayAfterUserInteraction);
+                    });
+                }
+            }
+        }
+        // 添加全局点击音效函数
+        // function playClickSound() {
+        //     playSound('click');
+        // }
+
+        // 待办事项管理
+        class TodoManager {
+            constructor() {
+                this.todos = JSON.parse(localStorage.getItem('todos')) || [];
+                this.init();
+            }
+
+            // 初始化
+            init() {
+                this.renderTodos();
+                this.setupEventListeners();
+            }
+
+            // 渲染待办事项列表
+            renderTodos() {
+                const todoList = document.getElementById('todo-list');
+                
+                if (this.todos.length === 0) {
+                    todoList.innerHTML = `
+                        <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                            <i class="fa fa-check-square-o text-4xl mb-2 opacity-50"></i>
+                            <p>暂无待办事项，添加你的第一个待办</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 按创建时间排序，新的在前面
+                const sortedTodos = [...this.todos].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                todoList.innerHTML = '';
+                sortedTodos.forEach(todo => {
+                    const todoElement = document.createElement('div');
+                    todoElement.className = `p-3 border rounded-lg border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-3`;
+                    todoElement.innerHTML = `
+                        <div class="flex-shrink-0">
+                            <input type="checkbox" class="todo-checkbox w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-secondary focus:ring-secondary" ${todo.completed ? 'checked' : ''} data-id="${todo.id}">
+                        </div>
+                        <div class="flex-1 ${todo.completed ? 'todo-complete' : 'todo-item-text'}">${todo.content}</div>
+                        <button class="delete-todo p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded" data-id="${todo.id}">
+                            <i class="fa fa-trash text-danger"></i>
+                        </button>
+                    `;
+                    
+                    todoList.appendChild(todoElement);
+                });
+                
+                // 添加事件监听
+                document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', (e) => {
+                        const todoId = e.target.getAttribute('data-id');
+                        this.toggleTodoStatus(todoId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-todo').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const todoId = e.target.closest('.delete-todo').getAttribute('data-id');
+                        this.deleteTodo(todoId);
+                    });
+                });
+            }
+
+            // 添加待办事项
+            addTodo(content) {
+                if (!content.trim()) return; // 不添加空内容
+                
+                const todo = {
+                    id: Date.now().toString(),
+                    content: content.trim(),
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.todos.push(todo);
+                this.saveTodos();
+                this.renderTodos();
+                playSound('todo');
+            }
+
+            // 切换待办事项状态
+            toggleTodoStatus(id) {
+                const todoIndex = this.todos.findIndex(todo => todo.id === id);
+                if (todoIndex !== -1) {
+                    this.todos[todoIndex].completed = !this.todos[todoIndex].completed;
+                    this.saveTodos();
+                    this.renderTodos();
+                    playSound('click');
+                }
+            }
+
+            // 删除待办事项
+            deleteTodo(id) {
+                this.todos = this.todos.filter(todo => todo.id !== id);
+                this.saveTodos();
+                this.renderTodos();
+                playSound('cancel');
+            }
+
+            // 清除所有待办事项
+            clearAllTodos() {
+                this.todos = [];
+                this.saveTodos();
+                this.renderTodos();
+            }
+
+            // 保存待办事项到本地存储
+            saveTodos() {
+                localStorage.setItem('todos', JSON.stringify(this.todos));
+            }
+
+            // 设置事件监听
+            setupEventListeners() {
+                // 添加待办事项表单提交
+                document.getElementById('todo-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const todoInput = document.getElementById('todo-input');
+                    const content = todoInput.value;
+                    
+                    if (content.trim()) {
+                        this.addTodo(content);
+                        todoInput.value = '';
+                    }
+                });
+                
+                // 添加待办事项按钮
+                document.getElementById('add-todo-btn').addEventListener('click', () => {
+                    const todoInput = document.getElementById('todo-input');
+                    const content = todoInput.value;
+                    
+                    if (content.trim()) {
+                        this.addTodo(content);
+                        todoInput.value = '';
+                    } else {
+                        todoInput.focus();
+                    }
+                });
+            }
+        }
+
+        // 任务数据管理
+        class TaskManager {
+            constructor() {
+                this.tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                this.currentTaskId = localStorage.getItem('currentTaskId') || null;
+                this.timerInterval = null;
+                this.init();
+            }
+
+            // 初始化
+            init() {
+                this.renderTasks();
+                this.loadCurrentTask();
+                this.setupEventListeners();
+            }
+
+            // 渲染任务列表
+            renderTasks() {
+                const taskList = document.getElementById('task-list');
+                
+                if (this.tasks.length === 0) {
+                    taskList.innerHTML = `
+                        <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                            <i class="fa fa-tasks text-4xl mb-2 opacity-50"></i>
+                            <p>暂无任务，点击添加按钮创建任务</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                taskList.innerHTML = '';
+                this.tasks.forEach(task => {
+                    const isActive = task.id === this.currentTaskId;
+                    const progress = task.totalSeconds > 0 ? Math.max(0, Math.min(100, (1 - task.remainingTime / task.totalSeconds) * 100)) : 0;
+                    
+                    // 格式化显示时长
+                    const hours = Math.floor(task.totalSeconds / 3600);
+                    const minutes = Math.floor((task.totalSeconds % 3600) / 60);
+                    const seconds = task.totalSeconds % 60;
+                    let durationText = '';
+                    if (hours > 0) durationText += `${hours}小时`;
+                    if (minutes > 0) durationText += `${minutes}分钟`;
+                    if (seconds > 0 || durationText === '') durationText += `${seconds}秒`;
+                    
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `p-3 border rounded-lg ${isActive ? 'border-primary bg-primary/10' : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50'} transition-colors cursor-pointer`;
+                    taskElement.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-medium ${isActive ? 'text-primary' : ''}">${task.name}</h4>
+                            <div class="flex gap-1">
+                                <button class="edit-task p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded" data-id="${task.id}">
+                                    <i class="fa fa-pencil text-gray-500"></i>
+                                </button>
+                                <button class="delete-task p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded" data-id="${task.id}">
+                                    <i class="fa fa-trash text-danger"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            ${durationText}
+                        </div>
+                        <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-primary progress-animation" style="width: ${progress}%"></div>
+                        </div>
+                    `;
+                    
+                    taskElement.addEventListener('click', (e) => {
+                        // 防止点击编辑/删除按钮时触发任务选择
+                        if (!e.target.closest('.edit-task') && !e.target.closest('.delete-task')) {
+                            this.selectTask(task.id);
+                        }
+                    });
+                    
+                    taskList.appendChild(taskElement);
+                });
+                
+                // 添加编辑和删除事件监听
+                document.querySelectorAll('.edit-task').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const taskId = btn.getAttribute('data-id');
+                        this.editTask(taskId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-task').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const taskId = btn.getAttribute('data-id');
+                        this.confirmDeleteTask(taskId);
+                    });
+                });
+            }
+
+            // 添加任务
+            addTask(name, hours, minutes, seconds) {
+                const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                if (totalSeconds <= 0) return null; // 确保时长有效
+                
+                const task = {
+                    id: Date.now().toString(),
+                    name,
+                    totalSeconds,
+                    remainingTime: totalSeconds,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.tasks.push(task);
+                this.saveTasks();
+                this.renderTasks();
+                playSound('click');
+                return task.id;
+            }
+
+            // 更新任务
+            updateTask(id, name, hours, minutes, seconds) {
+                const taskIndex = this.tasks.findIndex(task => task.id === id);
+                if (taskIndex !== -1) {
+                    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                    if (totalSeconds <= 0) return; // 确保时长有效
+                    
+                    const originalTotalSeconds = this.tasks[taskIndex].totalSeconds;
+                    this.tasks[taskIndex].name = name;
+                    this.tasks[taskIndex].totalSeconds = totalSeconds;
+                    
+                    // 如果任务正在进行中，调整剩余时间比例
+                    if (id === this.currentTaskId && this.timerInterval) {
+                        const ratio = this.tasks[taskIndex].remainingTime / originalTotalSeconds;
+                        this.tasks[taskIndex].remainingTime = Math.round(totalSeconds * ratio);
+                    } else if (id === this.currentTaskId) {
+                        // 如果任务未进行，重置剩余时间
+                        this.tasks[taskIndex].remainingTime = totalSeconds;
+                    }
+                    
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.updateTimerDisplay();
+                    playSound('click');
+                }
+            }
+
+            // 删除任务
+            deleteTask(id) {
+                if (id === this.currentTaskId) {
+                    this.stopTimer();
+                    this.currentTaskId = null;
+                    localStorage.removeItem('currentTaskId');
+                    this.updateTimerDisplay();
+                }
+                
+                this.tasks = this.tasks.filter(task => task.id !== id);
+                this.saveTasks();
+                this.renderTasks();
+                playSound('cancel');
+            }
+
+            // 确认删除任务
+            confirmDeleteTask(id) {
+                const task = this.tasks.find(t => t.id === id);
+                if (!task) return;
+                
+                const confirmTitle = document.getElementById('confirm-title');
+                const confirmMessage = document.getElementById('confirm-message');
+                
+                confirmTitle.textContent = '删除任务';
+                confirmMessage.textContent = `您确定要删除任务"${task.name}"吗？此操作不可撤销。`;
+                
+                showConfirmModal(() => {
+                    this.deleteTask(id);
+                });
+                playSound('click');
+            }
+
+            // 选择任务
+            selectTask(id) {
+                if (this.currentTaskId === id) return;
+                
+                // 停止当前计时器
+                this.stopTimer();
+                
+                this.currentTaskId = id;
+                localStorage.setItem('currentTaskId', id);
+                this.loadCurrentTask();
+                this.renderTasks();
+                playSound('click');
+            }
+
+            // 加载当前任务
+            loadCurrentTask() {
+                const taskNameEl = document.getElementById('current-task-name');
+                const startBtn = document.getElementById('start-timer');
+                
+                if (!this.currentTaskId) {
+                    taskNameEl.textContent = '未选择任务';
+                    startBtn.disabled = true;
+                    this.updateTimerDisplay();
+                    return;
+                }
+                
+                const task = this.tasks.find(task => task.id === this.currentTaskId);
+                if (task) {
+                    taskNameEl.textContent = task.name;
+                    startBtn.disabled = false;
+                    this.updateTimerDisplay();
+                } else {
+                    // 如果任务不存在，清除当前任务ID
+                    this.currentTaskId = null;
+                    localStorage.removeItem('currentTaskId');
+                    taskNameEl.textContent = '未选择任务';
+                    startBtn.disabled = true;
+                }
+            }
+
+            // 开始计时器
+            startTimer() {
+                if (!this.currentTaskId || this.timerInterval) return;
+                
+                const task = this.tasks.find(task => task.id === this.currentTaskId);
+                if (!task) return;
+                
+                // 如果剩余时间为0，重置
+                if (task.remainingTime <= 0) {
+                    task.remainingTime = task.totalSeconds;
+                    this.saveTasks();
+                }
+                
+                const startBtn = document.getElementById('start-timer');
+                const pauseBtn = document.getElementById('pause-timer');
+                const resetBtn = document.getElementById('reset-timer');
+                
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                resetBtn.disabled = false;
+                
+                playSound('start');
+                
+                this.timerInterval = setInterval(() => {
+                    const task = this.tasks.find(task => task.id === this.currentTaskId);
+                    if (!task) {
+                        this.stopTimer();
+                        return;
+                    }
+                    
+                    task.remainingTime--;
+                    this.saveTasks();
+                    this.updateTimerDisplay();
+                    this.renderTasks();
+                    
+                    // 时间到
+                    if (task.remainingTime <= 0) {
+                        this.stopTimer();
+                        playSound('complete');
+                        
+                        // 显示通知
+                        if (Notification.permission === 'granted') {
+                            new Notification('任务完成', {
+                                body: `任务"${task.name}"已完成！`,
+                                icon: 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png'
+                            });
+                        } else if (Notification.permission !== 'denied') {
+                            Notification.requestPermission().then(permission => {
+                                if (permission === 'granted') {
+                                    new Notification('任务完成', {
+                                        body: `任务"${task.name}"已完成！`,
+                                        icon: 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png'
+                                    });
+                                }
+                            });
+                        }
+                    }
+                }, 1000);
+            }
+
+            // 暂停计时器
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                    
+                    const startBtn = document.getElementById('start-timer');
+                    const pauseBtn = document.getElementById('pause-timer');
+                    
+                    startBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                }
+            }
+
+             // 重置计时器
+            resetTimer() {
+                if (!this.currentTaskId) return;
+                
+                const task = this.tasks.find(task => task.id === this.currentTaskId);
+                if (task) {
+                    const confirmTitle = document.getElementById('confirm-title');
+                    const confirmMessage = document.getElementById('confirm-message');
+                    
+                    confirmTitle.textContent = '重置计时器';
+                    confirmMessage.textContent = `您确定要重置当前任务"${task.name}"的计时器吗？这将丢失当前进度。`;
+                    
+                    showConfirmModal(() => {
+                        task.remainingTime = task.totalSeconds;
+                        this.saveTasks();
+                        this.updateTimerDisplay();
+                        this.renderTasks();
+                        playSound('click');
+                    });
+                }
+            }
+
+            // 更新计时器显示
+            updateTimerDisplay() {
+                const timerDisplay = document.getElementById('timer-display');
+                const timerProgress = document.getElementById('timer-progress');
+                
+                if (!this.currentTaskId) {
+                    timerDisplay.textContent = '00:00:00';
+                    timerProgress.style.width = '0%';
+                    return;
+                }
+                
+                const task = this.tasks.find(task => task.id === this.currentTaskId);
+                if (!task) {
+                    timerDisplay.textContent = '00:00:00';
+                    timerProgress.style.width = '0%';
+                    return;
+                }
+                
+                // 计算时分秒
+                const totalSeconds = Math.max(0, task.remainingTime);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                
+                // 格式化显示
+                const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timerDisplay.textContent = formattedTime;
+                
+                // 更新进度条
+                const progress = task.totalSeconds > 0 ? Math.max(0, Math.min(100, (1 - totalSeconds / task.totalSeconds) * 100)) : 0;
+                timerProgress.style.width = `${progress}%`;
+            }
+
+            // 保存任务到本地存储
+            saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(this.tasks));
+            }
+
+            // 编辑任务
+            editTask(id) {
+                const task = this.tasks.find(task => task.id === id);
+                if (!task) return;
+                
+                // 转换总秒数为时分秒
+                const hours = Math.floor(task.totalSeconds / 3600);
+                const minutes = Math.floor((task.totalSeconds % 3600) / 60);
+                const seconds = task.totalSeconds % 60;
+                
+                document.getElementById('task-id').value = task.id;
+                document.getElementById('task-name').value = task.name;
+                document.getElementById('task-hours').value = hours;
+                document.getElementById('task-minutes').value = minutes;
+                document.getElementById('task-seconds').value = seconds;
+                document.getElementById('modal-title').textContent = '编辑任务';
+                
+                showTaskModal();
+            }
+
+            // 清除所有任务
+            clearAllTasks() {
+                this.stopTimer();
+                this.tasks = [];
+                this.currentTaskId = null;
+                localStorage.removeItem('currentTaskId');
+                this.saveTasks();
+                this.renderTasks();
+                this.loadCurrentTask();
+            }
+
+            // 设置事件监听
+            setupEventListeners() {
+                // 开始计时器
+                addTouchSupport(document.getElementById('start-timer'), () => {
+                    this.startTimer();
+                });
+                
+                // 暂停计时器
+                addTouchSupport(document.getElementById('pause-timer'), () => {
+                    this.stopTimer();
+                });
+                
+                // 重置计时器
+                addTouchSupport(document.getElementById('reset-timer'), () => {
+                    this.resetTimer();
+                });
+                
+                // 添加任务按钮
+                addTouchSupport(document.getElementById('add-task-btn'), () => {
+                    document.getElementById('task-form').reset();
+                    document.getElementById('task-id').value = '';
+                    document.getElementById('task-hours').value = 0;
+                    document.getElementById('task-minutes').value = 25;
+                    document.getElementById('task-seconds').value = 0;
+                    document.getElementById('modal-title').textContent = '添加新任务';
+                    showTaskModal();
+                    playSound('click');
+                });
+                
+                // 任务表单提交
+                document.getElementById('task-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const taskId = document.getElementById('task-id').value;
+                    const taskName = document.getElementById('task-name').value;
+                    const hours = parseInt(document.getElementById('task-hours').value) || 0;
+                    const minutes = parseInt(document.getElementById('task-minutes').value) || 0;
+                    const seconds = parseInt(document.getElementById('task-seconds').value) || 0;
+                    
+                    // 验证时间有效性
+                    if (hours <= 0 && minutes <= 0 && seconds <= 0) {
+                        alert('任务时长必须大于0');
+                        return;
+                    }
+                    
+                    if (taskId) {
+                        this.updateTask(taskId, taskName, hours, minutes, seconds);
+                    } else {
+                        const newTaskId = this.addTask(taskName, hours, minutes, seconds);
+                        if (newTaskId) {
+                            this.selectTask(newTaskId);
+                        }
+                    }
+                    
+                    hideTaskModal();
+                });
+                
+                // 关闭任务模态框
+                addTouchSupport(document.getElementById('close-modal'), () => {
+                    hideTaskModal();
+                    playSound('click');
+                });
+                
+                // 取消任务
+                addTouchSupport(document.getElementById('cancel-task'), () => {
+                    hideTaskModal();
+                    playSound('cancel');
+                });
+                
+                // 监听页面可见性变化，确保后台也能计时
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        // 页面不可见时记录当前时间
+                        if (this.timerInterval) {
+                            this.backgroundStartTime = Date.now();
+                        }
+                    } else {
+                        // 页面可见时计算后台经过的时间
+                        if (this.timerInterval && this.backgroundStartTime) {
+                            const elapsedTime = Math.floor((Date.now() - this.backgroundStartTime) / 1000);
+                            const task = this.tasks.find(task => task.id === this.currentTaskId);
+                            
+                            if (task) {
+                                task.remainingTime = Math.max(0, task.remainingTime - elapsedTime);
+                                this.saveTasks();
+                                this.updateTimerDisplay();
+                                this.renderTasks();
+                                
+                                // 如果时间到了，停止计时器
+                                if (task.remainingTime <= 0) {
+                                    this.stopTimer();
+                                    playSound('complete');
+                                }
+                            }
+                            
+                            this.backgroundStartTime = null;
+                        }
+                    }
+                });
+            
+            }
+        }
+
+        // 显示任务模态框
+        function showTaskModal() {
+            const modal = document.getElementById('task-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+            document.getElementById('task-name').focus();
+        }
+
+        // 隐藏任务模态框
+        function hideTaskModal() {
+            const modal = document.getElementById('task-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+        }
+
+        // 显示确认对话框
+        function showConfirmModal(onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+            
+            const confirmOk = document.getElementById('confirm-ok');
+            const confirmCancel = document.getElementById('confirm-cancel');
+            
+            // 移除之前的事件监听
+            const newConfirmOk = confirmOk.cloneNode(true);
+            confirmOk.parentNode.replaceChild(newConfirmOk, confirmOk);
+            
+            const newConfirmCancel = confirmCancel.cloneNode(true);
+            confirmCancel.parentNode.replaceChild(newConfirmCancel, confirmCancel);
+            
+            // 添加新的事件监听
+            newConfirmOk.addEventListener('click', () => {
+                hideConfirmModal();
+                onConfirm();
+                playSound('click');
+            });
+            
+            newConfirmCancel.addEventListener('click', () => {
+                hideConfirmModal();
+                playSound('cancel');
+            });
+        }
+
+        // 隐藏确认对话框
+        function hideConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+        }
+
+        // 显示帮助对话框
+        function showHelpModal() {
+            const modal = document.getElementById('help-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+            playSound('click');
+        }
+
+        // 隐藏帮助对话框
+        function hideHelpModal() {
+            const modal = document.getElementById('help-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            playSound('click');
+        }
+
+           // 初始化标签切换
+        function initTabs() {
+            const tasksTab = document.getElementById('tasks-tab');
+            const todosTab = document.getElementById('todos-tab');
+            const tasksPanel = document.getElementById('tasks-panel');
+            const todosPanel = document.getElementById('todos-panel');
+            
+            // 确保元素存在
+            if (!tasksTab || !todosTab || !tasksPanel || !todosPanel) {
+                console.warn('Tab elements not found');
+                return;
+            }
+            
+            // 移除可能存在的重复事件监听器
+            const newTasksTab = tasksTab.cloneNode(true);
+            tasksTab.parentNode.replaceChild(newTasksTab, tasksTab);
+            
+            const newTodosTab = todosTab.cloneNode(true);
+            todosTab.parentNode.replaceChild(newTodosTab, todosTab);
+            
+            // 任务标签切换函数
+            function switchToTasks(e) {
+                e.preventDefault();
+                
+                // 激活任务标签
+                newTasksTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+                newTasksTab.classList.remove('text-gray-500', 'dark:text-gray-400');
+                
+                // 取消待办标签
+                newTodosTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                newTodosTab.classList.add('text-gray-500', 'dark:text-gray-400');
+                
+                // 显示任务面板，隐藏待办面板
+                tasksPanel.classList.remove('hidden');
+                todosPanel.classList.add('hidden');
+                
+                playSound('click');
+            }
+            
+            // 待办标签切换函数
+            function switchToTodos(e) {
+                e.preventDefault();
+                
+                // 激活待办标签
+                newTodosTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+                newTodosTab.classList.remove('text-gray-500', 'dark:text-gray-400');
+                
+                // 取消任务标签
+                newTasksTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                newTasksTab.classList.add('text-gray-500', 'dark:text-gray-400');
+                
+                // 显示待办面板，隐藏任务面板
+                todosPanel.classList.remove('hidden');
+                tasksPanel.classList.add('hidden');
+                
+                // 聚焦到待办输入框
+                const todoInput = document.getElementById('todo-input');
+                if (todoInput) {
+                    todoInput.focus();
+                }
+                
+                playSound('click');
+            }
+            
+            // 为标签添加事件监听器（支持鼠标和触摸）
+            newTasksTab.addEventListener('click', switchToTasks);
+            newTasksTab.addEventListener('touchstart', switchToTasks);
+            
+            newTodosTab.addEventListener('click', switchToTodos);
+            newTodosTab.addEventListener('touchstart', switchToTodos);
+        }
+        
+
+
+        // 初始化背景
+        function initBackground() {
+            const bgImageData = localStorage.getItem('bgImageData');
+            const bgContainer = document.getElementById('background-container');
+            const bgImage = document.getElementById('background-image');
+            
+            // 默认背景图片URL
+            const defaultBgUrl = 'https://oss.itbaima.cn/hub/928/image-202509276f4i3vi5a.png';
+            
+            if (bgImageData) {
+                bgImage.src = bgImageData;
+                // 添加图片加载失败的处理
+                bgImage.onerror = function() {
+                    console.log('背景图片加载失败，使用默认背景');
+                    bgImage.src = defaultBgUrl;
+                    // 从localStorage中移除无效的背景图片数据
+                    localStorage.removeItem('bgImageData');
+                };
+                bgContainer.style.display = 'block';
+            } else {
+                // 默认背景
+                bgImage.src = defaultBgUrl;
+                bgContainer.style.display = 'block';
+            }
+            
+            // 上传背景图片
+            document.getElementById('bg-image-upload').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        localStorage.setItem('bgImageData', event.target.result);
+                        bgImage.src = event.target.result;
+                        // 移除可能存在的错误处理
+                        bgImage.onerror = null;
+                        playSound('click');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 重置背景
+            document.getElementById('reset-bg-btn').addEventListener('click', () => {
+                localStorage.removeItem('bgImageData');
+                bgImage.src = defaultBgUrl;
+                // 移除可能存在的错误处理
+                bgImage.onerror = null;
+                playSound('click');
+            });
+        }
+
+          // 初始化主题
+        function initTheme() {
+            // 检查用户偏好
+            const isDarkMode = localStorage.getItem('darkMode') === 'true' || 
+                              (localStorage.getItem('darkMode') === null && 
+                               window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            console.log('Initializing theme. Dark mode preference:', isDarkMode);
+            
+            // 根据偏好设置dark类
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            
+            // 更新主题切换按钮的图标状态
+            updateThemeButtonIcons(isDarkMode);
+            
+            // 主题切换按钮
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                // 清理所有可能的事件监听器
+                const newThemeToggle = themeToggle.cloneNode(true);
+                themeToggle.parentNode.replaceChild(newThemeToggle, themeToggle);
+                
+                // 添加新的事件监听器
+                newThemeToggle.addEventListener('click', toggleTheme);
+                newThemeToggle.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    toggleTheme();
+                });
+            } else {
+                console.warn('Theme toggle button not found');
+            }
+        }
+
+ // 主题切换处理函数
+        function toggleTheme(e) {
+            if (e) e.preventDefault();
+            
+            // 切换dark类
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', isDark);
+            
+            // 强制更新按钮图标
+            updateThemeButtonIcons(isDark);
+            
+            playSound('click');
+            
+            // 调试信息
+            console.log('Theme toggled. Dark mode:', isDark);
+        }
+        
+        // 更新主题按钮图标
+        function updateThemeButtonIcons(isDark) {
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                const moonIcon = themeToggle.querySelector('.fa-moon-o');
+                const sunIcon = themeToggle.querySelector('.fa-sun-o');
+                
+                if (isDark) {
+                    // 显示太阳图标（暗色模式）
+                    if (moonIcon) moonIcon.classList.add('hidden');
+                    if (sunIcon) sunIcon.classList.remove('hidden');
+                } else {
+                    // 显示月亮图标（亮色模式）
+                    if (moonIcon) moonIcon.classList.remove('hidden');
+                    if (sunIcon) sunIcon.classList.add('hidden');
+                }
+            }
+        }
+
+
+        // 初始化音效设置
+        function initSoundSettings() {
+            const soundToggle = document.getElementById('sound-toggle');
+            const soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+            
+            soundToggle.checked = soundEnabled;
+            
+            soundToggle.addEventListener('change', () => {
+                localStorage.setItem('soundEnabled', soundToggle.checked);
+                playSound('click');
+            });
+        }
+ // 初始化菜单
+        function initMenu() {
+            const menuBtn = document.getElementById('menu-btn');
+            const menuPanel = document.getElementById('menu-panel');
+            
+            // 确保菜单按钮存在
+            if (!menuBtn || !menuPanel) {
+                console.warn('Menu button or panel not found');
+                return;
+            }
+            
+            // 移除可能存在的重复事件监听器
+            menuBtn.removeEventListener('click', toggleMenuHandler);
+            menuBtn.removeEventListener('touchstart', toggleMenuHandler);
+            
+            // 菜单切换函数
+            function toggleMenuHandler(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const isOpen = menuPanel.classList.contains('translate-x-0');
+                
+                if (isOpen) {
+                    menuPanel.classList.remove('translate-x-0');
+                    menuPanel.classList.add('translate-x-full');
+                } else {
+                    menuPanel.classList.remove('translate-x-full');
+                    menuPanel.classList.add('translate-x-0');
+                }
+                
+                playSound('click');
+            }
+            
+            // 同时支持鼠标点击和触摸
+            menuBtn.addEventListener('click', toggleMenuHandler);
+            menuBtn.addEventListener('touchstart', toggleMenuHandler);
+            
+            // 点击外部关闭菜单
+            function closeMenu(e) {
+                // 检查菜单是否打开
+                if (menuPanel.classList.contains('translate-x-0')) {
+                    // 检查点击目标是否在菜单外部
+                    if (!menuPanel.contains(e.target) && e.target !== menuBtn && !menuBtn.contains(e.target)) {
+                        menuPanel.classList.remove('translate-x-0');
+                        menuPanel.classList.add('translate-x-full');
+                    }
+                }
+            }
+            
+            // 同时监听鼠标和触摸事件
+            document.removeEventListener('click', closeMenu);
+            document.removeEventListener('touchstart', closeMenu);
+            document.addEventListener('click', closeMenu);
+            document.addEventListener('touchstart', closeMenu, { passive: true });
+        }
+           
+
+         // 初始化数据清理功能
+        function initDataCleaning(taskManager, todoManager) {
+            // 清除计时任务数据
+            addTouchSupport(document.getElementById('clear-tasks-btn'), () => {
+                const confirmTitle = document.getElementById('confirm-title');
+                const confirmMessage = document.getElementById('confirm-message');
+                
+                confirmTitle.textContent = '清除计时任务';
+                confirmMessage.textContent = '您确定要清除所有计时任务吗？此操作不可撤销。';
+                
+                showConfirmModal(() => {
+                    taskManager.clearAllTasks();
+                });
+            });
+            
+            // 清除待办事项数据
+            addTouchSupport(document.getElementById('clear-todos-btn'), () => {
+                const confirmTitle = document.getElementById('confirm-title');
+                const confirmMessage = document.getElementById('confirm-message');
+                
+                confirmTitle.textContent = '清除待办事项';
+                confirmMessage.textContent = '您确定要清除所有待办事项吗？此操作不可撤销。';
+                
+                showConfirmModal(() => {
+                    todoManager.clearAllTodos();
+                });
+            });
+            
+            // 清除背景缓存
+            addTouchSupport(document.getElementById('clear-bg-cache-btn'), () => {
+                const confirmTitle = document.getElementById('confirm-title');
+                const confirmMessage = document.getElementById('confirm-message');
+                
+                confirmTitle.textContent = '清除背景缓存';
+                confirmMessage.textContent = '您确定要清除背景图片缓存吗？将恢复为默认背景。';
+                
+                showConfirmModal(() => {
+                    localStorage.removeItem('bgImageData');
+                    // 重新初始化背景
+                    initBackground();
+                    playSound('click');
+                });
+            });
+            
+          // 清除设置数据
+            addTouchSupport(document.getElementById('clear-settings-btn'), () => {
+                const confirmTitle = document.getElementById('confirm-title');
+                const confirmMessage = document.getElementById('confirm-message');
+                
+                confirmTitle.textContent = '清除设置数据';
+                confirmMessage.textContent = '您确定要清除所有设置数据吗？包括主题、音效等设置将恢复为默认值。';
+                
+                showConfirmModal(() => {
+                    localStorage.removeItem('darkMode');
+                    localStorage.removeItem('soundEnabled');
+                    localStorage.removeItem('bgImageData');
+                    
+                    // 重新初始化设置
+                    setTimeout(() => {
+                        initTheme();
+                        initSoundSettings();
+                        initBackground();
+                    }, 0);
+                    
+                    // 关闭菜单
+                    document.getElementById('menu-panel').classList.remove('translate-x-0');
+                    document.getElementById('menu-panel').classList.add('translate-x-full');
+                });
+            });
+            
+             // 清除所有数据
+            addTouchSupport(document.getElementById('clear-all-btn'), () => {
+                const confirmTitle = document.getElementById('confirm-title');
+                const confirmMessage = document.getElementById('confirm-message');
+                
+                confirmTitle.textContent = '清除所有数据';
+                confirmMessage.textContent = '⚠️ 警告：您确定要清除所有数据吗？这将包括所有任务、待办事项和设置，且不可撤销！';
+                
+                showConfirmModal(() => {
+                    // 清除所有本地存储
+                    localStorage.clear();
+                    
+                    // 重新初始化应用
+                    setTimeout(() => {
+                        const taskManager = new TaskManager();
+                        const todoManager = new TodoManager();
+                        initTheme();
+                        initSoundSettings();
+                        initBackground();
+                    }, 0);
+                    
+                    // 关闭菜单
+                    document.getElementById('menu-panel').classList.remove('translate-x-0');
+                    document.getElementById('menu-panel').classList.add('translate-x-full');
+                });
+            });
+        }
+
+        // 初始化帮助按钮
+        function initHelpButton() {
+            addTouchSupport(document.getElementById('help-btn'), showHelpModal);
+            addTouchSupport(document.getElementById('close-help'), hideHelpModal);
+        }
+
+        // 初始化主页按钮
+        function initHomeButton() {
+            addTouchSupport(document.getElementById('Home'), () => {
+                window.location.href = '/';
+            });
+        }
+
+        // 请求通知权限
+        function requestNotificationPermission() {
+            if (Notification && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Notification.requestPermission();
+            }
+        }
+
+         // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initBackground();
+            initSoundSettings();
+            initMenu();
+            initHelpButton();
+            initTabs();
+            requestNotificationPermission();
+            initHomeButton() 
+            const taskManager = new TaskManager();
+            const todoManager = new TodoManager();
+            initDataCleaning(taskManager, todoManager);
+            
+            // 为所有按钮添加触摸支持
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.classList.add('touch-device');
+            });
+        });
+    </script>
+</style>
+</body>
+</html>
