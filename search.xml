@@ -5075,8 +5075,260 @@ SpringBoot项目实现自动化部署
       </tags>
   </entry>
   <entry>
+    <title>Java集合--面试</title>
+    <url>/2026/04/17/2026/%E5%85%AB%E8%82%A1/Java%E9%9D%A2%E8%AF%95%E7%AF%87/Java%E9%9B%86%E5%90%88%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E7%9F%A5%E8%AF%86%E7%82%B9/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+一、集合基础核心概念
+数组 vs 集合
+
+数组：固定长度，可存基本数据类型+引用类型，直接索引访问。
+集合：动态长度，仅存对象，需迭代器&#x2F;方法访问。
+
+
+Collection vs Collections
+
+Collection：集合框架根接口，List&#x2F;Set&#x2F;Queue父接口。
+Collections：java.util工具类，提供集合排序、查找等静态方法。
+
+
+集合框架分类
+
+Collection（单值集合）：List（有序可重复）、Set（无序唯一）、Queue
+Map（键值对集合）：独立体系，Key 唯一、Value 可重复
+
+
+线程安全集合
+
+传统线程安全：Vector（加了 synchronized 锁的线程安全版 ArrayList）、Hashtable（方法加synchronized，性能差）
+JUC 并发包：CopyOnWriteArrayList、ConcurrentHashMap、ConcurrentSkipListSet、LinkedBlockingDeque 等。
+
+
+集合遍历方式
+
+普通 for（List 专属）：靠索引遍历，适合需要操作下标的场景
+
+增强 for（for-each）：语法最简单，只读遍历最常用
+
+Iterator迭代器：所有集合通用，遍历中可安全删除元素
+
+ListIterator（双向遍历）：List 专用，能向前遍历、添加、修改
+
+forEach：JDK 8+ 简洁 Lambda，一行遍历
+
+Stream：JDK 8+ 流式处理，可配合过滤、映射、统计等操作
+import java.util.ArrayList;import java.util.Iterator;import java.util.List;import java.util.ListIterator;public class CollectionTraversalDemo &#123;    public static void main(String[] args) &#123;        // 初始化集合        List&lt;String&gt; list = new ArrayList&lt;&gt;();        list.add(&quot;meisijiya&quot;);        list.add(&quot;Java&quot;);        list.add(&quot;面试&quot;);        list.add(&quot;复习小册&quot;);        System.out.println(&quot;===== 1. 普通 for 循环 =====&quot;);        // 1. 普通 for 循环（通过索引访问）        for (int i = 0; i &lt; list.size(); i++) &#123;            System.out.println(list.get(i));        &#125;        System.out.println(&quot;\n===== 2. 增强 for 循环 =====&quot;);        // 2. 增强 for 循环（foreach 简化写法）        for (String s : list) &#123;            System.out.println(s);        &#125;        System.out.println(&quot;\n===== 3. Iterator 迭代器 =====&quot;);        // 3. Iterator 迭代器（通用遍历，可安全删除元素）        Iterator&lt;String&gt; iterator = list.iterator();        while (iterator.hasNext()) &#123;            System.out.println(iterator.next());        &#125;        System.out.println(&quot;\n===== 4. ListIterator 列表迭代器 =====&quot;);        // 4. ListIterator（List 专用，支持向前遍历、添加、修改、删除）        ListIterator&lt;String&gt; listIterator = list.listIterator();        while (listIterator.hasNext()) &#123;            System.out.println(listIterator.next());        &#125;        System.out.println(&quot;\n===== 5. forEach 方法 =====&quot;);        // 5. forEach（JDK 8+，Lambda 表达式）        list.forEach(s -&gt; System.out.println(s));        System.out.println(&quot;\n===== 6. Stream API =====&quot;);        // 6. Stream API（JDK 8+，流式遍历处理）        list.stream().forEach(System.out::println);    &#125;&#125;
+
+
+集合三大体系
+
+List：有序、可重复，支持索引访问。
+Set：无序、不可重复，无索引。
+Map：键值对存储，键唯一、值可重复。
+
+
+
+二、List 核心要点核心实现类对比
+
+
+实现类
+底层结构
+线程安全
+特点
+应用场景
+
+
+
+ArrayList
+动态数组
+否
+随机访问O(1)，扩容1.5倍，尾增删高效、中间低效
+频繁随机访问、尾部增删（如数据展示、查询列表）。
+
+
+LinkedList
+双向链表
+否
+随机访问O(n)，已知节点增删O(1)，空间开销大
+频繁头尾增删、作为队列 &#x2F; 栈使用（如任务队列）。
+
+
+Vector
+动态数组
+是（synchronized）
+扩容2倍，性能低，已淘汰
+
+
+
+CopyOnWriteArrayList
+数组
+是（写时复制+Lock）
+读无锁、写拷贝新数组，适合读多写少
+
+
+
+高频知识点
+遍历修改：集合内部维护一个modCount 计数器，每次迭代器 next() 会检查是否同步更新。
+
+集合自己的 add&#x2F;remove → 仅改结构 → 必抛 ConcurrentModificationException
+迭代器自己的 remove&#x2F;add&#x2F;set → 改结构 并 同步 modCount 和 expectedModCount → 不抛异常
+
+
+泛型限制：List&lt;&gt;不支持基本数据类型，需使用包装类（泛型擦除仅支持引用类型），依赖自动装箱&#x2F;拆箱机制。
+
+数组互转：
+
+toArray(指定类型数组)（推荐），传入的数组有两种情况：
+
+数组长度 &#x3D;&#x3D; 0（最推荐）：集合会自动创建一个刚好大小的新数组，现代 JVM 对这种空数组做了优化，极快
+数组长度 &gt;&#x3D; list.size ()：元素直接放进你给的数组里，多余位置填 null
+
+
+Arrays.asList
+
+返回的是Arrays内部类，固定大小列表，不能增删！ 解决方法就是包一层真正的 ArrayList。
+
+基本类型数组必须装箱，否则导致 传入的一个基本类型数组 整个 会被当做一个元素。
+
+数组和 List 共用同一块内存
+// 引用类型List&lt;String&gt; list = new ArrayList&lt;&gt;(Arrays.asList(arr));// 基本类型 int[]List&lt;Integer&gt; list = Arrays.stream(arr).boxed().toList();
+
+
+
+
+ArrayList：
+
+非线程安全，并发 add 时：①部分元素为 null（两线程同时写同一索引）；②索引越界（扩容判断后线程切换）；③size 统计错误（size++ 非原子操作）。
+扩容机制：初始容量 10，负载因子 0.75，元素数达容量×0.75时扩容。新容量 &#x3D; 旧容量 ×1.5（oldCapacity + (oldCapacity &gt;&gt; 1)），创建新数组并拷贝原元素。可在初始时指定容量减少扩容次数。
+
+
+CopyOnWriteArrayList：
+
+底层用 volatile 数组存储元素，写操作（add&#x2F;remove）加 ReentrantLock 锁。
+写时复制：修改时拷贝原数组生成新数组，修改后替换原数组引用，读操作直接访问原数组（无锁）。
+
+
+
+三、Set 核心要点
+核心特性：元素唯一，最多1个null值，无索引；添加元素时，靠先通过hashCode()定位存储位置，再用equals()判断是否存在相同元素，存在则不插入（HashSet&#x2F;LinkedHashSet）或排序规则（TreeSet）进行去重。
+核心实现类
+HashSet：基于HashMap，无序，去重效率高。
+LinkedHashSet：继承HashSet，双向链表保留插入顺序（底层 HashMap + 双向链表，链表维护插入顺序）。
+TreeSet：基于TreeMap，红黑树结构，支持自然排序&#x2F;自定义排序。
+
+
+排序方案：
+TreeSet：元素实现 Comparable 接口或构造时传入 Comparator，自动按值排序
+LinkedHashSet：保留插入顺序。
+
+
+
+四、Map 核心要点1.Map的遍历：
+遍历键值对：for (Map.Entry&lt;K,V&gt; entry : map.entrySet())（推荐）。
+遍历键：for (K key : map.keySet())（需二次 get 取值，效率低）。
+迭代器：Iterator&lt;Map.Entry&lt;K,V&gt;&gt; it = map.entrySet().iterator()（支持遍历中删除）。
+函数式：map.forEach((k,v) -&gt; ...)（Java8+）、Stream API（map.entrySet().stream().filter(...)）。
+
+2. HashMap（单线程）
+底层结构：数组+链表+红黑树（链表≥8 且 数组≥64树化，≤6退化为链表）。
+
+寻址规则：hash &amp; (length-1)，容量必为2的n次方（位运算等价取模，保证低位全 1 以分散哈希减少冲突，同时扩容时可快速重定位元素），然后校验该位置头节点：
+
+若头节点 hash 和 key 相同，返回 value。未找到就接着往下找：
+
+是链表就遍历链表，匹配 hash 和 key 返回 value
+是红黑树就在树里查找，匹配 hash 和 key 返回 value
+
+
+整条链表 &#x2F; 整棵树都找完，仍然没有匹配的 key，返回 null。
+
+
+
+HashMap的put过程：
+
+先计算 key 的哈希值并定位数组索引，若该位置为空则直接插入新节点；若非空，先判断头节点 key 是否一致，一致则替换 value；
+否则判断是否为红黑树并执行树节点插入，若为链表则遍历查找，存在相同 key 则替换，不存在则尾插新节点；
+插入后若链表长度≥8 且数组容量≥64 则转为红黑树；
+最后判断元素数量是否超过扩容阈值，超过则进行 2 倍扩容。
+
+
+扩容机制：触发条件为 元素数≥**容量×负载因子（默认0.75），扩容为原容量2**倍，仅通过hash高位bit判断新索引，无需重算hash，迁移元素到新数组。
+
+键值规则：支持1个null键、多个null值。
+
+线程问题：非线程安全，JDK1.7扩容易出现环形链表死循环，JDK1.8存在数据覆盖问题。
+
+树化选择：用 红黑树 而 非平衡二叉树（AVL树，需严格维持左右子树高度差≤1），红黑树弱平衡，增删旋转更少，综合效率更高。
+
+HashMap的不安全主要表现：
+
+多线程下，JDK1.7 扩容头插 → 环形链表，get时死循环
+JDK1.8 并发 put → 数据覆盖丢失
+并发读写 → 脏读、旧值、数据不一致
+遍历同时修改 → ConcurrentModificationException
+扩容中间态 → get 可能 NPE
+
+
+哈西冲突解决方法：
+
+拉链法（HashMap 用）：冲突元素组成链表 &#x2F; 红黑树。
+开放寻址法：线性探测、二次探测、双重散列（冲突时重新寻址）。
+再哈希法：用多个哈希函数，直到找到空槽。
+扩容法（HashMap 用）：扩大哈希表容量，重新分配元素。
+
+
+HashMap的常用 Key：String、Integer 等不可变类。
+
+String 适合原因：①不可变，hashCode 计算后不变（避免哈希冲突异常）；②重写了hashCode()和equals()，判重逻辑稳定。
+key 可以为 null，仅允许 1 个 null key（存入数组 0 号桶），value 可多个为 null。
+
+
+重写 HashMap 的 equals 和 hashCode 方法需要注意什么：
+
+①equals 相等的对象，hashCode 必须相等；②hashCode 相等，equals 不一定相等。
+仅重写 equals 不重写 hashCode：导致 equals 相等的对象 hashCode 不同，HashMap 中会被当作不同 key，出现重复存储或无法获取值。
+
+
+
+3. 其他Map实现
+Hashtable：数组+链表，全方法synchronized，线程安全，不支持null键值，性能低已淘汰。
+LinkedHashMap：继承HashMap，双向链表保留插入&#x2F;访问顺序。
+TreeMap：红黑树结构，键支持排序。
+
+4. ConcurrentHashMap（多线程高并发、线程安全）
+JDK1.7：基于Segment分段锁（ReentrantLock），每个 Segment 是独立 ReentrantLock（支持重入），锁粒度大，并发度高。
+JDK1.8：数组+链表+红黑树，volatile+CAS+synchronized，锁桶头节点，锁粒度更小。
+锁策略：空槽（无哈希冲突）用 CAS（乐观锁）插入，冲突用 **synchronized**（悲观锁）加锁，搭配 volatile 保证可见性。
+CAS 适用于低冲突场景。
+synchronized 适用于高冲突场景。
+
+
+
+五、线程安全集合汇总
+List：Vector、Collections.synchronizedList()、CopyOnWriteArrayList
+Set：ConcurrentSkipListSet、CopyOnWriteArraySet
+Map：Hashtable、ConcurrentHashMap、ConcurrentSkipListMap
+并发队列：ConcurrentLinkedQueue、BlockingQueue等
+
+六、面试高频核心考点
+ArrayList线程不安全：并发add导致值为null、数组索引越界、元素数量不准。
+HashMap容量为2的n次方：优化位运算寻址、减少哈希冲突、简化扩容重哈希逻辑。
+ConcurrentHashMap迭代：JDK1.7分段锁→JDK1.8锁头节点，并发性能大幅提升。
+equals与hashCode：重写需配套，相等对象hashCode必相同，反之不成立。
+哈希冲突解决：拉链法（链表+红黑树）、开放寻址法、再哈希法。
+
+]]></content>
+      <categories>
+        <category>Java面试篇</category>
+      </categories>
+      <tags>
+        <tag>面试</tag>
+        <tag>Java集合</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Java基础--面试</title>
-    <url>/2026/04/16/2026/%E5%85%AB%E8%82%A1/Java%E9%9D%A2%E8%AF%95%E7%AF%87/Java%E5%9F%BA%E7%A1%80%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
+    <url>/2026/04/16/2026/%E5%85%AB%E8%82%A1/Java%E9%9D%A2%E8%AF%95%E7%AF%87/Java%E5%9F%BA%E7%A1%80%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E7%9F%A5%E8%AF%86%E7%82%B9/</url>
     <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
 
 一、整体概述Java基础是面试基础门槛，答不好易暴露基本功问题；本文覆盖高频核心考点，侧重原理理解，重点掌握：面向对象、int&#x2F;Integer、String系列、equals&#x2F;hashCode、Java8&#x2F;17&#x2F;21新特性、反射。
