@@ -5965,63 +5965,212 @@ synchronized关键字（内置锁）：1️⃣JVM 层面实现，自动加锁、
 乐观锁版本控制。
 
 
-三、并发安全（核心模块）1. 线程安全三大特性保障
+三、Java 多线程与并发编程核心体系详解1. 线程安全三大特性保障①synchronized内置锁；②volatile保证可见性；③ReentrantLock显式锁；④JUC 原子类；⑤ThreadLocal线程私有变量；⑥并发安全集合；⑦JUC 同步工具。
+
 原子性：synchronized、Lock、Atomic原子类
 可见性：volatile、synchronized、Lock
 有序性：volatile、synchronized、happens-before规则
 
-2. 锁体系(1) synchronized
-内置监视器锁，自动加锁&#x2F;解锁
-锁升级（JDK1.6+）：无锁→偏向锁→轻量级锁→重量级锁（JDK15+默认禁用偏向锁）
-锁对象：普通方法锁当前实例，静态方法锁Class对象
+2. 锁体系锁的核心抽象是 “同步状态的管理” 和 “未能获取状态的线程的调度”。
+
+状态管理：需要一个变量来表示资源是否可用。这个状态可以是一个布尔标志（自旋锁）、一个重入计数（ReentrantLock）、一个剩余数量（Semaphore）、一个复杂的状态字（synchronized的对象头）。
+线程调度：当状态不允许线程立即访问时，线程需要被妥善安排。这可能是自旋等待（消耗CPU，等状态变化）、进入队列阻塞（AQS的CLH队列，synchronized的入口集&#x2F;等待集）、或被操作系统挂起（重量级锁）。
+
+(1) synchronized
+工作原理：Java 内置的原子性监视器锁，编译后在同步代码块前后插入 monitorenter&#x2F;monitorexit字节码指令，依赖操作系统底层互斥锁实现。其核心是通过对象头的 Mark Word 管理锁状态，维护 Entry Set（锁竞争队列） 和 Wait Set（等待队列）。它支持可重入（由 Monitor 内部维护的 owner 线程和 recursions 计数器来保证），是排它锁。它是非公平锁。线程的阻塞与唤醒涉及用户态与内核态的切换，其内存语义能保证共享变量可见性。
+
+锁对象与作用范围：普通实例方法锁当前实例（this），静态方法锁Class 对象。因此，普通方法仅在同一实例内互斥，静态方法在该类所有实例间互斥。
+
+锁升级（JDK1.6+ 关键优化）：无锁→偏向锁→轻量级锁→重量级锁。无竞争用偏向锁，轻度竞争用轻量级锁（自旋），激烈竞争膨胀为重量级锁（OS 互斥量）。该过程为了保证数据一致性，不能降级（JDK15+ 默认禁用偏向锁）。
+
+
+
+锁状态
+锁标志位
+偏向位
+Mark Word 核心内容
+触发节点
+核心规则（含关键约束）
+
+
+
+无锁
+01
+0
+identity hashCode、分代年龄
+对象初始化，无同步访问
+调用原生hashCode()后，永久无法进入偏向锁阶段
+
+
+偏向锁
+01
+1
+偏向线程 ID、Epoch、分代年龄
+首线程首次进入同步块，CAS 写入线程 ID
+单线程重入无 CAS 开销；出现竞争触发撤销，需 JVM 安全点 STW（Stop-The-World），开销较高
+
+
+轻量级锁
+00
+-
+线程栈帧锁记录 (Lock Record) 指针
+偏向锁撤销完成，线程 CAS 竞争锁
+自适应自旋抢占，无内核态切换，仅适配持锁时间短、竞争低的场景
+
+
+重量级锁
+10
+-
+Monitor（内核互斥量）指针
+轻量级锁自旋失败，触发锁膨胀
+依赖内核互斥量，线程阻塞需用户 &#x2F; 内核态切换，开销大，适配持锁长、竞争高场景
+
+
+
+JVM 对 Synchornized 的优化：①锁升级；②锁消除（在即时编译（JIT)，通过逃逸分析删除无竞争锁）；③锁粗化（合并频繁加锁）；④自适应自旋（动态调整自旋次数）。
+
 
 (2) ReentrantLock
-基于AQS实现，手动加解锁
-支持：公平&#x2F;非公平锁、可中断、多Condition条件队列
+工作原理：基于 AQS（AbstractQueuedSynchronizer）框架 实现的显式锁，内部通过 Sync（继承自AQS）实现锁逻辑，分公平与非公平锁。支持可中断获取锁、超时获取锁以及多个 Condition条件变量，同样支持可重入（通过 holdCount计数）。底层通过 LockSupport.park()&#x2F;unpark() 实现线程调度。
+公平锁实现：tryAcquire时先调用hasQueuedPredecessors()，判断等待队列有无前驱线程，有则排队，无则 CAS 抢锁，严格遵循 FIFO。
+核心特性：提供 公平&#x2F;非公平 锁选项、支持 可中断 获取锁、可通过 多个 Condition 实现精细的线程等待&#x2F;通知。
+最佳实践：必须遵循 lock()加锁，在 finally块中 unlock() 的范式，确保锁必然释放，防止死锁。
 
 (3) 其他锁
 读写锁：读共享、写独占，适配读多写少场景
 可重入锁：同一线程可重复获取锁（synchronized/ReentrantLock均支持）
 公平锁：按申请顺序获取锁；非公平锁：插队竞争，吞吐量更高
+自旋锁：持续循环检查（自旋）锁是否被释放，直到成功获取锁，适配锁持有时间短场景。
 
 3. 悲观锁 vs 乐观锁
 悲观锁：默认存在竞争，加锁执行（synchronized、ReentrantLock）
+
 乐观锁：无锁设计，用CAS+版本号实现
-CAS缺陷：ABA问题（AtomicStampedReference解决）、自旋耗CPU、仅支持单个变量原子操作
+
+CAS缺陷：ABA问题（AtomicStampedReference增加版本号 &#x2F; 时间戳，同时校验值和版本）、自旋耗CPU、仅支持单个变量原子操作
+
+ABA问题：线程 1 读取变量值为 A → 线程 2 抢先把 A 改成 B、再改回 A → 线程 1 执行 CAS，发现值还是 A，判定「无修改」并更新成功
+
+
 
 4. volatile
 作用：保证可见性、禁止指令重排
 局限：不保证原子性，无法完全保证线程安全
 
 5. AQS 抽象队列同步器
-核心：volatile状态state + FIFO等待队列，通过CAS修改状态
-应用：ReentrantLock、CountDownLatch、Semaphore等均基于AQS实现
+CAS 是一种乐观锁机制，它包含三个操作数：内存位置（V）、预期值（A）和新值（B）。CAS 操作的逻辑是，如果内存位置 V 的值等于预期值 A，则将其更新为新值 B，否则不做任何操作。整个过程是原子性的，通常由硬件指令（如cmpxchg）支持。
+
+
+核心：AQS 的核心是一个用 volatile修饰的 int 类型同步状态 state 和一个 FIFO 线程等待队列（CLH 变体）。它通过 CAS 操作 来原子性地修改 state，以此实现资源的获取与释放，并通过 LockSupport.park/unpark 管理队列中线程的阻塞与唤醒。
+应用：它是 JUC 并发包的基石，**ReentrantLock、CountDownLatch、Semaphore、ReentrantReadWriteLock等均基于 AQS 实现。AQS 定义了资源获取的框架，具体如何获取&#x2F;释放由子类的 tryAcquire、tryRelease 等方法决定（模板方法模式**）。
+自定义同步器：若要基于 AQS 实现一个自定义的可重入公平独占锁，需：
+继承 AQS，并重写 tryAcquire&#x2F;tryRelease 等方法。
+tryAcquire中先调用 hasQueuedPredecessors()判断队列中是否有前驱节点，以保证公平性，再尝试用 CAS 将 state从 0 改为 1。
+在 tryAcquire中还需判断当前线程是否已持有锁（检查 state &gt; 0且 ownerThread == currentThread），若是则将 state加 1，以实现可重入。
+**tryRelease中将 state递减，仅当 state减为 0 时，才完全释放锁，将 ownerThread置为 null**。
+
+
 
 6. ThreadLocal
 作用：提供线程私有变量，避免共享竞争
-原理：Thread持有ThreadLocalMap，key为ThreadLocal（弱引用），value为业务数据
-问题：内存泄漏（key被回收后value强引用滞留）
+原理：Thread持有ThreadLocalMap，key为ThreadLocal（弱引用），value为业务数据（强引用）
+问题：内存泄漏（key被回收后value强引用滞留，后续再次调用ThreadLocal的 set() &#x2F; get() &#x2F; remove()才会触发ThreadLocalMap 内部清理过期Entry的逻辑）
 解决：使用后手动调用remove()清理
 
-7. JUC常用工具
-CountDownLatch：主线程等待一组子线程执行完毕
-CyclicBarrier：一组线程相互等待至屏障点，可复用
-Semaphore：控制同时访问资源的线程数
-并发集合：ConcurrentHashMap、CopyOnWriteArrayList
+7. JUC高频类①线程池：基于工厂模式、策略模式、模板方法模式、享元模式ThreadPoolExecutor Java 线程池的唯一核心实现类，生产环境手动创建，规避Executors内置线程池的资源耗尽风险，提交异步任务，统一管理线程生命周期；Executors基于ThreadPoolExecutor封装的工具类，生产环境禁用。因此以下是对ThreadPoolExecutor的讲解：
+
+ThreadPoolExecutor线程池任务执行核心流程：
+
+核心线程判断：如果当前运行线程数 &lt; corePoolSize，立即创建新的核心线程执行任务，即使其他核心线程空闲。
+队列入队判断：如果核心线程已满，尝试将任务加入workQueue阻塞队列，入队成功则等待空闲线程调度。
+非核心线程判断：如果队列已满，当前运行线程数 &lt; maximumPoolSize，立即创建非核心线程执行任务。
+拒绝策略触发：如果总线程数已达maximumPoolSize，执行RejectedExecutionHandler拒绝策略处理任务。4种默认拒绝策略：
+AbortPolicy（默认）：直接抛出RejectedExecutionException异常，中断任务提交
+CallerRunsPolicy：由提交任务的调用线程直接执行该任务
+DiscardPolicy：直接静默丢弃任务，不抛任何异常
+DiscardOldestPolicy：丢弃队列中最老的等待任务，再重试提交当前任务
+
+
+
+
+ThreadPoolExecutor中**execute() vs submit()**：
+
+execute()：只能提交Runnable任务，无返回值，任务异常会直接抛出。
+submit()：可提交Runnable&#x2F;Callable任务，返回Future对象获取执行结果，异常会被封装到Future中，只有调用get()时才会抛出。未执行的任务可通过Future.cancel()撤回；已开始执行的任务需通过中断标志停止。
+
+
+ThreadPoolExecutor的线程池关闭
+
+shutdown()：平缓关闭，不再接受新任务，等待已提交的任务（队列中 + 执行中）全部执行完成后关闭。
+shutdownNow()：强制关闭，不再接受新任务，中断正在执行的任务（Thread.interrupt()），清空队列，返回未执行的任务列表。
+如果线程中没有 sleep()、wait()、Condition.await()、LockSupport.park() 等可响应中断的方法，interrupt() 仅仅是设置一个中断标志位，无法真正停止正在执行的线程；
+此时线程池会继续等待这些 “无法被中断” 的任务执行完成，才能真正退出。
+
+
+
+
+ThreadPoolExecutor的线程池 5 种生命周期状态
+RUNNING → SHUTDOWN → STOP → TIDYING → TERMINATED，状态不可逆，只能单向流转。
+
+ThreadPoolExecutor的线程数配置：
+
+CPU 密集型（计算、加密等）：线程数 &#x3D; 服务器 CPU 核心数 + 1
+IO 密集型（数据库、网络调用、文件读写等）：线程数 &#x3D; 服务器 CPU 核心数 * 2
+核心线程数设置为 0，任务直接入队列，空闲线程回收后无常驻线程，适用于低频率任务场景。
+
+
+ThreadPoolExecutor的核心参数
+
+corePoolSize 核心线程数：线程池常驻的核心线程数量，默认空闲状态也不会被回收。
+maximumPoolSize 最大线程数：线程池允许存在的最大线程总数（核心线程 + 非核心线程）。
+keepAliveTime 空闲线程存活时间：非核心线程空闲后，等待新任务的最长时长，超时会被回收。
+unit 时间单位：keepAliveTime 对应的时间计量单位，常用秒、毫秒等 TimeUnit 枚举值。
+workQueue 任务等待队列：核心线程满负荷后，用于存放待执行任务的阻塞队列，生产环境强制使用有界队列。
+threadFactory 线程工厂：线程池创建线程的工厂，可自定义线程名称、优先级等，便于日志排查问题。
+handler 拒绝策略：线程池与队列均已满时，对新提交任务的处理规则。
+
+
+
+②并发工具Future/Callable（异步获取结果）：
+底层实现：其核心在于 FutureTask类，它作为实现了 Runnable和 Future的复合体，将 Callable或 Runnable任务封装为一个可执行、可获取结果的单元。其内部通过一个由 AQS 同步器 包装的 volatile int state 变量来精确控制任务的生命周期状态，并通过 AQS 的等待队列 来管理所有调用 get()方法而阻塞的线程，由 LockSupport.park/unpark实现底层的线程阻塞与唤醒。
+并发安全设计：其安全性由 单向不可逆的生命周期状态 驱动。所有状态变迁（如 NEW -&gt; COMPLETING -&gt; NORMAL）都通过 CAS 操作原子性地完成，这确保了任务结果（或异常）只会被设置一次。关键的**happens-before规则得到应用：写结果之前写入 volatile状态，这保证了结果发布后对所有等待线程的可见性。get()方法读取该 volatile状态，若任务未完成，则线程通过 AQS 安全地加入队列并阻塞，直到被设置结果的线程唤醒，从而实现了安全、无竞态条件的结果传递**。
+
+
+ConcurrentHashMap ：
+底层实现：JDK1.8 的 ConcurrentHashMap 采用了与 HashMap 一致的 Node数组+链表&#x2F;红黑树 结构，但其通过 桶级细粒度锁（synchronized）结合 CAS 无锁操作 来实现并发控制，从而将实际并发度提升至桶（数组）的数量级。
+并发安全设计：JDK1.8 的 ConcurrentHashMap 通过 volatile 保证数据可见性，基于 CAS 实现无锁化初始与空桶插入，采用 synchronized 进行桶级锁定处理哈希冲突，并设计 多线程协助扩容机制 提升效率，最终对外提供 弱一致性的安全迭代 能力。
+
+CopyOnWriteArrayList：
+底层实现：基于一个 volatile 修饰的数组引用，通过 写时复制 机制，在 ReentrantLock 独占锁的保护下，将整个数组复制、修改并替换，其迭代器则基于创建时的数组快照工作。
+并发安全设计：采用 读写分离 的极致策略，读操作完全无锁（直接访问 volatile 数组），写操作完全互斥（独占锁确保同一时刻只有一个写线程），通过原子替换数组引用保证写操作的线程安全与读操作的最终一致性。
+
+③同步工具CountDownLatch（等待线程完成）：
+底层实现：基于 AQS 共享锁模式，其同步状态（state）被设计为倒计数器，通过 AQS 的阻塞队列来管理所有调用 await()的等待线程。
+并发安全设计：通过 AQS 提供的 CAS 操作 来原子地递减 state值，确保多线程并发调用 countDown()的安全性；当 state减至 0 时，由 AQS 负责唤醒阻塞队列中的所有等待线程，且此倒计时为一次性，不可重置。
+
+CyclicBarrier（线程相互等待）：
+底层实现：基于 ReentrantLock 与 Condition 条件队列 实现线程同步，其核心为一个可循环使用、每次归零后能自动重置的计数器。
+并发安全设计：通过 ReentrantLock 独占锁保护计数器的递减操作，确保多线程到达的线程安全；当计数归零时，由 Condition 的 signalAll()统一唤醒所有等待线程，并提供一个原子性屏障操作，若其中任意线程被中断或超时，则会打破屏障并传播 BrokenBarrierException 通知所有线程。
+
+Semaphore（限流）：
+底层实现：基于 AQS 共享锁模式，其同步状态（state）被用作许可证计数器，并通过 AQS 内部维护的阻塞队列，在公平模式与非公平模式下分别实现 FIFO 等待和 CAS 抢占机制。
+并发安全设计：通过 AQS 提供的 CAS 操作 原子性地修改许可证数量（state），以控制并发访问的线程数；当许可证不足时，由 AQS 阻塞并排队管理线程，确保资源访问的互斥性与顺序性。许可证的获取与释放严格匹配，避免了资源泄漏。
+
+④原子类AtomicInteger：
+底层实现：基于 volatile int value保证可见性，通过 Unsafe类提供的 CAS 指令 直接操作内存，配合自旋循环实现原子更新。
+并发安全设计：采用 CAS 实现无锁化（乐观锁）的原子操作，确保单个 int变量的读-改-写操作线程安全，高性能但高并发下自旋可能带来 CPU 开销。
+
+&#96;&#96;AtomicReference&#96;：
+底层实现：基于 volatile V reference保证引用可见性，同样通过 Unsafe的 CAS 指令 实现对对象引用的原子替换。
+并发安全设计：通过 CAS 无锁更新对象引用 实现线程安全，可间接原子更新多个字段（需封装为不可变对象），但存在 ABA 问题，需通过带版本戳的 AtomicStampedReference解决。
 
 8. 死锁
 四大必要条件：互斥、请求保持、不可剥夺、循环等待
 解决方式：破坏任一条件、避免循环等待、使用定时锁
 
-四、线程池
-核心价值：复用线程，降低创建&#x2F;销毁开销，控制并发线程数
-核心参数：核心线程数、最大线程数、工作队列、拒绝策略、线程空闲时间
-拒绝策略：抛异常、丢弃任务、丢弃最老任务、调用者执行
-关闭方式：shutdown()（温和关闭）、shutdownNow()（强制中断）
-
-五、典型并发场景题要点
+四、典型并发场景题要点
 线程顺序控制：wait/notify、Lock、CountDownLatch
-单例双重校验：volatile + synchronized，防止指令重排
+单例双重校验：volatile + synchronized，防止指令重排（volatile）
 多线程并发累加：原子类、加锁保证原子性
 等待多线程完成：使用CountDownLatch
 
