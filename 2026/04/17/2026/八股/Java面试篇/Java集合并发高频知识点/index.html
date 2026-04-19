@@ -597,20 +597,19 @@
 <li><p>Consistency（一致性）：事务执行前后，<strong>数据的完整性约束不变</strong>，数据库始终合法。</p>
 </li>
 <li><p>Isolation（隔离性）：多个事务同时运行时，<strong>互相不干扰</strong>，避免脏数据。</p>
-</li>
-</ul>
 <blockquote>
 <p><strong>数据库隔离级别</strong>（从低到高）：</p>
 <p><code>读未提交</code> → <code>读已提交</code>（常用）→ <code>可重复读</code>（MySQL 默认）→ <code>串行化</code></p>
 </blockquote>
-<p>  隔离性解决以下并发问题：</p>
+<p>隔离性解决以下并发问题：</p>
 <ol>
 <li><strong>脏读</strong>：读到其他事务未提交的数据</li>
 <li><strong>不可重复读</strong>：同一事务内，两次查询结果不一样</li>
 <li><strong>幻读</strong>：范围查询时，突然多出 &#x2F; 少了数据</li>
 </ol>
-<ul>
-<li>Durability（持久性）：事务一旦提交，<strong>永久生效</strong>，断电、宕机都不会丢失。<strong>实现</strong>：数据库<strong>重做日志（redo log）</strong></li>
+</li>
+<li><p>Durability（持久性）：事务一旦提交，<strong>永久生效</strong>，断电、宕机都不会丢失。<strong>实现</strong>：数据库<strong>重做日志（redo log）</strong></p>
+</li>
 </ul>
 </li>
 <li><p>Java 锁机制（<code>synchronized</code>&#x2F;<code>ReentrantLock</code>）：解决<strong>多线程并发修改共享数据</strong>导致的线程安全问题（比如超卖、数据错乱）。</p>
@@ -729,7 +728,7 @@
 </ul>
 <h3 id="6-ThreadLocal"><a href="#6-ThreadLocal" class="headerlink" title="6. ThreadLocal"></a>6. ThreadLocal</h3><ul>
 <li>作用：提供线程私有变量，避免共享竞争</li>
-<li>原理：<code>Thread</code>持有<code>ThreadLocalMap</code>，key为<code>ThreadLocal</code>（弱引用），value为业务数据（强引用）</li>
+<li>原理：<code>Thread</code>持有<code>ThreadLocalMap</code>，<code>ThreadLocalMap</code>中存有<code>Entry</code>数组，<code>Entry</code>的<code>key</code>为<code>ThreadLocal</code>对象（弱引用）该对象全局静态（多个线程存同Key的键值对可以节省内存，<code>static final</code>修饰），<code>value</code>为业务数据（强引用）每个线程独立。</li>
 <li>问题：<strong>内存泄漏</strong>（key被回收后value强引用滞留，后续再次调用<code>ThreadLocal</code>的 <code>set()</code> &#x2F; <code>get()</code> &#x2F; <code>remove()</code>才会触发<code>ThreadLocalMap</code> 内部清理过期Entry的逻辑）</li>
 <li>解决：使用后手动调用<code>remove()</code>清理</li>
 </ul>
