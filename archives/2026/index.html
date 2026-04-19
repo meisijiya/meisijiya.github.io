@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             placeholder="想知道我什么秘密呢，搜搜看吧"
             oninput="navSearch(this)"
           />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
           <div id="nav-search-result-desktop" class="nav-search-result"></div>
         </div>
 
@@ -197,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
             placeholder="想知道我什么秘密呢，搜搜看吧"
             oninput="navSearch(this)"
           />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
           <div id="nav-search-result-mobile" class="nav-search-result"></div>
         </div>
       </div>
@@ -239,7 +241,6 @@ document.addEventListener('DOMContentLoaded', function() {
         !searchIcon.contains(event.target)
       ) {
         searchInput.classList.remove("active");
-        searchInput.value = ""
         // 根据输入框ID确定对应的结果容器
         let resultContainer;
         if (searchInput.id === "nav-search-input-mobile") {
@@ -256,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (resultContainer) {
           resultContainer.style.display = "none";
-          resultContainer.innerHTML = ""; // 清空结果容器内容
+          // 保留搜索结果和输入内容，仅隐藏下拉框
         }
       }
     });
@@ -269,6 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 新增：搜索功能实现
   let searchData = []; // 全局变量存储搜索数据
+  let currentSearchKeyword = ''; // 追踪当前搜索关键字
 
   // 页面加载完成后获取搜索数据
   document.addEventListener("DOMContentLoaded", function () {
@@ -371,6 +373,110 @@ document.addEventListener('DOMContentLoaded', function() {
       .join("");
     resultContainer.innerHTML = html;
   }
+
+  // 文章内容关键字高亮功能
+  let currentHighlightIndex = -1;
+  let highlightCount = 0;
+
+  function highlightPostContent(keyword) {
+    const content = document.querySelector('.post-content');
+    if (!content) return false;
+
+    content.innerHTML = content.innerHTML.replace(/<\/?mark>/g, '');
+
+    if (!keyword) return false;
+
+    const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    const escaped = keyword.replace(/[.*+?^${}|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+
+    textNodes.forEach(node => {
+      if (!regex.test(node.nodeValue)) return;
+      regex.lastIndex = 0;
+      const fragment = document.createDocumentFragment();
+      node.nodeValue.split(regex).forEach((text, i) => {
+        if (i % 2 === 1) {
+          const mark = document.createElement('mark');
+          mark.textContent = text;
+          fragment.appendChild(mark);
+        } else {
+          fragment.appendChild(document.createTextNode(text));
+        }
+      });
+      node.parentNode.replaceChild(fragment, node);
+    });
+
+    return true;
+  }
+
+  function getHighlights() {
+    const content = document.querySelector('.post-content');
+    return content ? content.querySelectorAll('mark') : [];
+  }
+
+  function scrollToHighlight(index, smooth = true) {
+    const highlights = getHighlights();
+    if (highlights.length === 0) return;
+
+    if (index < 0) index = highlights.length - 1;
+    if (index >= highlights.length) index = 0;
+
+    currentHighlightIndex = index;
+    highlights[index].scrollIntoView({
+      behavior: smooth ? 'smooth' : 'auto',
+      block: 'center'
+    });
+
+    updateHighlightCount();
+  }
+
+  function updateHighlightCount() {
+    const highlights = getHighlights();
+    highlightCount = highlights.length;
+    const nav = document.getElementById('highlight-nav');
+    if (nav) {
+      nav.querySelector('.count').textContent = `${currentHighlightIndex + 1}/${highlightCount}`;
+      nav.style.display = highlightCount > 0 ? 'flex' : 'none';
+    }
+  }
+
+  // 修改 navSearch 函数，集成文章内高亮
+  const originalNavSearch = navSearch;
+  navSearch = function(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    currentSearchKeyword = keyword;
+    const resultContainer = inputElement.id === 'nav-search-input-desktop'
+      ? document.getElementById('nav-search-result-desktop')
+      : inputElement.parentNode.querySelector('.nav-search-result');
+
+    if (!keyword) {
+      if (resultContainer) {
+        resultContainer.innerHTML = '';
+        resultContainer.style.display = 'none';
+      }
+      highlightPostContent('');
+      return;
+    }
+
+    // 先执行原有搜索逻辑
+    originalNavSearch(inputElement);
+
+    // 仅在文章页执行内容高亮
+    if (highlightPostContent(keyword)) {
+      updateHighlightCount();
+    }
+  };
+
+  // 清除搜索的函数
+  function clearSearch(btn) {
+    const input = btn.parentNode.querySelector('.nav-search-input');
+    input.value = '';
+    navSearch(input);
+    input.focus();
+  }
 </script>
 <style>
   /* 手机端使用flexbox布局搜索容器 */
@@ -382,6 +488,10 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-left: 10px;
     flex-grow: 1;
     max-width: calc(100% - 40px);
+  }
+
+  .search-container {
+    position: relative;
   }
 
 
@@ -410,7 +520,116 @@ document.addEventListener('DOMContentLoaded', function() {
   border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */
 }
 
+.dark-theme .search-result-item {
+  background: #2d2d2d;
+  border: 1px solid #444;
+}
+.dark-theme .search-result-item a {
+  color: #e0e0e0;
+}
+.dark-theme .search-result-item div:first-child {
+  border-bottom-color: #444;
+}
 
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(0, 0, 0, 0.2);
+  color: #666;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.clear-search:hover {
+  background: rgba(0, 0, 0, 0.3);
+  color: #333;
+}
+.nav-search-input:focus + .clear-search,
+.nav-search-input.active:not(:placeholder-shown) + .clear-search {
+  display: flex;
+}
+.dark-theme .clear-search {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ccc;
+}
+.dark-theme .clear-search:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.highlight-nav {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 99;
+}
+.highlight-nav .count {
+  font-size: 14px;
+  color: #333;
+  min-width: 50px;
+  text-align: center;
+}
+.highlight-nav button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+.highlight-nav button:hover {
+  background: #e0e0e0;
+}
+.dark-theme .highlight-nav {
+  background: rgba(40, 40, 40, 0.95);
+}
+.dark-theme .highlight-nav .count {
+  color: #eee;
+}
+.dark-theme .highlight-nav button {
+  background: #444;
+  color: #fff;
+}
+.dark-theme .highlight-nav button:hover {
+  background: #555;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .highlight-nav {
+    gap: 16px;
+    padding: 12px 20px;
+  }
+  .highlight-nav .count {
+    font-size: 16px;
+    min-width: 60px;
+  }
+  .highlight-nav button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
 </style>
 
             <div class="main">
