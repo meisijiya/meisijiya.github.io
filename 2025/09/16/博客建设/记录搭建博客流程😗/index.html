@@ -39,7 +39,11 @@
 <link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
 <!-- highlight.js 自动上色功能 -->
 <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    hljs.highlightAll();
+});
+</script>
 
 <link rel="stylesheet" href="/css/custom.css">
 
@@ -474,6 +478,72 @@
         }
         return target;
     }
+</script> <div class="toc-mobile-fab" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon">☰</span>
+</div>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
 </script>  
   <article class="post-wrap">
     <header class="post-header">
@@ -524,9 +594,9 @@
 <h1 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h1><h2 id="初始化-hexo-项目"><a href="#初始化-hexo-项目" class="headerlink" title="初始化 hexo 项目"></a>初始化 hexo 项目</h2><p><strong>先安装 Hexo</strong><a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">文档 | Hexo</a></p>
 <p><code>npm install -g hexo-cli</code></p>
 <p><strong>创建文件夹，并进入到该文件夹的命令提示符（cmd）</strong></p>
-<p><strong>输入</strong><code>hexo init</code> 项目就会初始化</p>
+<p><strong>输入</strong> <code>hexo init</code> 项目就会初始化</p>
 <p><strong>出现</strong>Start blogging with Hexo!<strong>表示成功</strong></p>
-<p><strong>紧接着执行</strong><code>npm install</code></p>
+<p><strong>紧接着执行</strong> <code>npm install</code></p>
 <p><strong>初始化后，您的项目文件夹将如下所示：</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── _config.yml   #hexo的主配置文件</span><br><span class="line">├── package.json    #项目的依赖管理文件</span><br><span class="line">├── scaffolds   #模板文件夹</span><br><span class="line">├── source  #资源文件夹</span><br><span class="line">|   ├── _drafts #存放草稿文章</span><br><span class="line">|   └── _posts  #存放已经发布的文章</span><br><span class="line">└── themes  #主题文件夹</span><br></pre></td></tr></table></figure>
 
@@ -540,7 +610,7 @@
 <p><strong>界面如下：</strong></p>
 <p><img src="/images/image_1758027894359.png" alt="image_1758027894359.png"></p>
 <p><strong>接下来我们就可以在这个系统里轻松地上传内容、更改配置、部署。</strong></p>
-<h2 id="更改-hexo-配置"><a href="#更改-hexo-配置" class="headerlink" title="更改 hexo 配置"></a>更改 hexo 配置</h2><p><strong>更改</strong><code>_config.yml</code> 的配置内容的操作自行根据官网文档来改。这边不多赘述。</p>
+<h2 id="更改-hexo-配置"><a href="#更改-hexo-配置" class="headerlink" title="更改 hexo 配置"></a>更改 hexo 配置</h2><p><strong>更改</strong> <code>_config.yml</code> 的配置内容的操作自行根据官网文档来改。这边不多赘述。</p>
 <p><a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/configuration">配置 | Hexo</a></p>
 <h2 id="配置-github-pages"><a href="#配置-github-pages" class="headerlink" title="配置 github pages"></a>配置 github pages</h2><p><a target="_blank" rel="noopener" href="https://docs.github.com/zh/pages">GitHub Pages 文档 - GitHub 文档</a></p>
 <p><strong>首先默认大家有 GitHub 账户。</strong></p>
@@ -563,7 +633,7 @@
 <p><strong>之后打开 C 盘下用户文件夹下的.ssh 的文件夹，会看到 id_rsa.pub</strong></p>
 <p><strong>用记事本打开上述图片中的公钥（id_rsa.pub），复制里面的内容，然后开始在 github 中配置 ssh 密钥。</strong></p>
 </li>
-<li><p><strong>将 SSH KEY 配置到 GitHub</strong> <strong>进入 github，点击右上角头像 选择</strong><code>settings</code>，进入设置页后选择 <code>SSH and GPG keys</code>，名字随便起，公钥填到 <code>Key</code> 那一栏。</p>
+<li><p><strong>将 SSH KEY 配置到 GitHub</strong> <strong>进入 github，点击右上角头像 选择</strong> <code>settings</code>，进入设置页后选择 <code>SSH and GPG keys</code>，名字随便起，公钥填到 <code>Key</code> 那一栏。</p>
 </li>
 <li><p><strong>测试连接，输入以下命令</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@github.com</span><br></pre></td></tr></table></figure>
@@ -601,7 +671,7 @@
 <li><p><strong>在“生成和部署”的“分支”下，使用分支下拉菜单并选择发布源。</strong><br><img src="https://docs.github.com/assets/cb-47265/images/help/pages/publishing-source-drop-down.png" alt="GitHub 存储库中 Pages 设置的屏幕截图。 用于为发布源选择分支的菜单（标有“无”）用深橙色框出。"><br><strong>8、9 的操作如下：</strong></p>
 <p><img src="/images/image_1758027982247.png" alt="image_1758027982247.png"></p>
 </li>
-<li><p>（可选）打开存储库的<code>README.md</code> 文件。 <code>README.md</code> 文件是你将为站点编写内容的位置。 您可以编辑文件或暂时保留默认内容。</p>
+<li><p>（可选）打开存储库的 <code>README.md</code> 文件。 <code>README.md</code> 文件是你将为站点编写内容的位置。 您可以编辑文件或暂时保留默认内容。</p>
 </li>
 <li><p>访问 <code>username.github.io</code> 以查看新网站。 请注意，对站点的更改在推送到 GitHub 后，最长可能需要 10 分钟才会发布。</p>
 </li>
@@ -623,7 +693,7 @@
 <p><strong>此时访问你的域名，就会直接跳转到你的 github page 项目中。</strong></p>
 <h2 id="使用-cloudflare-做-cdn-加速"><a href="#使用-cloudflare-做-cdn-加速" class="headerlink" title="使用 cloudflare 做 cdn 加速"></a>使用 cloudflare 做 cdn 加速</h2><p><strong>当然也有别的选择如，Vercel、Netlify、Railway、Render、Fleek、Zeabur</strong></p>
 <p>**这里我选择 cloudflare  **<a target="_blank" rel="noopener" href="https://dash.cloudflare.com/">https://dash.cloudflare.com/</a></p>
-<p><strong>在</strong><code>账户主页</code> 那一栏，点击 <code>加入域</code></p>
+<p><strong>在</strong> <code>账户主页</code> 那一栏，点击 <code>加入域</code></p>
 <p><img src="/images/image_1758028126256.png" alt="image_1758028126256.png"></p>
 <p><strong>添加域名，然后点继续，接着选择免费计划即可。</strong></p>
 <p><strong>接下来添加 DNS 记录</strong></p>
@@ -636,9 +706,9 @@
 <h1 id="进阶–使用-Chic-主题"><a href="#进阶–使用-Chic-主题" class="headerlink" title="进阶–使用 Chic 主题"></a>进阶–使用 Chic 主题</h1><p><a target="_blank" rel="noopener" href="https://hexo.io/themes/">Themes | Hexo</a></p>
 <p><strong>选择喜欢的主题，点击进入开发者产品的 readme 来一步一步配置即可。</strong></p>
 <p><strong>我选择 Chic 这个主题，因为简单哈哈哈，当然也简洁美。🥰</strong></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/Siricee/hexo-theme-Chic/blob/master/README-CN.md">hexo-theme-Chic&#x2F;README-CN.md at master · Siricee&#x2F;hexo-theme-Chic</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/meisijiya/Chic--Improved">Hexo-Chic 主题 meisijiya增强版</a></p>
 <p><strong>操作步骤</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd your-blog/themes #进入到themes文件夹中</span><br><span class="line"></span><br><span class="line">git clone https://github.com/Siricee/hexo-theme-Chic.git Chic #打开cmd，然后输入该指令克隆即可</span><br><span class="line"></span><br><span class="line">// Modify theme setting in _config.yml to Chic.</span><br><span class="line">###需要我们在主配置文件_config.yml中，修改theme的值为Chic</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd your-blog/themes #进入到themes文件夹中</span><br><span class="line"></span><br><span class="line">git clone https://github.com/meisijiya/Chic--Improved.git Chic #打开cmd，然后输入该指令克隆即可</span><br><span class="line"></span><br><span class="line">// Modify theme setting in _config.yml to Chic.</span><br><span class="line">需要我们在主配置文件_config.yml中，修改theme的值为Chic</span><br></pre></td></tr></table></figure>
 
 <p><strong>然后我们可以看到&#x2F;theme&#x2F;Chic 这个文件夹中有_config.yml 配置文件，修改值来改变样式即可</strong></p>
 <p><strong>添加 Tag、Category 页面</strong></p>
@@ -653,7 +723,8 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// source\tag\index.md</span><br><span class="line">---</span><br><span class="line">title: Tag</span><br><span class="line">layout: tag</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
 
 <p><strong>category 页面同理，layout 字段键值为 category。</strong></p>
-<h1 id="剩下的内容再更新吧，谢谢观看"><a href="#剩下的内容再更新吧，谢谢观看" class="headerlink" title="剩下的内容再更新吧，谢谢观看"></a>剩下的内容再更新吧，谢谢观看</h1></div>
+<h1 id="2026-4-19补充"><a href="#2026-4-19补充" class="headerlink" title="2026.4.19补充"></a>2026.4.19补充</h1><p>我把我对Chic主题新增的功能推送到了我的仓库中，现在只需要拉取下来，按照上面的操作，即可使用到我新增的所有功能。</p>
+</div>
 
     
     <section class="post-copyright">

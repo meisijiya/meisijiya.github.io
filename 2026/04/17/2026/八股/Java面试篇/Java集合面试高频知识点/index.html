@@ -39,7 +39,11 @@
 <link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
 <!-- highlight.js 自动上色功能 -->
 <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    hljs.highlightAll();
+});
+</script>
 
 <link rel="stylesheet" href="/css/custom.css">
 
@@ -474,6 +478,72 @@
         }
         return target;
     }
+</script> <div class="toc-mobile-fab" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon">☰</span>
+</div>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
 </script>  
   <article class="post-wrap">
     <header class="post-header">
@@ -796,7 +866,7 @@
     </section>
     <section class="post-nav">
       
-      <a class="prev" rel="prev" href="/2026/04/17/2026/%E5%85%AB%E8%82%A1/Java%E9%9D%A2%E8%AF%95%E7%AF%87/Java%E9%9B%86%E5%90%88%E5%B9%B6%E5%8F%91%E9%AB%98%E9%A2%91%E7%9F%A5%E8%AF%86%E7%82%B9/"
+      <a class="prev" rel="prev" href="/2026/04/17/2026/%E5%85%AB%E8%82%A1/Java%E9%9D%A2%E8%AF%95%E7%AF%87/Java%E5%B9%B6%E5%8F%91%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E7%9F%A5%E8%AF%86%E7%82%B9/"
         >Java并发--面试</a
       >
        
