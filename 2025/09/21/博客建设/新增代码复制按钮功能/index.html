@@ -634,7 +634,136 @@ document.addEventListener('DOMContentLoaded', function() {
 
             <div class="main">
                 <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <div class="toc-mobile-fab" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon">☰</span>
+</div>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
     
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
   <article class="post-wrap">
     <header class="post-header">
       <h1 class="post-title">新增代码复制按钮功能</h1>
@@ -664,6 +793,34 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="post-content"><hr>
 <p>参考文章<a target="_blank" rel="noopener" href="https://evannzhongg.github.io/2025/03/26/Add-Copy-Button-to-Code-Blocks-in-Hexo/">Add Copy Button to Code Blocks in Hexo | Hexo</a></p>
 <p>照着大佬来就好了！祝大家幸福美满。</p>
+<hr>
+<h2 id="详细步骤："><a href="#详细步骤：" class="headerlink" title="详细步骤："></a>详细步骤：</h2><p>2026.4.19补充一下详细步骤：</p>
+<p>我的完善后的code-copy.js版本：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;DOMContentLoaded&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> copyIcon = <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; height=&quot;14&quot; width=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;white&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;path d=&quot;M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 18H8V7h11v16z&quot;/&gt;</span></span><br><span class="line"><span class="string">    &lt;/svg&gt;</span></span><br><span class="line"><span class="string">  `</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> checkIcon = <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; height=&quot;14&quot; width=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;#00cc66&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;path d=&quot;M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z&quot;/&gt;</span></span><br><span class="line"><span class="string">    &lt;/svg&gt;</span></span><br><span class="line"><span class="string">  `</span>;</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;figure.highlight&#x27;</span>).<span class="title function_">forEach</span>(<span class="function">(<span class="params">figure</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (figure.<span class="title function_">querySelector</span>(<span class="string">&#x27;.copy-btn&#x27;</span>)) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> copyBtn = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">    copyBtn.<span class="property">className</span> = <span class="string">&#x27;copy-btn&#x27;</span>;</span><br><span class="line">    copyBtn.<span class="property">title</span> = <span class="string">&#x27;复制&#x27;</span>;</span><br><span class="line">    copyBtn.<span class="property">innerHTML</span> = copyIcon;</span><br><span class="line"></span><br><span class="line">    <span class="title class_">Object</span>.<span class="title function_">assign</span>(copyBtn.<span class="property">style</span>, &#123;</span><br><span class="line">      <span class="attr">position</span>: <span class="string">&#x27;absolute&#x27;</span>,</span><br><span class="line">      <span class="attr">right</span>: <span class="string">&#x27;8px&#x27;</span>,</span><br><span class="line">      <span class="attr">top</span>: <span class="string">&#x27;8px&#x27;</span>,</span><br><span class="line">      <span class="attr">width</span>: <span class="string">&#x27;28px&#x27;</span>,</span><br><span class="line">      <span class="attr">height</span>: <span class="string">&#x27;28px&#x27;</span>,</span><br><span class="line">      <span class="attr">padding</span>: <span class="string">&#x27;0&#x27;</span>,</span><br><span class="line">      <span class="attr">background</span>: <span class="string">&#x27;rgba(0, 0, 0, 0.3)&#x27;</span>,</span><br><span class="line">      <span class="attr">border</span>: <span class="string">&#x27;none&#x27;</span>,</span><br><span class="line">      <span class="attr">borderRadius</span>: <span class="string">&#x27;6px&#x27;</span>,</span><br><span class="line">      <span class="attr">cursor</span>: <span class="string">&#x27;pointer&#x27;</span>,</span><br><span class="line">      <span class="attr">opacity</span>: <span class="string">&#x27;0.85&#x27;</span>,</span><br><span class="line">      <span class="attr">zIndex</span>: <span class="number">99</span>,</span><br><span class="line">      <span class="attr">transition</span>: <span class="string">&#x27;opacity 0.2s ease, background 0.2s ease&#x27;</span>,</span><br><span class="line">      <span class="attr">boxShadow</span>: <span class="string">&#x27;0 1px 3px rgba(0, 0, 0, 0.15)&#x27;</span>,</span><br><span class="line">      <span class="attr">display</span>: <span class="string">&#x27;flex&#x27;</span>,</span><br><span class="line">      <span class="attr">alignItems</span>: <span class="string">&#x27;center&#x27;</span>,</span><br><span class="line">      <span class="attr">justifyContent</span>: <span class="string">&#x27;center&#x27;</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    figure.<span class="property">style</span>.<span class="property">position</span> = <span class="string">&#x27;relative&#x27;</span>;</span><br><span class="line">    figure.<span class="title function_">appendChild</span>(copyBtn);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;.copy-btn&#x27;</span>).<span class="title function_">forEach</span>(<span class="function">(<span class="params">copyBtn</span>) =&gt;</span> &#123;</span><br><span class="line">    copyBtn.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mouseover&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      copyBtn.<span class="property">style</span>.<span class="property">opacity</span> = <span class="string">&#x27;1&#x27;</span>;</span><br><span class="line">      copyBtn.<span class="property">style</span>.<span class="property">background</span> = <span class="string">&#x27;rgba(0, 0, 0, 0.5)&#x27;</span>;</span><br><span class="line">    &#125;);</span><br><span class="line">    copyBtn.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mouseout&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      copyBtn.<span class="property">style</span>.<span class="property">opacity</span> = <span class="string">&#x27;0.85&#x27;</span>;</span><br><span class="line">      copyBtn.<span class="property">style</span>.<span class="property">background</span> = <span class="string">&#x27;rgba(0, 0, 0, 0.3)&#x27;</span>;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    copyBtn.<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> figure = copyBtn.<span class="property">parentElement</span>;</span><br><span class="line">      <span class="keyword">const</span> code = figure.<span class="title function_">querySelector</span>(<span class="string">&#x27;td.code&#x27;</span>);</span><br><span class="line">      <span class="keyword">const</span> text = code ? code.<span class="property">innerText</span> : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">      navigator.<span class="property">clipboard</span>.<span class="title function_">writeText</span>(text).<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">        copyBtn.<span class="property">innerHTML</span> = checkIcon;</span><br><span class="line">        copyBtn.<span class="property">style</span>.<span class="property">background</span> = <span class="string">&#x27;rgba(0, 200, 100, 0.4)&#x27;</span>;</span><br><span class="line">        <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">          copyBtn.<span class="property">innerHTML</span> = copyIcon;</span><br><span class="line">          copyBtn.<span class="property">style</span>.<span class="property">background</span> = <span class="string">&#x27;rgba(0, 0, 0, 0.3)&#x27;</span>;</span><br><span class="line">        &#125;, <span class="number">1000</span>);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>关键样式参数</strong></p>
+<ul>
+<li>position: ‘absolute’,  &#x2F;&#x2F; 相对于代码块定位</li>
+<li>right: ‘8px’,          &#x2F;&#x2F; 距右边 8px</li>
+<li>top: ‘8px’,            &#x2F;&#x2F; 距顶部 8px</li>
+<li>zIndex: 99,            &#x2F;&#x2F; 低于导航栏的 100</li>
+</ul>
+<p><strong>功能流程</strong></p>
+<ol>
+<li>页面加载完成后，遍历所有 figure.highlight 代码块</li>
+<li>为每个代码块添加复制按钮（如果不存在）</li>
+<li>鼠标悬停时按钮变清晰</li>
+<li>点击后：<ul>
+<li>从 td.code 获取代码文本</li>
+<li>调用 navigator.clipboard.writeText() 复制</li>
+<li>显示绿色对勾图标，1 秒后恢复</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>在页面底部引入 JS 文件</strong>：打开文件<code>themes/hexo-theme-Chic/layout/_partial/footer.ejs</code>。</p>
+<p><strong>在 <code>&lt;/footer&gt;</code> 标签之后添加以下代码：</strong><code>&lt;script src=&quot;/js/code-copy.js&quot;&gt;&lt;/script&gt;</code></p>
 </div>
 
     <div id="highlight-nav" class="highlight-nav">
