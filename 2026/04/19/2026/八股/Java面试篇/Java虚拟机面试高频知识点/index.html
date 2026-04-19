@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>Java并发---面试 | 欢迎来到老江湖的博客</title>
+<title>Java虚拟机---面试 | 欢迎来到老江湖的博客</title>
 
 
 
@@ -766,7 +766,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>  
   <article class="post-wrap">
     <header class="post-header">
-      <h1 class="post-title">Java并发---面试</h1>
+      <h1 class="post-title">Java虚拟机---面试</h1>
       
       <div class="post-meta">
          作者:
@@ -792,22 +792,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
 <h2 id="一、整体核心考点"><a href="#一、整体核心考点" class="headerlink" title="一、整体核心考点"></a>一、整体核心考点</h2><p>JVM是Java后端面试核心考点，重点考察<strong>内存结构、垃圾回收、类加载机制、内存问题排查</strong>四大模块，答好可加分，答不上易拉低印象分。</p>
-<h2 id="二、JVM内存模型（JDK-8及以后）"><a href="#二、JVM内存模型（JDK-8及以后）" class="headerlink" title="二、JVM内存模型（JDK 8及以后）"></a>二、JVM内存模型（JDK 8及以后）</h2><h3 id="1-运行时内存分区"><a href="#1-运行时内存分区" class="headerlink" title="1. 运行时内存分区"></a>1. 运行时内存分区</h3><ul>
+<h2 id="二、JVM内存模型（JDK-8及以后）"><a href="#二、JVM内存模型（JDK-8及以后）" class="headerlink" title="二、JVM内存模型（JDK 8及以后）"></a>二、JVM内存模型（JDK 8及以后）</h2><h3 id="1-运行时内存分区"><a href="#1-运行时内存分区" class="headerlink" title="1. 运行时内存分区"></a>1. 运行时内存分区</h3><p><img src="/assets/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E5%86%85%E5%AD%98%E5%88%86%E5%8C%BA.jpg" alt="img"></p>
+<ul>
 <li><strong>程序计数器</strong>：线程私有，字节码行号指示器，<strong>唯一无OOM</strong>的区域。</li>
 <li><strong>Java虚拟机栈</strong>：线程私有，存方法栈帧（局部变量、操作数栈等），抛<code>StackOverflowError</code>&#x2F;OOM。</li>
-<li><strong>本地方法栈</strong>：为Native方法服务，HotSpot中与虚拟机栈合并。</li>
+<li><strong>本地方法栈</strong>：为Native方法服务，HotSpot中与虚拟机栈合并，抛<code>StackOverflowError</code>&#x2F;OOM。</li>
 <li><strong>Java堆</strong>：线程共享、最大内存区，存对象实例；分<strong>新生代（Eden+S0&#x2F;S1）、老年代</strong>，OOM高发区。</li>
-<li><strong>元空间</strong>：替代永久代，使用本地内存，存类元数据、常量、静态变量、编译后代码。</li>
-<li><strong>运行时常量池</strong>：元空间一部分，存字面量&#x2F;符号引用，支持运行时新增常量。</li>
+<li><strong>元空间</strong>：替代永久代，使用本地内存，存类元数据、常量、静态变量、编译后代码，运行时常量池（存字面量&#x2F;符号引用，支持运行时新增常量）</li>
 <li><strong>直接内存</strong>：堆外内存，NIO使用，受物理内存限制，可触发OOM。</li>
 </ul>
 <h3 id="2-核心内存特性"><a href="#2-核心内存特性" class="headerlink" title="2. 核心内存特性"></a>2. 核心内存特性</h3><ol>
 <li><strong>堆 vs 栈</strong><ol>
-<li>堆：存对象，共享、动态扩容、存取慢、空间大；</li>
-<li>栈：存基本类型+对象引用，私有、空间固定、存取快。</li>
+<li>堆：<strong>存所有类的实例和数组</strong>；线程共享、动态扩容、存取慢、空间大；堆由 GC 回收；</li>
+<li>栈：<strong>存基本类型 + 对象引用、方法调用上下文</strong>；线程私有、空间固定、存取快。</li>
 </ol>
 </li>
-<li><strong>栈存储</strong>：仅存对象引用，不存对象本身。</li>
 <li><strong>堆分区比例</strong>：新生代<code>Eden:S0:S1=8:1:1</code>。</li>
 <li><strong>大对象分配</strong>：直接进入老年代，避免新生代GC复制开销。</li>
 <li><strong>String存储</strong>：存于字符串常量池（堆中）；<code>new String(&quot;abc&quot;)</code>会创建堆对象+常量池对象（常量不存在时）。</li>

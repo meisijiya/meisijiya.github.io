@@ -5761,26 +5761,25 @@ Semaphore（限流）：
       </tags>
   </entry>
   <entry>
-    <title>Java并发---面试</title>
+    <title>Java虚拟机---面试</title>
     <url>/2026/04/19/2026/%E5%85%AB%E8%82%A1/Java%E9%9D%A2%E8%AF%95%E7%AF%87/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E7%9F%A5%E8%AF%86%E7%82%B9/</url>
     <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
 一、整体核心考点JVM是Java后端面试核心考点，重点考察内存结构、垃圾回收、类加载机制、内存问题排查四大模块，答好可加分，答不上易拉低印象分。
 二、JVM内存模型（JDK 8及以后）1. 运行时内存分区
+
 程序计数器：线程私有，字节码行号指示器，唯一无OOM的区域。
 Java虚拟机栈：线程私有，存方法栈帧（局部变量、操作数栈等），抛StackOverflowError&#x2F;OOM。
-本地方法栈：为Native方法服务，HotSpot中与虚拟机栈合并。
+本地方法栈：为Native方法服务，HotSpot中与虚拟机栈合并，抛StackOverflowError&#x2F;OOM。
 Java堆：线程共享、最大内存区，存对象实例；分新生代（Eden+S0&#x2F;S1）、老年代，OOM高发区。
-元空间：替代永久代，使用本地内存，存类元数据、常量、静态变量、编译后代码。
-运行时常量池：元空间一部分，存字面量&#x2F;符号引用，支持运行时新增常量。
+元空间：替代永久代，使用本地内存，存类元数据、常量、静态变量、编译后代码，运行时常量池（存字面量&#x2F;符号引用，支持运行时新增常量）
 直接内存：堆外内存，NIO使用，受物理内存限制，可触发OOM。
 
 2. 核心内存特性
 堆 vs 栈
-堆：存对象，共享、动态扩容、存取慢、空间大；
-栈：存基本类型+对象引用，私有、空间固定、存取快。
+堆：存所有类的实例和数组；线程共享、动态扩容、存取慢、空间大；堆由 GC 回收；
+栈：存基本类型 + 对象引用、方法调用上下文；线程私有、空间固定、存取快。
 
 
-栈存储：仅存对象引用，不存对象本身。
 堆分区比例：新生代Eden:S0:S1=8:1:1。
 大对象分配：直接进入老年代，避免新生代GC复制开销。
 String存储：存于字符串常量池（堆中）；new String(&quot;abc&quot;)会创建堆对象+常量池对象（常量不存在时）。
@@ -5863,7 +5862,7 @@ ZGC&#x2F;Shenandoah：超低停顿，适用于超大堆、低延迟场景。
 PS C:\Users\22923\Desktop\blog\themes\Chic&gt; git statusOn branch masterYour branch is up to date with &#x27;origin/master&#x27;.Changes not staged for commit:  (use &quot;git add &lt;file&gt;...&quot; to update what will be committed)  (use &quot;git restore &lt;file&gt;...&quot; to discard changes in working directory)        modified:   layout/_partial/livers.ejs        modified:   source/css/media.stylno changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)
 
 
-当完成一个大模块的时候，会发现提交了好多次记录，这时候可能会想着合并模块实现的所有请求，那么可以使用变基（rebase）操作git rebase -i HEAD~n，对当前分支最近 n 个提交，进行交互式整理（合并、修改、删除、重命名），让提交历史干净整洁。
+当完成一个大模块的时候，会发现提交了好多次记录，想要查看历史提交git log，这时候可能会想着合并模块实现的所有请求，那么可以使用变基（rebase）操作git rebase -i HEAD~n，对当前分支最近 n 个提交，进行交互式整理（合并、修改、删除、重命名），让提交历史干净整洁。
 
 merge是啥，merge就是把 两个不同分支 合并在一起。
 
