@@ -839,18 +839,83 @@ document.addEventListener('DOMContentLoaded', function() {
 </li>
 </ol>
 <h2 id="三、类加载与对象机制"><a href="#三、类加载与对象机制" class="headerlink" title="三、类加载与对象机制"></a>三、类加载与对象机制</h2><h3 id="1-类加载器（双亲委派模型）"><a href="#1-类加载器（双亲委派模型）" class="headerlink" title="1. 类加载器（双亲委派模型）"></a>1. 类加载器（双亲委派模型）</h3><ol>
-<li><strong>加载器层级</strong>：启动类加载器→平台&#x2F;扩展类加载器→应用类加载器→自定义类加载器。</li>
-<li><strong>双亲委派</strong>：加载请求逐级委派父加载器，父加载失败子加载；<strong>保证类唯一性、防止核心类被篡改</strong>。</li>
-</ol>
-<h3 id="2-类加载过程"><a href="#2-类加载过程" class="headerlink" title="2. 类加载过程"></a>2. 类加载过程</h3><p>加载→验证→准备→解析→初始化→使用→卸载</p>
+<li><p><strong>加载器层级</strong>：<strong>JVM 类加载器为层级委派结构，父子为组合委派关系，非 Java 类继承关系</strong>，共 4 个固定层级如下</p>
 <ul>
-<li>准备：为静态变量分配内存并赋默认值；</li>
-<li>初始化：执行静态代码块、静态变量赋值。</li>
+<li><p><strong>启动类加载器（Bootstrap，顶层根加载器）</strong></p>
+<p>核心：加载 JDK<strong>核心类库</strong>（JDK8 及之前：<code>rt.jar</code>；JDK9+：模块化核心模块）；C++ 实现，JVM 内置，Java 层面无对应对象，<code>getClassLoader()</code>返回 null，无法被 Java 代码直接引用。</p>
+</li>
+<li><p><strong>平台类加载器（JDK9+）&#x2F; 扩展类加载器（JDK8 及之前，第二层）</strong></p>
+<p>核心：JDK8 及之前加载扩展目录类；JDK9 + 加载 JDK 非核心平台模块类；逻辑父委派节点为启动类加载器。</p>
+</li>
+<li><p><strong>应用程序类加载器（AppClassLoader，第三层，开发者默认加载器）</strong></p>
+<p>核心：加载<strong>用户 ClassPath &#x2F; 模块路径</strong>的业务代码、第三方 Jar 包；可通过<code>ClassLoader.getSystemClassLoader()</code>获取，是日常开发默认使用的加载器。</p>
+</li>
+<li><p><strong>自定义类加载器（最下层，可扩展）</strong></p>
+<p>核心：继承<code>ClassLoader</code>实现，可自定义类加载逻辑，支持加密加载、类隔离、热部署等场景。</p>
+</li>
 </ul>
+</li>
+<li><p><strong>双亲委派</strong>：类加载请求优先<strong>逐层向上委派给父加载器处理</strong>，直到顶层启动类加载器；仅当父加载器无法完成加载时，子加载器才会自行加载。（注：“双亲” 指层级委派关系，非类继承）；<strong>保证类唯一性、防止核心类被篡改</strong>。；为默认规则而非强制规则，可通过重写<code>loadClass()</code>打破委派（典型场景：JDBC SPI、Tomcat 类隔离、热部署）</p>
+</li>
+</ol>
+<h3 id="2-类加载过程"><a href="#2-类加载过程" class="headerlink" title="2. 类加载过程"></a>2. 类加载过程</h3><p>类从加载到 JVM 内存，到卸载出内存，<strong>完整生命周期共 7 个固定阶段</strong>：</p>
+<p><code>加载 → 连接（验证、准备、解析） → 初始化 → 使用 → 卸载</code></p>
+<blockquote>
+<p>关键规则：<strong>加载、验证、准备、初始化、卸载的执行顺序固定</strong>；解析阶段可延后至初始化之后执行，以支持 Java 动态绑定特性。</p>
+</blockquote>
+<ol>
+<li><p>加载阶段（用户可自定义干预的唯一核心阶段）</p>
+<ul>
+<li><p><strong>核心动作</strong>：</p>
+<ol>
+<li><p>通过类的<strong>全限定名</strong>，获取该类.class 文件的二进制字节流（来源可自定义：本地文件、网络、加密流、数据库等）；</p>
+</li>
+<li><p>将字节流的静态存储结构，转化为<strong>方法区的运行时数据结构</strong>；</p>
+</li>
+<li><p>在内存中生成该类唯一的<code>java.lang.Class</code>对象，作为该类所有数据的<strong>全局访问入口</strong>。</p>
+<blockquote>
+<p>重点：该阶段是<strong>双亲委派模型的核心执行环节</strong>，可通过自定义类加载器干预类的加载逻辑。</p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>连接阶段（JVM 自动执行，分 3 个子阶段）</p>
+<p>核心作用：将加载后的类数据，校验、整理、解析为 JVM 可直接运行的状态，分为 3 个串行子阶段：</p>
+<ul>
+<li><p><strong>验证阶段（JVM 安全保障核心）</strong></p>
+<p>核心：校验.class 字节流完全符合 JVM 规范，确保类的正确性，避免恶意 &#x2F; 不合规代码危害虚拟机安全。</p>
+<p>核心校验项：文件格式校验、元数据验证、字节码验证、符号引用验证。</p>
+</li>
+<li><p><strong>准备阶段（静态变量内存分配核心）</strong></p>
+<p>核心：为类的<strong>static 静态变量</strong>在方法区分配内存，并设置<strong>类型默认初始值</strong>（如 int&#x3D;0、引用类型 &#x3D; null）。</p>
+<blockquote>
+<p>重点：<strong>final 修饰的 static 常量</strong>，编译期已确定固定值，此阶段直接完成显式赋值，不设置默认初始值；该阶段不会为实例变量分配内存（实例变量随对象在堆中分配）。</p>
+</blockquote>
+</li>
+<li><p><strong>解析阶段（引用转换核心）</strong></p>
+<p>核心：将常量池中的<strong>符号引用</strong>（无歧义描述目标的字面量，与内存布局无关），替换为<strong>直接引用</strong>（可直接定位目标的内存指针、相对偏移量等，与 JVM 内存布局强绑定，目标必定已在内存中）。</p>
+</li>
+</ul>
+</li>
+<li><p>初始化阶段（类加载最后一步，静态逻辑执行核心）</p>
+<p><strong>核心</strong>：执行编译器自动生成的<strong>类构造器<code>&lt;clinit&gt;()</code>方法</strong>，完成静态变量的显式赋值、静态代码块的逻辑执行。</p>
+<blockquote>
+<p>核心规则（重点）：</p>
+<ol>
+<li><code>&lt;clinit&gt;()</code> ≠ 实例构造器<code>&lt;init&gt;()</code>，仅处理类静态内容，无需开发者手动定义；</li>
+<li>父类的<code>&lt;clinit&gt;()</code> 优先于子类执行，保证父类静态逻辑先完成初始化；</li>
+<li>JVM 会保证<code>&lt;clinit&gt;()</code> 在多线程环境下被正确加锁、全局仅执行一次，确保类的唯一初始化；</li>
+<li>仅类被「主动使用」时才会触发初始化（如 new 对象、调用类静态成员、反射访问、启动主类等）。</li>
+</ol>
+</blockquote>
+</li>
+</ol>
 <h3 id="3-对象相关"><a href="#3-对象相关" class="headerlink" title="3. 对象相关"></a>3. 对象相关</h3><ol>
 <li><p><strong>对象创建</strong>：<strong>类加载检查</strong>（查常量池中类的符号引用的代表类，没有被加载过、解析和初始化过则执行相应类加载过程）→<strong>分配内存</strong>（在堆中划分同等于 <u>类加载完成后确定的内存大小</u> 的一块内存）→<strong>初始化零值</strong>（除了对象头，分配到的内存空间都初始化为零值）→<strong>设置对象头</strong>→<strong>执行构造方法</strong>。</p>
 <blockquote>
-<p>在HotSpot虚拟机中，对象在内存中存储的布局可以分为3块区域：对象头（Header）、实例数据（Instance Data）和对齐填充（Padding）。HotSpot虚拟机的对象头包括两部分信息，第一部分用于存储对象自身的运行时数据，如哈希码（HashCode）、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等。对象头的另外一部分是类型指针，即对象指向它的类元数据的指针，虚拟机通过这个指针来确定这个对象是哪个类的实例。</p>
+<p>在HotSpot虚拟机中，对象在内存中存储的布局可以分为3块区域：对象头（Header）、实例数据（Instance Data）和对齐填充（Padding）。<br>HotSpot虚拟机的对象头包括两部分信息，第一部分<code>Mark Word</code>用于存储对象自身的运行时数据，如哈希码（HashCode）、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等。对象头的另外一部分是类型指针（Klass Pointer），即对象指向它的类元数据（Klass 实例）的指针，虚拟机通过这个指针来确定这个对象是哪个类的实例。</p>
 </blockquote>
 </li>
 <li><p><strong>对象生命周期</strong>：创建→使用→GC回收销毁。</p>
@@ -858,11 +923,31 @@ document.addEventListener('DOMContentLoaded', function() {
 </ol>
 <h2 id="四、垃圾回收（GC）"><a href="#四、垃圾回收（GC）" class="headerlink" title="四、垃圾回收（GC）"></a>四、垃圾回收（GC）</h2><h3 id="1-GC基础"><a href="#1-GC基础" class="headerlink" title="1. GC基础"></a>1. GC基础</h3><ul>
 <li>定义：自动回收无用对象内存，避免内存泄漏&#x2F;溢出。</li>
-<li>触发条件：内存不足、手动调用<code>System.gc()</code>、分代内存阈值达标。</li>
+<li>触发条件：堆内存不足、手动调用<code>System.gc()</code>、分代内存满、元空间不足。</li>
+<li>回收目标：<ul>
+<li><p>回收<strong>核心：Java 堆</strong></p>
+</li>
+<li><p>新生代（YGC）、老年代（OGC&#x2F;FGC）、Humongous 大对象区。</p>
+</li>
+<li><p>回收<strong>次要：方法区（元空间）</strong></p>
+</li>
+<li><p>Full GC 附带回收：废弃常量 + 无用类元数据。</p>
+</li>
+<li><p><strong>不回收</strong>：程序计数器、虚拟机栈、本地方法栈（随线程自动释放）。</p>
+</li>
+<li><p><strong>不直接回收</strong>：堆外直接内存（靠 DirectByteBuffer 间接触发）。</p>
+</li>
+</ul>
+</li>
 </ul>
 <h3 id="2-垃圾判断算法"><a href="#2-垃圾判断算法" class="headerlink" title="2. 垃圾判断算法"></a>2. 垃圾判断算法</h3><ol>
-<li><strong>引用计数法</strong>：简单，无法解决循环引用问题。</li>
-<li><strong>可达性分析</strong>：Java主流，以GC Roots为起点追溯引用链，无引用链则判定为垃圾。</li>
+<li><p><strong>引用计数法</strong>：简单地通过每个对象被分配的引用计数器在对象被引用或失效时进行加减一实现，无法解决循环引用问题。</p>
+</li>
+<li><p><strong>可达性分析</strong>：Java主流，以GC Roots为起点追溯引用链，无引用链（不可达）则判定为垃圾。</p>
+<blockquote>
+<p>GC Roots对象包括：虚拟机栈（栈帧中的本地变量表）中引用的对象、方法区中类静态属性引用的对象、本地方法栈中JNI（Java Native Interface）引用的对象、活跃线程的引用等。</p>
+</blockquote>
+</li>
 </ol>
 <h3 id="3-垃圾回收算法"><a href="#3-垃圾回收算法" class="headerlink" title="3. 垃圾回收算法"></a>3. 垃圾回收算法</h3><ul>
 <li><strong>标记-清除</strong>：效率低、产生内存碎片。</li>
@@ -873,14 +958,66 @@ document.addEventListener('DOMContentLoaded', function() {
 <h3 id="4-GC类型"><a href="#4-GC类型" class="headerlink" title="4. GC类型"></a>4. GC类型</h3><ul>
 <li><strong>Minor GC</strong>：回收新生代，Eden区满触发，频繁、速度快。</li>
 <li><strong>Major GC</strong>：回收老年代，频率低、耗时久。</li>
-<li><strong>Full GC</strong>：回收整堆+元空间，STW时间最长；触发于老年代&#x2F;元空间不足、手动GC等。</li>
+<li><strong>Full GC</strong>：回收整堆（年轻代 + 老年代）+元空间（无用的类元数据进行卸载），STW时间最长；触发于老年代&#x2F;元空间不足、手动GC等。</li>
 </ul>
-<h3 id="5-核心回收器"><a href="#5-核心回收器" class="headerlink" title="5. 核心回收器"></a>5. 核心回收器</h3><ol>
-<li><strong>CMS</strong>：老年代回收器，低延迟，标记-清除算法，有内存碎片，已废弃。</li>
-<li><strong>G1</strong>：JDK9默认全堆回收器，分区设计、停顿时间可控、标记-整理无碎片。</li>
-<li><strong>ZGC&#x2F;Shenandoah</strong>：超低停顿，适用于超大堆、低延迟场景。</li>
+<h3 id="5-核心回收器"><a href="#5-核心回收器" class="headerlink" title="5. 核心回收器"></a>5. 核心回收器</h3><p>JDK 21+ 官方认证<strong>生产级主流 GC 共 4 款</strong>，<strong>G1 为开箱即用的默认 GC</strong>，分代 ZGC 是官方主推低延迟方案，Parallel、Shenandoah 为场景化备选；CMS、ParNew 等已正式移除，该版本完全不可用。</p>
+<ol>
+<li><p>G1 GC【默认首选，通用平衡型】</p>
+<ul>
+<li><p><strong>核心定位</strong>：JDK 9+ 全版本官方默认 GC，兼顾<strong>吞吐量与可控停顿</strong>的服务端通用型方案</p>
+</li>
+<li><p><strong>核心特性</strong>：堆划分为等大 Region，弱化传统分代边界；整体标记 - 整理、局部复制算法，无连续内存碎片；Mixed GC 优先回收垃圾收益最高的 Region，支持通过<code>-XX:MaxGCPauseMillis</code>精准设置目标停顿时间</p>
+</li>
+<li><p><strong>适用场景</strong>：绝大多数线上业务（微服务、中间件等），无需复杂调优即可稳定运行</p>
+</li>
+</ul>
+</li>
+<li><p>ZGC【官方主推，超低延迟首选】</p>
+<ul>
+<li><p><strong>核心定位</strong>：JDK 21+ 官方主推<strong>亚毫秒级全并发低延迟 GC</strong>，JDK 21 默认开启分代优化，解决非分代版本内存占用问题</p>
+</li>
+<li><p><strong>核心特性</strong>：基于<strong>染色指针 + 读屏障</strong>，几乎所有 GC 阶段与用户线程并发；<strong>停顿时间稳定≤1ms，与堆大小无关</strong>，支持 TB 级超大堆，无内存碎片，启用参数<code>-XX:+UseZGC</code></p>
+</li>
+<li><p><strong>适用场景</strong>：金融交易、高并发在线业务、实时计算等对延迟要求极高的场景</p>
+</li>
+</ul>
+</li>
+<li><p>Parallel GC【吞吐量优先】</p>
+<ul>
+<li><p><strong>核心定位</strong>：JDK 8 默认 GC，JDK 21+ 全量支持的<strong>极致吞吐量优先并行 GC</strong></p>
+</li>
+<li><p><strong>核心特性</strong>：新生代复制算法（Parallel Scavenge）、老年代标记 - 整理算法（Parallel Old），核心 GC 阶段全多线程并行；最大化 CPU 利用率，可精准控制吞吐量目标</p>
+</li>
+<li><p><strong>适用场景</strong>：后台批处理、大数据计算、离线任务等对延迟不敏感、追求执行效率的场景</p>
+</li>
+</ul>
+</li>
+<li><p>Shenandoah GC【低延迟备选方案】</p>
+<ul>
+<li><p><strong>核心定位</strong>：RedHat 主导开发的<strong>超低延迟并发 GC</strong>，与 ZGC 同级的低延迟备选方案</p>
+</li>
+<li><p><strong>核心特性</strong>：基于<strong>Brooks 转发指针 + 读屏障</strong>，实现标记、整理、回收全流程与用户线程并发；停顿时间与堆大小无关，支持超大堆</p>
+</li>
+<li><p><strong>适用场景</strong>：RHEL&#x2F;CentOS 等 Linux 发行版自带 OpenJDK 的低延迟业务场景</p>
+</li>
+</ul>
+</li>
 </ol>
-<h3 id="6-STW关键阶段"><a href="#6-STW关键阶段" class="headerlink" title="6. STW关键阶段"></a>6. STW关键阶段</h3><p>初始标记、重新标记、内存清理、对象转移阶段会触发STW。</p>
+<blockquote>
+<p>新生代：Serial、ParNew、Parallel Scavenge；</p>
+<p>老年代：Serial Old、Parallel Old、CMS（已废弃）；</p>
+<p>全堆：G1（JDK9 默认）、ZGC、Shenandoah。</p>
+</blockquote>
+<h3 id="6-STW-stop-the-world-关键阶段"><a href="#6-STW-stop-the-world-关键阶段" class="headerlink" title="6. STW(stop the world)关键阶段"></a>6. STW(stop the world)关键阶段</h3><blockquote>
+<p>G1 GC 的标准流程：G1 通过“短暂 STW 初始标记”锁定根对象，随后“并发标记”遍历全堆找存活对象，接着“短暂 STW 最终标记”修正引用变动，最后“STW 复制转移”将存活对象移入新 Region 并清空旧内存来完成回收。</p>
+</blockquote>
+<p>G1 GC 的 STW（Stop The World）关键阶段集中在  <strong>初始标记、最终标记（Remark）、筛选回收（Evacuation）</strong> 三个核心环节：</p>
+<ul>
+<li>初始标记全程 STW、耗时极短，仅标记 GC Roots 直接关联的存活对象，G1 通常借 Young GC 的 STW 窗口完成该阶段，几乎无额外停顿；</li>
+<li>最终标记全程 STW、是三大阶段中耗时最短的环节，核心是处理并发标记期间 SATB 写屏障记录的引用变更，修正并最终确认存活对象的标记结果；</li>
+<li>筛选回收全程 STW 且时长可控，会筛选垃圾收益最高的 Region 组成回收集，并行完成存活对象的复制转移与旧 Region 的内存回收，可通过参数精准控制停顿时长；</li>
+</ul>
+<p>特别提醒，并发标记阶段全程与用户线程并发执行，无任何 STW 停顿。</p>
 <h2 id="五、内存问题排查"><a href="#五、内存问题排查" class="headerlink" title="五、内存问题排查"></a>五、内存问题排查</h2><h3 id="1-核心概念"><a href="#1-核心概念" class="headerlink" title="1. 核心概念"></a>1. 核心概念</h3><ul>
 <li><p><strong>内存泄漏</strong>：无用对象被强引用，无法被GC回收，逐步占用内存。</p>
 <blockquote>
