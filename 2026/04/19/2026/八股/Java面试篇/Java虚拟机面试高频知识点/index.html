@@ -828,7 +828,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </li>
 <li><p><strong>String存储</strong>：存于字符串常量池（堆中）；<code>new String(&quot;meisijiya&quot;)</code>会创建堆对象+常量池对象（常量不存在时）、当常量池存在“meisijiya”，则<code>String s = &quot;meisijiya&quot;</code>会复用String对象、<code>String s = &quot;meisi&quot; + &quot;jiya&quot;</code>在编译期会被优化为“meisijiya”，复用常量池、主动调用<code>new String.intern()</code>，手动入池复用。</p>
 <blockquote>
-<p>特别强调，<code>String s</code>这个引用是存储在虚拟机栈中的。 </p>
+<p>特别强调，<code>String s</code>这个引用是存储在虚拟机栈中的。</p>
 </blockquote>
 </li>
 <li><p><strong>引用类型</strong>：强引用（不回收）&gt;软引用（内存不足回收）&gt;弱引用（下次GC必回收）&gt;虚引用（最弱，配合队列管理堆外内存）。</p>
@@ -925,18 +925,12 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>定义：自动回收无用对象内存，避免内存泄漏&#x2F;溢出。</li>
 <li>触发条件：堆内存不足、手动调用<code>System.gc()</code>、分代内存满、元空间不足。</li>
 <li>回收目标：<ul>
-<li><p>回收<strong>核心：Java 堆</strong></p>
-</li>
-<li><p>新生代（YGC）、老年代（OGC&#x2F;FGC）、Humongous 大对象区。</p>
-</li>
-<li><p>回收<strong>次要：方法区（元空间）</strong></p>
-</li>
-<li><p>Full GC 附带回收：废弃常量 + 无用类元数据。</p>
-</li>
-<li><p><strong>不回收</strong>：程序计数器、虚拟机栈、本地方法栈（随线程自动释放）。</p>
-</li>
-<li><p><strong>不直接回收</strong>：堆外直接内存（靠 DirectByteBuffer 间接触发）。</p>
-</li>
+<li>回收<strong>核心：Java 堆</strong></li>
+<li>新生代（YGC）、老年代（OGC&#x2F;FGC）、Humongous 大对象区。</li>
+<li>回收<strong>次要：方法区（元空间）</strong></li>
+<li>Full GC 附带回收：废弃常量 + 无用类元数据。</li>
+<li><strong>不回收</strong>：程序计数器、虚拟机栈、本地方法栈（随线程自动释放）。</li>
+<li><strong>不直接回收</strong>：堆外直接内存（靠 DirectByteBuffer 间接触发）。</li>
 </ul>
 </li>
 </ul>
@@ -950,10 +944,17 @@ document.addEventListener('DOMContentLoaded', function() {
 </li>
 </ol>
 <h3 id="3-垃圾回收算法"><a href="#3-垃圾回收算法" class="headerlink" title="3. 垃圾回收算法"></a>3. 垃圾回收算法</h3><ul>
-<li><strong>标记-清除</strong>：效率低、产生内存碎片。</li>
-<li><strong>复制算法</strong>：无碎片，浪费内存，适用于新生代。</li>
-<li><strong>标记-整理</strong>：无碎片，适用于老年代。</li>
-<li><strong>分代回收</strong>：新生代用复制算法，老年代用标记-清除&#x2F;整理。</li>
+<li><p><strong>标记-清除</strong>：效率低、产生内存碎片。</p>
+<p><img src="/images/Java%E9%9D%A2%E8%AF%95/%E6%A0%87%E8%AE%B0%E6%95%B4%E7%90%86%E7%AE%97%E6%B3%95.jpg" alt="标记整理算法.jpg"></p>
+</li>
+<li><p><strong>复制算法</strong>：无碎片，浪费内存，适用于新生代。</p>
+<p><img src="/images/Java%E9%9D%A2%E8%AF%95/%E5%A4%8D%E5%88%B6%E7%AE%97%E6%B3%95.jpg" alt="复制算法.jpg"></p>
+</li>
+<li><p><strong>标记-整理</strong>：无碎片，适用于老年代。</p>
+<p><img src="/images/Java%E9%9D%A2%E8%AF%95/%E6%A0%87%E8%AE%B0-%E6%B8%85%E9%99%A4.jpg" alt="标记-清除.jpg"></p>
+</li>
+<li><p><strong>分代回收</strong>：新生代用复制算法，老年代用标记-清除&#x2F;整理。</p>
+</li>
 </ul>
 <h3 id="4-GC类型"><a href="#4-GC类型" class="headerlink" title="4. GC类型"></a>4. GC类型</h3><ul>
 <li><strong>Minor GC</strong>：回收新生代，Eden区满触发，频繁、速度快。</li>
@@ -964,42 +965,30 @@ document.addEventListener('DOMContentLoaded', function() {
 <ol>
 <li><p>G1 GC【默认首选，通用平衡型】</p>
 <ul>
-<li><p><strong>核心定位</strong>：JDK 9+ 全版本官方默认 GC，兼顾<strong>吞吐量与可控停顿</strong>的服务端通用型方案</p>
-</li>
-<li><p><strong>核心特性</strong>：堆划分为等大 Region，弱化传统分代边界；整体标记 - 整理、局部复制算法，无连续内存碎片；Mixed GC 优先回收垃圾收益最高的 Region，支持通过<code>-XX:MaxGCPauseMillis</code>精准设置目标停顿时间</p>
-</li>
-<li><p><strong>适用场景</strong>：绝大多数线上业务（微服务、中间件等），无需复杂调优即可稳定运行</p>
-</li>
+<li><strong>核心定位</strong>：JDK 9+ 全版本官方默认 GC，兼顾<strong>吞吐量与可控停顿</strong>的服务端通用型方案</li>
+<li><strong>核心特性</strong>：堆划分为等大 Region，弱化传统分代边界；整体标记 - 整理、局部复制算法，无连续内存碎片；Mixed GC 优先回收垃圾收益最高的 Region，支持通过<code>-XX:MaxGCPauseMillis</code>精准设置目标停顿时间</li>
+<li><strong>适用场景</strong>：绝大多数线上业务（微服务、中间件等），无需复杂调优即可稳定运行</li>
 </ul>
 </li>
 <li><p>ZGC【官方主推，超低延迟首选】</p>
 <ul>
-<li><p><strong>核心定位</strong>：JDK 21+ 官方主推<strong>亚毫秒级全并发低延迟 GC</strong>，JDK 21 默认开启分代优化，解决非分代版本内存占用问题</p>
-</li>
-<li><p><strong>核心特性</strong>：基于<strong>染色指针 + 读屏障</strong>，几乎所有 GC 阶段与用户线程并发；<strong>停顿时间稳定≤1ms，与堆大小无关</strong>，支持 TB 级超大堆，无内存碎片，启用参数<code>-XX:+UseZGC</code></p>
-</li>
-<li><p><strong>适用场景</strong>：金融交易、高并发在线业务、实时计算等对延迟要求极高的场景</p>
-</li>
+<li><strong>核心定位</strong>：JDK 21+ 官方主推<strong>亚毫秒级全并发低延迟 GC</strong>，JDK 21 默认开启分代优化，解决非分代版本内存占用问题</li>
+<li><strong>核心特性</strong>：基于<strong>染色指针 + 读屏障</strong>，几乎所有 GC 阶段与用户线程并发；<strong>停顿时间稳定≤1ms，与堆大小无关</strong>，支持 TB 级超大堆，无内存碎片，启用参数<code>-XX:+UseZGC</code></li>
+<li><strong>适用场景</strong>：金融交易、高并发在线业务、实时计算等对延迟要求极高的场景</li>
 </ul>
 </li>
 <li><p>Parallel GC【吞吐量优先】</p>
 <ul>
-<li><p><strong>核心定位</strong>：JDK 8 默认 GC，JDK 21+ 全量支持的<strong>极致吞吐量优先并行 GC</strong></p>
-</li>
-<li><p><strong>核心特性</strong>：新生代复制算法（Parallel Scavenge）、老年代标记 - 整理算法（Parallel Old），核心 GC 阶段全多线程并行；最大化 CPU 利用率，可精准控制吞吐量目标</p>
-</li>
-<li><p><strong>适用场景</strong>：后台批处理、大数据计算、离线任务等对延迟不敏感、追求执行效率的场景</p>
-</li>
+<li><strong>核心定位</strong>：JDK 8 默认 GC，JDK 21+ 全量支持的<strong>极致吞吐量优先并行 GC</strong></li>
+<li><strong>核心特性</strong>：新生代复制算法（Parallel Scavenge）、老年代标记 - 整理算法（Parallel Old），核心 GC 阶段全多线程并行；最大化 CPU 利用率，可精准控制吞吐量目标</li>
+<li><strong>适用场景</strong>：后台批处理、大数据计算、离线任务等对延迟不敏感、追求执行效率的场景</li>
 </ul>
 </li>
 <li><p>Shenandoah GC【低延迟备选方案】</p>
 <ul>
-<li><p><strong>核心定位</strong>：RedHat 主导开发的<strong>超低延迟并发 GC</strong>，与 ZGC 同级的低延迟备选方案</p>
-</li>
-<li><p><strong>核心特性</strong>：基于<strong>Brooks 转发指针 + 读屏障</strong>，实现标记、整理、回收全流程与用户线程并发；停顿时间与堆大小无关，支持超大堆</p>
-</li>
-<li><p><strong>适用场景</strong>：RHEL&#x2F;CentOS 等 Linux 发行版自带 OpenJDK 的低延迟业务场景</p>
-</li>
+<li><strong>核心定位</strong>：RedHat 主导开发的<strong>超低延迟并发 GC</strong>，与 ZGC 同级的低延迟备选方案</li>
+<li><strong>核心特性</strong>：基于<strong>Brooks 转发指针 + 读屏障</strong>，实现标记、整理、回收全流程与用户线程并发；停顿时间与堆大小无关，支持超大堆</li>
+<li><strong>适用场景</strong>：RHEL&#x2F;CentOS 等 Linux 发行版自带 OpenJDK 的低延迟业务场景</li>
 </ul>
 </li>
 </ol>
@@ -1013,9 +1002,15 @@ document.addEventListener('DOMContentLoaded', function() {
 </blockquote>
 <p>G1 GC 的 STW（Stop The World）关键阶段集中在  <strong>初始标记、最终标记（Remark）、筛选回收（Evacuation）</strong> 三个核心环节：</p>
 <ul>
-<li>初始标记全程 STW、耗时极短，仅标记 GC Roots 直接关联的存活对象，G1 通常借 Young GC 的 STW 窗口完成该阶段，几乎无额外停顿；</li>
-<li>最终标记全程 STW、是三大阶段中耗时最短的环节，核心是处理并发标记期间 SATB 写屏障记录的引用变更，修正并最终确认存活对象的标记结果；</li>
-<li>筛选回收全程 STW 且时长可控，会筛选垃圾收益最高的 Region 组成回收集，并行完成存活对象的复制转移与旧 Region 的内存回收，可通过参数精准控制停顿时长；</li>
+<li><p>初始标记全程 STW、耗时极短，仅标记 GC Roots 直接关联的存活对象，G1 通常借 Young GC 的 STW 窗口完成该阶段，几乎无额外停顿；</p>
+</li>
+<li><p>最终标记全程 STW、是三大阶段中耗时最短的环节，核心是处理并发标记期间 SATB 写屏障记录的引用变更，修正并最终确认存活对象的标记结果；</p>
+<blockquote>
+<p><strong>SATB（Snapshot-At-The-Beginning，起始快照）写屏障</strong>是 <strong>G1 用来保证并发标记正确性的核心机制</strong>，用来解决“标记过程中用户线程还在改引用，导致漏标对象”的问题。</p>
+</blockquote>
+</li>
+<li><p>筛选回收全程 STW 且时长可控，会筛选垃圾收益最高的 Region 组成回收集，并行完成存活对象的复制转移与旧 Region 的内存回收，可通过参数精准控制停顿时长；</p>
+</li>
 </ul>
 <p>特别提醒，并发标记阶段全程与用户线程并发执行，无任何 STW 停顿。</p>
 <h2 id="五、内存问题排查"><a href="#五、内存问题排查" class="headerlink" title="五、内存问题排查"></a>五、内存问题排查</h2><h3 id="1-核心概念"><a href="#1-核心概念" class="headerlink" title="1. 核心概念"></a>1. 核心概念</h3><ul>
