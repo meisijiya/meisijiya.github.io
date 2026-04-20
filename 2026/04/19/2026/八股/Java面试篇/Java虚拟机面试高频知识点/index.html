@@ -792,25 +792,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
 <h2 id="一、整体核心考点"><a href="#一、整体核心考点" class="headerlink" title="一、整体核心考点"></a>一、整体核心考点</h2><p>JVM是Java后端面试核心考点，重点考察<strong>内存结构、垃圾回收、类加载机制、内存问题排查</strong>四大模块，答好可加分，答不上易拉低印象分。</p>
-<h2 id="二、JVM内存模型（JDK-8及以后）"><a href="#二、JVM内存模型（JDK-8及以后）" class="headerlink" title="二、JVM内存模型（JDK 8及以后）"></a>二、JVM内存模型（JDK 8及以后）</h2><h3 id="1-运行时内存分区"><a href="#1-运行时内存分区" class="headerlink" title="1. 运行时内存分区"></a>1. 运行时内存分区</h3><p><img src="/assets/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E5%86%85%E5%AD%98%E5%88%86%E5%8C%BA.jpg" alt="img"></p>
+<h2 id="二、JVM内存模型（JDK-8及以后）"><a href="#二、JVM内存模型（JDK-8及以后）" class="headerlink" title="二、JVM内存模型（JDK 8及以后）"></a>二、JVM内存模型（JDK 8及以后）</h2><h3 id="1-运行时内存分区"><a href="#1-运行时内存分区" class="headerlink" title="1. 运行时内存分区"></a>1. 运行时内存分区</h3><p><img src="/images/Java%E9%9D%A2%E8%AF%95/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E5%86%85%E5%AD%98%E5%88%86%E5%8C%BA.jpg" alt="JVM运行时内存分区.jpg"></p>
 <ul>
-<li><strong>程序计数器</strong>：线程私有，字节码行号指示器，<strong>唯一无OOM</strong>的区域。</li>
+<li><strong>程序计数器</strong>：线程私有，记录当前线程执行的字节码行号，用于本次CPU时间片用完后 下一轮CPU时间片到来时能够继续执行未完成部分的代码，<strong>唯一无OOM</strong>的区域。</li>
 <li><strong>Java虚拟机栈</strong>：线程私有，存方法栈帧（局部变量、操作数栈等），抛<code>StackOverflowError</code>&#x2F;OOM。</li>
 <li><strong>本地方法栈</strong>：为Native方法服务，HotSpot中与虚拟机栈合并，抛<code>StackOverflowError</code>&#x2F;OOM。</li>
 <li><strong>Java堆</strong>：线程共享、最大内存区，存对象实例；分<strong>新生代（Eden+S0&#x2F;S1）、老年代</strong>，OOM高发区。</li>
-<li><strong>元空间</strong>：替代永久代，使用本地内存，存类元数据、常量、静态变量、编译后代码，运行时常量池（存字面量&#x2F;符号引用，支持运行时新增常量）</li>
+<li><strong>元空间</strong>（方法区实现）：替代永久代，使用本地内存，存类元数据、常量、静态变量、JIT编译后代码，运行时常量池（在类加载后，存字面量&#x2F;符号引用，支持运行时新增常量）</li>
 <li><strong>直接内存</strong>：堆外内存，NIO使用，受物理内存限制，可触发OOM。</li>
 </ul>
 <h3 id="2-核心内存特性"><a href="#2-核心内存特性" class="headerlink" title="2. 核心内存特性"></a>2. 核心内存特性</h3><ol>
-<li><strong>堆 vs 栈</strong><ol>
+<li><p><strong>堆 vs 栈</strong></p>
+<ol>
 <li>堆：<strong>存所有类的实例和数组</strong>；线程共享、动态扩容、存取慢、空间大；堆由 GC 回收；</li>
 <li>栈：<strong>存基本类型 + 对象引用、方法调用上下文</strong>；线程私有、空间固定、存取快。</li>
 </ol>
+<blockquote>
+<p>栈帧中保存方法执行的完整上下文，包括：</p>
+<ul>
+<li><strong>局部变量表</strong>：存储方法参数和内部定义的变量，基本类型数据直接存储在栈帧的<strong>局部变量表</strong>中的。</li>
+<li><strong>操作数栈</strong>：字节码指令执行时的操作数临时存储区（如计算、赋值）。</li>
+<li><strong>动态链接</strong>：指向运行时常量池的方法引用，支持多态调用。</li>
+<li><strong>方法返回地址</strong>：方法执行完毕后，返回上层调用者的字节码位置。</li>
+</ul>
+</blockquote>
 </li>
-<li><strong>堆分区比例</strong>：新生代<code>Eden:S0:S1=8:1:1</code>。</li>
-<li><strong>大对象分配</strong>：直接进入老年代，避免新生代GC复制开销。</li>
-<li><strong>String存储</strong>：存于字符串常量池（堆中）；<code>new String(&quot;abc&quot;)</code>会创建堆对象+常量池对象（常量不存在时）。</li>
-<li><strong>引用类型</strong>：强引用（不回收）&gt;软引用（内存不足回收）&gt;弱引用（下次GC必回收）&gt;虚引用（最弱，配合队列管理堆外内存）。</li>
+<li><p><strong>堆分区比例</strong>：</p>
+<p><img src="/images/Java%E9%9D%A2%E8%AF%95/%E5%A0%86%E7%9A%84%E5%88%92%E5%88%86.jpg" alt="堆的划分.jpg"></p>
+<ul>
+<li><strong>新生代（Young Generation）</strong>：分为<code>Eden Space</code>和<code>Survivor Space</code>，<code>Eden:S0:S1=8:1:1</code>；对象创建 -&gt; Eden区 -&gt; 满了触发Minor GC（新生代垃圾回收）-&gt; 其中一个Survivor区 -&gt; 一次或多次Minor GC后 -&gt; Old。</li>
+<li><strong>老年代（Old Generation&#x2F;Tenured Generation）</strong>：空间通常比新生代大。存放过一次或多次Minor GC仍存活的<strong>长期对象</strong>会被移动到老年代。Major GC（Full GC）涉及老年代的垃圾回收，发生频率低，执行时间长。</li>
+</ul>
+</li>
+<li><p><strong>大对象分配</strong>：在 G1 垃圾收集器中，任何<strong>超过 Region 一半大小</strong>的对象直接进入老年代，避免新生代GC 的 Eden&#x2F;Survivor 间复制，减少 GC 开销和内存碎片。</p>
+</li>
+<li><p><strong>String存储</strong>：存于字符串常量池（堆中）；<code>new String(&quot;meisijiya&quot;)</code>会创建堆对象+常量池对象（常量不存在时）、当常量池存在“meisijiya”，则<code>String s = &quot;meisijiya&quot;</code>会复用String对象、<code>String s = &quot;meisi&quot; + &quot;jiya&quot;</code>在编译期会被优化为“meisijiya”，复用常量池、主动调用<code>new String.intern()</code>，手动入池复用。</p>
+<blockquote>
+<p>特别强调，<code>String s</code>这个引用是存储在虚拟机栈中的。 </p>
+</blockquote>
+</li>
+<li><p><strong>引用类型</strong>：强引用（不回收）&gt;软引用（内存不足回收）&gt;弱引用（下次GC必回收）&gt;虚引用（最弱，配合队列管理堆外内存）。</p>
+<blockquote>
+<p>弱引用通过<code>Java.lang.ref.WeakReference</code>类实现。</p>
+<p>弱引用的使用场景：缓存、对象池、ThreadLocal，避免无用对象长期占用内存导致泄漏。</p>
+</blockquote>
+</li>
 </ol>
 <h2 id="三、类加载与对象机制"><a href="#三、类加载与对象机制" class="headerlink" title="三、类加载与对象机制"></a>三、类加载与对象机制</h2><h3 id="1-类加载器（双亲委派模型）"><a href="#1-类加载器（双亲委派模型）" class="headerlink" title="1. 类加载器（双亲委派模型）"></a>1. 类加载器（双亲委派模型）</h3><ol>
 <li><strong>加载器层级</strong>：启动类加载器→平台&#x2F;扩展类加载器→应用类加载器→自定义类加载器。</li>
@@ -822,8 +848,13 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>初始化：执行静态代码块、静态变量赋值。</li>
 </ul>
 <h3 id="3-对象相关"><a href="#3-对象相关" class="headerlink" title="3. 对象相关"></a>3. 对象相关</h3><ol>
-<li><strong>对象创建</strong>：类加载检查→分配内存→初始化零值→设置对象头→执行构造方法。</li>
-<li><strong>对象生命周期</strong>：创建→使用→GC回收销毁。</li>
+<li><p><strong>对象创建</strong>：<strong>类加载检查</strong>（查常量池中类的符号引用的代表类，没有被加载过、解析和初始化过则执行相应类加载过程）→<strong>分配内存</strong>（在堆中划分同等于 <u>类加载完成后确定的内存大小</u> 的一块内存）→<strong>初始化零值</strong>（除了对象头，分配到的内存空间都初始化为零值）→<strong>设置对象头</strong>→<strong>执行构造方法</strong>。</p>
+<blockquote>
+<p>在HotSpot虚拟机中，对象在内存中存储的布局可以分为3块区域：对象头（Header）、实例数据（Instance Data）和对齐填充（Padding）。HotSpot虚拟机的对象头包括两部分信息，第一部分用于存储对象自身的运行时数据，如哈希码（HashCode）、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等。对象头的另外一部分是类型指针，即对象指向它的类元数据的指针，虚拟机通过这个指针来确定这个对象是哪个类的实例。</p>
+</blockquote>
+</li>
+<li><p><strong>对象生命周期</strong>：创建→使用→GC回收销毁。</p>
+</li>
 </ol>
 <h2 id="四、垃圾回收（GC）"><a href="#四、垃圾回收（GC）" class="headerlink" title="四、垃圾回收（GC）"></a>四、垃圾回收（GC）</h2><h3 id="1-GC基础"><a href="#1-GC基础" class="headerlink" title="1. GC基础"></a>1. GC基础</h3><ul>
 <li>定义：自动回收无用对象内存，避免内存泄漏&#x2F;溢出。</li>
@@ -851,16 +882,42 @@ document.addEventListener('DOMContentLoaded', function() {
 </ol>
 <h3 id="6-STW关键阶段"><a href="#6-STW关键阶段" class="headerlink" title="6. STW关键阶段"></a>6. STW关键阶段</h3><p>初始标记、重新标记、内存清理、对象转移阶段会触发STW。</p>
 <h2 id="五、内存问题排查"><a href="#五、内存问题排查" class="headerlink" title="五、内存问题排查"></a>五、内存问题排查</h2><h3 id="1-核心概念"><a href="#1-核心概念" class="headerlink" title="1. 核心概念"></a>1. 核心概念</h3><ul>
-<li><strong>内存泄漏</strong>：无用对象被强引用，无法被GC回收，逐步占用内存。</li>
-<li><strong>内存溢出（OOM）</strong>：申请内存无足够空间，抛出<code>OutOfMemoryError</code>。</li>
+<li><p><strong>内存泄漏</strong>：无用对象被强引用，无法被GC回收，逐步占用内存。</p>
+<blockquote>
+<p><strong>内存泄漏诱因</strong>：</p>
+<ul>
+<li><strong>静态集合泄漏</strong>：静态 List 持续添加对象，GC 无法回收；<br>解决：减少静态集合，及时清理元素；</li>
+<li><strong>资源未关闭</strong>：IO &#x2F; 数据库连接未释放；<br>解决：finally 关闭或 try-with-resources；</li>
+<li><strong>ThreadLocal 泄漏</strong>：线程未销毁，value 无法回收（key 为 null 的 Entry 的 value 就会一直存在一条强引用链：<code>Thread Ref</code> → <code>Thread</code> → <code>ThreadLocalMap</code> → <code>Entry</code> → <code>value</code>，永远无法回收，造成内存泄漏。）；<br>解决：在<code>finally</code>块调用<code>remove()</code>清理。</li>
 </ul>
-<h3 id="2-常见OOM类型"><a href="#2-常见OOM类型" class="headerlink" title="2. 常见OOM类型"></a>2. 常见OOM类型</h3><p>堆溢出、栈溢出、元空间溢出、直接内存溢出。</p>
-<h3 id="3-问题原因与解决"><a href="#3-问题原因与解决" class="headerlink" title="3. 问题原因与解决"></a>3. 问题原因与解决</h3><ol>
-<li><strong>栈溢出</strong>：无限递归、栈帧过大；解决：递归改迭代、调整<code>-Xss</code>。</li>
-<li><strong>堆溢出</strong>：内存泄漏&#x2F;堆内存不足；解决：抓取堆快照分析、修复泄漏、调整<code>-Xms/-Xmx</code>。</li>
-<li><strong>内存泄漏诱因</strong>：静态集合未清理、资源未关闭、ThreadLocal未调用<code>remove()</code>。</li>
-<li><strong>通用优化</strong>：及时关闭资源、避免滥用static、手动清理ThreadLocal、合理配置JVM参数。</li>
-</ol>
+<p><strong>通用优化</strong>：及时关闭资源、避免滥用static、手动清理ThreadLocal、合理配置JVM参数。</p>
+</blockquote>
+</li>
+<li><p><strong>内存溢出（OOM）</strong>：申请内存无足够空间，JVM抛出<code>OutOfMemoryError</code>。</p>
+</li>
+</ul>
+<h3 id="2-四种内存溢出情况"><a href="#2-四种内存溢出情况" class="headerlink" title="2. 四种内存溢出情况"></a>2. 四种内存溢出情况</h3><p><strong>堆内存溢出</strong></p>
+<ul>
+<li>异常：<code>java.lang.OutOfMemoryError: Java heap space</code></li>
+<li>原因：大对象分配、内存泄漏，多次 GC 后仍无足够堆内存分配新对象。</li>
+<li>解决：加 JVM 参数<code>-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./heapdump.hprof</code>在发生OOM时生成堆快照→用 <code>MAT</code>&#x2F;<code>JProfiler</code> 分析泄漏点→修复引用问题；调整<code>-Xms/-Xmx</code>扩大堆内存；优化代码分批处理数据。</li>
+</ul>
+<p><strong>虚拟机栈 &#x2F; 本地方法栈溢出</strong></p>
+<ul>
+<li>异常：<code>StackOverflowError</code>（递归过深压栈过量）或 OOM（栈空间扩展失败）</li>
+<li>原因：无限递归、方法调用层级过深、单个栈帧占用过大。</li>
+<li>解决：修复递归终止条件，递归改迭代；通过<code>-Xss</code>调整栈内存大小（谨慎调整，总内存固定时，单个线程栈越大，能创建的线程数越少）。</li>
+</ul>
+<p><strong>元空间溢出</strong></p>
+<ul>
+<li>异常：<code>java.lang.OutOfMemoryError: Metaspace</code></li>
+<li>原因：类 &#x2F; 第三方包过多、动态大量生成类，导致元空间内存占用超限。</li>
+</ul>
+<p><strong>直接内存溢出</strong></p>
+<ul>
+<li>异常：<code>java.lang.OutOfMemoryError: Direct buffer memory</code></li>
+<li>原因：NIO 框架（如 Netty）分配堆外内存时，直接内存申请超出限制。</li>
+</ul>
 </div>
 
     <div id="highlight-nav" class="highlight-nav">
