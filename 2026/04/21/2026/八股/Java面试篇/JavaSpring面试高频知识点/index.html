@@ -817,19 +817,19 @@ document.addEventListener('DOMContentLoaded', function() {
 </thead>
 <tbody><tr>
 <td><strong>Spring Core（核心容器）</strong></td>
-<td>提供 IoC、DI、Bean 配置与装载的核心实现，核心子包： <code>spring-core</code>（IoC&#x2F;DI 底层基础）、<code>spring-beans</code>（BeanFactory 与 Bean 装配）、<code>spring-context</code>（ApplicationContext 容器）、<code>spring-expression</code>（SpEL 表达式）</td>
+<td>提供 IoC、DI、Bean 配置与装载的核心实现，核心子包：<code>spring-core</code>（IoC&#x2F;DI 底层基础）、<code>spring-beans</code>（BeanFactory 与 Bean 装配）、<code>spring-context</code>（ApplicationContext 容器）、<code>spring-expression</code>（SpEL 表达式）</td>
 </tr>
 <tr>
 <td><strong>Spring AOP</strong></td>
-<td>面向切面编程核心实现，核心子包： <code>spring-aop</code>（整合 ASM、CGLib、JDK Proxy）、<code>spring-aspects</code>（集成 AspectJ）、<code>spring-instrument</code>（动态类加载）</td>
+<td>面向切面编程核心实现，核心子包：<code>spring-aop</code>（整合 ASM、CGLib、JDK Proxy）、<code>spring-aspects</code>（集成 AspectJ）、<code>spring-instrument</code>（动态类加载）</td>
 </tr>
 <tr>
 <td><strong>Spring Data Access</strong></td>
-<td>数据访问与事务支持，核心子包： <code>spring-jdbc</code>（JDBC 极简封装）、<code>spring-orm</code>（ORM 框架整合）、<code>spring-oxm</code>（对象 - XML 映射）、<code>spring-jms</code>（消息服务）、<code>spring-tx</code>（声明式事务管理）</td>
+<td>数据访问与事务支持，核心子包：<code>spring-jdbc</code>（JDBC 极简封装）、<code>spring-orm</code>（ORM 框架整合）、<code>spring-oxm</code>（对象 - XML 映射）、<code>spring-jms</code>（消息服务）、<code>spring-tx</code>（声明式事务管理）</td>
 </tr>
 <tr>
 <td><strong>Spring Web</strong></td>
-<td>Web 应用开发支持，核心子包： <code>spring-web</code>（基础 Web 能力）、<code>spring-webmvc</code>（MVC 框架实现）、<code>spring-websocket</code>（全双工通信）、<code>spring-webflux</code>（响应式 Web 框架，Spring 5.0 + 新增）</td>
+<td>Web 应用开发支持，核心子包：<code>spring-web</code>（基础 Web 能力）、<code>spring-webmvc</code>（MVC 框架实现）、<code>spring-websocket</code>（全双工通信）、<code>spring-webflux</code>（响应式 Web 框架，Spring 5.0 + 新增）</td>
 </tr>
 <tr>
 <td><strong>Spring Message</strong></td>
@@ -866,6 +866,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <blockquote>
 <p><strong>反射</strong>：运行时获取类信息、动态创建对象 （<code>clazz.getDeclaredConstructor().newInstance()</code>）&#x2F; 调用方法（<code>Method类的invoke()</code>）、访问和修改字段值（<code>Field类的get()和set()</code>）<br>反射使用<strong>场景</strong>：Spring IoC 实例化 Bean、AOP 动态代理、框架配置解析。</p>
 </blockquote>
+<p><img src="/images/Java%E9%9D%A2%E8%AF%95/%E5%8F%8D%E5%B0%84.jpg" alt="反射.jpg"></p>
 </li>
 <li><p><strong>容器存储结构</strong>：Bean 最终存储在 Spring 容器中，底层是<code>DefaultListableBeanFactory</code>类中的<code>ConcurrentHashMap(256)</code>，Key 通常为类名首字母小写，Value 为<code>BeanDefinition</code>（Bean 的全量定义信息对象）。</p>
 </li>
@@ -929,6 +930,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>XML&#x2F;<code>@Bean</code>指定 <code>init-method</code>&#x2F;<code>destroy-method</code></li>
 </ul>
 </blockquote>
+<p><img src="/images/Java%E9%9D%A2%E8%AF%95/Bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.jpg" alt="Bean生命周期.jpg"></p>
 <ol>
 <li><p><strong>实例化（Instantiation）</strong></p>
 <p>容器通过反射调用 Bean 的构造器（或无参构造器）创建对象实例。此时仅分配内存空间，尚未进行属性赋值。</p>
@@ -939,10 +941,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <li><p><strong>Aware 接口回调</strong></p>
 <p>若 Bean 实现了特定的 Aware 接口，Spring 会回调对应的方法，按优先级顺序执行：</p>
 <ul>
-<li><p>实现 BeanNameAware：调用 setBeanName()，传入 Bean 的 ID。</p>
-</li>
-<li><p>实现 BeanFactoryAware：调用 setBeanFactory()，传入 BeanFactory 容器实例。</p>
-</li>
+<li>实现 BeanNameAware：调用 setBeanName()，传入 Bean 的 ID。</li>
+<li>实现 BeanFactoryAware：调用 setBeanFactory()，传入 BeanFactory 容器实例。</li>
 </ul>
 </li>
 <li><p><strong>BeanPostProcessor 前置处理</strong></p>
@@ -954,10 +954,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <li><p><strong>初始化（Initialization）</strong></p>
 <p>执行 Bean 的初始化逻辑，顺序如下：</p>
 <ul>
-<li><p>若实现 InitializingBean 接口：调用 afterPropertiesSet() 方法。</p>
-</li>
-<li><p>若配置了自定义初始化方法（如 init-method 或 @PostConstruct）：调用指定的方法。</p>
-</li>
+<li>若实现 InitializingBean 接口：调用 afterPropertiesSet() 方法。</li>
+<li>若配置了自定义初始化方法（如 init-method 或 @PostConstruct）：调用指定的方法。</li>
 </ul>
 </li>
 <li><p><strong>BeanPostProcessor 后置处理</strong></p>
@@ -1067,11 +1065,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </ul>
 <h5 id="（2）XML-方式实现-AOP（了解）"><a href="#（2）XML-方式实现-AOP（了解）" class="headerlink" title="（2）XML 方式实现 AOP（了解）"></a>（2）XML 方式实现 AOP（了解）</h5><p>通过<code>&lt;aop:config&gt;</code>、<code>&lt;aop:aspect&gt;</code>、<code>&lt;aop:pointcut&gt;</code>、<code>&lt;aop:before&gt;</code>等标签，在 XML 配置文件中完成切面、切入点、通知的全量配置，无需注解。</p>
 <h2 id="三、Spring-全家桶生态体系"><a href="#三、Spring-全家桶生态体系" class="headerlink" title="三、Spring 全家桶生态体系"></a>三、Spring 全家桶生态体系</h2><h3 id="3-1-Spring-MVC"><a href="#3-1-Spring-MVC" class="headerlink" title="3.1 Spring MVC"></a>3.1 Spring MVC</h3><h4 id="3-1-1-MVC-分层架构"><a href="#3-1-1-MVC-分层架构" class="headerlink" title="3.1.1 MVC 分层架构"></a>3.1.1 MVC 分层架构</h4><ul>
-<li><strong>Model（模型）</strong>：负责业务数据与业务逻辑处理，封装核心业务规则</li>
+<li><strong>Model（模型）</strong>：负责业务数据承载、业务逻辑处理，封装核心业务规则</li>
 <li><strong>View（视图）</strong>：负责数据的页面渲染与展示，将模型数据呈现给用户</li>
 <li><strong>Controller（控制器）</strong>：负责请求接收与调度，承接用户请求，调用对应模型处理数据，最终匹配视图完成响应</li>
 </ul>
-<h4 id="3-1-2-核心执行流程"><a href="#3-1-2-核心执行流程" class="headerlink" title="3.1.2 核心执行流程"></a>3.1.2 核心执行流程</h4><p><code>用户请求</code> → <code>DispatcherServlet</code>（前端控制器，统一接收所有请求） → <code>HandlerMapping</code>（处理器映射器，匹配请求对应的 Controller 方法） → <code>HandlerAdapter</code>（处理器适配器，适配并执行 Controller 方法） → <code>Controller</code>（业务处理器，处理核心业务逻辑） → <code>ModelAndView</code>（封装模型数据与视图名） → <code>ViewResolver</code>（视图解析器，解析视图名得到对应视图） → <code>View</code>（视图渲染，将模型数据填充到视图） → <code>响应结果返回给用户</code></p>
+<h4 id="3-1-2-核心执行流程"><a href="#3-1-2-核心执行流程" class="headerlink" title="3.1.2 核心执行流程"></a>3.1.2 核心执行流程</h4><p><code>用户请求</code><br>↓<br><code>DispatcherServlet</code>（前端控制器，统一接收所有请求）<br>↓<br><code>HandlerMapping</code>（处理器映射器，根据 URL 映射到对应 Controller，生成处理器执行链<code>HandlerExecutionChain</code>(包括处理器对象和处理器拦截器)）<br>↓<br><code>HandlerExecutionChain</code>给到<code>DispatcherServlet</code><br>↓<br><code>HandlerAdapter</code>（处理器适配器，适配不同类型 Controller）<br>↓<br><code>Controller</code>（业务处理器，处理核心业务逻辑）<br>↓<br>返回<code>ModelAndView</code>给到<code>HandlerAdapter</code>（封装模型数据与视图名）<br>↓<br><code>ViewResolver</code>（视图解析器，解析视图名得到对应视图）<br>↓<br>返回<code>View</code>给到<code>HandlerAdapter</code>（视图渲染，将模型数据填充到视图）<br>↓<br><code>HandlerAdapter</code>把 <code>响应结果</code>返回给用户</p>
 <h4 id="3-1-3-核心组件"><a href="#3-1-3-核心组件" class="headerlink" title="3.1.3 核心组件"></a>3.1.3 核心组件</h4><ul>
 <li><code>DispatcherServlet</code>：前端控制器，整个 Spring MVC 流程的核心调度中心，统一处理所有请求与响应</li>
 <li><code>HandlerMapping</code>：负责请求 URL 与 Controller 处理方法的映射匹配，找到对应请求的处理器</li>
@@ -1126,7 +1124,55 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>官方 Starter 示例：<code>spring-boot-starter-web</code>（Web 开发）、<code>spring-boot-starter-data-jpa</code>（数据访问）、<code>spring-boot-starter-test</code>（测试）</li>
 <li>第三方 Starter 示例：<code>mybatis-spring-boot-starter</code>、<code>spring-boot-starter-data-redis</code></li>
 </ul>
-<h4 id="3-2-4-核心常用注解"><a href="#3-2-4-核心常用注解" class="headerlink" title="3.2.4 核心常用注解"></a>3.2.4 核心常用注解</h4><p><code>@SpringBootApplication</code>、<code>@RestController</code>、<code>@RequestMapping</code>、<code>@Value</code>、<code>@ConfigurationProperties</code>、<code>@Bean</code>、<code>@Conditional</code>系列注解</p>
+<h4 id="3-2-4-核心常用注解"><a href="#3-2-4-核心常用注解" class="headerlink" title="3.2.4 核心常用注解"></a>3.2.4 核心常用注解</h4><p><strong>@SpringBootApplication</strong>：SpringBoot 启动入口核心复合注解，整合配置类、自动配置、组件扫描三大核心能力，一键开启 SpringBoot 基础功能。</p>
+<p><strong>@RestController</strong>：SpringMVC REST 接口专用注解，整合<code>@Controller</code>+<code>@ResponseBody</code>，标识类为 HTTP 接口控制器，类中方法返回值直接作为 HTTP 响应体（默认序列化为 JSON）。</p>
+<p><strong>@RequestMapping</strong>：SpringMVC 请求映射基础注解，可作用于类 &#x2F; 方法，用于绑定 HTTP 请求的 URL 路径、请求方法、请求头等匹配规则，是<code>@GetMapping</code>&#x2F;<code>@PostMapping</code>等派生注解的父注解。</p>
+<p><strong>@Value</strong>：Spring 单属性注入注解，标注在类字段上，从配置文件、系统环境变量、SpEL 表达式中读取单个值，注入到 Bean 的对应属性中。</p>
+<p><strong>@ConfigurationProperties</strong>：Spring 批量配置绑定注解，通过指定前缀匹配配置文件，批量将配置项映射并注入到 Java Bean 中，支持松散绑定、类型转换与配置校验。</p>
+<p><strong>@Bean</strong>：Spring Bean 注册注解，标注在配置类的方法上，将方法返回的对象注册为 IoC 容器管理的 Bean，用于自定义 Bean 实例化逻辑，或注册第三方组件到容器中。</p>
+<p><strong>@Conditional 系列</strong>：Spring 条件装配核心注解，标注在配置类或<code>@Bean</code>方法上，仅当满足指定前置条件时，才会注册对应的 Bean；是 SpringBoot 自动配置的底层核心，内置<code>@ConditionalOnClass</code>、<code>@ConditionalOnMissingBean</code>等大量场景化派生注解。</p>
+<h4 id="3-2-5-SpringBoot项目结构"><a href="#3-2-5-SpringBoot项目结构" class="headerlink" title="3.2.5 SpringBoot项目结构"></a>3.2.5 SpringBoot项目结构</h4><p>通用项目结构：</p>
+<p><img src="/images/Java%E9%9D%A2%E8%AF%95/%E9%80%9A%E7%94%A8%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84.jpg" alt="通用项目结构.jpg"></p>
+<p>以用户访问网站的视角看：</p>
+<p><img src="/images/Java%E9%9D%A2%E8%AF%95/SpringBoot%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84.jpg" alt="SpringBoot项目结构.jpg"></p>
+<h4 id="3-2-6-自定义SpringBoot-Starter"><a href="#3-2-6-自定义SpringBoot-Starter" class="headerlink" title="3.2.6 自定义SpringBoot Starter"></a>3.2.6 自定义SpringBoot Starter</h4><h5 id="1-创建项目"><a href="#1-创建项目" class="headerlink" title="1. 创建项目"></a>1. 创建项目</h5><ul>
+<li>新建 Maven&#x2F;Gradle 模块，命名规范为 <code>&#123;自定义名称&#125;-spring-boot-starter</code>（如 <code>mybatis-spring-boot-starter</code>）。</li>
+</ul>
+<h5 id="2-引入核心依赖"><a href="#2-引入核心依赖" class="headerlink" title="2. 引入核心依赖"></a>2. 引入核心依赖</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-autoconfigure<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-configuration-processor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3-编写配置属性类"><a href="#3-编写配置属性类" class="headerlink" title="3. 编写配置属性类"></a>3. 编写配置属性类</h5><blockquote>
+<p>将外部配置文件（如 <code>application.yml</code>&#x2F;<code>properties</code>）中的配置项批量、类型安全地绑定到 Java 对象上</p>
+</blockquote>
+<p>使用 <code>@ConfigurationProperties</code> 绑定配置文件属性：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;xxx&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">XxxProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="comment">// getter/setter</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-实现自动配置类"><a href="#4-实现自动配置类" class="headerlink" title="4. 实现自动配置类"></a>4. 实现自动配置类</h5><ul>
+<li><p>核心类使用 <code>@Configuration</code> + 条件注解（<code>@ConditionalOnClass</code>、<code>@ConditionalOnMissingBean</code> 等）</p>
+<blockquote>
+<p><code>@ConditionalOnClass</code>：类路径存在时才加载</p>
+<p><code>@ConditionalOnMissingBean</code>：容器中不存在时才加载</p>
+</blockquote>
+</li>
+<li><p>示例：</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(XxxProperties.class)</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(XxxService.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">XxxAutoConfiguration</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> XxxService <span class="title function_">xxxService</span><span class="params">(XxxProperties properties)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">XxxService</span>(properties.getName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="5-注册自动配置类"><a href="#5-注册自动配置类" class="headerlink" title="5. 注册自动配置类"></a>5. 注册自动配置类</h5><ul>
+<li><p><strong>Spring Boot 3.x 之前</strong>：在 <code>META-INF/spring.factories</code> 中配置：</p>
+<ul>
+<li><pre><code class="properties">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.example.XxxAutoConfiguration
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- **Spring Boot 3.x 及之后**：在 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 中配置：</span><br><span class="line"></span><br><span class="line">  - ```Plain</span><br><span class="line">    com.example.XxxAutoConfiguration</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="6-安装与使用"><a href="#6-安装与使用" class="headerlink" title="6. 安装与使用"></a>6. 安装与使用</h5><ul>
+<li>执行 <code>mvn install</code> 安装到本地仓库</li>
+<li>在其他项目中引入依赖即可使用</li>
+</ul>
 <h3 id="3-3-MyBatis-MyBatis-Plus"><a href="#3-3-MyBatis-MyBatis-Plus" class="headerlink" title="3.3 MyBatis &amp; MyBatis-Plus"></a>3.3 MyBatis &amp; MyBatis-Plus</h3><h4 id="3-3-1-MyBatis-相对原生-JDBC-的核心优势"><a href="#3-3-1-MyBatis-相对原生-JDBC-的核心优势" class="headerlink" title="3.3.1 MyBatis 相对原生 JDBC 的核心优势"></a>3.3.1 MyBatis 相对原生 JDBC 的核心优势</h4><ul>
 <li>SQL 与 Java 代码解耦，SQL 写在 XML 文件中，便于统一管理与维护</li>
 <li>自动完成 Java 对象与数据库结果集的 ORM 映射，减少大量冗余的重复代码</li>
@@ -1134,8 +1180,23 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>屏蔽 JDBC 底层繁琐的 API 操作，简化数据库开发流程</li>
 <li>兼容多种主流数据库，适配性强</li>
 </ul>
+<blockquote>
+<p>JDBC 连接数据库步骤：加载驱动→建立连接→创建 Statement→执行 SQL→处理结果集→关闭资源。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>MyBatis查询步骤：</p>
+<ol>
+<li>配置MyBatis： 在项目中配置MyBatis的数据源、SQL映射文件等。</li>
+<li>创建实体类： 创建用于映射数据库表的实体类。</li>
+<li>编写SQL映射文件： 创建XML文件，定义SQL语句和映射关系。</li>
+<li>编写DAO接口： 创建DAO接口，定义数据库操作的方法。</li>
+<li>编写具体的SQL查询语句： 在DAO接口中定义查询方法，并在XML文件中编写对应的SQL语句。</li>
+<li>调用查询方法： 在服务层或控制层调用DAO接口中的方法进行查询。</li>
+</ol>
+</blockquote>
 <h4 id="3-3-2-与-核心区别"><a href="#3-3-2-与-核心区别" class="headerlink" title="3.3.2 #{} 与 ${} 核心区别"></a>3.3.2 #{} 与 ${} 核心区别</h4><ul>
-<li><code>#&#123;&#125; </code>：预编译处理，采用占位符赋值方式，底层会将传入的参数当作字符串处理，<strong>有效防止 SQL 注入</strong>，生产环境首选</li>
+<li><code>#&#123;&#125; </code>：预编译处理（效率高），采用占位符赋值方式，底层会将传入的参数当作字符串处理，调用 <code>PreparedStatement</code> 的 set 方法来赋值，<strong>有效防止 SQL 注入</strong>，生产环境首选</li>
 <li><code>$&#123;&#125;</code>：直接字符串拼接，将传入的参数原封不动的拼接到 SQL 语句中，<strong>存在 SQL 注入风险</strong>，仅适用于表名、排序字段等无法使用预编译的场景</li>
 </ul>
 <h4 id="3-3-3-MyBatis-Plus-核心能力"><a href="#3-3-3-MyBatis-Plus-核心能力" class="headerlink" title="3.3.3 MyBatis-Plus 核心能力"></a>3.3.3 MyBatis-Plus 核心能力</h4><p>MyBatis-Plus 是 MyBatis 的增强工具，在 MyBatis 的基础上只做增强不做改变，核心能力：</p>
@@ -1145,10 +1206,20 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>内置分页插件、代码生成器、主键自动生成、逻辑删除、乐观锁等常用功能</li>
 <li>完全兼容 MyBatis 原生的所有功能，原有项目可无缝切换</li>
 </ul>
-<h4 id="3-3-4-核心设计模式"><a href="#3-3-4-核心设计模式" class="headerlink" title="3.3.4 核心设计模式"></a>3.3.4 核心设计模式</h4><p>建造者模式、工厂模式、代理模式、模板方法模式、适配器模式等</p>
+<h4 id="3-3-4-核心设计模式"><a href="#3-3-4-核心设计模式" class="headerlink" title="3.3.4 核心设计模式"></a>3.3.4 核心设计模式</h4><ul>
+<li>建造者模式：隔离复杂对象的创建与表示，分步完成实例构建，典型实现：<code>SqlSessionFactoryBuilder</code>、各类 XML 配置 &#x2F; 映射解析 Builder、CacheBuilder。</li>
+<li>工厂模式：解耦对象创建与使用逻辑，提供统一的实例化入口，典型实现：<code>SqlSessionFactory</code>、<code>MapperProxyFactory</code>、<code>ObjectFactory</code>。</li>
+<li>单例模式：保证类的全局唯一实例，避免资源重复创建，典型实现：全局上下文 <code>ErrorContext</code>、日志工厂 <code>LogFactory</code>。</li>
+<li>代理模式：MyBatis 核心底层模式，通过动态代理实现无侵入的功能增强与访问控制，典型实现：JDK 动态代理的 Mapper 接口代理、连接日志代理，<code>CGLIB</code>&#x2F;<code>javassist</code> 实现的延迟加载代理。</li>
+<li>组合模式：以树形结构统一处理整体与部分对象，支撑动态 SQL 节点的解析与拼接，典型实现：<code>SqlNode</code> 及其各类 SQL 节点子类。</li>
+<li>模板方法模式：固定核心流程骨架，由子类自定义实现步骤细节，标准化 SQL 执行与类型处理流程，典型实现：<code>BaseExecutor</code> 与子类执行器、<code>BaseTypeHandler</code> 与各类型处理器子类。</li>
+<li>适配器模式：统一接口规范，兼容多框架异构实现，用于适配第三方日志框架，典型实现：<code>Log 接口</code>对接 <code>jdbc</code>、<code>log4j</code> 等日志框架的适配类。</li>
+<li>装饰器模式：透明式叠加功能增强，不改动原有对象，用于缓存能力的分层扩展，典型实现：<code>cache.decorators</code> 包下的缓存装饰器实现。</li>
+<li>迭代器模式：封装集合遍历逻辑，不暴露底层数据结构，用于配置属性的解析遍历，典型实现：<code>PropertyTokenizer</code>。</li>
+</ul>
 <h3 id="3-4-Spring-Cloud-微服务体系"><a href="#3-4-Spring-Cloud-微服务体系" class="headerlink" title="3.4 Spring Cloud 微服务体系"></a>3.4 Spring Cloud 微服务体系</h3><h4 id="3-4-1-与-Spring-Boot-的核心区别"><a href="#3-4-1-与-Spring-Boot-的核心区别" class="headerlink" title="3.4.1 与 Spring Boot 的核心区别"></a>3.4.1 与 Spring Boot 的核心区别</h4><ul>
 <li><strong>Spring Boot</strong>：专注于快速、便捷地开发单个<strong>单体应用</strong>，是微服务开发的基础</li>
-<li><strong>Spring Cloud</strong>：基于 Spring Boot 实现，专注于<strong>微服务架构的全局治理</strong>，协调管理多个微服务实例，提供服务注册发现、配置管理、网关、熔断降级等微服务全场景能力</li>
+<li><strong>Spring Cloud</strong>：基于 Spring Boot 实现，专注于<strong>微服务架构的全局治理</strong>，协调管理多个微服务实例，提供<strong>服务注册发现</strong>、<strong>配置管理</strong>、<strong>网关</strong>、<strong>熔断降级</strong>等微服务全场景能力</li>
 </ul>
 <h4 id="3-4-2-微服务核心组件"><a href="#3-4-2-微服务核心组件" class="headerlink" title="3.4.2 微服务核心组件"></a>3.4.2 微服务核心组件</h4><ul>
 <li>服务注册中心：Nacos、Eureka</li>
@@ -1159,7 +1230,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>服务间调用：OpenFeign、Dubbo</li>
 <li>链路追踪：Sleuth + Zipkin、SkyWalking</li>
 </ul>
-<h4 id="3-4-3-核心负载均衡算法"><a href="#3-4-3-核心负载均衡算法" class="headerlink" title="3.4.3 核心负载均衡算法"></a>3.4.3 核心负载均衡算法</h4><p>轮询、加权轮询、随机、加权随机、一致性哈希、最小活跃数、最短响应时间</p>
+<h4 id="3-4-3-核心负载均衡算法"><a href="#3-4-3-核心负载均衡算法" class="headerlink" title="3.4.3 核心负载均衡算法"></a>3.4.3 核心负载均衡算法</h4><p>轮询、加权轮询、随机、加权随机、一致性哈希（哈希后的数值取模映射出同一台服务器）、最小活跃数、最短响应时间</p>
 <h4 id="3-4-4-熔断-降级核心概念"><a href="#3-4-4-熔断-降级核心概念" class="headerlink" title="3.4.4 熔断 &amp; 降级核心概念"></a>3.4.4 熔断 &amp; 降级核心概念</h4><ul>
 <li><strong>熔断</strong>：当下游服务不可用、响应超时或异常率过高时，上游服务直接切断对该服务的调用，快速返回失败结果，<strong>防止请求堆积导致服务雪崩</strong>，是应对服务故障的被动防御机制</li>
 <li><strong>降级</strong>：在系统高峰期，为了保障核心业务的可用性，主动舍弃非核心业务（如关闭推荐、评论等非核心接口），释放系统资源，<strong>保障核心业务平稳运行</strong>，是应对流量高峰的主动限流策略</li>
@@ -1190,8 +1261,11 @@ document.addEventListener('DOMContentLoaded', function() {
 <li><strong>Spring 框架的核心扩展点</strong><ol>
 <li><code>BeanFactoryPostProcessor</code>：Bean 实例化之前，修改 Bean 的定义信息</li>
 <li><code>BeanPostProcessor</code>：Bean 初始化前后，对 Bean 实例进行定制修改</li>
+<li><code>PropertySource</code>：用于定义不同的属性源，如文件、数据库等，以便在Spring应用中使用</li>
 <li><code>ApplicationListener</code>：监听 Spring 应用事件，实现事件驱动开发</li>
-<li><code>ImportSelector</code> &#x2F; <code>ImportBeanDefinitionRegistrar</code>：动态注册 Bean 定义到 Spring 容器</li>
+<li><code>ImportSelector</code> &#x2F; <code>ImportBeanDefinitionRegistrar</code>：根据条件，动态注册 Bean 定义到 Spring 容器，实现配置类模板化。</li>
+<li>Spring MVC中<code>@HandlerInterceptor</code>&#x2F;<code>@ControllerAdvice</code>：用于拦截处理请求并在前中后执行特点代码 &#x2F; 用于全局处理控制器的异常、数据绑定和校验。</li>
+<li>自定义自动配置类、自定义注解</li>
 </ol>
 </li>
 </ol>
@@ -1221,7 +1295,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <li><strong>代理模式</strong>：AOP 的 JDK 动态代理、CGLIB 动态代理</li>
 <li><strong>单例模式</strong>：Spring Bean 默认单例作用域，底层通过单例注册表实现</li>
 <li><strong>模板方法模式</strong>：<code>JdbcTemplate</code>、<code>HibernateTemplate</code>、<code>RestTemplate</code>，封装固定流程，开放自定义扩展点</li>
-<li><strong>观察者模式</strong>：Spring 事件驱动模型，<code>ApplicationEvent</code>事件、<code>ApplicationListener</code>监听器</li>
+<li><strong>观察者模式</strong>：Spring 事件驱动模型，<code>ApplicationEvent</code>事件、<code>ApplicationListener</code>监听器、<code>ApplicationEventPublisher</code>发送者。通过定义事件、监听器和发送者实现，观察者注册在 ApplicationContext 中，消息发送由 ApplicationEventMulticaster 完成。</li>
 <li><strong>适配器模式</strong>：Spring MVC 的<code>HandlerAdapter</code>、AOP 的通知适配器</li>
 <li><strong>装饰器模式</strong>：<code>DataSource</code>包装、<code>HttpRequest</code>包装</li>
 </ul>
