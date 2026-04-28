@@ -7918,4 +7918,227 @@ nums = [1], k = 1i=0:  - 队首过期检查：0 &lt;= 0-1=-1? → false，不移
         <tag>单调队列</tag>
       </tags>
   </entry>
+  <entry>
+    <title>第4章 SpringAi 1.1 实现 MCP+A2A</title>
+    <url>/2026/04/28/2026/%E9%A1%B9%E7%9B%AE/%E5%A4%9AAgent+Skills+SpringAI/%E7%AC%AC4%E7%AB%A0%20SpringAi%201.1%20%E5%AE%9E%E7%8E%B0%20MCP+A2A/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+ 本文档时间参考资料的时间为2025.10~11，AI发展迅速，请鉴别过时内容。
+
+
+Spring AI Alibaba 1.1 核心实战：智能体开发、MCP协议与A2A通信
+✅ 1.1相比1.0版本核心定位：聚焦上下文工程、多智能体协同协作、复杂工作流，将智能体开发作为核心方向，新增agent-framework依赖，原生支持工具调用、大模型交互、MCP内置集成与A2A协议，建议学习路线优先跟进1.1版本，后续适配2.0迭代。
+
+
+一、Spring AI Alibaba 1.1 依赖管理1.1版本仍支持BOM（Bill of Materials）方式统一管理依赖版本，避免版本冲突，所有BOM必须放在&lt;dependencyManagement&gt;标签中。
+1.1 版本说明
+2025.10稳定版：1.1.0-RC2，同步支持Spring AI官方1.1版本依赖
+需同时引入两套BOM：
+阿里系依赖BOM：com.alibaba.cloud.ai:spring-ai-alibaba-bom，管理所有阿里云AI相关依赖
+Spring AI官方BOM：org.springframework.ai:spring-ai-bom，管理mcp-server-webflux等Spring官方AI依赖（非阿里包）
+
+
+
+1.2 核心依赖说明
+
+
+依赖 artifactId
+作用
+版本说明
+
+
+
+spring-ai-alibaba-agent-framework
+1.1新增核心智能体框架，支持工具调用、大模型交互、智能体开发
+BOM管理，无需指定版本
+
+
+spring-ai-alibaba-a2a-nexus
+A2A协议注册中心依赖，对接Nexus 3.1
+BOM管理，无需指定版本
+
+
+spring-ai-alibaba-dashscope
+阿里云百炼平台依赖，调用千问、DeepSeek等模型
+⚠️ 未包含在1.1 BOM中，必须手动指定版本（如3.4.8，需与Nexus版本匹配）
+
+
+spring-ai-mcp-server-webflux
+MCP SSE&#x2F;流式传输服务端依赖，属于Spring AI官方包
+Spring AI BOM管理，无需指定版本
+
+
+1.3 完整依赖配置示例&lt;!-- 统一版本属性 --&gt;&lt;properties&gt;    &lt;spring-ai-alibaba.version&gt;1.1.0-RC2&lt;/spring-ai-alibaba.version&gt;    &lt;spring-ai.version&gt;1.1.0&lt;/spring-ai.version&gt;    &lt;dashscope.version&gt;3.4.8&lt;/dashscope.version&gt;&lt;/properties&gt;&lt;!-- 依赖管理：BOM必须放在dependencyManagement标签 --&gt;&lt;dependencyManagement&gt;    &lt;dependencies&gt;        &lt;!-- Spring AI Alibaba BOM：管理所有阿里系AI依赖 --&gt;        &lt;dependency&gt;            &lt;groupId&gt;com.alibaba.cloud.ai&lt;/groupId&gt;            &lt;artifactId&gt;spring-ai-alibaba-bom&lt;/artifactId&gt;            &lt;version&gt;$&#123;spring-ai-alibaba.version&#125;&lt;/version&gt;            &lt;type&gt;pom&lt;/type&gt;            &lt;scope&gt;import&lt;/scope&gt;        &lt;/dependency&gt;        &lt;!-- Spring AI 官方BOM：管理Spring官方AI依赖 --&gt;        &lt;dependency&gt;            &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;            &lt;artifactId&gt;spring-ai-bom&lt;/artifactId&gt;            &lt;version&gt;$&#123;spring-ai.version&#125;&lt;/version&gt;            &lt;type&gt;pom&lt;/type&gt;            &lt;scope&gt;import&lt;/scope&gt;        &lt;/dependency&gt;    &lt;/dependencies&gt;&lt;/dependencyManagement&gt;&lt;!-- 实际依赖引入（无需指定版本，由BOM统一管理） --&gt;&lt;dependencies&gt;    &lt;!-- 核心智能体框架 --&gt;    &lt;dependency&gt;        &lt;groupId&gt;com.alibaba.cloud.ai&lt;/groupId&gt;        &lt;artifactId&gt;spring-ai-alibaba-agent-framework&lt;/artifactId&gt;    &lt;/dependency&gt;    &lt;!-- A2A注册中心依赖 --&gt;    &lt;dependency&gt;        &lt;groupId&gt;com.alibaba.cloud.ai&lt;/groupId&gt;        &lt;artifactId&gt;spring-ai-alibaba-a2a-nexus&lt;/artifactId&gt;    &lt;/dependency&gt;    &lt;!-- 阿里云百炼依赖：必须手动指定版本 --&gt;    &lt;dependency&gt;        &lt;groupId&gt;com.alibaba.cloud.ai&lt;/groupId&gt;        &lt;artifactId&gt;spring-ai-alibaba-dashscope&lt;/artifactId&gt;        &lt;version&gt;$&#123;dashscope.version&#125;&lt;/version&gt;    &lt;/dependency&gt;    &lt;!-- MCP WebFlux服务端（可选，按需引入） --&gt;    &lt;dependency&gt;        &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;        &lt;artifactId&gt;spring-ai-mcp-server-webflux&lt;/artifactId&gt;    &lt;/dependency&gt;    &lt;!-- Spring Boot Web（必须引入，否则服务无法启动） --&gt;    &lt;dependency&gt;        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;        &lt;version&gt;3.4.8&lt;/version&gt; &lt;!-- 与Nexus版本匹配 --&gt;    &lt;/dependency&gt;&lt;/dependencies&gt;
+
+
+二、MCP（模型上下文协议）1.1版本全链路开发MCP（Model Context Protocol，模型上下文协议）是解决大模型无法获取实时数据、本地资源的通信标准，1.1版本对其做了深度优化，大幅简化开发流程。
+2.1 1.1版本MCP核心优化
+内置MCP SDK 0.14，无需额外导入底层MCP依赖
+传输方式扩展：保留stdio（本地进程通信）、SSE（默认流式传输），新增Streamable HTTP（SSE升级版）、Stateless（无状态流式传输，适配微服务&#x2F;分布式场景）
+全新MCP专用注解，替代通用注解，工具自动注册，无需手动配置ToolCallbackProvider
+流式传输统一支持：SSE&#x2F;Streamable HTTP&#x2F;Stateless均为流式协议，推荐用Spring WebFlux处理
+
+2.2 MCP工具开发（1.1专用注解）1.1版本提供MCP专属注解，替代原有通用注解，核心注解如下：
+
+
+
+1.1专用注解
+作用
+注意事项
+
+
+
+@McpTool
+标注MCP工具方法，自动注册到工具列表，无需手动注册
+name、description必填，大模型根据description选择工具
+
+
+@McpToolParam
+标注工具方法参数，告诉大模型入参含义
+所有参数必须标注
+
+
+@McpProgressToken
+新增进度反馈注解，支持长耗时工具返回执行进度
+需配合ServerExchange对象将进度写入上下文，类型为String
+
+
+配置要求：必须开启注解扫描spring:  ai:    mcp:      annotation:        enabled: true # 必须开启，否则@McpTool等注解不生效
+
+代码示例（天气工具）public class WeatherTool &#123;    // description必填，大模型根据描述选择工具    @McpTool(name = &quot;getTemperature&quot;, description = &quot;查询指定城市的实时温度&quot;)    public String getTemperature(            @McpToolParam(&quot;城市名称，例如：深圳&quot;) String city,            @McpProgressToken String progressToken, // 进度token            ServerExchange exchange) &#123; // 上下文对象，用于写入进度                // 进度反馈：执行到50%时提示        if (progressToken != null) &#123;            exchange.progress(ProgressSchema.builder()                    .token(progressToken)                    .progress(0.5)                    .total(1.0)                    .message(&quot;正在查询天气...&quot;)                    .build());        &#125;        // 模拟返回天气数据        return city + &quot;当前温度：25℃&quot;;    &#125;&#125;
+
+2.3 MCP服务搭建与配置配置文件（application.yml）server:  port: 8081 # MCP服务端口spring:  ai:    mcp:      server:        name: weather-mcp-server        version: 1.0.0        transport: sse # 可选值：stdio/sse/streamable-http/stateless，默认sse        base-url: http://localhost:8081 # SSE地址，必须配置，客户端通过此地址发现服务
+
+
+⚠️ 坑点：base-url必须配置，否则Jmanus等客户端无法识别服务；非SSE传输必须声明transport类型。
+
+Jmanus集成自定义MCP服务
+启动MCP服务（端口8081）
+进入Jmanus工作台 → 设置 → MCP配置 → 新建MCP配置
+配置项：
+名称：自定义，例如weather-mcp
+类型：选择SSE
+地址：必须包含/sse后缀，例如http://localhost:8081/sse
+
+
+
+
+⚠️ 关键：SSE协议地址必须带/sse，否则会导入失败。
+
+
+三、A2A（智能体间通信协议）1.1版本全链路开发A2A（Agent-to-Agent）协议由Google提出，Spring AI Alibaba 1.1原生支持，实现跨节点、跨模型智能体通信，核心组件如下：
+3.1 A2A核心组件
+
+
+组件
+作用
+说明
+
+
+
+Provider（服务提供者）
+提供特定能力的智能体，将自身元数据注册到Nexus
+基于ReAct框架，具备自主规划、决策、工具调用、记忆、环境感知能力
+
+
+Consumer（服务消费者）
+需要调用其他智能体能力的智能体，从Nexus发现服务
+通过A2aRemoteAgent对象匹配远程智能体
+
+
+Nexus 3.1注册中心
+存储所有智能体的元数据（AgentCard），支持MCP、智能体管理
+Docker启动，默认端口8088，账号密码均为nexus
+
+
+3.2 AgentCard（智能体名片）AgentCard是智能体的“身份证”，存储在Nexus注册中心，是服务匹配的核心依据：
+
+
+
+字段
+说明
+注意事项
+
+
+
+name
+智能体唯一标识
+必填，服务消费者通过name匹配对应智能体，必须与Provider的智能体名称一致
+
+
+description
+智能体能力描述
+消费者根据描述选择服务
+
+
+url
+智能体服务地址
+Nexus通过此地址调用远程智能体
+
+
+version
+智能体版本
+-
+
+
+skills
+智能体支持的技能&#x2F;工具列表
+-
+
+
+3.3 A2A服务注册（Provider模块）模块要求
+独立端口（例如8081，与消费者端口区分）
+导入依赖：agent-framework、a2a-nexus、dashscope（手动指定版本）
+
+ReAct智能体创建@Configurationpublic class AgentProviderConfig &#123;    @Bean    public ReActAgent agentProvider(ChatModel chatModel, WeatherTool weatherTool) &#123;        return ReActAgent.builder()                .name(&quot;agent-provider&quot;) // 智能体名称，需与AgentCard的name一致                .model(chatModel) // 注入大模型（千问/DeepSeek，通过dashscope配置）                .tools(weatherTool) // 注入工具                .build();    &#125;&#125;
+
+配置文件（开启自动注册）spring:  ai:    alibaba:      dashscope:        api-key: xxx # 阿里云百炼API Key    a2a:      nexus:        url: http://localhost:8088 # Nexus 3.1地址        enabled: true # 开启自动注册，智能体卡片会自动写入Nexus      agent:        card:          name: agent-provider # 必须与ReActAgent的name一致          description: 天气查询智能体          version: 1.0.0
+
+
+⚠️ 注意：工具的@McpTool的description必填，否则智能体无法识别工具用途。
+
+3.4 A2A服务发现（Consumer模块）模块要求
+独立端口（例如8082，与Provider端口区分）
+依赖与Provider模块一致
+
+服务发现实现@Servicepublic class AgentConsumerService &#123;    public String callRemoteAgent(String prompt) &#123;        // 构建远程智能体对象，从Nexus发现服务        A2aRemoteAgent remoteAgent = A2aRemoteAgent.builder()                .name(&quot;agent-provider&quot;) // 必须与Provider的AgentCard name一致                .description(&quot;调用天气查询智能体&quot;) // 必填                .instruction(&quot;请帮我查询指定城市的天气&quot;) // 必填                .shareState(true) // 必填，开启状态共享                .build();                // 执行远程调用，结果存入OverallState（K-V格式工作流状态对象）        Optional&lt;OverallState&gt; result = remoteAgent.invoke(prompt);        // 从OverallState中提取返回结果        return result.orElseThrow()                .getValue(&quot;output&quot;, String.class);    &#125;&#125;
+
+
+⚠️ 必填项：缺少description、instruction、shareState=true任意一项都会报错。
+
+3.5 A2A协议测试流程
+启动Nexus 3.1注册中心：
+
+docker run -d -p 8088:8088 --name nexus registry.aliyuncs.com/nexus/nexus:3.1
+
+访问http://localhost:8088，进入「Agent管理」可查看注册的智能体卡片。
+
+IDEA配置多实例运行：启动类 → Modify Run Configuration → 勾选「Allow multiple instances」，确保Provider（8081）和Consumer（8082）可同时启动。
+先启动Provider模块，日志显示「智能体卡片注册成功」即注册完成。
+再启动Consumer模块，调用接口验证远程调用成功。
+
+
+四、1.1版本常见坑点汇总
+dashscope依赖未包含在1.1 BOM中，必须手动指定版本，否则报错
+MCP注解扫描必须开启spring.ai.mcp.annotation.enabled=true，否则@McpTool不生效
+非SSE的MCP传输方式（Streamable HTTP&#x2F;Stateless）必须在配置文件中声明transport类型
+Jmanus导入SSE协议的MCP服务，地址必须带/sse后缀，否则导入失败
+A2A调用必填：description、instruction、shareState=true，缺少任意一项会报错
+AgentCard的name必须与Provider的智能体名称完全一致，否则服务发现失败
+Provider和Consumer必须使用不同端口，且IDEA需允许多实例运行，否则端口冲突
+1.1版本MCP已内置，无需额外导入spring-ai-mcp依赖
+
+
+总结Spring AI Alibaba 1.1版本围绕智能体开发核心，大幅简化了MCP、A2A协议的开发流程，开发者可基于原生支持的ReAct智能体框架快速实现多智能体协同、跨节点通信的复杂AI应用，建议优先基于1.1版本开发，后续平滑适配2.0版本迭代。
+]]></content>
+      <categories>
+        <category>项目大全</category>
+        <category>多Agent+Skills+SpringAI</category>
+      </categories>
+      <tags>
+        <tag>SpringAI</tag>
+        <tag>MCP</tag>
+        <tag>A2A</tag>
+      </tags>
+  </entry>
 </search>
