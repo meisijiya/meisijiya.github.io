@@ -1122,6 +1122,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>多线程并发累加：原子类、加锁保证原子性</li>
 <li>等待多线程完成：使用<code>CountDownLatch</code></li>
 </ol>
+<h2 id="五、答疑解惑"><a href="#五、答疑解惑" class="headerlink" title="五、答疑解惑"></a>五、答疑解惑</h2><h3 id="1、setter方式进行属性的设置，在高并发，多线程的环境下，造成对象状态的不一致"><a href="#1、setter方式进行属性的设置，在高并发，多线程的环境下，造成对象状态的不一致" class="headerlink" title="1、setter方式进行属性的设置，在高并发，多线程的环境下，造成对象状态的不一致"></a>1、setter方式进行属性的设置，在高并发，多线程的环境下，造成对象状态的不一致</h3><h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>在高并发环境下，当多个线程（如线程 A、线程 B）同时操作同一个共享对象（如 User 对象）的不同属性（如 age、birthday）时，若未采取任何线程保护措施，可能出现属性修改值未及时更新或其他线程无法观测到更新的情况。</p>
+<p>这一现象由三层原因共同导致：</p>
+<ol>
+<li><strong>Java 内存模型（JMM）可见性缺失</strong>：线程仅操作自身工作内存中的变量副本，修改后无强制机制保证及时同步回主内存，其他线程也不会主动刷新主内存最新值。</li>
+<li><strong>CPU 缓存行伪共享</strong>：对象的连续属性可能被加载到同一 CPU 缓存行，多线程修改不同属性会互相触发缓存行失效，进一步延迟更新同步。</li>
+<li><strong>指令重排序风险</strong>：JVM 或 CPU 的指令重排序可能导致对象引用先对外暴露，而属性赋值尚未完成，造成 “更新未生效” 的假象。</li>
+</ol>
+<h4 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h4><p>通过同步机制保证多线程间的<strong>可见性</strong>与<strong>有序性</strong>即可解决：</p>
+<ol>
+<li><strong>使用 <code>synchronized</code> 关键字</strong>：对修改共享变量的方法或代码块加锁，既保证操作原子性，又强制在进入同步块时从主内存读取最新值，退出同步块时将修改强制写回主内存。</li>
+<li><strong>使用 <code>volatile</code> 修饰共享变量</strong>：被修饰的属性每次修改都会立刻刷回主内存，每次读取都会强制从主内存刷新，同时禁止指令重排序，从根本上解决可见性问题。</li>
+</ol>
 </div>
 
     <div id="highlight-nav" class="highlight-nav">
