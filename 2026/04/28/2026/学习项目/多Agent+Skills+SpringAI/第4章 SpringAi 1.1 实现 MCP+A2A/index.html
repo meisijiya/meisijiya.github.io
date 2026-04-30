@@ -796,213 +796,298 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
 <blockquote>
-<p> 本文参考的资料的时间为2025.10~11，AI发展迅速，请鉴别过时内容。</p>
+<p> 本文参考的资料的时间为2025.10~2026.1，参考的官网资料截止2026.4.29，AI发展迅速，请鉴别过时内容。</p>
 </blockquote>
 <hr>
-<h1 id="Spring-AI-Alibaba-1-1-核心实战：智能体开发、MCP协议与A2A通信"><a href="#Spring-AI-Alibaba-1-1-核心实战：智能体开发、MCP协议与A2A通信" class="headerlink" title="Spring AI Alibaba 1.1 核心实战：智能体开发、MCP协议与A2A通信"></a>Spring AI Alibaba 1.1 核心实战：智能体开发、MCP协议与A2A通信</h1><blockquote>
-<p>✅ 1.1相比1.0版本核心定位：聚焦<strong>上下文工程、多智能体协同协作、复杂工作流</strong>，将智能体开发作为核心方向，新增<code>agent-framework</code>依赖，原生支持工具调用、大模型交互、MCP内置集成与A2A协议，建议学习路线优先跟进1.1版本，后续适配2.0迭代。</p>
-</blockquote>
-<hr>
-<h2 id="一、Spring-AI-Alibaba-1-1-依赖管理"><a href="#一、Spring-AI-Alibaba-1-1-依赖管理" class="headerlink" title="一、Spring AI Alibaba 1.1 依赖管理"></a>一、Spring AI Alibaba 1.1 依赖管理</h2><p>1.1版本仍支持BOM（Bill of Materials）方式统一管理依赖版本，避免版本冲突，所有BOM必须放在<code>&lt;dependencyManagement&gt;</code>标签中。</p>
-<h3 id="1-1-版本说明"><a href="#1-1-版本说明" class="headerlink" title="1.1 版本说明"></a>1.1 版本说明</h3><ul>
-<li><strong>2025.10</strong>稳定版：<code>1.1.0-RC2</code>，同步支持Spring AI官方1.1版本依赖</li>
-<li>需同时引入两套BOM：<ol>
-<li>阿里系依赖BOM：<code>com.alibaba.cloud.ai:spring-ai-alibaba-bom</code>，管理所有阿里云AI相关依赖</li>
-<li>Spring AI官方BOM：<code>org.springframework.ai:spring-ai-bom</code>，管理<code>mcp-server-webflux</code>等Spring官方AI依赖（非阿里包）</li>
-</ol>
-</li>
+<h1 id="第4章-Spring-AI-Alibaba-核心生态与开发实践（1-1-版本为主）"><a href="#第4章-Spring-AI-Alibaba-核心生态与开发实践（1-1-版本为主）" class="headerlink" title="第4章 Spring AI Alibaba 核心生态与开发实践（1.1+版本为主）"></a>第4章 Spring AI Alibaba 核心生态与开发实践（1.1+版本为主）</h1><hr>
+<h2 id="一、章节总览与版本演进"><a href="#一、章节总览与版本演进" class="headerlink" title="一、章节总览与版本演进"></a>一、章节总览与版本演进</h2><h3 id="1-1-框架定位"><a href="#1-1-框架定位" class="headerlink" title="1.1 框架定位"></a>1.1 框架定位</h3><p>Spring AI Alibaba是基于Spring AI优化的Java AI应用开发框架，面向AI智能体开发，核心优势：</p>
+<ul>
+<li>更好的国内模型集成能力</li>
+<li>原生支持智能体编排、多智能体协作</li>
+<li>与阿里云智能体平台深度集成</li>
+<li>内置RAG知识库、分布式MCP方案</li>
 </ul>
-<h3 id="1-2-核心依赖说明"><a href="#1-2-核心依赖说明" class="headerlink" title="1.2 核心依赖说明"></a>1.2 核心依赖说明</h3><table>
+<p>官方推荐学习路线：<strong>立足1.0 → 跟进1.1 → 适配2.0迭代</strong>，确保技能1-2年内不过时。</p>
+<h3 id="1-2-1-0与1-1-版本核心差异对比"><a href="#1-2-1-0与1-1-版本核心差异对比" class="headerlink" title="1.2 1.0与1.1+版本核心差异对比"></a>1.2 1.0与1.1+版本核心差异对比</h3><table>
 <thead>
 <tr>
-<th>依赖 artifactId</th>
-<th>作用</th>
-<th>版本说明</th>
+<th>特性</th>
+<th>Spring AI Alibaba 1.0.x</th>
+<th>Spring AI Alibaba 1.1.x+</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>spring-ai-alibaba-agent-framework</code></td>
-<td>1.1新增核心智能体框架，支持工具调用、大模型交互、智能体开发</td>
-<td>BOM管理，无需指定版本</td>
+<td>核心定位</td>
+<td>基础AI智能体开发</td>
+<td>上下文工程、多智能体协同、复杂工作流，智能体为绝对核心</td>
 </tr>
 <tr>
-<td><code>spring-ai-alibaba-a2a-nexus</code></td>
-<td>A2A协议注册中心依赖，对接Nexus 3.1</td>
-<td>BOM管理，无需指定版本</td>
+<td>MCP支持</td>
+<td>需额外导入<code>spring-ai-mcp</code>依赖，MCP SDK版本0.10</td>
+<td>MCP依赖内置，无需额外导入，MCP SDK版本0.14</td>
 </tr>
 <tr>
-<td><code>spring-ai-alibaba-dashscope</code></td>
-<td>阿里云百炼平台依赖，调用千问、DeepSeek等模型</td>
-<td>⚠️ 未包含在1.1 BOM中，必须手动指定版本（如<code>3.4.8</code>，需与Nexus版本匹配）</td>
+<td>核心依赖</td>
+<td><code>spring-ai-alibaba-bom</code>（最新1.0.0.2，最低1.0.0.M6支持MCP）、DashScope由BOM管理</td>
+<td>新增<code>agent-framework</code>依赖（智能体核心）；DashScope不在BOM管理，需手动指定版本</td>
 </tr>
 <tr>
-<td><code>spring-ai-mcp-server-webflux</code></td>
-<td>MCP SSE&#x2F;流式传输服务端依赖，属于Spring AI官方包</td>
-<td>Spring AI BOM管理，无需指定版本</td>
+<td>MCP注解</td>
+<td><code>@Tool</code>、<code>@ToolParam</code>，需手动注册工具到清单</td>
+<td><code>@McpTool</code>、<code>@McpParameter</code>、<code>@McpProgressToken</code>，自动注册，需开启注解扫描</td>
+</tr>
+<tr>
+<td>A2A支持</td>
+<td>无官方实现</td>
+<td>原生支持，核心组件：Provider、Consumer、Nexus 3.1注册中心</td>
+</tr>
+<tr>
+<td>MCP通信方式</td>
+<td>SSE、stdio</td>
+<td>新增Streamable HTTP、Stateless HTTP，共4种传输协议</td>
+</tr>
+<tr>
+<td>官方文档对应生态</td>
+<td>无</td>
+<td>新增ReactAgent、Graph工作流、RAG、Hooks&#x2F;Interceptors、Skills等全套生产级能力</td>
 </tr>
 </tbody></table>
-<h3 id="1-3-完整依赖配置示例"><a href="#1-3-完整依赖配置示例" class="headerlink" title="1.3 完整依赖配置示例"></a>1.3 完整依赖配置示例</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 统一版本属性 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">spring-ai-alibaba.version</span>&gt;</span>1.1.0-RC2<span class="tag">&lt;/<span class="name">spring-ai-alibaba.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">spring-ai.version</span>&gt;</span>1.1.0<span class="tag">&lt;/<span class="name">spring-ai.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dashscope.version</span>&gt;</span>3.4.8<span class="tag">&lt;/<span class="name">dashscope.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 依赖管理：BOM必须放在dependencyManagement标签 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Spring AI Alibaba BOM：管理所有阿里系AI依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-alibaba-bom<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;spring-ai-alibaba.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Spring AI 官方BOM：管理Spring官方AI依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-bom<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;spring-ai.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 实际依赖引入（无需指定版本，由BOM统一管理） --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 核心智能体框架 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-alibaba-agent-framework<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- A2A注册中心依赖 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-alibaba-a2a-nexus<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 阿里云百炼依赖：必须手动指定版本 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-alibaba-dashscope<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;dashscope.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- MCP WebFlux服务端（可选，按需引入） --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-mcp-server-webflux<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- Spring Boot Web（必须引入，否则服务无法启动） --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.8<span class="tag">&lt;/<span class="name">version</span>&gt;</span> <span class="comment">&lt;!-- 与Nexus版本匹配 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
 <hr>
-<h2 id="二、MCP（模型上下文协议）1-1版本全链路开发"><a href="#二、MCP（模型上下文协议）1-1版本全链路开发" class="headerlink" title="二、MCP（模型上下文协议）1.1版本全链路开发"></a>二、MCP（模型上下文协议）1.1版本全链路开发</h2><p>MCP（Model Context Protocol，模型上下文协议）是解决大模型无法获取实时数据、本地资源的通信标准，1.1版本对其做了深度优化，大幅简化开发流程。</p>
-<h3 id="2-1-1-1版本MCP核心优化"><a href="#2-1-1-1版本MCP核心优化" class="headerlink" title="2.1 1.1版本MCP核心优化"></a>2.1 1.1版本MCP核心优化</h3><ul>
-<li>内置MCP SDK <code>0.14</code>，无需额外导入底层MCP依赖</li>
-<li>传输方式扩展：保留<code>stdio</code>（本地进程通信）、<code>SSE</code>（默认流式传输），新增<code>Streamable HTTP</code>（SSE升级版）、<code>Stateless</code>（无状态流式传输，适配微服务&#x2F;分布式场景）</li>
-<li>全新MCP专用注解，替代通用注解，工具自动注册，无需手动配置<code>ToolCallbackProvider</code></li>
-<li>流式传输统一支持：<code>SSE</code>&#x2F;<code>Streamable HTTP</code>&#x2F;<code>Stateless</code>均为流式协议，推荐用Spring WebFlux处理</li>
+<h2 id="二、MCP（模型上下文协议）开发"><a href="#二、MCP（模型上下文协议）开发" class="headerlink" title="二、MCP（模型上下文协议）开发"></a>二、MCP（模型上下文协议）开发</h2><p>MCP是为解决大模型无法获取实时变化数据、用户私人数据的中间层协议，1.1+版本已内置支持，无需额外导入底层依赖。</p>
+<h3 id="2-1-MCP协议基础"><a href="#2-1-MCP协议基础" class="headerlink" title="2.1 MCP协议基础"></a>2.1 MCP协议基础</h3><h4 id="2-1-1-架构与分层设计"><a href="#2-1-1-架构与分层设计" class="headerlink" title="2.1.1 架构与分层设计"></a>2.1.1 架构与分层设计</h4><ul>
+<li>三节点架构：MCP Host（大模型端）、MCP Client、MCP Server</li>
+<li>分层设计：<ul>
+<li>协议层：统一不同工具返回的数据格式</li>
+<li>传输层：根据场景自主选择传输机制，大模型无需关心调用细节即可获取外部数据</li>
 </ul>
-<h3 id="2-2-MCP工具开发（1-1专用注解）"><a href="#2-2-MCP工具开发（1-1专用注解）" class="headerlink" title="2.2 MCP工具开发（1.1专用注解）"></a>2.2 MCP工具开发（1.1专用注解）</h3><p>1.1版本提供MCP专属注解，替代原有通用注解，核心注解如下：</p>
-<table>
+</li>
+</ul>
+<h4 id="2-1-2-传输机制（1-1-共4种）"><a href="#2-1-2-传输机制（1-1-共4种）" class="headerlink" title="2.1.2 传输机制（1.1+共4种）"></a>2.1.2 传输机制（1.1+共4种）</h4><table>
 <thead>
 <tr>
-<th>1.1专用注解</th>
+<th>传输方式</th>
+<th>适用场景</th>
+<th>特点</th>
+<th>推荐框架</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>stdio</td>
+<td>同机器进程间通信</td>
+<td>轻量，本地MCP Server&#x2F;Client通信</td>
+<td>无特殊要求</td>
+</tr>
+<tr>
+<td>SSE</td>
+<td>网页端与远程模型通信（默认）</td>
+<td>单向实时流式，比WebSocket轻量</td>
+<td>WebFlux（非阻塞，性能优于WebMVC）</td>
+</tr>
+<tr>
+<td>Streamable HTTP</td>
+<td>SSE升级版</td>
+<td>流式传输，支持更多交互场景</td>
+<td>WebFlux</td>
+</tr>
+<tr>
+<td>Stateless HTTP</td>
+<td>微服务&#x2F;分布式场景</td>
+<td>无状态流式传输</td>
+<td>WebFlux</td>
+</tr>
+</tbody></table>
+<p>⚠️ 注意：所有流式传输（SSE&#x2F;Streamable HTTP&#x2F;Stateless HTTP）均推荐使用<strong>Spring WebFlux非阻塞框架</strong>，单线程可处理多请求，性能优于传统WebMVC。</p>
+<h3 id="2-2-依赖导入（重点1-1-版本）"><a href="#2-2-依赖导入（重点1-1-版本）" class="headerlink" title="2.2 依赖导入（重点1.1+版本）"></a>2.2 依赖导入（重点1.1+版本）</h3><h4 id="2-2-1-版本管理（BOM方式，推荐）"><a href="#2-2-1-版本管理（BOM方式，推荐）" class="headerlink" title="2.2.1 版本管理（BOM方式，推荐）"></a>2.2.1 版本管理（BOM方式，推荐）</h4><p>统一管理版本避免冲突，需同时导入Spring AI Alibaba BOM和Spring AI BOM：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 1. Spring AI Alibaba BOM --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Alibaba BOM，1.1+版本格式示例：1.1.0.0-RC2 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-alibaba-bom<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.0.0-RC2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Spring AI BOM，1.1+版本对应1.1.0 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-bom<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-2-核心依赖"><a href="#2-2-2-核心依赖" class="headerlink" title="2.2.2 核心依赖"></a>2.2.2 核心依赖</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 1. 智能体核心依赖（1.1+新增，内置MCP、A2A等能力） --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-alibaba-agent-framework<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 2. MCP服务端WebFlux starter（属于Spring AI包，非Alibaba包，需Spring AI BOM支持） --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-mcp-server-webflux<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 3. DashScope大模型依赖（1.1+需手动指定版本，不在BOM管理） --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-dashscope<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.0.0-RC2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-MCP工具开发"><a href="#2-3-MCP工具开发" class="headerlink" title="2.3 MCP工具开发"></a>2.3 MCP工具开发</h3><h4 id="2-3-1-1-1-版本全新注解（替代1-0的-Tool系列）"><a href="#2-3-1-1-1-版本全新注解（替代1-0的-Tool系列）" class="headerlink" title="2.3.1 1.1+版本全新注解（替代1.0的@Tool系列）"></a>2.3.1 1.1+版本全新注解（替代1.0的@Tool系列）</h4><table>
+<thead>
+<tr>
+<th>注解</th>
 <th>作用</th>
 <th>注意事项</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>@McpTool</code></td>
-<td>标注MCP工具方法，自动注册到工具列表，无需手动注册</td>
-<td><code>name</code>、<code>description</code>必填，大模型根据<code>description</code>选择工具</td>
+<td>标注方法为MCP工具，替代<code>@Tool</code></td>
+<td>参数<code>name</code>、<code>description</code>（必填，大模型靠description识别工具用途）</td>
 </tr>
 <tr>
-<td><code>@McpToolParam</code></td>
-<td>标注工具方法参数，告诉大模型入参含义</td>
-<td>所有参数必须标注</td>
+<td><code>@McpParameter</code></td>
+<td>定义MCP工具参数，替代<code>@ToolParam</code></td>
+<td>必填参数需明确描述</td>
 </tr>
 <tr>
 <td><code>@McpProgressToken</code></td>
-<td>新增进度反馈注解，支持长耗时工具返回执行进度</td>
-<td>需配合<code>ServerExchange</code>对象将进度写入上下文，类型为<code>String</code></td>
+<td>长耗时任务的进度反馈</td>
+<td>类型为String，需配合<code>McpServerExchange</code>对象将进度写入上下文返回客户端</td>
+</tr>
+<tr>
+<td><code>@Component</code></td>
+<td>将工具纳入Spring容器，自动扫描注册</td>
+<td>无需手动注册工具清单</td>
 </tr>
 </tbody></table>
-<h4 id="配置要求：必须开启注解扫描"><a href="#配置要求：必须开启注解扫描" class="headerlink" title="配置要求：必须开启注解扫描"></a>配置要求：必须开启注解扫描</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">mcp:</span></span><br><span class="line">      <span class="attr">annotation:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span> <span class="comment"># 必须开启，否则@McpTool等注解不生效</span></span><br></pre></td></tr></table></figure>
+<p>✅ 1.1+特性：工具定义后<strong>自动注册到MCP服务清单</strong>，无需再通过<code>MethodToolCallbackProvider</code>手动注册。</p>
+<h4 id="2-3-2-配置要求"><a href="#2-3-2-配置要求" class="headerlink" title="2.3.2 配置要求"></a>2.3.2 配置要求</h4><p>application.yml需开启MCP注解扫描：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">mcp:</span></span><br><span class="line">      <span class="attr">annotation:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span> <span class="comment"># 必须开启，否则注解不生效</span></span><br><span class="line">      <span class="attr">server:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">weather-mcp-server</span> <span class="comment"># MCP服务名称</span></span><br><span class="line">        <span class="attr">version:</span> <span class="number">1.0</span></span><br><span class="line">        <span class="attr">transport:</span> <span class="string">streamable-http</span> <span class="comment"># 通信方式：stdio/sse/streamable-http/stateless，默认sse</span></span><br></pre></td></tr></table></figure>
 
-<h4 id="代码示例（天气工具）"><a href="#代码示例（天气工具）" class="headerlink" title="代码示例（天气工具）"></a>代码示例（天气工具）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WeatherTool</span> &#123;</span><br><span class="line">    <span class="comment">// description必填，大模型根据描述选择工具</span></span><br><span class="line">    <span class="meta">@McpTool(name = &quot;getTemperature&quot;, description = &quot;查询指定城市的实时温度&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getTemperature</span><span class="params">(</span></span><br><span class="line"><span class="params">            <span class="meta">@McpToolParam(&quot;城市名称，例如：深圳&quot;)</span> String city,</span></span><br><span class="line"><span class="params">            <span class="meta">@McpProgressToken</span> String progressToken, // 进度token</span></span><br><span class="line"><span class="params">            ServerExchange exchange)</span> &#123; <span class="comment">// 上下文对象，用于写入进度</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 进度反馈：执行到50%时提示</span></span><br><span class="line">        <span class="keyword">if</span> (progressToken != <span class="literal">null</span>) &#123;</span><br><span class="line">            exchange.progress(ProgressSchema.builder()</span><br><span class="line">                    .token(progressToken)</span><br><span class="line">                    .progress(<span class="number">0.5</span>)</span><br><span class="line">                    .total(<span class="number">1.0</span>)</span><br><span class="line">                    .message(<span class="string">&quot;正在查询天气...&quot;</span>)</span><br><span class="line">                    .build());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 模拟返回天气数据</span></span><br><span class="line">        <span class="keyword">return</span> city + <span class="string">&quot;当前温度：25℃&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-3-3-进度反馈示例"><a href="#2-3-3-进度反馈示例" class="headerlink" title="2.3.3 进度反馈示例"></a>2.3.3 进度反馈示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@McpTool(name = &quot;getWeather&quot;, description = &quot;查询指定城市的天气、温度、紫外线值&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">getWeather</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="meta">@McpParameter(description = &quot;城市名称&quot;)</span> String city,</span></span><br><span class="line"><span class="params">    <span class="meta">@McpProgressToken</span> String progressToken,</span></span><br><span class="line"><span class="params">    McpServerExchange exchange)</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (progressToken != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 进度50%：正在执行</span></span><br><span class="line">        exchange.progress(McpSchema.progress(progressToken, <span class="number">0.5</span>, <span class="number">1.0</span>, <span class="string">&quot;正在查询天气数据...&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> weatherService.query(city);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (progressToken != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 进度90%：准备返回</span></span><br><span class="line">        exchange.progress(McpSchema.progress(progressToken, <span class="number">0.9</span>, <span class="number">1.0</span>, <span class="string">&quot;数据查询完成，准备返回&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="2-3-MCP服务搭建与配置"><a href="#2-3-MCP服务搭建与配置" class="headerlink" title="2.3 MCP服务搭建与配置"></a>2.3 MCP服务搭建与配置</h3><h4 id="配置文件（application-yml）"><a href="#配置文件（application-yml）" class="headerlink" title="配置文件（application.yml）"></a>配置文件（application.yml）</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span> <span class="comment"># MCP服务端口</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">mcp:</span></span><br><span class="line">      <span class="attr">server:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">weather-mcp-server</span></span><br><span class="line">        <span class="attr">version:</span> <span class="number">1.0</span><span class="number">.0</span></span><br><span class="line">        <span class="attr">transport:</span> <span class="string">sse</span> <span class="comment"># 可选值：stdio/sse/streamable-http/stateless，默认sse</span></span><br><span class="line">        <span class="attr">base-url:</span> <span class="string">http://localhost:8081</span> <span class="comment"># SSE地址，必须配置，客户端通过此地址发现服务</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-4-MCP服务集成"><a href="#2-4-MCP服务集成" class="headerlink" title="2.4 MCP服务集成"></a>2.4 MCP服务集成</h3><h4 id="2-4-1-基础配置示例"><a href="#2-4-1-基础配置示例" class="headerlink" title="2.4.1 基础配置示例"></a>2.4.1 基础配置示例</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span> <span class="comment"># MCP服务端口</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">mcp:</span></span><br><span class="line">      <span class="attr">server:</span></span><br><span class="line">        <span class="attr">transport:</span> <span class="string">streamable-http</span> <span class="comment"># 可选：stdio/sse/streamable-http/stateless</span></span><br><span class="line">        <span class="attr">sse-path:</span> <span class="string">/sse</span> <span class="comment"># SSE地址标识，Jmanus集成需包含该标识否则报错</span></span><br><span class="line"><span class="attr">dashscope:</span></span><br><span class="line">  <span class="attr">api-key:</span> <span class="string">xxx</span> <span class="comment"># 阿里云百炼API Key</span></span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>⚠️ 坑点：<code>base-url</code>必须配置，否则Jmanus等客户端无法识别服务；非SSE传输必须声明<code>transport</code>类型。</p>
-</blockquote>
-<h4 id="Jmanus集成自定义MCP服务"><a href="#Jmanus集成自定义MCP服务" class="headerlink" title="Jmanus集成自定义MCP服务"></a>Jmanus集成自定义MCP服务</h4><ol>
-<li>启动MCP服务（端口8081）</li>
-<li>进入Jmanus工作台 → 设置 → MCP配置 → 新建MCP配置</li>
-<li>配置项：<ul>
-<li>名称：自定义，例如<code>weather-mcp</code></li>
-<li>类型：选择<code>SSE</code></li>
-<li>地址：必须包含<code>/sse</code>后缀，例如<code>http://localhost:8081/sse</code></li>
-</ul>
-</li>
-</ol>
-<blockquote>
-<p>⚠️ 关键：SSE协议地址必须带<code>/sse</code>，否则会导入失败。</p>
-</blockquote>
+<p>⚠️ 注意：Jmanus导入MCP服务时，SSE地址必须包含<code>/sse</code>标识，否则会导入失败，修正后可正常显示在服务列表。</p>
 <hr>
-<h2 id="三、A2A（智能体间通信协议）1-1版本全链路开发"><a href="#三、A2A（智能体间通信协议）1-1版本全链路开发" class="headerlink" title="三、A2A（智能体间通信协议）1.1版本全链路开发"></a>三、A2A（智能体间通信协议）1.1版本全链路开发</h2><p>A2A（Agent-to-Agent）协议由Google提出，Spring AI Alibaba 1.1原生支持，实现跨节点、跨模型智能体通信，核心组件如下：</p>
-<h3 id="3-1-A2A核心组件"><a href="#3-1-A2A核心组件" class="headerlink" title="3.1 A2A核心组件"></a>3.1 A2A核心组件</h3><table>
-<thead>
-<tr>
-<th>组件</th>
-<th>作用</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Provider（服务提供者）</td>
-<td>提供特定能力的智能体，将自身元数据注册到Nexus</td>
-<td>基于ReAct框架，具备自主规划、决策、工具调用、记忆、环境感知能力</td>
-</tr>
-<tr>
-<td>Consumer（服务消费者）</td>
-<td>需要调用其他智能体能力的智能体，从Nexus发现服务</td>
-<td>通过<code>A2aRemoteAgent</code>对象匹配远程智能体</td>
-</tr>
-<tr>
-<td>Nexus 3.1注册中心</td>
-<td>存储所有智能体的元数据（AgentCard），支持MCP、智能体管理</td>
-<td>Docker启动，默认端口8088，账号密码均为<code>nexus</code></td>
-</tr>
-</tbody></table>
-<h3 id="3-2-AgentCard（智能体名片）"><a href="#3-2-AgentCard（智能体名片）" class="headerlink" title="3.2 AgentCard（智能体名片）"></a>3.2 AgentCard（智能体名片）</h3><p>AgentCard是智能体的“身份证”，存储在Nexus注册中心，是服务匹配的核心依据：</p>
+<h2 id="三、分布式智能体（A2A协议）开发"><a href="#三、分布式智能体（A2A协议）开发" class="headerlink" title="三、分布式智能体（A2A协议）开发"></a>三、分布式智能体（A2A协议）开发</h2><p>A2A（Agent-to-Agent）协议由Google提出，用于跨模型、跨节点智能体通信，Spring AI Alibaba 1.1+原生支持，核心依赖Nexus 3.1注册中心。</p>
+<h3 id="3-1-A2A核心组件"><a href="#3-1-A2A核心组件" class="headerlink" title="3.1 A2A核心组件"></a>3.1 A2A核心组件</h3><ol>
+<li><strong>服务提供者（Provider）</strong>：提供远程智能体服务，需注册到Nexus</li>
+<li><strong>服务消费者（Consumer）</strong>：从Nexus发现并调用远程智能体</li>
+<li><strong>注册中心</strong>：阿里Nexus 3.1，支持MCP管理、Agent管理，存储智能体卡片（AgentCard）</li>
+</ol>
+<h3 id="3-2-核心概念：智能体卡片（AgentCard）"><a href="#3-2-核心概念：智能体卡片（AgentCard）" class="headerlink" title="3.2 核心概念：智能体卡片（AgentCard）"></a>3.2 核心概念：智能体卡片（AgentCard）</h3><p>智能体元数据存储在Nexus中，是服务发现的核心依据：</p>
 <table>
 <thead>
 <tr>
-<th>字段</th>
+<th>元数据字段</th>
 <th>说明</th>
-<th>注意事项</th>
+<th>要求</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>name</code></td>
-<td>智能体唯一标识</td>
-<td>必填，服务消费者通过name匹配对应智能体，必须与Provider的智能体名称一致</td>
+<td>智能体名称</td>
+<td>必填，需与ReactAgent名称一致，是服务发现的核心匹配字段</td>
 </tr>
 <tr>
 <td><code>description</code></td>
-<td>智能体能力描述</td>
-<td>消费者根据描述选择服务</td>
+<td>智能体功能描述</td>
+<td>必填，消费者靠此判断智能体能力</td>
+</tr>
+<tr>
+<td><code>instruction</code></td>
+<td>智能体执行指令</td>
+<td>必填，缺失会导致调用报错</td>
 </tr>
 <tr>
 <td><code>url</code></td>
-<td>智能体服务地址</td>
-<td>Nexus通过此地址调用远程智能体</td>
+<td>注册中心地址</td>
+<td>可选</td>
 </tr>
 <tr>
 <td><code>version</code></td>
 <td>智能体版本</td>
-<td>-</td>
+<td>可选</td>
+</tr>
+<tr>
+<td><code>capabilities</code></td>
+<td>智能体能力（工具、技能等）</td>
+<td>可选</td>
 </tr>
 <tr>
 <td><code>skills</code></td>
-<td>智能体支持的技能&#x2F;工具列表</td>
-<td>-</td>
+<td>关联的技能列表（对应官方Skills体系）</td>
+<td>可选</td>
 </tr>
 </tbody></table>
-<h3 id="3-3-A2A服务注册（Provider模块）"><a href="#3-3-A2A服务注册（Provider模块）" class="headerlink" title="3.3 A2A服务注册（Provider模块）"></a>3.3 A2A服务注册（Provider模块）</h3><h4 id="模块要求"><a href="#模块要求" class="headerlink" title="模块要求"></a>模块要求</h4><ul>
-<li>独立端口（例如8081，与消费者端口区分）</li>
-<li>导入依赖：<code>agent-framework</code>、<code>a2a-nexus</code>、<code>dashscope</code>（手动指定版本）</li>
-</ul>
-<h4 id="ReAct智能体创建"><a href="#ReAct智能体创建" class="headerlink" title="ReAct智能体创建"></a>ReAct智能体创建</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentProviderConfig</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> ReActAgent <span class="title function_">agentProvider</span><span class="params">(ChatModel chatModel, WeatherTool weatherTool)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ReActAgent.builder()</span><br><span class="line">                .name(<span class="string">&quot;agent-provider&quot;</span>) <span class="comment">// 智能体名称，需与AgentCard的name一致</span></span><br><span class="line">                .model(chatModel) <span class="comment">// 注入大模型（千问/DeepSeek，通过dashscope配置）</span></span><br><span class="line">                .tools(weatherTool) <span class="comment">// 注入工具</span></span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-3-A2A服务注册（Provider模块开发）"><a href="#3-3-A2A服务注册（Provider模块开发）" class="headerlink" title="3.3 A2A服务注册（Provider模块开发）"></a>3.3 A2A服务注册（Provider模块开发）</h3><h4 id="3-3-1-依赖"><a href="#3-3-1-依赖" class="headerlink" title="3.3.1 依赖"></a>3.3.1 依赖</h4><p>与MCP基础依赖一致，额外添加A2A注册中心依赖（已含在BOM中，无需指定版本）：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud.ai<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-ai-alibaba-a2a-nexus<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<h4 id="配置文件（开启自动注册）"><a href="#配置文件（开启自动注册）" class="headerlink" title="配置文件（开启自动注册）"></a>配置文件（开启自动注册）</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">alibaba:</span></span><br><span class="line">      <span class="attr">dashscope:</span></span><br><span class="line">        <span class="attr">api-key:</span> <span class="string">xxx</span> <span class="comment"># 阿里云百炼API Key</span></span><br><span class="line">    <span class="attr">a2a:</span></span><br><span class="line">      <span class="attr">nexus:</span></span><br><span class="line">        <span class="attr">url:</span> <span class="string">http://localhost:8088</span> <span class="comment"># Nexus 3.1地址</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span> <span class="comment"># 开启自动注册，智能体卡片会自动写入Nexus</span></span><br><span class="line">      <span class="attr">agent:</span></span><br><span class="line">        <span class="attr">card:</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">agent-provider</span> <span class="comment"># 必须与ReActAgent的name一致</span></span><br><span class="line">          <span class="attr">description:</span> <span class="string">天气查询智能体</span></span><br><span class="line">          <span class="attr">version:</span> <span class="number">1.0</span><span class="number">.0</span></span><br></pre></td></tr></table></figure>
+<h4 id="3-3-2-智能体创建（ReactAgent）"><a href="#3-3-2-智能体创建（ReactAgent）" class="headerlink" title="3.3.2 智能体创建（ReactAgent）"></a>3.3.2 智能体创建（ReactAgent）</h4><p>1.1+推荐使用<strong>ReactAgent</strong>（基于ReAct范式，支持自主规划、决策、工具执行、记忆、环境感知）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentProviderConfig</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> ReactAgent <span class="title function_">agentProvider</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="meta">@Qualifier(&quot;dashscopeModel&quot;)</span> ChatModel model,</span></span><br><span class="line"><span class="params">        WeatherTool weatherTool)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ReactAgent.builder()</span><br><span class="line">            .name(<span class="string">&quot;weather-agent&quot;</span>) <span class="comment">// 需与AgentCard的name一致</span></span><br><span class="line">            .model(model) <span class="comment">// 指定大模型（如通义千问、DeepSeek）</span></span><br><span class="line">            .tools(weatherTool) <span class="comment">// 注入自定义工具，工具用@Tool注解（非MCP场景）</span></span><br><span class="line">            .build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>⚠️ 注意：工具的<code>@McpTool</code>的<code>description</code>必填，否则智能体无法识别工具用途。</p>
-</blockquote>
-<h3 id="3-4-A2A服务发现（Consumer模块）"><a href="#3-4-A2A服务发现（Consumer模块）" class="headerlink" title="3.4 A2A服务发现（Consumer模块）"></a>3.4 A2A服务发现（Consumer模块）</h3><h4 id="模块要求-1"><a href="#模块要求-1" class="headerlink" title="模块要求"></a>模块要求</h4><ul>
-<li>独立端口（例如8082，与Provider端口区分）</li>
-<li>依赖与Provider模块一致</li>
-</ul>
-<h4 id="服务发现实现"><a href="#服务发现实现" class="headerlink" title="服务发现实现"></a>服务发现实现</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentConsumerService</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">callRemoteAgent</span><span class="params">(String prompt)</span> &#123;</span><br><span class="line">        <span class="comment">// 构建远程智能体对象，从Nexus发现服务</span></span><br><span class="line">        <span class="type">A2aRemoteAgent</span> <span class="variable">remoteAgent</span> <span class="operator">=</span> A2aRemoteAgent.builder()</span><br><span class="line">                .name(<span class="string">&quot;agent-provider&quot;</span>) <span class="comment">// 必须与Provider的AgentCard name一致</span></span><br><span class="line">                .description(<span class="string">&quot;调用天气查询智能体&quot;</span>) <span class="comment">// 必填</span></span><br><span class="line">                .instruction(<span class="string">&quot;请帮我查询指定城市的天气&quot;</span>) <span class="comment">// 必填</span></span><br><span class="line">                .shareState(<span class="literal">true</span>) <span class="comment">// 必填，开启状态共享</span></span><br><span class="line">                .build();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 执行远程调用，结果存入OverallState（K-V格式工作流状态对象）</span></span><br><span class="line">        Optional&lt;OverallState&gt; result = remoteAgent.invoke(prompt);</span><br><span class="line">        <span class="comment">// 从OverallState中提取返回结果</span></span><br><span class="line">        <span class="keyword">return</span> result.orElseThrow()</span><br><span class="line">                .getValue(<span class="string">&quot;output&quot;</span>, String.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-3-3-注册配置"><a href="#3-3-3-注册配置" class="headerlink" title="3.3.3 注册配置"></a>3.3.3 注册配置</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">a2a:</span></span><br><span class="line">      <span class="attr">registration:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span> <span class="comment"># 开启服务注册</span></span><br><span class="line">      <span class="attr">nexus:</span></span><br><span class="line">        <span class="attr">url:</span> <span class="string">http://localhost:8088</span> <span class="comment"># Nexus 3.1地址，默认端口8088</span></span><br><span class="line">    <span class="attr">dashscope:</span></span><br><span class="line">      <span class="attr">api-key:</span> <span class="string">xxx</span></span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>⚠️ 必填项：缺少<code>description</code>、<code>instruction</code>、<code>shareState=true</code>任意一项都会报错。</p>
-</blockquote>
-<h3 id="3-5-A2A协议测试流程"><a href="#3-5-A2A协议测试流程" class="headerlink" title="3.5 A2A协议测试流程"></a>3.5 A2A协议测试流程</h3><ol>
-<li>启动Nexus 3.1注册中心：</li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8088:8088 --name nexus registry.aliyuncs.com/nexus/nexus:3.1</span><br></pre></td></tr></table></figure>
+<h3 id="3-4-A2A服务发现（Consumer模块开发）"><a href="#3-4-A2A服务发现（Consumer模块开发）" class="headerlink" title="3.4 A2A服务发现（Consumer模块开发）"></a>3.4 A2A服务发现（Consumer模块开发）</h3><h4 id="3-4-1-远程智能体调用"><a href="#3-4-1-远程智能体调用" class="headerlink" title="3.4.1 远程智能体调用"></a>3.4.1 远程智能体调用</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentConsumerService</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">callRemoteAgent</span><span class="params">(String prompt)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 构建远程智能体对象，关联Nexus注册中心</span></span><br><span class="line">        <span class="type">A2aRemoteAgent</span> <span class="variable">remoteAgent</span> <span class="operator">=</span> A2aRemoteAgent.builder()</span><br><span class="line">            .nexusUrl(<span class="string">&quot;http://localhost:8088&quot;</span>)</span><br><span class="line">            .agentName(<span class="string">&quot;weather-agent&quot;</span>) <span class="comment">// 目标智能体名称，匹配AgentCard的name</span></span><br><span class="line">            .build();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 2. 调用远程智能体，返回Optional&lt;OverallState&gt;</span></span><br><span class="line">        Optional&lt;OverallState&gt; result = remoteAgent.invoke(prompt);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 3. 提取结果：OverallState是key-value格式的工作流状态对象</span></span><br><span class="line">        <span class="keyword">return</span> result.orElseThrow()</span><br><span class="line">            .value(<span class="string">&quot;final_response&quot;</span>); <span class="comment">// 提取对应key的返回内容</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>访问<code>http://localhost:8088</code>，进入「Agent管理」可查看注册的智能体卡片。</p>
-<ol start="2">
-<li>IDEA配置多实例运行：启动类 → Modify Run Configuration → 勾选「Allow multiple instances」，确保Provider（8081）和Consumer（8082）可同时启动。</li>
-<li>先启动Provider模块，日志显示「智能体卡片注册成功」即注册完成。</li>
-<li>再启动Consumer模块，调用接口验证远程调用成功。</li>
+<h3 id="3-5-A2A测试注意事项"><a href="#3-5-A2A测试注意事项" class="headerlink" title="3.5 A2A测试注意事项"></a>3.5 A2A测试注意事项</h3><ol>
+<li>前置条件：启动Nexus 3.1（Docker方式），默认账号密码<code>nexus/nexus</code>，首次登录需二次输入</li>
+<li>必填配置：AgentCard的<code>description</code>、<code>instruction</code>必须填写，<code>shareState</code>设为<code>true</code>，否则调用报错</li>
+<li>端口要求：Provider与Consumer必须使用不同端口，允许多实例运行</li>
 </ol>
 <hr>
-<h2 id="四、1-1版本常见坑点汇总"><a href="#四、1-1版本常见坑点汇总" class="headerlink" title="四、1.1版本常见坑点汇总"></a>四、1.1版本常见坑点汇总</h2><ol>
-<li><code>dashscope</code>依赖未包含在1.1 BOM中，必须手动指定版本，否则报错</li>
-<li>MCP注解扫描必须开启<code>spring.ai.mcp.annotation.enabled=true</code>，否则<code>@McpTool</code>不生效</li>
-<li>非SSE的MCP传输方式（Streamable HTTP&#x2F;Stateless）必须在配置文件中声明<code>transport</code>类型</li>
-<li>Jmanus导入SSE协议的MCP服务，地址必须带<code>/sse</code>后缀，否则导入失败</li>
-<li>A2A调用必填：<code>description</code>、<code>instruction</code>、<code>shareState=true</code>，缺少任意一项会报错</li>
-<li>AgentCard的<code>name</code>必须与Provider的智能体名称完全一致，否则服务发现失败</li>
-<li>Provider和Consumer必须使用不同端口，且IDEA需允许多实例运行，否则端口冲突</li>
-<li>1.1版本MCP已内置，无需额外导入<code>spring-ai-mcp</code>依赖</li>
+<h2 id="四、Spring-AI-Alibaba-1-1-官方最新生态补充"><a href="#四、Spring-AI-Alibaba-1-1-官方最新生态补充" class="headerlink" title="四、Spring AI Alibaba 1.1+ 官方最新生态补充"></a>四、Spring AI Alibaba 1.1+ 官方最新生态补充</h2><p>以下为官方文档新增的生产级能力，是1.1+版本的核心竞争力：</p>
+<h3 id="4-1-智能体（Agent）体系"><a href="#4-1-智能体（Agent）体系" class="headerlink" title="4.1 智能体（Agent）体系"></a>4.1 智能体（Agent）体系</h3><ul>
+<li><strong>ReactAgent</strong>：生产级智能体实现，在Graph运行时上通过多节点协作完成任务，支持动态&#x2F;静态System Prompt、结构化输出（<code>outputType</code>&#x2F;<code>outputSchema</code>）、记忆管理、Hooks&#x2F;Interceptors扩展。</li>
+<li>多智能体架构：拆分复杂应用为多个专业化Agent，支持模式：<ul>
+<li>Tool Calling：集中式任务编排</li>
+<li>Handoffs：去中心化跨领域交互</li>
+<li>Sequential&#x2F;Parallel：串行&#x2F;并行任务执行</li>
+<li>LlmRouting&#x2F;Supervisor：智能路由&#x2F;监督模式</li>
+<li>FlowAgent：自定义流程</li>
+</ul>
+</li>
+<li><strong>智能体作为工具</strong>：子Agent可作为工具被主Agent调用，实现专业化分工。</li>
+</ul>
+<h3 id="4-2-核心组件"><a href="#4-2-核心组件" class="headerlink" title="4.2 核心组件"></a>4.2 核心组件</h3><h4 id="4-2-1-记忆管理"><a href="#4-2-1-记忆管理" class="headerlink" title="4.2.1 记忆管理"></a>4.2.1 记忆管理</h4><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+<th>存储方式</th>
+<th>最佳实践</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>短期记忆</td>
+<td>会话级上下文</td>
+<td>存储于Graph状态，通过checkpointer持久化</td>
+<td>需控制长度（修剪&#x2F;删除&#x2F;总结），避免上下文超限</td>
+</tr>
+<tr>
+<td>长期记忆</td>
+<td>跨会话持久化数据</td>
+<td>JSON文档存于Store，按<code>namespace+key</code>组织，支持层次化搜索</td>
+<td>结合短期记忆使用，实现用户偏好学习</td>
+</tr>
+</tbody></table>
+<h4 id="4-2-2-消息（Messages）"><a href="#4-2-2-消息（Messages）" class="headerlink" title="4.2.2 消息（Messages）"></a>4.2.2 消息（Messages）</h4><p>模型交互基本单元，包含角色、内容、可选元数据，支持四类消息：System、User、Assistant、Tool Response，可处理多模态内容、工具调用，返回Token使用统计。</p>
+<h4 id="4-2-3-技能（Skills）"><a href="#4-2-3-技能（Skills）" class="headerlink" title="4.2.3 技能（Skills）"></a>4.2.3 技能（Skills）</h4><p>可复用的指令与上下文包，通过SkillRegistry管理，渐进式披露按需加载：</p>
+<ul>
+<li>目录要求：必须包含<code>SKILL.md</code>，定义<code>name</code>、<code>description</code></li>
+<li>加载方式：FileSystemSkillRegistry、ClasspathSkillRegistry</li>
+<li>支持用户级&#x2F;项目级目录优先级、自动重载，可与Python&#x2F;Shell工具结合实现复杂任务。</li>
+</ul>
+<h4 id="4-2-4-工具（Tools）"><a href="#4-2-4-工具（Tools）" class="headerlink" title="4.2.4 工具（Tools）"></a>4.2.4 工具（Tools）</h4><p>分类：信息检索类（增强知识覆盖）、执行操作类（自动化任务），定义方式：</p>
+<ul>
+<li>声明式：<code>@Tool</code>注解（非MCP场景）</li>
+<li>编程式：<code>MethodToolCallback</code><br> 结合ChatClient可实现实时信息获取、定时操作等能力。</li>
+</ul>
+<h3 id="4-3-扩展与控制"><a href="#4-3-扩展与控制" class="headerlink" title="4.3 扩展与控制"></a>4.3 扩展与控制</h3><h4 id="4-3-1-Hooks与Interceptors"><a href="#4-3-1-Hooks与Interceptors" class="headerlink" title="4.3.1 Hooks与Interceptors"></a>4.3.1 Hooks与Interceptors</h4><ul>
+<li>Hooks：Agent执行核心步骤的精细控制，支持监控、修改、强制执行：<ul>
+<li><code>MessagesModelHook</code>：优先用于多数消息操作</li>
+<li><code>ModelHook</code>：需全局状态或复杂逻辑时选用</li>
+</ul>
+</li>
+<li><strong>Interceptors</strong>：通用扩展，实现日志、重试、缓存、性能监控等，内置消息压缩、人机协同（HITL）、调用限制、PII检测等实现。</li>
+</ul>
+<h4 id="4-3-2-人工介入（HITL）"><a href="#4-3-2-人工介入（HITL）" class="headerlink" title="4.3.2 人工介入（HITL）"></a>4.3.2 人工介入（HITL）</h4><p>工具调用时引入人工监督，暂停执行等待人工决策（approve&#x2F;edit&#x2F;reject），依赖检查点机制保存&#x2F;恢复状态，可嵌套在StateGraph工作流中。</p>
+<h3 id="4-4-高级能力"><a href="#4-4-高级能力" class="headerlink" title="4.4 高级能力"></a>4.4 高级能力</h3><h4 id="4-4-1-检索增强生成（RAG）"><a href="#4-4-1-检索增强生成（RAG）" class="headerlink" title="4.4.1 检索增强生成（RAG）"></a>4.4.1 检索增强生成（RAG）</h4><p>弥补LLM上下文有限、知识静态缺陷，支持三种实现：</p>
+<ol>
+<li>两步RAG：检索后生成，简单可预测</li>
+<li>Agentic RAG：LLM自主决定检索时机，可调用多工具</li>
+<li>混合RAG：结合两者，加入查询增强、检索&#x2F;答案验证</li>
 </ol>
+<p>框架提供文档加载器、文本分割器、嵌入模型、向量存储、检索器等组件支持。</p>
+<h4 id="4-4-2-工作流（Graph）"><a href="#4-4-2-工作流（Graph）" class="headerlink" title="4.4.2 工作流（Graph）"></a>4.4.2 工作流（Graph）</h4><p>基于节点、边、状态构建的低级编排框架，原生支持流式响应、人工介入、记忆、上下文等智能体能力，并发处理上限、极限吞吐量优于Dify。最佳实践：单一职责、状态不可变、异常处理。</p>
+<h4 id="4-4-3-上下文工程"><a href="#4-4-3-上下文工程" class="headerlink" title="4.4.3 上下文工程"></a>4.4.3 上下文工程</h4><p>核心是为LLM提供恰当的上下文（信息+工具），提升Agent稳定性与效果，通过Hook&#x2F;Interceptor动态管理系统提示、消息历史、工具选择、模型选择。</p>
+<h3 id="4-5-模型交互"><a href="#4-5-模型交互" class="headerlink" title="4.5 模型交互"></a>4.5 模型交互</h3><ul>
+<li><strong>ChatModel API</strong>：统一接口，支持OpenAI、Azure、DashScope等多模型，支持流式响应。</li>
+<li><strong>DashScopeChatModel</strong>：阿里云通义系列（qwen-turbo、qwen-max等）集成，支持函数调用、多场景对话，标准化接口简化开发。</li>
+</ul>
 <hr>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Spring AI Alibaba 1.1版本围绕智能体开发核心，大幅简化了MCP、A2A协议的开发流程，开发者可基于原生支持的<strong>ReAct</strong>智能体框架快速实现多智能体协同、跨节点通信的复杂AI应用，建议优先基于1.1版本开发，后续平滑适配2.0版本迭代。</p>
+<h2 id="五、最佳实践与迁移指南"><a href="#五、最佳实践与迁移指南" class="headerlink" title="五、最佳实践与迁移指南"></a>五、最佳实践与迁移指南</h2><h3 id="5-1-1-0迁移到1-1-注意事项"><a href="#5-1-1-0迁移到1-1-注意事项" class="headerlink" title="5.1 1.0迁移到1.1+注意事项"></a>5.1 1.0迁移到1.1+注意事项</h3><ol>
+<li>MCP依赖无需单独导入，<code>agent-framework</code>已内置MCP SDK 0.14</li>
+<li>MCP注解替换为<code>@McpTool</code>系列，无需手动注册工具</li>
+<li>DashScope依赖需手动指定版本号，不在BOM管理</li>
+<li>可直接使用A2A能力，无需额外适配</li>
+<li>可根据场景选择新增的Streamable HTTP&#x2F;Stateless HTTP通信方式</li>
+</ol>
+<h3 id="5-2-通用最佳实践"><a href="#5-2-通用最佳实践" class="headerlink" title="5.2 通用最佳实践"></a>5.2 通用最佳实践</h3><p>💡 依赖管理：优先使用BOM方式统一管理版本，避免版本冲突<br> 💡 注解规范：<code>@Tool</code>&#x2F;<code>@McpTool</code>的<code>description</code>必填，否则大模型无法识别工具用途<br> 💡 通信选择：MCP传输优先选WebFlux框架，A2A通信优先用Nexus 3.1注册中心<br> 💡 配置规范：AgentCard的<code>name</code>、<code>description</code>、<code>instruction</code>必填，<code>shareState</code>设为<code>true</code><br> 💡 记忆管理：短期记忆用checkpointer持久化，长期记忆用Store存储，结合使用提升交互能力<br> 💡 扩展选择：消息操作用<code>MessagesModelHook</code>，复杂逻辑用<code>ModelHook</code>，通用能力用<code>Interceptor</code></p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本章覆盖Spring AI Alibaba从1.0到1.1+的全栈开发能力，核心掌握MCP协议、A2A分布式智能体、多智能体架构，结合官方最新生态（RAG、工作流、上下文工程等）可构建生产级AI应用，技能路线与框架演进方向完全一致，长期有效。</p>
 </div>
 
     <div id="highlight-nav" class="highlight-nav">
