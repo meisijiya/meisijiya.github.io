@@ -10724,4 +10724,271 @@ SubAgent若需调用外部服务（如百度地图MCP），可单独挂载MCP工
         <tag>SubAgent</tag>
       </tags>
   </entry>
+  <entry>
+    <title>第13章 旅游规划多Agent系统工程化实践</title>
+    <url>/2026/04/30/2026/%E5%AD%A6%E4%B9%A0%E9%A1%B9%E7%9B%AE/%E5%A4%9AAgent+Skills+SpringAI/%E7%AC%AC13%E7%AB%A0%20%E6%97%85%E6%B8%B8%E8%A7%84%E5%88%92%E4%BC%98%E5%8C%96%EF%BC%8C%E7%9B%91%E6%8E%A7%EF%BC%8C%E9%83%A8%E7%BD%B2/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+ 本文参考的资料的时间为2025.10~2026.1，参考的官网资料截止2026.4.30，AI发展迅速，请鉴别过时内容。
+
+第13章 旅游规划多Agent系统工程化实践
+📌 章节总览第13章以旅游规划实战项目为载体，系统讲解智能体应用从功能开发到工程化落地的全流程，核心覆盖两大知识点：
+
+多Agent协同：包含工作流编排、AgentScope企业级框架两种实现路径
+
+
+智能体自主能力：自主思考、复杂任务拆分、思考-行动-反思闭环
+
+
+技术栈覆盖：AgentScope Java、Langfuse可观测平台、Docker容器化、百度地图MCP服务、阿里千问&#x2F;DeepSeek等大模型。
+
+注：本章文稿为课程语音转写，存在部分名称转录误差（如nfuse→Langfuse、deep see kr 1→DeepSeek R1），已结合官方文档标注修正。
+
+
+13-1 敏感资源处理方案核心概要解决原项目敏感信息（阿里千问API Key、百度地图MCP地址&#x2F;API Key等）硬编码的安全风险，实现敏感信息与程序代码完全分离。
+详细实现
+敏感信息集中存储在项目根目录创建.env文件，统一存放所有敏感配置，示例：
+# 百度地图配置BAIDU_MAP_MCP_URL=xxxBAIDU_MAP_API_KEY=xxx# 阿里千问配置QWEN_API_KEY=xxxQWEN_MODEL=qwen3-max
+
+模块配置引用 各功能模块（主管Agent、行程规划、路线制定等）的application.yml中通过占位符引用.env变量，且必须配置.env文件导入规则，否则无法解析占位符。
+
+配置读取与代码调整
+
+使用@Value注解注入配置，原工具类静态方法（static）无法读取Spring注入的配置，需全部改为非静态方法，通过注入方式获取配置。
+Common模块特殊处理：Common模块无resource目录、无独立配置文件，作为嵌入模块运行在其他功能模块（主管&#x2F;行程规划&#x2F;路线制定）中，通过读取宿主模块配置获取敏感信息：Common模块创建配置类，用@Value注入配置并提供非静态get方法，工具类通过注入配置类获取敏感信息。
+
+
+
+注意事项
+所有需读取配置的模块必须配置.env导入，否则占位符解析失败
+原静态工具方法必须改为非静态，否则配置读取为空
+
+
+13-2 主管Agent暴露用户交互接口核心概要实现主管Agent作为用户交互核心节点，通过Web API接收旅游规划请求，完成端口分配、接口开发验证。
+详细实现
+Controller开发：在主管模块创建Controller类，添加@RestController注解，开发旅游规划提交接口，指定接口地址，需配置UTF-8编码支持中文提交。
+
+智能体注解配置：为主管Agent类添加@Component注解，确保可被Spring容器注入。
+
+端口分配：各智能体节点分配独立端口避免冲突：
+
+
+
+智能体节点
+端口号
+
+
+
+主管Agent
+8081
+
+
+路线制定Agent
+8082
+
+
+行程规划Agent
+8085
+
+
+其他节点
+8848
+
+
+
+运行验证：启动主管模块后通过接口发送请求，可成功打印API Key、使用的大模型（如qwen3-max）信息，验证敏感信息配置生效、接口正常暴露（仅验证基础能力，后续流程未执行）。
+
+
+
+13-3 Docker搭建Agent跟踪与Token消费分析（Langfuse平台）核心概要引入Langfuse开源可观测平台（文稿转录为nfuse&#x2F;nem fields，以官方名称为准），实现大模型与智能体运行的实时监控，覆盖响应时间、Token消费、MCP调用、工具调用、上下文等核心指标。
+Langfuse官方特性补充Langfuse是集可观测性、提示管理、评估于一体的AI开发平台，支持OpenAI、LangChain、AgentScope等多框架集成，支持云服务和自部署。
+部署与使用流程
+环境要求：需提前安装Docker、Docker Compose。
+启动命令：进入Langfuse目录执行启动命令，首次启动会自动下载Redis、ClickHouse等依赖组件，耗时较长。
+访问与配置：
+启动后访问localhost:3000注册登录（密码需含大小写+特殊符号）
+创建项目后，在Settings→API Keys页面获取Public Key（pk-lf-xxx）和Secret Key（sk-lf-xxx），用于后续项目集成
+
+
+核心功能：
+追踪智能体&#x2F;大模型完整调用链路
+统计Token消费、响应时间、调用成功率
+监控MCP调用、工具调用、上下文传递
+
+
+
+
+13-4 旅游规划Agent集成Langfuse追踪观测核心概要将Langfuse集成到旅游规划项目，实现智能体执行过程自动追踪，覆盖依赖引入、采样率配置、初始化、全局注册全流程。
+详细实现
+依赖引入：项目根目录pom.xml引入Spring AI阿里巴巴监控API依赖（文稿转录版本号1.1.2.2，以实际为准）。
+
+敏感信息配置：在.env文件中添加Langfuse相关配置：
+LANGFUSE_BASE_URL=http://localhost:3000LANGFUSE_PUBLIC_KEY=pk-lf-xxxLANGFUSE_SECRET_KEY=sk-lf-xxx
+
+模块配置：各智能体模块的
+application.yml
+
+中配置Langfuse地址、公钥、私钥、采样率：
+
+生产环境采样率建议：0.1~0.5（平衡性能与观测完整性）
+开发环境采样率建议：1.0（全量采集）
+
+
+Langfuse初始化工具类：
+
+Common模块创建Langfuse工具类，通过@Value注入配置
+构建Langfuse实例：传入BaseURL，通过Base64编码公钥:私钥生成认证头，完成实例构建
+
+
+全局注册：在智能体（如主管Agent）的构建类中注入Langfuse工具类，获取实例后注册到全局跟踪对象，后续智能体运行会自动触发追踪，无需额外代码。
+
+
+AgentScope官方集成补充AgentScope Java支持通过OpenTelemetry协议直接接入Langfuse，配置示例：
+import io.agentscope.core.tracing.TracerRegistry;import io.agentscope.core.tracing.telemetry.TelemetryTracer;import java.util.Base64;String publicKey = &quot;pk-lf-xxxxxxxx&quot;;String secretKey = &quot;sk-lf-xxxxxxxx&quot;;String encoded = Base64.getEncoder().encodeToString((publicKey + &quot;:&quot; + secretKey).getBytes());TracerRegistry.register(    TelemetryTracer.builder()        .endpoint(&quot;https://cloud.langfuse.com/api/public/otel/v1/traces&quot;)        .addHeader(&quot;Authorization&quot;, &quot;Basic &quot; + encoded)        .addHeader(&quot;x-langfuse-ingestion-version&quot;, &quot;4&quot;) // 必须头，否则接入失败        .build());
+
+注册后自动追踪所有agent.call()、模型调用、工具执行，无需额外代码。
+
+13-5 测试主管Agent接收Prompt及结构化输出核心概要实现主管Agent接口返回JSON结构化输出，兼容老模型，解决大模型返回格式不可控问题。
+详细实现（结合AgentScope结构化输出官方文档）
+请求格式约束：Common模块创建PromptSchema，规定用户提交的Prompt必须放在prompt字段下，接口需指定UTF-8编码支持中文。
+
+响应格式定义：Common模块创建ResponseSchema，规定大模型返回内容必须放在response字段下，必须提供无参构造函数（AgentScope强制要求）。
+
+智能体结构化输出配置：构建主管Agent时，通过structuredOutputReminder()配置输出模式：
+
+
+
+模式
+特点
+适用场景
+
+
+
+TOOL_CHOICE
+强制调用工具，单API调用
+支持tool_choice的模型（qwen3-max、gpt-4等）
+
+
+PROMPT（本项目选用）
+提示词引导，可能多次调用
+兼容DeepSeek等老模型
+
+
+配置示例：
+
+
+
+
+ReActAgent agent = ReActAgent.builder()    .name(&quot;主管Agent&quot;)    .model(model)    .structuredOutputReminder(StructuredOutputReminder.PROMPT)    .build();
+
+响应解析：智能体运行时，通过response.getStructuredData(ResponseSchema.class)自动将返回内容匹配到ResponseSchema，提取response字段内容。
+
+接口验证：提交&#123;&quot;prompt&quot;: &quot;制定深圳到惠州最优驾车路线&quot;&#125;格式的请求，返回结果为JSON，内容自动存入response字段。
+
+
+注意事项
+部分老模型（如DeepSeek早期版本）不支持结构化输出，会报错，需选用支持的模型（如qwen3系列）
+响应Schema必须有无参构造函数，否则解析失败
+
+
+13-6 打印Agent深度思考过程核心概要实现大模型思考链（CoT）可视化，便于分析推理过程，基于AgentScope框架实现。
+详细实现
+模型选择：阿里百炼平台提供的模型分为「思考模式」和「仅输出模式」，需选择支持思考模式的模型，本项目选用DeepSeek R1（文稿转录为deep see kr 1，以官方名称为准），免费版可选开源支持思考模式的模型。
+开启思考模式：Common模块的智能体工具类中，调用enableThinking(true)方法开启思考模式。
+验证：提交问题（如“咖啡馆里想要背星巴克，星巴克指代什么”），日志中可打印完整思考链，再输出最终结果。
+
+注意事项
+部分模型思考过程默认输出英文，教学场景无影响，生产环境可配置输出语言
+需确认所用模型在阿里百炼平台支持思考模式，否则无法打印思考过程
+
+
+13-7 测试路线制定专员规划最优驾车路线核心概要实现主管Agent自动将用户需求拆分，传递给远程路线制定Agent，无需手动编写子Agent调用Prompt。
+详细实现
+远程Agent方法定义：在主管Agent中定义调用路线制定Agent的方法，添加@ToolParam注解，两个核心参数：
+type：工具类型，标注为“擅长制定最优驾车路线的agent”
+description：参数描述（如“驾车的起点和终点”），大模型自动从用户Prompt中提取对应信息
+
+
+Prompt自动传递：
+Common模块创建PromptBuilder工具类，将用户提交的字符串Prompt转换为AgentScope要求的Msg对象
+主管Agent匹配到路线制定需求后，自动提取起点、终点，组装为Msg对象，通过call方法传递给远程路线制定Agent
+
+
+结果返回：远程Agent（路线制定）调用百度地图MCP获取路线数据，执行完成后返回结果，主管Agent阻塞等待结果，最终组装为JSON返回前端。
+验证：提交“制定深圳到惠州最优驾车路线”，路线制定Agent日志显示接收到请求，调用百度地图MCP后返回结果，主管Agent日志显示成功获取远程结果。
+
+
+13-8 课程总结核心知识点复盘第13章两大核心知识点，通过旅游规划项目完整演示：
+1. 多Agent协同实现路径分为两类：
+
+工作流编排设计思想：
+
+
+
+实现方式
+核心组件
+特点
+
+
+
+Graph引擎
+StateGraph、OverOrState
+状态与数据在OverOrState中传输，Graph编排节点与连线
+
+
+FlowAgent基类
+ParallelAgent、LmRoutingAgent、SequentialAgent
+并行执行、路由分发、顺序执行
+
+
+（非重点）Jmanus
+Java版Manus框架
+轻量多Agent实现
+
+
+
+AgentScope企业级框架（重点）：
+核心特性：
+
+分布式Agent基于A2A协议通信，通过Nexus注册中心注册节点
+
+MCP服务部署为单独节点（本项目用百度地图远程MCP服务）
+
+
+Skills工程化、单独子任务由子Agent独立执行
+
+支持Docker分布式部署
+
+
+
+
+2. 智能体自主决策
+复杂任务自动拆分：将整体需求拆分为简单子任务，自动分发给对应子Agent
+思考-行动-反思闭环：执行任务时遵循「思考→行动→反思验证」流程，不符合目标时自主调整执行步骤
+基于ReAct思考框架实现
+
+
+附录：工程化部署补充（Docker，来自官方资料）智能Agent可通过Docker实现生产级部署，核心优势：环境一致、资源隔离、快速扩缩容，性能提升显著（平均响应时间从320ms降至98ms，TPS从450提升至1120）。
+部署流程
+编写轻量Dockerfile（建议用alpine&#x2F;slim基础镜像，多阶段构建优化体积）
+构建镜像推送至仓库（公共&#x2F;私有）
+运行容器，配置持久化存储、健康检查、资源限制（CPU&#x2F;内存）
+集成ELK+Prometheus监控体系，实现全链路可观测
+
+
+📝 整体注意事项
+模型兼容性：结构化输出、思考模式需提前确认模型支持，避免运行时报错
+工程化规范：敏感信息必须放.env、工具方法非静态、Langfuse采样率按环境配置
+
+]]></content>
+      <categories>
+        <category>学习项目大全</category>
+        <category>多Agent+Skills+SpringAI</category>
+      </categories>
+      <tags>
+        <tag>AgentScope</tag>
+        <tag>Docker</tag>
+        <tag>Langfuse</tag>
+      </tags>
+  </entry>
 </search>
