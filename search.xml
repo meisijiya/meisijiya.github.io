@@ -10288,4 +10288,438 @@ Nacos作为A2A Registry：支持AgentCard自动注册、订阅发现、负载均
         <tag>AgentScope</tag>
       </tags>
   </entry>
+  <entry>
+    <title>第11章 基于AgentScope+Nacos的分布式多智能体旅游规划系统实战</title>
+    <url>/2026/04/30/2026/%E5%AD%A6%E4%B9%A0%E9%A1%B9%E7%9B%AE/%E5%A4%9AAgent+Skills+SpringAI/%E7%AC%AC11%E7%AB%A0%20%E5%9F%BA%E4%BA%8EAgentScope+Nacos%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E6%97%85%E6%B8%B8%E8%A7%84%E5%88%92%E7%B3%BB%E7%BB%9F%E5%AE%9E%E6%88%98/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+ 本文参考的资料的时间为2025.10~2026.1，参考的官网资料截止2026.4.30，AI发展迅速，请鉴别过时内容。
+
+第11章 基于AgentScope+Nacos的分布式多智能体旅游规划系统实战
+📋 章节概述本章基于 **AgentScope 1.0（Java版）+ Spring Boot 4.0.2 + Nacos 3.1.0+**（生产环境推荐稳定版3.2.0），完整落地分布式旅游规划多智能体系统，覆盖从架构设计、智能体注册发现（A2A协议）、任务分发执行、MCP工具集成、自主调度到人工介入的全流程。
+结合Nacos 3.1.0里程碑版本的A2A注册中心、MCP Registry核心能力，以及AgentScope的Plan、Hook、A2A、MCP等特性，实现多智能体协作的AI应用落地。
+
+注：AgentScope内置轻量级单机A2A注册中心，仅适用于本地测试；分布式场景需使用Nacos作为中心化注册中心，实现跨节点Agent管理。
+
+
+11-1 回顾AgentScope旅游规划整体架构核心背景随着AI技术发展，A2A（Agent-to-Agent）协议成为多智能体协作的标准，Skills（技能）特性成为智能体能力描述的核心维度，本章项目同步整合Skills特性，强化智能体任务处理的专业性。
+项目技术栈与模块划分
+
+
+模块
+作用
+技术依赖
+
+
+
+公共模块
+存放通用工具类（智能体构建、Nacos客户端生成、工具注册、Plan管理）
+AgentScope Core、Nacos Client
+
+
+主管Agent模块
+接收用户需求、分解任务、调度远程智能体
+AgentScope Plan、Hook、A2A Client
+
+
+路线制定Agent模块
+执行自驾游路线规划任务，集成百度地图MCP工具
+AgentScope MCP、A2A Server
+
+
+行程规划Agent模块
+执行景点行程规划任务
+AgentScope A2A Server
+
+
+核心协作流程flowchart LR    用户 --&gt; 主管Agent    主管Agent --&gt;|分解任务| PlanNotebook    主管Agent --&gt;|查询AgentCard| Nacos    Nacos --&gt;|返回远程Agent| 主管Agent    主管Agent --&gt;|分发子任务| 路线制定Agent    主管Agent --&gt;|分发子任务| 行程规划Agent    路线制定Agent --&gt;|调用工具| 百度地图MCP    行程规划Agent --&gt;|调用工具| 自定义行程工具
+
+AgentScope核心能力支撑
+Plan：主管Agent通过PlanNotebook实现复杂任务自主分解，支持用户确认、历史计划恢复（对应官网《Plan - AgentScope Java》文档）
+A2A协议：基于Google捐赠给Linux基金会的A2A开放标准，实现Agent间通信协作（对应官网《A2A (Agent2Agent) - AgentScope Java》文档）
+MCP：集成Model Context Protocol，实现外部工具（如百度地图）的标准化接入（对应官网《MCP (Model Context Protocol) - AgentScope Java》文档）
+
+
+11-2 测试团队成员基于A2A协议注册到Nacos（Nexus）Agent注册两种方式AgentScope支持两种Agent注册到A2A中心的方式，本项目选择自动注入方式适配分布式场景：
+
+
+
+注册方式
+适用场景
+实现逻辑
+
+
+
+自动注入（推荐）
+分布式项目
+将Agent声明为Spring @Bean，引入Nacos注册依赖，Spring Boot自动将AgentCard注册到Nacos
+
+
+手动写入
+本地测试&#x2F;AgentScope自带注册中心
+通过AgentScopeA2aServer构建服务端，手动写入AgentCard和部署信息，需手动启动注册中心
+
+
+自动注入实现步骤（以行程规划Agent为例）1. 依赖引入（仅放在需要注册的模块，避免主管Agent等无需注册的模块报错）&lt;!-- AgentScope A2A Server --&gt;&lt;dependency&gt;    &lt;groupId&gt;io.agentscope&lt;/groupId&gt;    &lt;artifactId&gt;agentscope-a2a-spring-boot-starter&lt;/artifactId&gt;    &lt;version&gt;$&#123;agentscope.version&#125;&lt;/version&gt;&lt;/dependency&gt;&lt;!-- Nacos A2A 注册中心 --&gt;&lt;dependency&gt;    &lt;groupId&gt;io.agentscope&lt;/groupId&gt;    &lt;artifactId&gt;agentscope-nacos-spring-boot-starter&lt;/artifactId&gt;    &lt;version&gt;$&#123;agentscope.version&#125;&lt;/version&gt;&lt;/dependency&gt;
+
+2. Agent构建与配置@Configurationpublic class AgentConfig &#123;    @Bean    public BaseAgent tripPlannerAgent(ChatModel chatModel) throws GraphStateException &#123;        return ReactAgent.builder()                .name(&quot;TripPlannerAgent&quot;)                .description(&quot;擅长景点行程规划、旅游日程安排&quot;)                .model(chatModel)                .instruction(&quot;你是旅游行程规划专家，仅回答旅游相关问题&quot;)                .build();    &#125;&#125;# application.yml 配置Nacos地址与AgentCard信息agentscope:  agent:    name: trip-planner-agent  a2a:    server:      enabled: true      card:        name: TripPlannerAgent        description: 擅长景点行程规划        version: 1.0.0        skills:          - id: trip-planning            name: 行程规划            description: 制定旅游景点行程、日程安排    nacos:      server-addr: localhost:8848      username: nacos      password: nacos
+
+3. 验证注册结果启动Nacos 3.1.0+，启动行程规划Agent模块，登录Nacos控制台「Agent管理 → Agent列表」，可看到已注册的TripPlannerAgent卡片，包含名称、版本、描述、Skills等信息。
+Nacos A2A注册中心规范（官网补充）
+命名空间隔离：AgentCard仅属于单个命名空间，同一命名空间内Agent名称不可重复，不同命名空间可重名
+名称限制：Agent名称长度≤64字符，仅支持ASCII可视字符（编码32~126）
+版本管理：同一Agent可存在多个版本，可设置默认发布版本，使用者可指定版本获取
+
+
+11-3 测试主管Agent基于A2A协议获取团队成员核心逻辑主管Agent通过A2aAgent（AgentScope A2A客户端）从Nacos获取远程AgentCard，基于名称精确匹配，无需人工指定Agent地址。
+实现步骤1. 主管Agent依赖引入&lt;!-- A2A Client --&gt;&lt;dependency&gt;    &lt;groupId&gt;io.agentscope&lt;/groupId&gt;    &lt;artifactId&gt;agentscope-a2a-spring-boot-starter&lt;/artifactId&gt;    &lt;version&gt;$&#123;agentscope.version&#125;&lt;/version&gt;&lt;/dependency&gt;&lt;!-- Nacos 发现依赖 --&gt;&lt;dependency&gt;    &lt;groupId&gt;io.agentscope&lt;/groupId&gt;    &lt;artifactId&gt;agentscope-nacos-spring-boot-starter&lt;/artifactId&gt;    &lt;version&gt;$&#123;agentscope.version&#125;&lt;/version&gt;&lt;/dependency&gt;
+
+2. 配置自动发现agentscope:  a2a:    nacos:      server-addr: localhost:8848      username: nacos      password: nacos      discovery:        enabled: true # 开启自动从Nacos发现Agent
+
+3. 获取远程Agent代码@Configurationpublic class ManagerAgentConfig &#123;    @Bean    public BaseAgent managerAgent(AgentCardProvider agentCardProvider) throws GraphStateException &#123;        // 自动从Nacos订阅路线制定Agent的卡片和端点        A2aAgent routeAgent = A2aAgent.builder()                .name(&quot;RouteMakingAgent&quot;)                .agentCardResolver(new NacosAgentCardResolver(nacosAiService))                .build();        return ReactAgent.builder()                .name(&quot;ManagerAgent&quot;)                .description(&quot;旅游规划主管，负责分解任务并调度远程Agent&quot;)                .model(chatModel)                .build();    &#125;&#125;
+
+验证结果先启动路线制定、行程规划Agent模块完成注册，再启动主管Agent，日志打印远程Agent的描述信息，证明成功从Nacos获取AgentCard。
+Nacos Agent查询方式（官网补充）
+精确查询：GET /nacos/v3/admin/ai/a2a?namespaceId=public&amp;agentName=RouteMakingAgent
+模糊检索：GET /nacos/v3/admin/ai/a2a/list?pageNo=1&amp;pageSize=100&amp;agentName=Planner&amp;search=blur（未来将支持Skills、Tags维度检索）
+
+
+11-4 测试主管Agent调动团队成员执行任务核心问题：类型不匹配本地构建的Agent为ReactAgent（继承AgentBase），从Nacos获取的远程Agent为A2aAgent（同样继承AgentBase），原封装的任务执行方法仅支持ReactAgent类型，导致报错。
+解决方案修改通用任务执行方法的参数为共同基类AgentBase，兼容所有类型的Agent：
+// 原方法：仅支持ReactAgentpublic void runAgent(ReactAgent agent, String prompt) &#123; ... &#125;// 修改后：支持所有继承AgentBase的Agentpublic void runAgent(AgentBase agent, String prompt) &#123; ... &#125;
+
+任务调用验证主管Agent获取路线制定Agent后，调用其执行「调用百度地图MCP工具」任务，路线制定Agent日志打印工具执行记录，验证跨Agent任务调用成功。
+
+11-5 获取百度地图MCP服务端的工具列表MCP核心逻辑MCP（Model Context Protocol）是工具接入的标准协议，需客户端与服务端配对：
+
+客户端与服务端建立会话连接
+客户端从服务端获取工具列表
+工具注册到Agent的Toolkit中供调用
+
+百度地图MCP客户端实现1. 传输协议匹配（关键）客户端必须与服务端使用相同的传输协议，否则无法建立连接：
+
+
+
+传输类型
+适用场景
+状态
+
+
+
+StdIO
+本地进程通信
+有状态
+
+
+SSE
+HTTP流式传输
+有状态
+
+
+StreamableHTTP
+无状态HTTP传输
+无状态
+
+
+百度地图MCP官方服务端地址从魔塔社区获取，选择对应传输类型（本项目使用SSE）。
+2. 客户端创建与初始化public class BaiduMapMcpClient &#123;    private McpClientWrapper mcpClient;    private boolean initialized = false;    // 创建客户端    public void createClient() &#123;        mcpClient = McpClientBuilder.create(&quot;baidu-map-mcp&quot;)                .sseTransport(&quot;https://mcp.baidu.com/sse?apiKey=YOUR_API_KEY&quot;) // 匹配服务端传输类型                .timeout(Duration.ofSeconds(60))                .buildAsync()                .block(); // 阻塞等待客户端构建完成    &#125;    // 初始化客户端（建立与服务端的连接）    public synchronized void initClient() &#123;        if (mcpClient == null || initialized) return;        mcpClient.initialize(); // 初始化连接        // 阻塞等待连接成功        mcpClient.isInitialized();        // 打印服务端工具列表验证连接        Set&lt;String&gt; toolNames = mcpClient.getToolNames();        System.out.println(&quot;百度地图MCP工具列表：&quot; + toolNames);        initialized = true;    &#125;&#125;
+
+验证结果客户端初始化成功后打印百度地图工具列表（如路线规划、POI搜索等），证明MCP客户端与服务端通信正常。
+
+11-6 路线制定专员Agent挂载百度地图MCP核心逻辑将百度地图MCP客户端的工具注册到Agent的Toolkit（工具包）中，使路线制定Agent具备地图工具调用能力。
+实现步骤1. 重写工具注册方法原Toolkit仅支持Object类型的普通工具，需重写方法支持McpClientWrapper类型：
+public class Toolkit &#123;    // 原方法：注册普通工具    public Toolkit registerTool(Object tool) &#123; ... &#125;    // 新增方法：注册MCP客户端    public Toolkit registerMcpClient(McpClientWrapper mcpClient) &#123;        // 阻塞等待所有MCP工具加载完成        mcpClient.registerTools(this).block();        return this;    &#125;&#125;
+
+2. 挂载到路线制定Agent@Beanpublic BaseAgent routeMakingAgent(ChatModel chatModel) throws GraphStateException &#123;    // 1. 创建并初始化百度地图MCP客户端    BaiduMapMcpClient mcpClient = new BaiduMapMcpClient();    mcpClient.createClient();    mcpClient.initClient();    // 2. 构建工具包并注册MCP工具    Toolkit toolkit = new Toolkit();    toolkit.registerMcpClient(mcpClient.getMcpClient()).block();    // 3. 构建Agent并挂载工具包    return ReactAgent.builder()            .name(&quot;RouteMakingAgent&quot;)            .description(&quot;擅长自驾游路线制定，集成百度地图工具&quot;)            .model(chatModel)            .toolkit(toolkit)            .build();&#125;
+
+验证结果打印Agent的工具包列表，可看到百度地图的所有工具已成功注册，路线制定Agent具备地图调用能力。
+
+11-7 主管Agent自主分发任务给远程相应的成员核心优化：基于Agent能力自主匹配原逻辑需人工指定「任务→Agent」的对应关系，优化后主管Agent自主从Nacos获取AgentCard，根据描述&#x2F;Skills匹配任务。
+实现步骤1. 完善AgentCard能力描述重新注册远程Agent，补充准确的描述和Skills：
+
+路线制定Agent：description: 擅长自驾游路线制定、交通规划，skills: 自驾路线、交通时间估算
+行程规划Agent：description: 擅长景点行程规划、日程安排，skills: 景点推荐、行程日程
+
+2. 优化主管Agent PromptReactAgent managerAgent = ReactAgent.builder()        .name(&quot;ManagerAgent&quot;)        .sysPrompt(&quot;&quot;&quot;            你是旅游规划主管，负责：            1. 分解用户复杂需求为子任务            2. 从Nacos获取远程AgentCard，根据Agent的描述和Skills匹配子任务            3. 将子任务分发给对应擅长的Agent执行            4. 汇总所有子任务结果返回给用户        &quot;&quot;&quot;)        .model(chatModel)        .enablePlan() // 启用计划功能，自动分解任务        .build();
+
+3. 验证自主分发输入复杂需求：「我需要一次杭州3日自驾游，包含西湖、灵隐寺等景点，制定路线和行程」，主管Agent自动分解4个子任务，分别分发给路线制定、行程规划Agent，无需人工干预。
+
+11-8 人工介入修改主管Agent制定的计划核心需求主管Agent制定的计划可能不符合用户预期，需支持用户在计划生成后、执行前介入修改，而非仅做「是&#x2F;否」确认。
+实现方案结合AgentScope的UserAgent（内置用户交互Agent，无需大模型）和Hook（执行阶段扩展点）实现：
+
+用PlanNotebook生成计划，监听PreReasoningEvent事件
+计划生成后打断主管Agent执行，调用UserAgent接收用户输入的修改意见
+主管Agent根据意见调整计划后继续执行
+
+核心代码实现1. 自定义PlanHookpublic class PlanModifyHook implements Hook &#123;    private final UserAgent userAgent;    private final PlanNotebook planNotebook;    @Override    public int priority() &#123; return 10; &#125; // 高优先级，优先执行    @Override    public &lt;T extends HookEvent&gt; Mono&lt;T&gt; onEvent(T event) &#123;        if (event instanceof PreReasoningEvent e) &#123;            // 判断计划是否已生成            Plan currentPlan = planNotebook.getCurrentPlan();            if (currentPlan != null &amp;&amp; !currentPlan.getSubtasks().isEmpty()) &#123;                // 打断执行，调用UserAgent接收用户修改意见                System.out.println(&quot;当前计划：&quot; + currentPlan);                Msg userInput = userAgent.call(Msg.builder()                        .role(MsgRole.USER)                        .textContent(&quot;请输入计划修改意见，无修改请回复「确认」&quot;)                        .build()).block();                // 将用户意见注入到推理输入中                List&lt;Msg&gt; messages = new ArrayList&lt;&gt;(e.getInputMessages());                messages.add(userInput);                e.setInputMessages(messages);            &#125;        &#125;        return Mono.just(event);    &#125;&#125;
+
+2. 挂载Hook到主管AgentReactAgent managerAgent = ReactAgent.builder()        .name(&quot;ManagerAgent&quot;)        .model(chatModel)        .hooks(List.of(new PlanModifyHook(userAgent, planNotebook)))        .build();
+
+验证结果主管Agent生成计划后自动打断，等待用户输入修改意见，输入「增加千岛湖景点」后，Agent自动调整计划并继续执行。
+
+📝 章节总结与注意事项版本兼容性
+
+
+组件
+最低版本
+推荐版本
+
+
+
+Nacos
+3.1.0
+3.2.0（生产环境）
+
+
+AgentScope
+1.0
+1.0.0.4+
+
+
+Spring AI Alibaba
+1.0.0.3
+1.0.0.4+
+
+
+JDK
+17
+17+
+
+
+常见问题
+Agent注册报错：检查依赖是否仅放在需要注册的模块，避免无需注册的Agent（如主管Agent）引入注册依赖
+MCP连接失败：检查客户端与服务端传输协议是否一致，API Key是否正确
+任务调用类型报错：统一使用AgentBase作为Agent类型参数，兼容本地和远程Agent
+工具未加载：MCP客户端注册到Toolkit时需加block()阻塞，等待工具加载完成
+
+扩展方向
+接入Nacos MCP Registry，实现MCP服务的中心化管理
+利用AgentScope Skills特性，实现更精细的Agent能力匹配
+结合Nacos MCP Router，实现MCP服务的智能路由与权限控制
+
+]]></content>
+      <categories>
+        <category>学习项目大全</category>
+        <category>多Agent+Skills+SpringAI</category>
+      </categories>
+      <tags>
+        <tag>AgentScope</tag>
+        <tag>Nacos</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>第12章 AgentScope实践：行程规划智能体Skills集成与SubAgent搭建</title>
+    <url>/2026/04/30/2026/%E5%AD%A6%E4%B9%A0%E9%A1%B9%E7%9B%AE/%E5%A4%9AAgent+Skills+SpringAI/%E7%AC%AC12%E7%AB%A0%20AgentScope%E5%AE%9E%E8%B7%B5%EF%BC%9A%E8%A1%8C%E7%A8%8B%E8%A7%84%E5%88%92%E6%99%BA%E8%83%BD%E4%BD%93Skills%E9%9B%86%E6%88%90%E4%B8%8ESubAgent%E6%90%AD%E5%BB%BA/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+ 本文参考的资料的时间为2025.10~2026.1，参考的官网资料截止2026.4.30，AI发展迅速，请鉴别过时内容。
+
+第12章 AgentScope实践：行程规划智能体Skills集成与SubAgent搭建
+本章整合2025年11月实践文稿与AgentScope 2026年最新官方文档，从0到1实现具备景点推荐、表格制作能力的行程规划智能体，涵盖Skill编写、挂载、渐进式加载，以及SubAgent拆分的全流程。
+
+12.1 行程规划智能体挂载Skills基础（对应原12-1文稿）12.1.1 背景与目标此前已完成：
+
+主管Agent可通过Nexus发现远程路线制定Agent、行程规划Agent，根据智能体卡片描述分配任务
+路线制定Agent已挂载百度地图MCP，可调用服务端工具执行任务
+
+本节目标：让行程规划Agent挂载多个专业Skill（如景点推荐、表格制作），具备专项执行能力。
+12.1.2 Skill核心依赖
+⚠️ 文稿中笔误说明：skill.markdown&#x2F;agents kill 官方规范为 SKILL.md&#x2F;AgentSkill，以下内容以官方术语为准。
+
+每个Skill是独立模块化的能力包，核心依赖：
+
+必填文件：SKILL.md（位于Skill文件夹根目录）
+
+必填字段（文稿+官网强制要求）：
+
+
+
+字段
+要求
+说明
+
+
+
+name
+必须与Skill文件夹名称一致，全小写+数字+下划线
+技能唯一标识
+
+
+description
+清晰说明触发场景与使用条件
+供智能体判断是否需要激活该Skill
+
+
+
+工程实践建议：优先采用文件加载或远程仓库加载方式，避免手动创建对象的复杂性（文稿+官网共同建议）
+
+
+12.1.3 AgentSkill对象创建方式（3种）若需手动创建AgentSkill对象，支持以下3种方式，均不推荐用于工程实践：
+方式1：Builder工厂模式AgentSkill skill = AgentSkill.builder()    .name(&quot;scenic_recommend&quot;)       // 对应SKILL.md的name    .description(&quot;有限预算内的景点推荐、美食、住宿规划&quot;) // 对应SKILL.md的description    .skillContent(&quot;# 景点推荐技能\n...&quot;) // SKILL.md正文内容    .addResource(&quot;scripts/weather.py&quot;, &quot;import requests...&quot;) // 可选：添加资源文件    .build();
+
+方式2：Markdown字符串转换String skillMd = &quot;---\nname: scenic_recommend\ndescription: 有限预算内的景点推荐\n---\n# 景点推荐\n...&quot;;Map&lt;String, String&gt; resources = Map.of(&quot;scripts/weather.py&quot;, &quot;import requests...&quot;);AgentSkill skill = SkillUtil.createFrom(skillMd, resources);
+
+方式3：直接构造方法AgentSkill skill = new AgentSkill(    &quot;scenic_recommend&quot;,     &quot;有限预算内的景点推荐&quot;,     &quot;# 景点推荐\n...&quot;,     resources // 可为null);
+
+12.1.4 推荐：文件&#x2F;仓库加载方式（工程首选）文稿与官网均建议避免手动创建对象，优先使用以下标准化加载方式：
+
+
+
+加载方式
+适用场景
+示例代码
+
+
+
+Classpath文件加载
+JAR包&#x2F;Spring Boot项目，本地预打包Skill
+ClasspathSkillRepository repo = new ClasspathSkillRepository(&quot;skills&quot;); List&lt;AgentSkill&gt; allSkills = repo.getAllSkills();
+
+
+Git仓库加载
+只读远程Skill，团队共享
+GitSkillRepository repo = new GitSkillRepository(&quot;https://github.com/xxx/skills.git&quot;);
+
+
+Nacos仓库加载
+在线场景，实时感知Skill变更
+NacosSkillRepository repo = new NacosSkillRepository(aiService, &quot;namespace&quot;);
+
+
+MySQL持久化
+多环境共享，重启后保持可用
+MysqlSkillRepository repo = new MysqlSkillRepository(dataSource, true, true);
+
+
+
+📢 文稿提到的1.0.8版本JarSkillRepositoryAdapter已废弃，1.0.9+版本统一使用ClasspathSkillRepository。
+
+12.1.5 Skill挂载到智能体的流程
+创建SkillBox对象，关联Toolkit工具包：
+Toolkit toolkit = new Toolkit();SkillBox skillBox = new SkillBox(toolkit); // SkillBox持有Toolkit引用，管理Skill与工具的绑定
+
+注册Skill到SkillBox：
+skillBox.registerSkill(scenicRecommendSkill); // 注册景点推荐SkillskillBox.registerSkill(tableMakeSkill);       // 注册表格制作Skill
+
+注入SkillBox到行程规划ReActAgent：
+ReActAgent tripAgent = ReActAgent.builder()    .name(&quot;TripPlanner&quot;)    .model(model)    .toolkit(toolkit)    .skillBox(skillBox) // 挂载Skill能力    .memory(new InMemoryMemory())    .build();
+
+
+12.2 景点推荐Skill编写实践12.2.1 Skill目录结构规范结合文稿实践与官网规范，景点推荐Skill目录结构如下：
+scenic_recommend/          # Skill文件夹，名称需与SKILL.md的name一致├── SKILL.md               # 必需：入口文件，含YAML frontmatter和指令├── scripts/               # 可选：存放执行脚本│   └── weather_query.py   # 调用墨迹天气/百度地图API的Python脚本└── references/            # 可选：存放参考文档    └── hotel_info.md      # 高性价比酒店参考信息
+
+12.2.2 SKILL.md编写要求① 必填YAML头（强制要求）---name: scenic_recommend                # 必须与文件夹名称一致description: 用于有限预算内的旅行规划，推荐免费景点、高性价比美食、小众打卡点、住宿方案---
+
+② 建议补充内容（文稿实践经验，避免Skill无核心能力报错）
+核心能力说明：
+能力1：免费景点推荐（自然风光、历史古迹，提供最佳游览时间、避峰建议）
+能力2：高性价比美食推荐（本地特色小吃、隐秘餐厅，标注价格区间）
+能力3：小众打卡点推荐（网红拍照点、出片秘密景点）
+能力4：住宿方案建议（经济型&#x2F;舒适型两种方案，标注价格、位置）
+
+
+工作流程：综合距离、时间、费用、用户偏好，输出含景点、美食、住宿的完整方案。
+回答约束：
+满足可行性、费用约束
+提供具体地址、价格区间、开放时间
+结合实时天气预报给出建议
+
+
+
+
+12.3 表格制作Skill集成实践12.3.1 第三方Skill获取：避免重复造轮子文稿实践经验：主流Skill（表格制作、PDF操作、浏览器控制等）无需自行编写，可从Skills聚合平台获取现成资源（例如有赞Skills聚合平台），直接下载适配版本即可。
+12.3.2 表格制作Skill核心能力
+支持Excel（.xlsx）、CSV格式表格的创建、编辑
+支持表格数据分析、格式设计
+配套脚本：Python&#x2F;Java脚本实现表格操作逻辑
+
+12.3.3 版本差异说明
+
+
+框架版本
+资源加载类
+说明
+
+
+
+1.0.8（文稿使用版本）
+JarSkillRepositoryAdapter（已废弃）
+从classpath资源文件夹加载Skills，该类在1.0.9+版本移除
+
+
+1.0.9+（官网最新版本）
+ClasspathSkillRepository
+替代废弃类，兼容标准JAR、Spring Boot Fat JAR
+
+
+
+12.4 Skills与工具渐进式加载实现（对应原12-4文稿）12.4.1 渐进式加载的核心价值智能体上下文窗口有限，传统方式一次性加载所有Skill的完整资源（脚本、文档、工具）会占用大量上下文。渐进式加载实现：
+
+未使用时：智能体仅感知Skill的名称、描述等元数据（~100tokens&#x2F;Skill）
+需要时：通过read_skill&#x2F;load_skill_through_path工具加载完整SKILL.md内容（&lt;5k tokens），同时激活绑定工具 （来源：官网《Skills（渐进式披露）》文档）
+
+12.4.2 Skill与Tool结合实现步骤
+SkillBox关联Toolkit：Toolkit是工具包载体，SkillBox通过Toolkit实现工具管理
+Toolkit toolkit = new Toolkit();SkillBox skillBox = new SkillBox(toolkit); // SkillBox持有Toolkit引用
+
+注册Skill到SkillBox：
+skillBox.registerSkill(scenicRecommendSkill);
+
+绑定Tool到Skill：将Skill依赖的工具（如天气查询工具）注册到SkillBox，实现工具随Skill激活而加载
+// 注册工具到SkillBox，绑定到对应SkillskillBox.registration()    .skill(scenicRecommendSkill)    .tool(weatherQueryTool) // 景点推荐绑定的天气查询工具    .apply();
+
+智能体注入Toolkit：智能体通过Toolkit感知拥有的工具，仅在Skill激活时加载完整工具逻辑
+ReActAgent tripAgent = ReActAgent.builder()    .toolkit(toolkit) // 注入工具包    .skillBox(skillBox)    .build();
+
+
+12.5 景点推荐SubAgent拆分实践12.5.1 为什么拆SubAgent？行程规划Agent作为主智能体，若承载所有任务会导致上下文混乱。将单一任务（如景点推荐）拆为独立SubAgent：
+
+SubAgent拥有独立的上下文、工具、Skill，执行任务后仅返回结果给主Agent，避免主上下文膨胀
+主Agent（行程规划）通过Task工具调用SubAgent，无需感知SubAgent内部实现 （来源：官网《Subagents（子智能体）》文档）
+
+12.5.2 SubAgent定义方式方式1：Markdown定义（官网推荐，便于版本管理）---name: scenic-recommend-subagentdescription: 执行有限预算内的景点推荐任务，输出含景点、美食、住宿的方案tools: weather_query_tool, table_make_tool---你是景点推荐专家，需根据用户预算、时间、偏好，调用景点推荐Skill输出完整旅行方案。
+
+方式2：Java编程式（文稿采用，完全可控）public class ScenicRecommendSubAgent &#123;    public static ReActAgent create() &#123;        // 1. 创建SubAgent专属Toolkit，关联Skill        Toolkit subToolkit = new Toolkit();        SkillBox subSkillBox = new SkillBox(subToolkit);        // 挂载景点推荐Skill到SubAgent（Skill下沉到SubAgent，主Agent无需挂载）        AgentSkill scenicSkill = loadScenicSkill();         subSkillBox.registerSkill(scenicSkill);                // 2. 构建ReActAgent作为SubAgent        return ReActAgent.builder()            .name(&quot;ScenicRecommendSubAgent&quot;)            .model(model)            .toolkit(subToolkit)            .skillBox(subSkillBox)            .memory(new InMemoryMemory())            .build();    &#125;&#125;
+
+12.5.3 SubAgent注册到主Agent通过registerAgentTool将SubAgent注册为工具，主Agent通过Task工具调用：
+// 1. 创建主Agent的ToolkitToolkit mainToolkit = new Toolkit();// 2. 创建景点推荐SubAgent（建议用lambda保证每次调用创建新实例）ReActAgent scenicSubAgent = ScenicRecommendSubAgent.create();// 3. 将SubAgent注册为工具到主ToolkitmainToolkit.registerAgentTool(scenicSubAgent); // 4. 构建主行程规划AgentReActAgent mainTripAgent = ReActAgent.builder()    .name(&quot;MainTripPlanner&quot;)    .toolkit(mainToolkit)    .build();
+
+
+📢 官网最佳实践：SubAgent的描述需写清触发场景，方便主Agent正确选择调用；限制SubAgent的工具范围，仅保留任务必需工具。
+
+
+12.6 完整架构总结主智能体：行程规划Agent（MainTripPlanner）├─ 工具包Toolkit│  ├─ 子智能体工具：景点推荐SubAgent（ScenicRecommendSubAgent）│  └─ 子智能体工具：表格制作SubAgent（TableMakeSubAgent，可选）└─ SkillBox（主Agent可不挂载Skill，Skill下沉到SubAgent）   景点推荐SubAgent（ScenicRecommendSubAgent）├─ 专属Toolkit│  ├─ 天气查询Tool│  └─ 其他任务必需Tool└─ SkillBox   └─ 景点推荐Skill（scenic_recommend）      ├─ SKILL.md      ├─ scripts/weather_query.py      └─ references/hotel_info.md
+
+
+12.7 常见问题与最佳实践12.7.1 易错点提醒
+name字段需与Skill文件夹名称、SKILL.md的name完全一致，否则加载失败
+文稿中skill.markdown需改为官方规范的SKILL.md
+1.0.8版本升级到1.0.9+需将JarSkillRepositoryAdapter替换为ClasspathSkillRepository
+
+12.7.2 性能优化建议
+SKILL.md控制在1.5-2k tokens，详细文档放在references/文件夹
+主流Skill优先从聚合平台获取，减少重复开发
+定期清理旧版本Skill：skillBox.clearSkillOldVersions()
+避免重复注册相同Skill，框架自带重复注册保护机制
+
+12.7.3 官方最佳实践
+SubAgent仅承载单一任务，避免职责过多
+
+Markdown定义的SubAgent&#x2F;Skill要纳入版本控制，方便团队协作
+
+开启Skill渐进式披露，避免上下文窗口溢出
+
+SubAgent若需调用外部服务（如百度地图MCP），可单独挂载MCP工具，与路线制定Agent保持一致
+
+
+
+]]></content>
+      <categories>
+        <category>学习项目大全</category>
+        <category>多Agent+Skills+SpringAI</category>
+      </categories>
+      <tags>
+        <tag>Agent</tag>
+      </tags>
+  </entry>
 </search>
