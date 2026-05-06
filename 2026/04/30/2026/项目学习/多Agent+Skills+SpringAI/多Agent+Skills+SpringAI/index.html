@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>多Agent+Skills+SpringAI全栈实战：从基础到分布式旅游规划落地 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container">
+          <a href="javascript:;" onclick="toggleSearchInput()">🔍</a>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div class="search-container mobile-container">
+          <a class="menu-item" href="javascript:;" onclick="toggleSearchInput()"
+            >🔍</a
+          >
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" ontouchend="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script>
+  var mobileBtn = function f() {
+    var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+    var mobileMenu = document.getElementById("mobile-menu");
+    if (toggleMenu.classList.contains("active")) {
+      toggleMenu.classList.remove("active");
+      mobileMenu.classList.remove("active");
+    } else {
+      toggleMenu.classList.add("active");
+      mobileMenu.classList.add("active");
+    }
+  };
+
+  function toggleSearchInput() {
+    const inputs = document.querySelectorAll(".nav-search-input");
+    const results = document.querySelectorAll(".nav-search-result");
+    inputs.forEach((input) => {
+      input.classList.toggle("active");
+      if (input.classList.contains("active")) input.focus();
+    });
+    results.forEach((r) => (r.style.display = "none"));
+  }
+
+  // 点击外部区域隐藏搜索框和结果容器的函数
+  function handleClickOutsideSearch(event) {
+    const searchContainers = document.querySelectorAll(".search-container");
+    searchContainers.forEach((container) => {
+      const searchInput = container.querySelector(".nav-search-input");
+      const searchIcon = container.querySelector("a");
+
+      // 如果点击的元素不是搜索输入框或搜索图标，则隐藏搜索框和结果容器
+      if (
+        !searchInput.contains(event.target) &&
+        !searchIcon.contains(event.target)
+      ) {
+        searchInput.classList.remove("active");
+        // 根据输入框ID确定对应的结果容器
+        let resultContainer;
+        if (searchInput.id === "nav-search-input-mobile") {
+          // 移动端结果容器
+          resultContainer = document.querySelector(
+            ".navbar-mobile .nav-search-result"
+          );
+        } else {
+          // 桌面端结果容器
+          resultContainer = document.getElementById(
+            "nav-search-result-desktop"
+          );
+        }
+
+        if (resultContainer) {
+          resultContainer.style.display = "none";
+          // 保留搜索结果和输入内容，仅隐藏下拉框
+        }
+      }
+    });
+  }
+
+  // 添加全局点击事件监听器
+  document.addEventListener("click", function (event) {
+    handleClickOutsideSearch(event);
+  });
+
+  // 新增：搜索功能实现
+  let searchData = []; // 全局变量存储搜索数据
+  let currentSearchKeyword = ''; // 追踪当前搜索关键字
+
+  // 页面加载完成后获取搜索数据
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/search.xml")
+      .then((res) => res.text())
+      .then((xmlText) => {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+        const entries = xml.getElementsByTagName("entry");
+        for (let entry of entries) {
+          searchData.push({
+            title: entry.getElementsByTagName("title")[0]?.textContent || "",
+            content:
+              entry.getElementsByTagName("content")[0]?.textContent || "",
+            url: entry.getElementsByTagName("url")[0]?.textContent || "",
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load search data:", err);
+      });
+  });
+
+  // 新增：导航搜索方法
+  function navSearch(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    // 查找对应的搜索结果容器
+    let resultContainer;
+
+    if (inputElement.id === "nav-search-input-desktop") {
+      // 桌面端
+      resultContainer = document.getElementById("nav-search-result-desktop");
+    } else if (inputElement.id === "nav-search-input-mobile") {
+      // 移动端
+      resultContainer =
+        inputElement.parentNode.querySelector(".nav-search-result");
+    }
+
+    if (!resultContainer) return;
+
+    resultContainer.innerHTML = "";
+
+    if (!keyword) {
+      resultContainer.style.display = "none";
+      return;
+    }
+
+    // 显示结果容器
+    resultContainer.style.display = "block";
+
+    // 过滤搜索数据
+    const results = searchData.filter(
+      (data) =>
+        (data.title && data.title.toLowerCase().includes(keyword)) ||
+        (data.content && data.content.toLowerCase().includes(keyword))
+    );
+
+    if (results.length === 0) {
+      resultContainer.innerHTML =
+        '<p class="no-result">没有结果哟，换个关键词试试吧</p>';
+      return;
+    }
+
+    // 限制显示结果数量
+    const maxResults = 10;
+    const limitedResults = results.slice(0, maxResults);
+
+    // 构建结果HTML
+    const html = limitedResults
+      .map((item) => {
+        // 提取包含关键字的内容片段
+        let contentSnippet = "";
+        if (item.content) {
+          // 找到包含关键字的内容片段
+          const contentLower = item.content.toLowerCase();
+          const keywordIndex = contentLower.indexOf(keyword);
+
+          // 提取关键字前后的内容
+          const start = Math.max(0, keywordIndex - 3 * keyword.length);
+          const end = Math.min(
+            item.content.length,
+            keywordIndex + 3 * keyword.length
+          );
+          contentSnippet = item.content.substring(start, end);
+        // 高亮关键字
+      const keywordRegex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      contentSnippet = contentSnippet.replace(
+        keywordRegex,
+        "<mark>$1</mark>"
+      );
+        }
+
+        return `<div class="search-result-item">
+  <a href="${item.url}">
+    <div>标题：${item.title}</div>
+    <div>内容：${contentSnippet}</div>
+  </a>
+</div>`;
+      })
+      .join("");
+    resultContainer.innerHTML = html;
+  }
+
+  // 文章内容关键字高亮功能
+  let currentHighlightIndex = -1;
+  let highlightCount = 0;
+
+  function highlightPostContent(keyword) {
+    const content = document.querySelector('.post-content');
+    if (!content) return false;
+
+    content.innerHTML = content.innerHTML.replace(/<\/?mark>/g, '');
+
+    if (!keyword) return false;
+
+    const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    const escaped = keyword.replace(/[.*+?^${}|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+
+    textNodes.forEach(node => {
+      if (!regex.test(node.nodeValue)) return;
+      regex.lastIndex = 0;
+      const fragment = document.createDocumentFragment();
+      node.nodeValue.split(regex).forEach((text, i) => {
+        if (i % 2 === 1) {
+          const mark = document.createElement('mark');
+          mark.textContent = text;
+          fragment.appendChild(mark);
+        } else {
+          fragment.appendChild(document.createTextNode(text));
+        }
+      });
+      node.parentNode.replaceChild(fragment, node);
+    });
+
+    return true;
+  }
+
+  function getHighlights() {
+    const content = document.querySelector('.post-content');
+    return content ? content.querySelectorAll('mark') : [];
+  }
+
+  function scrollToHighlight(index, smooth = true) {
+    const highlights = getHighlights();
+    if (highlights.length === 0) return;
+
+    if (index < 0) index = highlights.length - 1;
+    if (index >= highlights.length) index = 0;
+
+    currentHighlightIndex = index;
+    highlights[index].scrollIntoView({
+      behavior: smooth ? 'smooth' : 'auto',
+      block: 'center'
+    });
+
+    updateHighlightCount();
+  }
+
+  function updateHighlightCount() {
+    const highlights = getHighlights();
+    highlightCount = highlights.length;
+    const nav = document.getElementById('highlight-nav');
+    if (nav) {
+      nav.querySelector('.count').textContent = `${currentHighlightIndex + 1}/${highlightCount}`;
+      nav.style.display = highlightCount > 0 ? 'flex' : 'none';
+    }
+  }
+
+  // 修改 navSearch 函数，集成文章内高亮
+  const originalNavSearch = navSearch;
+  navSearch = function(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    currentSearchKeyword = keyword;
+    const resultContainer = inputElement.id === 'nav-search-input-desktop'
+      ? document.getElementById('nav-search-result-desktop')
+      : inputElement.parentNode.querySelector('.nav-search-result');
+
+    if (!keyword) {
+      if (resultContainer) {
+        resultContainer.innerHTML = '';
+        resultContainer.style.display = 'none';
+      }
+      highlightPostContent('');
+      return;
+    }
+
+    // 先执行原有搜索逻辑
+    originalNavSearch(inputElement);
+
+    // 仅在文章页执行内容高亮
+    if (highlightPostContent(keyword)) {
+      updateHighlightCount();
+    }
+  };
+
+  // 清除搜索的函数
+  function clearSearch(btn) {
+    const input = btn.parentNode.querySelector('.nav-search-input');
+    input.value = '';
+    navSearch(input);
+    input.focus();
+  }
+</script>
+<style>
+  /* 手机端使用flexbox布局搜索容器 */
+  .mobile-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    flex-grow: 1;
+    max-width: calc(100% - 40px);
+  }
+
+  .search-container {
+    position: relative;
+  }
+
+
+  .search-result-item {
+  border: 1px solid #ddd; /* 边框 */
+  margin: 4px 0; /* 外层间距 */
+  padding: 0; /* 无内边距 */
+  background: #fff; /* 背景色 */
+}
+
+.search-result-item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-result-item div {
+  padding: 3px 8px; /* 紧凑的内边距 */
+  margin: 0; /* 无外边距 */
+  line-height: 1.3; /* 紧凑的行高 */
+  word-wrap: break-word; /* 允许长单词换行 */
+  white-space: normal; /* 允许正常换行 */
+}
+
+.search-result-item div:first-child {
+  border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */
+}
+
+.dark-theme .search-result-item {
+  background: #2d2d2d;
+  border: 1px solid #444;
+}
+.dark-theme .search-result-item a {
+  color: #e0e0e0;
+}
+.dark-theme .search-result-item div:first-child {
+  border-bottom-color: #444;
+}
+
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(0, 0, 0, 0.2);
+  color: #666;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.clear-search:hover {
+  background: rgba(0, 0, 0, 0.3);
+  color: #333;
+}
+.nav-search-input:focus + .clear-search,
+.nav-search-input.active:not(:placeholder-shown) + .clear-search {
+  display: flex;
+}
+.dark-theme .clear-search {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ccc;
+}
+.dark-theme .clear-search:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.highlight-nav {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 99;
+}
+.highlight-nav .count {
+  font-size: 14px;
+  color: #333;
+  min-width: 50px;
+  text-align: center;
+}
+.highlight-nav button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+.highlight-nav button:hover {
+  background: #e0e0e0;
+}
+.dark-theme .highlight-nav {
+  background: rgba(40, 40, 40, 0.95);
+}
+.dark-theme .highlight-nav .count {
+  color: #eee;
+}
+.dark-theme .highlight-nav button {
+  background: #444;
+  color: #fff;
+}
+.dark-theme .highlight-nav button:hover {
+  background: #555;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .highlight-nav {
+    gap: 16px;
+    padding: 12px 20px;
+  }
+  .highlight-nav .count {
+    font-size: 16px;
+    min-width: 60px;
+  }
+  .highlight-nav button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
+</style>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <div class="toc-mobile-fab" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon">☰</span>
+</div>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">多Agent+Skills+SpringAI全栈实战：从基础到分布式旅游规划落地</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >四月 30, 2026&nbsp;&nbsp;21:35:35</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E9%A1%B9%E7%9B%AE%E5%A4%A7%E5%85%A8/">学习项目大全</a>
+          
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E9%A1%B9%E7%9B%AE%E5%A4%A7%E5%85%A8/%E5%A4%9AAgent-Skills-SpringAI/">多Agent+Skills+SpringAI</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="多Agent-Skills-SpringAI全栈实战：从基础到分布式旅游规划落地"><a href="#多Agent-Skills-SpringAI全栈实战：从基础到分布式旅游规划落地" class="headerlink" title="多Agent+Skills+SpringAI全栈实战：从基础到分布式旅游规划落地"></a>多Agent+Skills+SpringAI全栈实战：从基础到分布式旅游规划落地</h1><blockquote>
+<p>本文完整整合《多Agent+Skills+SpringAI》系列学习项目全章节内容，参考资料时间范围为2025.10~2026.1，官网参考内容截止2026.4.30。AI技术迭代极快，请注意鉴别过时内容。<br> 学完你将掌握：Spring AI Alibaba全版本特性、MCP&#x2F;A2A协议落地、ReAct&#x2F;PlanAct思考框架、AgentScope分布式框架、Skills技能体系、多Agent协同设计、旅游规划场景全流程落地、工程化部署与可观测能力。</p>
+</blockquote>
+<hr>
+<h2 id="一、项目背景与场景拆解：我们要做什么？"><a href="#一、项目背景与场景拆解：我们要做什么？" class="headerlink" title="一、项目背景与场景拆解：我们要做什么？"></a>一、项目背景与场景拆解：我们要做什么？</h2><p>本系列项目以<strong>旅游规划</strong>为落地场景，逐步搭建从单Agent到分布式多Agent协同的完整系统，帮你理解多Agent设计、工具集成、工程化落地的全流程。</p>
+<h3 id="1-1-旅游规划核心需求拆解"><a href="#1-1-旅游规划核心需求拆解" class="headerlink" title="1.1 旅游规划核心需求拆解"></a>1.1 旅游规划核心需求拆解</h3><p>旅游规划并非单一需求，而是由四类强关联的核心需求构成，需先拆解再匹配专属能力：</p>
+<table>
+<thead>
+<tr>
+<th>需求类型</th>
+<th>核心动作</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>景点</td>
+<td>① 景点推荐（结合用户偏好+天气） ② 景点路线规划</td>
+<td>需同时满足用户喜好与实际天气（如恶劣天气不推荐户外项目）</td>
+</tr>
+<tr>
+<td>交通</td>
+<td>路线规划</td>
+<td>包含景点间、景点与住宿间的路线串联</td>
+</tr>
+<tr>
+<td>费用</td>
+<td>费用计算+折扣监控</td>
+<td>固定费用（交通、门票无折扣）+浮动费用（住宿、餐饮可监控折扣）</td>
+</tr>
+<tr>
+<td>住宿餐饮</td>
+<td>选址+推荐</td>
+<td>结合预算、位置、用户偏好输出方案</td>
+</tr>
+</tbody></table>
+<p>对应需要搭建5类智能体组成完整团队：</p>
+<table>
+<thead>
+<tr>
+<th>智能体类型</th>
+<th>属性</th>
+<th>核心职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>规划智能体（主管）</td>
+<td>通用</td>
+<td>识别用户意图、拆解子需求、根据能力分配任务</td>
+</tr>
+<tr>
+<td>路线制定专员Agent</td>
+<td>专属</td>
+<td>全场景路线规划、经纬度转换、地图可视化</td>
+</tr>
+<tr>
+<td>行程规划经理Agent</td>
+<td>专属</td>
+<td>景点&#x2F;餐饮推荐、行程安排、天气适配、本地文件读取</td>
+</tr>
+<tr>
+<td>费用统筹管家Agent</td>
+<td>专属</td>
+<td>全链路费用统计、折扣监控、表格制作</td>
+</tr>
+<tr>
+<td>汇总智能体</td>
+<td>通用</td>
+<td>整合所有智能体输出，生成含文字&#x2F;图片&#x2F;表格的结构化文档</td>
+</tr>
+</tbody></table>
+<p>还可集成百度地图MCP提供的5类工具提升能力：天气查询、地理编码、地点搜索、路线规划、地图可视化。</p>
+<h3 id="1-2-多Agent协同设计理论"><a href="#1-2-多Agent协同设计理论" class="headerlink" title="1.2 多Agent协同设计理论"></a>1.2 多Agent协同设计理论</h3><h4 id="（1）两种核心设计模式"><a href="#（1）两种核心设计模式" class="headerlink" title="（1）两种核心设计模式"></a>（1）两种核心设计模式</h4><table>
+<thead>
+<tr>
+<th>设计模式</th>
+<th>核心特点</th>
+<th>代表框架</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>工作流编排模式</td>
+<td>基于Graph引擎预定义节点、边、协作关系，流程可视化可控</td>
+<td>Spring AI Alibaba Graph引擎</td>
+<td>流程固定、节点关系明确、需要可视化编排</td>
+</tr>
+<tr>
+<td>Agent自主代理模式</td>
+<td>智能体自主决定执行步骤、工具使用，无需预定义流程</td>
+<td>AgentScope、Spring AI Alibaba Flow Agent</td>
+<td>需要智能体动态分配任务、调用工具</td>
+</tr>
+</tbody></table>
+<h4 id="（2）思考框架：PlanAct-vs-ReAct"><a href="#（2）思考框架：PlanAct-vs-ReAct" class="headerlink" title="（2）思考框架：PlanAct vs ReAct"></a>（2）思考框架：PlanAct vs ReAct</h4><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>Plan-and-Execute（PlanAct）</th>
+<th>Reason-and-Action（ReAct）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>任务复杂度</td>
+<td>多层级嵌套复杂任务</td>
+<td>线性单一简单任务</td>
+</tr>
+<tr>
+<td>核心逻辑</td>
+<td>两阶段：规划阶段拆解子任务+排序，执行阶段监控调整</td>
+<td>两步骤：思考阶段明确步骤与工具，行动阶段执行+校验调整</td>
+</tr>
+<tr>
+<td>资源分配</td>
+<td>需要多智能体协作</td>
+<td>通常单智能体完成</td>
+</tr>
+<tr>
+<td>调整频率</td>
+<td>动态调整频率高，侧重全局计划优化</td>
+<td>侧重执行过程优化</td>
+</tr>
+</tbody></table>
+<h4 id="（3）行业参考架构：Manus与JManus"><a href="#（3）行业参考架构：Manus与JManus" class="headerlink" title="（3）行业参考架构：Manus与JManus"></a>（3）行业参考架构：Manus与JManus</h4><ul>
+<li><strong>Manus</strong>：首创「自主决策+隔离容器+工具调用」的多Agent闭环架构，全自主流程无需人工介入，每个Agent在独立容器运行避免数据混乱，支持MCP协议调用第三方工具，是生产力落地的标志性框架。</li>
+<li><strong>OpenManus</strong>：Python版Manus复刻，核心特点：智能体模块化即插即用、工具箱支持MCP动态扩展、规划+执行双主干处理复杂任务。</li>
+<li>JManus：Java版OpenManus，基于Spring Boot + Spring AI Alibaba开发，核心为计划协调器，管理计划全生命周期：<ul>
+<li>简单计划用<code>PlanExecutor</code>：拆分步骤→分配Agent→顺序执行</li>
+<li>复杂计划用<code>MapReducePlanExecutor</code>：拆分分支→子任务并行&#x2F;串行执行→汇总结果</li>
+</ul>
+</li>
+</ul>
+<h4 id="（4）多Agent框架核心组成"><a href="#（4）多Agent框架核心组成" class="headerlink" title="（4）多Agent框架核心组成"></a>（4）多Agent框架核心组成</h4><p>双核心流程+五大模块：</p>
+<ol>
+<li>双核心流程：<ul>
+<li>多Agent协同流程：用户需求→意图识别→任务拆解→分配Agent→执行→结果整合→返回</li>
+<li>单Agent执行流程：步骤规划→执行→监测→评估→调整→循环至完成</li>
+</ul>
+</li>
+<li>五大模块：全局模块（Env环境类、Action动作类）、任务切分模块、角色模块、通信及冲突协调模块（A2A协议、冲突调解、WSLL共识算法）、SOP标准流程模块。</li>
+</ol>
+<hr>
+<h2 id="二、基础框架：Spring-AI-Alibaba全版本解析"><a href="#二、基础框架：Spring-AI-Alibaba全版本解析" class="headerlink" title="二、基础框架：Spring AI Alibaba全版本解析"></a>二、基础框架：Spring AI Alibaba全版本解析</h2><p>Spring AI Alibaba是面向国内开发者的Java AI应用框架，官方推荐学习路线：<strong>立足1.0 → 跟进1.1 → 适配2.0</strong>，确保技能1-2年内不过时。</p>
+<h3 id="2-1-版本特性对比与选型"><a href="#2-1-版本特性对比与选型" class="headerlink" title="2.1 版本特性对比与选型"></a>2.1 版本特性对比与选型</h3><h4 id="（1）1-0-1-1-2-0核心差异"><a href="#（1）1-0-1-1-2-0核心差异" class="headerlink" title="（1）1.0&#x2F;1.1&#x2F;2.0核心差异"></a>（1）1.0&#x2F;1.1&#x2F;2.0核心差异</h4><table>
+<thead>
+<tr>
+<th>版本</th>
+<th>核心特性</th>
+<th>课程定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Spring AI 1.0</td>
+<td>1. 首次支持MCP协议 2. 提供跨模型交互对象ChatClient 3. 支持对话上下文记忆 4. 支持RAG（争议大，定位过渡技术）</td>
+<td>课程主力版本，基础组件接口已固定</td>
+</tr>
+<tr>
+<td>Spring AI 1.1</td>
+<td>1. MCP内嵌为注解，增强调用安全性 2. 扩展对话记忆存储方案（内存&#x2F;文本&#x2F;数据库等） 3. 原生支持谷歌Gemini 2.0 Flash 4. 优化RAG执行效率 5. 原生支持A2A协议、ReAct Agent、Graph工作流</td>
+<td>引入Agent自主决策核心</td>
+</tr>
+<tr>
+<td>Spring AI 2.0 M1</td>
+<td>1. MCP固化为固有组件 2. 仅支持Java 21+、Spring Boot 4.0+ 3. 优化Redis向量库性能 4. 深化OpenAI、Gemini原生支持</td>
+<td>明确框架长期发展方向</td>
+</tr>
+</tbody></table>
+<h4 id="（2）1-0-vs-1-1-核心差异"><a href="#（2）1-0-vs-1-1-核心差异" class="headerlink" title="（2）1.0 vs 1.1+核心差异"></a>（2）1.0 vs 1.1+核心差异</h4><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Spring AI Alibaba 1.0.x</th>
+<th>Spring AI Alibaba 1.1.x+</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心定位</td>
+<td>基础AI智能体开发</td>
+<td>上下文工程、多智能体协同、复杂工作流，智能体为绝对核心</td>
+</tr>
+<tr>
+<td>MCP支持</td>
+<td>需额外导入spring-ai-mcp依赖，MCP SDK版本0.10</td>
+<td>MCP依赖内置，SDK版本0.14，无需额外导入</td>
+</tr>
+<tr>
+<td>MCP注解</td>
+<td>@Tool、@ToolParam，需手动注册工具</td>
+<td>@McpTool、@McpParameter、@McpProgressToken，自动注册，需开启注解扫描</td>
+</tr>
+<tr>
+<td>A2A支持</td>
+<td>无官方实现</td>
+<td>原生支持，核心组件：Provider、Consumer、Nexus 3.1注册中心</td>
+</tr>
+<tr>
+<td>核心依赖</td>
+<td>spring-ai-alibaba-bom（最低1.0.0.M6支持MCP）</td>
+<td>新增agent-framework依赖，DashScope需手动指定版本</td>
+</tr>
+</tbody></table>
+<p>✅ <strong>学习建议</strong>：优先学习MCP、对话上下文记忆、ChatClient对象；暂不重点学习RAG（争议大，定位过渡技术），待技术成熟后补充。</p>
+<h3 id="2-2-基础交互：ChatModel与ChatClient"><a href="#2-2-基础交互：ChatModel与ChatClient" class="headerlink" title="2.2 基础交互：ChatModel与ChatClient"></a>2.2 基础交互：ChatModel与ChatClient</h3><h4 id="（1）ChatModel：底层交互核心"><a href="#（1）ChatModel：底层交互核心" class="headerlink" title="（1）ChatModel：底层交互核心"></a>（1）ChatModel：底层交互核心</h4><p>由Spring Boot自动装配，无需手动new，调用流程：<code>UserMessage → Prompt → ChatModel.call(Prompt) → ChatResponse → 提取文本结果</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 核心代码示例</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ChatController</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ChatModel chatModel;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ChatController</span><span class="params">(ChatModel chatModel)</span> &#123; <span class="built_in">this</span>.chatModel = chatModel; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/simple-chat&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">simpleChat</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">UserMessage</span> <span class="variable">userMessage</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserMessage</span>(<span class="string">&quot;在咖啡馆里想要杯星巴克&quot;</span>);</span><br><span class="line">        <span class="type">Prompt</span> <span class="variable">prompt</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Prompt</span>(userMessage);</span><br><span class="line">        <span class="type">ChatResponse</span> <span class="variable">response</span> <span class="operator">=</span> chatModel.call(prompt);</span><br><span class="line">        <span class="keyword">return</span> response.getResult() != <span class="literal">null</span> ? response.getResult().getOutput().getText() : <span class="string">&quot;&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置文件（application.yml）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">alibaba:</span></span><br><span class="line">      <span class="attr">api-key:</span> <span class="string">$&#123;阿里百炼API</span> <span class="string">Key&#125;</span></span><br><span class="line">      <span class="attr">chat:</span></span><br><span class="line">        <span class="attr">options:</span></span><br><span class="line">          <span class="attr">model:</span> <span class="string">deepseek-r1</span> <span class="comment"># 可选qwen3、deepseek-r1等</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="（2）ChatClient：推荐交互窗口"><a href="#（2）ChatClient：推荐交互窗口" class="headerlink" title="（2）ChatClient：推荐交互窗口"></a>（2）ChatClient：推荐交互窗口</h4><p>对ChatModel的封装，支持链式调用，无需手动创建Prompt、UserMessage，是课程推荐的交互方式：</p>
+<table>
+<thead>
+<tr>
+<th>创建方式</th>
+<th>缺点</th>
+<th>Builder模式优势</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>new+set方法</td>
+<td>多属性设置繁琐、高并发线程不安全、默认值易遗漏</td>
+<td>链式调用简洁、生成不可变对象线程安全、默认值自动补全</td>
+</tr>
+</tbody></table>
+<p>流式响应（SSE协议）代码：基于SSE实现打字机效果，提升用户体验</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(value = &quot;/stream-chat&quot;, produces = MediaType.TEXT_EVENT_STREAM_VALUE)</span></span><br><span class="line"><span class="keyword">public</span> Flux&lt;String&gt; <span class="title function_">streamChat</span><span class="params">(<span class="meta">@RequestParam(defaultValue = &quot;在咖啡馆里想要杯星巴克&quot;)</span> String message)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> chatClient.prompt(message).stream().content(); <span class="comment">// 返回Flux&lt;String&gt;流式结果</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>⚠️ <strong>整合避坑</strong>：</p>
+<ol>
+<li>必须额外引入Spring Boot Web依赖（版本3.4.5，与内置版本一致），且<code>spring-boot-starter-web</code>必须放在<code>spring-ai-alibaba-spring-boot-starter</code>之前，否则触发日志依赖错误导致启动失败。</li>
+<li>1.0版本正确依赖：<code>spring-ai-alibaba-spring-boot-starter</code>，已内置Spring Boot 3.4.5，无需额外指定版本。</li>
+</ol>
+<h3 id="2-3-MCP协议：模型上下文交互"><a href="#2-3-MCP协议：模型上下文交互" class="headerlink" title="2.3 MCP协议：模型上下文交互"></a>2.3 MCP协议：模型上下文交互</h3><p>MCP（Model Context Protocol）是连接大模型与外部数据&#x2F;工具的通用标准，解决大模型无法获取实时数据、私人数据的问题。</p>
+<h4 id="（1）核心架构"><a href="#（1）核心架构" class="headerlink" title="（1）核心架构"></a>（1）核心架构</h4><p>三节点：MCP Host（大模型端）、MCP Client（客户端，基于Spring AI Alibaba实现）、MCP Server（服务端，提供工具&#x2F;数据）。<br> 分层设计：协议层统一工具返回格式，传输层支持多种方式，大模型无需关心调用细节。</p>
+<h4 id="（2）1-1-版本传输方式（共4种）"><a href="#（2）1-1-版本传输方式（共4种）" class="headerlink" title="（2）1.1+版本传输方式（共4种）"></a>（2）1.1+版本传输方式（共4种）</h4><table>
+<thead>
+<tr>
+<th>传输方式</th>
+<th>适用场景</th>
+<th>特点</th>
+<th>推荐框架</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>stdio</td>
+<td>同机器进程间通信</td>
+<td>轻量，本地MCP Server&#x2F;Client通信</td>
+<td>无特殊要求</td>
+</tr>
+<tr>
+<td>SSE</td>
+<td>网页端与远程模型通信（默认）</td>
+<td>单向实时流式，比WebSocket轻量</td>
+<td>WebFlux（非阻塞，性能优于WebMVC）</td>
+</tr>
+<tr>
+<td>Streamable HTTP</td>
+<td>SSE升级版</td>
+<td>流式传输，支持更多交互场景</td>
+<td>WebFlux</td>
+</tr>
+<tr>
+<td>Stateless HTTP</td>
+<td>微服务&#x2F;分布式场景</td>
+<td>无状态流式传输</td>
+<td>WebFlux</td>
+</tr>
+</tbody></table>
+<p>⚠️ 所有流式传输均推荐使用Spring WebFlux，单线程可处理多请求，性能优于传统WebMVC。</p>
+<h4 id="（3）1-1-版本开发要点"><a href="#（3）1-1-版本开发要点" class="headerlink" title="（3）1.1+版本开发要点"></a>（3）1.1+版本开发要点</h4><ul>
+<li>注解替换为<code>@McpTool</code>（替代@Tool）、<code>@McpParameter</code>（替代@ToolParam），工具定义后自动注册到MCP服务清单，无需手动注册。</li>
+<li>配置需开启注解扫描：</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">mcp:</span></span><br><span class="line">      <span class="attr">annotation:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span> <span class="comment"># 必须开启，否则注解不生效</span></span><br><span class="line">      <span class="attr">server:</span></span><br><span class="line">        <span class="attr">transport:</span> <span class="string">streamable-http</span> <span class="comment"># 可选stdio/sse/streamable-http/stateless，默认sse</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>⚠️ 核心坑点：MCP客户端已获取工具清单，但默认不会传递给大模型，需给ChatClient配置<code>DefaultToolCallbackProvider</code>：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">this</span>.chatClient = builder.defaultToolCallbackProvider(toolCallbackProvider).build();</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-A2A协议：分布式智能体通信"><a href="#2-4-A2A协议：分布式智能体通信" class="headerlink" title="2.4 A2A协议：分布式智能体通信"></a>2.4 A2A协议：分布式智能体通信</h3><p>A2A（Agent-to-Agent）协议由Google提出，用于跨模型、跨节点智能体通信，Spring AI Alibaba 1.1+原生支持，核心依赖Nexus 3.1注册中心。</p>
+<h4 id="（1）核心组件"><a href="#（1）核心组件" class="headerlink" title="（1）核心组件"></a>（1）核心组件</h4><ol>
+<li>服务提供者（Provider）：提供远程智能体服务，需注册到Nexus</li>
+<li>服务消费者（Consumer）：从Nexus发现并调用远程智能体</li>
+<li>注册中心：阿里Nexus 3.1&#x2F;Nacos 3.2，存储智能体卡片（AgentCard）</li>
+</ol>
+<h4 id="（2）AgentCard规范（服务发现核心依据）"><a href="#（2）AgentCard规范（服务发现核心依据）" class="headerlink" title="（2）AgentCard规范（服务发现核心依据）"></a>（2）AgentCard规范（服务发现核心依据）</h4><table>
+<thead>
+<tr>
+<th>元数据字段</th>
+<th>说明</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>name</td>
+<td>智能体名称</td>
+<td>必填，需与ReactAgent名称一致，是服务发现的核心匹配字段</td>
+</tr>
+<tr>
+<td>description</td>
+<td>智能体功能描述</td>
+<td>必填，消费者靠此判断智能体能力</td>
+</tr>
+<tr>
+<td>instruction</td>
+<td>智能体执行指令</td>
+<td>必填，缺失会导致调用报错</td>
+</tr>
+<tr>
+<td>skills</td>
+<td>关联的技能列表</td>
+<td>可选，精细匹配能力</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="三、核心能力：Agent思考框架与技能体系"><a href="#三、核心能力：Agent思考框架与技能体系" class="headerlink" title="三、核心能力：Agent思考框架与技能体系"></a>三、核心能力：Agent思考框架与技能体系</h2><h3 id="3-1-ReAct-Agent：具备自主决策能力的智能体"><a href="#3-1-ReAct-Agent：具备自主决策能力的智能体" class="headerlink" title="3.1 ReAct Agent：具备自主决策能力的智能体"></a>3.1 ReAct Agent：具备自主决策能力的智能体</h3><p>Spring AI Alibaba 1.1将ReAct Agent（具备规划+自主决策能力）作为核心，支持单&#x2F;多Agent协同：</p>
+<ul>
+<li>1.0版本Agent：仅作为执行者，具备基础能力（大模型、工具、记忆、感知）</li>
+<li>1.1版本ReAct Agent：新增规划能力、自主决策能力，可自主分解任务、选择工具</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1.1版本ReAct Agent创建示例</span></span><br><span class="line"><span class="type">ReactAgent</span> <span class="variable">travelAgent</span> <span class="operator">=</span> ReactAgent.builder()</span><br><span class="line">        .name(<span class="string">&quot;路线规划Agent&quot;</span>) <span class="comment">// 必填：Agent ID</span></span><br><span class="line">        .description(<span class="string">&quot;负责规划两个城市之间的出行路线，选择交通工具&quot;</span>) <span class="comment">// 必填：大模型据此分配任务</span></span><br><span class="line">        .model(chatModel) <span class="comment">// 可选：指定大模型，默认用配置文件中的模型</span></span><br><span class="line">        .tools(<span class="keyword">new</span> <span class="title class_">ToolCallbackProvider</span>() &#123;&#125;) <span class="comment">// 可选：注册工具</span></span><br><span class="line">        .memory(<span class="keyword">new</span> <span class="title class_">InMemoryChatMemory</span>()) <span class="comment">// 可选：配置记忆能力</span></span><br><span class="line">        .systemPrompt(<span class="string">&quot;你是一个专业的路线规划助手&quot;</span>) <span class="comment">// 可选：系统提示词</span></span><br><span class="line">        .build();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 运行与流式调用</span></span><br><span class="line"><span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> travelAgent.call(<span class="string">&quot;帮我规划深圳到惠州的三天旅游行程&quot;</span>).getContent();</span><br><span class="line">Flux&lt;String&gt; streamResult = travelAgent.stream(<span class="string">&quot;帮我规划深圳到惠州的三天旅游行程&quot;</span>).map(NodeOutput::getText);</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-Skills技能体系：可复用的专业领域SOP"><a href="#3-2-Skills技能体系：可复用的专业领域SOP" class="headerlink" title="3.2 Skills技能体系：可复用的专业领域SOP"></a>3.2 Skills技能体系：可复用的专业领域SOP</h3><p>Agent Skills是包含「专业知识+固定工作流程+工具调用逻辑」的完整SOP体系，区别于单一MCP工具，是专业场景效率提升的核心。</p>
+<h4 id="（1）核心优势"><a href="#（1）核心优势" class="headerlink" title="（1）核心优势"></a>（1）核心优势</h4><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>MCP</th>
+<th>Agent Skills</th>
+<th>SubAgent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心定位</td>
+<td>外部工具连接标准</td>
+<td>专业领域完整技能体系</td>
+<td>单场景执行单元</td>
+</tr>
+<tr>
+<td>包含内容</td>
+<td>仅工具</td>
+<td>专业知识+固定流程+工具逻辑</td>
+<td>仅执行能力</td>
+</tr>
+<tr>
+<td>加载方式</td>
+<td>全量返回工具</td>
+<td>渐进式加载（元数据→工具→资源）</td>
+<td>任务触发时创建</td>
+</tr>
+<tr>
+<td>可复用性</td>
+<td>工具可被多个Agent调用</td>
+<td>以文件夹形式移植，多Agent复用</td>
+<td>执行完即释放，不可复用</td>
+</tr>
+</tbody></table>
+<h4 id="（2）渐进式加载机制（解决上下文占用问题）"><a href="#（2）渐进式加载机制（解决上下文占用问题）" class="headerlink" title="（2）渐进式加载机制（解决上下文占用问题）"></a>（2）渐进式加载机制（解决上下文占用问题）</h4><ol>
+<li>元数据索引加载：仅加载SKILL.md的索引信息（名称、描述），占用极少上下文</li>
+<li>工具按需加载：仅加载当前场景需要的工具，无需全量返回</li>
+<li>附加资源使用时加载：脚本、参考文档等仅在执行到对应步骤时加载</li>
+</ol>
+<h4 id="（3）SKILL-md规范（官方标准）"><a href="#（3）SKILL-md规范（官方标准）" class="headerlink" title="（3）SKILL.md规范（官方标准）"></a>（3）SKILL.md规范（官方标准）</h4><ul>
+<li>文件结构：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">my-skill/</span><br><span class="line">├── SKILL.md           # 核心入口文件（必需）</span><br><span class="line">├── reference.md       # 详细参考文档（按需加载）</span><br><span class="line">├── examples.md        # 使用示例（按需加载）</span><br><span class="line">└── scripts/           # 可执行脚本</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>YAML头必填字段：</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">scenic_recommend</span> <span class="comment"># 必须与文件夹名称一致，全小写+数字+下划线</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">用于有限预算内的旅行规划，推荐免费景点、高性价比美食、小众打卡点、住宿方案</span></span><br><span class="line"><span class="meta">---</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>正文建议包含6部分：概述、前置条件、执行步骤、示例、错误处理、局限说明。</li>
+</ul>
+<h4 id="（4）Spring-AI-Alibaba-1-1-2-原生支持Skills"><a href="#（4）Spring-AI-Alibaba-1-1-2-原生支持Skills" class="headerlink" title="（4）Spring AI Alibaba 1.1.2+ 原生支持Skills"></a>（4）Spring AI Alibaba 1.1.2+ 原生支持Skills</h4><p>通过<code>SkillsAgentHook</code>挂载Skills到ReactAgent：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建Skills Hook，读取classpath下的skills目录</span></span><br><span class="line"><span class="type">SkillsAgentHook</span> <span class="variable">skillsHook</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SkillsAgentHook</span>(<span class="keyword">new</span> <span class="title class_">ClassPathResource</span>(<span class="string">&quot;skills&quot;</span>));</span><br><span class="line"><span class="comment">// 构建ReactAgent，挂载Skills Hook</span></span><br><span class="line"><span class="type">ReactAgent</span> <span class="variable">agent</span> <span class="operator">=</span> ReactAgent.builder()</span><br><span class="line">        .name(<span class="string">&quot;map_agent&quot;</span>)</span><br><span class="line">        .model(chatModel)</span><br><span class="line">        .hook(skillsHook) <span class="comment">// 注册Skills Hook</span></span><br><span class="line">        .saver(<span class="keyword">new</span> <span class="title class_">MemorySaver</span>())</span><br><span class="line">        .build();</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-工作流编排：Graph引擎实战"><a href="#3-3-工作流编排：Graph引擎实战" class="headerlink" title="3.3 工作流编排：Graph引擎实战"></a>3.3 工作流编排：Graph引擎实战</h3><p>Spring AI Alibaba 1.1支持两种编排方式，可按场景选择：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Graph引擎</th>
+<th>Flow Agent基类</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心实现</td>
+<td>StateGraph定义节点、边、状态</td>
+<td>继承FlowAgent，组合子智能体</td>
+</tr>
+<tr>
+<td>执行单元</td>
+<td>函数&#x2F;方法的节点（Node）</td>
+<td>具备思考、工具使用能力的智能体</td>
+</tr>
+<tr>
+<td>流程定义</td>
+<td>通过边（Edge）预定义流程</td>
+<td>智能体自主决策流程，支持并行&#x2F;顺序&#x2F;路由分发</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>流程固定、节点关系明确、需要可视化编排</td>
+<td>需要智能体自主决策、动态任务分配</td>
+</tr>
+</tbody></table>
+<p>✅ 建议：需要智能体自主决策优先选Flow Agent；流程固定的场景优先选Graph引擎。</p>
+<h4 id="（1）Graph核心三要素"><a href="#（1）Graph核心三要素" class="headerlink" title="（1）Graph核心三要素"></a>（1）Graph核心三要素</h4><ol>
+<li>状态（OverAllState）：贯穿工作流的共享内存，Key-Value结构，更新策略：<ul>
+<li><code>ReplaceStrategy</code>：新值覆盖旧值，适合存最终结果</li>
+<li><code>AppendStrategy</code>：新值追加到旧值后，适合存多轮消息</li>
+<li><code>RemoveByHash</code>：根据hashCode删除指定值，适合清理历史记录</li>
+</ul>
+</li>
+<li><strong>节点（Node）</strong>：执行单元，支持同步（NodeAction）、异步（AsyncNodeAction）两种类型，输入输出均基于OverAllState。</li>
+<li><strong>边（Edge）</strong>：定义节点流转关系，支持普通边（固定流转）、条件边（根据路由函数匹配节点）、特殊节点（START开始、END结束）。</li>
+</ol>
+<h4 id="（2）旅行规划Graph工作流案例"><a href="#（2）旅行规划Graph工作流案例" class="headerlink" title="（2）旅行规划Graph工作流案例"></a>（2）旅行规划Graph工作流案例</h4><p>目标：搭建5智能体旅行规划工作流，支持费用超1000时退回行程规划重排</p>
+<ol>
+<li>节点：主管（任务分发）、路线规划、行程规划、费用统筹、汇总</li>
+<li>边：<ul>
+<li>START→主管节点</li>
+<li>主管条件分发：路线相关→路线规划，行程相关→行程规划</li>
+<li>路线&#x2F;行程并行执行→费用统筹节点</li>
+<li>费用统筹条件判断：总费用&lt;1000→汇总节点→END；≥1000→行程规划节点（重排）</li>
+</ul>
+</li>
+</ol>
+<h4 id="（3）高级特性"><a href="#（3）高级特性" class="headerlink" title="（3）高级特性"></a>（3）高级特性</h4><ul>
+<li><strong>持久化与检查点</strong>：保存工作流执行状态，支持断点续跑、历史回溯，内置MemorySaver（测试），支持自定义RedisSaver（生产）。</li>
+<li><strong>人机协作（HITL）</strong>：工作流执行到指定节点前中断，等待人工输入后恢复执行，依赖检查点机制保存&#x2F;恢复状态。</li>
+<li><strong>流式输出</strong>：原生支持Flux作为流式载体，与Spring WebFlux天然契合，可通过SSE协议返回前端实现打字机效果。</li>
+</ul>
+<hr>
+<h2 id="四、实战篇：分布式旅游规划落地（AgentScope框架）"><a href="#四、实战篇：分布式旅游规划落地（AgentScope框架）" class="headerlink" title="四、实战篇：分布式旅游规划落地（AgentScope框架）"></a>四、实战篇：分布式旅游规划落地（AgentScope框架）</h2><p>AgentScope是面向工程实践的Java智能体框架，基于Spring AI Alibaba 1.1开发，比原生封装更优，课程后续替代原生Agent开发。核心特性：ReAct推理-行动范式、全程可控（安全中断、优雅取消、人机协作）、生产级能力（长期记忆、RAG、MCP&#x2F;A2A支持）、响应式架构（基于Project Reactor）。</p>
+<h3 id="4-1-AgentScope基础整合"><a href="#4-1-AgentScope基础整合" class="headerlink" title="4.1 AgentScope基础整合"></a>4.1 AgentScope基础整合</h3><h4 id="（1）环境要求与依赖"><a href="#（1）环境要求与依赖" class="headerlink" title="（1）环境要求与依赖"></a>（1）环境要求与依赖</h4><ul>
+<li><p>JDK 17+（Spring AI 2.0要求JDK 21+）、Maven&#x2F;Gradle</p>
+</li>
+<li><p>依赖（二选一）：</p>
+<ol>
+<li><p>All-in-one（推荐）：默认包含DashScope SDK、MCP SDK、基础框架</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.agentscope<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>agentscope<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.11<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Core+扩展：最小化核心包，按需加扩展模块（如Mem0长期记忆）</p>
+</li>
+</ol>
+</li>
+<li><p>⚠️ 依赖冲突处理：AgentScope自带JSON依赖易冲突，需排除后统一引入：</p>
+</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.agentscope<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>agentscope<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.11<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-databind<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-databind<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.16.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="（2）与Spring-AI-Alibaba-1-1的差异"><a href="#（2）与Spring-AI-Alibaba-1-1的差异" class="headerlink" title="（2）与Spring AI Alibaba 1.1的差异"></a>（2）与Spring AI Alibaba 1.1的差异</h4><table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>Spring AI Alibaba 1.1</th>
+<th>AgentScope</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>大模型配置</td>
+<td>model(<code>ChatModel</code>)</td>
+<td>model(<code>DashScopeChatModel</code>)，需传入实现Model接口的类</td>
+</tr>
+<tr>
+<td>工具配置</td>
+<td>tools(<code>ToolCallback...</code>)</td>
+<td>toolkit(<code>Toolkit</code>)，通过@Tool注解自动注册工具到工具包</td>
+</tr>
+<tr>
+<td>记忆配置</td>
+<td>memory(<code>ChatMemory</code>)</td>
+<td>memory(<code>Memory</code>)，支持InMemory、长期记忆等</td>
+</tr>
+<tr>
+<td>执行方式</td>
+<td>call()&#x2F;stream()</td>
+<td>call(<code>Msg</code>).block()&#x2F;stream()，需传入Msg对象，阻塞主程序确保结果完整接收</td>
+</tr>
+</tbody></table>
+<p>⚠️ <strong>重要约束</strong>：同一Agent实例持有自身状态，多线程并发调用会导致逻辑冲突，需为每个请求创建独立实例或使用对象池。</p>
+<h3 id="4-2-分布式旅游规划全链路实现"><a href="#4-2-分布式旅游规划全链路实现" class="headerlink" title="4.2 分布式旅游规划全链路实现"></a>4.2 分布式旅游规划全链路实现</h3><h4 id="（1）技术栈与模块划分"><a href="#（1）技术栈与模块划分" class="headerlink" title="（1）技术栈与模块划分"></a>（1）技术栈与模块划分</h4><table>
+<thead>
+<tr>
+<th>组件</th>
+<th>最低版本</th>
+<th>推荐版本</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nacos</td>
+<td>3.1.0</td>
+<td>3.2.0（生产）</td>
+<td>A2A注册中心、配置管理</td>
+</tr>
+<tr>
+<td>AgentScope</td>
+<td>1.0</td>
+<td>1.0.0.4+</td>
+<td>智能体框架</td>
+</tr>
+<tr>
+<td>Spring AI Alibaba</td>
+<td>1.0.0.3</td>
+<td>1.0.0.4+</td>
+<td>大模型交互</td>
+</tr>
+<tr>
+<td>JDK</td>
+<td>17</td>
+<td>17+</td>
+<td>运行环境</td>
+</tr>
+</tbody></table>
+<p>模块划分（4个独立模块，运行在不同节点）：</p>
+<ol>
+<li>公共模块：封装通用工具类（智能体构建、Nacos客户端生成、工具注册、Plan管理）</li>
+<li>主管Agent模块：接收用户需求、分解任务、调度远程智能体</li>
+<li>路线制定Agent模块：执行自驾游路线规划任务，集成百度地图MCP工具</li>
+<li>行程规划Agent模块：执行景点行程规划任务，集成Skills与SubAgent</li>
+</ol>
+<h4 id="（2）智能体注册与发现（Nacos-A2A）"><a href="#（2）智能体注册与发现（Nacos-A2A）" class="headerlink" title="（2）智能体注册与发现（Nacos+A2A）"></a>（2）智能体注册与发现（Nacos+A2A）</h4><p>AgentScope支持两种注册方式，分布式场景选择<strong>自动注入</strong>：将Agent声明为Spring @Bean，引入Nacos注册依赖，Spring Boot自动将AgentCard注册到Nacos。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 行程规划Agent配置示例</span></span><br><span class="line"><span class="attr">agentscope:</span></span><br><span class="line">  <span class="attr">agent:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">trip-planner-agent</span></span><br><span class="line">  <span class="attr">a2a:</span></span><br><span class="line">    <span class="attr">server:</span></span><br><span class="line">      <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">card:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">TripPlannerAgent</span></span><br><span class="line">        <span class="attr">description:</span> <span class="string">擅长景点行程规划</span></span><br><span class="line">        <span class="attr">version:</span> <span class="number">1.0</span><span class="number">.0</span></span><br><span class="line">        <span class="attr">skills:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">trip-planning</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">行程规划</span></span><br><span class="line">            <span class="attr">description:</span> <span class="string">制定旅游景点行程、日程安排</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">      <span class="attr">username:</span> <span class="string">nacos</span></span><br><span class="line">      <span class="attr">password:</span> <span class="string">nacos</span></span><br></pre></td></tr></table></figure>
+
+<p>验证：启动Nacos 3.1.0+，登录控制台「Agent管理 → Agent列表」可看到已注册的Agent卡片。</p>
+<p>主管Agent通过<code>NacosAgentCardResolver</code>从Nacos获取远程Agent：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">A2aAgent</span> <span class="variable">routeAgent</span> <span class="operator">=</span> A2aAgent.builder()</span><br><span class="line">        .name(<span class="string">&quot;RouteMakingAgent&quot;</span>)</span><br><span class="line">        .agentCardResolver(<span class="keyword">new</span> <span class="title class_">NacosAgentCardResolver</span>(nacosAiService))</span><br><span class="line">        .build();</span><br></pre></td></tr></table></figure>
+
+<h4 id="（3）MCP工具集成（百度地图）"><a href="#（3）MCP工具集成（百度地图）" class="headerlink" title="（3）MCP工具集成（百度地图）"></a>（3）MCP工具集成（百度地图）</h4><p>路线制定Agent需挂载百度地图MCP工具：</p>
+<ol>
+<li><p>传输协议匹配：客户端必须与服务端使用相同的传输协议（本项目用SSE）</p>
+</li>
+<li><p>客户端创建与初始化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">McpClientWrapper</span> <span class="variable">mcpClient</span> <span class="operator">=</span> McpClientBuilder.create(<span class="string">&quot;baidu-map-mcp&quot;</span>)</span><br><span class="line">        .sseTransport(<span class="string">&quot;https://mcp.baidu.com/sse?apiKey=YOUR_API_KEY&quot;</span>)</span><br><span class="line">        .timeout(Duration.ofSeconds(<span class="number">60</span>))</span><br><span class="line">        .buildAsync()</span><br><span class="line">        .block();</span><br><span class="line">mcpClient.initialize(); <span class="comment">// 初始化连接</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>挂载到Agent：将MCP客户端的工具注册到Agent的Toolkit中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Toolkit</span> <span class="variable">toolkit</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Toolkit</span>();</span><br><span class="line">toolkit.registerMcpClient(mcpClient).block(); <span class="comment">// 阻塞等待工具加载完成</span></span><br><span class="line"><span class="type">ReActAgent</span> <span class="variable">routeAgent</span> <span class="operator">=</span> ReActAgent.builder()</span><br><span class="line">        .name(<span class="string">&quot;RouteMakingAgent&quot;</span>)</span><br><span class="line">        .description(<span class="string">&quot;擅长自驾游路线制定，集成百度地图工具&quot;</span>)</span><br><span class="line">        .model(chatModel)</span><br><span class="line">        .toolkit(toolkit)</span><br><span class="line">        .build();</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="（4）Skills与SubAgent集成"><a href="#（4）Skills与SubAgent集成" class="headerlink" title="（4）Skills与SubAgent集成"></a>（4）Skills与SubAgent集成</h4><ul>
+<li><strong>Skills挂载</strong>：将景点推荐、表格制作等Skill注册到SkillBox，再注入到行程规划Agent：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Toolkit</span> <span class="variable">toolkit</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Toolkit</span>();</span><br><span class="line"><span class="type">SkillBox</span> <span class="variable">skillBox</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SkillBox</span>(toolkit);</span><br><span class="line">skillBox.registerSkill(scenicRecommendSkill); <span class="comment">// 注册景点推荐Skill</span></span><br><span class="line"><span class="type">ReActAgent</span> <span class="variable">tripAgent</span> <span class="operator">=</span> ReActAgent.builder()</span><br><span class="line">        .toolkit(toolkit)</span><br><span class="line">        .skillBox(skillBox) <span class="comment">// 挂载Skill能力</span></span><br><span class="line">        .build();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>SubAgent拆分</strong>：将景点推荐等单一任务拆为独立SubAgent，拥有独立上下文、工具、Skill，避免主Agent上下文膨胀：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将SubAgent注册为工具到主Agent的Toolkit</span></span><br><span class="line">mainToolkit.registerAgentTool(scenicSubAgent);</span><br></pre></td></tr></table></figure>
+
+<h4 id="（5）主管Agent任务分发与人工介入"><a href="#（5）主管Agent任务分发与人工介入" class="headerlink" title="（5）主管Agent任务分发与人工介入"></a>（5）主管Agent任务分发与人工介入</h4><ul>
+<li><strong>自主任务匹配</strong>：主管Agent通过PlanNotebook实现复杂任务自主分解，根据Nacos中AgentCard的描述&#x2F;Skills匹配子任务，无需人工指定对应关系。</li>
+<li><strong>人工介入</strong>：结合UserAgent和Hook实现计划修改，在计划生成后、执行前打断，接收用户输入的修改意见：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PlanModifyHook</span> <span class="keyword">implements</span> <span class="title class_">Hook</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T <span class="keyword">extends</span> <span class="title class_">HookEvent</span>&gt; Mono&lt;T&gt; <span class="title function_">onEvent</span><span class="params">(T event)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (event <span class="keyword">instanceof</span> PreReasoningEvent e) &#123;</span><br><span class="line">            <span class="type">Plan</span> <span class="variable">currentPlan</span> <span class="operator">=</span> planNotebook.getCurrentPlan();</span><br><span class="line">            <span class="keyword">if</span> (currentPlan != <span class="literal">null</span> &amp;&amp; !currentPlan.getSubtasks().isEmpty()) &#123;</span><br><span class="line">                <span class="comment">// 打断执行，调用UserAgent接收用户修改意见</span></span><br><span class="line">                <span class="type">Msg</span> <span class="variable">userInput</span> <span class="operator">=</span> userAgent.call(Msg.builder()</span><br><span class="line">                        .role(MsgRole.USER)</span><br><span class="line">                        .textContent(<span class="string">&quot;请输入计划修改意见，无修改请回复「确认」&quot;</span>)</span><br><span class="line">                        .build()).block();</span><br><span class="line">                <span class="comment">// 将用户意见注入到推理输入中</span></span><br><span class="line">                List&lt;Msg&gt; messages = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(e.getInputMessages());</span><br><span class="line">                messages.add(userInput);</span><br><span class="line">                e.setInputMessages(messages);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Mono.just(event);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、工程化落地：从开发到生产"><a href="#五、工程化落地：从开发到生产" class="headerlink" title="五、工程化落地：从开发到生产"></a>五、工程化落地：从开发到生产</h2><h3 id="5-1-敏感资源配置"><a href="#5-1-敏感资源配置" class="headerlink" title="5.1 敏感资源配置"></a>5.1 敏感资源配置</h3><p>解决API Key、MCP地址等敏感信息硬编码的安全风险，实现代码与配置分离：</p>
+<ol>
+<li>项目根目录创建<code>.env</code>文件，统一存放所有敏感配置：</li>
+</ol>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 百度地图配置</span></span><br><span class="line"><span class="attr">BAIDU_MAP_MCP_URL</span>=<span class="string">xxx</span></span><br><span class="line"><span class="attr">BAIDU_MAP_API_KEY</span>=<span class="string">xxx</span></span><br><span class="line"><span class="comment"># 阿里千问配置</span></span><br><span class="line"><span class="attr">QWEN_API_KEY</span>=<span class="string">xxx</span></span><br><span class="line"><span class="attr">QWEN_MODEL</span>=<span class="string">qwen3-max</span></span><br><span class="line"><span class="comment"># Langfuse配置</span></span><br><span class="line"><span class="attr">LANGFUSE_PUBLIC_KEY</span>=<span class="string">pk-lf-xxx</span></span><br><span class="line"><span class="attr">LANGFUSE_SECRET_KEY</span>=<span class="string">sk-lf-xxx</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>各模块application.yml通过占位符引用.env变量，且必须配置.env文件导入规则。</li>
+<li>⚠️ 原静态工具方法必须改为非静态，通过<code>@Value</code>注入配置，否则配置读取为空。</li>
+</ol>
+<h3 id="5-2-接口暴露与结构化输出"><a href="#5-2-接口暴露与结构化输出" class="headerlink" title="5.2 接口暴露与结构化输出"></a>5.2 接口暴露与结构化输出</h3><p>主管Agent作为用户交互核心节点，通过Web API接收请求：</p>
+<ul>
+<li>端口分配：主管Agent（8081）、路线制定Agent（8082）、行程规划Agent（8085）、Nacos（8848）</li>
+<li>结构化输出：兼容老模型（如DeepSeek早期版本）用<code>PROMPT</code>模式，支持结构化输出的模型用<code>TOOL_CHOICE</code>模式：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ReActAgent</span> <span class="variable">agent</span> <span class="operator">=</span> ReActAgent.builder()</span><br><span class="line">        .name(<span class="string">&quot;主管Agent&quot;</span>)</span><br><span class="line">        .model(model)</span><br><span class="line">        .structuredOutputReminder(StructuredOutputReminder.PROMPT) <span class="comment">// 兼容老模型</span></span><br><span class="line">        .build();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>响应解析：通过<code>response.getStructuredData(ResponseSchema.class)</code>自动匹配返回内容到指定字段。</li>
+</ul>
+<h3 id="5-3-可观测性：Langfuse集成"><a href="#5-3-可观测性：Langfuse集成" class="headerlink" title="5.3 可观测性：Langfuse集成"></a>5.3 可观测性：Langfuse集成</h3><p>Langfuse是集可观测性、提示管理、评估于一体的AI开发平台，支持追踪智能体&#x2F;大模型完整调用链路，统计Token消费、响应时间、调用成功率。</p>
+<h4 id="（1）Docker部署Langfuse"><a href="#（1）Docker部署Langfuse" class="headerlink" title="（1）Docker部署Langfuse"></a>（1）Docker部署Langfuse</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入Langfuse目录执行，首次启动会自动下载Redis、ClickHouse等依赖</span></span><br><span class="line">docker compose up -d</span><br></pre></td></tr></table></figure>
+
+<p>访问<code>localhost:3000</code>注册登录，创建项目后获取Public Key和Secret Key。</p>
+<h4 id="（2）AgentScope集成"><a href="#（2）AgentScope集成" class="headerlink" title="（2）AgentScope集成"></a>（2）AgentScope集成</h4><p>通过OpenTelemetry协议接入，无需额外代码，注册后自动追踪所有<code>agent.call()</code>、模型调用、工具执行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">publicKey</span> <span class="operator">=</span> <span class="string">&quot;pk-lf-xxxxxxxx&quot;</span>;</span><br><span class="line"><span class="type">String</span> <span class="variable">secretKey</span> <span class="operator">=</span> <span class="string">&quot;sk-lf-xxxxxxxx&quot;</span>;</span><br><span class="line"><span class="type">String</span> <span class="variable">encoded</span> <span class="operator">=</span> Base64.getEncoder().encodeToString((publicKey + <span class="string">&quot;:&quot;</span> + secretKey).getBytes());</span><br><span class="line"></span><br><span class="line">TracerRegistry.register(</span><br><span class="line">    TelemetryTracer.builder()</span><br><span class="line">        .endpoint(<span class="string">&quot;http://localhost:3000/api/public/otel/v1/traces&quot;</span>)</span><br><span class="line">        .addHeader(<span class="string">&quot;Authorization&quot;</span>, <span class="string">&quot;Basic &quot;</span> + encoded)</span><br><span class="line">        .addHeader(<span class="string">&quot;x-langfuse-ingestion-version&quot;</span>, <span class="string">&quot;4&quot;</span>) <span class="comment">// 必须头，否则接入失败</span></span><br><span class="line">        .build()</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>采样率建议：生产环境0.1~0.5（平衡性能与观测完整性），开发环境1.0（全量采集）。</li>
+</ul>
+<h3 id="5-4-部署优化"><a href="#5-4-部署优化" class="headerlink" title="5.4 部署优化"></a>5.4 部署优化</h3><p>智能Agent可通过Docker实现生产级部署，核心优势：环境一致、资源隔离、快速扩缩容，性能提升显著（平均响应时间从320ms降至98ms，TPS从450提升至1120）。<br> 部署流程：</p>
+<ol>
+<li>编写轻量Dockerfile（建议用alpine&#x2F;slim基础镜像，多阶段构建优化体积）</li>
+<li>构建镜像推送至公共&#x2F;私有仓库</li>
+<li>运行容器，配置持久化存储、健康检查、资源限制（CPU&#x2F;内存）</li>
+<li>集成ELK+Prometheus监控体系，实现全链路可观测。</li>
+</ol>
+<hr>
+<h2 id="六、附录：关键避坑指南与最佳实践"><a href="#六、附录：关键避坑指南与最佳实践" class="headerlink" title="六、附录：关键避坑指南与最佳实践"></a>六、附录：关键避坑指南与最佳实践</h2><h3 id="通用最佳实践"><a href="#通用最佳实践" class="headerlink" title="通用最佳实践"></a>通用最佳实践</h3><p>✅ 依赖管理：优先使用BOM方式统一管理版本，避免版本冲突<br> ✅ 注解规范：@Tool&#x2F;@McpTool的description必填，否则大模型无法识别工具用途<br> ✅ 通信选择：MCP传输优先选WebFlux框架，A2A通信优先用Nacos 3.2注册中心<br> ✅ 配置规范：AgentCard的name、description、instruction必填，shareState设为true<br> ✅ 记忆管理：短期记忆用checkpointer持久化，长期记忆用Store存储，结合使用提升交互能力<br> ✅ Skills编写：description尽量丰富细节包含触发关键词，SKILL.md控制在500行以内，详细文档放到参考文件中</p>
+<h3 id="常见错误排查"><a href="#常见错误排查" class="headerlink" title="常见错误排查"></a>常见错误排查</h3><p>❌ Agent注册报错：检查依赖是否仅放在需要注册的模块，避免无需注册的Agent（如主管Agent）引入注册依赖<br> ❌ MCP连接失败：检查客户端与服务端传输协议是否一致，API Key是否正确<br> ❌ 任务调用类型报错：统一使用AgentBase作为Agent类型参数，兼容本地和远程Agent<br> ❌ 工具未加载：MCP客户端注册到Toolkit时需加<code>block()</code>阻塞，等待工具加载完成<br> ❌ 模型不支持：结构化输出、思考模式需提前确认模型支持（如qwen3系列支持思考模式，DeepSeek R1免费版支持思考链）</p>
+<hr>
+<p><em>本文由老江湖（meisijiya）原创，整合自《多Agent+Skills+SpringAI》系列全章节内容，转载请注明出处。</em></p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count">0/0</span>
+      <button onclick="scrollToHighlight(currentHighlightIndex - 1)">↑</button>
+      <button onclick="scrollToHighlight(currentHighlightIndex + 1)">↓</button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/AgentScope/"># AgentScope</a>
+          
+          <a href="/tags/Langfuse/"># Langfuse</a>
+          
+          <a href="/tags/SpringAIAlibaba/"># SpringAIAlibaba</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/05/06/2026/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/MySQL+Linux+docker+py+AI/py/"
+        ></a
+      >
+       
+      <a class="next" rel="next" href="/2026/04/26/2026/hot100%E7%AE%97%E6%B3%95%E9%A2%98/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/"
+        >239.滑动窗口最大值</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector(".toggleBtn"),
+      document.getElementById("mobile-toggle-theme"),
+    ];
+    buttons.forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+<script src="/js/code-copy.js"></script>
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>
