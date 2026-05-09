@@ -1903,12 +1903,25 @@ ThreadLocal 泄漏：线程未销毁，value 无法回收（key 为 null 的 Ent
     <url>/2026/04/19/2026/git/%E5%B0%8F%E7%99%BD%E7%9A%84git/</url>
     <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
 
+
+学习视频：【给傻子实习生的Git教程】
+
 个人开发基本git命令git对于小白来说无非就是起到一个版本管理的作用（ 存档），以至于多人协作等高阶玩法，慢慢摸索即可。
 因此，本篇博客站在一个小白的视角，看看如何才能快速上手git。
 首先，当然是要从安装git说起，下载地址：https://git-scm.com/；下载下来后安装程序就是无脑选择推荐选项和点击下一步即可（当然可以勾选上On the Desktop选项）。
 安装好后，就可以进入到项目中初始化git仓库，通过git init初始化即可，当然也可通过git clone [url]克隆远程仓库到执行命令的目录下。
 
-本地仓库设置好了，我们怎么关联远程仓库呢，首先得去GitHub创建一个仓库，然后我们再通过git remote set-url origin [url]，这个命令会将本地仓库关联到远程仓库
+本地仓库设置好了，我们怎么关联远程仓库呢，首先得去GitHub创建一个仓库，然后我们再通过git remote add origin [url]，这个命令会将本地仓库关联到远程仓库。
+
+git remote set-url origin [url]：这个命令用于更改现有远程仓库origin的URL。如果origin不存在，这个命令会失败，因为它试图设置一个不存在的远程的URL。它用于当你需要更新远程仓库的URL时，比如从HTTPS切换到SSH，或者远程仓库地址改变了。
+主要区别：
+
+add：添加新的远程（如果已存在则报错）。
+set-url：修改现有远程的URL（如果不存在则报错）。
+
+
+再通过git push -u origin master，把本地 master 分支代码推送到远程 origin 的 master 分支
+一句话总结：先关联远程仓库，再首次推送并绑定分支，后续可极简推拉代码。
 
 通过IDE打开项目后，可以通过IDE内置的终端进行git命令操作。
 当我们完成一个功能后，就会习惯性的提交一下功能实现的代码，使用git add .就是将工作目录下的所有文件添加进暂存区中，可以通过git add [file]来指定文件添加进暂存区。
@@ -1943,8 +1956,21 @@ pick 提交1s 提交2s 提交3s 提交4
 当然，想要修改提交信息，git commit --amend就会打开一个编辑器让你修改提交信息，保持关闭即可。
 
 那肯定会有小白不小心误提交了，那怎么办，执行git reset --soft HEAD~n，这个命令就是撤销n个新提交但保留修改。
+其实可以分四种情况看：
+情况1️⃣：只是 git add 了，还没 commit
+# 撤销 add，文件改动保留git reset# 或者撤销某个文件的 addgit reset 文件名
 
-当远程仓库的分支和现在本地分支进度不一致或者修改了已推送的历史，那么可能需要强制推送了，这里面风险很大，但是因为我们都是个人使用不存在多人协作，所有强制推送对我们没啥事，执行git push --force-with-lease进行强制推送。
+情况2️⃣：已经 commit 了，但还没 push
+# 回退到上一次 commit（保留代码改动）git reset --soft HEAD~1# 回退到上一次 commit（代码改动也丢掉，慎用！）git reset --hard HEAD~1
+
+情况3️⃣：已经 push 到远程了
+# 回退本地git reset --hard HEAD~1# 强制推送覆盖远程（危险！确定要这么做再用）git push -f
+
+情况4️⃣：只是想撤销某次 commit 但保留记录
+# 新建一个&quot;反向提交&quot;来撤销，更安全git revert HEAD
+
+
+通常来说，直接git push即可，但当远程仓库的分支和现在本地分支进度不一致或者修改了已推送的历史，那么可能需要强制推送了，这里面风险很大，但是因为我们都是个人使用不存在多人协作，所有强制推送对我们没啥事，执行git push --force-with-lease进行强制推送。
 
 附录：以上就是个人开发的常用命令，当然还有其他常用命令，我在这里一一列举一下：
 一、基础配置命令# 查看配置git config --listgit config --global --list# 设置用户信息git config --global user.name &quot;你的名字&quot;git config --global user.email &quot;你的邮箱&quot;# 设置默认编辑器git config --global core.editor &quot;vim&quot;  # 或 &quot;code --wait&quot; 用VSCode# 设置别名（快捷命令）git config --global alias.co checkoutgit config --global alias.br branchgit config --global alias.ci commitgit config --global alias.st status
@@ -7931,40 +7957,6 @@ hexo cleanhexo ghexo s
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2026/05/06/2026/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/MySQL+Linux+docker+py+AI/py/</url>
-    <content><![CDATA[- 
-
-
-编译型语言：将程序代码整体翻译成二进制目标代码（如C&#x2F;C++生成.exe文件），执行时直接运行二进制代码，无法查看源码。
-解释型语言：逐句翻译为计算机指令立即执行（如Python&#x2F;PHP&#x2F;JavaScript），不生成可执行文件。
-
-
-Python执行细节
-：
-
-编译阶段：执行.py文件时会先编译生成.pyc字节码文件（如hello.py → hello.pyc），但该文件默认不落盘（不保存到磁盘），仅在内存中完成。
-解释阶段：将编译后的字节码逐行解释执行。
-
-
-与传统语言对比
-：
-
-文件可见性：C语言的.exe和Java的.class文件可见，Python的.pyc文件不可见。
-编译触发方式：C&#x2F;Java需手动编译，Python自动完成编译解释全过程。
-
-
-语言类型定位
-：
-
-表面特性：属于解释型语言
-深层机制：实际采用”先编译后解释”的混合模式
-
-
-
-]]></content>
-  </entry>
-  <entry>
     <title>多Agent+Skills+SpringAI全栈实战：从基础到分布式旅游规划落地</title>
     <url>/2026/04/30/2026/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/%E5%A4%9AAgent+Skills+SpringAI/%E5%A4%9AAgent+Skills+SpringAI/</url>
     <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
@@ -8577,6 +8569,2236 @@ String publicKey = &quot;pk-lf-xxxxxxxx&quot;;String secretKey = &quot;sk-lf-xxx
         <tag>AgentScope</tag>
         <tag>Langfuse</tag>
         <tag>SpringAIAlibaba</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python基础快速入门</title>
+    <url>/2026/05/08/2026/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/MySQL+Linux+docker+py+AI/py%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+第一阶段模块1：py的语言类型及执行机制
+两类语言核心区别
+
+
+编译型：整体翻译成二进制生成可执行文件，直接运行、无源码可见（例：C&#x2F;C++）。
+解释型：逐句翻译即时执行，不生成可执行文件（例：Python、PHP、JS）。
+
+
+Python执行流程先编译生成.pyc字节码（默认仅存内存、不落地），再逐行解释执行字节码。
+
+与C&#x2F;Java对比
+
+
+
+文件：C的exe、Java的class可见，Python pyc默认不可见。
+编译：C&#x2F;Java需手动编译，Python自动完成编译+解释。
+
+
+Python类型定位表层是解释型语言，底层为先编译后解释的混合执行模式。
+
+模块2：基础语法核心知识点1. 代码规范与基础概念
+
+注释：
+单行注释：使用 #
+多行注释：使用三个单引号 &#39;&#39;&#39;注释&#39;&#39;&#39; 或三个双引号 &quot;&quot;&quot;注释&quot;&quot;&quot;
+
+
+缩进：Python严格要求使用缩进（通常4个空格）来表示代码块，替代了Java中的 &#123;&#125;。
+标识符命名规则：
+只能包含字母、数字和下划线 _，且不能以数字开头。
+严格区分大小写。
+不可使用Python关键字（可通过 import keyword; print(keyword.kwlist) 查看）。
+命名习惯：变量&#x2F;函数名采用蛇形命名法（如 get_name），类名采用大驼峰命名法（如 MyClass）。
+
+
+
+2. 变量与基础数据类型
+
+动态类型：变量无需声明类型，直接赋值即可（如 a = 1），运行时自动推断类型。与Java强类型不同，Python变量可随时改变类型（如 a = 1; a = &quot;hello&quot; 合法）。
+基础数据类型：
+整型：int（Python3中无Java的long&#x2F;short之分，长度不受限制）
+浮点型：float
+布尔型：bool，值为 True 或 False（注意与Java区分：首字母必须大写）
+类型检查：使用 type(var) 可查看变量类型。
+
+
+
+3. 输入与输出
+
+**输出 print()**：默认换行，可通过 end=&quot;&quot; 参数设置结尾字符。
+输入 input()：接收用户输入，无论输入什么，返回值均为字符串类型，若需数值运算必须强制类型转换（如 int(input(&quot;请输入年龄: &quot;))）。
+
+4. 运算符
+
+算术运算符：+ - * /（除法，结果浮点数） %（取模） **（幂运算） //（整除，向下取整，相当于Java的 / 整数除法）
+比较运算符：== != &gt; &lt; &gt;= &lt;=，返回布尔值。Python支持连写比较（如 1 &lt; a &lt; 10，Java不支持）。
+逻辑运算符（与Java核心差异）：
+与：and （对应Java的 &amp;&amp;）
+或：or （对应Java的 ||）
+非：not （对应Java的 !）
+
+
+赋值运算符（完整表）：
+
+
+
+
+运算符
+说明
+实例
+
+
+
+=
+赋值
+a = 1
+
+
++=
+加法赋值
+a += 2，等同于 a = a + 2
+
+
+-=
+减法赋值
+a -= 2，等同于 a = a - 2
+
+
+*=
+乘法赋值
+a *= 2，等同于 a = a * 2
+
+
+/=
+除法赋值
+a /= 2，等同于 a = a / 2
+
+
+//=
+整除赋值
+a //= 2，等同于 a = a // 2
+
+
+%=
+模赋值
+a %= 2，等同于 a = a % 2
+
+
+**=
+幂赋值
+a **= 2，等同于 a = a ** 2
+
+
+:=
+海象运算符（Python3.8新增）
+表达式中同时赋值并返回值 如 num1 = 20; print((num2 := 3**2) &gt; num1); print(num2)
+
+
+5. 字符串操作
+
+切片：s[1:3]（取索引1到2的字符，左闭右开），支持负数索引（s[-1] 取最后一个字符）。
+常用方法：strip()（去首尾空格）、split()（分割）、join()（拼接）、replace()（替换）、upper()&#x2F;lower()（大小写转换）。
+格式化：推荐使用 f-string 格式 f&quot;Hello &#123;name&#125;&quot;，比Java的字符串拼接或 %s 更直观高效。
+
+6. 流程控制
+
+分支：if..elif..else 结构（**注意：Python使用 elif 替代了Java的 else if**），条件后需加冒号 :。
+循环：
+for i in range(10)：range() 生成整数序列，常用于控制循环次数。
+for item in iterable：直接遍历可迭代对象（如列表、字符串）。
+while 循环：满足条件持续执行。
+
+
+循环控制：break（跳出整个循环）、continue（跳过当次循环），与Java用法一致。
+
+
+模块3：容器数据类型核心知识点1. 列表- 对应Java的ArrayList
+
+特性：可变、允许重复、有序。底层为动态数组。
+定义：[] 或 list()
+常用操作：
+增：append(obj) 末尾追加、insert(index, obj) 指定位置插入、extend(iterable) 合并列表
+删：pop(index) 弹出并返回元素（默认最后一个）、remove(obj) 按值删除首个匹配、del list[index] 按索引删除
+改：直接赋值 list[index] = new_value
+查：list[index] 访问元素、in 关键字判断是否存在（如 if 1 in my_list）
+排序：sort() 原地排序、reverse() 原地反转
+
+
+切片：与字符串切片一致，list[start:stop:step]，如 list[::-1] 快速反转列表。
+
+2. 元组- 对应Java的不可变List
+
+特性：不可变、允许重复、有序。一旦创建，元素和长度均不可修改（安全性强，可作为字典的键）。
+定义：() 或 tuple()。注意：单元素元组需加逗号，如 (1,)，否则会被识别为整型。
+常用操作：支持索引访问和切片，不支持增删改操作。可使用 count() 和 index() 方法。
+
+3. 字典- 对应Java的HashMap &#x2F; LinkedHashMap
+
+特性：可变、键不允许重复且不可变（如字符串&#x2F;数字&#x2F;元组）、值允许重复、Python 3.7+ 保持插入顺序。
+定义：&#123;key: value&#125; 或 dict(key=value)
+常用操作：
+增&#x2F;改：dict[key] = value（键存在则修改，不存在则新增）
+删：pop(key) 弹出键值对、del dict[key]
+查：dict[key]（键不存在抛出KeyError）、dict.get(key, default)（推荐，键不存在返回默认值None或指定值）
+遍历：
+for key in dict: 遍历键
+for value in dict.values(): 遍历值
+for key, value in dict.items(): 最常用，同时遍历键值对
+
+
+
+
+
+4. 集合- 对应Java的HashSet
+
+特性：可变、不允许重复、无序。底层为哈希表，自动去重，常用于成员关系测试和数学运算。
+定义：&#123;1, 2, 3&#125; 或 set()。注意：空集合只能用 set()，&#123;&#125; 会被识别为空字典。
+常用操作：
+增删：add(obj) 添加、remove(obj) 删除（不存在报错）、discard(obj) 删除（不存在不报错）
+数学运算：
+交集：set1 &amp; set2 或 set1.intersection(set2)
+并集：set1 | set2 或 set1.union(set2)
+差集：set1 - set2（在set1不在set2）
+
+
+
+
+
+5. 四类数据结构完整对比
+
+
+
+数据结构
+是否可变
+是否重复
+是否有序
+定义符号
+Java近似对应
+
+
+
+列表
+可变
+允许
+有序
+[] 或 list()
+ArrayList
+
+
+元组
+不可变
+允许
+有序
+() 或 tuple()
+Collections.unmodifiableList
+
+
+字典
+可变
+键不允许，值允许
+Python 3.7+保持插入顺序
+&#123;&#125; 或 dict()
+LinkedHashMap
+
+
+集合
+可变
+不允许
+无序
+&#123;&#125; 或 set()
+HashSet
+
+
+6. 高级特性：推导式 Python特有语法，用于从已知容器快速生成新容器，替代繁琐的 for 循环和 add/append 操作。
+
+列表推导式：
+[表达式 for 变量 in 可迭代对象 if 条件]
+
+
+示例：[x**2 for x in range(1, 6)] 生成 [1, 4, 9, 16, 25]
+带条件：[x for x in range(1, 11) if x % 2 == 0] 生成1-10的偶数
+
+
+字典推导式：
+&#123;键表达式: 值表达式 for 变量 in 可迭代对象&#125;
+
+
+示例：&#123;x: x**2 for x in range(1, 4)&#125; 生成 &#123;1: 1, 2: 4, 3: 9&#125;
+
+
+集合推导式：&#123;表达式 for 变量 in 可迭代对象&#125;
+
+
+
+模块4：函数与作用域核心知识点1. 函数定义与基本规则
+
+定义格式：使用def关键字定义，语法如下（与Java方法定义差异极大，Java方法必须属于类，且需声明返回值类型）：
+def 函数名(参数列表):    函数体    [return 返回值]  # 无return时默认返回None
+
+命名规范：
+
+遵循标识符规则（模块2已说明），全览中提到“首单词小写，后续单词首字母大写”为Java常用的驼峰命名法，Python官方推荐函数名使用蛇形命名法（如calculate_sum），与模块2的命名规则统一。
+一般为动词，体现函数功能。
+
+
+基础规则：
+
+参数放在圆括号内，多个参数用逗号分隔，无参数也需保留空括号（Java无参方法也需括号，逻辑一致）。
+函数体需缩进（4个空格），第一行可写文档字符串（三个引号包裹），用于说明函数功能，类似Java的文档注释/** */，可通过函数名.__doc__查看。
+
+
+
+2. 与Java的核心差异（重点） Python中函数是一等公民，这是与Java最核心的差异，具体对比如下：
+
+
+
+特性
+Python
+Java
+
+
+
+函数独立性
+可独立定义，不属于任何类，可作为参数、返回值传递，赋值给变量
+方法必须属于类&#x2F;接口，除lambda外无法独立存在
+
+
+参数特性
+支持默认参数、不定长位置参数*args、不定长关键字参数**kwargs
+无原生默认参数（需方法重载模拟），仅支持可变位置参数（类型… 参数名）
+
+
+返回值
+无return时默认返回None，无需声明返回值类型
+无返回值时必须声明为void，有返回值时必须声明对应类型
+
+
+匿名函数
+lambda 参数: 表达式，仅支持单行表达式
+lambda表达式需绑定函数式接口，语法更复杂
+
+
+作用域规则
+函数级作用域（if&#x2F;for等块内定义的变量可在块外访问）
+块级作用域（仅当前&#123;&#125;内可访问）
+
+
+3. 参数分类详解
+
+位置参数：按定义顺序传递，调用时参数位置与定义一致，和Java的参数传递逻辑相同。
+
+默认参数：定义时给参数赋值，调用时可选择不传递，使用默认值。
+注意：默认参数必须放在位置参数之后，示例：
+def greet(name, greeting=&quot;你好&quot;):    return f&quot;&#123;greeting&#125;，&#123;name&#125;！&quot;print(greet(&quot;张三&quot;))  # 输出：你好，张三！print(greet(&quot;李四&quot;, &quot;Hello&quot;))  # 输出：Hello，李四！
+
+不定长参数：
+
+*args：接收所有多余的位置参数，存储为元组，示例：
+def sum_all(*args):    return sum(args)print(sum_all(1,2,3,4))  # 输出：10
+
+**kwargs：接收所有多余的关键字参数，存储为字典，示例：
+def print_info(**kwargs):    for key, value in kwargs.items():        print(f&quot;&#123;key&#125;: &#123;value&#125;&quot;)print_info(name=&quot;张三&quot;, age=18)  # 输出：name: 张三  age: 18
+
+
+
+4. 函数高级特性
+
+Lambda匿名函数：用于定义简单的单行函数，格式lambda 参数: 表达式，只能返回一个表达式的结果，示例：
+add = lambda x, y: x + yprint(add(1,2))  # 输出：3，等价于def add(x,y): return x+y
+
+递归函数：函数自己调用自己，核心要素为递归规律（如何拆解为子问题）和结束条件（避免无限递归），示例（计算n的阶乘）：
+def factorial(n):    if n == 1:  # 结束条件        return 1    return n * factorial(n-1)  # 递归规律print(factorial(5))  # 输出：120
+
+
+注意：Python默认递归深度为1000，超过会抛出RecursionError，与Java的栈溢出逻辑一致。
+
+
+函数作为参数：体现函数一等公民特性，示例：
+def add(x,y): return x+ydef calculate(func, a, b):    return func(a, b)print(calculate(add, 1, 2))  # 输出：3，将add函数作为参数传递
+
+5. 作用域规则（LEGB原则） Python的作用域按查找优先级分为4层，与Java的块级作用域差异极大：
+
+L（Local）：函数内的局部变量，仅在当前函数内生效。
+E（Enclosing）：嵌套函数的外层函数局部变量，如函数A内定义函数B，B可访问A的变量。
+G（Global）：模块级全局变量，整个.py文件内生效。
+B（Built-in）：Python内置变量（如print、len等）。
+
+
+变量查找顺序：Local → Enclosing → Global → Built-in，找不到则抛出NameError。
+
+与Java的核心差异示例：
+# Python：if块内定义的变量可在块外访问（函数级作用域）if True:    a = 1print(a)  # 输出：1，合法
+
+// Java：if块内定义的变量仅在块内生效（块级作用域）if (true) &#123;    int a = 1;&#125;System.out.println(a); // 报错，a未定义
+
+
+模块5：面向对象核心知识点1. 类与对象基础
+
+类定义：使用class关键字定义，语法为class 类名:，无需像Java一样声明访问权限（如public class）。
+构造方法：__init__()为Python的构造方法，在创建对象时自动调用，用于初始化实例属性。**第一个参数必须为self**，指代当前实例对象，替代Java中的this关键字（Java的this可省略，Python的self必须显式书写）。
+实例方法：类中定义的普通方法，第一个参数默认为self，调用时无需显式传递，Python会自动将调用对象作为self传入，对比Java的实例方法需要依赖对象调用。
+
+2.封装与访问控制： Java通过public&#x2F;private&#x2F;protected三种访问修饰符实现强制封装，Python无原生强制访问控制，仅通过约定和名称改写实现伪封装：
+
+**单下划线_var**：约定为非公开API，提示外部不要直接访问，但无强制约束力，外部仍可直接访问。
+
+**双下划线__var**：会触发名称改写机制，变量名会被改写为_类名__var，仅类内部可直接访问，外部需通过改写后的名称访问，有一定封装性。
+
+私有属性案例（原文档保留）：
+class Person:    def __init__(self, name):        self.__name = name  # 双下划线私有属性    def get_name(self):  # 暴露的公有方法，用于访问私有属性        return self.__namep = Person(&quot;张三&quot;)print(p.get_name())  # 输出：张三（通过公有方法访问）print(p._Person__name)  # 输出：张三（通过改写后的名称强制访问）print(p.__name)  # 报错：AttributeError，无法直接访问
+
+3. 继承 Python支持多继承（Java仅支持单继承，多继承需通过接口实现），语法为class 子类(父类1, 父类2, ...):。 4. 静态方法 装饰器@staticmethod可用于定义静态方法，静态方法无默认参数，逻辑上属于类，但无需访问类或实例属性，类似Java的static修饰的静态方法。
+与Java核心差异对比
+
+
+特性
+Python
+Java
+
+
+
+类定义
+class 类名:，无访问修饰符
+public class 类名 &#123;&#125;，可加访问修饰符
+
+
+构造方法
+__init__(self, 参数)，必须显式写self
+与类名同名，无返回值，可重载
+
+
+实例指代
+self作为第一个参数，必须显式传递
+this关键字，可省略
+
+
+继承
+支持多继承，class 子类(父1,父2)
+仅支持单继承，implements实现多接口
+
+
+访问控制
+无强制控制，单下划线约定、双下划线名称改写
+public&#x2F;private&#x2F;protected三种强制访问控制
+
+
+静态方法
+@staticmethod装饰
+static关键字修饰
+
+
+
+结合文档整体框架和面向“具有Java基础学习者”的定位，我对第一阶段：Python基础速通的模块6：高级特性进行了完善与补充。所有Python相关知识点严格来自给定参考资料，无额外外部补充，重点强化与Java的核心差异对比，帮助学习者快速掌握Python高级特性的使用逻辑。
+
+模块6：高级特性核心知识点1. 装饰器
+
+Python内容：使用@语法定义，本质是一个函数，用于增强其他函数的功能，无需修改原函数代码即可添加额外逻辑。例如@staticmethod用于定义静态方法，逻辑上属于类但无需访问类或实例属性。
+与Java对比：Java没有原生的装饰器语法，若要实现类似“在不修改方法代码的前提下添加额外逻辑（如日志、计时）”的功能，需使用AOP（面向切面编程，如Spring AOP）或动态代理（InvocationHandler）实现，配置流程复杂；Python装饰器是语法级原生支持，通过@装饰器名即可直接添加，实现更简洁。
+
+2. 上下文管理器
+
+Python内容：通过with语句使用，可自动管理资源（如文件、数据库连接等），无需手动释放资源，避免资源泄露。例如使用with语句打开文件时，会在代码块执行完毕后自动关闭文件，无需手动调用关闭方法。
+与Java对比：Java 7+提供了try-with-resources语法，也可自动关闭实现了AutoCloseable接口的资源，和Python的with功能类似；Python的with语句使用更简洁，无需强制要求资源类实现特定接口。
+
+3. 异常处理
+
+Python内容：使用try..except..finally结构捕获和处理异常：try块中放可能抛出异常的代码，except块捕获指定类型的异常并处理，finally块中的代码无论是否发生异常都会执行（通常用于释放资源）。
+与Java对比：Java异常分为受检异常（必须捕获或在方法上声明抛出）和非受检异常，Python所有异常均为非受检异常，无需强制捕获或声明；Java使用try..catch..finally结构，Python的except对应Java的catch，且Python支持在一个except中捕获多个异常类型。
+
+4. 浅拷贝与深拷贝
+
+Python内容：
+
+直接赋值：仅创建对象的引用（别名），不会产生新的拷贝，原对象和赋值对象指向同一块内存空间。
+
+浅拷贝：仅拷贝父对象，不会拷贝内部的子对象，拷贝后仅第一层数据独立，子对象仍共享。实现方式：切片操作[:]、工厂函数list()&#x2F;set()、copy.copy()。
+
+深拷贝：完全拷贝父对象及所有层级的子对象，拷贝后所有数据均独立，修改原对象不会影响深拷贝对象。实现方式：copy.deepcopy()。
+
+官方案例：
+import copya = [1, 2, [3, 4]]b = copy.copy(a)  # 浅拷贝c = copy.deepcopy(a)  # 深拷贝a[2].append(5)print(b)  # [1, 2, [3, 4, 5]] 子对象被修改，浅拷贝受影响print(c)  # [1, 2, [3, 4]] 子对象不受影响，深拷贝完全独立
+
+
+与Java对比：Java中对象赋值均为引用传递，没有原生的深浅拷贝区分；若要浅拷贝对象需实现Cloneable接口并重写clone()方法，深拷贝需手动递归拷贝所有层级的属性，实现成本高；Python原生提供copy模块支持深浅拷贝，使用更便捷。
+
+
+与Java核心差异对比
+
+
+特性
+Python
+Java
+
+
+
+装饰器
+原生语法支持，使用@符号，本质是函数，可增强其他函数功能
+无原生装饰器，需通过AOP或动态代理实现类似功能
+
+
+资源管理
+with语句自动管理，无需手动释放资源
+Java 7+ 的try-with-resources可自动关闭AutoCloseable资源
+
+
+异常处理
+所有异常均为非受检，无需强制声明捕获，try..except..finally结构
+分为受检&#x2F;非受检异常，受检异常必须捕获或声明抛出，try..catch..finally结构
+
+
+对象拷贝
+原生copy模块支持浅拷贝copy.copy()和深拷贝deepcopy()
+无原生拷贝支持，浅拷贝需实现Cloneable，深拷贝需手动递归实现
+
+
+
+模块7：网络编程基础核心知识点1. 网络编程三要素 网络编程的核心基础概念，所有网络通信均需基于以下三要素实现定位与交互：
+
+IP：网络中计算机的唯一标识，用于定位网络中的目标主机。
+端口：进程的逻辑地址，用于标识计算机内的指定进程，实现同一主机内不同网络进程的区别。
+协议：网络通信的规则集合，明确通信双方的数据交互规范。
+
+2. TCP&#x2F;IP协议族 现代互联网的核心通信协议族，本模块需掌握的核心内容：
+
+核心协议：包含两大基础协议：
+TCP（传输控制协议）
+IP（网际协议）
+
+
+分层模型：
+协议原生分层：应用层、传输层、网络层、网络接口层。
+学习常用分层：实际学习时通常替换为OSI七层模型中的数据链路层+物理层，合并为五层模型（应用层、传输层、网络层、数据链路层、物理层）。
+
+
+
+3. 通信协议的定义与作用 通信协议是网络通信的“共同约定”，核心定义以下规则：
+
+数据格式
+传输顺序
+错误检查
+重传规则等
+
+
+第二阶段模块1：MySQL基础1. SQL语句分类SQL（结构化查询语言）是用于操作关系型数据库的标准语言，按功能分为以下四类：
+
+
+
+SQL分类
+全称
+作用
+核心指令
+
+
+
+DDL
+数据定义语句（Data Definition Language）
+定义&#x2F;修改&#x2F;删除数据库、表、字段等对象结构
+CREATE（创建）、ALTER（修改）、DROP（删除）
+
+
+DML
+数据操作语句（Data Manipulation Language）
+新增&#x2F;删除&#x2F;修改&#x2F;查询表中数据
+INSERT（增）、DELETE（删）、UPDATE（改）、SELECT（查）
+
+
+DQL
+数据查询语句（Data Query Language）
+从DML中单独拆分的查询子类（因SELECT使用频率极高）
+SELECT（查）
+
+
+DCL
+数据控制语句（Data Control Language）
+管理数据库访问权限、事务提交回滚
+GRANT（授权）、COMMIT（提交事务）、ROLLBACK（回滚事务）
+
+
+2. 常用辅助命令（原文内容）除核心SQL分类外，还需掌握以下高频使用的辅助命令：
+
+
+
+命令
+作用
+示例
+
+
+
+USE
+切换当前操作的数据库
+USE test; 切换到test数据库
+
+
+SHOW
+查看数据库&#x2F;表相关信息
+SHOW DATABASES; 查看所有数据库；SHOW TABLES; 查看当前库所有表
+
+
+SET
+设置数据库运行参数
+SET NAMES utf8; 设置客户端字符集为utf8
+
+
+
+模块2：原生驱动pymysql1. 环境准备
+依赖安装：两种安装方式，二选一即可：
+
+Conda环境：conda install pymysql
+
+Conda：跨平台包管理器 + 环境管理器
+
+包管理：安装、卸载、更新各类库，解决版本依赖冲突。
+环境管理：隔离多套运行环境，不同项目用不同 Python 版本、不同库版本，互不干扰。
+
+
+
+Pip通用：pip install pymysql
+
+
+
+前置条件：
+
+本地&#x2F;远程MySQL服务已启动
+已创建目标数据库（如meisijiya、test_db），字符集建议设置为utf8mb4避免中文乱码
+安装cryptography依赖：Docker部署场景下需要，用于MySQL8.0的加密连接
+
+
+
+2. 建立数据库连接
+核心方法：pymysql.connect(**kwargs)，返回数据库连接对象conn：
+
+
+
+参数
+说明
+示例值
+
+
+
+host
+MySQL服务器地址，本地为localhost&#x2F;127.0.0.1，远程为对应IP
+&#39;192.168.10.150&#39;
+
+
+port
+MySQL服务端口，默认3306，注意为整型
+3306
+
+
+user
+登录用户名
+&#39;root&#39;
+
+
+password
+登录密码
+&#39;123456&#39;
+
+
+database
+要操作的目标数据库名
+&#39;meisijiya&#39;
+
+
+charset
+字符集，推荐utf8mb4覆盖所有Unicode字符
+&#39;utf8mb4&#39;
+
+
+cursorclass
+游标类型，可选pymysql.cursors.DictCursor，查询结果返回字典（键为字段名），默认返回元组
+pymysql.cursors.DictCursor
+
+
+
+异常处理：连接失败会抛出pymysql.err.OperationalError，建议加try-except捕获异常，示例：
+import pymysqldef get_connection():    try:        conn = pymysql.connect(            host=&#x27;192.168.10.150&#x27;,            port=3306,            user=&#x27;root&#x27;,            password=&#x27;123456&#x27;,            database=&#x27;meisijiya&#x27;,            charset=&#x27;utf8mb4&#x27;,            cursorclass=pymysql.cursors.DictCursor        )        return conn    except:        print(&quot;获取连接的时候发生了异常&quot;)
+
+生产级优化：可添加连接重试机制，避免MySQL服务未就绪导致连接失败：
+import pymysqlimport timedef get_mysql_conn(max_retries=10, retry_delay=2):    for i in range(max_retries):        try:            conn = pymysql.connect(                host=&#x27;localhost&#x27;,                port=3306,                user=&#x27;root&#x27;,                password=&#x27;123456&#x27;,                database=&#x27;test_db&#x27;,                charset=&#x27;utf8mb4&#x27;,                connect_timeout=3            )            print(f&quot;第&#123;i+1&#125;次尝试：MySQL连接成功！&quot;)            return conn        except pymysql.err.OperationalError as e:            print(f&quot;第&#123;i+1&#125;次尝试：连接失败 - &#123;e&#125;&quot;)            if i &lt; max_retries - 1:                time.sleep(retry_delay)    raise Exception(&quot;重试10次后仍无法连接MySQL，请检查配置！&quot;)
+
+3. 执行SQL语句
+步骤1：获取游标：cursor = conn.cursor()，游标是执行SQL、获取结果的核心对象。
+
+步骤2：执行SQL：cursor.execute(sql, args)，强制要求使用%s作为占位符，参数通过args传入，禁止字符串拼接SQL，防止SQL注入
+✅ 正确写法（参数化查询）：
+# 插入数据示例sql = &quot;insert into t_department values (%s, %s, %s)&quot;cursor.execute(sql, (10, &#x27;test&#x27;, &#x27;testtest&#x27;))  # 参数以元组形式传入# 查询示例sql = &quot;select * from t_department where d_id = %s&quot;cursor.execute(sql, (10,))
+
+❌ 禁止写法（字符串拼接，有注入风险）：
+d_id = 10sql = f&quot;insert into t_department values (&#123;d_id&#125;, &#x27;test&#x27;, &#x27;testtest&#x27;)&quot;  # 高危！
+
+步骤3：获取结果：仅查询操作需要获取结果
+
+cursor.fetchall()：获取所有查询结果，返回列表（DictCursor下为字典列表）
+cursor.fetchone()：获取单条结果，无结果返回None
+cursor.fetchmany(size)：获取指定条数结果，示例：
+
+def select_data(conn):    my_cursor = conn.cursor()    sql = &quot;select * from t_department&quot;    my_cursor.execute(sql)    results = my_cursor.fetchall()    for row in results:        print(row)  # DictCursor下row为字典，如&#123;&#x27;d_id&#x27;:1, &#x27;dname&#x27;:&#x27;技术部&#x27;&#125;    my_cursor.close()
+
+4. 事务处理pymysql默认开启事务，执行增（INSERT）、删（DELETE）、改（UPDATE）操作后，必须手动调用conn.commit()提交事务，否则操作不生效；若执行出错，需调用conn.rollback()回滚事务，撤销未提交的修改。 官方增删改示例：
+# 插入def insert_data(conn):    my_c = conn.cursor()    sql = &quot;insert into t_department values (%s, %s, %s)&quot;    my_c.execute(sql, (10, &#x27;test&#x27;, &#x27;testtest&#x27;))    conn.commit()  # 必须提交    my_c.close()# 更新def update_data(conn):    my_c = conn.cursor()    sql = &quot;update t_department set dname=%s where did=%s&quot;    my_c.execute(sql, (&#x27;dev&#x27;, 10))    conn.commit()    my_c.close()# 删除def delete_data(conn):    my_c = conn.cursor()    sql = &quot;delete from t_department where did=%s&quot;    my_c.execute(sql, (10,))    conn.commit()    my_c.close()
+
+5. 资源释放操作完成后必须关闭游标和连接，避免资源泄露，建议使用try-finally结构确保释放（来自Docker文档最佳实践）：
+conn = Nonecursor = Nonetry:    conn = get_connection()    cursor = conn.cursor()    # 执行SQL操作except Exception as e:    if conn:        conn.rollback()  # 出错回滚    print(f&quot;执行失败：&#123;e&#125;&quot;)finally:    if cursor:        cursor.close()    if conn:        conn.close()
+
+
+与Java JDBC核心差异对比表
+
+
+对比项
+Python pymysql
+Java JDBC
+
+
+
+驱动依赖
+安装pymysql库即可，无需加载驱动类
+需导入mysql-connector-java包，且通过Class.forName(&quot;com.mysql.cj.jdbc.Driver&quot;)加载驱动
+
+
+连接建立
+pymysql.connect()直接传参，返回连接对象
+DriverManager.getConnection(url, user, password)
+
+
+SQL执行
+游标cursor.execute(sql, args)，%s占位符传参
+PreparedStatement.execute()，?占位符传参
+
+
+事务处理
+默认开启事务，增删改后需手动commit()，出错rollback()
+默认自动提交，需setAutoCommit(false)开启事务，再手动commit()&#x2F;rollback()
+
+
+查询结果
+DictCursor返回字典列表，普通游标返回元组列表
+返回ResultSet，需通过getString()&#x2F;getInt()等方法按字段名&#x2F;索引获取值
+
+
+资源释放
+手动调用cursor.close()、conn.close()
+手动关闭ResultSet、PreparedStatement、Connection
+
+
+
+模块3：ORM框架SQLAlchemy
+官方文档：https://sqlalchemy.org.cn/
+
+一、整体架构
+核心架构采用分层架构，分三大核心层级，层级职责清晰：
+
+连接管理层：核心是 Engine（引擎），负责数据库连接；提供 Connection、Result 对象；ORM 层封装 Session 作为操作入口。
+元数据结构层：核心为数据库元数据，包含 MetaData（库）、Table（表）、Column（列）三大基础对象，是 SQL 查询的基础。
+查询构建层：Core&#x2F;ORM 共享 SQL 表达式语言，支持流畅构建 SQL，兼容 text () 编写原生 SQL。
+
+
+两大使用风格Core 风格：直接用 Engine+Connection，结合元数据 &#x2F; SQL 表达式操作，贴近原生 SQL。ORM 风格：通过 Session 操作，基于面向对象方式处理数据，适配 OOP 编程场景。
+
+关键特性两种风格共享同一套元数据，均支持与 SQLite 等数据库交互。
+总结：
+
+分层架构：连接管理→元数据→查询构建，层层支撑；
+双模式通用：Core 贴近 SQL、ORM 适配面向对象，可共用元数据。
+
+
+
+
+二、核心组件
+引擎（Engine）：整个库的基础入口，负责管理数据库连接。
+元数据三基石：
+MetaData：数据库元数据的容器，管理所有表对象；
+Table：代表数据库中的表对象；
+Column：代表数据库表中的列对象。 三者是Core和ORM的核心要素，统称为数据库元数据，是SQL表达式语言的基础。
+
+
+SQL表达式语言：SQLAlchemy Core和ORM的核心要素，支持流畅、可组合构建SQL查询，是日常开发的首选查询方式。
+text()构造：用于编写文本SQL的简单工具，日常使用中是例外场景，但始终可用，适合未熟悉表达式语言时作为补充。
+Core层操作对象：
+Connection：Engine的主要操作端点，用于Core风格的数据库连接与操作；
+Result：SQL执行后的结果对象，用于获取返回数据。
+
+
+ORM层操作对象：
+Session：ORM对底层Connection等对象的外观模式封装，是ORM风格的核心操作端点，负责管理事务和对象状态；
+ORM面向表的构造：与Core共享元数据逻辑，提供ORM风格的表定义方式；
+ORM关联对象：用于处理ORM对象之间的关联关系。
+
+
+
+
+三、环境准备根据教程顺序，使用SQLAlchemy 2.0前需完成以下准备：
+
+创建引擎：完成连接配置，初始化Engine对象，是所有操作的基础。
+准备数据库：需确保目标数据库就绪，其他数据库需对应DBAPI支持。
+构建表构造：准备好Core风格的元数据对象（MetaData、Table、Column）或ORM风格的面向表构造，作为数据库交互的基础。
+可选准备：
+暂未掌握SQL表达式语言时，可先了解text()构造的使用方法，编写文本SQL完成简单操作；
+建议熟悉基础后优先学习SQL表达式语言，文本SQL仅作为补充手段。
+
+
+
+
+四、基本使用流程
+建立连接：创建Engine对象。
+熟悉基础操作：了解Engine的端点Connection、Result，以及ORM的Session对象，掌握事务基本逻辑，可先通过text()构造编写文本SQL完成简单操作。
+使用元数据：构建&#x2F;使用已有的MetaData、Table、Column等元数据对象，明确Core和ORM两种风格的表构造使用方式。
+数据处理：基于元数据和SQL表达式（或text()文本SQL），通过Connection（Core风格）或Session（ORM风格）执行数据操作，包括INSERT、查询、更新、删除等。
+ORM进阶：若使用ORM风格，可进一步学习ORM关联对象的使用，处理对象间关联关系。 核心交互逻辑：
+
+
+Core风格：Engine → 获取Connection → 执行SQL（表达式&#x2F;text()） → 获取Result → 处理结果
+ORM风格：Engine → 获取Session → 操作ORM对象&#x2F;执行查询 → 提交事务 → 处理结果
+
+示例代码：
+公共依赖&amp;建立连接from sqlalchemy import create_engine, text, MetaData, Table, Column, Integer, String, ForeignKey, insert, select, update, deletefrom sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Sessionfrom typing import List# ======================# 1. 建立连接：创建Engine对象（Core/ORM共用）# ======================# echo=True：打印执行的SQL语句，方便学习调试engine = create_engine(&quot;sqlite:///./test_db.sqlite&quot;, echo=True)
+
+Core 风格完整流程:# ======================# 2. 熟悉基础操作：用text()写文本SQL + Connection/Result# ======================with engine.connect() as conn:    # 执行文本SQL（先删旧表避免重复报错）    conn.execute(text(&quot;DROP TABLE IF EXISTS core_users&quot;))    conn.execute(text(&quot;CREATE TABLE core_users (id INT PRIMARY KEY, name VARCHAR)&quot;))        # 事务提交（Core默认不自动提交）    conn.commit()# ======================# 3. 使用元数据：Core风格表构造（MetaData/Table/Column）# ======================# 定义元数据对象（Core的核心，用于管理所有表结构）core_metadata = MetaData()# 定义Core风格的表对象core_users = Table(    &quot;core_users&quot;,    core_metadata,    Column(&quot;id&quot;, Integer, primary_key=True),    Column(&quot;name&quot;, String),    extend_existing=True  # 允许覆盖已定义的表)# 基于元数据创建表（等价于上面的text()建表）core_metadata.create_all(engine, checkfirst=True)# ======================# 4. 数据处理：Core风格（Connection + SQL表达式）# ======================with engine.connect() as conn:    # --- 4.1 INSERT ---    conn.execute(        insert(core_users),        [&#123;&quot;id&quot;: 1, &quot;name&quot;: &quot;Core张三&quot;&#125;, &#123;&quot;id&quot;: 2, &quot;name&quot;: &quot;Core李四&quot;&#125;]    )    conn.commit()    # --- 4.2 查询 ---    result = conn.execute(select(core_users).where(core_users.c.id == 1))    # 处理Result：获取单行    row = result.first()    print(f&quot;Core查询结果：id=&#123;row.id&#125;, name=&#123;row.name&#125;&quot;)    # --- 4.3 更新 ---    conn.execute(        update(core_users).where(core_users.c.id == 2).values(name=&quot;Core李四（已更新）&quot;)    )    conn.commit()    # --- 4.4 删除 ---    conn.execute(delete(core_users).where(core_users.c.id == 1))    conn.commit()
+
+ORM 风格完整流程# ======================# 3. 使用元数据：ORM风格表构造（DeclarativeBase + 模型类）# ======================# 定义ORM基类（替代旧版declarative_base）class Base(DeclarativeBase):    pass# 定义ORM模型类（对应数据库表）class OrmUser(Base):    __tablename__ = &quot;orm_users&quot;        id: Mapped[int] = mapped_column(primary_key=True)    name: Mapped[str]# 基于模型类创建表（ORM自动管理元数据）Base.metadata.create_all(engine, checkfirst=True)# ======================# 2. 熟悉基础操作：用text()写文本SQL + Session# ======================with Session(engine) as session:    # 执行文本SQL    session.execute(text(&quot;DELETE FROM orm_users&quot;))    session.commit()# ======================# 4. 数据处理：ORM风格（Session + ORM对象）# ======================with Session(engine) as session:    # --- 4.1 INSERT：直接操作Python对象 ---    user1 = OrmUser(id=1, name=&quot;ORM张三&quot;)    user2 = OrmUser(id=2, name=&quot;ORM李四&quot;)    session.add_all([user1, user2])    session.commit()  # ORM提交事务    # --- 4.2 查询：2.0推荐用select() + session.execute() ---    result = session.execute(select(OrmUser).where(OrmUser.id == 1))    # 处理Result：获取ORM对象    user = result.scalar_one()    print(f&quot;ORM查询结果：id=&#123;user.id&#125;, name=&#123;user.name&#125;&quot;)    # --- 4.3 更新：直接修改ORM对象属性 ---    user2.name = &quot;ORM李四（已更新）&quot;    session.commit()    # --- 4.4 删除：session.delete(对象) ---    session.delete(user1)    session.commit()
+
+
+五、高级特性
+可组合的SQL表达式语言：支持流畅、可组合的方式构建复杂SQL查询，是SQLAlchemy的核心特性，优于文本SQL，建议在熟悉基础后优先使用。
+ORM关联对象处理：支持定义和操作ORM对象之间的关联关系。
+双风格兼容：Core和ORM两种风格共享同一套元数据对象（MetaData、Table、Column），可根据场景灵活切换，无需重复定义表结构。
+文本SQL补充支持：text()构造始终可用，可在特殊场景下编写文本SQL，作为表达式语言的补充，兼容性更强。
+
+
+]]></content>
+      <categories>
+        <category>Python+AI</category>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Python</tag>
+        <tag>网络编程基础</tag>
+        <tag>MySQL基础</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>PythonWeb快速入门</title>
+    <url>/2026/05/09/2026/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/MySQL+Linux+docker+py+AI/pyWeb/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+第三阶段模块1：Linux和shell一、Linux（Ubuntu）基础1. 核心概念
+与Windows核心差异：Linux是多用户、多任务的开源操作系统，常用于服务器环境。
+核心原则：Linux系统中一切皆文件。
+默认解析器：Ubuntu默认Shell解析器为bash，可通过echo $SHELL查看，输出为/bin/bash。
+
+2. 系统目录结构
+
+
+目录
+说明
+
+
+
+&#x2F;bin
+存放常用命令可执行文件，是&#x2F;usr&#x2F;bin的软链接
+
+
+&#x2F;sbin
+存放系统管理员使用的管理程序，是&#x2F;usr&#x2F;sbin的软链接
+
+
+&#x2F;home
+普通用户主目录，以用户账号命名
+
+
+&#x2F;root
+超级管理员（root）主目录
+
+
+&#x2F;lib
+系统开机所需的动态链接共享库，类似Windows的DLL文件
+
+
+&#x2F;etc
+系统管理所需的配置文件和子目录
+
+
+&#x2F;usr
+用户程序存放目录，类似Windows的Program Files，包含&#x2F;usr&#x2F;bin、&#x2F;usr&#x2F;lib等子目录
+
+
+&#x2F;boot
+存放Linux启动所需的核心文件、连接文件和映射文件
+
+
+&#x2F;run
+系统运行产生和需要的重要文件
+
+
+&#x2F;proc
+系统运行进程的虚拟映射目录，可直接访问获取系统信息
+
+
+&#x2F;srv
+系统运行时服务产生的数据存放目录，默认为空
+
+
+&#x2F;sys
+Linux2.6内核新增文件系统存放目录
+
+
+&#x2F;tmp
+临时文件存放目录，过期自动清除
+
+
+&#x2F;dev
+硬件设备的文件形式存储目录，类似Windows设备管理器
+
+
+&#x2F;media
+系统自动识别的可移动设备（音响、U盘等）挂载目录
+
+
+&#x2F;mnt
+用户临时挂载外部存储的目录，默认为空
+
+
+&#x2F;opt
+第三方&#x2F;可选应用程序安装目录（如MySQL可安装至此），默认为空
+
+
+&#x2F;var
+存放频繁修改的文件（如系统日志）
+
+
+3. 环境部署与软件管理（1）基础环境安装需完成：VMware虚拟机安装、Ubuntu系统安装、Xshell&#x2F;Xftp远程连接工具安装（生产环境服务器不开放直接接触，需通过远程工具登录）。
+（2）APT包管理器（Debian系专用）APT（Advanced Packaging Tools）可自动完成软件下载、配置、安装，常用命令：
+
+
+
+命令
+功能
+
+
+
+sudo apt update
+更新可用软件包列表
+
+
+sudo apt install 包名 [-y]
+安装软件包，-y跳过确认；如sudo apt install net-tools安装ifconfig工具
+
+
+sudo apt remove 包名 [-y]
+卸载软件包
+
+
+sudo apt search 包名
+搜索软件包
+
+
+sudo apt upgrade
+升级系统所有已安装软件
+
+
+sudo apt full-upgrade
+通过卸载&#x2F;安装&#x2F;升级更新系统
+
+
+4. 常用操作命令（1）帮助命令
+man [章节] 命令：查看命令手册页，章节对应：1-用户命令、2-系统调用、3-库调用、4-特殊文件（&#x2F;dev）、5-文件格式（如&#x2F;etc&#x2F;passwd）、6-游戏屏保、7-杂项、8-系统管理命令（仅root）、9-内核例程。例：man ls查看ls命令帮助，man 2 write查看系统调用write帮助。
+
+help 命令：查看Shell内建命令帮助（内建命令无独立可执行文件，无法用man查看），例：help cd查看cd命令帮助。
+
+常用快捷键：
+
+
+
+快捷键
+功能
+
+
+
+Ctrl + L
+清屏（彻底清屏用clear命令）
+
+
+Ctrl + C &#x2F; Q
+停止当前进程&#x2F;退出
+
+
+Tab键（1-2次）
+命令&#x2F;路径补全，防止敲错
+
+
+上下方向键
+查找执行过的历史命令
+
+
+Ctrl + U
+清除当前输入的命令
+
+
+
+
+（2）文件目录类命令
+
+
+命令
+语法
+功能
+
+
+
+pwd
+pwd
+显示当前工作目录的绝对路径
+
+
+ls
+ls [选项] [目录&#x2F;文件]
+列出目录内容：-a显示所有文件（含隐藏文件）、-l长格式显示文件属性权限、-R递归列出所有子目录；Ubuntu中ll是ls -al的别名
+
+
+cd
+cd [参数]
+切换目录：参数为~回家目录、..上级目录、-返回上一次所在目录
+
+
+touch
+touch 文件名
+创建空文件
+
+
+mkdir
+mkdir [-p] 目录名
+创建目录：-p创建多级目录，如mkdir -p test/b/bb/bbb
+
+
+cp
+cp [选项] 源路径 目标路径
+复制文件&#x2F;目录
+
+
+mv
+mv 源路径 目标路径
+移动&#x2F;重命名文件
+
+
+rm
+rm [选项] 文件&#x2F;目录
+删除文件&#x2F;目录：-r递归删除目录、-f强制删除
+
+
+cat
+cat [选项] 文件
+查看文件内容：-n显示行号
+
+
+less
+less [选项] 文件名
+比 cat 更适合看大文件、日志。
+
+
+tail
+tail [-n 行数&#x2F;-F] 文件
+查看文件尾部内容：默认10行，-n 5看后5行，-F实时追踪文件更新
+
+
+echo
+echo [选项] 输出内容
+输出内容到控制台：-e支持转义字符（\n换行、\t制表符、\\输出反斜杠本身）
+
+
+重定向
+&gt; &#x2F; &gt;&gt;
+&gt;覆盖写入（如ls &gt; note.txt），&gt;&gt;追加写入（如echo hello &gt;&gt; note.txt）
+
+
+ln
+ln -s 原文件&#x2F;目录 软链接名
+创建软链接（类似Windows快捷方式）；删除软链接用rm 软链接名（不可加/，否则会删除实际目录）；用ll查看软链接（第一位是l，尾部有指向路径）
+
+
+history
+history
+查看所有执行过的历史命令
+
+
+
+less详解：
+查看文件
+less app.log       # 打开文件less -N app.log    # 显示行号less +G app.log    # 直接跳到文件末尾less +F app.log		# 实时追踪文件（像 tail -f）less -i app.log		 # 搜索时忽略大小写
+
+浏览操作
+
+上下箭头：逐行移动
+空格 &#x2F; PageDown：下一页
+PageUp：上一页
+G：跳到文件最后一行
+g：跳到文件第一行
+/关键词：向下搜索（如 /error）
+n：搜索下一个匹配
+N：搜索上一个匹配
+q：退出 less
+
+
+（3）vi&#x2F;vim编辑器
+安装：sudo apt install vim
+
+三种模式：
+① 一般模式：打开文件默认进入，可执行操作：
+
+
+
+快捷键
+功能
+
+
+
+yy
+复制当前行
+
+
+y数字y
+复制从当前行开始的n行
+
+
+p
+粘贴到光标所在行下方
+
+
+u
+撤销上一步操作
+
+
+dd
+删除当前行
+
+
+d数字d
+删除从当前行开始的n行
+
+
+x
+删除当前光标所在字符（相当于del）
+
+
+X
+删除当前光标前一个字符（相当于Backspace）
+
+
+yw
+复制一个词
+
+
+dw
+删除一个词
+
+
+^ &#x2F; Shift+6
+移动到行头
+
+
+$ &#x2F; Shift+4
+移动到行尾
+
+
+1+Shift+g
+移动到页头
+
+
+Shift+g
+移动到页尾
+
+
+数字N+Shift+g
+移动到第N行
+
+
+② 编辑模式：按i（当前光标前）、a（当前光标后）、o（当前行下一行）、I（行最前）、A（行最后）、O（当前行上一行）进入，按Esc退出。
+
+
+
+③ 命令模式：一般模式下按:&#x2F;/&#x2F;?进入，可执行操作：
+
+
+
+命令
+功能
+
+
+——
+——
+
+
+:w
+保存
+
+
+:q
+退出
+
+
+:wq
+保存并退出
+
+
+:q!
+强制退出不保存
+
+
+:wq!
+强制保存退出（无文件写权限时使用）
+
+
+&#x2F;关键词
+搜索关键词，n下一个、N上一个
+
+
+:noh
+取消搜索高亮
+
+
+:set nu &#x2F; :set nonu
+显示&#x2F;关闭行号
+
+
+:%s&#x2F;old&#x2F;new&#x2F;g
+全局替换所有old为new
+
+
+
+
+（4）用户与权限管理① root用户管理
+Ubuntu默认锁定root用户，需设置密码：sudo passwd root，输入普通用户密码后设置root密码。
+
+切换用户：
+
+su 用户名：仅获取用户执行权限，不继承环境变量
+su - 用户名：获取用户环境变量+执行权限，完整切换用户
+exit：退出当前用户
+
+
+锁定&#x2F;解锁root：sudo passwd -l root（锁定）、sudo passwd -u root（解锁）
+
+普通用户临时获取root权限：命令前加sudo，如sudo apt install vim，输入普通用户密码后执行；或在/etc/sudoers中添加配置实现免密sudo：
+# 允许testu用户免密执行所有sudo命令testu   ALL=(ALL)     NOPASSWD:ALL
+
+② 用户管理
+
+
+命令
+语法
+功能
+
+
+
+useradd
+useradd [-m] 用户名
+添加用户：-m创建用户主目录；useradd -g 组名 用户名添加到指定用户组
+
+
+passwd
+passwd 用户名
+设置用户密码
+
+
+id
+id 用户名
+查看用户是否存在，输出uid、gid、所属组
+
+
+userdel
+userdel [-r] 用户名
+删除用户：-r同时删除用户主目录
+
+
+usermod
+usermod -l 新用户名 老用户名
+修改用户名；usermod -d /home/新目录 -m 用户名修改用户主目录
+
+
+查看所有用户
+cat &#x2F;etc&#x2F;passwd
+查看系统所有用户
+
+
+③ 用户组管理
+
+
+命令
+语法
+功能
+
+
+
+groupadd
+groupadd 组名
+新增用户组
+
+
+groupdel
+groupdel 组名
+删除用户组
+
+
+groupmod
+groupmod -n 新组名 老组名
+修改组名
+
+
+修改用户所属组
+usermod -g 新组名 用户名
+修改用户所属组
+
+
+查看所有组
+cat &#x2F;etc&#x2F;group
+查看系统所有用户组
+
+
+④ 文件权限管理
+文件属性：通过ls -l查看，10位字符含义： 第0位：文件类型（-普通文件、d目录、l软链接） 第1-3位：属主（文件所有者）权限（r读、w写、x执行） 第4-6位：属组（所有者同组用户）权限 第7-9位：其他用户权限 权限数值：r&#x3D;4、w&#x3D;2、x&#x3D;1，如rwx&#x3D;7、rw&#x3D;6、rx&#x3D;5。
+
+
+
+
+命令
+语法
+功能
+
+
+
+chmod
+chmod [选项] 权限 文件&#x2F;目录
+修改文件&#x2F;目录权限：选项-R递归修改目录下所有文件；支持u（属主）、g（属组）、o（其他）、a（所有）加减权限，如chmod u+x passwd；也支持数字表示，如chmod 765 passwd（属主rwx、属组rw、其他rx）
+
+
+chown
+chown [选项] 最终用户 文件&#x2F;目录
+修改文件&#x2F;目录所有者：选项-R递归修改；如sudo chown root note.txt
+
+
+chgrp
+chgrp 最终组 文件&#x2F;目录
+修改文件&#x2F;目录所属组，如sudo chgrp zxf tt.txt
+
+
+（5）搜索查找查看类
+
+
+命令
+语法
+功能
+
+
+
+find
+find [搜索范围] [选项]
+递归查找文件&#x2F;目录：-name &quot;文件名模式&quot;按名称查找（如find ./ -name &quot;*.txt&quot;）、-user 用户名按所有者查找、-size ±n[单位]按大小查找（单位：b块、c字节、k千字节、M兆、G吉，如find ./ -size &quot;+200c&quot;找大于200字节的文件）
+
+
+grep
+grep [选项] 查找内容 源文件
+过滤查找，常与管道符&#96;
+
+
+（6）压缩解压类
+
+
+命令
+语法
+功能
+
+
+
+tar
+tar [选项] 压缩包名.tar.gz 要打包的内容
+打包压缩&#x2F;解压：-c打包、-v显示详情、-f指定压缩包名、-z调用 gzip 工具处理压缩 &#x2F; 解压缩、-x解包；如tar -zcvf test.tar.gz test/压缩test目录，tar -zxvf test.tar.gz解压
+
+
+du
+du [选项] 目录&#x2F;文件
+查看磁盘使用空间：-a显示所有文件大小；如du -a /opt/software/xxx.sh
+
+
+（7）网络类
+
+
+命令
+语法
+功能
+
+
+
+ifconfig
+ifconfig
+查看所有网络接口配置、IP地址（需先安装net-tools：sudo apt install net-tools）
+
+
+ping
+ping 目的主机
+测试网络连通性，如ping www.baidu.com
+
+
+hostname
+hostname
+查看当前主机名；修改需编辑/etc/hostname文件
+
+
+（8）进程线程类
+
+
+命令
+语法
+功能
+
+
+
+ps
+ps -aux &#x2F; ps -ef
+查看进程状态：ps -aux查看所有进程及CPU、内存占用；ps -ef查看父子进程关系；输出字段：USER属主、PID进程ID、%CPU CPU占用、%MEM内存占用、STAT状态（R运行、S睡眠、T停止等）
+
+
+kill
+kill [-9] 进程号
+杀死进程：-9强制杀死；killall 进程名按名称杀死所有同名进程
+
+
+free
+free -m
+查看服务器内存使用情况，单位MB，显示Mem物理内存、Swap交换空间
+
+
+top
+top [选项]
+查看系统实时健康状态：-d 秒数设置刷新间隔、-p 进程号查看指定进程
+
+
+netstat
+netstat [选项]
+查看网络统计和端口占用：-n数字显示、-l仅显示监听状态、-p显示调用进程；如netstat -nlp
+
+
+（9）其他实用工具
+
+
+命令
+语法
+功能
+
+
+
+basename
+basename 路径 [后缀]
+取文件名，如basename /home/zxf/note.txt .txt输出note
+
+
+dirname
+dirname 绝对路径
+取目录路径，如dirname /home/zxf/note.txt输出&#x2F;home&#x2F;zxf
+
+
+crontab
+crontab [选项]
+系统定时任务：-e编辑定时任务、-l查看任务、-r删除所有任务；时间格式：分 时 日 月 周 命令，如45 22 * * * 命令表示22:45执行；服务管理：sudo systemctl restart cron重启定时服务、systemctl status cron查看服务状态
+
+
+
+二、Shell脚本基础1. 核心概念
+Shell是Linux命令解析器，负责解析用户输入的命令，默认解析器为bash，系统支持的所有解析器可通过cat /etc/shells查看，包括sh、bash、rbash、dash等。
+Shell脚本：多个Linux命令的集合，用于自动化执行重复任务，后缀无强制要求，一般命名为.sh。
+
+2. 脚本基本格式与执行（1）基本格式
+首行指定解析器：#!/bin/bash
+
+后续为具体命令，如：
+#!/bin/bashecho &quot;Hello shell!&quot;
+
+（2）执行方式
+
+
+方式
+语法
+说明
+权限要求
+
+
+
+方式1：解析器执行
+sh&#x2F;bash + 脚本相对&#x2F;绝对路径
+本质是bash解析器帮你执行脚本
+无需可执行权限
+
+
+
+例：sh ./helloworld.sh、bash /home/atguigu/helloworld.sh
+
+
+
+
+方式2：脚本自执行
+输入脚本相对&#x2F;绝对路径
+本质是脚本自己执行
+需先添加可执行权限：chmod +x helloworld.sh，再执行./helloworld.sh或/home/atguigu/helloworld.sh
+
+
+3. 变量（1）系统预定义变量常用系统变量：
+
+
+
+变量
+含义
+
+
+
+$HOME
+当前用户家目录
+
+
+$PWD
+当前工作目录
+
+
+$USER
+当前用户名
+
+
+$SHELL
+当前Shell解析器
+
+
+$PATH
+系统命令搜索路径
+
+
+
+查看变量值：$变量名（注意$和变量名无空格）
+查看所有变量：set
+
+（2）自定义变量
+定义：变量名=值（等号前后无空格；变量名只能由字母、数字、下划线组成，不能以数字开头；值有空格需用单&#x2F;双引号包裹）
+撤销：unset 变量名
+只读变量：readonly 变量名=值，只读变量不能修改、不能unset
+全局变量：export 变量名，将变量提升为全局环境变量，可供其他Shell程序使用（需在同一进程）
+注意：bash中变量默认类型为字符串，无法直接进行数值运算，如C=1+2，echo $C输出1+2。
+
+（3）特殊变量
+
+
+变量
+含义
+
+
+
+$n
+n为数字：$0代表脚本名称，$1-$9代表第1-9个参数，10以上参数需用大括号包裹，如${10}
+
+
+$#
+所有输入参数的个数，常用于判断参数合法性
+
+
+$*
+代表所有参数，被双引号包裹时，所有参数看成一个整体，输出为&quot;$1 $2 ... $n&quot;
+
+
+$@
+代表所有参数，被双引号包裹时，每个参数单独对待，输出为&quot;$1&quot; &quot;$2&quot; ... &quot;$n&quot;
+
+
+$?
+上一次执行的命令的返回状态：0代表执行成功，非0代表执行失败
+
+
+4. 算术运算语法：$((运算式)) 或 $[运算式]，例：
+S=$[(2+3)*4]  # 输出20S=$(((4+3)*4))  # 输出28
+
+5. 条件判断（1）基本语法
+写法1：test condition
+写法2：[ condition ]（condition前后必须有空格）
+判断逻辑：条件成立返回0（真），不成立返回1（假）
+多条件组合：&amp;&amp;（前一条命令执行成功，才执行后一条）、||（前一条命令执行失败，才执行后一条）
+
+（2）常用判断条件
+
+
+类型
+参数
+含义
+
+
+
+数值比较
+-eq
+等于
+
+
+
+-ne
+不等于
+
+
+
+-lt
+小于
+
+
+
+-le
+小于等于
+
+
+
+-gt
+大于
+
+
+
+-ge
+大于等于
+
+
+文件权限
+-r
+有读权限
+
+
+
+-w
+有写权限
+
+
+
+-x
+有执行权限
+
+
+文件类型
+-e
+文件存在
+
+
+
+-f
+文件存在且为常规文件
+
+
+
+-d
+文件存在且为目录
+
+
+
+注意：[]中不能直接使用=、&gt;、&lt;，如需使用C风格比较，需用(( ))。
+
+6. 流程控制（1）if判断# 单分支if [ 条件判断式 ]then    程序fi# 多分支if [ 条件判断式1 ]then    程序1elif [ 条件判断式2 ]then    程序2else    程序3fi
+
+
+注意：[ ]前后必须有空格，if后必须有空格。
+
+例：根据输入年龄判断身份，无参数提示携带年龄：
+#!/bin/bashif [ $# -eq 0 ]then    echo &#x27;请携带年龄&#x27;elif [ $1 -lt 18 ]then    echo &#x27;未成年人&#x27;elif [ $1 -lt 60 ]then    echo &#x27;成年人&#x27;else    echo &#x27;老年人&#x27;fi
+
+（2）case语句case $变量名 in&quot;值1&quot;)    程序1    ;;  # 相当于break&quot;值2&quot;)    程序2    ;;*)    默认程序  # 相当于default    ;;esac
+
+
+例：输入1输出banzhang，2输出cls，其他输出renyao：
+#!/bin/bashcase $1 in&quot;1&quot;)    echo &quot;fangjianmen&quot;    ;;&quot;2&quot;)    echo &quot;meisijiya&quot;    ;;*)    echo &quot;renyao&quot;    ;;esac
+
+（3）for循环# 语法1：C风格循环for ((初始值;循环控制条件;变量变化))do    程序done# 语法2：遍历列表for 变量 in 值1 值2 值3 ...do    程序done
+
+
+$*和$@区别：不被双引号包裹时，均按$1 $2 ... $n输出；被双引号包裹时，$*作为一个整体循环1次，$@每个参数单独循环，循环次数等于参数个数。
+
+例：1到100求和（C风格）：
+#!/bin/bashsum=0for((i=1;i&lt;=100;i++))do    sum=$[$sum+$i]doneecho $sum  # 输出5050
+
+（4）while循环while [ 条件判断式 ]do    程序done
+
+
+例：1到100求和：
+#!/bin/bashsum=0i=1while [ $i -le 100 ]do    sum=$[$sum+$i]    i=$[$i+1]doneecho $sum  # 输出5050
+
+7. read命令
+作用：读取终端输入到指定变量中
+
+语法：read [选项] 变量名
+
+选项：
+
+-p &quot;提示符&quot;：指定输入提示文字
+-t 秒数：指定输入等待时间，不指定则一直等待
+
+
+例：7秒内读取用户输入的名字：
+#!/bin/bashread -t 7 -p &quot;Enter your name in 7 seconds :&quot; NAMEecho $NAME
+
+8. 函数
+区别：Shell命令是系统预定义的外部工具，直接作用于Shell环境；Shell函数是用户自定义的代码块，用于封装复杂操作，提高复用性。
+
+自定义函数语法：
+[ function ] funname [()]  # function和()只能省略一个&#123;    程序;    [return int;]  # 返回值范围0-255，不写则返回最后一条命令的结果，通过$?获取&#125;
+
+注意：函数必须先声明再调用（Shell逐行执行，不预编译）；返回值只能通过$?系统变量获取。
+
+例：计算两个输入参数的和：
+#!/bin/bashsum()&#123;    SUM=$[$1+$2]    echo $SUM&#125;read -p &quot;请输入第一个数值: &quot; n1read -p &quot;请输入第二个数值: &quot; n2sum $n1 $n2
+
+9. 常用Shell工具（1）cut：剪切工具
+作用：从文件的每一行剪切字节、字符、字段并输出，默认分隔符为制表符。
+
+语法：cut [选项] 文件名
+
+选项：
+
+-f 列号：提取第几列
+-d 分隔符：指定分隔符（仅支持单字符）
+
+
+例：
+cut -d &quot; &quot; -f 1 cut.txt  # 提取cut.txt第一列（空格分隔）echo $PATH | cut -d &quot;:&quot; -f 3-  # 提取PATH变量从第3个:开始的所有路径
+
+（2）awk：文本分析工具
+作用：逐行读入文件，默认以空格为分隔符切片，对切片内容进行分析处理。
+
+语法：awk [选项] &#39;/pattern1/&#123;action1&#125; /pattern2/&#123;action2&#125;...&#39; 文件名
+
+选项：
+
+-F 分隔符：指定输入文件分隔符
+-v 变量名=值：定义用户自定义变量
+
+
+内置变量：
+
+
+
+变量
+含义
+
+
+
+FILENAME
+文件名
+
+
+NR
+行号
+
+
+NF
+切割后的列数
+
+
+
+例：
+awk -F : &#x27;/^root/&#123;print $7&#125;&#x27; passwd  # 输出passwd中root开头的行第7列awk -F : &#x27;BEGIN&#123;print &quot;user,shell&quot;&#125; &#123;print $1&quot;,&quot;$7&#125; END&#123;print &quot;meisijiya,/bin/zuishuai&quot;&#125;&#x27; passwd  # 开头加表头，结尾加内容ifconfig ens33 | awk -F &quot; &quot; &#x27;/inet /&#123;print $2&#125;&#x27;  # 提取ens33网卡的IP地址
+
+10. 正则表达式入门正则表达式用于描述、匹配一系列符合规则的字符串，grep、sed、awk等命令均支持。
+
+
+
+特殊字符
+含义
+例
+
+
+
+^
+匹配行开头
+grep ^a /etc/passwd匹配所有a开头的行
+
+
+$
+匹配行结尾
+grep n$ /etc/passwd匹配所有n结尾的行；^$匹配空行
+
+
+.
+匹配任意单个字符
+grep r..t /etc/passwd匹配r和t之间有两个任意字符的行
+
+
+*
+匹配前一个字符0次或多次
+grep ro*t /etc/passwd匹配rt、rot、root等；.*匹配任意长度任意字符
+
+
+[]
+匹配范围内的单个字符
+[68]匹配6或8，[0-9]匹配数字，[a-z]匹配小写字母
+
+
+\
+转义字符，匹配特殊字符本身
+grep a\$b /etc/passwd匹配所有含a$b的行
+
+
+
+经典正则：
+邮箱：^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)+$
+手机号（简单版）：/^1[3-9]\d&#123;9&#125;$/
+
+
+
+
+根据现有学习资料，第三阶段「Web开发与容器化部署（2-3周）」原有文档中误将本模块编号为「模块3」，现按您的要求修正为第三阶段模块1：FastAPI + SQLAlchemy2.0 整合，以下是完善补充后的翔实内容，所有内容均来自提供的参考资料，并特别标注SQLAlchemy2.0相关规范及版本差异：
+
+模块2：异步编程基础一、模块定位与目标1.1 模块定位本模块是FastAPI框架学习的前置核心基础：FastAPI基于协程异步编程模式与ASGI规范实现高并发能力，掌握本模块内容是后续学习FastAPI、整合SQLAlchemy的必要前提。
+1.2 学习目标
+理解协程的本质与优势，掌握async&#x2F;await语法规则
+理解事件循环（Event Loop）的工作机制，掌握asyncio核心API使用
+掌握协程并发实现方式（Task、asyncio.gather），理解串行&#x2F;并发耗时差异
+理解WSGI与ASGI的区别与选型原则
+能够独立编写异步程序模拟I&#x2F;O请求，计算并发耗时
+
+
+二、核心知识点详解2.1 协程（Coroutine）基础2.1.1 传统线程&#x2F;进程的瓶颈处理I&#x2F;O密集型任务（如Web服务同时处理数千用户连接）时，线程模型存在明显缺陷：
+
+切换开销大：操作系统在数千线程间切换消耗大量CPU时间
+同步复杂：线程共享内存，需用锁保护共享数据，易引发死锁
+阻塞浪费：线程I&#x2F;O阻塞时自身挂起，切换成本仍较高，无法创建足够多线程应对极高并发
+
+2.1.2 协程的定义与优势协程是Python中处理高并发的强大工具，尤其适合I&#x2F;O密集型场景：
+
+本质：用户态的轻量级线程（微线程），不由操作系统调度，由程序自身控制调度
+核心优势：
+调度可控：通过await关键字主动让出CPU给其他协程
+轻量级：创建成本极低，一个线程可轻松创建数万个协程
+无锁机制：同一时间只有一个协程运行，无需锁保护共享资源
+开销极低：避免操作系统级上下文切换，仅存在极小的函数调用开销，I&#x2F;O操作效率远高于线程
+
+
+
+
+2.2 async&#x2F;await 语法规范Python 3.5+通过async和await关键字实现协程：
+2.2.1 定义协程函数：async def使用async def定义的函数为协程函数，调用后不会立即执行，仅返回协程对象：
+import asyncioasync def hello():    print(&quot;Hello&quot;)    await asyncio.sleep(1)  # 模拟I/O操作，await只能在协程函数内使用    print(&quot;World&quot;)# 调用hello()仅返回协程对象，不执行coro_obj = hello()print(type(coro_obj))  # 输出: &lt;class &#x27;coroutine&#x27;&gt;
+
+2.2.2 挂起与恢复：await关键字await是协程的核心，用于暂停当前协程执行，等待可等待对象（Awaitable，通常是其他协程或I&#x2F;O操作）完成：
+
+遇到await时：当前协程让出CPU控制权，进入“挂起”状态
+事件循环接管：调度执行其他处于“就绪”状态的协程
+等待对象完成后：事件循环将控制权交还给挂起的协程，使其从await后继续执行
+
+
+2.3 事件循环（Event Loop）事件循环是协程并发模型的核心，是负责调度、管理和执行所有协程的“心脏”。
+2.3.1 事件循环工作流程
+注册任务：协程需注册到事件循环才能被调度，三种注册方式：
+
+
+
+注册方式
+目的
+机制
+用途
+
+
+
+asyncio.run(main_coro)
+启动整个异步程序
+创建EventLoop，将顶级协程隐式包装成Task运行
+程序入口点
+
+
+asyncio.create_task(coro)
+实现并发执行
+将协程立即包装成Task，添加到EventLoop队列，后台运行
+启动多个并发任务，配合asyncio.gather等待结果
+
+
+await coro
+实现串行等待
+EventLoop隐式将coro注册为任务执行，但必须等待其完成才恢复当前协程
+确保代码按顺序执行
+
+
+
+启动协程：通过asyncio.run(main_coroutine)启动，实例化EventLoop，将main_coroutine包装成Task加入循环，进入无限循环选择就绪任务执行。
+
+遇到await：协程暂停，将I&#x2F;O操作注册到事件循环监控中，让出控制权给事件循环。
+
+切换任务：事件循环发现当前协程暂停，立即选择下一个就绪协程执行。
+
+I&#x2F;O完成通知：I&#x2F;O操作完成后，操作系统通知事件循环，对应协程标记为“就绪”。
+
+恢复协程：事件循环在合适时机让挂起的协程从await处恢复执行。
+
+终止与清理：顶级Task完成后，EventLoop强制取消所有运行中的子Task，关闭循环，程序退出。
+
+
+2.3.2 事件循环伪代码模型任务列表 = [Task1, Task2, ...]while True:    # 1. 检查I/O事件，更新任务状态（如Task2网络响应到达，标记为就绪）    已完成的IO = monitor_io_events()    # 2. 选取就绪任务执行    for task in 就绪任务队列:        task.run_until_await()  # 运行直到遇到下一个await    # 3. 检查是否所有任务都已完成    if not 任务列表 and not 正在等待IO:        break
+
+
+2.4 协程并发实现：Task与asyncio.gather()协程本身只是“可暂停的函数”，需包装成Task并提交到事件循环才能实现并发。
+2.4.1 Task（任务）
+定义：对协程的封装，自动将协程注册到事件循环，具备被调度和执行的能力
+创建：使用asyncio.create_task(协程对象)，创建后Task立即在后台运行，无需等待
+
+2.4.2 批量并发：asyncio.gather()用于并发执行多个协程&#x2F;任务，等待所有任务完成后返回结果集合：
+import asyncioimport timeasync def my_func(name, delay):    print(f&quot;任务 &#123;name&#125; 开始...&quot;)    await asyncio.sleep(delay)  # 模拟I/O等待，让出CPU    print(f&quot;任务 &#123;name&#125; 完成.&quot;)    return f&quot;结果 of &#123;name&#125;&quot;async def main_concurrent():    print(&quot;--- 并发执行（总耗时 max(1s, 2s) = 2s）---&quot;)    # 创建Task，立即加入事件循环后台运行    task1 = asyncio.create_task(my_func(&quot;C&quot;, 1))    task2 = asyncio.create_task(my_func(&quot;D&quot;, 2))    # 等待所有任务完成，获取结果    results = await asyncio.gather(task1, task2)    print(f&quot;所有结果: &#123;results&#125;&quot;)if __name__ == &quot;__main__&quot;:    start_time = time.time()    asyncio.run(main_concurrent())    print(f&quot;并发总耗时: &#123;time.time() - start_time:.2f&#125;秒&quot;)
+
+2.4.3 并发执行原理
+taskC执行，打印“开始”，遇到await asyncio.sleep(1)，让出控制权
+事件循环切换到taskD，打印“开始”，遇到await asyncio.sleep(2)，让出控制权
+事件循环等待I&#x2F;O事件：1秒后taskC的定时器完成，恢复执行打印“完成”；2秒后taskD的定时器完成，恢复执行打印“完成”
+asyncio.gather收到所有结果返回，总耗时为最慢任务的时间（2秒），远小于串行的3秒。
+
+2.4.4 注意事项：未等待的Task会被取消如果仅创建Task而不等待，顶级Task退出后事件循环会终止，所有子Task会被强制取消：
+async def main_concurrent():    print(&quot;--- 未等待Task的示例 ---&quot;)    asyncio.create_task(my_func(&quot;C&quot;, 1))    asyncio.create_task(my_func(&quot;D&quot;, 2))    # 无等待逻辑，顶级Task直接退出if __name__ == &quot;__main__&quot;:    start_time = time.time()    asyncio.run(main_concurrent())    print(f&quot;并发总耗时: &#123;time.time() - start_time:.2f&#125;秒&quot;)# 输出：仅打印“开始”，总耗时0秒，任务未完成就被终止
+
+
+2.5 协程的限制与高级控制2.5.1 核心限制：阻塞I&#x2F;O协程在单线程中运行，如果代码包含阻塞I&#x2F;O（如time.sleep()、requests.get()等同步库调用），整个事件循环和所有协程都会被卡住，并发能力失效。
+解决方案：隔离阻塞操作 使用asyncio.to_thread()（Python3.9+）或loop.run_in_executor()将阻塞代码交给线程池&#x2F;进程池执行，避免卡住主事件循环：
+import requestsimport asyncioasync def fetch_blocking_url(url):    # 将同步的requests.get扔到另一个线程执行    response = await asyncio.to_thread(requests.get, url)    return response.status_code
+
+2.5.2 高级控制功能
+超时处理：asyncio.wait_for()
+为单个可等待对象设置超时时间，超时抛出asyncio.TimeoutError：
+async def slow_task():    await asyncio.sleep(5)async def main_timeout():    try:        # 任务必须在2秒内完成        await asyncio.wait_for(slow_task(), timeout=2.0)    except asyncio.TimeoutError:        print(&quot;任务超时！&quot;)
+
+任务取消：Task.cancel() 请求取消正在运行的Task，被取消的Task会抛出asyncio.CancelledError，可捕获异常做资源清理。
+
+
+
+2.6 WSGI与ASGI规范（FastAPI前置知识）WSGI和ASGI是Python Web开发中定义服务器与应用通信规则的接口规范，核心区别是对异步的支持能力：
+2.6.1 核心差异对比
+
+
+维度
+WSGI
+ASGI
+
+
+
+提出时间
+2003年
+2018年
+
+
+异步支持
+仅支持同步
+原生支持异步，兼容WSGI
+
+
+定位
+早期同步框架（Flask、Django旧版本）的兼容规范
+WSGI的异步升级版，支持异步任务（WebSocket、长轮询）
+
+
+工作流程
+同步阻塞：一个请求未处理完，对应线程&#x2F;进程无法处理其他请求
+异步非阻塞：等待I&#x2F;O时事件循环切换其他请求
+
+
+适用服务器
+Gunicorn、uWSGI
+Uvicorn
+
+
+2.6.2 选型原则
+同步框架（Flask、Django 3.0之前版本）：使用WSGI服务器
+异步框架（FastAPI、Starlette、Django 3.1+异步模式）：使用ASGI服务器（Uvicorn）发挥异步性能
+实时通信场景（WebSocket聊天、实时数据推送）：必须使用ASGI
+
+
+三、实践任务：模拟异步网络请求并计算耗时3.1 任务要求编写异步函数，模拟两个网络请求（分别耗时1秒、2秒），分别计算串行和并发执行的总耗时，验证协程并发的优势。
+3.2 完整实现代码import asyncioimport time# 模拟网络请求的协程函数，delay为请求耗时async def mock_request(name: str, delay: int):    print(f&quot;[&#123;time.strftime(&#x27;%X&#x27;)&#125;] 请求 &#123;name&#125; 开始，预计耗时 &#123;delay&#125;s&quot;)    await asyncio.sleep(delay)  # 模拟I/O等待，让出CPU    print(f&quot;[&#123;time.strftime(&#x27;%X&#x27;)&#125;] 请求 &#123;name&#125; 完成&quot;)    return f&quot;&#123;name&#125; 结果&quot;# 串行执行版本：总耗时=1+2=3秒async def serial_run():    print(&quot;=== 串行执行开始 ===&quot;)    start = time.time()    res1 = await mock_request(&quot;请求A&quot;, 1)    res2 = await mock_request(&quot;请求B&quot;, 2)    end = time.time()    print(f&quot;串行结果：&#123;res1&#125;, &#123;res2&#125;&quot;)    print(f&quot;串行总耗时：&#123;end - start:.2f&#125;秒&quot;)# 并发执行版本：总耗时=max(1,2)=2秒async def concurrent_run():    print(&quot;\n=== 并发执行开始 ===&quot;)    start = time.time()    # 创建Task，立即加入事件循环后台运行    task1 = asyncio.create_task(mock_request(&quot;请求C&quot;, 1))    task2 = asyncio.create_task(mock_request(&quot;请求D&quot;, 2))    # 等待所有任务完成    results = await asyncio.gather(task1, task2)    end = time.time()    print(f&quot;并发结果：&#123;results&#125;&quot;)    print(f&quot;并发总耗时：&#123;end - start:.2f&#125;秒&quot;)if __name__ == &quot;__main__&quot;:    print(&quot;--- 测试串行执行 ---&quot;)    asyncio.run(serial_run())    print(&quot;\n--- 测试并发执行 ---&quot;)    asyncio.run(concurrent_run())
+
+3.3 执行结果说明
+串行执行：总耗时约3秒，两个请求按顺序执行
+并发执行：总耗时约2秒，两个请求同时执行，总耗时为最慢请求的时间，符合协程并发的预期优势
+
+
+四、扩展实战：异步网络请求（aiohttp）协程最适合I&#x2F;O密集型的网络请求场景，以下是使用aiohttp异步HTTP库并发请求多个URL的示例：
+import asyncioimport aiohttpimport timeasync def fetch_url(session, url):    &quot;&quot;&quot;异步请求URL并返回耗时&quot;&quot;&quot;    start = time.time()    async with session.get(url) as response:        await response.text()  # 等待响应，让出CPU    resp_time = time.time() - start    return f&quot;&#123;url&#125; 耗时 &#123;resp_time:.2f&#125;秒&quot;async def main():    urls = [&quot;https://www.baidu.com&quot;, &quot;https://www.bing.com&quot;, &quot;https://www.github.com&quot;]    async with aiohttp.ClientSession() as session:        print(&quot;--- 并发请求开始 ---&quot;)        start = time.time()        tasks = [fetch_url(session, url) for url in urls]        results = await asyncio.gather(*tasks)        for res in results:            print(res)        print(f&quot;总耗时：&#123;time.time() - start:.2f&#125;秒（约为最慢请求的时间）&quot;)if __name__ == &quot;__main__&quot;:    asyncio.run(main())
+
+
+模块3：FastAPI入门一、模块定位与目标1.1 模块定位本模块承接模块1：异步编程基础，是FastAPI框架的核心入门内容，为后续「模块3：FastAPI+SQLAlchemy整合」「模块4：Docker容器化部署」打下基础。FastAPI是构建AI服务API的主流框架，其异步特性与高并发能力完美适配大模型接口场景。
+1.2 学习目标
+掌握FastAPI的核心特性、技术栈与优势
+熟练搭建FastAPI项目，掌握两种服务启动方式
+精通路径参数、查询参数、请求体的定义、类型校验与自动转换规则
+理解async def（异步）与def（同步）函数的区别、适用场景与执行机制
+掌握路由分发（APIRouter）的用法，实现项目代码模块化拆分
+学会使用FastAPI自动生成的交互式文档测试接口
+完成基础实践任务，独立搭建符合要求的FastAPI应用
+
+
+二、核心知识点详解2.1 FastAPI核心介绍2.1.1 基本定位FastAPI是一个现代、快速（高性能）的Web API框架，用于构建API，基于Python 3.7+的类型提示和异步编程能力实现。
+2.1.2 底层依赖
+Starlette：提供Web工具集与异步支持，是FastAPI的基础运行层
+Pydantic：提供数据验证、类型管理与JSON Schema支持
+
+2.1.3 核心特性
+自动交互式文档：基于OpenAPI规范和JSON Schema，自动生成Swagger UI（访问/docs）和ReDoc（访问/redoc）文档，无需手动编写
+自动数据验证：自动校验请求参数、请求体的类型，返回清晰的错误提示
+依赖注入系统：内置依赖注入机制，方便复用公共逻辑（如数据库会话管理，后续模块详解）
+原生异步支持：完美支持async/await，配合ASGI服务器（Uvicorn）实现I&#x2F;O密集型场景的高并发
+
+2.1.4 官方资源
+官方文档：https://fastapi.tiangolo.com
+源码地址：https://github.com/fastapi/fastapi
+
+
+2.2 环境准备与第一个FastAPI程序2.2.1 依赖安装# 安装FastAPI核心库pip install fastapi# 安装Uvicorn（ASGI服务器，用于运行FastAPI应用）pip install uvicorn
+
+2.2.2 第一个FastAPI程序（基础版）创建main.py文件，写入以下内容：
+from fastapi import FastAPIapp = FastAPI()# 路径操作装饰器：处理根路径的GET请求@app.get(&quot;/&quot;)def read_root():    return &#123;&quot;Hello&quot;: &quot;World&quot;&#125;# 处理/items/&#123;item_id&#125;路径的GET请求，item_id为路径参数@app.get(&quot;/items/&#123;item_id&#125;&quot;)def read_item(item_id: int, q: str | None = None):    return &#123;&quot;item_id&quot;: item_id, &quot;q&quot;: q&#125;
+
+2.2.3 服务启动方式方式1：命令行启动（推荐开发使用）uvicorn main:app --reload
+
+参数说明：
+
+main：main.py文件（Python模块名）
+app：main.py中通过app = FastAPI()创建的应用实例
+--reload：代码更新后自动重启服务，仅开发环境使用
+
+方式2：代码中直接启动from fastapi import FastAPIimport uvicornapp = FastAPI()@app.get(&quot;/&quot;)async def read_root():    return &#123;&quot;Hello&quot;: &quot;World&quot;&#125;@app.get(&quot;/items/&#123;item_id&#125;&quot;)async def read_item(item_id: int, q: str | None = None):    return &#123;&quot;item_id&quot;: item_id, &quot;q&quot;: q&#125;if __name__ == &quot;__main__&quot;:    uvicorn.run(        app=&quot;main:app&quot;,       # 指定要运行的FastAPI应用实例        host=&quot;0.0.0.0&quot;,      # 允许外部访问（本地可通过127.0.0.1或localhost访问）        port=8000,           # 端口号        reload=True           # 开发模式：代码修改后自动重启（生产环境需去掉）    )
+
+2.2.4 访问测试
+根路径：访问http://127.0.0.1:8000/，返回&#123;&quot;Hello&quot;: &quot;World&quot;&#125;
+路径参数测试：访问http://127.0.0.1:8000/items/5?q=iphone17，返回&#123;&quot;item_id&quot;:5,&quot;q&quot;:&quot;iphone17&quot;&#125;（注意item_id会自动转为int类型）
+
+2.2.5 PyCharm快速创建FastAPI工程可在PyCharm中直接新建FastAPI项目：New Project → 选择FastAPI → 配置项目路径、Python解释器，IDE会自动生成基础项目结构。
+2.2.6 路径操作与HTTP方法
+路径（Path）：URL中从第一个/起的后半部分，例如https://example.com/items/foo的路径是/items/foo，也被称为「端点」或「路由」
+
+操作（Operation）：指HTTP方法，开发API时常用操作：
+
+
+
+HTTP方法
+作用
+
+
+
+POST
+创建数据
+
+
+GET
+读取数据
+
+
+PUT
+更新数据
+
+
+DELETE
+删除数据
+
+
+更少用的：OPTIONS、HEAD、PATCH、TRACE
+
+
+
+
+路径操作装饰器：通过@app.get()、@app.post()等装饰器定义「路径+HTTP方法」的映射，例如@app.get(&quot;/items/&#123;item_id&#125;&quot;)表示处理路径/items/&#123;item_id&#125;的GET请求，也可使用@app.post()、@app.put()、@app.delete()等装饰器。
+
+
+2.2.7 返回内容规则FastAPI会自动将返回值转换为JSON格式，支持返回的类型：dict、list、单个值（str、int等）：
+@app.get(&quot;/items/&#123;item_id&#125;&quot;)async def read_item(item_id: int, q: str | None = None):    return &#123;&quot;item_id&quot;: item_id, &quot;q&quot;: q&#125;  # 返回dict，自动转为JSON
+
+
+2.3 路径参数（Path Parameters）2.3.1 基本定义使用Python字符串格式化语法&#123;变量名&#125;声明路径参数，FastAPI会自动将URL中对应位置的参数传递给函数：
+@app.get(&quot;/items/&#123;item_id&#125;&quot;)async def read_item(item_id):    return &#123;&quot;item_id&quot;: item_id&#125;
+
+访问http://127.0.0.1:8000/items/foo，返回&#123;&quot;item_id&quot;:&quot;foo&quot;&#125;（默认类型为字符串）。
+2.3.2 类型声明与自动转换使用Python类型注解声明路径参数的类型，FastAPI会自动将请求中的参数转换为对应类型，同时提供编辑器类型检查、补全支持：
+@app.get(&quot;/items/&#123;item_id&#125;&quot;)async def read_item(item_id: int):  # 声明item_id为int类型    return &#123;&quot;item_id&quot;: item_id&#125;
+
+
+访问http://127.0.0.1:8000/items/3，返回&#123;&quot;item_id&quot;:3&#125;（item_id已自动转为int类型）
+原理：浏览器传递的参数默认是字符串，FastAPI会根据类型注解自动转换
+
+2.3.3 类型校验如果传入的参数不符合声明的类型，FastAPI会自动返回结构化错误响应：
+
+访问http://127.0.0.1:8000/items/foo（字符串，不符合int类型），返回：
+
+&#123;  &quot;detail&quot;: [    &#123;      &quot;type&quot;: &quot;int_parsing&quot;,      &quot;loc&quot;: [&quot;path&quot;, &quot;item_id&quot;],      &quot;msg&quot;: &quot;Input should be a valid integer, unable to parse string as an integer&quot;,      &quot;input&quot;: &quot;foo&quot;    &#125;  ]&#125;
+
+
+浮点数也不符合int类型，访问/items/4.2同样会返回错误。
+
+2.3.4 参数顺序规则路径操作的匹配是按代码顺序执行的，如果存在「固定路径」和「参数路径」，必须把固定路径放在前面，否则会被参数路径匹配： ❌ 错误示例：
+@app.get(&quot;/users/&#123;user_id&#125;&quot;)  # 先定义参数路径async def read_user(user_id: str):    return &#123;&quot;user_id&quot;: user_id&#125;@app.get(&quot;/users/me&quot;)  # 后定义固定路径，会被前面的规则匹配，user_id会取到&quot;me&quot;async def read_user_me():    return &#123;&quot;user_id&quot;: &quot;the current user&quot;&#125;
+
+✅ 正确示例：
+@app.get(&quot;/users/me&quot;)  # 固定路径放在前面async def read_user_me():    return &#123;&quot;user_id&quot;: &quot;the current user&quot;&#125;@app.get(&quot;/users/&#123;user_id&#125;&quot;)  # 参数路径放在后面async def read_user(user_id: str):    return &#123;&quot;user_id&quot;: user_id&#125;
+
+
+2.4 查询参数（Query Parameters）查询参数是URL中?后面的键值对，多个参数用&amp;分隔，FastAPI会自动识别非路径参数的函数为查询参数。
+2.4.1 基本定义示例from fastapi import FastAPIapp = FastAPI()items_list = [&#123;&quot;item1&quot;: &quot;Foo&quot;&#125;, &#123;&quot;item2&quot;: &quot;Bar&quot;&#125;, &#123;&quot;item3&quot;: &quot;Baz&quot;&#125;]@app.get(&quot;/items/&quot;)async def read_item(start: int = 0, limit: int = 10):    return items_list[start : start + limit]
+
+
+访问http://127.0.0.1:8000/items/?start=0&amp;limit=2，查询参数start=0，limit=2，返回对应的切片结果
+类型转换：查询参数默认是字符串，声明类型后会自动转为对应类型（如int）
+
+2.4.2 默认值查询参数是可选的，可通过设置默认值定义：
+
+上述示例中start默认0，limit默认10，访问http://127.0.0.1:8000/items/等价于携带默认参数的URL
+
+2.4.3 可选参数将默认值设为None即可声明可选查询参数：
+@app.get(&quot;/items/&#123;item_id&#125;&quot;)async def read_item(item_id: str, q: str | None = None):  # q为可选参数    if q:        return &#123;&quot;item_id&quot;: item_id, &quot;q&quot;: q&#125;    return &#123;&quot;item_id&quot;: item_id&#125;
+
+FastAPI会自动识别item_id是路径参数，q是查询参数。
+2.4.4 查询参数类型转换支持bool等类型的自动转换，以下值都会被转为True：1、True、true、on、yes（大小写不敏感）；同理False对应的值也会转为False：
+@app.get(&quot;/items/&#123;item_id&#125;&quot;)async def read_item(item_id: str, q: str | None = None, short: bool = False):    item = &#123;&quot;item_id&quot;: item_id&#125;    if q:        item.update(&#123;&quot;q&quot;: q&#125;)    if not short:        item.update(&#123;&quot;description&quot;: &quot;这是描述信息&quot;&#125;)    return item
+
+
+访问http://127.0.0.1:8000/items/foo?short=1或short=true等，short都会被转为True
+
+2.4.5 多路径与查询参数可以同时声明多个路径参数和查询参数，FastAPI通过参数名自动识别，参数顺序不影响：
+@app.get(&quot;/users/&#123;user_id&#125;/items/&#123;item_id&#125;&quot;)async def read_user_item(    user_id: int, item_id: str, q: str | None = None, short: bool = False):    item = &#123;&quot;item_id&quot;: item_id, &quot;owner_id&quot;: user_id&#125;    if q:        item.update(&#123;&quot;q&quot;: q&#125;)    if not short:        item.update(&#123;&quot;description&quot;: &quot;这是描述信息&quot;&#125;)    return item
+
+
+访问http://127.0.0.1:8000/users/100/items/500，返回&#123;&quot;item_id&quot;:&quot;500&quot;,&quot;owner_id&quot;:100,&quot;description&quot;:&quot;这是描述信息&quot;&#125;
+
+2.4.6 必选查询参数
+可选查询参数：声明默认值（包括None）
+必选查询参数：不声明默认值，FastAPI会要求请求必须携带该参数：
+
+@app.get(&quot;/items/&quot;)async def read_items(q: str):  # q没有默认值，为必选查询参数    return &#123;&quot;q&quot;: q&#125;
+
+访问不带q的/items/会返回错误，提示需要提供q参数。
+2.5 请求体（Request Body）FastAPI使用Pydantic模型声明请求体，支持POST、PUT、DELETE、PATCH等操作，自动验证请求体数据的类型和格式。
+2.5.1 Pydantic模型定义需要继承Pydantic的BaseModel：
+from pydantic import BaseModelclass Item(BaseModel):    name: str    desc: str | None = None  # 可选字段，默认None    price: float    tax: float | None = None
+
+2.5.2 请求体接口示例@app.post(&quot;/items/&quot;)async def create_item(item: Item):  # 声明参数类型为Item，FastAPI会自动解析请求体    return item
+
+2.5.3 测试启动服务后访问http://127.0.0.1:8000/docs，可以在自动生成的Swagger文档中直接测试POST请求，请求体示例：
+&#123;    &quot;name&quot;: &quot;string&quot;,    &quot;description&quot;: &quot;string&quot;,    &quot;price&quot;: 0,    &quot;tax&quot;: 0&#125;
+
+
+2.6 异步函数（async def）与同步函数（def）的选择FastAPI同时支持异步和同步函数，两者的执行机制和适用场景有明确区别：
+2.6.1 异步函数（async def）
+本质：定义的是协程（Coroutine），支持在函数内部使用await调用其他异步操作
+适用场景：函数内部包含I&#x2F;O密集型操作（网络请求、文件读写、数据库操作等），且对应操作有异步实现（如aiohttp、异步数据库驱动）
+执行机制：FastAPI会直接在事件循环中运行，遇到await时自动让出CPU控制权，事件循环可以切换处理其他请求，实现真正的异步高并发
+示例：
+
+@app.get(&quot;/&quot;)async def read_root():    return &#123;&quot;Hello&quot;: &quot;World&quot;&#125;
+
+2.6.2 同步函数（def）
+本质：普通的同步函数，不能在内部使用await，所有操作阻塞当前线程直到完成
+适用场景：函数内部是纯计算逻辑（无I&#x2F;O操作），或使用的库只有同步实现（如旧版数据库驱动）
+执行机制：FastAPI会自动将同步函数放入线程池执行（默认线程池大小为os.cpu_count() * 5），多个同步请求会被分配到不同线程并行处理，不会完全阻塞所有请求；但如果同步操作耗时过长（如秒级），会因线程池耗尽导致后续请求排队
+示例：
+
+@app.get(&quot;/&quot;)def read_root():    return &#123;&quot;Hello&quot;: &quot;World&quot;&#125;
+
+2.6.3 选择原则总结
+只要涉及I&#x2F;O操作（如数据库、网络请求），优先用async def并配合异步库，发挥FastAPI的异步优势
+纯计算逻辑或无异步库可用时，用def即可，FastAPI会自动处理线程池，无需手动管理
+
+
+2.7 路由分发（APIRouter）当项目规模扩大时，所有路由写在一个文件中会导致代码臃肿、难以维护，可通过APIRouter实现路由拆分与模块化。
+2.7.1 核心工具：APIRouter
+作用：在子模块中创建独立的路由集合，类似一个小型FastAPI应用
+用法：实例化APIRouter，定义路由，最后通过app.include_router()挂载到子路由
+
+
+模块4：FastAPI + SQLAlchemy2.0 整合1. 环境准备（SQLAlchemy2.0适配）
+安装SQLAlchemy2.0：pip install sqlalchemy
+安装MySQL驱动（DBAPI层）：pip install pymysql（SQLAlchemy通过pymysql适配MySQL）
+连接字符串格式：SQLALCHEMY_DATABASE_URL = &quot;mysql+pymysql://user:password@localhost/db_name&quot;
+
+⚠️ SQLAlchemy版本差异说明：
+
+
+
+组件
+1.x版本导入
+2.0版本导入
+
+
+
+声明式基类Base
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import DeclarativeBase
+
+
+2. 核心组件（SQLAlchemy2.0 + FastAPI）
+Engine（引擎）：数据库连接入口，管理连接池和DBAPI适配，创建方式：
+from sqlalchemy import create_engine  engine = create_engine(SQLALCHEMY_DATABASE_URL,future=True)  # 支持额外连接池参数配置，开启2.0新特性
+
+
+ SQLAlchemy2.0中Engine为统一入口
+
+
+SessionLocal（会话工厂）：生成数据库会话的工厂类，配置不自动提交、不自动刷新：
+from sqlalchemy.orm import sessionmakerSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine,future=True) #开启2.0新特性
+
+Base（模型基类）：所有ORM模型的父类，基于SQLAlchemy2.0元数据（MetaData、Table、Column）实现，用于统一管理表结构：
+from sqlalchemy.orm import DeclarativeBaseclass Base(DeclarativeBase):    pass
+
+FastAPI依赖注入（get_db）：向路由注入数据库会话，自动管理会话生命周期：
+from fastapi import Dependsdef get_db():    db = SessionLocal()    try:        yield db    finally:        db.close()
+
+3. 官方推荐项目结构myproject/├── fastapi_main.py         # FastAPI主应用：路由定义、接口实现├── database.py             # 数据库配置：引擎、会话工厂、get_db依赖├── models.py               # SQLAlchemy ORM模型：映射MySQL表，继承Base└── crud.py                 # （可选）CRUD逻辑封装，分离业务与数据库操作
+
+4. ORM模型定义（SQLAlchemy2.0写法）
+基础模型规则：继承Base，通过__tablename__指定映射表名，字段用Column定义类型和约束：
+# models.pyfrom sqlalchemy import Column, Integer, String, ForeignKeyfrom sqlalchemy.orm import (    relationship,    Mapped,    mapped_column,    DeclarativeBase)from typing import List, Optional  # 用于类型注解from .database import Base  # 确保 Base 是 DeclarativeBase 的子类# --------------------------# 示例 1：图书表（2.0 写法）# --------------------------class Book(Base):    __tablename__ = &#x27;books&#x27;        # 2.0 写法：Mapped[类型] + mapped_column()    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)    name: Mapped[str] = mapped_column(String(100), nullable=False)    author: Mapped[str] = mapped_column(String(50), nullable=False)    price: Mapped[int] = mapped_column(nullable=False)# --------------------------# 示例 2：一对多关联（部门-员工，2.0 写法）# --------------------------class Department(Base):    __tablename__ = &#x27;departments&#x27;        id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)    name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)    location: Mapped[Optional[str]] = mapped_column(String(100))  # Optional 表示可为空        # 一对多关联：使用 Mapped[List[Employee]] 标注类型    employees: Mapped[List[&quot;Employee&quot;]] = relationship(        back_populates=&quot;department&quot;,        cascade=&quot;all, delete-orphan&quot;,        lazy=&quot;selectin&quot;    )class Employee(Base):    __tablename__ = &#x27;employees&#x27;        id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)    name: Mapped[str] = mapped_column(String(50), nullable=False)    department_id: Mapped[int] = mapped_column(        ForeignKey(&quot;departments.id&quot;, ondelete=&quot;RESTRICT&quot;),        nullable=False    )        # 多对一关联：Mapped[Department]    department: Mapped[&quot;Department&quot;] = relationship(        back_populates=&quot;employees&quot;,        lazy=&quot;joined&quot;    )
+
+关联关系说明：
+
+relationship：定义对象间关联，无需手写联表SQL
+back_populates：双向关联，两边模型可互相访问
+cascade：级联操作规则，delete-orphan表示删除主对象时自动删除关联对象
+lazy：关联数据加载策略，selectin可避免N+1查询问题
+
+
+
+5. 会话与事务管理（SQLAlchemy2.0）
+ORM的Session是事务的外观模式，所有数据库操作通过Session执行
+提交事务：增删改操作后需调用db.commit()持久化数据
+回滚事务：出错时调用db.rollback()撤销操作
+SQL编写方式：
+推荐：SQL表达式语言（用Python对象流畅构建SQL）
+兼容：使用text()构造文本SQL（例外场景使用）
+
+
+
+6. FastAPI路由整合（CRUD RESTful API）
+路由中通过Depends(get_db)注入数据库会话，实现CRUD操作：
+
+xx: xx 是 Python 类型提示（Type Hints）这不是 “必须” 的语法，但它能带来 IDE 智能补全、代码可读性、FastAPI 自动文档生成、数据校验 等好处。可配合Optional使用（数据校验）。
+
+your_project/├── database.py   # 数据库配置（2.0 新基类）├── models.py     # ORM 模型（2.0 新类型提示）├── schemas.py    # Pydantic 模型（请求体/响应体规范）└── main.py       # FastAPI 接口（2.0 新查询语法）
+
+
+database.py（数据库配置）
+# database.pyfrom sqlalchemy import create_enginefrom sqlalchemy.orm import sessionmaker, DeclarativeBase# 数据库连接 URL（以 SQLite 为例，MySQL/PostgreSQL 同理）DATABASE_URL = &quot;sqlite:///./test.db&quot;# 2.0 引擎：future=True 开启新特性，echo=True 打印 SQL（调试用）engine = create_engine(DATABASE_URL, future=True, echo=True)# 2.0 会话工厂：同样加上 future=TrueSessionLocal = sessionmaker(    autocommit=False,    autoflush=False,    bind=engine,    future=True)# 2.0 新的基类定义方式（核心变化）class Base(DeclarativeBase):    pass# FastAPI 依赖注入：获取数据库会话def get_db():    db = SessionLocal()    try:        yield db    finally:        db.close()
+
+models.py（ORM 模型）
+
+
+  # models.pyfrom sqlalchemy import Integer, Stringfrom sqlalchemy.orm import Mapped, mapped_columnfrom .database import Basefrom typing import Optional  # 用于可选字段class Book(Base):    __tablename__ = &quot;books&quot;    # 2.0 新写法：Mapped[类型] + mapped_column(约束)    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)    name: Mapped[str] = mapped_column(String(100), nullable=False)  # 非空字符串    author: Mapped[str] = mapped_column(String(50), nullable=False)    price: Mapped[int] = mapped_column(nullable=False)
+
+
+schemas.py（Pydantic 模型）
+
+  # schemas.pyfrom pydantic import BaseModel, Fieldfrom typing import Optional# 基础模型：包含公共字段class BookBase(BaseModel):    name: Optional[str] = Field(None, description=&quot;书名&quot;, max_length=100)    author: Optional[str] = Field(None, description=&quot;作者&quot;, max_length=50)    price: Optional[int] = Field(None, description=&quot;价格&quot;, ge=0)  # ge=0 表示价格≥0# 创建图书的请求体：所有字段必填class BookCreate(BookBase):    name: str = Field(..., description=&quot;书名&quot;, max_length=100)    author: str = Field(..., description=&quot;作者&quot;, max_length=50)    price: int = Field(..., description=&quot;价格&quot;, ge=0)# 更新图书的请求体：所有字段可选class BookUpdate(BookBase):    pass# 响应模型：返回给前端的数据（可隐藏敏感字段）class BookResponse(BookBase):    id: int    name: str    author: str    price: int    class Config:        from_attributes = True  # 允许从 ORM 对象转换为 Pydantic 对象
+
+
+main.py（FastAPI 接口）
+
+  # main.pyfrom fastapi import FastAPI, Depends, HTTPExceptionfrom sqlalchemy.orm import Sessionfrom sqlalchemy import selectfrom .database import Base, engine, get_dbfrom .models import Bookfrom .schemas import BookCreate, BookUpdate, BookResponse# 创建数据库表（仅开发环境用，生产环境用 Alembic 迁移）Base.metadata.create_all(bind=engine)app = FastAPI(title=&quot;图书管理 API&quot;, version=&quot;2.0&quot;)# --------------------------# 1. 创建图书（Create）# --------------------------@app.post(&quot;/books/&quot;, response_model=BookResponse)def create_book(    book_in: BookCreate,  # 🔴 用 Pydantic 接收 JSON 请求体    db: Session = Depends(get_db)):    # 2.0 依然支持直接用 ORM 模型创建对象    db_book = Book(**book_in.model_dump())    db.add(db_book)    db.commit()    db.refresh(db_book)  # 刷新获取自增 id（2.0 依然有用）    return db_book# --------------------------# 2. 查询所有图书（Read All）# --------------------------@app.get(&quot;/books/&quot;, response_model=list[BookResponse])def read_books(    skip: int = 0,    limit: int = 100,    db: Session = Depends(get_db)):    # 2.0 新查询语法：select(Model) + offset + limit    stmt = select(Book).offset(skip).limit(limit)    result = db.execute(stmt)    books = result.scalars().all()  # scalars() 提取 ORM 对象序列    return books# --------------------------# 3. 查询单本图书（Read One）# --------------------------@app.get(&quot;/books/&#123;book_id&#125;&quot;, response_model=BookResponse)def read_book(    book_id: int,    db: Session = Depends(get_db)):    # 2.0 新查询语法：select(Model).where(条件)    stmt = select(Book).where(Book.id == book_id)    result = db.execute(stmt)    book = result.scalar_one_or_none()  # 🔴 推荐用这个代替 first()        # 健壮性处理：找不到书抛出 404    if not book:        raise HTTPException(status_code=404, detail=&quot;Book not found&quot;)    return book# --------------------------# 4. 更新图书（Update）# --------------------------@app.put(&quot;/books/&#123;book_id&#125;&quot;, response_model=BookResponse)def update_book(    book_id: int,    book_in: BookUpdate,  # 🔴 用 Pydantic 接收 JSON 请求体    db: Session = Depends(get_db)):    # 1. 先查书    stmt = select(Book).where(Book.id == book_id)    result = db.execute(stmt)    book = result.scalar_one_or_none()        if not book:        raise HTTPException(status_code=404, detail=&quot;Book not found&quot;)        # 2. 优雅更新：只更新用户传了的字段    # model_dump(exclude_unset=True) 会忽略未设置的字段    update_data = book_in.model_dump(exclude_unset=True)    for key, value in update_data.items():        setattr(book, key, value)        # 3. 提交并刷新    db.commit()    db.refresh(book)    return book# --------------------------# 5. 删除图书（Delete）# --------------------------@app.delete(&quot;/books/&#123;book_id&#125;&quot;)def delete_book(    book_id: int,    db: Session = Depends(get_db)):    # 1. 先查书    stmt = select(Book).where(Book.id == book_id)    result = db.execute(stmt)    book = result.scalar_one_or_none()        if not book:        raise HTTPException(status_code=404, detail=&quot;Book not found&quot;)        # 2. 删除（2.0 依然支持 db.delete()）    db.delete(book)    db.commit()    return &#123;&quot;message&quot;: &quot;删除成功&quot;&#125;
+
+自动交互式文档：启动服务后访问/docs，可查看和测试所有接口
+
+
+7. 高级查询操作from sqlalchemy import create_engine, Integer, String, ForeignKey, select, funcfrom sqlalchemy.orm import (    sessionmaker,    DeclarativeBase,    Mapped,    mapped_column,    relationship,    joinedload,    Session)from typing import List, Optional# --------------------------# 1. 基础配置与 2.0 模型定义# --------------------------DATABASE_URL = &quot;sqlite:///./test.db&quot;engine = create_engine(DATABASE_URL, future=True, echo=True)SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)class Base(DeclarativeBase):    passclass Department(Base):    __tablename__ = &quot;departments&quot;    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)    name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)    location: Mapped[Optional[str]] = mapped_column(String(100))    employees: Mapped[List[&quot;Employee&quot;]] = relationship(        back_populates=&quot;department&quot;,        cascade=&quot;all, delete-orphan&quot;,        lazy=&quot;selectin&quot;    )class Employee(Base):    __tablename__ = &quot;employees&quot;    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)    name: Mapped[str] = mapped_column(String(50), nullable=False)    department_id: Mapped[int] = mapped_column(        ForeignKey(&quot;departments.id&quot;, ondelete=&quot;RESTRICT&quot;),        nullable=False    )    department: Mapped[&quot;Department&quot;] = relationship(        back_populates=&quot;employees&quot;,        lazy=&quot;joined&quot;    )# 创建表（仅演示用）Base.metadata.create_all(bind=engine)# --------------------------# 2. SQLAlchemy 2.0 高级查询演示# --------------------------if __name__ == &quot;__main__&quot;:    db = SessionLocal()    try:        # --- 1. 预加载关联数据（避免 N+1 查询）---        print(&quot;--- 1. 预加载关联数据 ---&quot;)        stmt = select(Employee).options(joinedload(Employee.department))        result = db.execute(stmt)        employees = result.scalars().all()        print(f&quot;查询到 &#123;len(employees)&#125; 名员工&quot;)        # --- 2. 子查询：统计部门员工数，查询员工数 &gt; 0 的部门 ---        print(&quot;\n--- 2. 子查询统计 ---&quot;)        subq_stmt = select(            Employee.department_id, func.count(Employee.id).label(&quot;count&quot;)        ).group_by(Employee.department_id).subquery()                stmt = (            select(Department)            .join(subq_stmt, Department.id == subq_stmt.c.department_id)            .where(subq_stmt.c.count &gt; 0)        )        result = db.execute(stmt)        depts = result.scalars().all()        print(f&quot;查询到 &#123;len(depts)&#125; 个有员工的部门&quot;)        # --- 3. 去重查询：查询所有有员工的部门位置 ---        print(&quot;\n--- 3. 去重查询 ---&quot;)        stmt = select(Department.location).join(Employee).distinct()        result = db.execute(stmt)        locations = result.all()        print(f&quot;部门位置：&#123;[loc[0] for loc in locations]&#125;&quot;)        # --- 4. 结果获取：first() / all() ---        print(&quot;\n--- 4. 结果获取 ---&quot;)        # 获取单条        stmt = select(Employee)        result = db.execute(stmt)        first_emp = result.scalar_one_or_none()        print(f&quot;第一个员工：&#123;first_emp.name if first_emp else &#x27;无&#x27;&#125;&quot;)        # 获取所有        stmt = select(Department)        result = db.execute(stmt)        all_depts = result.scalars().all()        print(f&quot;所有部门：&#123;[dept.name for dept in all_depts]&#125;&quot;)    finally:        db.close()
+
+
+]]></content>
+      <categories>
+        <category>Python+AI</category>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Python</tag>
+        <tag>异步编程</tag>
+        <tag>FastAPI</tag>
+        <tag>SQLAIchemy2.0</tag>
       </tags>
   </entry>
 </search>

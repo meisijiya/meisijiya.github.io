@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>PythonWeb快速入门 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container">
+          <a href="javascript:;" onclick="toggleSearchInput()">🔍</a>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div class="search-container mobile-container">
+          <a class="menu-item" href="javascript:;" onclick="toggleSearchInput()"
+            >🔍</a
+          >
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" ontouchend="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script>
+  var mobileBtn = function f() {
+    var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+    var mobileMenu = document.getElementById("mobile-menu");
+    if (toggleMenu.classList.contains("active")) {
+      toggleMenu.classList.remove("active");
+      mobileMenu.classList.remove("active");
+    } else {
+      toggleMenu.classList.add("active");
+      mobileMenu.classList.add("active");
+    }
+  };
+
+  function toggleSearchInput() {
+    const inputs = document.querySelectorAll(".nav-search-input");
+    const results = document.querySelectorAll(".nav-search-result");
+    inputs.forEach((input) => {
+      input.classList.toggle("active");
+      if (input.classList.contains("active")) input.focus();
+    });
+    results.forEach((r) => (r.style.display = "none"));
+  }
+
+  // 点击外部区域隐藏搜索框和结果容器的函数
+  function handleClickOutsideSearch(event) {
+    const searchContainers = document.querySelectorAll(".search-container");
+    searchContainers.forEach((container) => {
+      const searchInput = container.querySelector(".nav-search-input");
+      const searchIcon = container.querySelector("a");
+
+      // 如果点击的元素不是搜索输入框或搜索图标，则隐藏搜索框和结果容器
+      if (
+        !searchInput.contains(event.target) &&
+        !searchIcon.contains(event.target)
+      ) {
+        searchInput.classList.remove("active");
+        // 根据输入框ID确定对应的结果容器
+        let resultContainer;
+        if (searchInput.id === "nav-search-input-mobile") {
+          // 移动端结果容器
+          resultContainer = document.querySelector(
+            ".navbar-mobile .nav-search-result"
+          );
+        } else {
+          // 桌面端结果容器
+          resultContainer = document.getElementById(
+            "nav-search-result-desktop"
+          );
+        }
+
+        if (resultContainer) {
+          resultContainer.style.display = "none";
+          // 保留搜索结果和输入内容，仅隐藏下拉框
+        }
+      }
+    });
+  }
+
+  // 添加全局点击事件监听器
+  document.addEventListener("click", function (event) {
+    handleClickOutsideSearch(event);
+  });
+
+  // 新增：搜索功能实现
+  let searchData = []; // 全局变量存储搜索数据
+  let currentSearchKeyword = ''; // 追踪当前搜索关键字
+
+  // 页面加载完成后获取搜索数据
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/search.xml")
+      .then((res) => res.text())
+      .then((xmlText) => {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+        const entries = xml.getElementsByTagName("entry");
+        for (let entry of entries) {
+          searchData.push({
+            title: entry.getElementsByTagName("title")[0]?.textContent || "",
+            content:
+              entry.getElementsByTagName("content")[0]?.textContent || "",
+            url: entry.getElementsByTagName("url")[0]?.textContent || "",
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load search data:", err);
+      });
+  });
+
+  // 新增：导航搜索方法
+  function navSearch(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    // 查找对应的搜索结果容器
+    let resultContainer;
+
+    if (inputElement.id === "nav-search-input-desktop") {
+      // 桌面端
+      resultContainer = document.getElementById("nav-search-result-desktop");
+    } else if (inputElement.id === "nav-search-input-mobile") {
+      // 移动端
+      resultContainer =
+        inputElement.parentNode.querySelector(".nav-search-result");
+    }
+
+    if (!resultContainer) return;
+
+    resultContainer.innerHTML = "";
+
+    if (!keyword) {
+      resultContainer.style.display = "none";
+      return;
+    }
+
+    // 显示结果容器
+    resultContainer.style.display = "block";
+
+    // 过滤搜索数据
+    const results = searchData.filter(
+      (data) =>
+        (data.title && data.title.toLowerCase().includes(keyword)) ||
+        (data.content && data.content.toLowerCase().includes(keyword))
+    );
+
+    if (results.length === 0) {
+      resultContainer.innerHTML =
+        '<p class="no-result">没有结果哟，换个关键词试试吧</p>';
+      return;
+    }
+
+    // 限制显示结果数量
+    const maxResults = 10;
+    const limitedResults = results.slice(0, maxResults);
+
+    // 构建结果HTML
+    const html = limitedResults
+      .map((item) => {
+        // 提取包含关键字的内容片段
+        let contentSnippet = "";
+        if (item.content) {
+          // 找到包含关键字的内容片段
+          const contentLower = item.content.toLowerCase();
+          const keywordIndex = contentLower.indexOf(keyword);
+
+          // 提取关键字前后的内容
+          const start = Math.max(0, keywordIndex - 3 * keyword.length);
+          const end = Math.min(
+            item.content.length,
+            keywordIndex + 3 * keyword.length
+          );
+          contentSnippet = item.content.substring(start, end);
+        // 高亮关键字
+      const keywordRegex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      contentSnippet = contentSnippet.replace(
+        keywordRegex,
+        "<mark>$1</mark>"
+      );
+        }
+
+        return `<div class="search-result-item">
+  <a href="${item.url}">
+    <div>标题：${item.title}</div>
+    <div>内容：${contentSnippet}</div>
+  </a>
+</div>`;
+      })
+      .join("");
+    resultContainer.innerHTML = html;
+  }
+
+  // 文章内容关键字高亮功能
+  let currentHighlightIndex = -1;
+  let highlightCount = 0;
+
+  function highlightPostContent(keyword) {
+    const content = document.querySelector('.post-content');
+    if (!content) return false;
+
+    content.innerHTML = content.innerHTML.replace(/<\/?mark>/g, '');
+
+    if (!keyword) return false;
+
+    const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    const escaped = keyword.replace(/[.*+?^${}|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+
+    textNodes.forEach(node => {
+      if (!regex.test(node.nodeValue)) return;
+      regex.lastIndex = 0;
+      const fragment = document.createDocumentFragment();
+      node.nodeValue.split(regex).forEach((text, i) => {
+        if (i % 2 === 1) {
+          const mark = document.createElement('mark');
+          mark.textContent = text;
+          fragment.appendChild(mark);
+        } else {
+          fragment.appendChild(document.createTextNode(text));
+        }
+      });
+      node.parentNode.replaceChild(fragment, node);
+    });
+
+    return true;
+  }
+
+  function getHighlights() {
+    const content = document.querySelector('.post-content');
+    return content ? content.querySelectorAll('mark') : [];
+  }
+
+  function scrollToHighlight(index, smooth = true) {
+    const highlights = getHighlights();
+    if (highlights.length === 0) return;
+
+    if (index < 0) index = highlights.length - 1;
+    if (index >= highlights.length) index = 0;
+
+    currentHighlightIndex = index;
+    highlights[index].scrollIntoView({
+      behavior: smooth ? 'smooth' : 'auto',
+      block: 'center'
+    });
+
+    updateHighlightCount();
+  }
+
+  function updateHighlightCount() {
+    const highlights = getHighlights();
+    highlightCount = highlights.length;
+    const nav = document.getElementById('highlight-nav');
+    if (nav) {
+      nav.querySelector('.count').textContent = `${currentHighlightIndex + 1}/${highlightCount}`;
+      nav.style.display = highlightCount > 0 ? 'flex' : 'none';
+    }
+  }
+
+  // 修改 navSearch 函数，集成文章内高亮
+  const originalNavSearch = navSearch;
+  navSearch = function(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    currentSearchKeyword = keyword;
+    const resultContainer = inputElement.id === 'nav-search-input-desktop'
+      ? document.getElementById('nav-search-result-desktop')
+      : inputElement.parentNode.querySelector('.nav-search-result');
+
+    if (!keyword) {
+      if (resultContainer) {
+        resultContainer.innerHTML = '';
+        resultContainer.style.display = 'none';
+      }
+      highlightPostContent('');
+      return;
+    }
+
+    // 先执行原有搜索逻辑
+    originalNavSearch(inputElement);
+
+    // 仅在文章页执行内容高亮
+    if (highlightPostContent(keyword)) {
+      updateHighlightCount();
+    }
+  };
+
+  // 清除搜索的函数
+  function clearSearch(btn) {
+    const input = btn.parentNode.querySelector('.nav-search-input');
+    input.value = '';
+    navSearch(input);
+    input.focus();
+  }
+</script>
+<style>
+  /* 手机端使用flexbox布局搜索容器 */
+  .mobile-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    flex-grow: 1;
+    max-width: calc(100% - 40px);
+  }
+
+  .search-container {
+    position: relative;
+  }
+
+
+  .search-result-item {
+  border: 1px solid #ddd; /* 边框 */
+  margin: 4px 0; /* 外层间距 */
+  padding: 0; /* 无内边距 */
+  background: #fff; /* 背景色 */
+}
+
+.search-result-item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-result-item div {
+  padding: 3px 8px; /* 紧凑的内边距 */
+  margin: 0; /* 无外边距 */
+  line-height: 1.3; /* 紧凑的行高 */
+  word-wrap: break-word; /* 允许长单词换行 */
+  white-space: normal; /* 允许正常换行 */
+}
+
+.search-result-item div:first-child {
+  border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */
+}
+
+.dark-theme .search-result-item {
+  background: #2d2d2d;
+  border: 1px solid #444;
+}
+.dark-theme .search-result-item a {
+  color: #e0e0e0;
+}
+.dark-theme .search-result-item div:first-child {
+  border-bottom-color: #444;
+}
+
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(0, 0, 0, 0.2);
+  color: #666;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.clear-search:hover {
+  background: rgba(0, 0, 0, 0.3);
+  color: #333;
+}
+.nav-search-input:focus + .clear-search,
+.nav-search-input.active:not(:placeholder-shown) + .clear-search {
+  display: flex;
+}
+.dark-theme .clear-search {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ccc;
+}
+.dark-theme .clear-search:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.highlight-nav {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 99;
+}
+.highlight-nav .count {
+  font-size: 14px;
+  color: #333;
+  min-width: 50px;
+  text-align: center;
+}
+.highlight-nav button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+.highlight-nav button:hover {
+  background: #e0e0e0;
+}
+.dark-theme .highlight-nav {
+  background: rgba(40, 40, 40, 0.95);
+}
+.dark-theme .highlight-nav .count {
+  color: #eee;
+}
+.dark-theme .highlight-nav button {
+  background: #444;
+  color: #fff;
+}
+.dark-theme .highlight-nav button:hover {
+  background: #555;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .highlight-nav {
+    gap: 16px;
+    padding: 12px 20px;
+  }
+  .highlight-nav .count {
+    font-size: 16px;
+    min-width: 60px;
+  }
+  .highlight-nav button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
+</style>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <div class="toc-mobile-fab" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon">☰</span>
+</div>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">PythonWeb快速入门</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >五月 9, 2026&nbsp;&nbsp;14:08:34</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/Python-AI/">Python+AI</a>
+          
+          <a href="/categories/Python-AI/Python/">Python</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="第三阶段"><a href="#第三阶段" class="headerlink" title="第三阶段"></a>第三阶段</h1><h2 id="模块1：Linux和shell"><a href="#模块1：Linux和shell" class="headerlink" title="模块1：Linux和shell"></a>模块1：Linux和shell</h2><h3 id="一、Linux（Ubuntu）基础"><a href="#一、Linux（Ubuntu）基础" class="headerlink" title="一、Linux（Ubuntu）基础"></a>一、Linux（Ubuntu）基础</h3><h4 id="1-核心概念"><a href="#1-核心概念" class="headerlink" title="1. 核心概念"></a>1. 核心概念</h4><ul>
+<li>与Windows核心差异：Linux是多用户、多任务的开源操作系统，常用于服务器环境。</li>
+<li>核心原则：<strong>Linux系统中一切皆文件</strong>。</li>
+<li>默认解析器：Ubuntu默认Shell解析器为bash，可通过<code>echo $SHELL</code>查看，输出为<code>/bin/bash</code>。</li>
+</ul>
+<h4 id="2-系统目录结构"><a href="#2-系统目录结构" class="headerlink" title="2. 系统目录结构"></a>2. 系统目录结构</h4><table>
+<thead>
+<tr>
+<th>目录</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x2F;bin</td>
+<td>存放常用命令可执行文件，是&#x2F;usr&#x2F;bin的软链接</td>
+</tr>
+<tr>
+<td>&#x2F;sbin</td>
+<td>存放系统管理员使用的管理程序，是&#x2F;usr&#x2F;sbin的软链接</td>
+</tr>
+<tr>
+<td>&#x2F;home</td>
+<td>普通用户主目录，以用户账号命名</td>
+</tr>
+<tr>
+<td>&#x2F;root</td>
+<td>超级管理员（root）主目录</td>
+</tr>
+<tr>
+<td>&#x2F;lib</td>
+<td>系统开机所需的动态链接共享库，类似Windows的DLL文件</td>
+</tr>
+<tr>
+<td>&#x2F;etc</td>
+<td>系统管理所需的配置文件和子目录</td>
+</tr>
+<tr>
+<td>&#x2F;usr</td>
+<td>用户程序存放目录，类似Windows的Program Files，包含&#x2F;usr&#x2F;bin、&#x2F;usr&#x2F;lib等子目录</td>
+</tr>
+<tr>
+<td>&#x2F;boot</td>
+<td>存放Linux启动所需的核心文件、连接文件和映射文件</td>
+</tr>
+<tr>
+<td>&#x2F;run</td>
+<td>系统运行产生和需要的重要文件</td>
+</tr>
+<tr>
+<td>&#x2F;proc</td>
+<td>系统运行进程的虚拟映射目录，可直接访问获取系统信息</td>
+</tr>
+<tr>
+<td>&#x2F;srv</td>
+<td>系统运行时服务产生的数据存放目录，默认为空</td>
+</tr>
+<tr>
+<td>&#x2F;sys</td>
+<td>Linux2.6内核新增文件系统存放目录</td>
+</tr>
+<tr>
+<td>&#x2F;tmp</td>
+<td>临时文件存放目录，过期自动清除</td>
+</tr>
+<tr>
+<td>&#x2F;dev</td>
+<td>硬件设备的文件形式存储目录，类似Windows设备管理器</td>
+</tr>
+<tr>
+<td>&#x2F;media</td>
+<td>系统自动识别的可移动设备（音响、U盘等）挂载目录</td>
+</tr>
+<tr>
+<td>&#x2F;mnt</td>
+<td>用户临时挂载外部存储的目录，默认为空</td>
+</tr>
+<tr>
+<td>&#x2F;opt</td>
+<td>第三方&#x2F;可选应用程序安装目录（如MySQL可安装至此），默认为空</td>
+</tr>
+<tr>
+<td>&#x2F;var</td>
+<td>存放频繁修改的文件（如系统日志）</td>
+</tr>
+</tbody></table>
+<h4 id="3-环境部署与软件管理"><a href="#3-环境部署与软件管理" class="headerlink" title="3. 环境部署与软件管理"></a>3. 环境部署与软件管理</h4><h5 id="（1）基础环境安装"><a href="#（1）基础环境安装" class="headerlink" title="（1）基础环境安装"></a>（1）基础环境安装</h5><p>需完成：VMware虚拟机安装、Ubuntu系统安装、Xshell&#x2F;Xftp远程连接工具安装（生产环境服务器不开放直接接触，需通过远程工具登录）。</p>
+<h5 id="（2）APT包管理器（Debian系专用）"><a href="#（2）APT包管理器（Debian系专用）" class="headerlink" title="（2）APT包管理器（Debian系专用）"></a>（2）APT包管理器（Debian系专用）</h5><p>APT（Advanced Packaging Tools）可自动完成软件下载、配置、安装，常用命令：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sudo apt update</td>
+<td>更新可用软件包列表</td>
+</tr>
+<tr>
+<td>sudo apt install 包名 [-y]</td>
+<td>安装软件包，-y跳过确认；如<code>sudo apt install net-tools</code>安装ifconfig工具</td>
+</tr>
+<tr>
+<td>sudo apt remove 包名 [-y]</td>
+<td>卸载软件包</td>
+</tr>
+<tr>
+<td>sudo apt search 包名</td>
+<td>搜索软件包</td>
+</tr>
+<tr>
+<td>sudo apt upgrade</td>
+<td>升级系统所有已安装软件</td>
+</tr>
+<tr>
+<td>sudo apt full-upgrade</td>
+<td>通过卸载&#x2F;安装&#x2F;升级更新系统</td>
+</tr>
+</tbody></table>
+<h4 id="4-常用操作命令"><a href="#4-常用操作命令" class="headerlink" title="4. 常用操作命令"></a>4. 常用操作命令</h4><h5 id="（1）帮助命令"><a href="#（1）帮助命令" class="headerlink" title="（1）帮助命令"></a>（1）帮助命令</h5><ul>
+<li><p><code>man [章节] 命令</code>：查看命令手册页，章节对应：1-用户命令、2-系统调用、3-库调用、4-特殊文件（&#x2F;dev）、5-文件格式（如&#x2F;etc&#x2F;passwd）、6-游戏屏保、7-杂项、8-系统管理命令（仅root）、9-内核例程。例：<code>man ls</code>查看ls命令帮助，<code>man 2 write</code>查看系统调用write帮助。</p>
+</li>
+<li><p><code>help 命令</code>：查看Shell内建命令帮助（内建命令无独立可执行文件，无法用man查看），例：<code>help cd</code>查看cd命令帮助。</p>
+</li>
+<li><p>常用快捷键：</p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl + L</td>
+<td>清屏（彻底清屏用<code>clear</code>命令）</td>
+</tr>
+<tr>
+<td>Ctrl + C &#x2F; Q</td>
+<td>停止当前进程&#x2F;退出</td>
+</tr>
+<tr>
+<td>Tab键（1-2次）</td>
+<td>命令&#x2F;路径补全，防止敲错</td>
+</tr>
+<tr>
+<td>上下方向键</td>
+<td>查找执行过的历史命令</td>
+</tr>
+<tr>
+<td>Ctrl + U</td>
+<td>清除当前输入的命令</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h5 id="（2）文件目录类命令"><a href="#（2）文件目录类命令" class="headerlink" title="（2）文件目录类命令"></a>（2）文件目录类命令</h5><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>语法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pwd</td>
+<td>pwd</td>
+<td>显示当前工作目录的绝对路径</td>
+</tr>
+<tr>
+<td>ls</td>
+<td>ls [选项] [目录&#x2F;文件]</td>
+<td>列出目录内容：<code>-a</code>显示所有文件（含隐藏文件）、<code>-l</code>长格式显示文件属性权限、<code>-R</code>递归列出所有子目录；Ubuntu中<code>ll</code>是<code>ls -al</code>的别名</td>
+</tr>
+<tr>
+<td>cd</td>
+<td>cd [参数]</td>
+<td>切换目录：参数为<code>~</code>回家目录、<code>..</code>上级目录、<code>-</code>返回上一次所在目录</td>
+</tr>
+<tr>
+<td>touch</td>
+<td>touch 文件名</td>
+<td>创建空文件</td>
+</tr>
+<tr>
+<td>mkdir</td>
+<td>mkdir [-p] 目录名</td>
+<td>创建目录：<code>-p</code>创建多级目录，如<code>mkdir -p test/b/bb/bbb</code></td>
+</tr>
+<tr>
+<td>cp</td>
+<td>cp [选项] 源路径 目标路径</td>
+<td>复制文件&#x2F;目录</td>
+</tr>
+<tr>
+<td>mv</td>
+<td>mv 源路径 目标路径</td>
+<td>移动&#x2F;重命名文件</td>
+</tr>
+<tr>
+<td>rm</td>
+<td>rm [选项] 文件&#x2F;目录</td>
+<td>删除文件&#x2F;目录：<code>-r</code>递归删除目录、<code>-f</code>强制删除</td>
+</tr>
+<tr>
+<td>cat</td>
+<td>cat [选项] 文件</td>
+<td>查看文件内容：<code>-n</code>显示行号</td>
+</tr>
+<tr>
+<td>less</td>
+<td>less [选项] 文件名</td>
+<td>比 <code>cat</code> 更适合看大文件、日志。</td>
+</tr>
+<tr>
+<td>tail</td>
+<td>tail [-n 行数&#x2F;-F] 文件</td>
+<td>查看文件尾部内容：默认10行，<code>-n 5</code>看后5行，<code>-F</code>实时追踪文件更新</td>
+</tr>
+<tr>
+<td>echo</td>
+<td>echo [选项] 输出内容</td>
+<td>输出内容到控制台：<code>-e</code>支持转义字符（<code>\n</code>换行、<code>\t</code>制表符、<code>\\</code>输出反斜杠本身）</td>
+</tr>
+<tr>
+<td>重定向</td>
+<td>&gt; &#x2F; &gt;&gt;</td>
+<td><code>&gt;</code>覆盖写入（如<code>ls &gt; note.txt</code>），<code>&gt;&gt;</code>追加写入（如<code>echo hello &gt;&gt; note.txt</code>）</td>
+</tr>
+<tr>
+<td>ln</td>
+<td>ln -s 原文件&#x2F;目录 软链接名</td>
+<td>创建软链接（类似Windows快捷方式）；删除软链接用<code>rm 软链接名</code>（不可加<code>/</code>，否则会删除实际目录）；用<code>ll</code>查看软链接（第一位是<code>l</code>，尾部有指向路径）</td>
+</tr>
+<tr>
+<td>history</td>
+<td>history</td>
+<td>查看所有执行过的历史命令</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>less详解：</p>
+<p>查看文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">less app.log       <span class="comment"># 打开文件</span></span><br><span class="line">less -N app.log    <span class="comment"># 显示行号</span></span><br><span class="line">less +G app.log    <span class="comment"># 直接跳到文件末尾</span></span><br><span class="line">less +F app.log		<span class="comment"># 实时追踪文件（像 tail -f）</span></span><br><span class="line">less -i app.log		 <span class="comment"># 搜索时忽略大小写</span></span><br></pre></td></tr></table></figure>
+
+<p>浏览操作</p>
+<ul>
+<li><strong>上下箭头</strong>：逐行移动</li>
+<li><strong>空格 &#x2F; PageDown</strong>：下一页</li>
+<li><strong>PageUp</strong>：上一页</li>
+<li><strong>G</strong>：跳到文件<strong>最后一行</strong></li>
+<li><strong>g</strong>：跳到文件<strong>第一行</strong></li>
+<li><code>/关键词</code>：向下搜索（如 <code>/error</code>）</li>
+<li><code>n</code>：搜索下一个匹配</li>
+<li><code>N</code>：搜索上一个匹配</li>
+<li><code>q</code>：退出 less</li>
+</ul>
+</blockquote>
+<h5 id="（3）vi-vim编辑器"><a href="#（3）vi-vim编辑器" class="headerlink" title="（3）vi&#x2F;vim编辑器"></a>（3）vi&#x2F;vim编辑器</h5><ul>
+<li><p>安装：<code>sudo apt install vim</code></p>
+</li>
+<li><p>三种模式：</p>
+<p>① 一般模式：打开文件默认进入，可执行操作：</p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>yy</td>
+<td>复制当前行</td>
+</tr>
+<tr>
+<td>y数字y</td>
+<td>复制从当前行开始的n行</td>
+</tr>
+<tr>
+<td>p</td>
+<td>粘贴到光标所在行下方</td>
+</tr>
+<tr>
+<td>u</td>
+<td>撤销上一步操作</td>
+</tr>
+<tr>
+<td>dd</td>
+<td>删除当前行</td>
+</tr>
+<tr>
+<td>d数字d</td>
+<td>删除从当前行开始的n行</td>
+</tr>
+<tr>
+<td>x</td>
+<td>删除当前光标所在字符（相当于del）</td>
+</tr>
+<tr>
+<td>X</td>
+<td>删除当前光标前一个字符（相当于Backspace）</td>
+</tr>
+<tr>
+<td>yw</td>
+<td>复制一个词</td>
+</tr>
+<tr>
+<td>dw</td>
+<td>删除一个词</td>
+</tr>
+<tr>
+<td>^ &#x2F; Shift+6</td>
+<td>移动到行头</td>
+</tr>
+<tr>
+<td>$ &#x2F; Shift+4</td>
+<td>移动到行尾</td>
+</tr>
+<tr>
+<td>1+Shift+g</td>
+<td>移动到页头</td>
+</tr>
+<tr>
+<td>Shift+g</td>
+<td>移动到页尾</td>
+</tr>
+<tr>
+<td>数字N+Shift+g</td>
+<td>移动到第N行</td>
+</tr>
+<tr>
+<td>② <strong>编辑模式</strong>：按<code>i</code>（当前光标前）、<code>a</code>（当前光标后）、<code>o</code>（当前行下一行）、<code>I</code>（行最前）、<code>A</code>（行最后）、<code>O</code>（当前行上一行）进入，按<code>Esc</code>退出。</td>
+<td></td>
+</tr>
+<tr>
+<td>③ <strong>命令模式</strong>：一般模式下按<code>:</code>&#x2F;<code>/</code>&#x2F;<code>?</code>进入，可执行操作：</td>
+<td></td>
+</tr>
+<tr>
+<td>命令</td>
+<td>功能</td>
+</tr>
+<tr>
+<td>——</td>
+<td>——</td>
+</tr>
+<tr>
+<td>:w</td>
+<td>保存</td>
+</tr>
+<tr>
+<td>:q</td>
+<td>退出</td>
+</tr>
+<tr>
+<td>:wq</td>
+<td>保存并退出</td>
+</tr>
+<tr>
+<td>:q!</td>
+<td>强制退出不保存</td>
+</tr>
+<tr>
+<td>:wq!</td>
+<td>强制保存退出（无文件写权限时使用）</td>
+</tr>
+<tr>
+<td>&#x2F;关键词</td>
+<td>搜索关键词，n下一个、N上一个</td>
+</tr>
+<tr>
+<td>:noh</td>
+<td>取消搜索高亮</td>
+</tr>
+<tr>
+<td>:set nu &#x2F; :set nonu</td>
+<td>显示&#x2F;关闭行号</td>
+</tr>
+<tr>
+<td>:%s&#x2F;old&#x2F;new&#x2F;g</td>
+<td>全局替换所有old为new</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h5 id="（4）用户与权限管理"><a href="#（4）用户与权限管理" class="headerlink" title="（4）用户与权限管理"></a>（4）用户与权限管理</h5><h6 id="①-root用户管理"><a href="#①-root用户管理" class="headerlink" title="① root用户管理"></a>① root用户管理</h6><ul>
+<li><p>Ubuntu默认锁定root用户，需设置密码：<code>sudo passwd root</code>，输入普通用户密码后设置root密码。</p>
+</li>
+<li><p>切换用户：</p>
+<ul>
+<li><code>su 用户名</code>：仅获取用户执行权限，不继承环境变量</li>
+<li><code>su - 用户名</code>：获取用户环境变量+执行权限，完整切换用户</li>
+<li><code>exit</code>：退出当前用户</li>
+</ul>
+</li>
+<li><p>锁定&#x2F;解锁root：<code>sudo passwd -l root</code>（锁定）、<code>sudo passwd -u root</code>（解锁）</p>
+</li>
+<li><p>普通用户临时获取root权限：命令前加<code>sudo</code>，如<code>sudo apt install vim</code>，输入普通用户密码后执行；或在<code>/etc/sudoers</code>中添加配置实现免密sudo：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 允许testu用户免密执行所有sudo命令</span><br><span class="line">testu   ALL=(ALL)     NOPASSWD:ALL</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h6 id="②-用户管理"><a href="#②-用户管理" class="headerlink" title="② 用户管理"></a>② 用户管理</h6><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>语法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>useradd</td>
+<td>useradd [-m] 用户名</td>
+<td>添加用户：<code>-m</code>创建用户主目录；<code>useradd -g 组名 用户名</code>添加到指定用户组</td>
+</tr>
+<tr>
+<td>passwd</td>
+<td>passwd 用户名</td>
+<td>设置用户密码</td>
+</tr>
+<tr>
+<td>id</td>
+<td>id 用户名</td>
+<td>查看用户是否存在，输出uid、gid、所属组</td>
+</tr>
+<tr>
+<td>userdel</td>
+<td>userdel [-r] 用户名</td>
+<td>删除用户：<code>-r</code>同时删除用户主目录</td>
+</tr>
+<tr>
+<td>usermod</td>
+<td>usermod -l 新用户名 老用户名</td>
+<td>修改用户名；<code>usermod -d /home/新目录 -m 用户名</code>修改用户主目录</td>
+</tr>
+<tr>
+<td>查看所有用户</td>
+<td>cat &#x2F;etc&#x2F;passwd</td>
+<td>查看系统所有用户</td>
+</tr>
+</tbody></table>
+<h6 id="③-用户组管理"><a href="#③-用户组管理" class="headerlink" title="③ 用户组管理"></a>③ 用户组管理</h6><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>语法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>groupadd</td>
+<td>groupadd 组名</td>
+<td>新增用户组</td>
+</tr>
+<tr>
+<td>groupdel</td>
+<td>groupdel 组名</td>
+<td>删除用户组</td>
+</tr>
+<tr>
+<td>groupmod</td>
+<td>groupmod -n 新组名 老组名</td>
+<td>修改组名</td>
+</tr>
+<tr>
+<td>修改用户所属组</td>
+<td>usermod -g 新组名 用户名</td>
+<td>修改用户所属组</td>
+</tr>
+<tr>
+<td>查看所有组</td>
+<td>cat &#x2F;etc&#x2F;group</td>
+<td>查看系统所有用户组</td>
+</tr>
+</tbody></table>
+<h6 id="④-文件权限管理"><a href="#④-文件权限管理" class="headerlink" title="④ 文件权限管理"></a>④ 文件权限管理</h6><ul>
+<li>文件属性：通过<code>ls -l</code>查看，10位字符含义：<br> 第0位：文件类型（<code>-</code>普通文件、<code>d</code>目录、<code>l</code>软链接）<br> 第1-3位：属主（文件所有者）权限（r读、w写、x执行）<br> 第4-6位：属组（所有者同组用户）权限<br> 第7-9位：其他用户权限<br> 权限数值：r&#x3D;4、w&#x3D;2、x&#x3D;1，如rwx&#x3D;7、rw&#x3D;6、rx&#x3D;5。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>语法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>chmod</td>
+<td>chmod [选项] 权限 文件&#x2F;目录</td>
+<td>修改文件&#x2F;目录权限：选项<code>-R</code>递归修改目录下所有文件；支持<code>u（属主）、g（属组）、o（其他）、a（所有）</code>加减权限，如<code>chmod u+x passwd</code>；也支持数字表示，如<code>chmod 765 passwd</code>（属主rwx、属组rw、其他rx）</td>
+</tr>
+<tr>
+<td>chown</td>
+<td>chown [选项] 最终用户 文件&#x2F;目录</td>
+<td>修改文件&#x2F;目录所有者：选项<code>-R</code>递归修改；如<code>sudo chown root note.txt</code></td>
+</tr>
+<tr>
+<td>chgrp</td>
+<td>chgrp 最终组 文件&#x2F;目录</td>
+<td>修改文件&#x2F;目录所属组，如<code>sudo chgrp zxf tt.txt</code></td>
+</tr>
+</tbody></table>
+<h5 id="（5）搜索查找查看类"><a href="#（5）搜索查找查看类" class="headerlink" title="（5）搜索查找查看类"></a>（5）搜索查找查看类</h5><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>语法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>find</td>
+<td>find [搜索范围] [选项]</td>
+<td>递归查找文件&#x2F;目录：<code>-name &quot;文件名模式&quot;</code>按名称查找（如<code>find ./ -name &quot;*.txt&quot;</code>）、<code>-user 用户名</code>按所有者查找、<code>-size ±n[单位]</code>按大小查找（单位：b块、c字节、k千字节、M兆、G吉，如<code>find ./ -size &quot;+200c&quot;</code>找大于200字节的文件）</td>
+</tr>
+<tr>
+<td>grep</td>
+<td>grep [选项] 查找内容 源文件</td>
+<td>过滤查找，常与管道符&#96;</td>
+</tr>
+</tbody></table>
+<h5 id="（6）压缩解压类"><a href="#（6）压缩解压类" class="headerlink" title="（6）压缩解压类"></a>（6）压缩解压类</h5><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>语法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tar</td>
+<td>tar [选项] 压缩包名.tar.gz 要打包的内容</td>
+<td>打包压缩&#x2F;解压：<code>-c</code>打包、<code>-v</code>显示详情、<code>-f</code>指定压缩包名、<code>-z</code>调用 <code>gzip</code> 工具处理压缩 &#x2F; 解压缩、<code>-x</code>解包；如<code>tar -zcvf test.tar.gz test/</code>压缩test目录，<code>tar -zxvf test.tar.gz</code>解压</td>
+</tr>
+<tr>
+<td>du</td>
+<td>du [选项] 目录&#x2F;文件</td>
+<td>查看磁盘使用空间：<code>-a</code>显示所有文件大小；如<code>du -a /opt/software/xxx.sh</code></td>
+</tr>
+</tbody></table>
+<h5 id="（7）网络类"><a href="#（7）网络类" class="headerlink" title="（7）网络类"></a>（7）网络类</h5><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>语法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ifconfig</td>
+<td>ifconfig</td>
+<td>查看所有网络接口配置、IP地址（需先安装net-tools：<code>sudo apt install net-tools</code>）</td>
+</tr>
+<tr>
+<td>ping</td>
+<td>ping 目的主机</td>
+<td>测试网络连通性，如<code>ping www.baidu.com</code></td>
+</tr>
+<tr>
+<td>hostname</td>
+<td>hostname</td>
+<td>查看当前主机名；修改需编辑<code>/etc/hostname</code>文件</td>
+</tr>
+</tbody></table>
+<h5 id="（8）进程线程类"><a href="#（8）进程线程类" class="headerlink" title="（8）进程线程类"></a>（8）进程线程类</h5><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>语法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ps</td>
+<td>ps -aux &#x2F; ps -ef</td>
+<td>查看进程状态：<code>ps -aux</code>查看所有进程及CPU、内存占用；<code>ps -ef</code>查看父子进程关系；输出字段：USER属主、PID进程ID、%CPU CPU占用、%MEM内存占用、STAT状态（R运行、S睡眠、T停止等）</td>
+</tr>
+<tr>
+<td>kill</td>
+<td>kill [-9] 进程号</td>
+<td>杀死进程：<code>-9</code>强制杀死；<code>killall 进程名</code>按名称杀死所有同名进程</td>
+</tr>
+<tr>
+<td>free</td>
+<td>free -m</td>
+<td>查看服务器内存使用情况，单位MB，显示Mem物理内存、Swap交换空间</td>
+</tr>
+<tr>
+<td>top</td>
+<td>top [选项]</td>
+<td>查看系统实时健康状态：<code>-d 秒数</code>设置刷新间隔、<code>-p 进程号</code>查看指定进程</td>
+</tr>
+<tr>
+<td>netstat</td>
+<td>netstat [选项]</td>
+<td>查看网络统计和端口占用：<code>-n</code>数字显示、<code>-l</code>仅显示监听状态、<code>-p</code>显示调用进程；如<code>netstat -nlp</code></td>
+</tr>
+</tbody></table>
+<h5 id="（9）其他实用工具"><a href="#（9）其他实用工具" class="headerlink" title="（9）其他实用工具"></a>（9）其他实用工具</h5><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>语法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>basename</td>
+<td>basename 路径 [后缀]</td>
+<td>取文件名，如<code>basename /home/zxf/note.txt .txt</code>输出note</td>
+</tr>
+<tr>
+<td>dirname</td>
+<td>dirname 绝对路径</td>
+<td>取目录路径，如<code>dirname /home/zxf/note.txt</code>输出&#x2F;home&#x2F;zxf</td>
+</tr>
+<tr>
+<td>crontab</td>
+<td>crontab [选项]</td>
+<td>系统定时任务：<code>-e</code>编辑定时任务、<code>-l</code>查看任务、<code>-r</code>删除所有任务；时间格式：<code>分 时 日 月 周 命令</code>，如<code>45 22 * * * 命令</code>表示22:45执行；服务管理：<code>sudo systemctl restart cron</code>重启定时服务、<code>systemctl status cron</code>查看服务状态</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="二、Shell脚本基础"><a href="#二、Shell脚本基础" class="headerlink" title="二、Shell脚本基础"></a>二、Shell脚本基础</h3><h4 id="1-核心概念-1"><a href="#1-核心概念-1" class="headerlink" title="1. 核心概念"></a>1. 核心概念</h4><ul>
+<li>Shell是Linux命令解析器，负责解析用户输入的命令，默认解析器为bash，系统支持的所有解析器可通过<code>cat /etc/shells</code>查看，包括sh、bash、rbash、dash等。</li>
+<li>Shell脚本：多个Linux命令的集合，用于自动化执行重复任务，后缀无强制要求，一般命名为<code>.sh</code>。</li>
+</ul>
+<h4 id="2-脚本基本格式与执行"><a href="#2-脚本基本格式与执行" class="headerlink" title="2. 脚本基本格式与执行"></a>2. 脚本基本格式与执行</h4><h5 id="（1）基本格式"><a href="#（1）基本格式" class="headerlink" title="（1）基本格式"></a>（1）基本格式</h5><ul>
+<li><p>首行指定解析器：<code>#!/bin/bash</code></p>
+</li>
+<li><p>后续为具体命令，如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Hello shell!&quot;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="（2）执行方式"><a href="#（2）执行方式" class="headerlink" title="（2）执行方式"></a>（2）执行方式</h5><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>语法</th>
+<th>说明</th>
+<th>权限要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>方式1：解析器执行</td>
+<td>sh&#x2F;bash + 脚本相对&#x2F;绝对路径</td>
+<td>本质是bash解析器帮你执行脚本</td>
+<td>无需可执行权限</td>
+</tr>
+<tr>
+<td></td>
+<td>例：<code>sh ./helloworld.sh</code>、<code>bash /home/atguigu/helloworld.sh</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>方式2：脚本自执行</td>
+<td>输入脚本相对&#x2F;绝对路径</td>
+<td>本质是脚本自己执行</td>
+<td>需先添加可执行权限：<code>chmod +x helloworld.sh</code>，再执行<code>./helloworld.sh</code>或<code>/home/atguigu/helloworld.sh</code></td>
+</tr>
+</tbody></table>
+<h4 id="3-变量"><a href="#3-变量" class="headerlink" title="3. 变量"></a>3. 变量</h4><h5 id="（1）系统预定义变量"><a href="#（1）系统预定义变量" class="headerlink" title="（1）系统预定义变量"></a>（1）系统预定义变量</h5><p>常用系统变量：</p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>$HOME</td>
+<td>当前用户家目录</td>
+</tr>
+<tr>
+<td>$PWD</td>
+<td>当前工作目录</td>
+</tr>
+<tr>
+<td>$USER</td>
+<td>当前用户名</td>
+</tr>
+<tr>
+<td>$SHELL</td>
+<td>当前Shell解析器</td>
+</tr>
+<tr>
+<td>$PATH</td>
+<td>系统命令搜索路径</td>
+</tr>
+</tbody></table>
+<ul>
+<li>查看变量值：<code>$变量名</code>（注意$和变量名无空格）</li>
+<li>查看所有变量：<code>set</code></li>
+</ul>
+<h5 id="（2）自定义变量"><a href="#（2）自定义变量" class="headerlink" title="（2）自定义变量"></a>（2）自定义变量</h5><ul>
+<li>定义：<code>变量名=值</code>（等号前后无空格；变量名只能由字母、数字、下划线组成，不能以数字开头；值有空格需用单&#x2F;双引号包裹）</li>
+<li>撤销：<code>unset 变量名</code></li>
+<li>只读变量：<code>readonly 变量名=值</code>，只读变量不能修改、不能unset</li>
+<li>全局变量：<code>export 变量名</code>，将变量提升为全局环境变量，可供其他Shell程序使用（需在同一进程）</li>
+<li>注意：bash中变量默认类型为字符串，无法直接进行数值运算，如<code>C=1+2</code>，<code>echo $C</code>输出<code>1+2</code>。</li>
+</ul>
+<h5 id="（3）特殊变量"><a href="#（3）特殊变量" class="headerlink" title="（3）特殊变量"></a>（3）特殊变量</h5><table>
+<thead>
+<tr>
+<th>变量</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>$n</td>
+<td>n为数字：$0代表脚本名称，$1-$9代表第1-9个参数，10以上参数需用大括号包裹，如${10}</td>
+</tr>
+<tr>
+<td>$#</td>
+<td>所有输入参数的个数，常用于判断参数合法性</td>
+</tr>
+<tr>
+<td>$*</td>
+<td>代表所有参数，被双引号包裹时，所有参数看成一个整体，输出为<code>&quot;$1 $2 ... $n&quot;</code></td>
+</tr>
+<tr>
+<td>$@</td>
+<td>代表所有参数，被双引号包裹时，每个参数单独对待，输出为<code>&quot;$1&quot; &quot;$2&quot; ... &quot;$n&quot;</code></td>
+</tr>
+<tr>
+<td>$?</td>
+<td>上一次执行的命令的返回状态：0代表执行成功，非0代表执行失败</td>
+</tr>
+</tbody></table>
+<h4 id="4-算术运算"><a href="#4-算术运算" class="headerlink" title="4. 算术运算"></a>4. 算术运算</h4><p>语法：<code>$((运算式))</code> 或 <code>$[运算式]</code>，例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">S=$[(2+3)*4]  # 输出20</span><br><span class="line">S=$(((4+3)*4))  # 输出28</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-条件判断"><a href="#5-条件判断" class="headerlink" title="5. 条件判断"></a>5. 条件判断</h4><h5 id="（1）基本语法"><a href="#（1）基本语法" class="headerlink" title="（1）基本语法"></a>（1）基本语法</h5><ul>
+<li>写法1：<code>test condition</code></li>
+<li>写法2：<code>[ condition ]</code>（condition前后必须有空格）</li>
+<li>判断逻辑：条件成立返回0（真），不成立返回1（假）</li>
+<li>多条件组合：<code>&amp;&amp;</code>（前一条命令执行成功，才执行后一条）、<code>||</code>（前一条命令执行失败，才执行后一条）</li>
+</ul>
+<h5 id="（2）常用判断条件"><a href="#（2）常用判断条件" class="headerlink" title="（2）常用判断条件"></a>（2）常用判断条件</h5><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数值比较</td>
+<td>-eq</td>
+<td>等于</td>
+</tr>
+<tr>
+<td></td>
+<td>-ne</td>
+<td>不等于</td>
+</tr>
+<tr>
+<td></td>
+<td>-lt</td>
+<td>小于</td>
+</tr>
+<tr>
+<td></td>
+<td>-le</td>
+<td>小于等于</td>
+</tr>
+<tr>
+<td></td>
+<td>-gt</td>
+<td>大于</td>
+</tr>
+<tr>
+<td></td>
+<td>-ge</td>
+<td>大于等于</td>
+</tr>
+<tr>
+<td>文件权限</td>
+<td>-r</td>
+<td>有读权限</td>
+</tr>
+<tr>
+<td></td>
+<td>-w</td>
+<td>有写权限</td>
+</tr>
+<tr>
+<td></td>
+<td>-x</td>
+<td>有执行权限</td>
+</tr>
+<tr>
+<td>文件类型</td>
+<td>-e</td>
+<td>文件存在</td>
+</tr>
+<tr>
+<td></td>
+<td>-f</td>
+<td>文件存在且为常规文件</td>
+</tr>
+<tr>
+<td></td>
+<td>-d</td>
+<td>文件存在且为目录</td>
+</tr>
+</tbody></table>
+<ul>
+<li>注意：<code>[]</code>中不能直接使用<code>=、&gt;、&lt;</code>，如需使用C风格比较，需用<code>(( ))</code>。</li>
+</ul>
+<h4 id="6-流程控制"><a href="#6-流程控制" class="headerlink" title="6. 流程控制"></a>6. 流程控制</h4><h5 id="（1）if判断"><a href="#（1）if判断" class="headerlink" title="（1）if判断"></a>（1）if判断</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 单分支</span></span><br><span class="line"><span class="keyword">if</span> [ 条件判断式 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    程序</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 多分支</span></span><br><span class="line"><span class="keyword">if</span> [ 条件判断式1 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    程序1</span><br><span class="line"><span class="keyword">elif</span> [ 条件判断式2 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    程序2</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    程序3</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>注意：<code>[ ]</code>前后必须有空格，<code>if</code>后必须有空格。</p>
+</li>
+<li><p>例：根据输入年龄判断身份，无参数提示携带年龄：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$#</span> -eq 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&#x27;请携带年龄&#x27;</span></span><br><span class="line"><span class="keyword">elif</span> [ <span class="variable">$1</span> -lt 18 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&#x27;未成年人&#x27;</span></span><br><span class="line"><span class="keyword">elif</span> [ <span class="variable">$1</span> -lt 60 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&#x27;成年人&#x27;</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&#x27;老年人&#x27;</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="（2）case语句"><a href="#（2）case语句" class="headerlink" title="（2）case语句"></a>（2）case语句</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> $变量名 <span class="keyword">in</span></span><br><span class="line"><span class="string">&quot;值1&quot;</span>)</span><br><span class="line">    程序1</span><br><span class="line">    ;;  <span class="comment"># 相当于break</span></span><br><span class="line"><span class="string">&quot;值2&quot;</span>)</span><br><span class="line">    程序2</span><br><span class="line">    ;;</span><br><span class="line">*)</span><br><span class="line">    默认程序  <span class="comment"># 相当于default</span></span><br><span class="line">    ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>例：输入1输出banzhang，2输出cls，其他输出renyao：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="keyword">case</span> <span class="variable">$1</span> <span class="keyword">in</span></span><br><span class="line"><span class="string">&quot;1&quot;</span>)</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;fangjianmen&quot;</span></span><br><span class="line">    ;;</span><br><span class="line"><span class="string">&quot;2&quot;</span>)</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;meisijiya&quot;</span></span><br><span class="line">    ;;</span><br><span class="line">*)</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;renyao&quot;</span></span><br><span class="line">    ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="（3）for循环"><a href="#（3）for循环" class="headerlink" title="（3）for循环"></a>（3）for循环</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 语法1：C风格循环</span></span><br><span class="line"><span class="keyword">for</span> ((初始值;循环控制条件;变量变化))</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    程序</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 语法2：遍历列表</span></span><br><span class="line"><span class="keyword">for</span> 变量 <span class="keyword">in</span> 值1 值2 值3 ...</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    程序</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>$*</code>和<code>$@</code>区别：不被双引号包裹时，均按<code>$1 $2 ... $n</code>输出；被双引号包裹时，<code>$*</code>作为一个整体循环1次，<code>$@</code>每个参数单独循环，循环次数等于参数个数。</p>
+</li>
+<li><p>例：1到100求和（C风格）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">sum</span>=0</span><br><span class="line"><span class="keyword">for</span>((i=<span class="number">1</span>;i&lt;=<span class="number">100</span>;i++))</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    <span class="built_in">sum</span>=$[<span class="variable">$sum</span>+<span class="variable">$i</span>]</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$sum</span>  <span class="comment"># 输出5050</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="（4）while循环"><a href="#（4）while循环" class="headerlink" title="（4）while循环"></a>（4）while循环</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> [ 条件判断式 ]</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    程序</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>例：1到100求和：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">sum</span>=0</span><br><span class="line">i=1</span><br><span class="line"><span class="keyword">while</span> [ <span class="variable">$i</span> -le 100 ]</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    <span class="built_in">sum</span>=$[<span class="variable">$sum</span>+<span class="variable">$i</span>]</span><br><span class="line">    i=$[<span class="variable">$i</span>+1]</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$sum</span>  <span class="comment"># 输出5050</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="7-read命令"><a href="#7-read命令" class="headerlink" title="7. read命令"></a>7. read命令</h4><ul>
+<li><p>作用：读取终端输入到指定变量中</p>
+</li>
+<li><p>语法：<code>read [选项] 变量名</code></p>
+</li>
+<li><p>选项：</p>
+<ul>
+<li><code>-p &quot;提示符&quot;</code>：指定输入提示文字</li>
+<li><code>-t 秒数</code>：指定输入等待时间，不指定则一直等待</li>
+</ul>
+</li>
+<li><p>例：7秒内读取用户输入的名字：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">read</span> -t 7 -p <span class="string">&quot;Enter your name in 7 seconds :&quot;</span> NAME</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$NAME</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="8-函数"><a href="#8-函数" class="headerlink" title="8. 函数"></a>8. 函数</h4><ul>
+<li><p>区别：Shell命令是系统预定义的外部工具，直接作用于Shell环境；Shell函数是用户自定义的代码块，用于封装复杂操作，提高复用性。</p>
+</li>
+<li><p>自定义函数语法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[ <span class="keyword">function</span> ] funname [()]  <span class="comment"># function和()只能省略一个</span></span><br><span class="line">&#123;</span><br><span class="line">    程序;</span><br><span class="line">    [<span class="built_in">return</span> int;]  <span class="comment"># 返回值范围0-255，不写则返回最后一条命令的结果，通过$?获取</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>注意：函数必须先声明再调用（Shell逐行执行，不预编译）；返回值只能通过<code>$?</code>系统变量获取。</p>
+</li>
+<li><p>例：计算两个输入参数的和：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="function"><span class="title">sum</span></span>()</span><br><span class="line">&#123;</span><br><span class="line">    SUM=$[<span class="variable">$1</span>+<span class="variable">$2</span>]</span><br><span class="line">    <span class="built_in">echo</span> <span class="variable">$SUM</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">read</span> -p <span class="string">&quot;请输入第一个数值: &quot;</span> n1</span><br><span class="line"><span class="built_in">read</span> -p <span class="string">&quot;请输入第二个数值: &quot;</span> n2</span><br><span class="line"><span class="built_in">sum</span> <span class="variable">$n1</span> <span class="variable">$n2</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="9-常用Shell工具"><a href="#9-常用Shell工具" class="headerlink" title="9. 常用Shell工具"></a>9. 常用Shell工具</h4><h5 id="（1）cut：剪切工具"><a href="#（1）cut：剪切工具" class="headerlink" title="（1）cut：剪切工具"></a>（1）cut：剪切工具</h5><ul>
+<li><p>作用：从文件的每一行剪切字节、字符、字段并输出，默认分隔符为制表符。</p>
+</li>
+<li><p>语法：<code>cut [选项] 文件名</code></p>
+</li>
+<li><p>选项：</p>
+<ul>
+<li><code>-f 列号</code>：提取第几列</li>
+<li><code>-d 分隔符</code>：指定分隔符（仅支持单字符）</li>
+</ul>
+</li>
+<li><p>例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cut</span> -d <span class="string">&quot; &quot;</span> -f 1 cut.txt  <span class="comment"># 提取cut.txt第一列（空格分隔）</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span> | <span class="built_in">cut</span> -d <span class="string">&quot;:&quot;</span> -f 3-  <span class="comment"># 提取PATH变量从第3个:开始的所有路径</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="（2）awk：文本分析工具"><a href="#（2）awk：文本分析工具" class="headerlink" title="（2）awk：文本分析工具"></a>（2）awk：文本分析工具</h5><ul>
+<li><p>作用：逐行读入文件，默认以空格为分隔符切片，对切片内容进行分析处理。</p>
+</li>
+<li><p>语法：<code>awk [选项] &#39;/pattern1/&#123;action1&#125; /pattern2/&#123;action2&#125;...&#39; 文件名</code></p>
+</li>
+<li><p>选项：</p>
+<ul>
+<li><code>-F 分隔符</code>：指定输入文件分隔符</li>
+<li><code>-v 变量名=值</code>：定义用户自定义变量</li>
+</ul>
+</li>
+<li><p>内置变量：</p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FILENAME</td>
+<td>文件名</td>
+</tr>
+<tr>
+<td>NR</td>
+<td>行号</td>
+</tr>
+<tr>
+<td>NF</td>
+<td>切割后的列数</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">awk -F : <span class="string">&#x27;/^root/&#123;print $7&#125;&#x27;</span> passwd  <span class="comment"># 输出passwd中root开头的行第7列</span></span><br><span class="line">awk -F : <span class="string">&#x27;BEGIN&#123;print &quot;user,shell&quot;&#125; &#123;print $1&quot;,&quot;$7&#125; END&#123;print &quot;meisijiya,/bin/zuishuai&quot;&#125;&#x27;</span> passwd  <span class="comment"># 开头加表头，结尾加内容</span></span><br><span class="line">ifconfig ens33 | awk -F <span class="string">&quot; &quot;</span> <span class="string">&#x27;/inet /&#123;print $2&#125;&#x27;</span>  <span class="comment"># 提取ens33网卡的IP地址</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="10-正则表达式入门"><a href="#10-正则表达式入门" class="headerlink" title="10. 正则表达式入门"></a>10. 正则表达式入门</h4><p>正则表达式用于描述、匹配一系列符合规则的字符串，grep、sed、awk等命令均支持。</p>
+<table>
+<thead>
+<tr>
+<th>特殊字符</th>
+<th>含义</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>^</td>
+<td>匹配行开头</td>
+<td><code>grep ^a /etc/passwd</code>匹配所有a开头的行</td>
+</tr>
+<tr>
+<td>$</td>
+<td>匹配行结尾</td>
+<td><code>grep n$ /etc/passwd</code>匹配所有n结尾的行；<code>^$</code>匹配空行</td>
+</tr>
+<tr>
+<td>.</td>
+<td>匹配任意单个字符</td>
+<td><code>grep r..t /etc/passwd</code>匹配r和t之间有两个任意字符的行</td>
+</tr>
+<tr>
+<td>*</td>
+<td>匹配前一个字符0次或多次</td>
+<td><code>grep ro*t /etc/passwd</code>匹配rt、rot、root等；<code>.*</code>匹配任意长度任意字符</td>
+</tr>
+<tr>
+<td>[]</td>
+<td>匹配范围内的单个字符</td>
+<td><code>[68]</code>匹配6或8，<code>[0-9]</code>匹配数字，<code>[a-z]</code>匹配小写字母</td>
+</tr>
+<tr>
+<td>\</td>
+<td>转义字符，匹配特殊字符本身</td>
+<td><code>grep a\$b /etc/passwd</code>匹配所有含a$b的行</td>
+</tr>
+</tbody></table>
+<ul>
+<li>经典正则：<ul>
+<li>邮箱：<code>^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)+$</code></li>
+<li>手机号（简单版）：<code>/^1[3-9]\d&#123;9&#125;$/</code></li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>根据现有学习资料，第三阶段「Web开发与容器化部署（2-3周）」原有文档中误将本模块编号为「模块3」，现按您的要求修正为<strong>第三阶段模块1：FastAPI + SQLAlchemy2.0 整合</strong>，以下是完善补充后的翔实内容，所有内容均来自提供的参考资料，并特别标注SQLAlchemy2.0相关规范及版本差异：</p>
+<hr>
+<h2 id="模块2：异步编程基础"><a href="#模块2：异步编程基础" class="headerlink" title="模块2：异步编程基础"></a>模块2：异步编程基础</h2><h3 id="一、模块定位与目标"><a href="#一、模块定位与目标" class="headerlink" title="一、模块定位与目标"></a>一、模块定位与目标</h3><h4 id="1-1-模块定位"><a href="#1-1-模块定位" class="headerlink" title="1.1 模块定位"></a>1.1 模块定位</h4><p>本模块是FastAPI框架学习的前置核心基础：FastAPI基于协程异步编程模式与ASGI规范实现高并发能力，掌握本模块内容是后续学习FastAPI、整合SQLAlchemy的必要前提。</p>
+<h4 id="1-2-学习目标"><a href="#1-2-学习目标" class="headerlink" title="1.2 学习目标"></a>1.2 学习目标</h4><ol>
+<li>理解协程的本质与优势，掌握<code>async</code>&#x2F;<code>await</code>语法规则</li>
+<li>理解事件循环（Event Loop）的工作机制，掌握<code>asyncio</code>核心API使用</li>
+<li>掌握协程并发实现方式（Task、<code>asyncio.gather</code>），理解串行&#x2F;并发耗时差异</li>
+<li>理解WSGI与ASGI的区别与选型原则</li>
+<li>能够独立编写异步程序模拟I&#x2F;O请求，计算并发耗时</li>
+</ol>
+<hr>
+<h3 id="二、核心知识点详解"><a href="#二、核心知识点详解" class="headerlink" title="二、核心知识点详解"></a>二、核心知识点详解</h3><h4 id="2-1-协程（Coroutine）基础"><a href="#2-1-协程（Coroutine）基础" class="headerlink" title="2.1 协程（Coroutine）基础"></a>2.1 协程（Coroutine）基础</h4><h5 id="2-1-1-传统线程-进程的瓶颈"><a href="#2-1-1-传统线程-进程的瓶颈" class="headerlink" title="2.1.1 传统线程&#x2F;进程的瓶颈"></a>2.1.1 传统线程&#x2F;进程的瓶颈</h5><p>处理<strong>I&#x2F;O密集型任务</strong>（如Web服务同时处理数千用户连接）时，线程模型存在明显缺陷：</p>
+<ul>
+<li>切换开销大：操作系统在数千线程间切换消耗大量CPU时间</li>
+<li>同步复杂：线程共享内存，需用锁保护共享数据，易引发死锁</li>
+<li>阻塞浪费：线程I&#x2F;O阻塞时自身挂起，切换成本仍较高，无法创建足够多线程应对极高并发</li>
+</ul>
+<h5 id="2-1-2-协程的定义与优势"><a href="#2-1-2-协程的定义与优势" class="headerlink" title="2.1.2 协程的定义与优势"></a>2.1.2 协程的定义与优势</h5><p>协程是Python中处理高并发的强大工具，尤其适合I&#x2F;O密集型场景：</p>
+<ul>
+<li>本质：用户态的轻量级线程（微线程），不由操作系统调度，由程序自身控制调度</li>
+<li>核心优势：<ol>
+<li>调度可控：通过<code>await</code>关键字主动让出CPU给其他协程</li>
+<li>轻量级：创建成本极低，一个线程可轻松创建数万个协程</li>
+<li>无锁机制：同一时间只有一个协程运行，无需锁保护共享资源</li>
+<li>开销极低：避免操作系统级上下文切换，仅存在极小的函数调用开销，I&#x2F;O操作效率远高于线程</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h4 id="2-2-async-await-语法规范"><a href="#2-2-async-await-语法规范" class="headerlink" title="2.2 async&#x2F;await 语法规范"></a>2.2 async&#x2F;await 语法规范</h4><p>Python 3.5+通过<code>async</code>和<code>await</code>关键字实现协程：</p>
+<h5 id="2-2-1-定义协程函数：async-def"><a href="#2-2-1-定义协程函数：async-def" class="headerlink" title="2.2.1 定义协程函数：async def"></a>2.2.1 定义协程函数：<code>async def</code></h5><p>使用<code>async def</code>定义的函数为协程函数，调用后不会立即执行，仅返回协程对象：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">hello</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Hello&quot;</span>)</span><br><span class="line">    <span class="keyword">await</span> asyncio.sleep(<span class="number">1</span>)  <span class="comment"># 模拟I/O操作，await只能在协程函数内使用</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;World&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用hello()仅返回协程对象，不执行</span></span><br><span class="line">coro_obj = hello()</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">type</span>(coro_obj))  <span class="comment"># 输出: &lt;class &#x27;coroutine&#x27;&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2-2-2-挂起与恢复：await关键字"><a href="#2-2-2-挂起与恢复：await关键字" class="headerlink" title="2.2.2 挂起与恢复：await关键字"></a>2.2.2 挂起与恢复：<code>await</code>关键字</h5><p><code>await</code>是协程的核心，用于暂停当前协程执行，等待可等待对象（Awaitable，通常是其他协程或I&#x2F;O操作）完成：</p>
+<ul>
+<li>遇到<code>await</code>时：当前协程让出CPU控制权，进入“挂起”状态</li>
+<li>事件循环接管：调度执行其他处于“就绪”状态的协程</li>
+<li>等待对象完成后：事件循环将控制权交还给挂起的协程，使其从<code>await</code>后继续执行</li>
+</ul>
+<hr>
+<h4 id="2-3-事件循环（Event-Loop）"><a href="#2-3-事件循环（Event-Loop）" class="headerlink" title="2.3 事件循环（Event Loop）"></a>2.3 事件循环（Event Loop）</h4><p>事件循环是协程并发模型的核心，是负责调度、管理和执行所有协程的“心脏”。</p>
+<h5 id="2-3-1-事件循环工作流程"><a href="#2-3-1-事件循环工作流程" class="headerlink" title="2.3.1 事件循环工作流程"></a>2.3.1 事件循环工作流程</h5><ol>
+<li><p><strong>注册任务</strong>：协程需注册到事件循环才能被调度，三种注册方式：</p>
+<table>
+<thead>
+<tr>
+<th>注册方式</th>
+<th>目的</th>
+<th>机制</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>asyncio.run(main_coro)</code></td>
+<td>启动整个异步程序</td>
+<td>创建EventLoop，将顶级协程隐式包装成Task运行</td>
+<td>程序入口点</td>
+</tr>
+<tr>
+<td><code>asyncio.create_task(coro)</code></td>
+<td>实现并发执行</td>
+<td>将协程立即包装成Task，添加到EventLoop队列，后台运行</td>
+<td>启动多个并发任务，配合<code>asyncio.gather</code>等待结果</td>
+</tr>
+<tr>
+<td><code>await coro</code></td>
+<td>实现串行等待</td>
+<td>EventLoop隐式将<code>coro</code>注册为任务执行，但必须等待其完成才恢复当前协程</td>
+<td>确保代码按顺序执行</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>启动协程</strong>：通过<code>asyncio.run(main_coroutine)</code>启动，实例化EventLoop，将<code>main_coroutine</code>包装成Task加入循环，进入无限循环选择就绪任务执行。</p>
+</li>
+<li><p><strong>遇到await</strong>：协程暂停，将I&#x2F;O操作注册到事件循环监控中，让出控制权给事件循环。</p>
+</li>
+<li><p><strong>切换任务</strong>：事件循环发现当前协程暂停，立即选择下一个就绪协程执行。</p>
+</li>
+<li><p><strong>I&#x2F;O完成通知</strong>：I&#x2F;O操作完成后，操作系统通知事件循环，对应协程标记为“就绪”。</p>
+</li>
+<li><p><strong>恢复协程</strong>：事件循环在合适时机让挂起的协程从<code>await</code>处恢复执行。</p>
+</li>
+<li><p><strong>终止与清理</strong>：顶级Task完成后，EventLoop强制取消所有运行中的子Task，关闭循环，程序退出。</p>
+</li>
+</ol>
+<h5 id="2-3-2-事件循环伪代码模型"><a href="#2-3-2-事件循环伪代码模型" class="headerlink" title="2.3.2 事件循环伪代码模型"></a>2.3.2 事件循环伪代码模型</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">任务列表 = [Task1, Task2, ...]</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="comment"># 1. 检查I/O事件，更新任务状态（如Task2网络响应到达，标记为就绪）</span></span><br><span class="line">    已完成的IO = monitor_io_events()</span><br><span class="line">    <span class="comment"># 2. 选取就绪任务执行</span></span><br><span class="line">    <span class="keyword">for</span> task <span class="keyword">in</span> 就绪任务队列:</span><br><span class="line">        task.run_until_await()  <span class="comment"># 运行直到遇到下一个await</span></span><br><span class="line">    <span class="comment"># 3. 检查是否所有任务都已完成</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> 任务列表 <span class="keyword">and</span> <span class="keyword">not</span> 正在等待IO:</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="2-4-协程并发实现：Task与asyncio-gather"><a href="#2-4-协程并发实现：Task与asyncio-gather" class="headerlink" title="2.4 协程并发实现：Task与asyncio.gather()"></a>2.4 协程并发实现：Task与asyncio.gather()</h4><p>协程本身只是“可暂停的函数”，需包装成Task并提交到事件循环才能实现并发。</p>
+<h5 id="2-4-1-Task（任务）"><a href="#2-4-1-Task（任务）" class="headerlink" title="2.4.1 Task（任务）"></a>2.4.1 Task（任务）</h5><ul>
+<li>定义：对协程的封装，自动将协程注册到事件循环，具备被调度和执行的能力</li>
+<li>创建：使用<code>asyncio.create_task(协程对象)</code>，创建后Task立即在后台运行，无需等待</li>
+</ul>
+<h5 id="2-4-2-批量并发：asyncio-gather"><a href="#2-4-2-批量并发：asyncio-gather" class="headerlink" title="2.4.2 批量并发：asyncio.gather()"></a>2.4.2 批量并发：asyncio.gather()</h5><p>用于并发执行多个协程&#x2F;任务，等待所有任务完成后返回结果集合：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">my_func</span>(<span class="params">name, delay</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;任务 <span class="subst">&#123;name&#125;</span> 开始...&quot;</span>)</span><br><span class="line">    <span class="keyword">await</span> asyncio.sleep(delay)  <span class="comment"># 模拟I/O等待，让出CPU</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;任务 <span class="subst">&#123;name&#125;</span> 完成.&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;结果 of <span class="subst">&#123;name&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main_concurrent</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;--- 并发执行（总耗时 max(1s, 2s) = 2s）---&quot;</span>)</span><br><span class="line">    <span class="comment"># 创建Task，立即加入事件循环后台运行</span></span><br><span class="line">    task1 = asyncio.create_task(my_func(<span class="string">&quot;C&quot;</span>, <span class="number">1</span>))</span><br><span class="line">    task2 = asyncio.create_task(my_func(<span class="string">&quot;D&quot;</span>, <span class="number">2</span>))</span><br><span class="line">    <span class="comment"># 等待所有任务完成，获取结果</span></span><br><span class="line">    results = <span class="keyword">await</span> asyncio.gather(task1, task2)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;所有结果: <span class="subst">&#123;results&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    start_time = time.time()</span><br><span class="line">    asyncio.run(main_concurrent())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;并发总耗时: <span class="subst">&#123;time.time() - start_time:<span class="number">.2</span>f&#125;</span>秒&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-4-3-并发执行原理"><a href="#2-4-3-并发执行原理" class="headerlink" title="2.4.3 并发执行原理"></a>2.4.3 并发执行原理</h5><ol>
+<li>taskC执行，打印“开始”，遇到<code>await asyncio.sleep(1)</code>，让出控制权</li>
+<li>事件循环切换到taskD，打印“开始”，遇到<code>await asyncio.sleep(2)</code>，让出控制权</li>
+<li>事件循环等待I&#x2F;O事件：1秒后taskC的定时器完成，恢复执行打印“完成”；2秒后taskD的定时器完成，恢复执行打印“完成”</li>
+<li><code>asyncio.gather</code>收到所有结果返回，总耗时为最慢任务的时间（2秒），远小于串行的3秒。</li>
+</ol>
+<h5 id="2-4-4-注意事项：未等待的Task会被取消"><a href="#2-4-4-注意事项：未等待的Task会被取消" class="headerlink" title="2.4.4 注意事项：未等待的Task会被取消"></a>2.4.4 注意事项：未等待的Task会被取消</h5><p>如果仅创建Task而不等待，顶级Task退出后事件循环会终止，所有子Task会被强制取消：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main_concurrent</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;--- 未等待Task的示例 ---&quot;</span>)</span><br><span class="line">    asyncio.create_task(my_func(<span class="string">&quot;C&quot;</span>, <span class="number">1</span>))</span><br><span class="line">    asyncio.create_task(my_func(<span class="string">&quot;D&quot;</span>, <span class="number">2</span>))</span><br><span class="line">    <span class="comment"># 无等待逻辑，顶级Task直接退出</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    start_time = time.time()</span><br><span class="line">    asyncio.run(main_concurrent())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;并发总耗时: <span class="subst">&#123;time.time() - start_time:<span class="number">.2</span>f&#125;</span>秒&quot;</span>)</span><br><span class="line"><span class="comment"># 输出：仅打印“开始”，总耗时0秒，任务未完成就被终止</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="2-5-协程的限制与高级控制"><a href="#2-5-协程的限制与高级控制" class="headerlink" title="2.5 协程的限制与高级控制"></a>2.5 协程的限制与高级控制</h4><h5 id="2-5-1-核心限制：阻塞I-O"><a href="#2-5-1-核心限制：阻塞I-O" class="headerlink" title="2.5.1 核心限制：阻塞I&#x2F;O"></a>2.5.1 核心限制：阻塞I&#x2F;O</h5><p>协程在单线程中运行，如果代码包含阻塞I&#x2F;O（如<code>time.sleep()</code>、<code>requests.get()</code>等同步库调用），整个事件循环和所有协程都会被卡住，并发能力失效。</p>
+<p><strong>解决方案：隔离阻塞操作</strong><br> 使用<code>asyncio.to_thread()</code>（Python3.9+）或<code>loop.run_in_executor()</code>将阻塞代码交给线程池&#x2F;进程池执行，避免卡住主事件循环：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">fetch_blocking_url</span>(<span class="params">url</span>):</span><br><span class="line">    <span class="comment"># 将同步的requests.get扔到另一个线程执行</span></span><br><span class="line">    response = <span class="keyword">await</span> asyncio.to_thread(requests.get, url)</span><br><span class="line">    <span class="keyword">return</span> response.status_code</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-5-2-高级控制功能"><a href="#2-5-2-高级控制功能" class="headerlink" title="2.5.2 高级控制功能"></a>2.5.2 高级控制功能</h5><ul>
+<li><p>超时处理：<code>asyncio.wait_for()</code></p>
+<p>为单个可等待对象设置超时时间，超时抛出<code>asyncio.TimeoutError</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">slow_task</span>():</span><br><span class="line">    <span class="keyword">await</span> asyncio.sleep(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main_timeout</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 任务必须在2秒内完成</span></span><br><span class="line">        <span class="keyword">await</span> asyncio.wait_for(slow_task(), timeout=<span class="number">2.0</span>)</span><br><span class="line">    <span class="keyword">except</span> asyncio.TimeoutError:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;任务超时！&quot;</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>任务取消：<code>Task.cancel()</code></strong><br> 请求取消正在运行的Task，被取消的Task会抛出<code>asyncio.CancelledError</code>，可捕获异常做资源清理。</p>
+</li>
+</ul>
+<hr>
+<h4 id="2-6-WSGI与ASGI规范（FastAPI前置知识）"><a href="#2-6-WSGI与ASGI规范（FastAPI前置知识）" class="headerlink" title="2.6 WSGI与ASGI规范（FastAPI前置知识）"></a>2.6 WSGI与ASGI规范（FastAPI前置知识）</h4><p>WSGI和ASGI是Python Web开发中定义服务器与应用通信规则的接口规范，核心区别是对异步的支持能力：</p>
+<h5 id="2-6-1-核心差异对比"><a href="#2-6-1-核心差异对比" class="headerlink" title="2.6.1 核心差异对比"></a>2.6.1 核心差异对比</h5><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>WSGI</th>
+<th>ASGI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>提出时间</td>
+<td>2003年</td>
+<td>2018年</td>
+</tr>
+<tr>
+<td>异步支持</td>
+<td>仅支持同步</td>
+<td>原生支持异步，兼容WSGI</td>
+</tr>
+<tr>
+<td>定位</td>
+<td>早期同步框架（Flask、Django旧版本）的兼容规范</td>
+<td>WSGI的异步升级版，支持异步任务（WebSocket、长轮询）</td>
+</tr>
+<tr>
+<td>工作流程</td>
+<td>同步阻塞：一个请求未处理完，对应线程&#x2F;进程无法处理其他请求</td>
+<td>异步非阻塞：等待I&#x2F;O时事件循环切换其他请求</td>
+</tr>
+<tr>
+<td>适用服务器</td>
+<td>Gunicorn、uWSGI</td>
+<td>Uvicorn</td>
+</tr>
+</tbody></table>
+<h5 id="2-6-2-选型原则"><a href="#2-6-2-选型原则" class="headerlink" title="2.6.2 选型原则"></a>2.6.2 选型原则</h5><ol>
+<li>同步框架（Flask、Django 3.0之前版本）：使用WSGI服务器</li>
+<li>异步框架（FastAPI、Starlette、Django 3.1+异步模式）：使用ASGI服务器（Uvicorn）发挥异步性能</li>
+<li>实时通信场景（WebSocket聊天、实时数据推送）：必须使用ASGI</li>
+</ol>
+<hr>
+<h3 id="三、实践任务：模拟异步网络请求并计算耗时"><a href="#三、实践任务：模拟异步网络请求并计算耗时" class="headerlink" title="三、实践任务：模拟异步网络请求并计算耗时"></a>三、实践任务：模拟异步网络请求并计算耗时</h3><h4 id="3-1-任务要求"><a href="#3-1-任务要求" class="headerlink" title="3.1 任务要求"></a>3.1 任务要求</h4><p>编写异步函数，模拟两个网络请求（分别耗时1秒、2秒），分别计算串行和并发执行的总耗时，验证协程并发的优势。</p>
+<h4 id="3-2-完整实现代码"><a href="#3-2-完整实现代码" class="headerlink" title="3.2 完整实现代码"></a>3.2 完整实现代码</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模拟网络请求的协程函数，delay为请求耗时</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">mock_request</span>(<span class="params">name: <span class="built_in">str</span>, delay: <span class="built_in">int</span></span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[<span class="subst">&#123;time.strftime(<span class="string">&#x27;%X&#x27;</span>)&#125;</span>] 请求 <span class="subst">&#123;name&#125;</span> 开始，预计耗时 <span class="subst">&#123;delay&#125;</span>s&quot;</span>)</span><br><span class="line">    <span class="keyword">await</span> asyncio.sleep(delay)  <span class="comment"># 模拟I/O等待，让出CPU</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[<span class="subst">&#123;time.strftime(<span class="string">&#x27;%X&#x27;</span>)&#125;</span>] 请求 <span class="subst">&#123;name&#125;</span> 完成&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;name&#125;</span> 结果&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 串行执行版本：总耗时=1+2=3秒</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">serial_run</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=== 串行执行开始 ===&quot;</span>)</span><br><span class="line">    start = time.time()</span><br><span class="line">    res1 = <span class="keyword">await</span> mock_request(<span class="string">&quot;请求A&quot;</span>, <span class="number">1</span>)</span><br><span class="line">    res2 = <span class="keyword">await</span> mock_request(<span class="string">&quot;请求B&quot;</span>, <span class="number">2</span>)</span><br><span class="line">    end = time.time()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;串行结果：<span class="subst">&#123;res1&#125;</span>, <span class="subst">&#123;res2&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;串行总耗时：<span class="subst">&#123;end - start:<span class="number">.2</span>f&#125;</span>秒&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 并发执行版本：总耗时=max(1,2)=2秒</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">concurrent_run</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;\n=== 并发执行开始 ===&quot;</span>)</span><br><span class="line">    start = time.time()</span><br><span class="line">    <span class="comment"># 创建Task，立即加入事件循环后台运行</span></span><br><span class="line">    task1 = asyncio.create_task(mock_request(<span class="string">&quot;请求C&quot;</span>, <span class="number">1</span>))</span><br><span class="line">    task2 = asyncio.create_task(mock_request(<span class="string">&quot;请求D&quot;</span>, <span class="number">2</span>))</span><br><span class="line">    <span class="comment"># 等待所有任务完成</span></span><br><span class="line">    results = <span class="keyword">await</span> asyncio.gather(task1, task2)</span><br><span class="line">    end = time.time()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;并发结果：<span class="subst">&#123;results&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;并发总耗时：<span class="subst">&#123;end - start:<span class="number">.2</span>f&#125;</span>秒&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;--- 测试串行执行 ---&quot;</span>)</span><br><span class="line">    asyncio.run(serial_run())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;\n--- 测试并发执行 ---&quot;</span>)</span><br><span class="line">    asyncio.run(concurrent_run())</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-3-执行结果说明"><a href="#3-3-执行结果说明" class="headerlink" title="3.3 执行结果说明"></a>3.3 执行结果说明</h4><ul>
+<li>串行执行：总耗时约3秒，两个请求按顺序执行</li>
+<li>并发执行：总耗时约2秒，两个请求同时执行，总耗时为最慢请求的时间，符合协程并发的预期优势</li>
+</ul>
+<hr>
+<h3 id="四、扩展实战：异步网络请求（aiohttp）"><a href="#四、扩展实战：异步网络请求（aiohttp）" class="headerlink" title="四、扩展实战：异步网络请求（aiohttp）"></a>四、扩展实战：异步网络请求（aiohttp）</h3><p>协程最适合I&#x2F;O密集型的网络请求场景，以下是使用<code>aiohttp</code>异步HTTP库并发请求多个URL的示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">import</span> aiohttp</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">fetch_url</span>(<span class="params">session, url</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;异步请求URL并返回耗时&quot;&quot;&quot;</span></span><br><span class="line">    start = time.time()</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> session.get(url) <span class="keyword">as</span> response:</span><br><span class="line">        <span class="keyword">await</span> response.text()  <span class="comment"># 等待响应，让出CPU</span></span><br><span class="line">    resp_time = time.time() - start</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;url&#125;</span> 耗时 <span class="subst">&#123;resp_time:<span class="number">.2</span>f&#125;</span>秒&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    urls = [<span class="string">&quot;https://www.baidu.com&quot;</span>, <span class="string">&quot;https://www.bing.com&quot;</span>, <span class="string">&quot;https://www.github.com&quot;</span>]</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> aiohttp.ClientSession() <span class="keyword">as</span> session:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;--- 并发请求开始 ---&quot;</span>)</span><br><span class="line">        start = time.time()</span><br><span class="line">        tasks = [fetch_url(session, url) <span class="keyword">for</span> url <span class="keyword">in</span> urls]</span><br><span class="line">        results = <span class="keyword">await</span> asyncio.gather(*tasks)</span><br><span class="line">        <span class="keyword">for</span> res <span class="keyword">in</span> results:</span><br><span class="line">            <span class="built_in">print</span>(res)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;总耗时：<span class="subst">&#123;time.time() - start:<span class="number">.2</span>f&#125;</span>秒（约为最慢请求的时间）&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    asyncio.run(main())</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="模块3：FastAPI入门"><a href="#模块3：FastAPI入门" class="headerlink" title="模块3：FastAPI入门"></a>模块3：FastAPI入门</h2><h3 id="一、模块定位与目标-1"><a href="#一、模块定位与目标-1" class="headerlink" title="一、模块定位与目标"></a>一、模块定位与目标</h3><h4 id="1-1-模块定位-1"><a href="#1-1-模块定位-1" class="headerlink" title="1.1 模块定位"></a>1.1 模块定位</h4><p>本模块承接<strong>模块1：异步编程基础</strong>，是FastAPI框架的核心入门内容，为后续「模块3：FastAPI+SQLAlchemy整合」「模块4：Docker容器化部署」打下基础。FastAPI是构建AI服务API的主流框架，其异步特性与高并发能力完美适配大模型接口场景。</p>
+<h4 id="1-2-学习目标-1"><a href="#1-2-学习目标-1" class="headerlink" title="1.2 学习目标"></a>1.2 学习目标</h4><ol>
+<li>掌握FastAPI的核心特性、技术栈与优势</li>
+<li>熟练搭建FastAPI项目，掌握两种服务启动方式</li>
+<li>精通路径参数、查询参数、请求体的定义、类型校验与自动转换规则</li>
+<li>理解<code>async def</code>（异步）与<code>def</code>（同步）函数的区别、适用场景与执行机制</li>
+<li>掌握路由分发（<code>APIRouter</code>）的用法，实现项目代码模块化拆分</li>
+<li>学会使用FastAPI自动生成的交互式文档测试接口</li>
+<li>完成基础实践任务，独立搭建符合要求的FastAPI应用</li>
+</ol>
+<hr>
+<h3 id="二、核心知识点详解-1"><a href="#二、核心知识点详解-1" class="headerlink" title="二、核心知识点详解"></a>二、核心知识点详解</h3><h4 id="2-1-FastAPI核心介绍"><a href="#2-1-FastAPI核心介绍" class="headerlink" title="2.1 FastAPI核心介绍"></a>2.1 FastAPI核心介绍</h4><h5 id="2-1-1-基本定位"><a href="#2-1-1-基本定位" class="headerlink" title="2.1.1 基本定位"></a>2.1.1 基本定位</h5><p>FastAPI是一个现代、快速（高性能）的Web API框架，用于构建API，基于Python 3.7+的类型提示和异步编程能力实现。</p>
+<h5 id="2-1-2-底层依赖"><a href="#2-1-2-底层依赖" class="headerlink" title="2.1.2 底层依赖"></a>2.1.2 底层依赖</h5><ul>
+<li><strong>Starlette</strong>：提供Web工具集与异步支持，是FastAPI的基础运行层</li>
+<li><strong>Pydantic</strong>：提供数据验证、类型管理与JSON Schema支持</li>
+</ul>
+<h5 id="2-1-3-核心特性"><a href="#2-1-3-核心特性" class="headerlink" title="2.1.3 核心特性"></a>2.1.3 核心特性</h5><ol>
+<li><strong>自动交互式文档</strong>：基于OpenAPI规范和JSON Schema，自动生成Swagger UI（访问<code>/docs</code>）和ReDoc（访问<code>/redoc</code>）文档，无需手动编写</li>
+<li><strong>自动数据验证</strong>：自动校验请求参数、请求体的类型，返回清晰的错误提示</li>
+<li><strong>依赖注入系统</strong>：内置依赖注入机制，方便复用公共逻辑（如数据库会话管理，后续模块详解）</li>
+<li><strong>原生异步支持</strong>：完美支持<code>async/await</code>，配合ASGI服务器（Uvicorn）实现I&#x2F;O密集型场景的高并发</li>
+</ol>
+<h5 id="2-1-4-官方资源"><a href="#2-1-4-官方资源" class="headerlink" title="2.1.4 官方资源"></a>2.1.4 官方资源</h5><ul>
+<li>官方文档：<a target="_blank" rel="noopener" href="https://fastapi.tiangolo.com/">https://fastapi.tiangolo.com</a></li>
+<li>源码地址：<a target="_blank" rel="noopener" href="https://github.com/fastapi/fastapi">https://github.com/fastapi/fastapi</a></li>
+</ul>
+<hr>
+<h4 id="2-2-环境准备与第一个FastAPI程序"><a href="#2-2-环境准备与第一个FastAPI程序" class="headerlink" title="2.2 环境准备与第一个FastAPI程序"></a>2.2 环境准备与第一个FastAPI程序</h4><h5 id="2-2-1-依赖安装"><a href="#2-2-1-依赖安装" class="headerlink" title="2.2.1 依赖安装"></a>2.2.1 依赖安装</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装FastAPI核心库</span></span><br><span class="line">pip install fastapi</span><br><span class="line"><span class="comment"># 安装Uvicorn（ASGI服务器，用于运行FastAPI应用）</span></span><br><span class="line">pip install uvicorn</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-2-2-第一个FastAPI程序（基础版）"><a href="#2-2-2-第一个FastAPI程序（基础版）" class="headerlink" title="2.2.2 第一个FastAPI程序（基础版）"></a>2.2.2 第一个FastAPI程序（基础版）</h5><p>创建<code>main.py</code>文件，写入以下内容：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI</span><br><span class="line">app = FastAPI()</span><br><span class="line"><span class="comment"># 路径操作装饰器：处理根路径的GET请求</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_root</span>():</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;Hello&quot;</span>: <span class="string">&quot;World&quot;</span>&#125;</span><br><span class="line"><span class="comment"># 处理/items/&#123;item_id&#125;路径的GET请求，item_id为路径参数</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items/&#123;item_id&#125;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_item</span>(<span class="params">item_id: <span class="built_in">int</span>, q: <span class="built_in">str</span> | <span class="literal">None</span> = <span class="literal">None</span></span>):</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;item_id&quot;</span>: item_id, <span class="string">&quot;q&quot;</span>: q&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-2-3-服务启动方式"><a href="#2-2-3-服务启动方式" class="headerlink" title="2.2.3 服务启动方式"></a>2.2.3 服务启动方式</h5><h6 id="方式1：命令行启动（推荐开发使用）"><a href="#方式1：命令行启动（推荐开发使用）" class="headerlink" title="方式1：命令行启动（推荐开发使用）"></a>方式1：命令行启动（推荐开发使用）</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uvicorn main:app --reload</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<ul>
+<li><code>main</code>：<code>main.py</code>文件（Python模块名）</li>
+<li><code>app</code>：<code>main.py</code>中通过<code>app = FastAPI()</code>创建的应用实例</li>
+<li><code>--reload</code>：代码更新后自动重启服务，仅开发环境使用</li>
+</ul>
+<h6 id="方式2：代码中直接启动"><a href="#方式2：代码中直接启动" class="headerlink" title="方式2：代码中直接启动"></a>方式2：代码中直接启动</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI</span><br><span class="line"><span class="keyword">import</span> uvicorn</span><br><span class="line">app = FastAPI()</span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_root</span>():</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;Hello&quot;</span>: <span class="string">&quot;World&quot;</span>&#125;</span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items/&#123;item_id&#125;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_item</span>(<span class="params">item_id: <span class="built_in">int</span>, q: <span class="built_in">str</span> | <span class="literal">None</span> = <span class="literal">None</span></span>):</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;item_id&quot;</span>: item_id, <span class="string">&quot;q&quot;</span>: q&#125;</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    uvicorn.run(</span><br><span class="line">        app=<span class="string">&quot;main:app&quot;</span>,       <span class="comment"># 指定要运行的FastAPI应用实例</span></span><br><span class="line">        host=<span class="string">&quot;0.0.0.0&quot;</span>,      <span class="comment"># 允许外部访问（本地可通过127.0.0.1或localhost访问）</span></span><br><span class="line">        port=<span class="number">8000</span>,           <span class="comment"># 端口号</span></span><br><span class="line">        reload=<span class="literal">True</span>           <span class="comment"># 开发模式：代码修改后自动重启（生产环境需去掉）</span></span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-2-4-访问测试"><a href="#2-2-4-访问测试" class="headerlink" title="2.2.4 访问测试"></a>2.2.4 访问测试</h5><ul>
+<li>根路径：访问<code>http://127.0.0.1:8000/</code>，返回<code>&#123;&quot;Hello&quot;: &quot;World&quot;&#125;</code></li>
+<li>路径参数测试：访问<code>http://127.0.0.1:8000/items/5?q=iphone17</code>，返回<code>&#123;&quot;item_id&quot;:5,&quot;q&quot;:&quot;iphone17&quot;&#125;</code>（注意<code>item_id</code>会自动转为<code>int</code>类型）</li>
+</ul>
+<h5 id="2-2-5-PyCharm快速创建FastAPI工程"><a href="#2-2-5-PyCharm快速创建FastAPI工程" class="headerlink" title="2.2.5 PyCharm快速创建FastAPI工程"></a>2.2.5 PyCharm快速创建FastAPI工程</h5><p>可在PyCharm中直接新建FastAPI项目：<code>New Project</code> → 选择<code>FastAPI</code> → 配置项目路径、Python解释器，IDE会自动生成基础项目结构。</p>
+<h5 id="2-2-6-路径操作与HTTP方法"><a href="#2-2-6-路径操作与HTTP方法" class="headerlink" title="2.2.6 路径操作与HTTP方法"></a>2.2.6 路径操作与HTTP方法</h5><ul>
+<li><p><strong>路径（Path）</strong>：URL中从第一个<code>/</code>起的后半部分，例如<code>https://example.com/items/foo</code>的路径是<code>/items/foo</code>，也被称为「端点」或「路由」</p>
+</li>
+<li><p>操作（Operation）：指HTTP方法，开发API时常用操作：</p>
+<table>
+<thead>
+<tr>
+<th>HTTP方法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td>创建数据</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>读取数据</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>更新数据</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>删除数据</td>
+</tr>
+<tr>
+<td>更少用的：<code>OPTIONS</code>、<code>HEAD</code>、<code>PATCH</code>、<code>TRACE</code></td>
+<td></td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>路径操作装饰器</strong>：通过<code>@app.get()</code>、<code>@app.post()</code>等装饰器定义「路径+HTTP方法」的映射，例如<code>@app.get(&quot;/items/&#123;item_id&#125;&quot;)</code>表示处理路径<code>/items/&#123;item_id&#125;</code>的GET请求，也可使用<code>@app.post()</code>、<code>@app.put()</code>、<code>@app.delete()</code>等装饰器。</p>
+</li>
+</ul>
+<h5 id="2-2-7-返回内容规则"><a href="#2-2-7-返回内容规则" class="headerlink" title="2.2.7 返回内容规则"></a>2.2.7 返回内容规则</h5><p>FastAPI会自动将返回值转换为JSON格式，支持返回的类型：<code>dict</code>、<code>list</code>、单个值（<code>str</code>、<code>int</code>等）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items/&#123;item_id&#125;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_item</span>(<span class="params">item_id: <span class="built_in">int</span>, q: <span class="built_in">str</span> | <span class="literal">None</span> = <span class="literal">None</span></span>):</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;item_id&quot;</span>: item_id, <span class="string">&quot;q&quot;</span>: q&#125;  <span class="comment"># 返回dict，自动转为JSON</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="2-3-路径参数（Path-Parameters）"><a href="#2-3-路径参数（Path-Parameters）" class="headerlink" title="2.3 路径参数（Path Parameters）"></a>2.3 路径参数（Path Parameters）</h4><h5 id="2-3-1-基本定义"><a href="#2-3-1-基本定义" class="headerlink" title="2.3.1 基本定义"></a>2.3.1 基本定义</h5><p>使用Python字符串格式化语法<code>&#123;变量名&#125;</code>声明路径参数，FastAPI会自动将URL中对应位置的参数传递给函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items/&#123;item_id&#125;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_item</span>(<span class="params">item_id</span>):</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;item_id&quot;</span>: item_id&#125;</span><br></pre></td></tr></table></figure>
+
+<p>访问<code>http://127.0.0.1:8000/items/foo</code>，返回<code>&#123;&quot;item_id&quot;:&quot;foo&quot;&#125;</code>（默认类型为字符串）。</p>
+<h5 id="2-3-2-类型声明与自动转换"><a href="#2-3-2-类型声明与自动转换" class="headerlink" title="2.3.2 类型声明与自动转换"></a>2.3.2 类型声明与自动转换</h5><p>使用Python类型注解声明路径参数的类型，FastAPI会自动将请求中的参数转换为对应类型，同时提供编辑器类型检查、补全支持：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items/&#123;item_id&#125;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_item</span>(<span class="params">item_id: <span class="built_in">int</span></span>):  <span class="comment"># 声明item_id为int类型</span></span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;item_id&quot;</span>: item_id&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>访问<code>http://127.0.0.1:8000/items/3</code>，返回<code>&#123;&quot;item_id&quot;:3&#125;</code>（<code>item_id</code>已自动转为<code>int</code>类型）</li>
+<li>原理：浏览器传递的参数默认是字符串，FastAPI会根据类型注解自动转换</li>
+</ul>
+<h5 id="2-3-3-类型校验"><a href="#2-3-3-类型校验" class="headerlink" title="2.3.3 类型校验"></a>2.3.3 类型校验</h5><p>如果传入的参数不符合声明的类型，FastAPI会自动返回结构化错误响应：</p>
+<ul>
+<li>访问<code>http://127.0.0.1:8000/items/foo</code>（字符串，不符合<code>int</code>类型），返回：</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;int_parsing&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;loc&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;path&quot;</span><span class="punctuation">,</span> <span class="string">&quot;item_id&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;msg&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Input should be a valid integer, unable to parse string as an integer&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="string">&quot;foo&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>浮点数也不符合<code>int</code>类型，访问<code>/items/4.2</code>同样会返回错误。</li>
+</ul>
+<h5 id="2-3-4-参数顺序规则"><a href="#2-3-4-参数顺序规则" class="headerlink" title="2.3.4 参数顺序规则"></a>2.3.4 参数顺序规则</h5><p>路径操作的匹配是按代码顺序执行的，如果存在「固定路径」和「参数路径」，必须把固定路径放在前面，否则会被参数路径匹配：<br> ❌ 错误示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/users/&#123;user_id&#125;&quot;</span></span>)  </span><span class="comment"># 先定义参数路径</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_user</span>(<span class="params">user_id: <span class="built_in">str</span></span>):</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;user_id&quot;</span>: user_id&#125;</span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/users/me&quot;</span></span>)  </span><span class="comment"># 后定义固定路径，会被前面的规则匹配，user_id会取到&quot;me&quot;</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_user_me</span>():</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;user_id&quot;</span>: <span class="string">&quot;the current user&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>✅ 正确示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/users/me&quot;</span></span>)  </span><span class="comment"># 固定路径放在前面</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_user_me</span>():</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;user_id&quot;</span>: <span class="string">&quot;the current user&quot;</span>&#125;</span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/users/&#123;user_id&#125;&quot;</span></span>)  </span><span class="comment"># 参数路径放在后面</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_user</span>(<span class="params">user_id: <span class="built_in">str</span></span>):</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;user_id&quot;</span>: user_id&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="2-4-查询参数（Query-Parameters）"><a href="#2-4-查询参数（Query-Parameters）" class="headerlink" title="2.4 查询参数（Query Parameters）"></a>2.4 查询参数（Query Parameters）</h4><p>查询参数是URL中<code>?</code>后面的键值对，多个参数用<code>&amp;</code>分隔，FastAPI会自动识别非路径参数的函数为查询参数。</p>
+<h5 id="2-4-1-基本定义示例"><a href="#2-4-1-基本定义示例" class="headerlink" title="2.4.1 基本定义示例"></a>2.4.1 基本定义示例</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI</span><br><span class="line">app = FastAPI()</span><br><span class="line">items_list = [&#123;<span class="string">&quot;item1&quot;</span>: <span class="string">&quot;Foo&quot;</span>&#125;, &#123;<span class="string">&quot;item2&quot;</span>: <span class="string">&quot;Bar&quot;</span>&#125;, &#123;<span class="string">&quot;item3&quot;</span>: <span class="string">&quot;Baz&quot;</span>&#125;]</span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_item</span>(<span class="params">start: <span class="built_in">int</span> = <span class="number">0</span>, limit: <span class="built_in">int</span> = <span class="number">10</span></span>):</span><br><span class="line">    <span class="keyword">return</span> items_list[start : start + limit]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>访问<code>http://127.0.0.1:8000/items/?start=0&amp;limit=2</code>，查询参数<code>start=0</code>，<code>limit=2</code>，返回对应的切片结果</li>
+<li>类型转换：查询参数默认是字符串，声明类型后会自动转为对应类型（如<code>int</code>）</li>
+</ul>
+<h5 id="2-4-2-默认值"><a href="#2-4-2-默认值" class="headerlink" title="2.4.2 默认值"></a>2.4.2 默认值</h5><p>查询参数是可选的，可通过设置默认值定义：</p>
+<ul>
+<li>上述示例中<code>start</code>默认<code>0</code>，<code>limit</code>默认<code>10</code>，访问<code>http://127.0.0.1:8000/items/</code>等价于携带默认参数的URL</li>
+</ul>
+<h5 id="2-4-3-可选参数"><a href="#2-4-3-可选参数" class="headerlink" title="2.4.3 可选参数"></a>2.4.3 可选参数</h5><p>将默认值设为<code>None</code>即可声明可选查询参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items/&#123;item_id&#125;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_item</span>(<span class="params">item_id: <span class="built_in">str</span>, q: <span class="built_in">str</span> | <span class="literal">None</span> = <span class="literal">None</span></span>):  <span class="comment"># q为可选参数</span></span><br><span class="line">    <span class="keyword">if</span> q:</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="string">&quot;item_id&quot;</span>: item_id, <span class="string">&quot;q&quot;</span>: q&#125;</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;item_id&quot;</span>: item_id&#125;</span><br></pre></td></tr></table></figure>
+
+<p>FastAPI会自动识别<code>item_id</code>是路径参数，<code>q</code>是查询参数。</p>
+<h5 id="2-4-4-查询参数类型转换"><a href="#2-4-4-查询参数类型转换" class="headerlink" title="2.4.4 查询参数类型转换"></a>2.4.4 查询参数类型转换</h5><p>支持<code>bool</code>等类型的自动转换，以下值都会被转为<code>True</code>：<code>1</code>、<code>True</code>、<code>true</code>、<code>on</code>、<code>yes</code>（大小写不敏感）；同理<code>False</code>对应的值也会转为<code>False</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items/&#123;item_id&#125;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_item</span>(<span class="params">item_id: <span class="built_in">str</span>, q: <span class="built_in">str</span> | <span class="literal">None</span> = <span class="literal">None</span>, short: <span class="built_in">bool</span> = <span class="literal">False</span></span>):</span><br><span class="line">    item = &#123;<span class="string">&quot;item_id&quot;</span>: item_id&#125;</span><br><span class="line">    <span class="keyword">if</span> q:</span><br><span class="line">        item.update(&#123;<span class="string">&quot;q&quot;</span>: q&#125;)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> short:</span><br><span class="line">        item.update(&#123;<span class="string">&quot;description&quot;</span>: <span class="string">&quot;这是描述信息&quot;</span>&#125;)</span><br><span class="line">    <span class="keyword">return</span> item</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>访问<code>http://127.0.0.1:8000/items/foo?short=1</code>或<code>short=true</code>等，<code>short</code>都会被转为<code>True</code></li>
+</ul>
+<h5 id="2-4-5-多路径与查询参数"><a href="#2-4-5-多路径与查询参数" class="headerlink" title="2.4.5 多路径与查询参数"></a>2.4.5 多路径与查询参数</h5><p>可以同时声明多个路径参数和查询参数，FastAPI通过参数名自动识别，参数顺序不影响：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/users/&#123;user_id&#125;/items/&#123;item_id&#125;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_user_item</span>(<span class="params"></span></span><br><span class="line"><span class="params">    user_id: <span class="built_in">int</span>, item_id: <span class="built_in">str</span>, q: <span class="built_in">str</span> | <span class="literal">None</span> = <span class="literal">None</span>, short: <span class="built_in">bool</span> = <span class="literal">False</span></span></span><br><span class="line"><span class="params"></span>):</span><br><span class="line">    item = &#123;<span class="string">&quot;item_id&quot;</span>: item_id, <span class="string">&quot;owner_id&quot;</span>: user_id&#125;</span><br><span class="line">    <span class="keyword">if</span> q:</span><br><span class="line">        item.update(&#123;<span class="string">&quot;q&quot;</span>: q&#125;)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> short:</span><br><span class="line">        item.update(&#123;<span class="string">&quot;description&quot;</span>: <span class="string">&quot;这是描述信息&quot;</span>&#125;)</span><br><span class="line">    <span class="keyword">return</span> item</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>访问<code>http://127.0.0.1:8000/users/100/items/500</code>，返回<code>&#123;&quot;item_id&quot;:&quot;500&quot;,&quot;owner_id&quot;:100,&quot;description&quot;:&quot;这是描述信息&quot;&#125;</code></li>
+</ul>
+<h5 id="2-4-6-必选查询参数"><a href="#2-4-6-必选查询参数" class="headerlink" title="2.4.6 必选查询参数"></a>2.4.6 必选查询参数</h5><ul>
+<li>可选查询参数：声明默认值（包括<code>None</code>）</li>
+<li>必选查询参数：不声明默认值，FastAPI会要求请求必须携带该参数：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_items</span>(<span class="params">q: <span class="built_in">str</span></span>):  <span class="comment"># q没有默认值，为必选查询参数</span></span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;q&quot;</span>: q&#125;</span><br></pre></td></tr></table></figure>
+
+<p>访问不带<code>q</code>的<code>/items/</code>会返回错误，提示需要提供<code>q</code>参数。</p>
+<h4 id="2-5-请求体（Request-Body）"><a href="#2-5-请求体（Request-Body）" class="headerlink" title="2.5 请求体（Request Body）"></a>2.5 请求体（Request Body）</h4><p>FastAPI使用Pydantic模型声明请求体，支持POST、PUT、DELETE、PATCH等操作，自动验证请求体数据的类型和格式。</p>
+<h5 id="2-5-1-Pydantic模型定义"><a href="#2-5-1-Pydantic模型定义" class="headerlink" title="2.5.1 Pydantic模型定义"></a>2.5.1 Pydantic模型定义</h5><p>需要继承Pydantic的<code>BaseModel</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Item</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    name: <span class="built_in">str</span></span><br><span class="line">    desc: <span class="built_in">str</span> | <span class="literal">None</span> = <span class="literal">None</span>  <span class="comment"># 可选字段，默认None</span></span><br><span class="line">    price: <span class="built_in">float</span></span><br><span class="line">    tax: <span class="built_in">float</span> | <span class="literal">None</span> = <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2-5-2-请求体接口示例"><a href="#2-5-2-请求体接口示例" class="headerlink" title="2.5.2 请求体接口示例"></a>2.5.2 请求体接口示例</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&quot;/items/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">create_item</span>(<span class="params">item: Item</span>):  <span class="comment"># 声明参数类型为Item，FastAPI会自动解析请求体</span></span><br><span class="line">    <span class="keyword">return</span> item</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-5-3-测试"><a href="#2-5-3-测试" class="headerlink" title="2.5.3 测试"></a>2.5.3 测试</h5><p>启动服务后访问<code>http://127.0.0.1:8000/docs</code>，可以在自动生成的Swagger文档中直接测试POST请求，请求体示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;string&quot;</span>,</span><br><span class="line">    <span class="string">&quot;description&quot;</span>: <span class="string">&quot;string&quot;</span>,</span><br><span class="line">    <span class="string">&quot;price&quot;</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="string">&quot;tax&quot;</span>: <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="2-6-异步函数（async-def）与同步函数（def）的选择"><a href="#2-6-异步函数（async-def）与同步函数（def）的选择" class="headerlink" title="2.6 异步函数（async def）与同步函数（def）的选择"></a>2.6 异步函数（async def）与同步函数（def）的选择</h4><p>FastAPI同时支持异步和同步函数，两者的执行机制和适用场景有明确区别：</p>
+<h5 id="2-6-1-异步函数（async-def）"><a href="#2-6-1-异步函数（async-def）" class="headerlink" title="2.6.1 异步函数（async def）"></a>2.6.1 异步函数（async def）</h5><ul>
+<li><strong>本质</strong>：定义的是协程（Coroutine），支持在函数内部使用<code>await</code>调用其他异步操作</li>
+<li><strong>适用场景</strong>：函数内部包含I&#x2F;O密集型操作（网络请求、文件读写、数据库操作等），且对应操作有异步实现（如<code>aiohttp</code>、异步数据库驱动）</li>
+<li><strong>执行机制</strong>：FastAPI会直接在事件循环中运行，遇到<code>await</code>时自动让出CPU控制权，事件循环可以切换处理其他请求，实现真正的异步高并发</li>
+<li>示例：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">read_root</span>():</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;Hello&quot;</span>: <span class="string">&quot;World&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-6-2-同步函数（def）"><a href="#2-6-2-同步函数（def）" class="headerlink" title="2.6.2 同步函数（def）"></a>2.6.2 同步函数（def）</h5><ul>
+<li><strong>本质</strong>：普通的同步函数，不能在内部使用<code>await</code>，所有操作阻塞当前线程直到完成</li>
+<li><strong>适用场景</strong>：函数内部是纯计算逻辑（无I&#x2F;O操作），或使用的库只有同步实现（如旧版数据库驱动）</li>
+<li><strong>执行机制</strong>：FastAPI会自动将同步函数放入线程池执行（默认线程池大小为<code>os.cpu_count() * 5</code>），多个同步请求会被分配到不同线程并行处理，不会完全阻塞所有请求；但如果同步操作耗时过长（如秒级），会因线程池耗尽导致后续请求排队</li>
+<li>示例：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_root</span>():</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;Hello&quot;</span>: <span class="string">&quot;World&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-6-3-选择原则总结"><a href="#2-6-3-选择原则总结" class="headerlink" title="2.6.3 选择原则总结"></a>2.6.3 选择原则总结</h5><ol>
+<li>只要涉及I&#x2F;O操作（如数据库、网络请求），优先用<code>async def</code>并配合异步库，发挥FastAPI的异步优势</li>
+<li>纯计算逻辑或无异步库可用时，用<code>def</code>即可，FastAPI会自动处理线程池，无需手动管理</li>
+</ol>
+<hr>
+<h4 id="2-7-路由分发（APIRouter）"><a href="#2-7-路由分发（APIRouter）" class="headerlink" title="2.7 路由分发（APIRouter）"></a>2.7 路由分发（APIRouter）</h4><p>当项目规模扩大时，所有路由写在一个文件中会导致代码臃肿、难以维护，可通过<code>APIRouter</code>实现路由拆分与模块化。</p>
+<h5 id="2-7-1-核心工具：APIRouter"><a href="#2-7-1-核心工具：APIRouter" class="headerlink" title="2.7.1 核心工具：APIRouter"></a>2.7.1 核心工具：APIRouter</h5><ul>
+<li>作用：在子模块中创建独立的路由集合，类似一个小型FastAPI应用</li>
+<li>用法：实例化<code>APIRouter</code>，定义路由，最后通过<code>app.include_router()</code>挂载到子路由</li>
+</ul>
+<hr>
+<h2 id="模块4：FastAPI-SQLAlchemy2-0-整合"><a href="#模块4：FastAPI-SQLAlchemy2-0-整合" class="headerlink" title="模块4：FastAPI + SQLAlchemy2.0 整合"></a>模块4：FastAPI + SQLAlchemy2.0 整合</h2><h3 id="1-环境准备（SQLAlchemy2-0适配）"><a href="#1-环境准备（SQLAlchemy2-0适配）" class="headerlink" title="1. 环境准备（SQLAlchemy2.0适配）"></a>1. 环境准备（SQLAlchemy2.0适配）</h3><ul>
+<li>安装SQLAlchemy2.0：<code>pip install sqlalchemy</code></li>
+<li>安装MySQL驱动（DBAPI层）：<code>pip install pymysql</code>（SQLAlchemy通过pymysql适配MySQL）</li>
+<li>连接字符串格式：<code>SQLALCHEMY_DATABASE_URL = &quot;mysql+pymysql://user:password@localhost/db_name&quot;</code></li>
+</ul>
+<p>⚠️ SQLAlchemy版本差异说明：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>1.x版本导入</th>
+<th>2.0版本导入</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>声明式基类Base</td>
+<td><code>from sqlalchemy.ext.declarative import declarative_base</code></td>
+<td><code>from sqlalchemy.orm import DeclarativeBase</code></td>
+</tr>
+</tbody></table>
+<h3 id="2-核心组件（SQLAlchemy2-0-FastAPI）"><a href="#2-核心组件（SQLAlchemy2-0-FastAPI）" class="headerlink" title="2. 核心组件（SQLAlchemy2.0 + FastAPI）"></a>2. 核心组件（SQLAlchemy2.0 + FastAPI）</h3><ul>
+<li><p>Engine（引擎）：数据库连接入口，管理连接池和DBAPI适配，创建方式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> create_engine</span><br><span class="line">  engine = create_engine(SQLALCHEMY_DATABASE_URL,future=<span class="literal">True</span>)  <span class="comment"># 支持额外连接池参数配置，开启2.0新特性</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> SQLAlchemy2.0中Engine为统一入口</p>
+</blockquote>
+</li>
+<li><p>SessionLocal（会话工厂）：生成数据库会话的工厂类，配置不自动提交、不自动刷新：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> sessionmaker</span><br><span class="line">SessionLocal = sessionmaker(autocommit=<span class="literal">False</span>, autoflush=<span class="literal">False</span>, bind=engine,future=<span class="literal">True</span>) <span class="comment">#开启2.0新特性</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Base（模型基类）：所有ORM模型的父类，基于SQLAlchemy2.0元数据（MetaData、Table、Column）实现，用于统一管理表结构：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> DeclarativeBase</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>(<span class="title class_ inherited__">DeclarativeBase</span>):</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>FastAPI依赖注入（get_db）：向路由注入数据库会话，自动管理会话生命周期：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> Depends</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_db</span>():</span><br><span class="line">    db = SessionLocal()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">yield</span> db</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        db.close()</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="3-官方推荐项目结构"><a href="#3-官方推荐项目结构" class="headerlink" title="3. 官方推荐项目结构"></a>3. 官方推荐项目结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">myproject/</span><br><span class="line">├── fastapi_main.py         # FastAPI主应用：路由定义、接口实现</span><br><span class="line">├── database.py             # 数据库配置：引擎、会话工厂、get_db依赖</span><br><span class="line">├── models.py               # SQLAlchemy ORM模型：映射MySQL表，继承Base</span><br><span class="line">└── crud.py                 # （可选）CRUD逻辑封装，分离业务与数据库操作</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-ORM模型定义（SQLAlchemy2-0写法）"><a href="#4-ORM模型定义（SQLAlchemy2-0写法）" class="headerlink" title="4. ORM模型定义（SQLAlchemy2.0写法）"></a>4. ORM模型定义（SQLAlchemy2.0写法）</h3><ul>
+<li><p>基础模型规则：继承Base，通过<code>__tablename__</code>指定映射表名，字段用<code>Column</code>定义类型和约束：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># models.py</span></span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> Column, Integer, String, ForeignKey</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> (</span><br><span class="line">    relationship,</span><br><span class="line">    Mapped,</span><br><span class="line">    mapped_column,</span><br><span class="line">    DeclarativeBase</span><br><span class="line">)</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">List</span>, <span class="type">Optional</span>  <span class="comment"># 用于类型注解</span></span><br><span class="line"><span class="keyword">from</span> .database <span class="keyword">import</span> Base  <span class="comment"># 确保 Base 是 DeclarativeBase 的子类</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="comment"># 示例 1：图书表（2.0 写法）</span></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Book</span>(<span class="title class_ inherited__">Base</span>):</span><br><span class="line">    __tablename__ = <span class="string">&#x27;books&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 2.0 写法：Mapped[类型] + mapped_column()</span></span><br><span class="line">    <span class="built_in">id</span>: Mapped[<span class="built_in">int</span>] = mapped_column(primary_key=<span class="literal">True</span>, autoincrement=<span class="literal">True</span>)</span><br><span class="line">    name: Mapped[<span class="built_in">str</span>] = mapped_column(String(<span class="number">100</span>), nullable=<span class="literal">False</span>)</span><br><span class="line">    author: Mapped[<span class="built_in">str</span>] = mapped_column(String(<span class="number">50</span>), nullable=<span class="literal">False</span>)</span><br><span class="line">    price: Mapped[<span class="built_in">int</span>] = mapped_column(nullable=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="comment"># 示例 2：一对多关联（部门-员工，2.0 写法）</span></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Department</span>(<span class="title class_ inherited__">Base</span>):</span><br><span class="line">    __tablename__ = <span class="string">&#x27;departments&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">id</span>: Mapped[<span class="built_in">int</span>] = mapped_column(primary_key=<span class="literal">True</span>, autoincrement=<span class="literal">True</span>)</span><br><span class="line">    name: Mapped[<span class="built_in">str</span>] = mapped_column(String(<span class="number">50</span>), nullable=<span class="literal">False</span>, unique=<span class="literal">True</span>)</span><br><span class="line">    location: Mapped[<span class="type">Optional</span>[<span class="built_in">str</span>]] = mapped_column(String(<span class="number">100</span>))  <span class="comment"># Optional 表示可为空</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 一对多关联：使用 Mapped[List[Employee]] 标注类型</span></span><br><span class="line">    employees: Mapped[<span class="type">List</span>[<span class="string">&quot;Employee&quot;</span>]] = relationship(</span><br><span class="line">        back_populates=<span class="string">&quot;department&quot;</span>,</span><br><span class="line">        cascade=<span class="string">&quot;all, delete-orphan&quot;</span>,</span><br><span class="line">        lazy=<span class="string">&quot;selectin&quot;</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Employee</span>(<span class="title class_ inherited__">Base</span>):</span><br><span class="line">    __tablename__ = <span class="string">&#x27;employees&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">id</span>: Mapped[<span class="built_in">int</span>] = mapped_column(primary_key=<span class="literal">True</span>, autoincrement=<span class="literal">True</span>)</span><br><span class="line">    name: Mapped[<span class="built_in">str</span>] = mapped_column(String(<span class="number">50</span>), nullable=<span class="literal">False</span>)</span><br><span class="line">    department_id: Mapped[<span class="built_in">int</span>] = mapped_column(</span><br><span class="line">        ForeignKey(<span class="string">&quot;departments.id&quot;</span>, ondelete=<span class="string">&quot;RESTRICT&quot;</span>),</span><br><span class="line">        nullable=<span class="literal">False</span></span><br><span class="line">    )</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 多对一关联：Mapped[Department]</span></span><br><span class="line">    department: Mapped[<span class="string">&quot;Department&quot;</span>] = relationship(</span><br><span class="line">        back_populates=<span class="string">&quot;employees&quot;</span>,</span><br><span class="line">        lazy=<span class="string">&quot;joined&quot;</span></span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关联关系说明：</p>
+<ul>
+<li><code>relationship</code>：定义对象间关联，无需手写联表SQL</li>
+<li><code>back_populates</code>：双向关联，两边模型可互相访问</li>
+<li><code>cascade</code>：级联操作规则，<code>delete-orphan</code>表示删除主对象时自动删除关联对象</li>
+<li><code>lazy</code>：关联数据加载策略，<code>selectin</code>可避免N+1查询问题</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-会话与事务管理（SQLAlchemy2-0）"><a href="#5-会话与事务管理（SQLAlchemy2-0）" class="headerlink" title="5. 会话与事务管理（SQLAlchemy2.0）"></a>5. 会话与事务管理（SQLAlchemy2.0）</h3><ul>
+<li>ORM的Session是事务的外观模式，所有数据库操作通过Session执行</li>
+<li>提交事务：增删改操作后需调用<code>db.commit()</code>持久化数据</li>
+<li>回滚事务：出错时调用<code>db.rollback()</code>撤销操作</li>
+<li>SQL编写方式：<ul>
+<li>推荐：SQL表达式语言（用Python对象流畅构建SQL）</li>
+<li>兼容：使用<code>text()</code>构造文本SQL（例外场景使用）</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-FastAPI路由整合（CRUD-RESTful-API）"><a href="#6-FastAPI路由整合（CRUD-RESTful-API）" class="headerlink" title="6. FastAPI路由整合（CRUD RESTful API）"></a>6. FastAPI路由整合（CRUD RESTful API）</h3><ul>
+<li><p>路由中通过<code>Depends(get_db)</code>注入数据库会话，实现CRUD操作：</p>
+<blockquote>
+<p><code>xx: xx</code> 是 <strong>Python 类型提示（Type Hints）</strong>这不是 “必须” 的语法，但它能带来 <strong>IDE 智能补全、代码可读性、FastAPI 自动文档生成、数据校验</strong> 等好处。可配合Optional使用（数据校验）。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">your_project/</span><br><span class="line">├── database.py   # 数据库配置（2.0 新基类）</span><br><span class="line">├── models.py     # ORM 模型（2.0 新类型提示）</span><br><span class="line">├── schemas.py    # Pydantic 模型（请求体/响应体规范）</span><br><span class="line">└── main.py       # FastAPI 接口（2.0 新查询语法）</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>database.py（数据库配置）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># database.py</span></span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> create_engine</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> sessionmaker, DeclarativeBase</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据库连接 URL（以 SQLite 为例，MySQL/PostgreSQL 同理）</span></span><br><span class="line">DATABASE_URL = <span class="string">&quot;sqlite:///./test.db&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2.0 引擎：future=True 开启新特性，echo=True 打印 SQL（调试用）</span></span><br><span class="line">engine = create_engine(DATABASE_URL, future=<span class="literal">True</span>, echo=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2.0 会话工厂：同样加上 future=True</span></span><br><span class="line">SessionLocal = sessionmaker(</span><br><span class="line">    autocommit=<span class="literal">False</span>,</span><br><span class="line">    autoflush=<span class="literal">False</span>,</span><br><span class="line">    bind=engine,</span><br><span class="line">    future=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2.0 新的基类定义方式（核心变化）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>(<span class="title class_ inherited__">DeclarativeBase</span>):</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># FastAPI 依赖注入：获取数据库会话</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_db</span>():</span><br><span class="line">    db = SessionLocal()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">yield</span> db</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        db.close()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>models.py（ORM 模型）</p>
+</li>
+</ol>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># models.py</span></span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> Integer, String</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> Mapped, mapped_column</span><br><span class="line"><span class="keyword">from</span> .database <span class="keyword">import</span> Base</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Optional</span>  <span class="comment"># 用于可选字段</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Book</span>(<span class="title class_ inherited__">Base</span>):</span><br><span class="line">    __tablename__ = <span class="string">&quot;books&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 2.0 新写法：Mapped[类型] + mapped_column(约束)</span></span><br><span class="line">    <span class="built_in">id</span>: Mapped[<span class="built_in">int</span>] = mapped_column(primary_key=<span class="literal">True</span>, autoincrement=<span class="literal">True</span>)</span><br><span class="line">    name: Mapped[<span class="built_in">str</span>] = mapped_column(String(<span class="number">100</span>), nullable=<span class="literal">False</span>)  <span class="comment"># 非空字符串</span></span><br><span class="line">    author: Mapped[<span class="built_in">str</span>] = mapped_column(String(<span class="number">50</span>), nullable=<span class="literal">False</span>)</span><br><span class="line">    price: Mapped[<span class="built_in">int</span>] = mapped_column(nullable=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>schemas.py（Pydantic 模型）</li>
+</ol>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># schemas.py</span></span><br><span class="line"><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel, Field</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Optional</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 基础模型：包含公共字段</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BookBase</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    name: <span class="type">Optional</span>[<span class="built_in">str</span>] = Field(<span class="literal">None</span>, description=<span class="string">&quot;书名&quot;</span>, max_length=<span class="number">100</span>)</span><br><span class="line">    author: <span class="type">Optional</span>[<span class="built_in">str</span>] = Field(<span class="literal">None</span>, description=<span class="string">&quot;作者&quot;</span>, max_length=<span class="number">50</span>)</span><br><span class="line">    price: <span class="type">Optional</span>[<span class="built_in">int</span>] = Field(<span class="literal">None</span>, description=<span class="string">&quot;价格&quot;</span>, ge=<span class="number">0</span>)  <span class="comment"># ge=0 表示价格≥0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建图书的请求体：所有字段必填</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BookCreate</span>(<span class="title class_ inherited__">BookBase</span>):</span><br><span class="line">    name: <span class="built_in">str</span> = Field(..., description=<span class="string">&quot;书名&quot;</span>, max_length=<span class="number">100</span>)</span><br><span class="line">    author: <span class="built_in">str</span> = Field(..., description=<span class="string">&quot;作者&quot;</span>, max_length=<span class="number">50</span>)</span><br><span class="line">    price: <span class="built_in">int</span> = Field(..., description=<span class="string">&quot;价格&quot;</span>, ge=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新图书的请求体：所有字段可选</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BookUpdate</span>(<span class="title class_ inherited__">BookBase</span>):</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 响应模型：返回给前端的数据（可隐藏敏感字段）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BookResponse</span>(<span class="title class_ inherited__">BookBase</span>):</span><br><span class="line">    <span class="built_in">id</span>: <span class="built_in">int</span></span><br><span class="line">    name: <span class="built_in">str</span></span><br><span class="line">    author: <span class="built_in">str</span></span><br><span class="line">    price: <span class="built_in">int</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Config</span>:</span><br><span class="line">        from_attributes = <span class="literal">True</span>  <span class="comment"># 允许从 ORM 对象转换为 Pydantic 对象</span></span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>main.py（FastAPI 接口）</li>
+</ol>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># main.py</span></span><br><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI, Depends, HTTPException</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> Session</span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> select</span><br><span class="line"><span class="keyword">from</span> .database <span class="keyword">import</span> Base, engine, get_db</span><br><span class="line"><span class="keyword">from</span> .models <span class="keyword">import</span> Book</span><br><span class="line"><span class="keyword">from</span> .schemas <span class="keyword">import</span> BookCreate, BookUpdate, BookResponse</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建数据库表（仅开发环境用，生产环境用 Alembic 迁移）</span></span><br><span class="line">Base.metadata.create_all(bind=engine)</span><br><span class="line"></span><br><span class="line">app = FastAPI(title=<span class="string">&quot;图书管理 API&quot;</span>, version=<span class="string">&quot;2.0&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="comment"># 1. 创建图书（Create）</span></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&quot;/books/&quot;</span>, response_model=BookResponse</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create_book</span>(<span class="params"></span></span><br><span class="line"><span class="params">    book_in: BookCreate,  <span class="comment"># 🔴 用 Pydantic 接收 JSON 请求体</span></span></span><br><span class="line"><span class="params">    db: Session = Depends(<span class="params">get_db</span>)</span></span><br><span class="line"><span class="params"></span>):</span><br><span class="line">    <span class="comment"># 2.0 依然支持直接用 ORM 模型创建对象</span></span><br><span class="line">    db_book = Book(**book_in.model_dump())</span><br><span class="line">    db.add(db_book)</span><br><span class="line">    db.commit()</span><br><span class="line">    db.refresh(db_book)  <span class="comment"># 刷新获取自增 id（2.0 依然有用）</span></span><br><span class="line">    <span class="keyword">return</span> db_book</span><br><span class="line"></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="comment"># 2. 查询所有图书（Read All）</span></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/books/&quot;</span>, response_model=<span class="built_in">list</span>[BookResponse]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_books</span>(<span class="params"></span></span><br><span class="line"><span class="params">    skip: <span class="built_in">int</span> = <span class="number">0</span>,</span></span><br><span class="line"><span class="params">    limit: <span class="built_in">int</span> = <span class="number">100</span>,</span></span><br><span class="line"><span class="params">    db: Session = Depends(<span class="params">get_db</span>)</span></span><br><span class="line"><span class="params"></span>):</span><br><span class="line">    <span class="comment"># 2.0 新查询语法：select(Model) + offset + limit</span></span><br><span class="line">    stmt = select(Book).offset(skip).limit(limit)</span><br><span class="line">    result = db.execute(stmt)</span><br><span class="line">    books = result.scalars().<span class="built_in">all</span>()  <span class="comment"># scalars() 提取 ORM 对象序列</span></span><br><span class="line">    <span class="keyword">return</span> books</span><br><span class="line"></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="comment"># 3. 查询单本图书（Read One）</span></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/books/&#123;book_id&#125;&quot;</span>, response_model=BookResponse</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_book</span>(<span class="params"></span></span><br><span class="line"><span class="params">    book_id: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params">    db: Session = Depends(<span class="params">get_db</span>)</span></span><br><span class="line"><span class="params"></span>):</span><br><span class="line">    <span class="comment"># 2.0 新查询语法：select(Model).where(条件)</span></span><br><span class="line">    stmt = select(Book).where(Book.<span class="built_in">id</span> == book_id)</span><br><span class="line">    result = db.execute(stmt)</span><br><span class="line">    book = result.scalar_one_or_none()  <span class="comment"># 🔴 推荐用这个代替 first()</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 健壮性处理：找不到书抛出 404</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> book:</span><br><span class="line">        <span class="keyword">raise</span> HTTPException(status_code=<span class="number">404</span>, detail=<span class="string">&quot;Book not found&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> book</span><br><span class="line"></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="comment"># 4. 更新图书（Update）</span></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="meta">@app.put(<span class="params"><span class="string">&quot;/books/&#123;book_id&#125;&quot;</span>, response_model=BookResponse</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">update_book</span>(<span class="params"></span></span><br><span class="line"><span class="params">    book_id: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params">    book_in: BookUpdate,  <span class="comment"># 🔴 用 Pydantic 接收 JSON 请求体</span></span></span><br><span class="line"><span class="params">    db: Session = Depends(<span class="params">get_db</span>)</span></span><br><span class="line"><span class="params"></span>):</span><br><span class="line">    <span class="comment"># 1. 先查书</span></span><br><span class="line">    stmt = select(Book).where(Book.<span class="built_in">id</span> == book_id)</span><br><span class="line">    result = db.execute(stmt)</span><br><span class="line">    book = result.scalar_one_or_none()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> book:</span><br><span class="line">        <span class="keyword">raise</span> HTTPException(status_code=<span class="number">404</span>, detail=<span class="string">&quot;Book not found&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 2. 优雅更新：只更新用户传了的字段</span></span><br><span class="line">    <span class="comment"># model_dump(exclude_unset=True) 会忽略未设置的字段</span></span><br><span class="line">    update_data = book_in.model_dump(exclude_unset=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">for</span> key, value <span class="keyword">in</span> update_data.items():</span><br><span class="line">        <span class="built_in">setattr</span>(book, key, value)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 3. 提交并刷新</span></span><br><span class="line">    db.commit()</span><br><span class="line">    db.refresh(book)</span><br><span class="line">    <span class="keyword">return</span> book</span><br><span class="line"></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="comment"># 5. 删除图书（Delete）</span></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="meta">@app.delete(<span class="params"><span class="string">&quot;/books/&#123;book_id&#125;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">delete_book</span>(<span class="params"></span></span><br><span class="line"><span class="params">    book_id: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params">    db: Session = Depends(<span class="params">get_db</span>)</span></span><br><span class="line"><span class="params"></span>):</span><br><span class="line">    <span class="comment"># 1. 先查书</span></span><br><span class="line">    stmt = select(Book).where(Book.<span class="built_in">id</span> == book_id)</span><br><span class="line">    result = db.execute(stmt)</span><br><span class="line">    book = result.scalar_one_or_none()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> book:</span><br><span class="line">        <span class="keyword">raise</span> HTTPException(status_code=<span class="number">404</span>, detail=<span class="string">&quot;Book not found&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 2. 删除（2.0 依然支持 db.delete()）</span></span><br><span class="line">    db.delete(book)</span><br><span class="line">    db.commit()</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;message&quot;</span>: <span class="string">&quot;删除成功&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自动交互式文档：启动服务后访问<code>/docs</code>，可查看和测试所有接口</p>
+</li>
+</ul>
+<h3 id="7-高级查询操作"><a href="#7-高级查询操作" class="headerlink" title="7. 高级查询操作"></a>7. 高级查询操作</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> create_engine, Integer, String, ForeignKey, select, func</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> (</span><br><span class="line">    sessionmaker,</span><br><span class="line">    DeclarativeBase,</span><br><span class="line">    Mapped,</span><br><span class="line">    mapped_column,</span><br><span class="line">    relationship,</span><br><span class="line">    joinedload,</span><br><span class="line">    Session</span><br><span class="line">)</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">List</span>, <span class="type">Optional</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="comment"># 1. 基础配置与 2.0 模型定义</span></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line">DATABASE_URL = <span class="string">&quot;sqlite:///./test.db&quot;</span></span><br><span class="line">engine = create_engine(DATABASE_URL, future=<span class="literal">True</span>, echo=<span class="literal">True</span>)</span><br><span class="line">SessionLocal = sessionmaker(autocommit=<span class="literal">False</span>, autoflush=<span class="literal">False</span>, bind=engine, future=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>(<span class="title class_ inherited__">DeclarativeBase</span>):</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Department</span>(<span class="title class_ inherited__">Base</span>):</span><br><span class="line">    __tablename__ = <span class="string">&quot;departments&quot;</span></span><br><span class="line">    <span class="built_in">id</span>: Mapped[<span class="built_in">int</span>] = mapped_column(primary_key=<span class="literal">True</span>, autoincrement=<span class="literal">True</span>)</span><br><span class="line">    name: Mapped[<span class="built_in">str</span>] = mapped_column(String(<span class="number">50</span>), nullable=<span class="literal">False</span>, unique=<span class="literal">True</span>)</span><br><span class="line">    location: Mapped[<span class="type">Optional</span>[<span class="built_in">str</span>]] = mapped_column(String(<span class="number">100</span>))</span><br><span class="line">    employees: Mapped[<span class="type">List</span>[<span class="string">&quot;Employee&quot;</span>]] = relationship(</span><br><span class="line">        back_populates=<span class="string">&quot;department&quot;</span>,</span><br><span class="line">        cascade=<span class="string">&quot;all, delete-orphan&quot;</span>,</span><br><span class="line">        lazy=<span class="string">&quot;selectin&quot;</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Employee</span>(<span class="title class_ inherited__">Base</span>):</span><br><span class="line">    __tablename__ = <span class="string">&quot;employees&quot;</span></span><br><span class="line">    <span class="built_in">id</span>: Mapped[<span class="built_in">int</span>] = mapped_column(primary_key=<span class="literal">True</span>, autoincrement=<span class="literal">True</span>)</span><br><span class="line">    name: Mapped[<span class="built_in">str</span>] = mapped_column(String(<span class="number">50</span>), nullable=<span class="literal">False</span>)</span><br><span class="line">    department_id: Mapped[<span class="built_in">int</span>] = mapped_column(</span><br><span class="line">        ForeignKey(<span class="string">&quot;departments.id&quot;</span>, ondelete=<span class="string">&quot;RESTRICT&quot;</span>),</span><br><span class="line">        nullable=<span class="literal">False</span></span><br><span class="line">    )</span><br><span class="line">    department: Mapped[<span class="string">&quot;Department&quot;</span>] = relationship(</span><br><span class="line">        back_populates=<span class="string">&quot;employees&quot;</span>,</span><br><span class="line">        lazy=<span class="string">&quot;joined&quot;</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建表（仅演示用）</span></span><br><span class="line">Base.metadata.create_all(bind=engine)</span><br><span class="line"></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="comment"># 2. SQLAlchemy 2.0 高级查询演示</span></span><br><span class="line"><span class="comment"># --------------------------</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    db = SessionLocal()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># --- 1. 预加载关联数据（避免 N+1 查询）---</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;--- 1. 预加载关联数据 ---&quot;</span>)</span><br><span class="line">        stmt = select(Employee).options(joinedload(Employee.department))</span><br><span class="line">        result = db.execute(stmt)</span><br><span class="line">        employees = result.scalars().<span class="built_in">all</span>()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;查询到 <span class="subst">&#123;<span class="built_in">len</span>(employees)&#125;</span> 名员工&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># --- 2. 子查询：统计部门员工数，查询员工数 &gt; 0 的部门 ---</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n--- 2. 子查询统计 ---&quot;</span>)</span><br><span class="line">        subq_stmt = select(</span><br><span class="line">            Employee.department_id, func.count(Employee.<span class="built_in">id</span>).label(<span class="string">&quot;count&quot;</span>)</span><br><span class="line">        ).group_by(Employee.department_id).subquery()</span><br><span class="line">        </span><br><span class="line">        stmt = (</span><br><span class="line">            select(Department)</span><br><span class="line">            .join(subq_stmt, Department.<span class="built_in">id</span> == subq_stmt.c.department_id)</span><br><span class="line">            .where(subq_stmt.c.count &gt; <span class="number">0</span>)</span><br><span class="line">        )</span><br><span class="line">        result = db.execute(stmt)</span><br><span class="line">        depts = result.scalars().<span class="built_in">all</span>()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;查询到 <span class="subst">&#123;<span class="built_in">len</span>(depts)&#125;</span> 个有员工的部门&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># --- 3. 去重查询：查询所有有员工的部门位置 ---</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n--- 3. 去重查询 ---&quot;</span>)</span><br><span class="line">        stmt = select(Department.location).join(Employee).distinct()</span><br><span class="line">        result = db.execute(stmt)</span><br><span class="line">        locations = result.<span class="built_in">all</span>()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;部门位置：<span class="subst">&#123;[loc[<span class="number">0</span>] <span class="keyword">for</span> loc <span class="keyword">in</span> locations]&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># --- 4. 结果获取：first() / all() ---</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n--- 4. 结果获取 ---&quot;</span>)</span><br><span class="line">        <span class="comment"># 获取单条</span></span><br><span class="line">        stmt = select(Employee)</span><br><span class="line">        result = db.execute(stmt)</span><br><span class="line">        first_emp = result.scalar_one_or_none()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;第一个员工：<span class="subst">&#123;first_emp.name <span class="keyword">if</span> first_emp <span class="keyword">else</span> <span class="string">&#x27;无&#x27;</span>&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 获取所有</span></span><br><span class="line">        stmt = select(Department)</span><br><span class="line">        result = db.execute(stmt)</span><br><span class="line">        all_depts = result.scalars().<span class="built_in">all</span>()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;所有部门：<span class="subst">&#123;[dept.name <span class="keyword">for</span> dept <span class="keyword">in</span> all_depts]&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        db.close()</span><br></pre></td></tr></table></figure>
+
+<hr>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count">0/0</span>
+      <button onclick="scrollToHighlight(currentHighlightIndex - 1)">↑</button>
+      <button onclick="scrollToHighlight(currentHighlightIndex + 1)">↓</button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Python/"># Python</a>
+          
+          <a href="/tags/%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B/"># 异步编程</a>
+          
+          <a href="/tags/FastAPI/"># FastAPI</a>
+          
+          <a href="/tags/SQLAIchemy2-0/"># SQLAIchemy2.0</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+       
+      <a class="next" rel="next" href="/2026/05/08/2026/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/MySQL+Linux+docker+py+AI/py%E5%9F%BA%E7%A1%80/"
+        >Python基础快速入门</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector(".toggleBtn"),
+      document.getElementById("mobile-toggle-theme"),
+    ];
+    buttons.forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+<script src="/js/code-copy.js"></script>
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>
