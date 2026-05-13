@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>RAG全流程解析与Java实战：知识库Agent设计、召回优化、Agent整合 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container">
+          <a href="javascript:;" onclick="toggleSearchInput()">🔍</a>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div class="search-container mobile-container">
+          <a class="menu-item" href="javascript:;" onclick="toggleSearchInput()"
+            >🔍</a
+          >
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" ontouchend="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script>
+  var mobileBtn = function f() {
+    var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+    var mobileMenu = document.getElementById("mobile-menu");
+    if (toggleMenu.classList.contains("active")) {
+      toggleMenu.classList.remove("active");
+      mobileMenu.classList.remove("active");
+    } else {
+      toggleMenu.classList.add("active");
+      mobileMenu.classList.add("active");
+    }
+  };
+
+  function toggleSearchInput() {
+    const inputs = document.querySelectorAll(".nav-search-input");
+    const results = document.querySelectorAll(".nav-search-result");
+    inputs.forEach((input) => {
+      input.classList.toggle("active");
+      if (input.classList.contains("active")) input.focus();
+    });
+    results.forEach((r) => (r.style.display = "none"));
+  }
+
+  // 点击外部区域隐藏搜索框和结果容器的函数
+  function handleClickOutsideSearch(event) {
+    const searchContainers = document.querySelectorAll(".search-container");
+    searchContainers.forEach((container) => {
+      const searchInput = container.querySelector(".nav-search-input");
+      const searchIcon = container.querySelector("a");
+
+      // 如果点击的元素不是搜索输入框或搜索图标，则隐藏搜索框和结果容器
+      if (
+        !searchInput.contains(event.target) &&
+        !searchIcon.contains(event.target)
+      ) {
+        searchInput.classList.remove("active");
+        // 根据输入框ID确定对应的结果容器
+        let resultContainer;
+        if (searchInput.id === "nav-search-input-mobile") {
+          // 移动端结果容器
+          resultContainer = document.querySelector(
+            ".navbar-mobile .nav-search-result"
+          );
+        } else {
+          // 桌面端结果容器
+          resultContainer = document.getElementById(
+            "nav-search-result-desktop"
+          );
+        }
+
+        if (resultContainer) {
+          resultContainer.style.display = "none";
+          // 保留搜索结果和输入内容，仅隐藏下拉框
+        }
+      }
+    });
+  }
+
+  // 添加全局点击事件监听器
+  document.addEventListener("click", function (event) {
+    handleClickOutsideSearch(event);
+  });
+
+  // 新增：搜索功能实现
+  let searchData = []; // 全局变量存储搜索数据
+  let currentSearchKeyword = ''; // 追踪当前搜索关键字
+
+  // 页面加载完成后获取搜索数据
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/search.xml")
+      .then((res) => res.text())
+      .then((xmlText) => {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+        const entries = xml.getElementsByTagName("entry");
+        for (let entry of entries) {
+          searchData.push({
+            title: entry.getElementsByTagName("title")[0]?.textContent || "",
+            content:
+              entry.getElementsByTagName("content")[0]?.textContent || "",
+            url: entry.getElementsByTagName("url")[0]?.textContent || "",
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load search data:", err);
+      });
+  });
+
+  // 新增：导航搜索方法
+  function navSearch(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    // 查找对应的搜索结果容器
+    let resultContainer;
+
+    if (inputElement.id === "nav-search-input-desktop") {
+      // 桌面端
+      resultContainer = document.getElementById("nav-search-result-desktop");
+    } else if (inputElement.id === "nav-search-input-mobile") {
+      // 移动端
+      resultContainer =
+        inputElement.parentNode.querySelector(".nav-search-result");
+    }
+
+    if (!resultContainer) return;
+
+    resultContainer.innerHTML = "";
+
+    if (!keyword) {
+      resultContainer.style.display = "none";
+      return;
+    }
+
+    // 显示结果容器
+    resultContainer.style.display = "block";
+
+    // 过滤搜索数据
+    const results = searchData.filter(
+      (data) =>
+        (data.title && data.title.toLowerCase().includes(keyword)) ||
+        (data.content && data.content.toLowerCase().includes(keyword))
+    );
+
+    if (results.length === 0) {
+      resultContainer.innerHTML =
+        '<p class="no-result">没有结果哟，换个关键词试试吧</p>';
+      return;
+    }
+
+    // 限制显示结果数量
+    const maxResults = 10;
+    const limitedResults = results.slice(0, maxResults);
+
+    // 构建结果HTML
+    const html = limitedResults
+      .map((item) => {
+        // 提取包含关键字的内容片段
+        let contentSnippet = "";
+        if (item.content) {
+          // 找到包含关键字的内容片段
+          const contentLower = item.content.toLowerCase();
+          const keywordIndex = contentLower.indexOf(keyword);
+
+          // 提取关键字前后的内容
+          const start = Math.max(0, keywordIndex - 3 * keyword.length);
+          const end = Math.min(
+            item.content.length,
+            keywordIndex + 3 * keyword.length
+          );
+          contentSnippet = item.content.substring(start, end);
+        // 高亮关键字
+      const keywordRegex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      contentSnippet = contentSnippet.replace(
+        keywordRegex,
+        "<mark>$1</mark>"
+      );
+        }
+
+        return `<div class="search-result-item">
+  <a href="${item.url}">
+    <div>标题：${item.title}</div>
+    <div>内容：${contentSnippet}</div>
+  </a>
+</div>`;
+      })
+      .join("");
+    resultContainer.innerHTML = html;
+  }
+
+  // 文章内容关键字高亮功能
+  let currentHighlightIndex = -1;
+  let highlightCount = 0;
+
+  function highlightPostContent(keyword) {
+    const content = document.querySelector('.post-content');
+    if (!content) return false;
+
+    content.innerHTML = content.innerHTML.replace(/<\/?mark>/g, '');
+
+    if (!keyword) return false;
+
+    const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    const escaped = keyword.replace(/[.*+?^${}|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+
+    textNodes.forEach(node => {
+      if (!regex.test(node.nodeValue)) return;
+      regex.lastIndex = 0;
+      const fragment = document.createDocumentFragment();
+      node.nodeValue.split(regex).forEach((text, i) => {
+        if (i % 2 === 1) {
+          const mark = document.createElement('mark');
+          mark.textContent = text;
+          fragment.appendChild(mark);
+        } else {
+          fragment.appendChild(document.createTextNode(text));
+        }
+      });
+      node.parentNode.replaceChild(fragment, node);
+    });
+
+    return true;
+  }
+
+  function getHighlights() {
+    const content = document.querySelector('.post-content');
+    return content ? content.querySelectorAll('mark') : [];
+  }
+
+  function scrollToHighlight(index, smooth = true) {
+    const highlights = getHighlights();
+    if (highlights.length === 0) return;
+
+    if (index < 0) index = highlights.length - 1;
+    if (index >= highlights.length) index = 0;
+
+    currentHighlightIndex = index;
+    highlights[index].scrollIntoView({
+      behavior: smooth ? 'smooth' : 'auto',
+      block: 'center'
+    });
+
+    updateHighlightCount();
+  }
+
+  function updateHighlightCount() {
+    const highlights = getHighlights();
+    highlightCount = highlights.length;
+    const nav = document.getElementById('highlight-nav');
+    if (nav) {
+      nav.querySelector('.count').textContent = `${currentHighlightIndex + 1}/${highlightCount}`;
+      nav.style.display = highlightCount > 0 ? 'flex' : 'none';
+    }
+  }
+
+  // 修改 navSearch 函数，集成文章内高亮
+  const originalNavSearch = navSearch;
+  navSearch = function(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    currentSearchKeyword = keyword;
+    const resultContainer = inputElement.id === 'nav-search-input-desktop'
+      ? document.getElementById('nav-search-result-desktop')
+      : inputElement.parentNode.querySelector('.nav-search-result');
+
+    if (!keyword) {
+      if (resultContainer) {
+        resultContainer.innerHTML = '';
+        resultContainer.style.display = 'none';
+      }
+      highlightPostContent('');
+      return;
+    }
+
+    // 先执行原有搜索逻辑
+    originalNavSearch(inputElement);
+
+    // 仅在文章页执行内容高亮
+    if (highlightPostContent(keyword)) {
+      updateHighlightCount();
+    }
+  };
+
+  // 清除搜索的函数
+  function clearSearch(btn) {
+    const input = btn.parentNode.querySelector('.nav-search-input');
+    input.value = '';
+    navSearch(input);
+    input.focus();
+  }
+</script>
+<style>
+  /* 手机端使用flexbox布局搜索容器 */
+  .mobile-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    flex-grow: 1;
+    max-width: calc(100% - 40px);
+  }
+
+  .search-container {
+    position: relative;
+  }
+
+
+  .search-result-item {
+  border: 1px solid #ddd; /* 边框 */
+  margin: 4px 0; /* 外层间距 */
+  padding: 0; /* 无内边距 */
+  background: #fff; /* 背景色 */
+}
+
+.search-result-item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-result-item div {
+  padding: 3px 8px; /* 紧凑的内边距 */
+  margin: 0; /* 无外边距 */
+  line-height: 1.3; /* 紧凑的行高 */
+  word-wrap: break-word; /* 允许长单词换行 */
+  white-space: normal; /* 允许正常换行 */
+}
+
+.search-result-item div:first-child {
+  border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */
+}
+
+.dark-theme .search-result-item {
+  background: #2d2d2d;
+  border: 1px solid #444;
+}
+.dark-theme .search-result-item a {
+  color: #e0e0e0;
+}
+.dark-theme .search-result-item div:first-child {
+  border-bottom-color: #444;
+}
+
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(0, 0, 0, 0.2);
+  color: #666;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.clear-search:hover {
+  background: rgba(0, 0, 0, 0.3);
+  color: #333;
+}
+.nav-search-input:focus + .clear-search,
+.nav-search-input.active:not(:placeholder-shown) + .clear-search {
+  display: flex;
+}
+.dark-theme .clear-search {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ccc;
+}
+.dark-theme .clear-search:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.highlight-nav {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 99;
+}
+.highlight-nav .count {
+  font-size: 14px;
+  color: #333;
+  min-width: 50px;
+  text-align: center;
+}
+.highlight-nav button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+.highlight-nav button:hover {
+  background: #e0e0e0;
+}
+.dark-theme .highlight-nav {
+  background: rgba(40, 40, 40, 0.95);
+}
+.dark-theme .highlight-nav .count {
+  color: #eee;
+}
+.dark-theme .highlight-nav button {
+  background: #444;
+  color: #fff;
+}
+.dark-theme .highlight-nav button:hover {
+  background: #555;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .highlight-nav {
+    gap: 16px;
+    padding: 12px 20px;
+  }
+  .highlight-nav .count {
+    font-size: 16px;
+    min-width: 60px;
+  }
+  .highlight-nav button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
+</style>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <div class="toc-mobile-fab" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon">☰</span>
+</div>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">RAG全流程解析与Java实战：知识库Agent设计、召回优化、Agent整合</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >五月 13, 2026&nbsp;&nbsp;22:00:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/">项目学习</a>
+          
+          <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/RAG%E5%AE%9E%E6%88%98/">RAG实战</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="📚-RAG全流程解析与Java实战"><a href="#📚-RAG全流程解析与Java实战" class="headerlink" title="📚 RAG全流程解析与Java实战"></a>📚 RAG全流程解析与Java实战</h1><blockquote>
+<p>本文深入剖析智能OnCall Agent项目中的<strong>RAG（检索增强生成）系统</strong>，从知识库Agent设计需求、RAG完整流程、Java代码实现、召回优化到Agent整合，带你掌握RAG的工程化落地。</p>
+</blockquote>
+<hr>
+<h2 id="📚-目录"><a href="#📚-目录" class="headerlink" title="📚 目录"></a>📚 目录</h2><ol>
+<li><a href="#1-%E7%9F%A5%E8%AF%86%E5%BA%93agent%E8%AE%BE%E8%AE%A1%E9%9C%80%E6%B1%82">知识库Agent设计需求</a></li>
+<li><a href="#2-rag%E5%85%A8%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90">RAG全流程解析</a></li>
+<li><a href="#3-rag%E7%9A%84java%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%88%98">RAG的Java代码实战</a></li>
+<li><a href="#4-rag%E5%8F%AC%E5%9B%9E%E5%AE%9E%E6%88%98">RAG召回实战</a></li>
+<li><a href="#5-api%E6%8E%A5%E5%8F%A3%E4%B8%8Eagent%E6%95%B4%E5%90%88">API接口与Agent整合</a></li>
+<li><a href="#6-%E9%9D%A2%E8%AF%95%E8%AF%9D%E6%9C%AF%E4%B8%8E%E6%80%BB%E7%BB%93">面试话术与总结</a></li>
+</ol>
+<hr>
+<h2 id="1-知识库Agent设计需求"><a href="#1-知识库Agent设计需求" class="headerlink" title="1. 知识库Agent设计需求"></a>1. 知识库Agent设计需求</h2><h3 id="🎯-设计目标"><a href="#🎯-设计目标" class="headerlink" title="🎯 设计目标"></a>🎯 设计目标</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                   知识库Agent设计目标                             │</span><br><span class="line">├─────────────────────────────────────────────────────────────────┤</span><br><span class="line">│                                                                  │</span><br><span class="line">│  📥 输入层                  🔄 处理层                  📤 输出层   │</span><br><span class="line">│  ┌──────────┐             ┌──────────┐             ┌──────────┐ │</span><br><span class="line">│  │ PDF文档  │             │ 智能分片  │             │ 语义检索  │ │</span><br><span class="line">│  │ Word文档 │ ──────────→ │ 向量化   │ ──────────→ │ 知识问答  │ │</span><br><span class="line">│  │ Wiki     │             │ 索引构建  │             │ Agent调用 │ │</span><br><span class="line">│  └──────────┘             └──────────┘             └──────────┘ │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  核心价值：一次开发，多场景复用 ✅                                │</span><br><span class="line">│                                                                  │</span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="📌-需求分析"><a href="#📌-需求分析" class="headerlink" title="📌 需求分析"></a>📌 需求分析</h3><table>
+<thead>
+<tr>
+<th>需求维度</th>
+<th>具体要求</th>
+<th>技术实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>文档接入</strong></td>
+<td>支持PDF&#x2F;Word&#x2F;Markdown等格式</td>
+<td>Apache Tika解析</td>
+</tr>
+<tr>
+<td><strong>智能分片</strong></td>
+<td>保持语义完整性，按标题&#x2F;段落切分</td>
+<td>DocumentChunkService</td>
+</tr>
+<tr>
+<td><strong>向量化</strong></td>
+<td>文本转高维向量，支持语义检索</td>
+<td>DashScope Embedding</td>
+</tr>
+<tr>
+<td><strong>向量存储</strong></td>
+<td>高效存储和检索向量</td>
+<td>Milvus向量数据库</td>
+</tr>
+<tr>
+<td><strong>语义检索</strong></td>
+<td>相似度匹配，返回Top-K结果</td>
+<td>L2&#x2F;Cosine相似度</td>
+</tr>
+<tr>
+<td><strong>多场景复用</strong></td>
+<td>对话Agent、运维Agent都能调用</td>
+<td>InternalDocsTools</td>
+</tr>
+</tbody></table>
+<h3 id="🏗️-知识库Agent架构"><a href="#🏗️-知识库Agent架构" class="headerlink" title="🏗️ 知识库Agent架构"></a>🏗️ 知识库Agent架构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                     知识库Agent完整架构                           │</span><br><span class="line">├─────────────────────────────────────────────────────────────────┤</span><br><span class="line">│                                                                  │</span><br><span class="line">│   ┌─────────────────────────────────────────────────────────┐   │</span><br><span class="line">│   │                   Controller层                           │   │</span><br><span class="line">│   │            POST /api/upload (文件上传)                    │   │</span><br><span class="line">│   └─────────────────────────────────────────────────────────┘   │</span><br><span class="line">│                              │                                  │</span><br><span class="line">│                              ▼                                  │</span><br><span class="line">│   ┌─────────────────────────────────────────────────────────┐   │</span><br><span class="line">│   │                   Service层                              │   │</span><br><span class="line">│   │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │   │</span><br><span class="line">│   │  │ Document     │  │ Vector       │  │ Vector       │   │   │</span><br><span class="line">│   │  │ ChunkService │→ │ Embedding    │→ │ IndexService │   │   │</span><br><span class="line">│   │  │ (智能分片)    │  │ Service      │  │ (索引构建)    │   │   │</span><br><span class="line">│   │  └──────────────┘  │ (向量化)      │  └──────────────┘   │   │</span><br><span class="line">│   │                     └──────────────┘                     │   │</span><br><span class="line">│   └─────────────────────────────────────────────────────────┘   │</span><br><span class="line">│                              │                                  │</span><br><span class="line">│                              ▼                                  │</span><br><span class="line">│   ┌─────────────────────────────────────────────────────────┐   │</span><br><span class="line">│   │                   数据层                                  │   │</span><br><span class="line">│   │              Milvus 向量数据库                            │   │</span><br><span class="line">│   │   ┌─────────────────────────────────────────────────┐   │   │</span><br><span class="line">│   │   │ Collection: document_chunks                     │   │   │</span><br><span class="line">│   │   │ ├── id: String (主键)                           │   │   │</span><br><span class="line">│   │   │ ├── vector: List&lt;Float&gt; (1536维向量)            │   │   │</span><br><span class="line">│   │   │ ├── content: String (原始文本)                   │   │   │</span><br><span class="line">│   │   │ └── metadata: String (JSON元数据)               │   │   │</span><br><span class="line">│   │   └─────────────────────────────────────────────────┘   │   │</span><br><span class="line">│   └─────────────────────────────────────────────────────────┘   │</span><br><span class="line">│                              │                                  │</span><br><span class="line">│                              ▼                                  │</span><br><span class="line">│   ┌─────────────────────────────────────────────────────────┐   │</span><br><span class="line">│   │                   检索层                                  │   │</span><br><span class="line">│   │              InternalDocsTools                           │   │</span><br><span class="line">│   │         (@Tool注解，供Agent调用)                          │   │</span><br><span class="line">│   └─────────────────────────────────────────────────────────┘   │</span><br><span class="line">│                              │                                  │</span><br><span class="line">│          ┌───────────────────┼───────────────────┐              │</span><br><span class="line">│          ▼                   ▼                   ▼              │</span><br><span class="line">│   ┌──────────┐        ┌──────────┐        ┌──────────┐         │</span><br><span class="line">│   │对话Agent │        │运维Agent │        │其他Agent │         │</span><br><span class="line">│   └──────────┘        └──────────┘        └──────────┘         │</span><br><span class="line">│                                                                  │</span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-RAG全流程解析"><a href="#2-RAG全流程解析" class="headerlink" title="2. RAG全流程解析"></a>2. RAG全流程解析</h2><h3 id="🔄-RAG完整流程图"><a href="#🔄-RAG完整流程图" class="headerlink" title="🔄 RAG完整流程图"></a>🔄 RAG完整流程图</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                      RAG 完整流程                                │</span><br><span class="line">├─────────────────────────────────────────────────────────────────┤</span><br><span class="line">│                                                                  │</span><br><span class="line">│  ═══════════════════ 离线阶段（文档摄入）══════════════════════  │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐  │</span><br><span class="line">│  │ 文档上传 │ →  │ 文档解析 │ →  │ 智能分片 │ →  │ 向量化   │  │</span><br><span class="line">│  │ (PDF等)  │    │ (Tika)   │    │ (Chunk)  │    │(Embedding)│  │</span><br><span class="line">│  └──────────┘    └──────────┘    └──────────┘    └──────────┘  │</span><br><span class="line">│                                                       │         │</span><br><span class="line">│                                                       ▼         │</span><br><span class="line">│                                                 ┌──────────┐    │</span><br><span class="line">│                                                 │ Milvus   │    │</span><br><span class="line">│                                                 │ 存储     │    │</span><br><span class="line">│                                                 └──────────┘    │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  ═══════════════════ 在线阶段（检索生成）══════════════════════  │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐  │</span><br><span class="line">│  │ 用户提问 │ →  │ 问题向量 │ →  │ 向量检索 │ →  │ 上下文   │  │</span><br><span class="line">│  │          │    │ 化       │    │(Top-K)   │    │ 拼接     │  │</span><br><span class="line">│  └──────────┘    └──────────┘    └──────────┘    └──────────┘  │</span><br><span class="line">│                                                       │         │</span><br><span class="line">│                                                       ▼         │</span><br><span class="line">│  ┌──────────┐    ┌──────────────────────────────────────────┐  │</span><br><span class="line">│  │ 最终回答 │ ←  │  LLM生成                                 │  │</span><br><span class="line">│  │ (流式)   │    │  输入: 系统提示 + 检索上下文 + 用户问题   │  │</span><br><span class="line">│  └──────────┘    │  输出: 基于文档的准确回答                  │  │</span><br><span class="line">│                  └──────────────────────────────────────────┘  │</span><br><span class="line">│                                                                  │</span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="📊-各阶段详解"><a href="#📊-各阶段详解" class="headerlink" title="📊 各阶段详解"></a>📊 各阶段详解</h3><h4 id="阶段1：文档解析"><a href="#阶段1：文档解析" class="headerlink" title="阶段1：文档解析"></a>阶段1：文档解析</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入：PDF/Word/Markdown文件</span><br><span class="line">处理：Apache Tika 提取文本内容</span><br><span class="line">输出：纯文本字符串</span><br><span class="line"></span><br><span class="line">代码位置：VectorIndexService.indexDocument()</span><br></pre></td></tr></table></figure>
+
+<h4 id="阶段2：智能分片"><a href="#阶段2：智能分片" class="headerlink" title="阶段2：智能分片"></a>阶段2：智能分片</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">输入：长文本</span><br><span class="line">处理：</span><br><span class="line">  1. 按Markdown标题切分（# ## ###）</span><br><span class="line">  2. 对每个章节按段落切分</span><br><span class="line">  3. 保持chunk大小在 [minSize, maxSize] 范围</span><br><span class="line">  4. 相邻chunk有overlap重叠</span><br><span class="line">输出：List&lt;DocumentChunk&gt;</span><br><span class="line"></span><br><span class="line">代码位置：DocumentChunkService.chunkDocument()</span><br></pre></td></tr></table></figure>
+
+<h4 id="阶段3：向量化（Embedding）"><a href="#阶段3：向量化（Embedding）" class="headerlink" title="阶段3：向量化（Embedding）"></a>阶段3：向量化（Embedding）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入：文本chunk</span><br><span class="line">处理：调用DashScope Text-Embedding API</span><br><span class="line">输出：1536维浮点向量</span><br><span class="line"></span><br><span class="line">代码位置：VectorEmbeddingService.generateEmbedding()</span><br></pre></td></tr></table></figure>
+
+<h4 id="阶段4：向量存储"><a href="#阶段4：向量存储" class="headerlink" title="阶段4：向量存储"></a>阶段4：向量存储</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入：向量 + 元数据</span><br><span class="line">处理：写入Milvus Collection</span><br><span class="line">输出：存储确认</span><br><span class="line"></span><br><span class="line">代码位置：VectorIndexService.indexDocumentChunks()</span><br></pre></td></tr></table></figure>
+
+<h4 id="阶段5：向量检索"><a href="#阶段5：向量检索" class="headerlink" title="阶段5：向量检索"></a>阶段5：向量检索</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">输入：用户问题</span><br><span class="line">处理：</span><br><span class="line">  1. 问题向量化</span><br><span class="line">  2. Milvus相似度搜索（L2距离）</span><br><span class="line">  3. 返回Top-K结果</span><br><span class="line">输出：List&lt;SearchResult&gt;</span><br><span class="line"></span><br><span class="line">代码位置：VectorSearchService.searchSimilarDocuments()</span><br></pre></td></tr></table></figure>
+
+<h4 id="阶段6：上下文拼接-LLM生成"><a href="#阶段6：上下文拼接-LLM生成" class="headerlink" title="阶段6：上下文拼接 + LLM生成"></a>阶段6：上下文拼接 + LLM生成</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">输入：用户问题 + 检索结果</span><br><span class="line">处理：</span><br><span class="line">  1. 拼接系统提示词</span><br><span class="line">  2. 拼接检索上下文</span><br><span class="line">  3. 调用DashScope LLM</span><br><span class="line">  4. 流式返回结果</span><br><span class="line">输出：AI回答</span><br><span class="line"></span><br><span class="line">代码位置：RagService.queryStream()</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3-RAG的Java代码实战"><a href="#3-RAG的Java代码实战" class="headerlink" title="3. RAG的Java代码实战"></a>3. RAG的Java代码实战</h2><h3 id="3-1-文档分片服务（DocumentChunkService）"><a href="#3-1-文档分片服务（DocumentChunkService）" class="headerlink" title="3.1 文档分片服务（DocumentChunkService）"></a>3.1 文档分片服务（DocumentChunkService）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 文档分片服务</span></span><br><span class="line"><span class="comment"> * 负责将长文档切分为多个有语义完整性的小片段</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DocumentChunkService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> DocumentChunkConfig chunkConfig;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 智能分片文档</span></span><br><span class="line"><span class="comment">     * 优先按照标题、段落边界进行分割，保持语义完整性</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;DocumentChunk&gt; <span class="title function_">chunkDocument</span><span class="params">(String content, String filePath)</span> &#123;</span><br><span class="line">        List&lt;DocumentChunk&gt; chunks = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 首先尝试按标题分割（Markdown格式）</span></span><br><span class="line">        List&lt;Section&gt; sections = splitByHeadings(content);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 2. 对每个章节进行进一步分片</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">globalChunkIndex</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (Section section : sections) &#123;</span><br><span class="line">            List&lt;DocumentChunk&gt; sectionChunks = chunkSection(section, globalChunkIndex);</span><br><span class="line">            chunks.addAll(sectionChunks);</span><br><span class="line">            globalChunkIndex += sectionChunks.size();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> chunks;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 按照 Markdown 标题分割文档</span></span><br><span class="line"><span class="comment">     * 匹配 # ## ### #### ##### ###### 格式</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Section&gt; <span class="title function_">splitByHeadings</span><span class="params">(String content)</span> &#123;</span><br><span class="line">        List&lt;Section&gt; sections = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="type">Pattern</span> <span class="variable">headingPattern</span> <span class="operator">=</span> Pattern.compile(<span class="string">&quot;^(#&#123;1,6&#125;)\\s+(.+)$&quot;</span>, Pattern.MULTILINE);</span><br><span class="line">        <span class="comment">// ... 分割逻辑</span></span><br><span class="line">        <span class="keyword">return</span> sections;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键设计点</strong>：</p>
+<ul>
+<li>✅ 优先按标题分割，保持语义完整性</li>
+<li>✅ 支持Markdown多级标题</li>
+<li>✅ 相邻chunk有overlap，避免信息丢失</li>
+</ul>
+<hr>
+<h3 id="3-2-向量化服务（VectorEmbeddingService）"><a href="#3-2-向量化服务（VectorEmbeddingService）" class="headerlink" title="3.2 向量化服务（VectorEmbeddingService）"></a>3.2 向量化服务（VectorEmbeddingService）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 向量嵌入服务</span></span><br><span class="line"><span class="comment"> * 使用阿里云 DashScope Text Embedding API</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">VectorEmbeddingService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;dashscope.embedding.model&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String model;  <span class="comment">// text-embedding-v3</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> TextEmbedding textEmbedding;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成向量嵌入</span></span><br><span class="line"><span class="comment">     * 调用阿里云 DashScope Text Embedding API</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;Float&gt; <span class="title function_">generateEmbedding</span><span class="params">(String content)</span> &#123;</span><br><span class="line">        <span class="comment">// 构建请求参数</span></span><br><span class="line">        <span class="type">TextEmbeddingParam</span> <span class="variable">param</span> <span class="operator">=</span> TextEmbeddingParam.builder()</span><br><span class="line">                .model(model)</span><br><span class="line">                .textType(TextEmbeddingParam.TextType.DOCUMENT)</span><br><span class="line">                .addText(content)</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用API</span></span><br><span class="line">        <span class="type">TextEmbeddingResult</span> <span class="variable">result</span> <span class="operator">=</span> textEmbedding.call(param);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 提取向量</span></span><br><span class="line">        <span class="keyword">return</span> result.getOutput().getEmbeddings().get(<span class="number">0</span>).getEmbedding();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 批量生成向量嵌入</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Float&gt;&gt; <span class="title function_">generateBatchEmbedding</span><span class="params">(List&lt;String&gt; contents)</span> &#123;</span><br><span class="line">        <span class="comment">// 批量调用，提高效率</span></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键设计点</strong>：</p>
+<ul>
+<li>✅ 使用DashScope官方SDK</li>
+<li>✅ 区分document和query两种向量化模式</li>
+<li>✅ 支持批量向量化</li>
+</ul>
+<hr>
+<h3 id="3-3-向量检索服务（VectorSearchService）"><a href="#3-3-向量检索服务（VectorSearchService）" class="headerlink" title="3.3 向量检索服务（VectorSearchService）"></a>3.3 向量检索服务（VectorSearchService）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 向量搜索服务</span></span><br><span class="line"><span class="comment"> * 负责从 Milvus 中搜索相似向量</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">VectorSearchService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> MilvusServiceClient milvusClient;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> VectorEmbeddingService embeddingService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 搜索相似文档</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;SearchResult&gt; <span class="title function_">searchSimilarDocuments</span><span class="params">(String query, <span class="type">int</span> topK)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 将查询文本向量化</span></span><br><span class="line">        List&lt;Float&gt; queryVector = embeddingService.generateQueryVector(query);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 构建搜索参数</span></span><br><span class="line">        <span class="type">SearchParam</span> <span class="variable">searchParam</span> <span class="operator">=</span> SearchParam.newBuilder()</span><br><span class="line">                .withCollectionName(MilvusConstants.MILVUS_COLLECTION_NAME)</span><br><span class="line">                .withVectorFieldName(<span class="string">&quot;vector&quot;</span>)</span><br><span class="line">                .withVectors(Collections.singletonList(queryVector))</span><br><span class="line">                .withTopK(topK)</span><br><span class="line">                .withMetricType(MetricType.L2)  <span class="comment">// L2欧氏距离</span></span><br><span class="line">                .withOutFields(List.of(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;content&quot;</span>, <span class="string">&quot;metadata&quot;</span>))</span><br><span class="line">                .withParams(<span class="string">&quot;&#123;\&quot;nprobe\&quot;:10&#125;&quot;</span>)</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 执行搜索</span></span><br><span class="line">        R&lt;SearchResults&gt; searchResponse = milvusClient.search(searchParam);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 解析搜索结果</span></span><br><span class="line">        <span class="keyword">return</span> parseSearchResults(searchResponse);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 搜索结果内部类</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Data</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">SearchResult</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> String id;</span><br><span class="line">        <span class="keyword">private</span> String content;</span><br><span class="line">        <span class="keyword">private</span> String metadata;</span><br><span class="line">        <span class="keyword">private</span> <span class="type">float</span> score;  <span class="comment">// 相似度分数</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键设计点</strong>：</p>
+<ul>
+<li>✅ L2欧氏距离相似度算法</li>
+<li>✅ Top-K返回最相似的K个结果</li>
+<li>✅ 返回内容+元数据+相似度分数</li>
+</ul>
+<hr>
+<h3 id="3-4-RAG核心服务（RagService）"><a href="#3-4-RAG核心服务（RagService）" class="headerlink" title="3.4 RAG核心服务（RagService）"></a>3.4 RAG核心服务（RagService）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * RAG (Retrieval-Augmented Generation) 服务</span></span><br><span class="line"><span class="comment"> * 结合向量检索和大语言模型生成答案</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RagService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> VectorSearchService vectorSearchService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;rag.top-k:3&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> topK;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;rag.model:qwen3-30b-a3b-thinking-2507&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String model;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Generation generation;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 流式处理用户问题（带历史消息）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">queryStream</span><span class="params">(String question, List&lt;Map&lt;String, String&gt;&gt; history, </span></span><br><span class="line"><span class="params">                           StreamCallback callback)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 从向量数据库检索相关文档</span></span><br><span class="line">        List&lt;VectorSearchService.SearchResult&gt; searchResults = </span><br><span class="line">            vectorSearchService.searchSimilarDocuments(question, topK);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 构建上下文</span></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">contextBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">        <span class="keyword">for</span> (VectorSearchService.SearchResult result : searchResults) &#123;</span><br><span class="line">            contextBuilder.append(result.getContent()).append(<span class="string">&quot;\n\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">String</span> <span class="variable">context</span> <span class="operator">=</span> contextBuilder.toString();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 构建提示词</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">systemPrompt</span> <span class="operator">=</span> buildSystemPrompt(context);</span><br><span class="line">        List&lt;Message&gt; messages = buildMessages(systemPrompt, history, question);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 调用LLM流式生成</span></span><br><span class="line">        <span class="type">GenerationParam</span> <span class="variable">param</span> <span class="operator">=</span> GenerationParam.builder()</span><br><span class="line">                .model(model)</span><br><span class="line">                .messages(messages)</span><br><span class="line">                .resultFormat(<span class="string">&quot;message&quot;</span>)</span><br><span class="line">                .incrementalOutput(<span class="literal">true</span>)  <span class="comment">// 流式输出</span></span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        Flowable&lt;GenerationResult&gt; resultFlowable = generation.streamCall(param);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5. 流式回调</span></span><br><span class="line">        resultFlowable.subscribe(</span><br><span class="line">            result -&gt; callback.onToken(result.getOutput().getChoices().get(<span class="number">0</span>).getMessage().getContent()),</span><br><span class="line">            error -&gt; callback.onError(error),</span><br><span class="line">            () -&gt; callback.onComplete()</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 构建系统提示词</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">buildSystemPrompt</span><span class="params">(String context)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;你是一个专业的运维助手。请基于以下参考资料回答用户的问题。\n\n&quot;</span> +</span><br><span class="line">               <span class="string">&quot;参考资料：\n&quot;</span> + context + <span class="string">&quot;\n\n&quot;</span> +</span><br><span class="line">               <span class="string">&quot;请根据以上资料回答，如果资料中没有相关信息，请说明。&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键设计点</strong>：</p>
+<ul>
+<li>✅ 检索 → 上下文构建 → LLM生成的完整流程</li>
+<li>✅ 支持多轮对话历史</li>
+<li>✅ 流式输出提升用户体验</li>
+<li>✅ 系统提示词约束回答基于文档</li>
+</ul>
+<hr>
+<h3 id="3-5-文档索引服务（VectorIndexService）"><a href="#3-5-文档索引服务（VectorIndexService）" class="headerlink" title="3.5 文档索引服务（VectorIndexService）"></a>3.5 文档索引服务（VectorIndexService）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 向量索引服务</span></span><br><span class="line"><span class="comment"> * 负责将文档切片并存储到向量数据库</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">VectorIndexService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> DocumentChunkService chunkService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> VectorEmbeddingService embeddingService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> MilvusServiceClient milvusClient;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 索引文档</span></span><br><span class="line"><span class="comment">     * 完整流程：解析 → 分片 → 向量化 → 存储</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">indexDocument</span><span class="params">(String content, String filePath)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 智能分片</span></span><br><span class="line">        List&lt;DocumentChunk&gt; chunks = chunkService.chunkDocument(content, filePath);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 批量向量化</span></span><br><span class="line">        List&lt;String&gt; texts = chunks.stream()</span><br><span class="line">                .map(DocumentChunk::getContent)</span><br><span class="line">                .collect(Collectors.toList());</span><br><span class="line">        List&lt;List&lt;Float&gt;&gt; vectors = embeddingService.generateBatchEmbedding(texts);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 存储到Milvus</span></span><br><span class="line">        indexDocumentChunks(chunks, vectors);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> chunks.size();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 存储文档分片到Milvus</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">indexDocumentChunks</span><span class="params">(List&lt;DocumentChunk&gt; chunks, List&lt;List&lt;Float&gt;&gt; vectors)</span> &#123;</span><br><span class="line">        List&lt;String&gt; ids = chunks.stream()</span><br><span class="line">                .map(DocumentChunk::getId)</span><br><span class="line">                .collect(Collectors.toList());</span><br><span class="line">        List&lt;String&gt; contents = chunks.stream()</span><br><span class="line">                .map(DocumentChunk::getContent)</span><br><span class="line">                .collect(Collectors.toList());</span><br><span class="line">        List&lt;String&gt; metadataList = chunks.stream()</span><br><span class="line">                .map(chunk -&gt; serializeMetadata(chunk))</span><br><span class="line">                .collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构建插入参数</span></span><br><span class="line">        <span class="type">InsertParam</span> <span class="variable">insertParam</span> <span class="operator">=</span> InsertParam.newBuilder()</span><br><span class="line">                .withCollectionName(MilvusConstants.MILVUS_COLLECTION_NAME)</span><br><span class="line">                .withFields(List.of(</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">InsertParam</span>.Field(<span class="string">&quot;id&quot;</span>, ids),</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">InsertParam</span>.Field(<span class="string">&quot;vector&quot;</span>, vectors),</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">InsertParam</span>.Field(<span class="string">&quot;content&quot;</span>, contents),</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">InsertParam</span>.Field(<span class="string">&quot;metadata&quot;</span>, metadataList)</span><br><span class="line">                ))</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        milvusClient.insert(insertParam);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键设计点</strong>：</p>
+<ul>
+<li>✅ 完整的文档索引管道</li>
+<li>✅ 批量向量化提高效率</li>
+<li>✅ 元数据序列化存储</li>
+</ul>
+<hr>
+<h2 id="4-RAG召回实战"><a href="#4-RAG召回实战" class="headerlink" title="4. RAG召回实战"></a>4. RAG召回实战</h2><h3 id="🎯-召回流程详解"><a href="#🎯-召回流程详解" class="headerlink" title="🎯 召回流程详解"></a>🎯 召回流程详解</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                      RAG召回流程                                 │</span><br><span class="line">├─────────────────────────────────────────────────────────────────┤</span><br><span class="line">│                                                                  │</span><br><span class="line">│  用户问题：&quot;Redis连接池满了怎么处理？&quot;                            │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  Step 1: 问题向量化                                              │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐    │</span><br><span class="line">│  │ VectorEmbeddingService.generateQueryVector(question)    │    │</span><br><span class="line">│  │ 输出: [0.23, 0.45, 0.12, ..., 0.67] (1536维)            │    │</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘    │</span><br><span class="line">│                              │                                  │</span><br><span class="line">│                              ▼                                  │</span><br><span class="line">│  Step 2: Milvus向量检索                                         │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐    │</span><br><span class="line">│  │ SearchParam:                                            │    │</span><br><span class="line">│  │   - collection: &quot;document_chunks&quot;                       │    │</span><br><span class="line">│  │   - metric: L2 (欧氏距离)                               │    │</span><br><span class="line">│  │   - topK: 3                                             │    │</span><br><span class="line">│  │   - nprobe: 10                                          │    │</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘    │</span><br><span class="line">│                              │                                  │</span><br><span class="line">│                              ▼                                  │</span><br><span class="line">│  Step 3: 返回Top-K结果                                          │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐    │</span><br><span class="line">│  │ Result 1: &quot;Redis连接池配置优化指南...&quot; (score: 0.92)     │    │</span><br><span class="line">│  │ Result 2: &quot;连接池满排查步骤...&quot; (score: 0.87)           │    │</span><br><span class="line">│  │ Result 3: &quot;Redis性能调优最佳实践...&quot; (score: 0.81)      │    │</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘    │</span><br><span class="line">│                              │                                  │</span><br><span class="line">│                              ▼                                  │</span><br><span class="line">│  Step 4: 上下文拼接                                              │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐    │</span><br><span class="line">│  │ System Prompt + Context + User Question                 │    │</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘    │</span><br><span class="line">│                              │                                  │</span><br><span class="line">│                              ▼                                  │</span><br><span class="line">│  Step 5: LLM生成回答                                            │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐    │</span><br><span class="line">│  │ &quot;Redis连接池满了，建议按以下步骤处理：                    │    │</span><br><span class="line">│  │  1. 检查连接泄漏...&quot;                                    │    │</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘    │</span><br><span class="line">│                                                                  │</span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="📊-相似度算法对比"><a href="#📊-相似度算法对比" class="headerlink" title="📊 相似度算法对比"></a>📊 相似度算法对比</h3><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>公式</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>L2 (欧氏距离)</strong></td>
+<td>$d &#x3D; \sqrt{\sum(x_i - y_i)^2}$</td>
+<td>考虑向量方向和大小</td>
+<td>本项目使用</td>
+</tr>
+<tr>
+<td><strong>Cosine (余弦相似度)</strong></td>
+<td>$\cos(\theta) &#x3D; \frac{A \cdot B}{|A| |B|}$</td>
+<td>只考虑向量方向</td>
+<td>文本相似度</td>
+</tr>
+<tr>
+<td><strong>IP (内积)</strong></td>
+<td>$IP &#x3D; A \cdot B$</td>
+<td>考虑向量方向和大小</td>
+<td>推荐系统</td>
+</tr>
+</tbody></table>
+<h3 id="🔧-召回优化策略"><a href="#🔧-召回优化策略" class="headerlink" title="🔧 召回优化策略"></a>🔧 召回优化策略</h3><h4 id="策略1：Top-K调优"><a href="#策略1：Top-K调优" class="headerlink" title="策略1：Top-K调优"></a>策略1：Top-K调优</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># application.yml</span></span><br><span class="line"><span class="attr">rag:</span></span><br><span class="line">  <span class="attr">top-k:</span> <span class="number">3</span>  <span class="comment"># 默认返回3个结果</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 调优建议：</span></span><br><span class="line"><span class="comment"># - K太小：可能遗漏相关信息</span></span><br><span class="line"><span class="comment"># - K太大：引入噪声，增加token消耗</span></span><br><span class="line"><span class="comment"># - 推荐：3-5个</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="策略2：相似度阈值过滤"><a href="#策略2：相似度阈值过滤" class="headerlink" title="策略2：相似度阈值过滤"></a>策略2：相似度阈值过滤</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在VectorSearchService中添加阈值过滤</span></span><br><span class="line"><span class="keyword">public</span> List&lt;SearchResult&gt; <span class="title function_">searchWithThreshold</span><span class="params">(String query, <span class="type">int</span> topK, <span class="type">float</span> threshold)</span> &#123;</span><br><span class="line">    List&lt;SearchResult&gt; results = searchSimilarDocuments(query, topK);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 过滤低相似度结果</span></span><br><span class="line">    <span class="keyword">return</span> results.stream()</span><br><span class="line">            .filter(r -&gt; r.getScore() &gt; threshold)</span><br><span class="line">            .collect(Collectors.toList());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="策略3：文档分片优化"><a href="#策略3：文档分片优化" class="headerlink" title="策略3：文档分片优化"></a>策略3：文档分片优化</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DocumentChunkConfig 配置</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DocumentChunkConfig</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;document.chunk.max-size:500&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> maxSize;  <span class="comment">// 最大分片大小</span></span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;document.chunk.min-size:100&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> minSize;  <span class="comment">// 最小分片大小</span></span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;document.chunk.overlap:50&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> overlap;  <span class="comment">// 重叠大小</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>分片策略建议</strong>：</p>
+<ul>
+<li>✅ 按标题分割，保持语义完整性</li>
+<li>✅ chunk大小：200-1000 tokens</li>
+<li>✅ overlap：50-100 tokens</li>
+<li>✅ 避免过小chunk（语义不完整）</li>
+</ul>
+<hr>
+<h2 id="5-API接口与Agent整合"><a href="#5-API接口与Agent整合" class="headerlink" title="5. API接口与Agent整合"></a>5. API接口与Agent整合</h2><h3 id="5-1-API接口设计"><a href="#5-1-API接口设计" class="headerlink" title="5.1 API接口设计"></a>5.1 API接口设计</h3><h4 id="文件上传接口"><a href="#文件上传接口" class="headerlink" title="文件上传接口"></a>文件上传接口</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 文件上传接口</span></span><br><span class="line"><span class="comment"> * 支持PDF/Word/Markdown等格式</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/api/upload&quot;)</span></span><br><span class="line"><span class="keyword">public</span> ResponseEntity&lt;ApiResponse&lt;FileUploadRes&gt;&gt; <span class="title function_">uploadFile</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="meta">@RequestParam(&quot;file&quot;)</span> MultipartFile file)</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 1. 解析文件内容</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">content</span> <span class="operator">=</span> parseFileContent(file);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 索引到向量数据库</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">chunkCount</span> <span class="operator">=</span> vectorIndexService.indexDocument(content, file.getOriginalFilename());</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 返回结果</span></span><br><span class="line">    <span class="keyword">return</span> ResponseEntity.ok(ApiResponse.success(</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">FileUploadRes</span>(file.getOriginalFilename(), chunkCount)</span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="对话接口（支持RAG）"><a href="#对话接口（支持RAG）" class="headerlink" title="对话接口（支持RAG）"></a>对话接口（支持RAG）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 流式对话接口（支持RAG + Agent）</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/api/chat_stream&quot;)</span></span><br><span class="line"><span class="keyword">public</span> SseEmitter <span class="title function_">chatStream</span><span class="params">(<span class="meta">@RequestBody</span> ChatRequest request)</span> &#123;</span><br><span class="line">    <span class="type">SseEmitter</span> <span class="variable">emitter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SseEmitter</span>(<span class="number">60000L</span>);</span><br><span class="line">    </span><br><span class="line">    executor.submit(() -&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 获取会话历史</span></span><br><span class="line">            <span class="type">SessionInfo</span> <span class="variable">session</span> <span class="operator">=</span> getOrCreateSession(request.getId());</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 创建ReactAgent（内置RAG工具）</span></span><br><span class="line">            <span class="type">ReactAgent</span> <span class="variable">agent</span> <span class="operator">=</span> chatService.createReactAgent(session.getHistory());</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 流式执行</span></span><br><span class="line">            agent.stream(request.getQuestion())</span><br><span class="line">                .subscribe(</span><br><span class="line">                    output -&gt; sendSseEvent(emitter, output),</span><br><span class="line">                    error -&gt; handleSseError(emitter, error),</span><br><span class="line">                    () -&gt; emitter.complete()</span><br><span class="line">                );</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            emitter.completeWithError(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> emitter;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-2-Agent整合RAG的两种方式"><a href="#5-2-Agent整合RAG的两种方式" class="headerlink" title="5.2 Agent整合RAG的两种方式"></a>5.2 Agent整合RAG的两种方式</h3><h4 id="方式1：直接调用RagService（对话Agent）"><a href="#方式1：直接调用RagService（对话Agent）" class="headerlink" title="方式1：直接调用RagService（对话Agent）"></a>方式1：直接调用RagService（对话Agent）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 对话Agent - 直接调用RagService</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ChatService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RagService ragService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建ReactAgent</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> ReactAgent <span class="title function_">createReactAgent</span><span class="params">(List&lt;Map&lt;String, String&gt;&gt; history)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ReactAgent.builder()</span><br><span class="line">                .chatModel(chatModel)</span><br><span class="line">                .systemPrompt(buildSystemPrompt())</span><br><span class="line">                .tools(getToolCallbacks())  <span class="comment">// 包含InternalDocsTools</span></span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式2：通过InternalDocsTools（运维Agent）"><a href="#方式2：通过InternalDocsTools（运维Agent）" class="headerlink" title="方式2：通过InternalDocsTools（运维Agent）"></a>方式2：通过InternalDocsTools（运维Agent）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 内部文档查询工具</span></span><br><span class="line"><span class="comment"> * Agent通过<span class="doctag">@Tool</span>注解调用</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">InternalDocsTools</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> VectorSearchService vectorSearchService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Tool(description = &quot;查询内部文档知识库&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">queryInternalDocs</span><span class="params">(</span></span><br><span class="line"><span class="params">            <span class="meta">@ToolParam(description = &quot;搜索查询&quot;)</span> String query)</span> &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 调用向量检索</span></span><br><span class="line">        List&lt;SearchResult&gt; results = </span><br><span class="line">            vectorSearchService.searchSimilarDocuments(query, topK);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 返回JSON格式结果</span></span><br><span class="line">        <span class="keyword">return</span> objectMapper.writeValueAsString(results);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-3-Agent调用RAG的完整流程"><a href="#5-3-Agent调用RAG的完整流程" class="headerlink" title="5.3 Agent调用RAG的完整流程"></a>5.3 Agent调用RAG的完整流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                 Agent调用RAG的完整流程                            │</span><br><span class="line">├─────────────────────────────────────────────────────────────────┤</span><br><span class="line">│                                                                  │</span><br><span class="line">│  用户: &quot;Redis连接池满了怎么处理？&quot;                                │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐    │</span><br><span class="line">│  │                    ReactAgent                            │    │</span><br><span class="line">│  │  ┌───────────────────────────────────────────────────┐  │    │</span><br><span class="line">│  │  │ LLM推理：需要查询内部文档                          │  │    │</span><br><span class="line">│  │  └───────────────────────────────────────────────────┘  │    │</span><br><span class="line">│  │                          │                              │    │</span><br><span class="line">│  │                          ▼                              │    │</span><br><span class="line">│  │  ┌───────────────────────────────────────────────────┐  │    │</span><br><span class="line">│  │  │ Function Call:                                    │  │    │</span><br><span class="line">│  │  │   name: &quot;queryInternalDocs&quot;                       │  │    │</span><br><span class="line">│  │  │   args: &#123;&quot;query&quot;: &quot;Redis连接池满 处理方案&quot;&#125;        │  │    │</span><br><span class="line">│  │  └───────────────────────────────────────────────────┘  │    │</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘    │</span><br><span class="line">│                          │                                      │</span><br><span class="line">│                          ▼                                      │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐    │</span><br><span class="line">│  │              InternalDocsTools                           │    │</span><br><span class="line">│  │  ┌───────────────────────────────────────────────────┐  │    │</span><br><span class="line">│  │  │ vectorSearchService.searchSimilarDocuments(...)   │  │    │</span><br><span class="line">│  │  │ → Milvus向量检索 → 返回Top-3结果                   │  │    │</span><br><span class="line">│  │  └───────────────────────────────────────────────────┘  │    │</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘    │</span><br><span class="line">│                          │                                      │</span><br><span class="line">│                          ▼                                      │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐    │</span><br><span class="line">│  │                    ReactAgent                            │    │</span><br><span class="line">│  │  ┌───────────────────────────────────────────────────┐  │    │</span><br><span class="line">│  │  │ LLM推理：基于检索结果生成回答                       │  │    │</span><br><span class="line">│  │  └───────────────────────────────────────────────────┘  │    │</span><br><span class="line">│  │                          │                              │    │</span><br><span class="line">│  │                          ▼                              │    │</span><br><span class="line">│  │  ┌───────────────────────────────────────────────────┐  │    │</span><br><span class="line">│  │  │ 最终回答：                                         │  │    │</span><br><span class="line">│  │  │ &quot;Redis连接池满了，建议按以下步骤处理：              │  │    │</span><br><span class="line">│  │  │  1. 检查连接泄漏...&quot;                               │  │    │</span><br><span class="line">│  │  └───────────────────────────────────────────────────┘  │    │</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘    │</span><br><span class="line">│                                                                  │</span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-4-会话管理与历史窗口"><a href="#5-4-会话管理与历史窗口" class="headerlink" title="5.4 会话管理与历史窗口"></a>5.4 会话管理与历史窗口</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 会话信息</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SessionInfo</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String sessionId;</span><br><span class="line">    <span class="keyword">private</span> List&lt;Map&lt;String, String&gt;&gt; history = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 最大历史窗口大小</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">MAX_WINDOW_SIZE</span> <span class="operator">=</span> <span class="number">6</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 添加消息到历史</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addMessage</span><span class="params">(String role, String content)</span> &#123;</span><br><span class="line">        lock.lock();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            history.add(Map.of(<span class="string">&quot;role&quot;</span>, role, <span class="string">&quot;content&quot;</span>, content));</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 超出窗口大小，移除最早的消息</span></span><br><span class="line">            <span class="keyword">while</span> (history.size() &gt; MAX_WINDOW_SIZE * <span class="number">2</span>) &#123;  <span class="comment">// 成对计算</span></span><br><span class="line">                history.remove(<span class="number">0</span>);</span><br><span class="line">                history.remove(<span class="number">0</span>);  <span class="comment">// 移除一对</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="6-面试话术与总结"><a href="#6-面试话术与总结" class="headerlink" title="6. 面试话术与总结"></a>6. 面试话术与总结</h2><h3 id="🎯-面试话术"><a href="#🎯-面试话术" class="headerlink" title="🎯 面试话术"></a>🎯 面试话术</h3><p><strong>面试官</strong>：”介绍一下你的RAG系统是怎么设计的？”</p>
+<p><strong>你</strong>：</p>
+<blockquote>
+<p>“我的RAG系统分为<strong>离线</strong>和<strong>在线</strong>两个阶段：</p>
+<p><strong>离线阶段</strong>：文档上传后，通过DocumentChunkService进行<strong>智能分片</strong>，优先按Markdown标题切分，保持语义完整性。然后通过DashScope Embedding API将文本<strong>向量化</strong>为1536维向量，最后存储到<strong>Milvus向量数据库</strong>。</p>
+<p><strong>在线阶段</strong>：用户提问时，先将问题向量化，然后在Milvus中进行<strong>L2欧氏距离</strong>相似度检索，返回Top-3最相关的文档片段。最后将检索结果作为上下文，调用大模型生成回答。</p>
+<p>亮点是：我设计了<strong>InternalDocsTools</strong>这个Agent工具，让对话Agent和运维Agent都能通过<strong>Function Calling</strong>机制调用RAG能力，实现了<strong>一次开发，多场景复用</strong>。”</p>
+</blockquote>
+<hr>
+<h3 id="📊-核心要点速记"><a href="#📊-核心要点速记" class="headerlink" title="📊 核心要点速记"></a>📊 核心要点速记</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                      RAG核心要点                                 │</span><br><span class="line">├─────────────────────────────────────────────────────────────────┤</span><br><span class="line">│                                                                  │</span><br><span class="line">│  📦 技术栈：                                                     │</span><br><span class="line">│     • Embedding: DashScope text-embedding-v3 (1536维)           │</span><br><span class="line">│     • 向量数据库: Milvus                                         │</span><br><span class="line">│     • LLM: DashScope qwen3-max                                  │</span><br><span class="line">│     • 框架: Spring AI + Spring Boot                              │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  🔄 流程：                                                       │</span><br><span class="line">│     离线：文档 → 分片 → 向量化 → 存储                            │</span><br><span class="line">│     在线：问题 → 向量化 → 检索 → 上下文拼接 → LLM生成            │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  🎯 关键参数：                                                   │</span><br><span class="line">│     • top-k: 3 (返回最相似的3个结果)                             │</span><br><span class="line">│     • 相似度: L2欧氏距离                                         │</span><br><span class="line">│     • chunk大小: 200-1000 tokens                                 │</span><br><span class="line">│     • overlap: 50-100 tokens                                     │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  💡 设计亮点：                                                   │</span><br><span class="line">│     • 智能分片：按标题切分，保持语义完整                         │</span><br><span class="line">│     • Agent整合：InternalDocsTools封装RAG能力                    │</span><br><span class="line">│     • 多场景复用：对话Agent、运维Agent都能调用                   │</span><br><span class="line">│                                                                  │</span><br><span class="line">│  🗣️ 面试话术：                                                   │</span><br><span class="line">│     &quot;离线分片向量化，在线检索拼接生成，Agent工具化复用&quot;          │</span><br><span class="line">│                                                                  │</span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="🔗-相关文档"><a href="#🔗-相关文档" class="headerlink" title="🔗 相关文档"></a>🔗 相关文档</h3><ul>
+<li><a href="./AI%E5%90%8D%E8%AF%8D%E6%89%AB%E7%9B%B2.md">AI名词扫盲：Agent、Tool、RAG等核心概念</a></li>
+<li><a href="./%E9%A1%B9%E7%9B%AE%E8%83%8C%E6%99%AF%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1.md">项目背景与架构设计</a></li>
+<li><a href="./%E9%A1%B9%E7%9B%AE%E9%98%85%E8%AF%BB%E8%AE%A1%E5%88%92.md">项目阅读计划</a></li>
+</ul>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count">0/0</span>
+      <button onclick="scrollToHighlight(currentHighlightIndex - 1)">↑</button>
+      <button onclick="scrollToHighlight(currentHighlightIndex + 1)">↓</button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Java/"># Java</a>
+          
+          <a href="/tags/RAG/"># RAG</a>
+          
+          <a href="/tags/Spring-AI/"># Spring AI</a>
+          
+          <a href="/tags/Milvus/"># Milvus</a>
+          
+          <a href="/tags/DashScope/"># DashScope</a>
+          
+          <a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/"># 向量数据库</a>
+          
+          <a href="/tags/Embedding/"># Embedding</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/05/13/2026/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/%E6%99%BA%E8%83%BDOnCall%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/%E5%AF%B9%E8%AF%9DAgent%E5%85%A8%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90%E4%B8%8EJava%E5%AE%9E%E6%88%98/"
+        >对话Agent全流程解析与Java实战：ReAct原理、核心流程、代码实现</a
+      >
+       
+      <a class="next" rel="next" href="/2026/05/13/2026/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/%E6%99%BA%E8%83%BDOnCall%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/%E9%A1%B9%E7%9B%AE%E8%83%8C%E6%99%AF%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"
+        >智能OnCall Agent - 项目背景与架构设计</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector(".toggleBtn"),
+      document.getElementById("mobile-toggle-theme"),
+    ];
+    buttons.forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+<script src="/js/code-copy.js"></script>
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>
