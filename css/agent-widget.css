@@ -479,11 +479,78 @@
     margin-top: 2px;
 }
 
+/* ReAct thinking bubble */
+.react-thinking-bubble {
+    align-self: flex-start;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+    color: #c4b5fd;
+    font-size: 13px;
+    max-width: 90%;
+    border: 1px solid #4c1d95;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 6px 0;
+    animation: thinkPulse 2s ease-in-out infinite;
+}
+@keyframes thinkPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+.react-thinking-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: #a78bfa;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.react-thinking-header:hover {
+    color: #c4b5fd;
+}
+.react-thinking-toggle {
+    display: inline-block;
+    font-size: 10px;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+.react-thinking-collapsed .react-thinking-content,
+.react-thinking-collapsed .react-observation {
+    display: none;
+}
+.react-thinking-collapsed .react-thinking-header {
+    margin-bottom: 0;
+}
+.react-thinking-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.react-observation {
+    font-size: 11px;
+    color: #6b7280;
+    border-top: 1px solid rgba(107, 114, 128, 0.3);
+    margin-top: 6px;
+    padding-top: 6px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 80px;
+    overflow-y: auto;
+}
+
 /* ReAct dark mode */
 @media (prefers-color-scheme: dark) {
     .hexo-agent-message.react-thought { background: #2a2a3d; color: #c4c4d4; border-left-color: #7c6ff7; }
     .hexo-agent-message.react-action { background: #1a3a4a; color: #5bb8d4; }
     .hexo-agent-message.react-observation { background: #2d2d30; color: #87878d; }
+    .react-thinking-bubble { background: linear-gradient(135deg, #1a1735 0%, #24205a 50%, #1a1735 100%); border-color: #5b3fb5; }
+    .react-thinking-header { color: #8b7cf6; }
+    .react-observation { color: #9ca3af; border-top-color: rgba(156, 163, 175, 0.3); }
 }
 .dark-theme .hexo-agent-message.react-thought,
 .hexo-agent-widget.dark-mode .hexo-agent-message.react-thought { background: #2a2a3d; color: #c4c4d4; border-left-color: #7c6ff7; }
@@ -491,6 +558,12 @@
 .hexo-agent-widget.dark-mode .hexo-agent-message.react-action { background: #1a3a4a; color: #5bb8d4; }
 .dark-theme .hexo-agent-message.react-observation,
 .hexo-agent-widget.dark-mode .hexo-agent-message.react-observation { background: #2d2d30; color: #87878d; }
+.dark-theme .react-thinking-bubble,
+.hexo-agent-widget.dark-mode .react-thinking-bubble { background: linear-gradient(135deg, #1a1735 0%, #24205a 50%, #1a1735 100%); border-color: #5b3fb5; }
+.dark-theme .react-thinking-header,
+.hexo-agent-widget.dark-mode .react-thinking-header { color: #8b7cf6; }
+.dark-theme .react-observation,
+.hexo-agent-widget.dark-mode .react-observation { color: #9ca3af; border-top-color: rgba(156, 163, 175, 0.3); }
 .hexo-agent-message.sources,
 .hexo-agent-message.knowledge-sources,
 .hexo-agent-message.search-sources {
@@ -599,6 +672,64 @@
 .hexo-agent-login-btn.github { background: #24292e; color: white; }
 .hexo-agent-login-btn.anonymous { background: var(--agent-border); color: var(--agent-text); }
 
+/* Semantic recall badge */
+.hexo-agent-semantic-recall {
+    align-self: center;
+    font-size: 11px;
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 10px;
+    padding: 4px 12px;
+    margin: 2px 0;
+    transition: opacity 0.5s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    max-width: 85%;
+}
+.semantic-recall-preview {
+    font-size: 10px;
+    color: #a78bfa;
+    opacity: 0.7;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Scroll-to-bottom button */
+.hexo-agent-scroll-down-wrap {
+    position: relative;
+    height: 0;
+    overflow: visible;
+    flex-shrink: 0;
+}
+.hexo-agent-scroll-down {
+    display: none;
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px; height: 32px;
+    align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: var(--agent-bg-secondary);
+    border: 1px solid var(--agent-border);
+    color: var(--agent-text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.15s, opacity 0.2s;
+    z-index: 10;
+}
+.hexo-agent-scroll-down:hover {
+    background: var(--agent-primary);
+    color: #fff;
+    border-color: var(--agent-primary);
+    transform: translateX(-50%) translateY(-1px);
+}
+
 /* Input */
 .hexo-agent-input-area {
     padding: 10px 12px; border-top: 1px solid var(--agent-border);
@@ -646,6 +777,32 @@
 .hexo-agent-option-btn.done:hover { opacity: 0.85; }
 
 /* Responsive */
+/* 清除会话按钮 */
+.hexo-agent-clear-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0.7;
+    transition: opacity 0.2s, background 0.2s;
+}
+    .hexo-agent-clear-btn:hover {
+        opacity: 1;
+        background: rgba(255, 0, 0, 0.1);
+    }
+}
+
+/* 每日配额显示 */
+.hexo-agent-quota {
+    display: block;
+    text-align: center;
+    font-size: 11px;
+    padding: 2px 0 4px;
+    opacity: 0.85;
+}
+
 @media (max-width: 768px) {
     .hexo-agent-popup {
         width: calc(100vw - 16px);
@@ -656,4 +813,62 @@
         border-radius: 12px;
     }
     .hexo-agent-trigger { bottom: 20px; right: 20px; width: 48px; height: 48px; }
+}
+
+/* ==================== Sources Bar ==================== */
+.hexo-agent-sources-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px 12px;
+    background: var(--agent-bg-secondary, #f6f8fa);
+    border-bottom: 1px solid var(--agent-border, #e1e4e8);
+    font-size: 11px;
+    line-height: 1.4;
+    max-height: 60px;
+    overflow-y: auto;
+}
+.hexo-agent-sources-bar .sources-bar-label {
+    color: var(--agent-text-secondary, #656d76);
+    margin-right: 4px;
+    white-space: nowrap;
+}
+.hexo-agent-sources-bar a,
+.hexo-agent-sources-bar span {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 6px;
+    background: var(--agent-bg, #fff);
+    border: 1px solid var(--agent-border, #d0d7de);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--agent-text, #24292f);
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.hexo-agent-sources-bar a:hover {
+    background: var(--agent-primary-light, #ddf4ff);
+    border-color: var(--agent-primary, #0969da);
+}
+.hexo-agent-sources-bar small { color: var(--agent-text-secondary); opacity: 0.7; }
+.dark-theme .hexo-agent-sources-bar,
+.hexo-agent-widget.dark-mode .hexo-agent-sources-bar {
+    background: #1c2128;
+    border-color: #373e47;
+}
+.dark-theme .hexo-agent-sources-bar a,
+.dark-theme .hexo-agent-sources-bar span,
+.hexo-agent-widget.dark-mode .hexo-agent-sources-bar a,
+.hexo-agent-widget.dark-mode .hexo-agent-sources-bar span {
+    background: #22272e;
+    border-color: #373e47;
+    color: #adbac7;
+}
+.dark-theme .hexo-agent-sources-bar a:hover,
+.hexo-agent-widget.dark-mode .hexo-agent-sources-bar a:hover {
+    background: #1c3b5c;
+    border-color: #316dca;
 }

@@ -5,7 +5,7 @@
     'use strict';
 
     const CONFIG = {
-        API_BASE: 'http://localhost:8001',
+        API_BASE: 'http://42.193.183.187:8001',
         STORAGE_KEY: 'hexo-agent-widget',
         MAX_MESSAGES: 20,   // 对齐后端 HISTORY_LIMIT(5轮) × 4(含source/system消息)
         AVATAR_URL: '/images/bubu.jpeg'
@@ -20,7 +20,9 @@
         abortController: null,
         messages: [],
         position: { x: null, y: null },
-        user: null  // { nickname, avatar_url }
+        user: null,  // { nickname, avatar_url }
+        isAnonymous: true,      // 默认匿名
+        dailyRemaining: 10      // 匿名默认 10 次
     };
 
     function $(selector) { return document.querySelector(selector); }
@@ -62,9 +64,22 @@
             el.innerHTML = (msg.role === 'assistant' && !msg.className) ? renderMarkdown(msg.content) : msg.content;
             messagesEl.appendChild(el);
         });
-        setTimeout(function() {
-            messagesEl.scrollTop = messagesEl.scrollHeight;
-        }, 100);
+        // 延迟滚动确保 DOM 渲染完成
+        scrollToBottom();
+        setTimeout(function() { scrollToBottom(); }, 300);
+    }
+
+    /** 滚动消息容器到底部 */
+    function scrollToBottom() {
+        var el = $('#agentMessages');
+        if (el) { el.scrollTop = el.scrollHeight; }
+    }
+
+    /** 检查是否已滚动到底部（误差 50px 内） */
+    function isScrolledToBottom() {
+        var el = $('#agentMessages');
+        if (!el) return true;
+        return el.scrollHeight - el.scrollTop - el.clientHeight < 50;
     }
 
     // ==================== Markdown ====================
@@ -128,6 +143,8 @@
         const response = await apiRequest('/api/auth/anonymous', { method: 'POST' });
         const data = await response.json();
         state.token = data.token;
+        state.isAnonymous = true;
+        state.dailyRemaining = 10;
         saveState();
         return data;
     }
@@ -165,16 +182,21 @@
                 </div>
             </div>
             <div class="hexo-agent-popup" id="agentPopup">
-                <div class="hexo-agent-header">
-                    <span class="hexo-agent-header-title">AI 助手</span>
-                    <button class="hexo-agent-header-close" id="agentClose">&times;</button>
-                </div>
-                <div class="hexo-agent-status">
-                    <span><span class="hexo-agent-status-dot" id="statusDot"></span><span id="statusText">未连接</span></span>
-                    <span id="agentTypeText" class="hexo-agent-type-text" style="display:none;"></span>
-                    <span id="userInfo"></span>
-                </div>
-                <div class="hexo-agent-messages" id="agentMessages"></div>
+              <div class="hexo-agent-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="hexo-agent-header-title">老江湖AI 助手</span>
+    
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="hexo-agent-quota" id="agentQuota">🟡 游客 · 剩余 10 次</span>
+                <button class="hexo-agent-header-close" id="agentClose">&times;</button>
+            </div>
+            </div>
+            <div class="hexo-agent-status">
+                <span><span class="hexo-agent-status-dot" id="statusDot"></span><span id="statusText">未连接</span></span>
+                <span id="agentTypeText" class="hexo-agent-type-text" style="display:none;"></span>
+                <span id="userInfo"></span>
+            </div>
+            <div class="hexo-agent-sources-bar" id="agentSourcesBar" style="display:none;"></div>
+            <div class="hexo-agent-messages" id="agentMessages"></div>
                 <div class="hexo-agent-typing" id="agentTyping">
                     <span></span><span></span><span></span>
                     <span class="hexo-agent-status-text" id="agentStatusText" style="display:none;"></span>
@@ -185,6 +207,9 @@
                         GitHub 登录
                     </button>
                     <button class="hexo-agent-login-btn anonymous" id="btnAnonymous">匿名体验</button>
+                </div>
+                <div class="hexo-agent-scroll-down-wrap" id="agentScrollDownWrap" style="display:none;">
+                    <div class="hexo-agent-scroll-down" id="agentScrollDown" title="回到底部">↓</div>
                 </div>
                 <div class="hexo-agent-input-area" id="agentInputArea" style="display:none;">
                     <textarea class="hexo-agent-input" id="agentInput" placeholder="输入消息..." rows="1" disabled></textarea>
@@ -199,17 +224,31 @@
     }
 
     function showWelcome() {
-        const content = `欢迎来到老江湖的 AI 助手。
-
-**基本用法：**
-- 直接提问技术问题，会优先从知识库检索
-- 输入「上网搜 + 关键词」触发网络搜索
-- 输入「对比/分析 + 主题」触发深度推理
-- 知识库搜不到时会提示你，要不要上网搜
-
-有问题随时问，祝你探索愉快。`;
-        const messagesEl = $('#agentMessages');
-        const messageEl = document.createElement('div');
+        var content;
+        if (state.token && !state.isAnonymous) {
+            // GitHub 登录用户欢迎语
+            content = '🎉 登录成功！我是老江湖，一个皮肤黝黑的技术人。\n\n' +
+                      '🔍 **我能做什么：**\n' +
+                      '- 回答技术问题（知识库 + 联网搜索）\n' +
+                      '- 记住对话上下文，支持多轮追问\n' +
+                      '- 搜索本地文档和教程\n' +
+                      '- 深度推理复杂问题\n\n' +
+                      '💬 直接输入问题开始聊天吧！';
+        } else {
+            // 匿名用户欢迎语
+            content = '👋 你好！当前为**游客模式**。\n\n' +
+                      '⚠️ **限制：**\n' +
+                      '- 每天只能提问 10 次\n' +
+                      '- 仅支持知识库查询\n' +
+                      '- 对话不会被保存\n\n' +
+                      '🔑 **登录 GitHub 解锁全部功能：**\n' +
+                      '- 每天 100 次提问\n' +
+                      '- 联网搜索 + 深度推理\n' +
+                      '- 对话记忆与历史回顾\n\n' +
+                      '点击右上方按钮登录吧！';
+        }
+        var messagesEl = $('#agentMessages');
+        var messageEl = document.createElement('div');
         messageEl.className = 'hexo-agent-message system';
         messageEl.innerHTML = renderMarkdown(content);
         messagesEl.appendChild(messageEl);
@@ -249,20 +288,73 @@
         updateAgentStatus(`[${displayName}] ${message}`, agentName);
     }
 
+    function addInfoBubble(message) {
+        var el = document.createElement('div');
+        el.className = 'hexo-agent-message assistant';
+        el.style.cssText = 'background:#fff3cd;color:#856404;border:1px solid #ffc107;font-size:12px;padding:8px 12px;margin:4px 0;border-radius:6px;';
+        el.textContent = message;
+        $('#agentMessages').appendChild(el);
+        scrollToBottom();
+    }
+
+    /** 语义记忆召回提示——小徽章，显示话题摘要 */
+    function addSemanticRecallBadge(data) {
+        var el = document.createElement('div');
+        el.className = 'hexo-agent-semantic-recall';
+        var previewText = (data.previews && data.previews.length > 0)
+            ? data.previews[0]
+            : '';
+        el.innerHTML = '<span class="semantic-recall-icon">🧠</span>'
+            + '<span class="semantic-recall-text">' + escapeHtml(data.message) + '</span>'
+            + (previewText ? '<span class="semantic-recall-preview">' + escapeHtml(previewText) + '…</span>' : '');
+        $('#agentMessages').appendChild(el);
+        scrollToBottom();
+        setTimeout(function() {
+            el.style.opacity = '0';
+            setTimeout(function() { if (el.parentNode) el.remove(); }, 500);
+        }, 5000);
+    }
+
     function addSources(articles) {
-        let html = '<div class="sources-header">参考来源</div><ul class="hexo-agent-sources-list">';
-        articles.forEach(a => {
-            const name = a.name || a.relative_path || '未知';
-            const score = a.score ? ` (${(a.score * 100).toFixed(0)}%)` : '';
-            const blogUrl = a.blog_url || '';
-            if (blogUrl && blogUrl !== 'https://meisijiya.github.io') {
-                html += `<li><a href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(name)}</a>${score}</li>`;
-            } else {
-                html += `<li>${escapeHtml(name)}${score}</li>`;
-            }
-        });
-        html += '</ul>';
-        addMessage('assistant', html, { className: 'sources' });
+        var bar = $('#agentSourcesBar');
+        if (!bar) return;
+        var items = articles.map(function(a) {
+            var name = a.name || a.title || '未知';
+            var blogUrl = a.blog_url || '';
+            return blogUrl
+                ? '<a href="' + escapeHtml(blogUrl) + '" target="_blank" rel="noopener">📄 ' + escapeHtml(name) + '</a>'
+                : '<span>📄 ' + escapeHtml(name) + '</span>';
+        }).join('');
+        bar.innerHTML = '<span class="sources-bar-label">🔍 参考来源</span>' + items;
+        bar.style.display = 'block';
+    }
+
+    function addSearchSources(data) {
+        var bar = $('#agentSourcesBar');
+        if (!bar) return;
+        var items = data.sources.map(function(s) {
+            var title = s.title || '未知';
+            return s.url
+                ? '<a href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener">🌐 ' + escapeHtml(title) + '</a>'
+                : '<span>🌐 ' + escapeHtml(title) + '</span>';
+        }).join('');
+        bar.innerHTML = '<span class="sources-bar-label">🌐 ' + escapeHtml(data.message) + '</span>' + items;
+        bar.style.display = 'block';
+    }
+
+    function addKnowledgeSources(data) {
+        var bar = $('#agentSourcesBar');
+        if (!bar) return;
+        var items = data.articles.map(function(a) {
+            var name = a.name || a.title || '未知';
+            var score = a.score ? ' <small>(' + (a.score * 100).toFixed(0) + '%)</small>' : '';
+            var blogUrl = a.blog_url || '';
+            return blogUrl
+                ? '<a href="' + escapeHtml(blogUrl) + '" target="_blank" rel="noopener">📚 ' + escapeHtml(name) + '</a>' + score
+                : '<span>📚 ' + escapeHtml(name) + '</span>' + score;
+        }).join('');
+        bar.innerHTML = '<span class="sources-bar-label">📚 ' + escapeHtml(data.message.split('，')[0]) + '</span>' + items;
+        bar.style.display = 'block';
     }
 
     function addSearchOptions(data) {
@@ -405,16 +497,42 @@
     }
 
     function updateUserInfo() {
-        const userInfoEl = $('#userInfo');
+        var userInfoEl = $('#userInfo');
         if (!userInfoEl) return;
-        if (state.user && state.token) {
-            var avatar = state.user.avatar_url
+        var hasToken = !!state.token;
+        var isGithubUser = state.user && state.user.nickname;
+        
+        if (!hasToken) {
+            userInfoEl.innerHTML = '';
+            return;
+        }
+        
+        var html = '<div class="hexo-agent-user-info">';
+        if (isGithubUser) {
+            // GitHub 用户 — 头像 + 昵称
+            html += state.user.avatar_url
                 ? '<img src="' + state.user.avatar_url + '" class="hexo-agent-user-avatar">'
                 : '<div class="hexo-agent-user-avatar-default"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>';
-            userInfoEl.innerHTML = '<div class="hexo-agent-user-info">' + avatar + '<span class="hexo-agent-user-name">' + escapeHtml(state.user.nickname || '') + '</span><button class="hexo-agent-logout-btn" id="btnLogout" title="退出登录">&times;</button></div>';
-            $('#btnLogout').addEventListener('click', handleLogout);
+            html += '<span class="hexo-agent-user-name">' + escapeHtml(state.user.nickname) + '</span>';
+            html += '<button class="hexo-agent-clear-btn" id="btnClear" title="清除会话">🗑️</button>';
+            html += '<button class="hexo-agent-logout-btn" id="btnLogout" title="退出登录">&times;</button>';
         } else {
-            userInfoEl.innerHTML = '';
+            // 匿名用户 — 显示"游客"
+            html += '<span class="hexo-agent-user-name" style="opacity:0.6">👤 游客</span>';
+            html += '<button class="hexo-agent-clear-btn" id="btnClear" title="清除对话">🗑️</button>';
+            html += '<a class="hexo-agent-login-link" id="btnLogin" title="GitHub 登录解锁全部功能" style="cursor:pointer;font-size:12px;margin-left:8px">🔑 登录</a>';
+        }
+        html += '</div>';
+        userInfoEl.innerHTML = html;
+        
+        var btnClear = $('#btnClear');
+        if (btnClear) btnClear.addEventListener('click', clearSession);
+        if (isGithubUser) {
+            var btnLogout = $('#btnLogout');
+            if (btnLogout) btnLogout.addEventListener('click', handleLogout);
+        } else {
+            var btnLogin = $('#btnLogin');
+            if (btnLogin) btnLogin.addEventListener('click', handleGithubLogin);
         }
     }
 
@@ -423,9 +541,71 @@
         state.user = null;
         state.sessionId = null;
         state.messages = [];
+        state.isAnonymous = true;
+        state.dailyRemaining = 10;
         saveState();
         updateUI();
         addMessage('system', '已退出登录');
+    }
+
+    async function clearSession() {
+        if (!state.sessionId) {
+            showNotification('当前无会话');
+            return;
+        }
+
+        const confirmed = confirm('确定清除当前会话？数据将在 7 天后彻底删除。');
+        if (!confirmed) return;
+
+        try {
+            const resp = await fetch(`${CONFIG.API_BASE}/api/chat/session/${state.sessionId}?token=${encodeURIComponent(state.token)}`, {
+                method: 'DELETE'
+            });
+
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+            localStorage.removeItem('hexo_agent_session');
+            state.sessionId = null;
+            state.messages = [];
+            saveState();
+
+            const msgArea = $('#agentMessages');
+            if (msgArea) msgArea.innerHTML = '';
+            var bar = $('#agentSourcesBar');
+            if (bar) { bar.innerHTML = ''; bar.style.display = 'none'; }
+
+            showNotification('会话已清除，下次发送将自动开始新对话');
+
+        } catch (err) {
+            alert('清除失败: ' + err.message);
+        }
+    }
+
+    function showNotification(msg) {
+        let notif = document.querySelector('.hexo-agent-notification');
+        if (!notif) {
+            notif = document.createElement('div');
+            notif.className = 'hexo-agent-notification';
+            notif.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:4px;font-size:13px;z-index:1000;opacity:0;transition:opacity 0.3s;';
+            document.body.appendChild(notif);
+        }
+        notif.textContent = msg;
+        notif.style.opacity = '1';
+        setTimeout(() => { notif.style.opacity = '0'; }, 3000);
+    }
+
+    // 更新每日配额显示
+    function updateQuotaDisplay() {
+        var el = document.querySelector('.hexo-agent-quota');
+        if (!el) return;
+        var rem = state.dailyRemaining != null ? state.dailyRemaining : '?';
+        if (state.isAnonymous) {
+            el.textContent = '🟡 游客 · 剩余 ' + rem + ' 次';
+            el.style.color = '#e6a817';
+        } else {
+            el.textContent = '🟢 已登录 · 剩余 ' + rem + ' 次';
+            el.style.color = '#2da44e';
+        }
     }
 
     // ==================== Send ====================
@@ -567,6 +747,10 @@
                                 hideTyping();
                                 addAgentInfo(data.agent || data.agent_name || 'AI', data.message);
                                 showTyping();
+                            } else if (eventType === 'info') {
+                                addInfoBubble(data.message);
+                            } else if (eventType === 'semantic_recall') {
+                                addSemanticRecallBadge(data);
                             } else if (eventType === 'sources') {
                                 addSources(data.articles);
                             } else if (eventType === 'search_options') {
@@ -575,53 +759,85 @@
                                 addKnowledgeSources(data);
                             } else if (eventType === 'search_sources') {
                                 addSearchSources(data);
+                            } else if (eventType === 'react_thought') {
+                                // 思考链流式显示（支持展开/收起）
+                                if (!state.reactThinkingEl) {
+                                    state.reactThinkingEl = document.createElement('div');
+                                    state.reactThinkingEl.className = 'react-thinking-bubble';
+                                    state.reactThinkingEl.innerHTML = '<div class="react-thinking-header"><span class="react-thinking-toggle">▼</span><span>✨ "老江湖" 深度分析中...</span></div><div class="react-thinking-content"></div>';
+                                    // 点击 header 切换展开/收起
+                                    var headerEl = state.reactThinkingEl.querySelector('.react-thinking-header');
+                                    headerEl.addEventListener('click', function() {
+                                        var bubble = this.parentElement;
+                                        var toggle = this.querySelector('.react-thinking-toggle');
+                                        if (bubble.classList.contains('react-thinking-collapsed')) {
+                                            bubble.classList.remove('react-thinking-collapsed');
+                                            toggle.textContent = '▼';
+                                        } else {
+                                            bubble.classList.add('react-thinking-collapsed');
+                                            toggle.textContent = '▶';
+                                        }
+                                    });
+                                    $('#agentMessages').appendChild(state.reactThinkingEl);
+                                    state.reactThinkingContent = '';
+                                }
+                                state.reactThinkingContent += (data.content || '');
+                                var contentEl = state.reactThinkingEl.querySelector('.react-thinking-content');
+                                if (contentEl) {
+                                    contentEl.textContent = state.reactThinkingContent;
+                                }
+                                scrollToBottom();
                             } else if (eventType === 'react_action') {
                                 showTyping();
                             } else if (eventType === 'react_search_results') {
                                 // 搜索结果由 react_formatted.tools 统一渲染
+                            } else if (eventType === 'react_observation') {
+                                // 工具调用结果，可折叠展示
+                                if (state.reactThinkingEl) {
+                                    var obsDiv = document.createElement('div');
+                                    obsDiv.className = 'react-observation';
+                                    obsDiv.textContent = (data.content || '').substring(0, 200);
+                                    state.reactThinkingEl.appendChild(obsDiv);
+                                    scrollToBottom();
+                                }
                             } else if (eventType === 'react_formatted') {
+                                // 清除思考链状态，工具调用信息合并到主消息气泡中
+                                state.reactThinkingEl = null;
+                                state.reactThinkingContent = '';
                                 hideTyping();
 
-                                let finalHtml = '';
+                                // 构建工具调用 HTML，追加到 messageEl 底部
                                 if (data.tools && data.tools.length > 0) {
-                                    finalHtml += '<div class="react-tool-group">';
+                                    var toolsHtml = '<div class="react-tool-group">';
                                     data.tools.forEach(function(tool) {
-                                        finalHtml += '<div class="react-tool-action">🔍 调用工具: ' + escapeHtml(tool.action) + '</div>';
+                                        toolsHtml += '<div class="react-tool-action">🔍 调用工具: ' + escapeHtml(tool.action) + '</div>';
                                         if (tool.sources && tool.sources.length > 0) {
-                                            finalHtml += '<div class="react-tool-sources">';
-                                            finalHtml += '<div class="sources-header">🔍 找到 ' + tool.sources.length + ' 条搜索结果</div>';
-                                            finalHtml += '<ul class="hexo-agent-sources-list">';
+                                            toolsHtml += '<div class="react-tool-sources">';
+                                            toolsHtml += '<div class="sources-header">🔍 找到 ' + tool.sources.length + ' 条搜索结果</div>';
+                                            toolsHtml += '<ul class="hexo-agent-sources-list">';
                                             tool.sources.forEach(function(source) {
                                                 var title = source.title || '未知来源';
                                                 var url = source.url || '';
                                                 if (url) {
-                                                    finalHtml += '<li><a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(title) + '</a></li>';
+                                                    toolsHtml += '<li><a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(title) + '</a></li>';
                                                 } else {
-                                                    finalHtml += '<li>' + escapeHtml(title) + '</li>';
+                                                    toolsHtml += '<li>' + escapeHtml(title) + '</li>';
                                                 }
                                             });
-                                            finalHtml += '</ul></div>';
+                                            toolsHtml += '</ul></div>';
                                         }
                                     });
-                                    finalHtml += '</div>';
+                                    toolsHtml += '</div>';
+                                    if (messageEl) {
+                                        messageEl.innerHTML = renderReactStream(assistantMessage) + toolsHtml;
+                                    }
                                 }
-                                if (data.thought) {
-                                    finalHtml += '<div class="react-thought">' + renderMarkdown(data.thought) + '</div>';
-                                }
-
-                                var formattedEl = document.createElement('div');
-                                formattedEl.className = 'hexo-agent-message assistant';
-                                formattedEl.innerHTML = finalHtml;
-                                if (messageEl && messageEl.parentNode) {
-                                    messageEl.parentNode.insertBefore(formattedEl, messageEl);
-                                } else {
-                                    $('#agentMessages').appendChild(formattedEl);
-                                }
-                                $('#agentMessages').scrollTop = $('#agentMessages').scrollHeight;
-                                state.messages.push({ role: 'assistant', content: data.answer, className: 'react-formatted' });
-                                saveState();
+                                scrollToBottom();
                             } else if (eventType === 'done') {
                                 state.sessionId = data.session_id;
+                                state.isAnonymous = data.is_anonymous || false;
+                                state.dailyRemaining = data.daily_remaining;
+                                updateQuotaDisplay();
                                 saveState();
                                 hideAgentStatus();
                             }
@@ -634,7 +850,7 @@
                             }
                             assistantMessage += data.content;
                             messageEl.innerHTML = renderReactStream(assistantMessage);
-                            $('#agentMessages').scrollTop = $('#agentMessages').scrollHeight;
+                            scrollToBottom();
                         }
                     } catch (e) {}
                 }
@@ -708,6 +924,25 @@
             e.target.style.height = Math.min(e.target.scrollHeight, 100) + 'px';
             updateSendButton();
         });
+        // 消息区滚动检测：向上查看时显示回底部按钮
+        $('#agentMessages').addEventListener('scroll', function() {
+            var wrap = $('#agentScrollDownWrap');
+            var btn = $('#agentScrollDown');
+            if (wrap && btn) {
+                if (isScrolledToBottom()) {
+                    wrap.style.display = 'none';
+                    btn.style.display = 'none';
+                } else {
+                    wrap.style.display = 'block';
+                    btn.style.display = 'flex';
+                }
+            }
+        });
+        // 回到底部按钮点击
+        $('#agentScrollDown').addEventListener('click', function() {
+            var el = $('#agentMessages');
+            el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+        });
         window.addEventListener('resize', checkBounds);
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);
@@ -719,8 +954,22 @@
                 state.token = e.data.token;
                 state.user = e.data.user || null;
                 saveState();
-                updateUI();
-                addMessage('system', 'GitHub 登录成功！');
+                // 立即查询用户身份，避免刷新后仍显示游客
+                fetch(`${CONFIG.API_BASE}/api/auth/me?token=${encodeURIComponent(state.token)}`)
+                    .then(r => r.json())
+                    .then(user => {
+                        state.isAnonymous = user.is_anonymous || false;
+                        state.user = state.user || { nickname: user.nickname, avatar_url: user.avatar_url };
+                        updateQuotaDisplay();
+                        saveState();
+                        updateUI();
+                        addMessage('system', 'GitHub 登录成功！');
+                    })
+                    .catch(() => {
+                        state.isAnonymous = false;
+                        updateUI();
+                        addMessage('system', 'GitHub 登录成功！');
+                    });
             } else if (e.data && e.data.type === 'github-oauth-error') {
                 addMessage('system', 'GitHub 登录失败：' + (e.data.error || '未知错误'));
             }
@@ -734,6 +983,8 @@
         if (state.isOpen) {
             $('#agentInput').focus();
             checkBounds();
+            // 打开面板时滚动到底部（延迟确保容器可见后生效）
+            setTimeout(function() { scrollToBottom(); }, 100);
         }
     }
 
