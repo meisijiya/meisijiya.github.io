@@ -5,7 +5,7 @@
     'use strict';
 
     const CONFIG = {
-        API_BASE: 'http://42.193.183.187:8001',
+        API_BASE: 'https://api.xn--ljhfjm-dl0o.top',
         STORAGE_KEY: 'hexo-agent-widget',
         MAX_MESSAGES: 20,   // 对齐后端 HISTORY_LIMIT(5轮) × 4(含source/system消息)
         AVATAR_URL: '/images/bubu.jpeg'
