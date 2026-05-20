@@ -19290,6 +19290,141 @@ binlog：Server层日志，存储在磁盘，追加写，用于备份和主从�
 九、思考篇一、普通的update语句在innodb中会自动上事务然后上锁？InnoDB 默认自动提交事务（autocommit&#x3D;1），单条普通 update 会隐式开启独立事务，语句执行完立刻自动提交。
 更新过程中必然自动加排他锁：命中索引加行锁；无索引 &#x2F; 索引失效，会降级锁住整张表。
 锁和事务生命周期一致，事务自动提交后，锁即刻释放。
+二、全量备份和增量备份1. 全量备份（Full Backup）定义：对数据库某一时刻的全部数据做一次完整拷贝。
+常见方式：
+
+
+
+方式
+类型
+原理
+特点
+
+
+
+mysqldump
+逻辑备份
+SELECT 导出 SQL 语句
+可跨版本&#x2F;跨引擎，文本可读，恢复慢
+
+
+xtrabackup
+物理备份
+直接拷贝数据文件 + redo log
+速度快，热备份不锁表，InnoDB 首选
+
+
+mysqlpump
+逻辑备份
+多线程并行导出
+比 mysqldump 快（并行），但仍是 SQL 文本
+
+
+mysqldump 全量备份示例：
+# 单库备份（--single-transaction 实现热备份，不锁表）mysqldump -u root -p --single-transaction --databases mydb &gt; full_backup.sql# 全库备份mysqldump -u root -p --single-transaction --all-databases &gt; all_db_backup.sql# 备份时记录 binlog 位置（恢复时关键！）mysqldump -u root -p --single-transaction --master-data=2 --databases mydb &gt; full_backup.sql
+
+
+🔑 关键选项解读：
+
+--single-transaction：导出前开启 RR 事务，利用 MVCC 读快照，不锁表实现热备份
+--master-data=2：导出的 SQL 文件中以注释形式记录当前 binlog 文件名 + 位置，恢复增量数据的起点
+
+
+全量备份优缺点：
+
+
+
+✅ 优点
+❌ 缺点
+
+
+
+恢复简单：一份文件恢复全部
+数据量大时耗时长、占空间大
+
+
+数据完整：不依赖其他备份
+两次全备之间数据丢失风险
+
+
+逻辑备份可读、可跨版本迁移
+物理备份跨平台兼容性差
+
+
+
+2. 增量备份（Incremental Backup）定义：只备份上一次备份（全量或增量）以来发生变化的数据。
+MySQL 增量备份的核心：binlog（二进制日志）。
+基于 binlog 的增量备份全量备份点                     binlog 持续记录变化    │                              │    ▼                              ▼[full_backup.sql] ── [binlog.000001] → [binlog.000002] → [binlog.000003] → ...       │                                                          │       └────── 恢复时：全量恢复 + 增量 binlog 回放 ───────────────┘
+
+增量备份操作流程：
+
+先做一次全量备份（记录 binlog 位置）
+mysqldump --single-transaction --master-data=2 --flush-logs \  --all-databases &gt; full_backup_$(date +%F).sql# --flush-logs：备份后刷新 binlog，生成新文件，方便区分增量
+
+定期备份 binlog 文件（增量数据）
+# 将 binlog 文件拷贝到安全位置cp /var/lib/mysql/mysql-bin.000002 /backup/binlog/
+
+或者实时同步 binlog（远程备份）
+mysqlbinlog --read-from-remote-server --host=主库IP \  --user=repl --password=xxx --raw --stop-never mysql-bin.000001 &amp;
+
+xtrabackup 增量备份# 1. 全量备份xtrabackup --backup --target-dir=/backup/full# 2. 基于上次全量做增量备份（只备份变化的页）xtrabackup --backup --target-dir=/backup/inc1 \  --incremental-basedir=/backup/full# 3. 第二次增量（基于 inc1）xtrabackup --backup --target-dir=/backup/inc2 \  --incremental-basedir=/backup/inc1
+
+
+🔑 xtrabackup 增量的原理：InnoDB 每个数据页有 LSN（日志序列号），增量只备份 LSN 大于上次备份的页。
+
+
+3. 全量备份 vs 增量备份 vs 差异备份
+
+
+对比维度
+全量备份
+增量备份
+差异备份
+
+
+
+备份内容
+所有数据
+上次备份以来的变化
+上次全量以来的变化
+
+
+备份速度
+慢
+快
+中等
+
+
+恢复速度
+快（一份恢复）
+慢（全量+多个增量逐一回放）
+中等（全量+一份差异）
+
+
+存储空间
+大
+小
+中等
+
+
+依赖关系
+独立
+依赖上次全量和所有中间增量
+只依赖上次全量
+
+
+
+4. 恢复流程场景一：基于 mysqldump + binlog 恢复
+# 1. 先恢复全量备份mysql -u root -p &lt; full_backup.sql# 2. 查看全量备份时的 binlog 位置（--master-data=2 记录在 SQL 文件中）#    -- CHANGE MASTER TO MASTER_LOG_FILE=&#x27;mysql-bin.000003&#x27;, MASTER_LOG_POS=154;# 3. 回放增量 binlog（从全备位置到故障前最后一条）mysqlbinlog --start-position=154 mysql-bin.000003 | mysql -u root -pmysqlbinlog mysql-bin.000004 | mysql -u root -pmysqlbinlog mysql-bin.000005 | mysql -u root -p
+
+场景二：基于 xtrabackup 恢复
+# 1. 准备全量备份（前滚到一致状态）xtrabackup --prepare --apply-log-only --target-dir=/backup/full# 2. 合并增量xtrabackup --prepare --apply-log-only --target-dir=/backup/full \  --incremental-dir=/backup/inc1xtrabackup --prepare --target-dir=/backup/full \  --incremental-dir=/backup/inc2# 3. 恢复数据xtrabackup --copy-back --target-dir=/backup/full
+
+
+5. 生产环境推荐备份策略┌─────────────────────────────────────────────────────────┐│                    推荐备份策略                           │├────────────┬────────────────────────────────────────────┤│ 每日（凌晨）│ 全量备份（mysqldump 或 xtrabackup）          ││ 每小时      │ binlog 备份 / xtrabackup 增量               ││ 实时        │ binlog 远程同步（主从复制天然具备）          │├────────────┼────────────────────────────────────────────┤│ 保留策略    │ 全量保留 7 天，binlog 保留 15 天             ││ 验证        │ 定期在测试环境做恢复演练                     │└────────────┴────────────────────────────────────────────┘
+
+
+🎯 一句话总结：全量 &#x3D; 完整快照（恢复快但耗资源）；增量 &#x3D; 变化日志（省资源但恢复慢）。生产环境 &#x3D; 全量 + 增量（binlog） 组合策略。
 
 特别鸣谢：@小林coding、@豆包、@元宝、@DeepSeek
 ]]></content>
@@ -19410,7 +19545,7 @@ flowchart LR    subgraph A [Redis 核心定位]        direction LR        A1[�
       </categories>
       <tags>
         <tag>面试</tag>
-        <tag>MySQL</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -30322,5 +30457,3093 @@ Rebalance
         <tag>Kafka</tag>
         <tag>消息队列</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>老婆520</title>
+    <url>/2026/05/20/%E7%94%9F%E6%B4%BB/%E7%AC%AC%E4%BA%8C%E4%B8%AA520/</url>
+    <content><![CDATA[💗老婆520呀💗
+
+egg egg。我爱你呀，蛋呀蛋，你是最好的🥚。啦啦啦，520哟。答应我，一辈子要健健康康、快快乐乐、幸幸福福、开开心心地过呀。爱你的老江湖。
+]]></content>
+      <categories>
+        <category>生活</category>
+        <category>房间门</category>
+      </categories>
+      <tags>
+        <tag>开心</tag>
+        <tag>老婆生日</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis八股大全</title>
+    <url>/2026/05/20/%E5%85%AB%E8%82%A1/Redis/Redis%E5%A4%A7%E5%85%A8/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+
+📖 本文整理自《图解Redis - 小林coding》，面向找实习的后端开发，精炼不丢细节。涵盖：基础 → 数据结构 → 持久化 → 功能 → 高可用 → 缓存 六大模块。
+
+一、基础篇：什么是 Redis？1.1 Redis 核心定位
+
+
+维度
+描述
+
+
+
+全称
+REmote DIctionary Service
+
+
+本质
+基于内存的 键值对数据结构服务器（不只是缓存）
+
+
+核心优势
+内存操作 → 亚毫秒级延迟；丰富数据结构 → 不止 KV
+
+
+角色演变
+从 “MySQL 前面的缓存” 到 “独立主数据库”
+
+
+
+🎯 一句话：Redis 是一个用 C 语言写的、单线程（6.0+ 网络 IO 多线程）、基于内存的数据结构服务器，核心能力是 快 + 数据结构丰富。
+
+
+1.2 Redis vs Memcached（高频面试对比）
+
+
+对比维度
+Redis
+Memcached
+
+
+
+亚毫秒延迟
+✅
+✅
+
+
+高级数据结构（List&#x2F;Set&#x2F;ZSet&#x2F;Hash…）
+✅
+❌（仅 String）
+
+
+多线程架构
+❌（单线程事件驱动，6.0+仅网络IO多线程）
+✅
+
+
+持久化（快照&#x2F;RDB）
+✅
+❌
+
+
+复制（Replication）
+✅
+❌
+
+
+事务
+✅
+❌
+
+
+发布&#x2F;订阅
+✅
+❌
+
+
+Lua 脚本
+✅
+❌
+
+
+地理空间支持
+✅
+❌
+
+
+
+🎯 面试结论：Memcached 是纯缓存；Redis 更像一个 内存数据库，功能维度上碾压 Memcached。
+
+
+1.3 Redis 四种部署架构① 单机模式（Single Instance）┌──────────┐│  Client  │└────┬─────┘     │┌────▼─────┐│  Redis   │ ← 直接部署，最简单└──────────┘
+
+
+✅ 优点：部署简单，延迟最低
+❌ 缺点：单点故障（SPOF），挂了全瘫
+🎯 适用：开发环境 &#x2F; 对可用性无强要求的缓存场景
+
+② 主从复制（Master-Slave &#x2F; Replication）        ┌──────────┐   ┌───►│ Slave 1  │ ← 分担读请求   │    └──────────┘┌──┴──────┐│ Master  │ ← 处理写请求└──┬──────┘   │    ┌──────────┐   └───►│ Slave 2  │        └──────────┘
+
+关键概念：复制 ID（replication ID）+ 偏移量（offset）
+
+每个 Master 有一个 replication ID，每个写操作增加 offset
+Slave 落后少量 offset → 部分同步（增量）
+Slave 没有共同祖先 → 全量同步（RDB 快照 + 缓冲区增量）
+
+增量同步：Master 只发送相差的 offset 命令给 Slave全量同步：Master 生成 RDB 快照 → 发给 Slave → 再补上快照期间的缓冲命令
+
+面试考点：什么情况触发全量同步？
+
+Slave 是新加入的，无共同祖先
+Master 的 repl_backlog_buffer 太小，Slave 需要的 offset 已被覆盖
+
+③ 哨兵模式（Sentinel）Redis Sentinel 是一个分布式哨兵系统，不是单个进程！
+┌──────────┐  ┌──────────┐  ┌──────────┐│Sentinel 1│  │Sentinel 2│  │Sentinel 3│  ← 至少 3 个，奇数个└────┬─────┘  └────┬─────┘  └────┬─────┘     └──────────────┼──────────────┘                    │ 投票（Quorum）            ┌───────▼───────┐            │   Master      │ ← 监控 + 故障转移            └───────┬───────┘            ┌───────┼───────┐            ▼               ▼       ┌────────┐      ┌────────┐       │ Slave1 │      │ Slave2 │       └────────┘      └────────┘
+
+Sentinel 四大职责：
+
+监控（Monitoring）：持续检查 Master&#x2F;Slave 是否存活
+通知（Notification）：事件发生时通知管理员
+故障转移（Failover）：Master 挂了，投票选举新 Master
+配置管理（Config Provider）：告诉客户端当前 Master 是谁
+
+Quorum（法定人数）配置表（面试常考）：
+
+
+
+哨兵节点数
+Quorum
+可容忍故障数
+
+
+
+1
+1
+0
+
+
+3
+2
+1
+
+
+5
+3
+2
+
+
+7
+4
+3
+
+
+
+🎯 一句话：Sentinel &#x3D; 哨兵集群自动监控 + 自动故障转移，解决主从模式”主挂得手动切”的问题。
+
+④ Cluster 集群模式（分布式分片）                    Redis Cluster         ┌─────────────────────────────────┐         │  Hash Slot: 0 ~ 16383 (共16384) │         └─────────────────────────────────┘                         │    ┌────────────────────┼────────────────────┐    ▼                    ▼                    ▼┌───────┐           ┌───────┐           ┌───────┐│  M1   │           │  M2   │           │  M3   ││Slot:  │           │Slot:  │           │Slot:  ││0-5460 │           │5461-  │           │10923- ││       │           │10922  │           │16383  │├───────┤           ├───────┤           ├───────┤│  S1   │           │  S2   │           │  S3   │  ← 每个 Master 配一个 Slave└───────┘           └───────┘           └───────┘
+
+核心机制：
+
+Hash Slot（哈希槽） — 集群的数据分布方式
+Slot = CRC16(key) % 16384
+
+共 16384 个槽，每个 Master 负责一部分
+扩缩容时只需 移动槽，不需要移动所有 key — 这就是 Hash Slot 的巧妙之处！
+
+
+Gossip 协议 — 集群节点间通信方式
+
+所有节点不断互相通信（PING&#x2F;PONG）
+用于发现新节点、检测故障、传播配置变更
+
+
+故障转移 — Master 挂了的处理
+
+Slave 发现 Master 不可达 → 发起投票
+多数 Master 同意 → Slave 提升为新 Master
+脑裂（Split-brain）：网络分区导致两边各有 Master，解决方法 → 奇数个 Master + 多数投票
+
+
+
+
+🎯 一句话：Cluster &#x3D; 数据自动分片 + 内置故障转移，解决大数据量下一台机器存不下的问题。
+
+四种架构对比：
+
+
+
+架构
+数据分片
+高可用
+复杂度
+适用场景
+
+
+
+单机
+❌
+❌
+低
+开发&#x2F;测试
+
+
+主从
+❌
+❌（手动切）
+低
+读写分离
+
+
+Sentinel
+❌
+✅（自动）
+中
+高可用不要求分片
+
+
+Cluster
+✅
+✅（自动）
+高
+大数据量 + 高可用
+
+
+
+1.4 Redis 持久化模型
+
+
+模式
+原理
+优点
+缺点
+
+
+
+无持久化
+纯内存，不写盘
+最快
+重启数据全丢
+
+
+RDB
+定时快照（时间点内存镜像）
+文件紧凑、恢复快
+两次快照间的数据会丢
+
+
+AOF
+记录每条写命令（追加日志）
+数据更完整（可配置 fsync 频率）
+文件大、恢复慢
+
+
+RDB + AOF
+两者同时开启
+取长补短
+性能有一定损耗
+
+
+
+🎯 一句话：重启时，如果 AOF 开启 → 优先用 AOF 恢复（因为最完整）；否则用 RDB。
+
+
+1.5 Fork + 写时复制（Copy-on-Write）— 持久化的底层黑科技这是 Redis 最巧妙的设计之一：
+持久化流程：  父进程（处理客户端请求）       │       ├─ fork() ──► 子进程（负责持久化）       │       │  父子共享同一块物理内存（只读）       │       │  父进程要修改某页 → 内核复制该页 → 父进程改新页       │  子进程仍看到旧页（一致性快照）✅       │       ▼  子进程写入 RDB/AOF 文件
+
+COW 详解：修改 key 时到底发生了什么？COW = Copy-on-Write（写时复制）核心原理：fork 后父子共享物理内存（只读），只有真的写了，才复制那一个内存页。触发时刻：父进程收到写请求并实际修改数据时
+
+完整流程图：
+1. fork() 执行瞬间   │   ├─ 子进程诞生，共享父进程所有物理内存页（只读标记）   │   （此时没有复制任何数据，只是共享视图）   │   ▼2. 正常读请求（父进程只读数据）   │   │  读操作不触发 COW，父子共享同一块内存   │   ▼3. 某个客户端发来写请求（如 SET user:1 &quot;Tom&quot;）   │   │  父进程要修改 &quot;user:1&quot; 所在的内存页   │   ▼  ← COW 在这里触发！   │   内核检测到该页是&quot;共享只读&quot;状态   │   ▼   复制该页到新的物理地址（旧页不动）   │   父进程获得新页的写入权限   │   父进程写入新地址（Tom）   │   子进程视角：看到的还是旧页（旧数据）✅      结果：fork 瞬间的内存快照始终保持一致
+
+简化比喻你（父进程）和你的影子（子进程）共用同一本书（物理内存）你读的时候：影子也在读，没问题你要划线修改时（写请求）：  → 工作人员复制一本新书给你  → 你在新书上划线  → 影子看的还是旧书（旧数据）  → 这就是&quot;一致性快照&quot;
+
+关键理解
+
+
+问题
+答案
+
+
+
+COW 是什么
+写时复制 &#x3D; 要写的时候才复制物理内存页
+
+
+COW 什么时候触发
+父进程收到写请求并实际修改数据时（不是 fork 时）
+
+
+COW 复制的是什么
+物理内存页（不是整个数据库），最小化复制开销
+
+
+子进程看到的是什么
+fork 瞬间的内存快照（永远是一致的旧数据）
+
+
+为什么持久化开销小
+fork 后父子共享只读内存，只有修改的页才复制，不修改就不复制
+
+
+
+🎯 面试亮点：Redis 单线程如何高效做持久化？— 靠 fork() + 写时复制，子进程专职写盘，父进程继续服务请求。fork 时不复制、只共享；修改时才复制、最小开销。
+
+
+
+📌 基础篇完
+
+
+二、面试篇：Redis 高频面试题 Top 20+
+🎯 本章按面试频率和话题分类，每道题附带 核心回答 + 关键细节，适合突击复习。
+
+
+2.1 基础认知类Q1：Redis 是什么？为什么这么快？Redis &#x3D; Remote Dictionary Service，基于内存的 KV 数据结构服务器。
+快的原因（4 点）：
+
+内存操作：绝大部分操作在内存完成
+
+高效数据结构：SDS、跳表、压缩列表等专为性能优化
+
+三者都是Redis 为兼顾内存、查询 &#x2F; 操作性能，自研 &#x2F; 改造的轻量结构，分别优化字符串、有序查找、列表场景
+
+
+单线程模型：避免多线程竞争、上下文切换、死锁
+
+IO 多路复用：epoll 机制，一个线程处理大量客户端连接
+
+
+
+💡 QPS：Redis 单机轻松 10w+，MySQL 难破 1w，差距约 10 倍。
+
+Q2：Redis vs Memcached 怎么选？
+
+
+维度
+Redis
+Memcached
+
+
+
+数据类型
+丰富（String&#x2F;List&#x2F;Set&#x2F;ZSet&#x2F;Hash&#x2F;Stream…）
+仅 String
+
+
+持久化
+✅ RDB + AOF
+❌
+
+
+集群
+✅ 原生 Cluster
+❌ 需客户端实现
+
+
+线程模型
+单线程（6.0+ 网络 IO 多线程）
+多线程
+
+
+事务&#x2F;Lua&#x2F;发布订阅
+✅
+❌
+
+
+
+🎯 结论：需要持久化、复杂数据结构 → Redis；仅做简单 KV 缓存且已用 Memcached → 可保留。
+
+Q3：为什么用 Redis 做 MySQL 缓存？两个核心原因：
+
+高性能：内存读取远超磁盘 IO
+高并发：Redis 单机 QPS 10w+，MySQL 单机不到 1w，Redis 能扛住大流量冲击
+
+
+2.2 线程模型类（面试高频！）Q4：Redis 是单线程的吗？严格说：不是。
+
+命令执行：单线程（核心，我们常说的”Redis 是单线程”指这个）
+后台线程（BIO）：
+bio_close_file：异步关闭文件
+bio_aof_fsync：AOF 刷盘（everysec 模式下）
+bio_lazy_free：异步释放内存（4.0+，unlink&#x2F;flushdb async）
+
+
+IO 多线程（6.0+）：io_thd_1/2/3，仅处理网络 IO 读写，命令执行仍是单线程
+
+Q5：Redis 6.0 为什么引入 IO 多线程？随着网络硬件性能提升，网络 IO 成为瓶颈，不再是 CPU。6.0 用多个 IO 线程并行处理网络读写，命令执行保持单线程。官方数据：性能提升至少 1 倍。
+配置方式：io-threads 4              # 共 4 个 IO 线程（含主线程，实际多 3 个）io-threads-do-reads yes   # 读请求也用多线程
+
+
+⚠️ 线程数建议 ≤ CPU 核数，不是越多越好。
+
+Q6：Redis 单线程事件循环模型是什么？基于 epoll 的 Reactor 模式：
+1. epoll_create() → 创建 epoll 对象2. socket() + bind() + listen() → 创建服务端 socket3. epoll_ctl() → 将 listen socket 加入 epoll，注册连接事件4. 事件循环：   ├─ epoll_wait() 等待事件   ├─ 连接事件 → accept() → 注册读事件   ├─ 读事件 → read() → 解析命令 → 执行 → 写入发送缓冲区   └─ 写事件 → write() 发送响应
+
+
+2.3 数据类型类Q7：Redis 有哪些数据类型？各自使用场景？5 种基础类型：
+
+
+
+类型
+场景
+
+
+
+String
+缓存对象、计数、分布式锁、Session 共享
+
+
+List
+消息队列（简单场景）、最新消息列表
+
+
+Hash
+缓存对象（如用户信息）、购物车
+
+
+Set
+点赞、共同关注、抽奖（交集&#x2F;并集&#x2F;差集）
+
+
+ZSet
+排行榜、延迟队列、按时间排序
+
+
+4 种扩展类型：
+
+
+
+类型
+版本
+场景
+
+
+
+BitMap
+2.2
+签到、用户在线状态（二值统计）
+
+
+HyperLogLog
+2.8
+UV 统计（基数统计，误差 0.81%）
+
+
+GEO
+3.2
+附近的人、滴滴叫车
+
+
+Stream
+5.0
+消息队列（自动生成 ID、支持消费组）
+
+
+Q8：五种数据类型底层是怎么实现的？
+
+
+类型
+小数据量时
+大数据量时
+7.0 变化
+
+
+
+String
+SDS（简单动态字符串）
+SDS
+不变
+
+
+List
+quicklist（3.2+）
+quicklist
+替代了 ziplist+linkedlist
+
+
+Hash
+listpack
+哈希表（dict）
+7.0 用 listpack 替代 ziplist
+
+
+Set
+整数集合（intset）
+哈希表（dict）
+不变
+
+
+ZSet
+listpack
+跳表（skiplist）+ dict
+7.0 用 listpack 替代 ziplist
+
+
+
+🔑 String 的 SDS 亮点：O(1) 获取长度、二进制安全（可存图片）、自动扩容防溢出。
+
+
+2.4 持久化类Q9：Redis 如何实现数据不丢失？（持久化方式对比）
+
+
+方式
+原理
+优点
+缺点
+
+
+
+RDB
+定时内存快照
+文件紧凑、恢复快
+两次快照间数据丢失
+
+
+AOF
+记录每条写命令
+数据更完整
+文件大、恢复慢
+
+
+混合
+RDB + AOF
+兼顾恢复速度与完整性
+4.0+ 支持
+
+
+
+🔑 重启恢复优先用 AOF（如果开启），因为最完整。
+
+Q10：AOF 写回策略有哪几种？
+
+
+策略
+写回时机
+优点
+缺点
+
+
+
+Always
+每条命令同步写盘
+不丢数据
+性能最差
+
+
+Everysec
+每秒写盘一次
+最多丢 1 秒数据
+性能折中 ✅
+
+
+No
+由操作系统决定
+性能最好
+丢数据不可控
+
+
+Q11：AOF 日志过大怎么办？— AOF 重写当 AOF 文件过大，Redis 触发 AOF 重写（bgrewriteaof）：
+
+读取当前数据库状态，生成最精简的命令写入新 AOF 文件
+通过 fork 子进程 执行，不阻塞主线程
+重写期间新命令写入 AOF 重写缓冲区，完成后追加到新文件
+
+Q12：RDB 快照会阻塞主线程吗？
+save 命令：会阻塞（主线程执行）
+bgsave 命令：不会阻塞（fork 子进程执行，利用写时复制）
+
+
+🔑 写时复制（COW）：fork 后父子共享内存，只有父进程修改某页时才复制该页，保证子进程看到一致性快照。
+
+
+2.5 过期 &amp; 淘汰策略Q13：Redis 的过期删除策略是什么？惰性删除 + 定期删除 组合：
+
+
+
+策略
+机制
+优缺点
+
+
+
+惰性删除
+访问 key 时才检查是否过期
+对 CPU 友好，但内存不友好（过期 key 堆积）
+
+
+定期删除
+每隔一段时间随机抽一批 key 检查
+折中方案
+
+
+具体执行：每秒 10 次定期删除，每次随机抽 20 个 key，过期比例 &gt; 25% 则继续循环。
+Q14：Redis 内存满了怎么办？— 8 种淘汰策略
+
+
+策略
+范围
+行为
+
+
+
+noeviction
+—
+不淘汰，直接报错（默认）
+
+
+allkeys-lru
+所有 key
+淘汰最近最少使用的
+
+
+volatile-lru
+有过期时间的 key
+淘汰最近最少使用的
+
+
+allkeys-random
+所有 key
+随机淘汰
+
+
+volatile-random
+有过期时间的 key
+随机淘汰
+
+
+volatile-ttl
+有过期时间的 key
+淘汰最快过期的
+
+
+allkeys-lfu
+所有 key（4.0+）
+淘汰最不常使用的
+
+
+volatile-lfu
+有过期时间的 key（4.0+）
+淘汰最不常使用的
+
+
+
+🎯 面试推荐回答：一般用 allkeys-lru 或 allkeys-lfu，前者按”最近少用”，后者按”频率低”。
+
+Q15：LRU vs LFU 有什么区别？
+
+
+维度
+LRU（Least Recently Used）
+LFU（Least Frequently Used）
+
+
+
+淘汰依据
+最近访问时间
+访问频率
+
+
+问题
+偶发访问会把热数据挤出
+历史高频 key 难以淘汰
+
+
+Redis 实现
+近似 LRU，24bit 时钟值
+对数计数器 + 衰减因子
+
+
+
+🔑 Redis 不是精确 LRU，是近似 LRU：随机采样 N 个 key，淘汰其中 LRU 时钟值最小的。
+
+
+2.6 缓存三大问题（面试必问！）Q16：什么是缓存雪崩、击穿、穿透？
+
+
+问题
+原因
+现象
+解决方案
+
+
+
+雪崩
+大量 key 同时过期 &#x2F; Redis 宕机
+请求全打到 DB，DB 挂
+过期时间加随机值、Redis 高可用、限流降级
+
+
+击穿
+热点 key 过期
+大量请求同时查一个 key，打到 DB
+互斥锁 &#x2F; 永不过期 + 异步更新
+
+
+穿透
+查不存在的数据（缓存和 DB 都没有）
+恶意攻击 &#x2F; 业务误删
+布隆过滤器、空值缓存、参数校验
+
+
+
+🎯 一句话区分：雪崩 → 大面积同时失效；击穿 → 单点热点失效；穿透 → 数据本就不存在。
+
+
+2.7 缓存一致性Q17：如何保证数据库和缓存的一致性？推荐方案：Cache Aside（旁路缓存）+ 先更新数据库，再删除缓存。
+写操作：更新 DB → 删除缓存读操作：查缓存 → 命中返回 / 未命中则查 DB → 写缓存 → 返回
+
+为什么不能先删缓存再更新数据库？（并发问题）
+时间线：1. 请求A 删缓存（准备更新 DB）2. 请求B 查缓存 → 未命中 → 读 DB（旧值）→ 写入缓存（旧值）3. 请求A 更新 DB（新值）结果：缓存=旧值，DB=新值 ❌ 不一致！
+
+先更新 DB 再删缓存的理论并发窗口极小（缓存写入远快于 DB 更新），实际概率很低。
+Q18：还有哪些缓存更新策略？
+
+
+策略
+描述
+适用场景
+
+
+
+Cache Aside
+应用同时操作缓存和 DB
+✅ 最常用
+
+
+Read&#x2F;Write Through
+缓存代理 DB 操作
+本地缓存（如 Guava、caffine）
+
+
+Write Back
+只写缓存，异步刷 DB
+CPU 缓存、文件系统 Page Cache
+
+
+
+2.8 实战类Q19：什么是 Redis 大 Key？有什么影响？如何处理？定义：
+
+String 类型 value &gt; 10KB
+集合类型元素 &gt; 5000 个
+
+影响：
+
+客户端超时阻塞（单线程处理耗时长）
+网络阻塞（大 value 带宽占用高）
+del 阻塞工作线程
+集群内存分布不均
+
+处理方案：
+
+查找：redis-cli --bigkeys（建议在从节点执行）
+删除：
+String → unlink（异步删除，4.0+）
+Hash → hscan + hdel 分批删
+Set → sscan + srem 分批删
+ZSet → zremrangebyrank 分批删
+
+
+配置 lazy free：lazyfree-lazy-eviction、lazyfree-lazy-expire 等
+
+Q20：Pipeline 是什么？Pipeline（管道）：客户端将多个命令打包一次发送，服务端处理后统一返回，减少 RTT（网络往返时间）。
+普通模式：发命令1 → 等响应1 → 发命令2 → 等响应2 → ...管道模式：发[命令1,命令2,命令N] → 等[响应1,响应2,响应N]
+
+
+⚠️ Pipeline 是客户端功能，不是服务端功能。注意不要一次发太多导致网络阻塞。
+
+Q21：Redis 事务支持回滚吗？不支持回滚！
+
+MULTI 开启事务 → 命令入队 → EXEC 执行
+DISCARD 只能主动放弃（清空队列），不能回滚已执行的操作
+即使事务中某条命令执行失败，其他命令仍正常执行 — 不保证原子性
+作者认为事务错误通常是开发阶段的编程错误，不需要回滚这种复杂功能
+
+
+🎯 面试重点：Redis 事务 ≠ MySQL 事务，不支持回滚，不保证原子性！
+
+Q22：如何用 Redis 实现分布式锁？加锁：一条原子命令搞定
+SET lock_key unique_value NX PX 10000#    key     客户端唯一标识  不存在才设  过期10秒
+
+解锁：Lua 脚本保证原子性（先判断是否是自己的锁，再删除）
+if redis.call(&quot;get&quot;, KEYS[1]) == ARGV[1] then    return redis.call(&quot;del&quot;, KEYS[1])else    return 0end
+
+三个关键点：
+
+NX → 互斥性（key 不存在才设置）
+PX → 防死锁（客户端崩溃也能自动释放）
+unique_value → 防误删（只删自己加的锁）
+
+优缺点：
+
+✅ 性能高、实现简单、天然避免单点故障（集群部署）
+
+❌ 超时时间不好设置（可加 WatchDog 续约）、主从异步复制可能导致锁丢失
+
+ WatchDog 续约机制：
+一句话：自动延期锁的看门狗，防止业务还没跑完锁就过期了。
+适用于：Redisson 等基于 Redis 实现的分布式锁框架
+工作原理
+线程A 获取锁 lock（带 WatchDog）       ↓锁自动过期时间 = 30 秒       ↓WatchDog 启动：每 10 秒检查一次       ↓线程A 还在持有锁 → 自动延长到 30 秒       ↓循环续期，直到线程A主动释放时间参数（Redisson 默认）
+
+
+
+
+参数
+默认值
+
+
+
+锁自动过期时间
+30 秒
+
+
+续期检查间隔
+10 秒（1&#x2F;3 自动过期时间）
+
+
+续期时长
+30 秒（重置回初始TTL）
+
+
+
+
+
+Q23：Redlock（红锁）是什么？如何解决集群下分布式锁的可靠性？Redlock：基于多个独立 Redis 主节点的分布式锁算法。
+加锁过程（官方建议 ≥ 5 个节点）：
+
+记录当前时间 T1
+依次向 N 个节点加锁（SET NX PX），每个加锁操作设置超时（远小于锁过期时间）
+成功后记录当前时间 T2
+加锁成功条件：
+超过半数节点（≥ N&#x2F;2+1）加锁成功
+总耗时（T2-T1）&lt; 锁过期时间
+
+
+锁实际有效时间 &#x3D; 锁过期时间 - (T2-T1)
+
+失败处理：向所有节点发起释放锁的 Lua 脚本。
+
+🎯 一句话：Redlock &#x3D; 多节点独立加锁 + 过半原则，解决主从复制锁丢失问题。
+
+
+2.9 高可用类（详见第六篇）
+
+
+方案
+核心
+面试要点
+
+
+
+主从复制
+读写分离、数据备份
+全量同步 vs 增量同步
+
+
+哨兵
+自动故障转移
+Quorum 投票、主观&#x2F;客观下线
+
+
+Cluster
+数据分片（16384 槽）
+CRC16、Gossip 协议、MOVED&#x2F;ASK 重定向
+
+
+
+Gossip（八卦 &#x2F; 流言）协议，核心是模拟人类闲聊传播信息，是分布式系统中节点间异步、最终一致性的信息扩散协议。
+
+
+
+📌 面试篇完
+
+
+三、数据类型篇（上）：9 种类型详解 + 应用场景
+🎯 本章逐一拆解每种数据类型的内部实现、常用命令、典型场景，面试问”选哪种类型”时直接对号入座。
+
+
+3.1 String — 最基础万能型内部实现
+
+
+编码类型
+条件
+说明
+
+
+
+int
+值为整数且能用 long 表示
+直接存整数，省内存
+
+
+embstr
+字符串 ≤ 44 字节（3.0+）
+一次内存分配，redisObject + SDS 连续存储
+
+
+raw
+字符串 &gt; 44 字节
+两次内存分配，分开存储
+
+
+
+🔑 embstr 阈值版本变化：
+
+2.x：embstr ≤ 39 字节（旧 SDS 结构）
+**3.2 ~ 6.2+**：embstr ≤ 44 字节（新 SDS 结构 sdshdr8，沿用至今）
+
+为什么是 44 &#x2F; 39 字节？
+
+jemalloc 最小分配单元 &#x3D; 64 字节（强制按 64 字节分配）
+redisObject &#x3D; 16 字节（始终不变）
+\0 结束符 &#x3D; 1 字节
+
+
+
+
+版本
+SDS 头部
+计算
+字符串空间
+
+
+
+2.x（旧 SDS）
+sdshdr → 8 字节
+64 - 16 - 8 - 1
+39 字节
+
+
+3.2+（新 SDS）
+sdshdr8 → 3 字节
+64 - 16 - 3 - 1
+44 字节
+
+
+变化原因：3.2 版本重构 SDS，用 sdshdr8（1+1+1&#x3D;3 字节）替代旧 sdshdr（4+4&#x3D;8 字节），省了 5 字节，阈值从 39 升到 44。
+
+
+⚡ embstr 陷阱：embstr 是只读的！一旦修改（如 APPEND），立即转为 raw 编码。
+
+常用命令速查SET key value            # 设置GET key                  # 获取MSET k1 v1 k2 v2         # 批量设置MGET k1 k2               # 批量获取INCR key / DECR key      # 原子计数（±1）INCRBY key N             # 原子加NSET key value NX PX 10000  # 加分布式锁SETEX key 60 value       # 设置 + 过期时间
+
+应用场景
+
+
+场景
+实现方式
+
+
+
+缓存对象
+SET user:1 &#39;&#123;&quot;name&quot;:&quot;Tom&quot;,&quot;age&quot;:15&#125;&#39; — String + JSON
+
+
+计数
+INCR article:1:views — 原子操作天然适合
+
+
+分布式锁
+SET lock_key uuid NX PX 10000
+
+
+Session 共享
+SET session:token user_json EX 1800
+
+
+
+💡 存对象是 String+JSON 还是 Hash？一般 String+JSON（简单），频繁变化的单属性抽成 Hash。
+
+
+3.2 List — 双端操作的消息队列雏形内部实现
+
+
+版本
+实现
+
+
+
+&lt; 3.2
+元素少 → ziplist；元素多 → linkedlist（双向链表）
+
+
+≥ 3.2
+quicklist（ziplist + linkedlist 的混合体，统一替代）
+
+
+Quicklist 结构图quicklist = 双向链表 + ziplist 的混合体┌─────────────────────────────────────────────────────────────┐│                        quicklist                            ││  ┌─────────────────────────────────────────────────────────┐ ││  │              doubly linked list                         │ ││  │  ┌────────┐   ┌────────┐   ┌────────┐   ┌────────┐     │ ││  │  │  head  │◄─►│ node1  │◄─►│ node2  │◄─►│  tail  │     │ ││  │  └────────┘   └────┬───┘   └────┬───┘   └────────┘     │ ││  │                   │            │                       │ ││  │          ┌────────▼──┐  ┌───────▼──────┐               │ ││  │          │  ziplist  │  │   ziplist    │               │ ││  │          │ [e1|e2|e3]│  │  [e4|e5|e6]  │               │ ││  │          │ ◄─prev   │  │  ◄─next►     │               │ ││  │          └───────────┘  └──────────────┘               │ ││  └─────────────────────────────────────────────────────────┘ │└─────────────────────────────────────────────────────────────┘
+
+为什么这样设计？
+
+
+
+设计
+原因
+
+
+
+双向链表
+LPUSH&#x2F;LPOP 头尾操作 O(1)，中间操作麻烦
+
+
+每个节点是 ziplist
+ziplist 内存紧凑，比独立节点省内存（元素小时）
+
+
+zliblist 有最大限制
+防止单个 ziplist 过长（默认最大 8KB &#x2F; -2）
+
+
+可配置压缩深度
+list-compress-depth 可压缩两端节点，节省内存
+
+
+
+🎯 一句话：quicklist &#x3D; 多个 ziplist 用双向链表串起来，头尾操作快，中间省内存。
+
+常用命令速查LPUSH queue msg1 msg2     # 左侧插入（头部）RPUSH queue msg3          # 右侧插入（尾部）LPOP queue                # 左侧弹出RPOP queue                # 右侧弹出LRANGE queue 0 -1         # 查看全部（0 到 -1）BLPOP queue 10            # 阻塞弹出，超时 10 秒BRPOPLPUSH src dst 10     # 可靠消费：弹出 + 备份到另一个 List
+
+应用场景：消息队列生产者 LPUSH → [消息队列 List] → RPOP 消费者问题1：消费者需轮询 → 解决：BRPOP 阻塞读问题2：消息重复消费 → 解决：生产者自生成全局唯一 ID问题3：消息丢失 → 解决：BRPOPLPUSH 备份到备用 List
+
+List 做消息队列的缺陷：
+
+❌ 不支持消费组（一个消息只能被一个消费者拿走）
+❌ 需要自行实现全局唯一 ID
+
+
+🎯 结论：简单场景用 List，正式生产用 Stream。
+
+
+3.3 Hash — 对象存储利器内部实现
+
+
+条件
+编码
+
+
+
+元素 &lt; 512 且 value &lt; 64B
+listpack（7.0，替代旧版 ziplist）
+
+
+不满足 →
+hashtable（dict）
+
+
+Listpack 结构图listpack（紧凑列表）= ziplist 的升级版，解决 ziplist 的级联更新问题┌──────────────────────────────────────────────────────────────┐│                     listpack 整体结构                        │├────────────┬──────────────────────────────────┬───────────────┤│  total_bytes│        content (entry*)         │   tail_offset││   (4字节)    │      可变长，实际存放数据        │   (2/3/4字节) │└────────────┴──────────────────────────────────┴───────────────┘                              │              ┌───────────────┴───────────────┐              ▼                               ▼    ┌──────────────────┐            ┌──────────────────┐    │     entry 1       │            │     entry N       │    │ [encoding|content]│            │ [encoding|content]│    └──────────────────┘            └──────────────────┘
+
+Listpack vs Ziplist 的核心区别
+
+
+
+对比维度
+ziplist
+listpack（7.0+）
+
+
+
+级联更新问题
+删除中间元素 → 后面的 entry 要搬迁
+每个 entry 独立编码长度，不会触发级联
+
+
+元素存储
+反向遍历（从尾到头算 offset）
+正向存储（从头到尾，偏移更简单）
+
+
+memory overhead
+需存储上一个 entry 的偏移
+不需要，更节省内存
+
+
+兼容性
+旧版本
+全面替代 ziplist（Hash&#x2F;List&#x2F;SortSet）
+
+
+entry 编码格式（变长编码）
+┌─────────────────────────────────────────────────────────┐│  entry = encoding（变长 1~3 字节）+ content（数据）    │├─────────────────────────────────────────────────────────┤│  encoding 规则：                                        ││    0xxxxxxx          → 1 字节，最大存 127（7 bit 数据） ││    10xxxxxx xxxxxxxx → 2 字节，最大存 16383（14 bit）  ││    11xxxxxx xxxxxxxx xxxxxxxx → 3 字节（24 bit）       │└─────────────────────────────────────────────────────────┘
+
+
+🎯 一句话：listpack 是 ziplist 的无级联更新版，通过变长编码让每个元素独立，省去了 backward 指针，更高效。
+
+常用命令速查HSET user:1 name &quot;Tom&quot; age 15     # 设置多个字段HGET user:1 name                   # 获取单个字段HMGET user:1 name age              # 批量获取HGETALL user:1                     # 获取全部字段（慎用，元素多时慢）HINCRBY user:1 age 1               # 原子加（age+1）HDEL user:1 age                    # 删除字段HLEN user:1                        # 字段数量
+
+应用场景
+
+
+场景
+示例
+命令组合
+
+
+
+缓存对象
+用户信息
+HSET uid:1 name Tom age 15
+
+
+购物车
+用户→商品→数量
+HSET cart:uid1 sku_001 3 → HINCRBY cart:uid1 sku_001 1
+
+
+购物车模型：  key = cart:&#123;用户id&#125;  field = &#123;商品id&#125;  value = 数量操作：  HINCRBY cart:1001 sku_2001 1    # 加 1 件  HDEL    cart:1001 sku_2001       # 删除商品  HLEN    cart:1001                # 商品种类数  HGETALL cart:1001                # 查看购物车全部
+
+
+3.4 Set — 去重 + 集合运算内部实现
+
+
+条件
+编码
+
+
+
+全整数 + 元素 &lt; 512
+intset（整数集合）
+
+
+不满足 →
+hashtable（dict，value 为 null）
+
+
+常用命令速查SADD set key1 key2            # 添加SREM set key1                 # 删除SMEMBERS set                  # 查看所有SISMEMBER set key1            # 是否存在SCARD set                     # 元素个数SRANDMEMBER set 3             # 随机取 3 个（不删除）SPOP set 3                    # 随机弹出 3 个（删除）# 集合运算SINTER set1 set2              # 交集（共同好友）SUNION set1 set2              # 并集SDIFF set1 set2               # 差集（set1 有 set2 没有）SINTERSTORE dest set1 set2    # 交集结果存到 dest
+
+应用场景
+
+
+场景
+实现
+核心命令
+
+
+
+点赞
+SADD article:1 uid:1 — 自动去重，一人一赞
+SADD&#x2F;SREM&#x2F;SCARD
+
+
+共同关注
+SINTER uid:1 uid:2 — 取交集
+SINTER
+
+
+推荐关注
+SDIFF uid:1 uid:2 — 差集（A有关注B没有的）
+SDIFF
+
+
+抽奖
+SRANDMEMBER（可重复）&#x2F; SPOP（不重复）
+SRANDMEMBER&#x2F;SPOP
+
+
+
+⚠️ 注意：SINTER&#x2F;SUNION&#x2F;SDIFF 计算复杂度 O(N)（N &#x3D; 最小集合基数），大数据量时会阻塞 Redis 主线程！
+解决方案：
+
+从节点执行：主从架构下，在从节点执行集合运算，不影响主节点写操作
+客户端聚合：用 SCAN 分批获取元素到客户端本地，Python&#x2F;Go 本地计算交集&#x2F;并集&#x2F;差集
+预计算：对实时性要求不高的场景，提前用定时任务计算结果并缓存
+
+核心原则：把 O(N) 耗时操作移出 Redis 主线程，避免阻塞影响其他请求。
+
+
+3.5 ZSet（Sorted Set）— 自带排名的有序集合内部实现
+
+
+条件
+编码
+
+
+
+元素 &lt; 128 且 value &lt; 64B
+listpack（7.0，替代旧版 ziplist）
+
+
+不满足 →
+skiplist（跳表）+ hashtable（dict）
+
+
+Skiplist 结构图跳表 = 多层有序链表（上层是下层的&quot;快速通道&quot;）┌─────────────────────────────────────────────────────────────────────────┐│                          skiplist 层级结构                              │├─────────────────────────────────────────────────────────────────────────┤│                                                                         ││  L4 (顶层)    HEAD ──────────────────────────────► NULL                 ││              │                                                        ││  L3          ▼                    ▼                    ▼               ││         [node1]──────────────[node5]─────────────[node9]               ││              │                    │                    │               ││  L2          ▼         ▼         ▼         ▼         ▼               ││         [node1]──►[node2]──►[node3]──►[node5]──►[node7]──►[node9]    ││              │         │         │         │         │               ││  L1          ▼         ▼         ▼         ▼         ▼               ││         [node1]──►[node2]──►[node3]──►[node4]──►[node5]──►...──►[NULL]│                                                                         │└─────────────────────────────────────────────────────────────────────────┘每层示意图：  L1: [1]──►[2]──►[3]──►[4]──►[5]──►[6]──►[7]──►[8]──►[9]──►NULL  ↑  注意：上层节点是下层节点的子集（跳表节点按概率分布，上层少下层多）
+
+为什么用跳表而不是平衡树？
+
+
+
+对比
+跳表（skiplist）
+平衡树（AVL&#x2F;红黑树）
+
+
+
+实现难度
+简单（链表 + 随机层数）
+复杂（旋转&#x2F;重平衡）
+
+
+范围查询
+O(log n + m)（跳表天然支持区间）
+O(log n)（需要中序遍历）
+
+
+插入删除
+只改前后指针，不需整体重排
+需要旋转维护平衡
+
+
+序章
+简单
+复杂
+
+
+
+Redis 为什么选跳表？
+
+实现简单，不容易出 bug
+范围查询天然支持（ZRANGEBYSCORE）
+插入性能稳定（不需要旋转）
+可以用 dict 辅助查询，O(1) 查 member
+
+
+Skiplist + Dict 双重结构（Redis ZSet 实际实现）ZSet 同时维护两个结构（时间换空间的思想）：┌─────────────────────────────────────────────────────────┐│                      ZSet                               │├─────────────────────────────────────────────────────────┤│                                                         ││  skiplist（按 score 排序）          dict（O(1) 查 member）││  ┌─────────────────────┐              ┌──────────────┐ ││  │ [score, member]     │              │ member → score│ ││  │ O(log n) 范围查询   │              │ O(1) 查分数   │ ││  └─────────────────────┘              └──────────────┘ ││                                                         ││  member 共享（同一个字符串对象，不复制存储）             │└─────────────────────────────────────────────────────────┘
+
+
+🎯 一句话：ZSet 用 skiplist 做有序遍历 + dict 做 O(1) 查找，两者共享 member，各司其职。
+
+常用命令速查ZADD rank 100 user1 200 user2      # 添加（score member）ZREM rank user1                     # 删除ZSCORE rank user1                   # 查分数ZCARD rank                          # 元素个数ZINCRBY rank 10 user1               # user1 分数 +10ZRANGE rank 0 9 WITHSCORES          # 正序 Top10ZREVRANGE rank 0 9 WITHSCORES       # 倒序 Top10ZRANGEBYSCORE rank 100 200          # 按分数范围查# 集合运算（没有差集！）ZUNIONSTORE dest 2 set1 set2        # 并集（分数相加）ZINTERSTORE dest 2 set1 set2        # 交集（分数相加）
+
+应用场景
+
+
+场景
+实现
+
+
+
+排行榜
+点赞榜、游戏积分、销量排行 → ZREVRANGE top10
+
+
+延迟队列
+score &#x3D; 执行时间戳，定时 ZRANGEBYSCORE 取到期任务
+
+
+按时间排序
+score &#x3D; 时间戳，天然按时间排列
+
+
+排行榜示例：  ZADD rank 200 article:1 40 article:2 100 article:3  ZINCRBY rank 1 article:2              # article:2 点赞+1  ZREVRANGE rank 0 2 WITHSCORES         # Top 3 排行
+
+
+3.6 BitMap — 极省内存的二值统计内部实现
+底层是 String，把字节数组的每个 bit 位当独立单元
+5000 万用户的在线状态只需 ~6MB
+
+常用命令SETBIT sign:100:202206 2 1         # 用户100在6月3日签到GETBIT sign:100:202206 2           # 检查是否签到BITCOUNT sign:100:202206           # 6月签到总天数BITPOS sign:100:202206 1           # 首次签到是哪天（offset+1）# 多 BitMap 运算BITOP AND dest key1 key2           # 与运算（连续签到统计）
+
+应用场景
+
+
+场景
+实现
+
+
+
+签到统计
+1 用户&#x2F;天 &#x3D; 1 bit，365 天 &#x3D; 365 bit ≈ 46 字节
+
+
+用户在线状态
+在线&#x3D;1，离线&#x3D;0（5000万用户仅 6MB）
+
+
+连续签到用户
+7 天 BitMap 做 BITOP AND，再 BITCOUNT
+
+
+
+3.7 HyperLogLog — 海量数据基数统计核心特性
+固定 12KB 内存，可统计 2^64 个不同元素
+概率算法，标准误差 0.81%
+不保存元素本身，只做去重计数
+
+命令（仅 3 个！）PFADD uv:page1 user1 user2 user3    # 添加元素PFCOUNT uv:page1                     # 统计 UVPFMERGE uv:total uv:page1 uv:page2  # 合并多个 HLL
+
+应用场景
+🎯 百万级 UV 统计的首选！Set 存 100 万元素需要几十 MB，HLL 只要 12KB。⚠️ 如果需要精确统计 → 用 Set&#x2F;Hash 替代。
+
+
+3.8 GEO — 地理位置服务内部实现
+底层是 ZSet，用 GeoHash 将经纬度编码为 score
+利用 ZSet 的范围查询实现”附近的人”
+
+常用命令GEOADD locations 116.38 39.90 beijing     # 添加位置GEOPOS locations beijing                   # 查询坐标GEODIST locations beijing shanghai km     # 两地距离（km）# 找附近的点GEORADIUS locations 116.38 39.90 10 km    # 以坐标为中心 10km 内GEORADIUS locations 116.38 39.90 10 km WITHCOORD WITHDIST ASC
+
+
+
+WITHCOORD：返回结果附带经纬度坐标
+WITHDIST：返回结果附带距离中心点的距离
+ASC：按距离由近到远排序
+
+
+应用场景：滴滴叫车、附近的人、附近商家
+3.9 Stream — 为消息队列而生（5.0 重磅）Stream vs List 消息队列对比
+
+
+能力
+List
+Stream
+
+
+
+消息持久化
+✅
+✅
+
+
+自动生成全局唯一 ID
+❌（需自行实现）
+✅ 自动生成（时间戳-序号）
+
+
+消费组
+❌
+✅（XGROUP）
+
+
+ACK 确认机制
+❌
+✅（XACK）
+
+
+重复消费
+❌（消费即删除）
+✅（消费后保留）
+
+
+阻塞读取
+✅（BRPOP）
+✅（XREAD BLOCK）
+
+
+历史消息回溯
+❌
+✅（按 ID 读取）
+
+
+核心命令# 生产者XADD mystream * name xiaolin      # * = 自动生成全局IDXADD mystream * score 100# 消费者（简单模式）XREAD STREAMS mystream 0-0        # 从头读XREAD BLOCK 5000 STREAMS mystream $  # 阻塞读最新# 消费组模式XGROUP CREATE mystream group1 0-0    # 创建消费组XREADGROUP GROUP group1 consumer1 STREAMS mystream &gt;    # 消费XACK mystream group1 msg_id           # 确认消费完成XPENDING mystream group1              # 查看未确认消息# 查询XRANGE mystream - +                # 查全部消息XLEN mystream                      # 消息数量XDEL mystream msg_id               # 删除消息
+
+消息 ID 格式1654254953808-0│             ││             └─ 当前毫秒内的序号（从 0 开始）└─ 服务器时间戳（毫秒）
+
+消费组工作机制       Stream: mystream ┌─────────────────────────┐ │  msg1  msg2  msg3  msg4 │ └───┬──────────────┬──────┘     │              │┌────▼─────┐  ┌────▼─────┐│ group1   │  │ group2   │  ← 不同消费组独立消费（互不影响）│ ┌──────┐ │  │ ┌──────┐ ││ │consumer1│ │  │consumer1│  ← 同一消费组内互斥消费（消息不重复）│ │consumer2│ │  └──────┘ ││ └──────┘ │             │└──────────┘  └──────────┘
+
+核心规则：
+
+
+
+规则
+说明
+
+
+
+不同消费组
+独立消费，msg1 被 group1 消费了，group2 还能再消费一次
+
+
+同一消费组内
+互斥消费，msg1 给了 consumer1，consumer2 拿不到这条
+
+
+ACK 确认才删除
+消息被消费后进入 PENDING，ACK 后才从 Stream 删除
+
+
+崩溃转移
+消费者挂了 → 其他消费者用 XCLAIM 抢 PENDING 中的消息
+
+
+⚠️ 关键陷阱：PENDING ≠ 已消费
+场景：consumer1 拿到 msg1，还没 ACK 就崩溃了消息状态：  - Stream 中 → msg1 已被读取，不在队列中  - consumer1 的 PENDING → msg1 未确认，还在这里其他消费者 XREADGROUP：  - 不返回 msg1（因为在 PENDING 中，不在新消息里）补救方案：  XCLAIM mystream group1 consumer2 0 &lt;msg_id&gt;  # 把超过 0ms 未确认的消息抢给 consumer2新消息（&gt;）：只读尚未分配给消费者的消息PENDING 消息：已分配但未 ACK，需要用 XCLAIM 抢
+
+
+🎯 结论：Stream 是 Redis 消息队列的最终答案，具备持久化、ACK、消费组、历史回溯等完整能力。
+
+
+3.10 九种类型速查总表
+
+
+类型
+版本
+一句话
+面试场景题
+
+
+
+String
+1.0
+最基础，可存数字&#x2F;JSON&#x2F;二进制
+缓存、计数、分布式锁
+
+
+List
+1.0
+双端队列
+简单消息队列、最新动态
+
+
+Hash
+1.0
+字段-值映射
+用户信息、购物车
+
+
+Set
+1.0
+无重复无序
+点赞、共同关注、抽奖
+
+
+ZSet
+1.0
+带分数的有序集合
+排行榜、延迟队列
+
+
+BitMap
+2.2
+bit 位数组，极致省内存
+签到、在线状态
+
+
+HyperLogLog
+2.8
+基数统计，12KB 存一切
+UV 统计（允许误差）
+
+
+GEO
+3.2
+地理位置索引
+附近的人、滴滴叫车
+
+
+Stream
+5.0
+专业消息队列
+异步解耦、事件驱动
+
+
+
+📌 数据类型篇（上）完
+
+
+三、数据类型篇（下）：图解底层数据结构
+🎯 面试常问：”String 底层怎么实现？””跳表是什么？””哈希表 rehash 怎么做的？”——本章逐一拆解。
+
+
+3.X.0 全景：Redis 如何存储一个键值对？在深入数据结构前，先看清全局架构：
+redisDb  └─ dict (全局哈希表)       ├─ ht[0] (主哈希表)       │    └─ dictht       │         ├─ table[] ──► dictEntry[0] → dictEntry → ... (链式哈希)       │         │                ├─ *key  ──► redisObject (String对象)       │         │                └─ *value ──► redisObject (可能是String/List/Hash...)       │         ├─ size / sizemask       │         └─ used (已用节点数)       └─ ht[1] (rehash 时使用)
+
+redisObject 结构（每个键值对的核心元数据）：
+
+
+
+字段
+含义
+
+
+
+type
+对象类型（REDIS_STRING&#x2F;LIST&#x2F;HASH&#x2F;SET&#x2F;ZSET）
+
+
+encoding
+底层编码方式（OBJ_ENCODING_INT&#x2F;EMBSTR&#x2F;RAW&#x2F;HT&#x2F;SKIPLIST…）
+
+
+ptr
+指向实际底层数据结构的指针
+
+
+
+🔑 type vs encoding 区别：type 是逻辑类型（用户视角），encoding 是物理实现（一个 type 可有多种 encoding）。
+
+
+3.X.1 SDS（Simple Dynamic String）— String 的底层为什么不用 C 语言 char*？
+
+
+C 字符串缺陷
+SDS 解决方案
+
+
+
+O(n) 获取长度（遍历到 \0）
+len 字段 → O(1)
+
+
+以 \0 结尾，不能存二进制
+用 len 判断结尾 → 二进制安全
+
+
+拼接不检查空间 → 缓冲区溢出
+alloc - len 检查剩余空间 → 自动扩容
+
+
+内存重分配频繁
+空间预分配 + 惰性释放
+
+
+SDS 结构（Redis 5.0+，5 种类型）struct __attribute__ ((__packed__)) sdshdr16 &#123;    uint16_t len;      // 已用字符串长度    uint16_t alloc;    // 分配的总空间（不含头与\0）    unsigned char flags; // 类型标记（sdshdr5/8/16/32/64）    char buf[];        // 实际数据&#125;;
+
+
+
+
+SDS 类型
+len&#x2F;alloc 类型
+最大容量
+
+
+
+sdshdr5
+5 bit
+32 字节（已废弃不用）
+
+
+sdshdr8
+uint8_t
+255
+
+
+sdshdr16
+uint16_t
+65,535
+
+
+sdshdr32
+uint32_t
+4,294,967,295
+
+
+sdshdr64
+uint64_t
+超大
+
+
+
+🔑 **__attribute__((packed))**：取消编译器字节对齐，按实际大小分配内存，节省空间。
+
+String 的 3 种编码int    → 值是整数且能用 long 表示 → ptr 存整数，不分配 SDSembstr → 短字符串（≤44字节）→ 一次分配连续内存（redisObject + SDS 紧挨着）raw    → 长字符串 → 两次分配（redisObject 和 SDS 分开）
+
+
+3.X.2 双向链表 — List 的早期底层（已被替代）// 链表节点typedef struct listNode &#123;    struct listNode *prev;  // 前驱    struct listNode *next;  // 后继    void *value;            // 泛型值指针&#125; listNode;// 链表typedef struct list &#123;    listNode *head;                       // O(1) 取头    listNode *tail;                       // O(1) 取尾    unsigned long len;                    // O(1) 取长度    void *(*dup)(void *ptr);              // 自定义复制函数    void (*free)(void *ptr);              // 自定义释放函数    int (*match)(void *ptr, void *key);   // 自定义匹配函数&#125; list;
+
+优点：O(1) 取头尾&#x2F;长度，泛型值指针缺点：内存不连续（无法利用 CPU 缓存），每个节点有额外结构头开销
+
+🎯 Redis 3.2 后用 quicklist 替代了纯链表。
+
+
+3.X.3 压缩列表（Ziplist）— 紧凑内存布局（已被废弃）设计理念一块连续内存紧凑存储多个元素，省去节点指针开销。
+致命缺陷：连锁更新（Cascade Update）ziplist 节点结构: [prevlen] [encoding] [data]                         ↑                   前一个节点的长度（&lt;254 → 1字节；≥254 → 5字节）场景：连续多个 250~253 字节的节点  [e1:252] [e2:252] [e3:252] [e4:252]  每个 prevlen = 1 字节插入一个 ≥254 字节的新节点头部：  [new:255] → [e1 需扩展prevlen: 1→5字节]               → e1 长度变成 256≥254                  → [e2 需扩展prevlen: 1→5字节]                     → e2 长度变成 256≥254                        → [e3 需扩展...] ← 多米诺骨牌！
+
+
+🔑 这就是为什么 ziplist 只适合少量小元素。最终催生了 quicklist 和 listpack。
+
+
+3.X.4 哈希表（dict）— 全局键值存储 + Hash 类型的底层结构层次// 哈希表typedef struct dictht &#123;    dictEntry **table;     // 桶数组（指针的指针）    unsigned long size;    // 哈希表大小    unsigned long sizemask; // size-1，用于取模    unsigned long used;    // 已有节点数&#125; dictht;// 哈希节点typedef struct dictEntry &#123;    void *key;                   // 键指针    union &#123; void *val; uint64_t u64; int64_t s64; double d; &#125; v;  // 值（联合体省内存）    struct dictEntry *next;      // 链式哈希解决冲突&#125; dictEntry;// 字典（含双表）typedef struct dict &#123;    dictht ht[2];  // ht[0] 正常使用，ht[1] 仅 rehash 时存在&#125; dict;
+
+链式哈希（冲突解决）Hash(key1) % size = Hash(key9) % size → 分配到同一桶桶结构：[dictEntry(key1)] → [dictEntry(key9)] → NULL                               ↑ next 指针形成单向链表
+
+渐进式 Rehash（面试高频！）为什么需要？：一次性迁移大哈希表会长时间阻塞 Redis。
+做法：分多次、逐步迁移。
+步骤：1. 为 ht[1] 分配空间（大小为 ht[0] 的 2 倍）2. 维护一个 rehashidx 计数器（从 0 开始）3. 每次对 dict 的增删改查操作，顺带迁移 ht[0] 中 rehashidx 位置的所有 key → ht[1]4. rehashidx 逐步递增，直到 ht[0] 为空 → 释放 ht[0]，ht[1] 变为 ht[0]迁移期间读写规则：  - 查询：先查 ht[0]，找不到再查 ht[1]  - 新增：只写入 ht[1]  - 删除/更新：两个表都操作
+
+Rehash 触发条件（负载因子）负载因子 = used / size  （已用节点数 / 哈希表大小）触发条件：  1. 负载因子 ≥ 1 且 没有执行 bgsave/bgrewriteaof  → 扩容  2. 负载因子 &gt; 5  → 强制扩容（不管有没有 BG 进程）  3. 负载因子 &lt; 0.1 → 缩容
+
+
+3.X.5 整数集合（Intset）— Set 的小数据优化typedef struct intset &#123;    uint32_t encoding;   // INTSET_ENC_INT16 / INT32 / INT64    uint32_t length;     // 元素个数    int8_t contents[];   // 实际数组（类型由 encoding 决定）&#125; intset;
+
+升级操作（Upgrade）插入一个更大类型的元素时：
+
+扩展 contents 数组空间
+将已有元素转换为新类型，保持有序
+插入新元素
+
+例：现有 3 个 int16 元素，插入 65535（int32）  空间扩展：4×32 - 3×16 = 80 位  旧元素逐个升级为 int32
+
+
+🔑 只升级不降级！删除大元素后，数组仍保持升级后的类型 — 以此换取”节省内存”策略：只要没出现大元素，就一直用最小类型。
+
+
+3.X.6 跳表（Skiplist）— ZSet 的核心引擎为什么不用红黑树？跳表比红黑树更适合 Redis 的原因：
+
+实现简单，代码量少
+支持范围查询（ZRANGE）更自然
+可以按层级遍历
+
+结构Level 2:  [head] ──────────────────► [35] ────────────────► NULLLevel 1:  [head] ──────► [12] ──────► [35] ──────► [78] ──► NULLLevel 0:  [head] → [5] → [12] → [23] → [35] → [56] → [78] → NULL          每一层都是有序链表，高层是低层的&quot;快速通道&quot;
+
+
+查找时从最高层开始，逐层下降
+平均时间复杂度 **O(logN)**，最坏 O(N)
+每个节点随机生成层数
+
+ZSet 的双重索引typedef struct zset &#123;    dict *dict;        // 哈希表：member → score（O(1) 查分数）    zskiplist *zsl;    // 跳表：按 score 排序（O(logN) 范围查询）&#125; zset;
+
+
+🎯 一句话：dict 负责”查分数”，skiplist 负责”排顺序”，两者数据同步更新。
+
+
+3.X.7 quicklist — List 的最终实现（3.2+）设计思路链表节点 + 压缩列表 &#x3D; 取长补短
+quicklist 结构：  ┌──────────────────────────────────────┐  │ quicklist                             │  │  head → [Node0] ↔ [Node1] ↔ [Node2]  │ ← 双向链表  │            ↓         ↓         ↓      │  │         ziplist   ziplist   ziplist   │ ← 每个节点是压缩列表  └──────────────────────────────────────┘
+
+typedef struct quicklist &#123;    quicklistNode *head;    quicklistNode *tail;    unsigned long count;  // 所有 ziplist 中元素总数    unsigned long len;    // quicklistNode 数量&#125; quicklist;typedef struct quicklistNode &#123;    struct quicklistNode *prev;    struct quicklistNode *next;    unsigned char *zl;        // 指向压缩列表    unsigned int sz;          // ziplist 字节大小    unsigned int count : 16;  // ziplist 中元素个数&#125; quicklistNode;
+
+插入逻辑：先尝试塞入目标节点的 ziplist，塞不下才新建节点。
+
+🎯 好处：控制每个 ziplist 大小，连锁更新的影响被限制在单个节点内。
+
+
+3.X.8 listpack — 替代 ziplist 的新方案（5.0+，7.0 全面替代）核心改进：去掉 prevlen！ziplist 节点: [prevlen] [encoding] [data]   ← prevlen 是连锁更新的根源！listpack 节点: [encoding] [data] [len]      ← len 只记录当前节点长度
+
+
+向 listpack 插入元素 → 不影响其他节点的长度字段
+彻底消灭连锁更新
+同时保留了紧凑内存布局和节省内存的优势
+
+在 7.0 中：Hash、ZSet 的小数据场景底层已全部从 ziplist 切换为 listpack。
+
+3.X.9 数据结构总览速查表
+
+
+数据结构
+作用
+关联类型
+时间复杂度
+核心特点
+
+
+
+SDS
+动态字符串
+String
+O(1) 长度
+二进制安全、防溢出、5 种类型
+
+
+双向链表
+有序节点序列
+List（早）
+O(1) 头尾
+内存不连续，已淘汰
+
+
+ziplist
+紧凑内存数组
+Hash&#x2F;ZSet&#x2F;List（旧）
+O(n)
+省内存但有连锁更新，已淘汰
+
+
+dict
+哈希表
+全局 KV、Hash
+O(1) 均摊
+链式哈希 + 渐进式 rehash
+
+
+intset
+整数集合
+Set（小）
+O(n)
+自动升级，不降级
+
+
+skiplist
+多层有序链表
+ZSet
+O(logN)
+范围查询优势，实现简单
+
+
+quicklist
+链表+ziplist
+List（3.2+）
+—
+限制连锁更新影响范围
+
+
+listpack
+紧凑内存数组
+Hash&#x2F;ZSet&#x2F;List（7.0+）
+—
+去除 prevlen，无连锁更新
+
+
+
+
+📌 数据类型篇（下）完
+
+
+四、持久化篇：AOF、RDB、大 Key 影响
+🎯 面试核心：AOF vs RDB 怎么选？AOF 重写原理？fork + COW 是什么？大 Key 对持久化有什么影响？
+
+
+4.1 AOF（Append Only File）— 写命令日志基本原理每执行一条写命令（读命令不记录），就把该命令追加到 AOF 文件末尾。
+AOF 格式示例（SET name xiaolin）：  *3          ← 命令有 3 部分  $3          ← 第 1 部分有 3 字节  set         ← 命令名  $4          ← 第 2 部分有 4 字节  name        ← key  $8          ← 第 3 部分有 8 字节  xiaolin     ← value
+
+先执行命令，再写日志（好处 + 风险）：
+
+
+
+好处
+风险
+
+
+
+避免语法错误命令记录到 AOF
+写完命令后、记录日志前宕机 → 数据丢失
+
+
+不阻塞当前命令执行
+写盘过程在主进程 → 可能阻塞下一个命令
+
+
+
+三种写回策略命令执行 → aof_buf 缓冲区 → write() → 内核 page cache → fsync() → 硬盘                                                         ↑                                                 三种策略控制这一步
+
+
+
+
+策略
+触发 fsync 时机
+数据安全
+性能
+适用场景
+
+
+
+Always
+每条命令同步写盘
+⭐⭐⭐
+⭐
+不差性能，要求不丢数据
+
+
+Everysec
+每秒一次异步写盘
+⭐⭐
+⭐⭐
+✅ 推荐：丢 1 秒数据可接受
+
+
+No
+永不 fsync，由 OS 决定
+⭐
+⭐⭐⭐
+纯缓存，不在意数据丢失
+
+
+Always   → 主线程执行 fsync() — 性能最差Everysec → BIO 后台线程异步执行 fsync() — 折中No       → 不调用 fsync() — 最快但丢数据不可控
+
+
+AOF 重写（Rewrite）— 压缩 AOF 文件为什么需要？ AOF 文件随写命令越来越多而膨胀，恢复时重放太慢。
+怎么做？
+原 AOF：  SET name xiaolin  SET name xiaolincoding    ← 覆盖了上一条  SET name coding            ← 又覆盖了  重写后（读取当前数据库最新状态，生成最精简命令）：  SET name coding            ← 只保留最终状态
+
+重写流程（bgrewriteaof）：
+1. 主进程 fork 出子进程2. 子进程扫描所有键值对，生成新 AOF 文件3. 重写期间，主进程同时写「AOF 缓冲区」+「AOF 重写缓冲区」4. 子进程完成后发信号给主进程5. 主进程将「AOF 重写缓冲区」内容追加到新 AOF 文件6. 新 AOF 文件覆盖旧 AOF 文件
+
+
+🔑 为什么用子进程而非线程？ 子进程共享父进程内存（只读），修改时触发写时复制（COW），无需加锁。
+
+AOF 重写期间的数据一致性：
+主进程写命令 → 同时写入:  ├─ AOF 缓冲区（保证旧 AOF 完整）  └─ AOF 重写缓冲区（子进程完成后追加到新 AOF）
+
+触发条件（redis.conf 配置）：
+auto-aof-rewrite-percentage 100   # AOF 文件比上次重写后增长 100%auto-aof-rewrite-min-size 64mb    # 且 AOF 文件 ≥ 64MB
+
+
+4.2 RDB（Redis Database）— 内存快照基本概念RDB 是某个时刻的内存全量快照，记录的是二进制数据而非命令。
+
+
+
+对比维度
+RDB
+AOF
+
+
+
+记录内容
+二进制数据（紧凑）
+操作命令（文本）
+
+
+恢复速度
+快（直接读入内存）
+慢（逐条重放命令）
+
+
+数据完整性
+两次快照间数据丢失
+更完整（最多丢 1 秒）
+
+
+文件大小
+小
+大
+
+
+save vs bgsave
+
+
+命令
+执行方式
+阻塞主线程？
+
+
+
+save
+主线程执行
+✅ 阻塞
+
+
+bgsave
+fork 子进程执行
+❌ 不阻塞（推荐）
+
+
+自动触发条件# redis.conf 默认配置（实际执行的是 bgsave）save 900 1      # 900 秒内至少 1 次修改save 300 10     # 300 秒内至少 10 次修改save 60 10000   # 60 秒内至少 10000 次修改
+
+fork + 写时复制（COW）— RDB 的核心机制RDB 快照生成过程：  父进程（处理命令）          子进程（生成 RDB）       │                         │       ├── fork() ──────────────►│       │  (复制页表，            │ 扫描所有键值对       │   共享物理内存)         │ 写入 RDB 文件       │                         │       │  修改 key → COW         │ 仍读旧数据（一致性快照）       │  (复制被修改的页)       │       │                         │       ▼                         ▼   继续服务请求              RDB 文件写入完成
+
+
+🔑 关键：只要被修改的数据不是整个内存，COW 只复制被修改的页，额外内存消耗有限。
+
+
+4.3 大 Key 对持久化的影响（面试高频！）对 AOF 的影响
+
+
+策略
+大 Key 影响
+
+
+
+Always
+主线程执行 fsync() 写大 value → 长时间阻塞主线程
+
+
+Everysec
+fsync 由 BIO 线程异步处理 → 不影响主线程
+
+
+No
+不执行 fsync → 不影响主线程
+
+
+对 AOF 重写和 RDB 的影响（fork 阻塞）大 Key → 内存占用大 → 页表大 → fork() 复制页表耗时长 → 主线程阻塞！
+
+fork 的两个阻塞阶段：
+
+
+
+阶段
+原因
+如何监控
+
+
+
+创建子进程时
+复制父进程页表（页表越大越慢）
+INFO → latest_fork_usec
+
+
+COW 时
+主进程修改大 Key，复制物理内存
+同上
+
+
+优化建议
+单实例内存控制在 10GB 以内（确保 fork 快速返回）
+纯缓存场景 → 关闭持久化（不调 fork）
+适当调大 repl-backlog-size → 避免频繁全量同步（全量同步会 fork）
+用 unlink &#x2F; 分批删除替代 del 删除大 Key
+拆分大 Key → 用 Hash 分桶或 string 分片
+
+混合持久化（Redis 4.0+）RDB + AOF 混合：  在 AOF 重写时，将重写这一刻之前的内存做 RDB 快照，  然后 RDB 内容 + 增量的 AOF 命令一起写入新的 AOF 文件。  优点：恢复快（RDB 部分）+ 数据完整（AOF 部分）
+
+
+
+📌 持久化篇完
+
+
+五、功能篇：过期删除 + 内存淘汰 + 分布式锁
+🎯 面试核心：惰性删除和定期删除怎么配合？8 种淘汰策略怎么选？Redis 分布式锁怎么实现、有什么坑？
+
+
+5.1 过期删除策略 vs 内存淘汰策略
+
+
+对比维度
+过期删除策略
+内存淘汰策略
+
+
+
+触发条件
+key 到了过期时间
+Redis 内存超过 maxmemory
+
+
+操作对象
+已过期的 key
+任意 key（按策略选）
+
+
+目的
+清理过期数据
+释放内存，保证 Redis 运行
+
+
+
+过期删除策略（惰性删除 + 定期删除）过期字典结构：
+typedef struct redisDb &#123;    dict *dict;     // 键空间（所有键值对）    dict *expires;  // 过期字典（key → 过期时间戳 long long）&#125; redisDb;
+
+判断过期：查 expires 字典 → O(1)，比较时间戳。
+Redis 采用「惰性删除 + 定期删除」组合：
+① 惰性删除（Lazy）访问 key 时 → 调用 expireIfNeeded() → 已过期则删除 → 返回 null优点：CPU 友好（不主动查）缺点：内存不友好（过期 key 堆积）
+
+② 定期删除（Periodic）流程：  1. 每秒执行 10 次（可配 hz 参数）  2. 每次随机抽 20 个 key 检查  3. 过期比例 &gt; 25%（5/20）→ 继续循环再抽 20 个  4. 过期比例 &lt; 25% → 停止，等待下一轮  5. 总循环时间上限 25ms（防止卡死）优点：折中 CPU 和内存缺点：参数（频率/比例）不好调
+
+三种纯策略对比：
+
+
+
+策略
+对 CPU
+对内存
+适用场景
+
+
+
+定时删除
+❌ 差
+✅ 好
+内存极度紧张
+
+
+惰性删除
+✅ 好
+❌ 差
+CPU 紧张
+
+
+定期删除（Redis 采用）
+⭐ 折中
+⭐ 折中
+通用
+
+
+
+内存淘汰策略（8 种）当 maxmemory 达到上限时触发。默认 maxmemory = 0（64位系统），即无限制。
+
+
+
+策略
+淘汰范围
+淘汰依据
+备注
+
+
+
+noeviction
+—
+不淘汰，报错
+默认
+
+
+allkeys-lru
+所有 key
+最近最少使用
+✅ 最常用
+
+
+volatile-lru
+有过期时间的 key
+最近最少使用
+
+
+
+allkeys-random
+所有 key
+随机
+
+
+
+volatile-random
+有过期时间的 key
+随机
+
+
+
+volatile-ttl
+有过期时间的 key
+最快过期的
+
+
+
+allkeys-lfu
+所有 key（4.0+）
+最不常用（频率）
+
+
+
+volatile-lfu
+有过期时间的 key（4.0+）
+最不常用（频率）
+
+
+
+
+🎯 推荐：allkeys-lru（通用），热点数据场景换 allkeys-lfu。
+
+Redis 的 LRU 实现（近似 LRU）：
+
+不是精确 LRU（维护链表开销大）
+随机采样 N 个 key（默认 5），淘汰其中 LRU 时钟值最小的
+maxmemory-samples 可调采样数（越大越接近精确 LRU）
+
+LRU vs LFU：
+
+
+
+维度
+LRU
+LFU
+
+
+
+依据
+最近使用时间
+访问频率
+
+
+Redis 实现
+24bit 时钟值
+对数计数器 + 衰减因子
+
+
+问题
+偶发批量扫描会挤出热数据
+历史高频 key 难以淘汰
+
+
+
+5.2 分布式锁 — Redis 版单节点实现（面试必写！）加锁：一条原子命令
+SET lock_key unique_value NX PX 10000#    key     客户端唯一标识  不存在才设  过期10s
+
+解锁：Lua 脚本保证原子性
+if redis.call(&quot;get&quot;, KEYS[1]) == ARGV[1] then    return redis.call(&quot;del&quot;, KEYS[1])else    return 0end
+
+为什么需要这三个条件？
+
+
+
+条件
+作用
+缺失的后果
+
+
+
+NX
+互斥
+多个客户端同时拿到锁
+
+
+PX
+防死锁
+客户端 crash 后锁永远不释放
+
+
+unique_value
+防误删
+A 释放了 B 的锁
+
+
+优缺点✅ 优点：性能高、实现简单、集群天然避免单点❌ 缺点：
+
+超时时间难设 — 业务执行时间 &gt; 锁过期时间 → 锁提前释放
+🔧 解决：WatchDog 续约机制（Redisson 自带）
+
+
+主从异步复制 → Master 宕机后 Slave 没有锁数据 → 多个客户端同时拿到锁
+
+Redlock（红锁）— 集群环境分布式锁核心思路：向多个独立 Redis Master 节点分别加锁，过半成功才算加锁成功。
+加锁流程（官方建议 ≥ 5 个节点）：  1. 记录 T1 = 当前时间  2. 向 N 个节点依次加锁（SET NX PX），每个超时设几十 ms  3. 记录 T2 = 当前时间  4. 成功条件：     ├─ 过半节点（≥ N/2+1）加锁成功     └─ 总耗时（T2-T1）&lt; 锁过期时间  5. 锁有效时间 = 锁过期时间 - (T2-T1)失败 → 向所有节点发送解锁 Lua 脚本
+
+
+
+📌 功能篇完
+
+
+六、高可用篇：主从复制 → 哨兵 → Cluster
+🎯 面试必问：全量同步和增量同步的区别？哨兵怎么选举？Cluster 的 16384 槽怎么分？
+
+
+6.1 主从复制 — 读写分离 + 数据冗余第一次同步（全量同步）从服务器执行：REPLICAOF &lt;主IP&gt; &lt;主端口&gt;三阶段：┌─ 阶段一：建立连接 ──────────────────────────────────┐│  Slave → PSYNC ? -1  (runID未知, offset=-1)          ││  Master → FULLRESYNC &lt;runID&gt; &lt;offset&gt;  (全量同步)     │├─ 阶段二：传输 RDB ──────────────────────────────────┤│  Master: bgsave → 生成 RDB → 发送给 Slave            ││  期间写命令暂存 replication buffer                   ││  Slave: 清空旧数据 → 加载 RDB                        │├─ 阶段三：传播增量命令 ──────────────────────────────┤│  Master: 发送 replication buffer 中的命令给 Slave     ││  Slave: 执行这些命令 → 主从一致                      │└─────────────────────────────────────────────────────┘
+
+基于长连接的命令传播同步后维护 TCP 长连接，Master 有新写命令 → 直接发给 Slave 执行。
+增量同步（断线重连）断网恢复后：  Slave → PSYNC &lt;runID&gt; &lt;slave_repl_offset&gt;    Master 检查：slave_repl_offset 还在 repl_backlog_buffer 中？    ├─ 是 → CONTINUE → 发送增量命令（增量同步 ✅）    └─ 否（被覆盖了）→ FULLRESYNC（全量同步 ❌ 开销大）repl_backlog_buffer = 环形缓冲区（默认 1MB）
+
+避免频繁全量同步：
+repl_backlog_size ≥ 断线秒数 × 每秒写入量# 建议再 ×2 作为安全冗余
+
+分摊压力：从服务器链式复制Master → Slave1（经理） → Slave2（员工）          ↑ 接受同步         ↑ 从 Slave1 同步          同时向下同步        不直接连 Master
+
+
+6.2 哨兵（Sentinel）— 自动故障转移Sentinel 四大职责
+
+
+职责
+说明
+
+
+
+监控
+持续 PING 主从节点，判断存活
+
+
+通知
+事件通知管理员
+
+
+故障转移
+Master 故障 → 选举新 Master
+
+
+配置提供者
+告诉客户端当前 Master 是谁
+
+
+主观下线 vs 客观下线主观下线（SDOWN）：  单个 Sentinel 认为节点不可达（PING 超时）客观下线（ODOWN）：  超过 quorum 个 Sentinel 都认为节点下线 → 确认故障 → 发起故障转移
+
+选举新 Master &#x2F; Leader Sentinel
+判定 Master 客观下线
+Sentinel 之间投票选出 Leader Sentinel（执行故障转移）
+Leader 选最合适的 Slave 提升为新 Master
+其他 Slave 改连新 Master
+旧 Master 恢复后变为 Slave
+
+
+6.3 Cluster — 分布式分片核心机制：Hash Slot（哈希槽）Slot = CRC16(key) % 16384共 16384 个槽，分配给各 Master 节点扩缩容 = 移槽，不移动具体 key！
+
+节点通信：Gossip 协议所有节点通过 PING&#x2F;PONG 不断交换状态信息：
+
+发现新节点
+传播节点故障
+同步槽配置变更
+
+故障转移Master 故障 → 其 Slave 发起选举→ 过半 Master 投票同意 → Slave 提升为新 Master→ 广播新配置 → 集群恢复
+
+重定向机制
+
+
+类型
+场景
+客户端行为
+
+
+
+MOVED
+key 不在当前节点（槽已迁移）
+客户端更新本地槽映射，重定向到新节点
+
+
+ASK
+key 正在迁移中
+仅本次请求重定向（不发客户端缓存）
+
+
+脑裂问题网络分区导致集群分裂为两部分→ 每边都以为自己是主 → 两边都可以写 → 数据不一致解决：奇数个 Master + 过半投票原则
+
+
+6.4 多机器部署实战配置
+🛠️ 假设 3 台机器：192.168.1.10、192.168.1.11、192.168.1.12，逐步从主从 → 哨兵 → Cluster。
+
+
+6.4.1 主从复制部署目标：1 主 2 从，读写分离，主写从读。
+机器分配：
+┌─────────────────────────────────────────────────┐│ 192.168.1.10:6379   Master    （处理写 + 读）     ││ 192.168.1.11:6379   Slave-1   （只读，复制10）    ││ 192.168.1.12:6379   Slave-2   （只读，复制10）    │└─────────────────────────────────────────────────┘
+
+步骤：
+# ─── 1. 三台机器安装 Redis（以 Ubuntu 为例）───sudo apt install redis-server -y   # 三台都执行# ─── 2. Master 配置（192.168.1.10）───# 编辑 /etc/redis/redis.confbind 0.0.0.0                       # 允许远程连接port 6379requirepass your_password          # 设置密码masterauth your_password           # 主节点也配（将来可能降级为从）repl-backlog-size 64mb             # 增大环形缓冲区，避免频繁全量同步repl-backlog-ttl 3600              # slave 断开后 buffer 保留 1 小时# 重启 Redissudo systemctl restart redis# ─── 3. Slave 配置（192.168.1.11 和 192.168.1.12）───# 编辑 /etc/redis/redis.confbind 0.0.0.0port 6379requirepass your_passwordmasterauth your_password           # 连接 Master 的认证密码# ⭐ 关键：指定主节点replicaof 192.168.1.10 6379        # Redis 5.0+ 用 replicaof# 旧版用：slaveof 192.168.1.10 6379replica-read-only yes              # 从节点只读（默认）sudo systemctl restart redis# ─── 4. 验证（在 Master 上）───redis-cli -a your_password INFO replication# 应输出：# role:master# connected_slaves:2# slave0:ip=192.168.1.11,port=6379,state=online# slave1:ip=192.168.1.12,port=6379,state=online
+
+
+⚠️ 注意：主从模式不自动故障转移！Master 挂了需要手动把 Slave 提为主。
+
+
+6.4.2 哨兵（Sentinel）模式部署目标：3 个 Sentinel + 1 主 2 从，自动故障转移。
+机器分配：
+┌─────────────────────────────────────────────────────┐│ 192.168.1.10   192.168.1.11   192.168.1.12          ││                                                      ││ Redis Master    Redis Slave-1  Redis Slave-2         ││ Sentinel-1      Sentinel-2     Sentinel-3            ││                                                      ││ ★ Sentinel 和 Redis 同机部署（生产也推荐这样）        ││ ★ 3 个 Sentinel，quorum = 2                         │└─────────────────────────────────────────────────────┘
+
+步骤：
+# ─── 1. 先按 6.4.1 搭好主从（已做则跳过）───# ─── 2. 三台机器都创建 Sentinel 配置文件 ───# /etc/redis/sentinel.conf  （三台内容相同，除了 bind 可改）cat &gt; /etc/redis/sentinel.conf &lt;&lt; &#x27;EOF&#x27;# 哨兵端口（与 Redis 端口区分）port 26379# 监控的主节点（名称  IP  端口  quorum）sentinel monitor mymaster 192.168.1.10 6379 2# 主节点密码sentinel auth-pass mymaster your_password# 判定主观下线的超时（毫秒）sentinel down-after-milliseconds mymaster 30000# 故障转移超时（毫秒）sentinel failover-timeout mymaster 180000# 并行同步的 Slave 数量（越大恢复越快，但 Master 压力大）sentinel parallel-syncs mymaster 1# 日志logfile /var/log/redis/sentinel.log# 后台运行daemonize yesEOF# ─── 3. 三台都启动 Sentinel ───redis-sentinel /etc/redis/sentinel.conf &amp;# 或：redis-server /etc/redis/sentinel.conf --sentinel &amp;# ─── 4. 验证 Sentinel 状态 ───redis-cli -p 26379&gt; SENTINEL masters          # 查看监控的主节点&gt; SENTINEL slaves mymaster  # 查看从节点&gt; SENTINEL sentinels mymaster  # 查看其他哨兵（应看到 3 个）&gt; SENTINEL get-master-addr-by-name mymaster  # 快速获取当前 Master IP# ─── 5. 模拟故障转移 ───# 在 Master (192.168.1.10) 上：sudo systemctl stop redis# 等待 ~30 秒后，在 Sentinel 上查看：redis-cli -p 26379 SENTINEL get-master-addr-by-name mymaster# 应输出新的 Master IP（11 或 12 被提升）
+
+客户端如何连接 Sentinel？
+# Python 示例（redis-py）from redis.sentinel import Sentinelsentinel = Sentinel([    (&#x27;192.168.1.10&#x27;, 26379),    (&#x27;192.168.1.11&#x27;, 26379),    (&#x27;192.168.1.12&#x27;, 26379),], socket_timeout=0.1)# 获取当前 Master（自动发现）master = sentinel.master_for(&#x27;mymaster&#x27;, password=&#x27;your_password&#x27;)master.set(&#x27;foo&#x27;, &#x27;bar&#x27;)# 获取 Slave（自动负载均衡）slave = sentinel.slave_for(&#x27;mymaster&#x27;, password=&#x27;your_password&#x27;)slave.get(&#x27;foo&#x27;)
+
+
+🎯 Sentinel 部署铁律：至少 3 个节点 + 奇数个 + quorum 设为 N&#x2F;2+1。
+
+
+6.4.3 Cluster 集群模式部署目标：3 主 3 从（最小高可用配置），数据自动分片。
+机器分配：
+┌──────────────────────────────────────────────────────────┐│ 192.168.1.10           192.168.1.11      192.168.1.12     ││                                                           ││ Master-A (6379)        Master-B (6379)    Master-C (6379) ││ Slave-C (6380)         Slave-A (6380)     Slave-B (6380) ││                                                           ││ ★ 每台跑两个 Redis 实例（不同端口）                        ││ ★ Slave 不在自己 Master 的同机上（交叉部署，防整机挂）       ││ ★ 共 16384 个槽，平均分给 3 个 Master                     │└──────────────────────────────────────────────────────────┘
+
+步骤：
+# ─── 1. 三台机器都创建两个 Redis 实例的配置 ───# 实例 1：/etc/redis/redis-6379.conf（用于 Master）cat &gt; /etc/redis/redis-6379.conf &lt;&lt; &#x27;EOF&#x27;bind 0.0.0.0port 6379requirepass your_passwordmasterauth your_password# ⭐ Cluster 核心配置cluster-enabled yescluster-config-file nodes-6379.conf    # 集群节点信息文件（自动生成）cluster-node-timeout 15000             # 节点超时（毫秒）# 持久化（Cluster 必须开启）appendonly yesdir /var/lib/redis/6379pidfile /var/run/redis/redis-6379.pidlogfile /var/log/redis/redis-6379.logdaemonize yesEOF# 实例 2：/etc/redis/redis-6380.conf（用于 Slave）cat &gt; /etc/redis/redis-6380.conf &lt;&lt; &#x27;EOF&#x27;bind 0.0.0.0port 6380requirepass your_passwordmasterauth your_passwordcluster-enabled yescluster-config-file nodes-6380.confcluster-node-timeout 15000appendonly yesdir /var/lib/redis/6380pidfile /var/run/redis/redis-6380.pidlogfile /var/log/redis/redis-6380.logdaemonize yesEOF# ─── 2. 创建数据目录并启动所有实例 ───# 三台都执行：sudo mkdir -p /var/lib/redis/6379 /var/lib/redis/6380redis-server /etc/redis/redis-6379.confredis-server /etc/redis/redis-6380.conf# ─── 3. 创建集群（任意一台执行即可）───# Redis 5.0+ 直接用 redis-cli 创建redis-cli -a your_password --cluster create \  192.168.1.10:6379 \  192.168.1.11:6379 \  192.168.1.12:6379 \  192.168.1.10:6380 \  192.168.1.11:6380 \  192.168.1.12:6380 \  --cluster-replicas 1# ↑ --cluster-replicas 1 表示每个 Master 配 1 个 Slave#   redis-cli 会自动将前 3 个设为主，后 3 个设为从#   并交叉分配（Slave 不和 Master 同机）# ─── 4. 验证集群状态 ───redis-cli -a your_password -h 192.168.1.10 -p 6379 cluster info# cluster_state:ok  ← 表示集群正常redis-cli -a your_password -h 192.168.1.10 -p 6379 cluster nodes# 应看到 6 个节点：3 master + 3 slave，且有槽分配信息# ─── 5. 测试集群读写 ───# -c 参数表示启用集群模式（自动重定向）redis-cli -a your_password -c -h 192.168.1.10 -p 6379&gt; SET user:1001 &quot;Alice&quot;# → Redirected to slot [xxx] located at 192.168.1.11:6379  ← 自动跳转&gt; GET user:1001&gt; CLUSTER KEYSLOT user:1001    # 查看 key 落在哪个槽# ─── 6. 扩容：新增节点 ───# 假设新加机器 192.168.1.20，启动 6379 和 6380 实例redis-cli -a your_password --cluster add-node \  192.168.1.20:6379 192.168.1.10:6379      # 加入为 Masterredis-cli -a your_password --cluster add-node \  192.168.1.20:6380 192.168.1.10:6379 \  --cluster-slave                            # 加入为 Slave# 重新分配槽（将部分槽迁移到新 Master）redis-cli -a your_password --cluster reshard 192.168.1.10:6379# 交互式：输入迁移槽数量 → 目标节点ID → 源节点ID（all 则均匀迁移）# ─── 7. 缩容：下线节点 ───# 先迁移走该节点的所有槽redis-cli -a your_password --cluster reshard 192.168.1.10:6379# 目标选其他 Master，源选要下线的节点# 再删除节点redis-cli -a your_password --cluster del-node 192.168.1.10:6379 &lt;节点ID&gt;
+
+
+6.4.4 三种模式选型速查
+
+
+场景
+推荐模式
+最少机器
+关键配置
+
+
+
+开发&#x2F;测试，无 HA 要求
+单机
+1
+默认即可
+
+
+读写分离 + 数据备份
+主从
+2
+replicaof &lt;IP&gt; &lt;port&gt;
+
+
+需要自动故障转移
+哨兵
+3
+sentinel monitor + quorum
+
+
+数据量大，需要分片
+Cluster
+3（跑 6 实例）
+cluster-enabled yes + --cluster create
+
+
+分片 + 自动 HA
+Cluster
+同上
+Cluster 自带 HA，不依赖 Sentinel！
+
+
+
+🎯 关键认知：Sentinel 和 Cluster 是互斥的！Cluster 模式自己就包含了故障转移能力，不需要也不兼容 Sentinel。
+
+
+
+📌 高可用篇完
+
+
+七、缓存篇：雪崩&#x2F;击穿&#x2F;穿透 + 一致性
+🎯 面试 100% 必问！三句话搞清楚三个问题的区别和方案。
+
+
+7.1 缓存三大问题一图打尽┌──────────────┬──────────────────┬──────────────────┬──────────────────┐│              │   缓存雪崩        │   缓存击穿        │   缓存穿透        │├──────────────┼──────────────────┼──────────────────┼──────────────────┤│ 原因         │ 大量key同时过期   │ 热点key过期       │ 查不存在的数据    ││              │ 或 Redis宕机     │                  │ (cache+DB都没有)  │├──────────────┼──────────────────┼──────────────────┼──────────────────┤│ 现象         │ 所有请求打DB      │ 大量并发打DB      │ 无效请求打DB      ││              │ → DB崩溃          │ → DB冲垮          │ → 恶意攻击/误删   │├──────────────┼──────────────────┼──────────────────┼──────────────────┤│ 解决方案     │ ①过期+随机值      │ ①互斥锁           │ ①布隆过滤器       ││              │ ②互斥锁           │ ②永不过期+异步更新│ ②空值缓存         ││              │ ③高可用集群       │                   │ ③参数校验         ││              │ ④熔断限流         │                   │                   │└──────────────┴──────────────────┴──────────────────┴──────────────────┘
+
+雪崩 — 大面积同时失效应对：
+
+过期时间加随机值：expire_time = base + random(1, 300) 避免扎堆
+互斥锁：保证同一时间只有一个线程构建缓存
+Redis 高可用集群（主从&#x2F;哨兵&#x2F;Cluster）
+熔断&#x2F;限流：事发后保护 DB
+
+击穿 — 单点热点失效应对：
+
+互斥锁（setnx 实现）：拿不到锁的请求等待或返回默认值
+“永不过期”：不设过期时间，后台异步更新
+逻辑过期：value 中存过期时间戳，发现过期后异步更新
+
+穿透 — 数据本不存在应对：
+
+布隆过滤器：先查布隆过滤器，不存在直接返回，不查 DB
+空值缓存：对不存在的 key 也设短过期缓存（如 5 分钟）
+参数校验：入口过滤非法请求
+
+
+7.2 缓存更新策略Cache Aside（旁路缓存）— ✅ 最常用读：查缓存 → 命中返回 / 未命中 → 查DB → 写缓存 → 返回写：更新DB → 删除缓存
+
+为什么先更新 DB 再删缓存，不能反过来？
+先删缓存再更新DB（有问题）：  1. A删缓存  2. B读缓存miss → 读DB旧值 → 写缓存旧值  3. A更新DB新值  → 缓存=旧值，DB=新值 ❌先更新DB再删缓存（理论也有并发窗口，但概率极低）：  1. A读缓存miss → 读DB旧值  2. B更新DB新值 → 删缓存  3. A写缓存旧值  → 要求：A写缓存 慢于 B删缓存+更新DB，实际极少发生
+
+三种策略对比
+
+
+策略
+原理
+适用
+使用情况
+
+
+
+Cache Aside
+应用控制缓存和 DB
+读多写少
+✅ Redis 常用
+
+
+Read&#x2F;Write Through
+缓存代理 DB
+本地缓存
+Guava Cache
+
+
+Write Back
+只写缓存，异步写 DB
+写多
+CPU Cache，Redis 不支持
+
+
+保证最终一致性的补充方案
+缓存设置较短过期时间：即使不一致也很快自动修复
+延迟双删：写完 DB 后，延迟一段时间再删一次缓存
+MQ 异步重试：删缓存失败 → 发送 MQ 消息 → 重试删除
+Canal + MQ：监听 MySQL binlog → 异步更新&#x2F;删除缓存
+
+
+
+📌 缓存篇完 — 🎉 全七篇 Redis 精华笔记整理完毕！
+
+]]></content>
+      <categories>
+        <category>八股</category>
+        <category>Redis合集</category>
+      </categories>
+      <tags>
+        <tag>面试</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MySQL 速通笔记</title>
+    <url>/2026/05/20/%E5%85%AB%E8%82%A1/MySQL/MySQL%E9%80%9F%E9%80%9A%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+紧急冲刺？看这篇就够了。核心考点浓缩，30分钟过一遍 🚀
+
+一、基础速通执行流程（一条SQL的旅程）连接器 → 解析器(词法/语法分析) → 预处理器(校验表字段) → 优化器(选索引) → 执行器 → 存储引擎
+
+🔑 Server层+存储引擎层解耦架构
+查询缓存：MySQL 8.0 已删除（不是指 Buffer Pool）
+连接器权限：连接建立后修改权限不影响已建立连接
+
+一行记录的存储（行格式 Dynamic）
+
+
+组成部分
+内容
+
+
+
+变长字段长度列表
+varchar 实际长度，逆序
+
+
+NULL 值列表
+NULL 标记位，逆序
+
+
+记录头信息
+删除标记、下条记录位置等
+
+
+隐藏字段
+row_id(6B) + trx_id(6B) + roll_pointer(7B)
+
+
+表空间层级（由小到大）行(row) ⊂ 页(page,16KB) ⊂ 区(extent,1MB=64页) ⊂ 段(segment) ⊂ 表空间
+
+页是 InnoDB 磁盘管理最小单元、IO 读写基本单位
+varchar(n) 的 n 是字符数，不是字节数
+行溢出：超 16KB 时，Dynamic 格式只存 20 字节溢出页指针
+
+存储引擎对比
+
+
+特性
+InnoDB ✅
+MyISAM ❌
+Memory ⚡
+
+
+
+事务
+✅
+❌
+❌
+
+
+锁粒度
+行锁
+表锁
+表锁
+
+
+外键
+✅
+❌
+❌
+
+
+崩溃恢复
+✅
+❌
+❌(重启丢数据)
+
+
+
+二、索引速通索引分类（一张表）
+
+
+维度
+类型
+
+
+
+数据结构
+B+Tree(默认)、Hash、Full-text
+
+
+物理存储
+聚簇索引(叶子存完整行)、二级索引(叶子存主键)
+
+
+字段特性
+主键、唯一、普通、前缀、联合
+
+
+字段个数
+单列、联合
+
+
+B+树为什么是 MySQL 的答案
+🎯 核心：磁盘 IO 远慢于内存，索引设计必须矮胖 + 支持范围查询
+
+
+
+
+对比
+缺点
+
+
+
+二叉查找树
+退化成链表
+
+
+红黑树&#x2F;AVL
+二叉树高，IO 次数多
+
+
+B 树
+节点存完整数据，单页存索引少，范围查询需中序遍历
+
+
+B+ 树 ✅
+非叶子只存索引→更矮胖；叶子双向链表→范围查询高效
+
+
+🔥 面试必考清单
+
+
+考点
+一句话
+
+
+
+最左匹配
+联合索引 (a,b,c) 必须从 a 开始，不能跳过中间列
+
+
+索引失效
+like &#39;%xx&#39;、函数&#x2F;计算、类型转换、!=&#x2F;&lt;&gt;、is null&#x2F;is not null(看情况)、or 部分列无索引
+
+
+回表
+二级索引查完主键后，再去聚簇索引查完整行 → 多一次 IO
+
+
+覆盖索引
+select 的列全在索引里 → 不回表，explain 显示 Using index
+
+
+索引下推
+存储引擎层先过滤索引条件再回表，减少回表次数
+
+
+前缀索引
+对长字符串取前 N 个字符建索引，减少空间，但无法 order by
+
+
+主键自增
+避免页分裂，B+树插入高效
+
+
+区分度
+选区分度高的列建索引（≈ count(distinct)&#x2F;count(*)）
+
+
+
+三、事务速通ACID 及 MySQL 实现
+
+
+特性
+含义
+MySQL 靠谁
+
+
+
+原子性
+要么全做，要么全不做
+undo log 回滚
+
+
+一致性
+事务前后数据一致
+其他三者共同保证
+
+
+隔离性
+事务间互不干扰
+MVCC + 锁
+
+
+持久性
+提交后数据永久保存
+redo log crash-safe
+
+
+隔离级别与并发问题
+
+
+隔离级别
+脏读
+不可重复读
+幻读
+实现
+
+
+
+读未提交
+❌
+❌
+❌
+—
+
+
+读已提交
+✅
+❌
+❌
+每次查询新 Read View
+
+
+可重复读(默认)
+✅
+✅
+⚠️ 大部分解决
+事务启动时一个 Read View
+
+
+串行化
+✅
+✅
+✅
+读写互斥锁
+
+
+MVCC 核心机制Read View（快照）+ undo log 版本链（roll_pointer 串联 + trx_id 标识）
+可见性判断三规则：
+
+trx_id &lt; min_trx_id → 可见（事务启动前已提交）
+trx_id &gt;= max_trx_id → 不可见（事务启动后才开始）
+中间值 → 在活跃事务列表里则不可见，否则可见→ 不可见时沿 undo log 版本链回溯找可见版本
+
+⚠️ RR 下仍可能幻读的场景
+先快照读查不到 → 其他事务插入 → 本事务 update 该记录 → 再查可见（trx_id 变成自己的）
+先快照读 → 其他事务插入 → 本事务当前读(select...for update) → 读到新记录
+解法：事务开启后立刻当前读，加 next-key lock 防插入
+
+
+
+
+四、锁速通锁的层级全局锁(FTWRL) &gt; 表锁 &gt; 行锁(Record/Gap/Next-Key/插入意向)
+
+
+
+
+锁类型
+说明
+
+
+
+全局锁
+flush tables with read lock，整库只读
+
+
+MDL 锁
+自动加：CRUD→MDL读锁；DDL→MDL写锁，事务提交才释放
+
+
+意向锁
+加行锁前先加表级意向锁(IS&#x2F;IX)，快速判断表是否有行锁
+
+
+AUTO-INC 锁
+自增主键专用，innodb_autoinc_lock_mode=2需配 ROW 格式 binlog
+
+
+🔥 行锁加锁规则（面试核心，必须背）
+加锁单位是 next-key lock，只对扫描到的索引记录加锁
+
+
+
+
+场景
+规则
+锁退化
+
+
+
+唯一索引等值-记录存在
+退化为 Record Lock
+只锁该行
+
+
+唯一索引等值-记录不存在
+退化为 Gap Lock
+锁间隙防插入
+
+
+唯一索引范围-等值部分存在
+等值退化为 Record，范围加 next-key
+—
+
+
+非唯一索引等值
+记录加 next-key + 主键 Record Lock
+最后一条不满足的退化为 Gap
+
+
+非唯一索引范围
+全部 next-key，不退化
+—
+
+
+无索引查询
+全表扫描，锁全表！
+危险⚠️
+
+
+死锁
+四条件：互斥、占有且等待、不可剥夺、循环等待
+避免：拆小事务、统一访问顺序、开启死锁检测、设锁等待超时
+
+
+五、日志速通三大日志一句话
+
+
+日志
+层级
+类型
+作用
+写入方式
+
+
+
+undo log
+InnoDB
+逻辑日志
+回滚 + MVCC
+记修改前数据
+
+
+redo log
+InnoDB
+物理日志
+崩溃恢复(crash-safe)
+循环写，WAL 技术
+
+
+binlog
+Server
+逻辑日志
+备份 + 主从复制
+追加写
+
+
+更新语句完整流程① 执行器找数据页 → ② Buffer Pool 未命中则加载磁盘页→ ③ 写 undo log（记录旧值）→ ④ 修改 Buffer Pool 页为脏页→ ⑤ 写 redo log buffer → ⑥ 写 binlog cache→ ⑦ 两阶段提交：redo log prepare → binlog 落盘 → redo log commit→ ⑧ 后台异步刷脏页
+
+两阶段提交（高频面试题）
+🎯 目的：保证 redo log 和 binlog 逻辑一致，避免主从数据不一致
+
+Prepare: redo log 写盘，状态=prepare   ↓写 binlog 到磁盘   ↓Commit: redo log 状态=commit
+崩溃恢复：prepare 状态的 redo log，binlog 有对应 XID 则提交，否则回滚
+关键参数速查
+
+
+参数
+值
+含义
+
+
+
+innodb_flush_log_at_trx_commit
+1(默认)
+redo log 每次提交刷盘，最安全
+
+
+
+2
+写 OS page cache，OS 崩溃丢 1s
+
+
+sync_binlog
+1
+binlog 每次提交刷盘，最安全
+
+
+
+N
+累积 N 个事务批量刷盘
+
+
+组提交合并多事务的 redo log&#x2F;binlog 刷盘为一次 fsync，减少 IO 次数
+
+六、内存速通Buffer Pool（InnoDB 核心缓存）
+缓存：数据页、索引页、undo 页、锁信息等
+大小：**物理内存 60%~80%**，16KB 页为单位
+三大链表：
+
+
+
+
+链表
+作用
+
+
+
+Free 链表
+管理空闲缓存页
+
+
+LRU 链表
+young(热点) + old(默认37%)，防预读失效+Buffer Pool 污染
+
+
+Flush 链表
+管理脏页，后台刷盘
+
+
+Change Buffer（写缓冲）
+缓冲非唯一二级索引的更新操作（唯一索引要立即判重）
+等索引页被读入 Buffer Pool 时批量合并，将多次随机 IO 转为一次
+
+
+七、性能调优速通explain 核心指标
+
+
+指标
+关注什么
+
+
+
+type
+all(全表)→index→range→ref→eq_ref→const(最好)
+
+
+key
+实际使用的索引，NULL 表示没走索引
+
+
+rows
+预估扫描行数
+
+
+extra
+Using filesort&#x2F;Using temporary(要优化)；Using index(好)
+
+
+常用优化手段
+
+
+场景
+方案
+
+
+
+深度分页
+子查询先取 id 再关联；游标分页(where id&gt;上次最大)
+
+
+大表计数
+单独维护计数表；近似用 show table status
+
+
+写性能
+innodb_flush_log_at_trx_commit=2 + 组提交 + 拆小事务
+
+
+索引选错
+force index(idx_name)
+
+
+防锁全表
+sql_safe_updates=1
+
+
+count 对比
+count(*) ≈ count(1)（InnoDB 优化，选最小二级索引扫）
+count(字段) 最慢（要判 NULL）
+MyISAM 的 count(*) 最快（有元数据缓存），但不支持事务
+
+
+八、架构速通整体架构┌─────────────── Server 层（所有引擎共用）────────────────┐│ 连接器 → 解析器 → 预处理器 → 优化器 → 执行器 → binlog  │└───────────────────────┬───────────────────────────────┘                        │ 接口解耦┌───────────────────────▼───────────────────────────────┐│          存储引擎层（插件式，InnoDB 默认）              ││  内存: Buffer Pool | redo log buffer | 自适应哈希     ││  磁盘: .ibd | redo log | undo log                    │└──────────────────────────────────────────────────────┘
+
+主从复制主库 binlog → 从库 IO线程拉取 → relay log → SQL线程回放
+
+异步(默认)：高性能，可能丢数据
+半同步：至少一台从库确认
+同步：全确认，几乎不用
+
+
+九、思考题速记update 是否自动开事务？✅ InnoDB 默认 autocommit=1，单条 update 隐式开启独立事务，执行完自动提交。命中索引加行锁，无索引会降级锁全表。
+全量 vs 增量备份
+
+
+维度
+全量
+增量(binlog)
+
+
+
+备份内容
+全部数据
+上次备份后的变化
+
+
+速度快
+慢
+快
+
+
+恢复快
+快(一份恢复)
+慢(全量+逐一回放)
+
+
+工具
+mysqldump &#x2F; xtrabackup
+binlog 拷贝 &#x2F; xtrabackup 增量
+
+
+生产策略：每日全量 + 每小时增量 + 实时 binlog 同步
+
+
+📖 完整详细版见 从0到一学MySQL
+特别鸣谢：@小林coding、@豆包、@元宝、@DeepSeek
+
+]]></content>
+      <categories>
+        <category>八股</category>
+        <category>MySQL篇</category>
+      </categories>
+      <tags>
+        <tag>面试</tag>
+        <tag>MySQL</tag>
+        <tag>速通</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/2026/05/20/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/MiniMind/%E4%BB%8E0%E5%88%B0%E8%AE%AD%E7%BB%83%E5%A4%A7%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[视频总结：大模型训练与部署零基础实战笔记（基于 Minimind3）
+视频链接：https://www.bilibili.com/video/BV13f9pBSETe/?spm_id_from=333.1007.top_right_bar_window_history.content.click&amp;vd_source=d06c1e02aed0433e543ac1df013ef5d9
+
+视频作者：日新月异 max 视频时长：44 分 16 秒 核心目标：手把手教完全零基础的小白，从租 GPU 服务器开始，完整复现大模型的部署、预训练、微调全流程，全程低成本（几块钱即可完成）
+一、前言：为什么选择 Minimind3？
+极致轻量化：最小模型仅 24M 参数，推荐使用 64M 版本（相当于 GPT-3 的 1&#x2F;2700），个人 GPU 或廉价云服务器即可快速训练
+全流程覆盖：完整实现大模型从 0 到 1 的所有环节，包括 Tokenizer 训练、预训练、SFT、LoRA、强化学习、工具调用、模型蒸馏
+代码极度精简：核心 Transformer 架构仅 279 行，结构清晰，没有冗余封装，是新手学习大模型内部原理的绝佳素材
+低成本实战：整个流程仅需 30-40 分钟训练时间，云服务器费用不到 5 元，新用户甚至可以用平台赠送的代金券免费完成
+
+二、第一步：GPU 云服务器配置（最关键的基础环节）2.1 平台选择：易家云（作者实测推荐）
+
+
+核心优势
+具体细节
+
+
+
+价格极低
+24GB 显存 RTX4090：1.7 元 &#x2F; 小时 48GB 显存 RTX4090：2.3 元 &#x2F; 小时 按小时计费，不用不花钱
+
+
+新用户福利
+实名认证即送 20 元代金券，可使用约 12 小时 4090，完全足够完成 Minimind 全流程训练
+
+
+资源充足
+相比 AutoDL 等平台，空闲显卡更多，甚至提供 8 卡 4090 和最新的 B200 显卡
+
+
+开发友好
+内置云端 VS Code和 Jupyter Notebook，无需本地复杂配置，打开浏览器即可写代码
+
+
+网络速度快
+下载 7GB 数据集仅需 10 分钟，克隆 GitHub 项目无网络问题
+
+
+2.2 服务器创建步骤
+注册并实名认证易家云账号，领取 20 元代金券
+进入算力市场，选择以下配置：
+显卡：RTX4090 24GB（足够完成所有训练）
+镜像：PyTorch 2.6.0（官方预配置好 CUDA 和 PyTorch 环境）
+计费方式：按量计费
+
+
+点击 “创建并开机”，等待 1-2 分钟服务器启动完成
+
+2.3 本地 VS Code 连接服务器（推荐方式）
+本地 VS Code 安装Remote - SSH插件
+
+回到易家云控制台，复制服务器的SSH 连接命令（格式：ssh root@xxx.xxx.xxx.xxx -p xxxx）
+
+点击 VS Code 左下角的绿色按钮，选择 “连接到主机” → “配置新的主机”
+
+粘贴 SSH 命令并修改为以下格式（保存到默认的 config 文件）：
+
+Host minimind-server  # 自定义名称，随便写
+  HostName xxx.xxx.xxx.xxx  # 服务器IP地址（@后面的部分）
+  User root  # 默认用户名
+  Port xxxx  # 端口号（-p后面的数字）
+5. 再次点击左下角绿色按钮，选择刚才配置的 &quot;minimind-server&quot;6. 选择操作系统为 &quot;Linux&quot;，输入服务器密码（在易家云控制台查看）7. 等待 VS Code 服务器端安装完成，连接成功### 2.4 环境验证（必做）连接成功后，打开 VS Code 终端，运行以下命令验证环境：```bash# 查看显卡信息，确认CUDA可用nvidia-smi# 安装更直观的GPU实时监控工具（强烈推荐）pip install nvitopnvitop  # 运行后可以实时看到显存占用、GPU利用率等信息
+
+
+
+
+
+三、Minimind3 项目深度解析3.1 项目核心能力Minimind3 不仅是一个可运行的小模型，更是一个完整的大模型开发框架，支持：
+
+✅ 基础：Tokenizer 训练、预训练
+✅ 微调：监督微调 (SFT)、LoRA 低参微调
+✅ 强化学习：DPO、GRPO、PPO、RLHF（人类反馈）、RLAIF（AI 反馈）
+✅ 高级：模型蒸馏、工具调用 (GenicRL)、多模态支持（接入 CLIP）
+✅ 部署：CLI 推理、Web UI、OpenAI 兼容 API 服务
+
+3.2 完整项目目录结构详解minimind/├── dataset/          # 存储所有训练数据集│   ├── pretrain/     # 预训练数据集（文本接龙数据）│   └── sft/          # 监督微调数据集（指令-回答对）├── model/            # 大模型核心架构代码│   ├── model.py      # MiniMind核心Transformer架构（仅279行！）│   ├── tokenizer.py  # Tokenizer实现代码│   └── config.json   # 模型配置文件（维度、层数、头数等）├── scripts/          # 部署和工具脚本│   ├── eval_lm.py    # CLI命令行推理脚本│   ├── web_demo.py   # Web UI界面脚本│   ├── chat_api.py   # 聊天API服务│   ├── server_openai_api.py  # OpenAI兼容API服务│   └── convert_model.py      # 模型格式转换脚本├── trainer/          # 训练核心代码（最重要的部分）│   ├── train_tokenizer.py    # 训练自己的Tokenizer│   ├── train_pretrain.py     # 预训练脚本│   ├── train_sft.py          # 监督微调脚本│   ├── train_dpo.py          # DPO强化学习脚本│   ├── train_lora.py         # LoRA微调脚本│   ├── train_engine.py       # 训练引擎│   └── rollout_engine.py     # 强化学习采样引擎├── output/           # 训练输出目录（自动生成）│   ├── pretrain_768.pth  # 预训练权重│   └── sft_768.pth       # SFT微调权重└── requirements.txt  # 项目依赖列表
+
+四、环境搭建与模型部署4.1 基础环境配置在 VS Code 终端中依次运行以下命令：
+# 1. 创建并激活Conda虚拟环境（避免依赖冲突）conda create -n minimind python=3.10 -yconda activate minimind# 2. 克隆Minimind3项目git clone https://github.com/jingyaogong/minimind.gitcd minimind# 3. 安装所有依赖pip install -r requirements.txt# 4. 下载官方预训练好的Minimind3模型modelscope download minimind3
+
+4.2 方式一：CLI 命令行推理# 运行推理脚本python scripts/eval_lm.py
+
+
+运行后选择 “1” 进入手动对话模式，输入问题即可与模型聊天
+选择 “0” 进入自动测试模式，模型会自动回答预设的问题
+64M 模型推理速度极快，具备基础的问答能力，会有轻微幻觉
+
+4.3 方式二：Web UI 可视化部署（推荐）# 1. 将下载的minimind3模型复制到scripts目录cp -r minimind3 scripts/# 2. 启动Web UI服务python scripts/web_demo.py
+
+
+运行后在浏览器中访问提示的地址（通常是http://localhost:7860）
+特色功能：
+勾选 “显示思考过程”：可以看到模型的内部思考步骤
+工具调用演示：问 “现在几点了？” 或 “1+1 等于几？”，模型会自动调用工具回答
+
+
+
+五、大模型全链路训练实战5.0 前置知识：Tokenizer 是什么？Tokenizer 是大模型的 “翻译官”，它的作用是将人类可读的文本转换为模型能理解的数字 ID。
+
+例如：”你好” → [1234, 5678]
+Minimind3 已经提供了训练好的 Tokenizer，新手可以直接使用，无需自己训练
+
+5.1 第一阶段：预训练（基础语言能力）目标：让模型学会 “文本接龙”，掌握基本的语言规律和常识 训练步骤：
+
+下载预训练数据集
+# 下载mini版预训练数据集（约7GB，云服务器10分钟完成）modelscope download dataset --dataset_name minimind/pretrain_mini --local_dir dataset/pretrain
+
+开始预训练
+cd trainerpython train_pretrain.py
+
+训练过程观察：
+
+初始 loss 约为 5.0-5.5
+训练 1 轮 epoch（遍历完整个数据集）后，loss 会降至 1.9 左右
+总耗时：约 30-40 分钟
+显存占用：约 12GB
+
+
+输出结果：训练好的预训练权重会保存到output/pretrain_768.pth
+
+
+5.2 第二阶段：监督微调 (SFT)（指令遵循能力）目标：让模型从 “只会文本接龙” 变成 “能根据人类指令回答问题” 训练步骤：
+
+下载 SFT 指令数据集
+modelscope download dataset --dataset_name minimind/sft_mini --local_dir dataset/sft
+
+开始 SFT 微调
+# 确保在trainer目录下python train_sft.py
+
+
+代码会自动加载上一步训练好的pretrain_768.pth权重
+显存占用：约 15GB（24GB 显存的 4090 完全足够）
+总耗时：约 15-20 分钟
+
+
+训练监控（强烈推荐）：
+
+安装并配置 WandB：pip install wandb &amp;&amp; wandb login
+训练过程中的 loss、学习率等指标会自动上传到 WandB 云端
+国内用户可以用 SwanLab 作为平替：pip install swanlab &amp;&amp; swanlab login
+
+
+
+5.3 第三阶段：进阶训练方向（视频提及，未详细演示）
+LoRA 微调：低参数量微调，仅训练模型的 0.1% 参数，即可快速注入领域知识（如医药、法律）
+强化学习：
+DPO&#x2F;GRPO：基于人类偏好的直接优化，比传统 PPO 更简单稳定
+RLHF&#x2F;RLAIF：基于人类或 AI 反馈的强化学习，提升回答质量
+
+
+模型蒸馏：用大模型（如 GPT-4）作为 “老师”，教小模型（Minimind），提升小模型性能
+工具调用训练：基于Train Engine和Rollout Engine，让模型学会调用外部工具（计算器、搜索引擎等）
+
+六、平台附加功能：模型 API 调用易家云平台还内置了模型广场，提供多种现成大模型的在线体验和 API 服务：
+
+进入平台的 “模型广场” → “体验中心”，可以在线聊天测试各种模型
+
+点击 “API 管理” → “创建 API 密钥”，获取自己的 API Key
+
+使用 Python 代码调用 API：
+import requestsurl = &quot;https://api.yijiayun.com/v1/chat/completions&quot;headers = &#123;    &quot;Authorization&quot;: &quot;Bearer YOUR_API_KEY&quot;,    &quot;Content-Type&quot;: &quot;application/json&quot;&#125;data = &#123;    &quot;model&quot;: &quot;qwen-1.5b&quot;,    &quot;messages&quot;: [&#123;&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;帮我写一个Python冒泡排序代码&quot;&#125;]&#125;response = requests.post(url, json=data)print(response.json())
+
+
+20 元代金券可以同时用于 GPU 租赁和 API 调用，性价比极高
+
+七、关键避坑与学习建议7.1 必看避坑指南
+不要同时运行多个训练任务：预训练和 SFT 不要同时跑，否则会显存溢出
+及时关机：云服务器是按小时计费的，训练完成后一定要在控制台点击 “关机”，否则会持续扣费
+路径问题：确保数据集下载到正确的dataset目录下，否则训练脚本会找不到数据
+显存监控：训练过程中一直开着nvitop，实时观察显存占用情况
+代码 bug：如果遇到运行错误，先检查 Python 版本是否为 3.10，依赖是否安装完整
+
+7.2 新手学习建议
+先复现再修改：先严格按照视频步骤完整复现一遍，确保能跑通，再尝试修改参数或代码
+精读核心代码：重点读model/model.py（279 行 Transformer 架构）和trainer/train_pretrain.py（预训练逻辑）
+循序渐进：先掌握预训练和 SFT，再去学习 LoRA 和强化学习，不要一开始就啃复杂的部分
+扩展练习：可以尝试用自己的数据集微调模型，比如注入动漫人格、专业领域知识等
+
+]]></content>
   </entry>
 </search>

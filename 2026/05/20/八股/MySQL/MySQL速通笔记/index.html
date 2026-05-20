@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>Redis八股快速入门 | 欢迎来到老江湖的博客</title>
+<title>MySQL 速通笔记 | 欢迎来到老江湖的博客</title>
 
 
 
@@ -776,7 +776,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>  
   <article class="post-wrap">
     <header class="post-header">
-      <h1 class="post-title">Redis八股快速入门</h1>
+      <h1 class="post-title">MySQL 速通笔记</h1>
       
       <div class="post-meta">
          作者:
@@ -785,7 +785,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <span class="post-time">
           <br />日期:
           <a href="#"
-            >五月 12, 2026&nbsp;&nbsp;16:52:12</a
+            >五月 20, 2026&nbsp;&nbsp;23:43:12</a
           >
         </span>
          
@@ -794,7 +794,7 @@ document.addEventListener('DOMContentLoaded', function() {
           分类: 
           <a href="/categories/%E5%85%AB%E8%82%A1/">八股</a>
           
-          <a href="/categories/%E5%85%AB%E8%82%A1/Redis%E5%90%88%E9%9B%86/">Redis合集</a>
+          <a href="/categories/%E5%85%AB%E8%82%A1/MySQL%E7%AF%87/">MySQL篇</a>
           
         </span>
         
@@ -802,104 +802,531 @@ document.addEventListener('DOMContentLoaded', function() {
       
     </header>
 
-    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+    <div class="post-content"><p>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</p>
+<p><em>紧急冲刺？看这篇就够了。核心考点浓缩，30分钟过一遍 🚀</em></p>
 <hr>
-<p>Redis是后端面试的一块基石，考查的深度与广度兼具，且常与数据库和分布式系统结合提问。</p>
-<p>下面我将高频考点梳理成了一套“企业级面试体系”，并以与MySQL对比、串联的方式，帮你构建一个更立体的知识网络。</p>
-<h3 id="一、核心定位：高性能缓存与轻量级存储"><a href="#一、核心定位：高性能缓存与轻量级存储" class="headerlink" title="一、核心定位：高性能缓存与轻量级存储"></a>一、核心定位：高性能缓存与轻量级存储</h3><p>在面试中，首先要能清晰地阐述Redis的核心定位。简单来说，Redis（Remote Dictionary Server）是一款开源的、<strong>基于内存</strong>的键值对NoSQL数据库，由C语言开发。它的核心特点是快、数据结构丰富、且支持持久化。</p>
-<p>当面试官问“为什么用Redis而不用MySQL做缓存”，核心差距如下：</p>
-<table>
+<h2 id="一、基础速通"><a href="#一、基础速通" class="headerlink" title="一、基础速通"></a>一、基础速通</h2><h3 id="执行流程（一条SQL的旅程）"><a href="#执行流程（一条SQL的旅程）" class="headerlink" title="执行流程（一条SQL的旅程）"></a>执行流程（一条SQL的旅程）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">连接器 → 解析器(词法/语法分析) → 预处理器(校验表字段) → 优化器(选索引) → 执行器 → 存储引擎</span><br></pre></td></tr></table></figure>
+<ul>
+<li>🔑 Server层+存储引擎层解耦架构</li>
+<li>查询缓存：MySQL 8.0 已删除（不是指 Buffer Pool）</li>
+<li>连接器权限：连接建立后修改权限不影响已建立连接</li>
+</ul>
+<h3 id="一行记录的存储（行格式-Dynamic）"><a href="#一行记录的存储（行格式-Dynamic）" class="headerlink" title="一行记录的存储（行格式 Dynamic）"></a>一行记录的存储（行格式 Dynamic）</h3><table>
 <thead>
 <tr>
-<th align="left">对比维度</th>
-<th align="left">Redis</th>
-<th align="left">MySQL</th>
+<th align="left">组成部分</th>
+<th align="left">内容</th>
 </tr>
 </thead>
 <tbody><tr>
-<td align="left"><strong>数据类型</strong></td>
-<td align="left">基于内存的键值存储，支持多种数据结构 (String, Hash, List, Set, ZSet等)</td>
-<td align="left">关系型数据库，数据以表格形式存储</td>
+<td align="left">变长字段长度列表</td>
+<td align="left">varchar 实际长度，逆序</td>
 </tr>
 <tr>
-<td align="left"><strong>性能核心</strong></td>
-<td align="left">纯内存操作，读写速度在纳秒级 (100纳秒级)</td>
-<td align="left">基于磁盘，操作速度在毫秒级，依赖索引优化</td>
+<td align="left">NULL 值列表</td>
+<td align="left">NULL 标记位，逆序</td>
 </tr>
 <tr>
-<td align="left"><strong>持久化</strong></td>
-<td align="left">支持RDB快照和AOF日志，但本质是内存数据库</td>
-<td align="left">强制持久化到磁盘，保证数据安全</td>
+<td align="left">记录头信息</td>
+<td align="left">删除标记、下条记录位置等</td>
 </tr>
 <tr>
-<td align="left"><strong>数据模型</strong></td>
-<td align="left">键值对，也支持发布&#x2F;订阅、Stream等扩展</td>
-<td align="left">严格的结构化数据，支持SQL查询和事务(ACID)</td>
-</tr>
-<tr>
-<td align="left"><strong>核心场景</strong></td>
-<td align="left">缓存、分布式锁、计数器、消息队列</td>
-<td align="left">核心业务数据的持久化存储</td>
+<td align="left">隐藏字段</td>
+<td align="left"><code>row_id</code>(6B) + <code>trx_id</code>(6B) + <code>roll_pointer</code>(7B)</td>
 </tr>
 </tbody></table>
-<p><strong>面试官追问：既然Redis快，为什么不用它完全替代MySQL？</strong><br>可以从三个角度回应：</p>
+<h3 id="表空间层级（由小到大）"><a href="#表空间层级（由小到大）" class="headerlink" title="表空间层级（由小到大）"></a>表空间层级（由小到大）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">行(row) ⊂ 页(page,16KB) ⊂ 区(extent,1MB=64页) ⊂ 段(segment) ⊂ 表空间</span><br></pre></td></tr></table></figure>
 <ul>
-<li><strong>数据模型</strong>：Redis是键值模型，无法替代SQL复杂查询。</li>
-<li><strong>事务可靠性</strong>：Redis事务简单，MySQL有成熟的ACID保障。</li>
-<li><strong>成本</strong>：内存成本远高于磁盘，不太适合存储所有业务数据。</li>
+<li>页是 InnoDB 磁盘管理最小单元、IO 读写基本单位</li>
+<li>varchar(n) 的 n 是<strong>字符数</strong>，不是字节数</li>
+<li>行溢出：超 16KB 时，Dynamic 格式只存 20 字节溢出页指针</li>
 </ul>
-<p>一句话总结就是 <strong>“Redis是加速的”</strong> ，让高频读写的热点数据从慢速磁盘走向快速内存；<strong>“MySQL是放心的”</strong> ，为全量数据提供可靠的持久化记录。</p>
-<h3 id="二、缓存与DB联动核心：双写一致性与缓存问题"><a href="#二、缓存与DB联动核心：双写一致性与缓存问题" class="headerlink" title="二、缓存与DB联动核心：双写一致性与缓存问题"></a>二、缓存与DB联动核心：双写一致性与缓存问题</h3><p>这部分是面试的重中之重，考察候选人对Redis和MySQL协同工作中问题的理解深度。</p>
-<h4 id="1-MySQL与Redis的数据一致性如何保证？"><a href="#1-MySQL与Redis的数据一致性如何保证？" class="headerlink" title="1. MySQL与Redis的数据一致性如何保证？"></a>1. MySQL与Redis的数据一致性如何保证？</h4><p>当系统需要同时更新数据库和缓存时，如何保证数据的一致性是一道经典难题。这里有几种常见的策略，可以根据对“一致性”的要求逐级递升：</p>
-<ul>
-<li><strong>策略路径1：先删缓存，再更新数据库（延迟双删）</strong>：这是最常用的方案，通过延迟删缓存来避免并发读请求将旧数据回种到缓存中。此策略适用于能接受短期数据不一致的场景，是典型的<strong>最终一致性</strong>方案。</li>
-<li><strong>策略路径2：先更新数据库，再删除缓存</strong>：能保证下次读请求能重新从数据库加载最新数据，可能出现瞬间不一致。</li>
-<li><strong>策略路径3：订阅数据库Binlog，异步更新缓存</strong>：通过监听MySQL的Binlog（二进制日志），使用MQ异步更新Redis，实现<strong>最终一致性</strong>，解耦且可靠性高。</li>
-<li><strong>策略路径4：分布式读写锁</strong>：在更新数据时加排他锁，保证读请求被阻塞，实现<strong>强一致性</strong>，但会牺牲并发性能。</li>
-</ul>
-<p>你可以这样总结给面试官：“在项目中，我们优先考虑最终一致性。对于一般业务，使用‘延迟双删’或‘先更新DB再删缓存’的方案。对于对数据实时性要求极高的场景，我们会引入分布式锁实现强一致性读写。”</p>
-<h4 id="2-缓存“三大坑”：穿透、击穿、雪崩"><a href="#2-缓存“三大坑”：穿透、击穿、雪崩" class="headerlink" title="2. 缓存“三大坑”：穿透、击穿、雪崩"></a>2. 缓存“三大坑”：穿透、击穿、雪崩</h4><p>当Redis和MySQL结合时，如果缓存处理不当，会引发经典的三大问题，面试必考。</p>
-<table>
+<h3 id="存储引擎对比"><a href="#存储引擎对比" class="headerlink" title="存储引擎对比"></a>存储引擎对比</h3><table>
 <thead>
 <tr>
-<th align="left">问题</th>
-<th align="left">定义</th>
-<th align="left">解决方案 (附代码&#x2F;设计思路)</th>
+<th align="left">特性</th>
+<th align="left">InnoDB ✅</th>
+<th align="left">MyISAM ❌</th>
+<th align="left">Memory ⚡</th>
 </tr>
 </thead>
 <tbody><tr>
-<td align="left"><strong>缓存穿透</strong></td>
-<td align="left">查询一个<strong>数据库和缓存中都不存在</strong>的数据，导致请求直接打到了数据库</td>
-<td align="left">1.  <strong>布隆过滤器</strong>：在缓存层前加一个过滤器，先判断key是否存在，不存在则直接拦截。<br>2.  <strong>缓存空值</strong>：对于查不到数据的key，也缓存一个空值，并设置一个较短的过期时间。</td>
+<td align="left">事务</td>
+<td align="left">✅</td>
+<td align="left">❌</td>
+<td align="left">❌</td>
 </tr>
 <tr>
-<td align="left"><strong>缓存击穿</strong></td>
-<td align="left">一个<strong>热点key</strong>在缓存中<strong>过期的瞬间</strong>，大量并发请求同时涌入数据库</td>
-<td align="left">1.  <strong>互斥锁</strong>：在缓存失效后，只有一个线程能获得锁去加载DB并重建缓存，其他线程等待。<br>2.  <strong>逻辑过期</strong>：不给热点key设置物理过期时间，在value里放一个逻辑过期时间，发现过期后异步去加载新数据。</td>
+<td align="left">锁粒度</td>
+<td align="left">行锁</td>
+<td align="left">表锁</td>
+<td align="left">表锁</td>
 </tr>
 <tr>
-<td align="left"><strong>缓存雪崩</strong></td>
-<td align="left"><strong>大量缓存key</strong>在<strong>同一时间失效</strong>，或Redis服务宕机，导致海量请求直接打到数据库</td>
-<td align="left">1.  <strong>过期时间加随机值</strong>：给每个key的过期时间加上一个随机因子，避免集中失效。<br>2.  <strong>高可用架构</strong>：使用Redis Cluster或哨兵模式，避免单点故障。<br>3.  <strong>多级缓存</strong>：结合本地缓存（如Caffeine），在Redis不可用时提供兜底。</td>
+<td align="left">外键</td>
+<td align="left">✅</td>
+<td align="left">❌</td>
+<td align="left">❌</td>
+</tr>
+<tr>
+<td align="left">崩溃恢复</td>
+<td align="left">✅</td>
+<td align="left">❌</td>
+<td align="left">❌(重启丢数据)</td>
 </tr>
 </tbody></table>
-<h3 id="三、分布式锁：从MySQL到Redis的跨越"><a href="#三、分布式锁：从MySQL到Redis的跨越" class="headerlink" title="三、分布式锁：从MySQL到Redis的跨越"></a>三、分布式锁：从MySQL到Redis的跨越</h3><blockquote>
-<p><strong>与MySQL的对比</strong>：MySQL可通过<code>SELECT ... FOR UPDATE</code>等行锁实现分布式锁，但性能差、易死锁。Redis更轻量、高性能，更受欢迎。</p>
+<hr>
+<h2 id="二、索引速通"><a href="#二、索引速通" class="headerlink" title="二、索引速通"></a>二、索引速通</h2><h3 id="索引分类（一张表）"><a href="#索引分类（一张表）" class="headerlink" title="索引分类（一张表）"></a>索引分类（一张表）</h3><table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="left">类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">数据结构</td>
+<td align="left">B+Tree(默认)、Hash、Full-text</td>
+</tr>
+<tr>
+<td align="left">物理存储</td>
+<td align="left"><strong>聚簇索引</strong>(叶子存完整行)、<strong>二级索引</strong>(叶子存主键)</td>
+</tr>
+<tr>
+<td align="left">字段特性</td>
+<td align="left">主键、唯一、普通、前缀、联合</td>
+</tr>
+<tr>
+<td align="left">字段个数</td>
+<td align="left">单列、联合</td>
+</tr>
+</tbody></table>
+<h3 id="B-树为什么是-MySQL-的答案"><a href="#B-树为什么是-MySQL-的答案" class="headerlink" title="B+树为什么是 MySQL 的答案"></a>B+树为什么是 MySQL 的答案</h3><blockquote>
+<p>🎯 核心：<strong>磁盘 IO 远慢于内存，索引设计必须矮胖 + 支持范围查询</strong></p>
 </blockquote>
-<ul>
-<li><strong>基础实现</strong>：使用<code>SET key value NX PX 30000</code>命令，该命令是原子操作，代表 **”仅在key不存在时（NX）设置，并附加30000毫秒的过期时间（PX）”**。</li>
-<li><strong>防误删</strong>：释放锁时不能简单地<code>DEL key</code>，必须通过<strong>Lua脚本</strong>原子性地检查锁的value（通常是<strong>UUID</strong>）是否属于当前线程，是才删除；避免线程A误删了线程B的锁。</li>
-<li><strong>自动续期</strong>：如果一个业务执行时间可能超过锁的过期时间，需要一个<strong>Watch Dog</strong>机制来自动延长锁的持有时间，避免锁提前释放导致并发问题。</li>
-<li><strong>Redisson</strong>：在实际项目中，推荐使用Redisson来实现分布式锁，它封装了上述所有细节，可靠性更高。</li>
-</ul>
-<h3 id="四、内部落地手册"><a href="#四、内部落地手册" class="headerlink" title="四、内部落地手册"></a>四、内部落地手册</h3><p><strong>1. 数据结构选择</strong>（对比MySQL，选择更灵活）：缓存用户信息用<code>Hash</code>（对应MySQL的一行记录，key为ID，field为列名），避免反复序列化整个对象。实现评论列表用<code>List</code>（类似MySQL的<code>ORDER BY create_time</code>）。实现实时排行榜用<code>Sorted Set</code>（比MySQL用<code>ORDER BY score DESC LIMIT N</code>更高效）。实现用户签到用<code>Bitmap</code>，极其节省内存。</p>
-<p><strong>2. 高可用与集群部署</strong>：回答生产环境部署时，可以这样说：使用<strong>Redis Cluster</strong>架构实现水平扩展和自动故障转移。共部署5主5从，使用32G内存、8核CPU的机器，但<strong>每个Redis实例的内存限制在10G以内</strong>，避免单实例内存过大导致RDB快照和主从同步时出现卡顿。总缓存空间为50G，常驻约200万条商品数据，占用不到50%内存，留有充足余量。</p>
-<p><strong>3. 性能优化</strong>：避免在线生产环境使用<code>KEYS *</code>等慢命令，应使用<code>SCAN</code>命令进行渐进式遍历。使用<code>Pipeline</code>批量发送命令，减少网络往返时间（RTT）。在高并发写入时，推荐使用<strong>混合持久化（<code>aof-use-rdb-preamble yes</code>）</strong>，结合RDB的快速恢复和AOF的数据安全性。</p>
-<h3 id="五、极简面试思维导图"><a href="#五、极简面试思维导图" class="headerlink" title="五、极简面试思维导图"></a>五、极简面试思维导图</h3><p>这张简图可以帮助你在面试时快速组织思路。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    subgraph A [Redis 核心定位]</span><br><span class="line">        direction LR</span><br><span class="line">        A1[基于内存] --&gt; A2[性能高]</span><br><span class="line">        A1 --&gt; A3[数据结构丰富]</span><br><span class="line">        A1 --&gt; A4[支持持久化]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph B [Redis 高频考点]</span><br><span class="line">        B1[缓存] --&gt; B1_1[穿透/击穿/雪崩]</span><br><span class="line">        B1 --&gt; B1_2[双写一致性]</span><br><span class="line">        B2[分布式锁] --&gt; B2_1[SET NX PX]</span><br><span class="line">        B2_1 --&gt; B2_2[Redisson]</span><br><span class="line">        B3[数据结构] --&gt; B3_1[String/Hash/List/Set/ZSet]</span><br><span class="line">        B4[高可用] --&gt; B4_1[主从 &amp; 哨兵]</span><br><span class="line">        B4_1 --&gt; B4_2[集群 Cluster]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph C [与 MySQL 的关系]</span><br><span class="line">        C1[“Redis 是加速的，MySQL 是放心的”]</span><br><span class="line">        C2[互为补充，而非替代]</span><br><span class="line">        C3[需精心设计保证数据一致]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    A --&gt; B</span><br><span class="line">    B --&gt; C</span><br><span class="line">    C --&gt; A</span><br></pre></td></tr></table></figure>
-
+<table>
+<thead>
+<tr>
+<th align="left">对比</th>
+<th align="left">缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">二叉查找树</td>
+<td align="left">退化成链表</td>
+</tr>
+<tr>
+<td align="left">红黑树&#x2F;AVL</td>
+<td align="left">二叉树高，IO 次数多</td>
+</tr>
+<tr>
+<td align="left">B 树</td>
+<td align="left">节点存完整数据，单页存索引少，范围查询需中序遍历</td>
+</tr>
+<tr>
+<td align="left"><strong>B+ 树 ✅</strong></td>
+<td align="left">非叶子只存索引→更矮胖；叶子双向链表→范围查询高效</td>
+</tr>
+</tbody></table>
+<h3 id="🔥-面试必考清单"><a href="#🔥-面试必考清单" class="headerlink" title="🔥 面试必考清单"></a>🔥 面试必考清单</h3><table>
+<thead>
+<tr>
+<th align="left">考点</th>
+<th align="left">一句话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>最左匹配</strong></td>
+<td align="left">联合索引 (a,b,c) 必须从 a 开始，不能跳过中间列</td>
+</tr>
+<tr>
+<td align="left"><strong>索引失效</strong></td>
+<td align="left"><code>like &#39;%xx&#39;</code>、函数&#x2F;计算、类型转换、<code>!=</code>&#x2F;<code>&lt;&gt;</code>、<code>is null</code>&#x2F;<code>is not null</code>(看情况)、<code>or</code> 部分列无索引</td>
+</tr>
+<tr>
+<td align="left"><strong>回表</strong></td>
+<td align="left">二级索引查完主键后，再去聚簇索引查完整行 → 多一次 IO</td>
+</tr>
+<tr>
+<td align="left"><strong>覆盖索引</strong></td>
+<td align="left"><code>select</code> 的列全在索引里 → 不回表，<code>explain</code> 显示 <code>Using index</code></td>
+</tr>
+<tr>
+<td align="left"><strong>索引下推</strong></td>
+<td align="left">存储引擎层先过滤索引条件再回表，减少回表次数</td>
+</tr>
+<tr>
+<td align="left"><strong>前缀索引</strong></td>
+<td align="left">对长字符串取前 N 个字符建索引，减少空间，但无法 <code>order by</code></td>
+</tr>
+<tr>
+<td align="left"><strong>主键自增</strong></td>
+<td align="left">避免页分裂，B+树插入高效</td>
+</tr>
+<tr>
+<td align="left"><strong>区分度</strong></td>
+<td align="left">选区分度高的列建索引（≈ count(distinct)&#x2F;count(*)）</td>
+</tr>
+</tbody></table>
 <hr>
-<p>只要将上面这些核心知识点串联起来，在面试时就能展现出你对Redis和MySQL协同工作的系统性理解，这远比背诵零散的知识点更有说服力。</p>
+<h2 id="三、事务速通"><a href="#三、事务速通" class="headerlink" title="三、事务速通"></a>三、事务速通</h2><h3 id="ACID-及-MySQL-实现"><a href="#ACID-及-MySQL-实现" class="headerlink" title="ACID 及 MySQL 实现"></a>ACID 及 MySQL 实现</h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">含义</th>
+<th align="left">MySQL 靠谁</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">原子性</td>
+<td align="left">要么全做，要么全不做</td>
+<td align="left"><strong>undo log</strong> 回滚</td>
+</tr>
+<tr>
+<td align="left">一致性</td>
+<td align="left">事务前后数据一致</td>
+<td align="left">其他三者共同保证</td>
+</tr>
+<tr>
+<td align="left">隔离性</td>
+<td align="left">事务间互不干扰</td>
+<td align="left"><strong>MVCC</strong> + <strong>锁</strong></td>
+</tr>
+<tr>
+<td align="left">持久性</td>
+<td align="left">提交后数据永久保存</td>
+<td align="left"><strong>redo log</strong> crash-safe</td>
+</tr>
+</tbody></table>
+<h3 id="隔离级别与并发问题"><a href="#隔离级别与并发问题" class="headerlink" title="隔离级别与并发问题"></a>隔离级别与并发问题</h3><table>
+<thead>
+<tr>
+<th align="left">隔离级别</th>
+<th align="left">脏读</th>
+<th align="left">不可重复读</th>
+<th align="left">幻读</th>
+<th align="left">实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">读未提交</td>
+<td align="left">❌</td>
+<td align="left">❌</td>
+<td align="left">❌</td>
+<td align="left">—</td>
+</tr>
+<tr>
+<td align="left">读已提交</td>
+<td align="left">✅</td>
+<td align="left">❌</td>
+<td align="left">❌</td>
+<td align="left">每次查询新 Read View</td>
+</tr>
+<tr>
+<td align="left"><strong>可重复读(默认)</strong></td>
+<td align="left">✅</td>
+<td align="left">✅</td>
+<td align="left">⚠️ 大部分解决</td>
+<td align="left">事务启动时一个 Read View</td>
+</tr>
+<tr>
+<td align="left">串行化</td>
+<td align="left">✅</td>
+<td align="left">✅</td>
+<td align="left">✅</td>
+<td align="left">读写互斥锁</td>
+</tr>
+</tbody></table>
+<h3 id="MVCC-核心机制"><a href="#MVCC-核心机制" class="headerlink" title="MVCC 核心机制"></a>MVCC 核心机制</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Read View（快照）+ undo log 版本链（roll_pointer 串联 + trx_id 标识）</span><br></pre></td></tr></table></figure>
+<p><strong>可见性判断三规则</strong>：</p>
+<ol>
+<li><code>trx_id &lt; min_trx_id</code> → 可见（事务启动前已提交）</li>
+<li><code>trx_id &gt;= max_trx_id</code> → 不可见（事务启动后才开始）</li>
+<li>中间值 → 在活跃事务列表里则不可见，否则可见<br>→ 不可见时沿 undo log 版本链回溯找可见版本</li>
+</ol>
+<h3 id="⚠️-RR-下仍可能幻读的场景"><a href="#⚠️-RR-下仍可能幻读的场景" class="headerlink" title="⚠️ RR 下仍可能幻读的场景"></a>⚠️ RR 下仍可能幻读的场景</h3><ol>
+<li>先快照读查不到 → 其他事务插入 → 本事务 <strong>update</strong> 该记录 → 再查可见（trx_id 变成自己的）</li>
+<li>先快照读 → 其他事务插入 → 本事务<strong>当前读</strong>(<code>select...for update</code>) → 读到新记录<blockquote>
+<p>解法：事务开启后立刻当前读，加 next-key lock 防插入</p>
+</blockquote>
+</li>
+</ol>
+<hr>
+<h2 id="四、锁速通"><a href="#四、锁速通" class="headerlink" title="四、锁速通"></a>四、锁速通</h2><h3 id="锁的层级"><a href="#锁的层级" class="headerlink" title="锁的层级"></a>锁的层级</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">全局锁(FTWRL) &gt; 表锁 &gt; 行锁(Record/Gap/Next-Key/插入意向)</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left">锁类型</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>全局锁</strong></td>
+<td align="left"><code>flush tables with read lock</code>，整库只读</td>
+</tr>
+<tr>
+<td align="left"><strong>MDL 锁</strong></td>
+<td align="left">自动加：CRUD→MDL读锁；DDL→MDL写锁，事务提交才释放</td>
+</tr>
+<tr>
+<td align="left"><strong>意向锁</strong></td>
+<td align="left">加行锁前先加表级意向锁(IS&#x2F;IX)，快速判断表是否有行锁</td>
+</tr>
+<tr>
+<td align="left"><strong>AUTO-INC 锁</strong></td>
+<td align="left">自增主键专用，<code>innodb_autoinc_lock_mode=2</code>需配 ROW 格式 binlog</td>
+</tr>
+</tbody></table>
+<h3 id="🔥-行锁加锁规则（面试核心，必须背）"><a href="#🔥-行锁加锁规则（面试核心，必须背）" class="headerlink" title="🔥 行锁加锁规则（面试核心，必须背）"></a>🔥 行锁加锁规则（面试核心，必须背）</h3><blockquote>
+<p>加锁单位是 next-key lock，只对<strong>扫描到</strong>的索引记录加锁</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">场景</th>
+<th align="left">规则</th>
+<th align="left">锁退化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>唯一索引等值</strong>-记录存在</td>
+<td align="left">退化为 <strong>Record Lock</strong></td>
+<td align="left">只锁该行</td>
+</tr>
+<tr>
+<td align="left"><strong>唯一索引等值</strong>-记录不存在</td>
+<td align="left">退化为 <strong>Gap Lock</strong></td>
+<td align="left">锁间隙防插入</td>
+</tr>
+<tr>
+<td align="left"><strong>唯一索引范围</strong>-等值部分存在</td>
+<td align="left">等值退化为 Record，范围加 next-key</td>
+<td align="left">—</td>
+</tr>
+<tr>
+<td align="left"><strong>非唯一索引等值</strong></td>
+<td align="left">记录加 next-key + 主键 Record Lock</td>
+<td align="left">最后一条不满足的退化为 Gap</td>
+</tr>
+<tr>
+<td align="left"><strong>非唯一索引范围</strong></td>
+<td align="left"><strong>全部 next-key，不退化</strong></td>
+<td align="left">—</td>
+</tr>
+<tr>
+<td align="left"><strong>无索引查询</strong></td>
+<td align="left">全表扫描，<strong>锁全表！</strong></td>
+<td align="left">危险⚠️</td>
+</tr>
+</tbody></table>
+<h3 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h3><ul>
+<li>四条件：互斥、占有且等待、不可剥夺、循环等待</li>
+<li>避免：拆小事务、统一访问顺序、开启死锁检测、设锁等待超时</li>
+</ul>
+<hr>
+<h2 id="五、日志速通"><a href="#五、日志速通" class="headerlink" title="五、日志速通"></a>五、日志速通</h2><h3 id="三大日志一句话"><a href="#三大日志一句话" class="headerlink" title="三大日志一句话"></a>三大日志一句话</h3><table>
+<thead>
+<tr>
+<th align="left">日志</th>
+<th align="left">层级</th>
+<th align="left">类型</th>
+<th align="left">作用</th>
+<th align="left">写入方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>undo log</strong></td>
+<td align="left">InnoDB</td>
+<td align="left">逻辑日志</td>
+<td align="left">回滚 + MVCC</td>
+<td align="left">记修改前数据</td>
+</tr>
+<tr>
+<td align="left"><strong>redo log</strong></td>
+<td align="left">InnoDB</td>
+<td align="left">物理日志</td>
+<td align="left">崩溃恢复(crash-safe)</td>
+<td align="left">循环写，WAL 技术</td>
+</tr>
+<tr>
+<td align="left"><strong>binlog</strong></td>
+<td align="left">Server</td>
+<td align="left">逻辑日志</td>
+<td align="left">备份 + 主从复制</td>
+<td align="left">追加写</td>
+</tr>
+</tbody></table>
+<h3 id="更新语句完整流程"><a href="#更新语句完整流程" class="headerlink" title="更新语句完整流程"></a>更新语句完整流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">① 执行器找数据页 → ② Buffer Pool 未命中则加载磁盘页</span><br><span class="line">→ ③ 写 undo log（记录旧值）→ ④ 修改 Buffer Pool 页为脏页</span><br><span class="line">→ ⑤ 写 redo log buffer → ⑥ 写 binlog cache</span><br><span class="line">→ ⑦ 两阶段提交：redo log prepare → binlog 落盘 → redo log commit</span><br><span class="line">→ ⑧ 后台异步刷脏页</span><br></pre></td></tr></table></figure>
+
+<h3 id="两阶段提交（高频面试题）"><a href="#两阶段提交（高频面试题）" class="headerlink" title="两阶段提交（高频面试题）"></a>两阶段提交（高频面试题）</h3><blockquote>
+<p>🎯 目的：保证 redo log 和 binlog 逻辑一致，<strong>避免主从数据不一致</strong></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Prepare: redo log 写盘，状态=prepare</span><br><span class="line">   ↓</span><br><span class="line">写 binlog 到磁盘</span><br><span class="line">   ↓</span><br><span class="line">Commit: redo log 状态=commit</span><br></pre></td></tr></table></figure>
+<p>崩溃恢复：prepare 状态的 redo log，binlog 有对应 XID 则提交，否则回滚</p>
+<h3 id="关键参数速查"><a href="#关键参数速查" class="headerlink" title="关键参数速查"></a>关键参数速查</h3><table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">值</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>innodb_flush_log_at_trx_commit</code></td>
+<td align="left">1(默认)</td>
+<td align="left">redo log 每次提交刷盘，最安全</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">2</td>
+<td align="left">写 OS page cache，OS 崩溃丢 1s</td>
+</tr>
+<tr>
+<td align="left"><code>sync_binlog</code></td>
+<td align="left">1</td>
+<td align="left">binlog 每次提交刷盘，最安全</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">N</td>
+<td align="left">累积 N 个事务批量刷盘</td>
+</tr>
+</tbody></table>
+<h3 id="组提交"><a href="#组提交" class="headerlink" title="组提交"></a>组提交</h3><p>合并多事务的 redo log&#x2F;binlog 刷盘为一次 fsync，减少 IO 次数</p>
+<hr>
+<h2 id="六、内存速通"><a href="#六、内存速通" class="headerlink" title="六、内存速通"></a>六、内存速通</h2><h3 id="Buffer-Pool（InnoDB-核心缓存）"><a href="#Buffer-Pool（InnoDB-核心缓存）" class="headerlink" title="Buffer Pool（InnoDB 核心缓存）"></a>Buffer Pool（InnoDB 核心缓存）</h3><ul>
+<li>缓存：数据页、索引页、undo 页、锁信息等</li>
+<li>大小：**物理内存 60%~80%**，16KB 页为单位</li>
+<li>三大链表：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">链表</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Free 链表</strong></td>
+<td align="left">管理空闲缓存页</td>
+</tr>
+<tr>
+<td align="left"><strong>LRU 链表</strong></td>
+<td align="left">young(热点) + old(默认37%)，防预读失效+Buffer Pool 污染</td>
+</tr>
+<tr>
+<td align="left"><strong>Flush 链表</strong></td>
+<td align="left">管理脏页，后台刷盘</td>
+</tr>
+</tbody></table>
+<h3 id="Change-Buffer（写缓冲）"><a href="#Change-Buffer（写缓冲）" class="headerlink" title="Change Buffer（写缓冲）"></a>Change Buffer（写缓冲）</h3><ul>
+<li>缓冲<strong>非唯一二级索引</strong>的更新操作（唯一索引要立即判重）</li>
+<li>等索引页被读入 Buffer Pool 时批量合并，将多次随机 IO 转为一次</li>
+</ul>
+<hr>
+<h2 id="七、性能调优速通"><a href="#七、性能调优速通" class="headerlink" title="七、性能调优速通"></a>七、性能调优速通</h2><h3 id="explain-核心指标"><a href="#explain-核心指标" class="headerlink" title="explain 核心指标"></a>explain 核心指标</h3><table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">关注什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>type</code></td>
+<td align="left"><code>all</code>(全表)→<code>index</code>→<code>range</code>→<code>ref</code>→<code>eq_ref</code>→<code>const</code>(最好)</td>
+</tr>
+<tr>
+<td align="left"><code>key</code></td>
+<td align="left">实际使用的索引，NULL 表示没走索引</td>
+</tr>
+<tr>
+<td align="left"><code>rows</code></td>
+<td align="left">预估扫描行数</td>
+</tr>
+<tr>
+<td align="left"><code>extra</code></td>
+<td align="left"><code>Using filesort</code>&#x2F;<code>Using temporary</code>(要优化)；<code>Using index</code>(好)</td>
+</tr>
+</tbody></table>
+<h3 id="常用优化手段"><a href="#常用优化手段" class="headerlink" title="常用优化手段"></a>常用优化手段</h3><table>
+<thead>
+<tr>
+<th align="left">场景</th>
+<th align="left">方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">深度分页</td>
+<td align="left">子查询先取 id 再关联；游标分页(where id&gt;上次最大)</td>
+</tr>
+<tr>
+<td align="left">大表计数</td>
+<td align="left">单独维护计数表；近似用 <code>show table status</code></td>
+</tr>
+<tr>
+<td align="left">写性能</td>
+<td align="left"><code>innodb_flush_log_at_trx_commit=2</code> + 组提交 + 拆小事务</td>
+</tr>
+<tr>
+<td align="left">索引选错</td>
+<td align="left"><code>force index(idx_name)</code></td>
+</tr>
+<tr>
+<td align="left">防锁全表</td>
+<td align="left"><code>sql_safe_updates=1</code></td>
+</tr>
+</tbody></table>
+<h3 id="count-对比"><a href="#count-对比" class="headerlink" title="count 对比"></a>count 对比</h3><ul>
+<li><code>count(*)</code> ≈ <code>count(1)</code>（InnoDB 优化，选最小二级索引扫）</li>
+<li><code>count(字段)</code> 最慢（要判 NULL）</li>
+<li>MyISAM 的 count(*) 最快（有元数据缓存），但不支持事务</li>
+</ul>
+<hr>
+<h2 id="八、架构速通"><a href="#八、架构速通" class="headerlink" title="八、架构速通"></a>八、架构速通</h2><h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────── Server 层（所有引擎共用）────────────────┐</span><br><span class="line">│ 连接器 → 解析器 → 预处理器 → 优化器 → 执行器 → binlog  │</span><br><span class="line">└───────────────────────┬───────────────────────────────┘</span><br><span class="line">                        │ 接口解耦</span><br><span class="line">┌───────────────────────▼───────────────────────────────┐</span><br><span class="line">│          存储引擎层（插件式，InnoDB 默认）              │</span><br><span class="line">│  内存: Buffer Pool | redo log buffer | 自适应哈希     │</span><br><span class="line">│  磁盘: .ibd | redo log | undo log                    │</span><br><span class="line">└──────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">主库 binlog → 从库 IO线程拉取 → relay log → SQL线程回放</span><br></pre></td></tr></table></figure>
+<ul>
+<li>异步(默认)：高性能，可能丢数据</li>
+<li>半同步：至少一台从库确认</li>
+<li>同步：全确认，几乎不用</li>
+</ul>
+<hr>
+<h2 id="九、思考题速记"><a href="#九、思考题速记" class="headerlink" title="九、思考题速记"></a>九、思考题速记</h2><h3 id="update-是否自动开事务？"><a href="#update-是否自动开事务？" class="headerlink" title="update 是否自动开事务？"></a>update 是否自动开事务？</h3><p>✅ InnoDB 默认 <code>autocommit=1</code>，单条 update 隐式开启独立事务，执行完自动提交。命中索引加<strong>行锁</strong>，无索引会降级<strong>锁全表</strong>。</p>
+<h3 id="全量-vs-增量备份"><a href="#全量-vs-增量备份" class="headerlink" title="全量 vs 增量备份"></a>全量 vs 增量备份</h3><table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="left">全量</th>
+<th align="left">增量(binlog)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">备份内容</td>
+<td align="left">全部数据</td>
+<td align="left">上次备份后的变化</td>
+</tr>
+<tr>
+<td align="left">速度快</td>
+<td align="left">慢</td>
+<td align="left">快</td>
+</tr>
+<tr>
+<td align="left">恢复快</td>
+<td align="left">快(一份恢复)</td>
+<td align="left">慢(全量+逐一回放)</td>
+</tr>
+<tr>
+<td align="left">工具</td>
+<td align="left">mysqldump &#x2F; xtrabackup</td>
+<td align="left">binlog 拷贝 &#x2F; xtrabackup 增量</td>
+</tr>
+</tbody></table>
+<p>生产策略：<strong>每日全量 + 每小时增量 + 实时 binlog 同步</strong></p>
+<hr>
+<blockquote>
+<p>📖 完整详细版见 <a href="./%E4%BB%8E0%E5%88%B0%E4%B8%80%E5%AD%A6MySQL.md">从0到一学MySQL</a></p>
+<p>特别鸣谢：@小林coding、@豆包、@元宝、@DeepSeek</p>
+</blockquote>
 </div>
 
     <div id="highlight-nav" class="highlight-nav">
@@ -949,7 +1376,9 @@ document.addEventListener('DOMContentLoaded', function() {
            
           <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
           
-          <a href="/tags/Redis/"># Redis</a>
+          <a href="/tags/MySQL/"># MySQL</a>
+          
+          <a href="/tags/%E9%80%9F%E9%80%9A/"># 速通</a>
            
         </span>
       </div>
@@ -960,13 +1389,9 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     </section>
     <section class="post-nav">
-      
-      <a class="prev" rel="prev" href="/2026/05/13/%E7%AE%97%E6%B3%95/python%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8AAPI/"
-        >Python算法刷题面试指南</a
-      >
        
-      <a class="next" rel="next" href="/2026/05/12/%E7%AE%97%E6%B3%95/java%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8AAPI/"
-        >Java常用数据结构及API</a
+      <a class="next" rel="next" href="/2026/05/20/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/MiniMind/%E4%BB%8E0%E5%88%B0%E8%AE%AD%E7%BB%83%E5%A4%A7%E6%A8%A1%E5%9E%8B/"
+        ></a
       >
       
     </section>
