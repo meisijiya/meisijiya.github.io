@@ -2269,8 +2269,8 @@ DeepSeek v4 Flash
 
 👁️
 Multimodal-Looker
-MiniMax M2.7
-视觉——图片分析、OCR、UI 审查
+MiMo-V2.5
+视觉——原生全模态图片分析、OCR、UI 审查
 
 
 👶
@@ -2608,16 +2608,15 @@ triage
 🔎 Momus（审查）— MiniMax M2.7review                       ← 双轴审查verification-before-completion ← 强制验证
 
 
-🎯 第十三章：最小必装清单（8 + 5 &#x3D; 13）如果只装最核心的，推荐这个组合：
+🎯 第十三章：最小必装清单（8 个安装型 + 5 个内置 &#x3D; 13）如果只装最核心的，推荐这个组合：
 🛡️ verification-before-completion    ← 拒绝假交付（Momus 门禁）🛡️ test-driven-development          ← 代码有保障（Atlas 约束）🛡️ systematic-debugging             ← Bug 不求人（Hephaestus 前置）📄 minimax-pdf                       ← 文档一键出（M2.7 优势）📄 minimax-multimodal-toolkit        ← 多模态核心（Atlas 武器库）🎨 frontend-dev                      ← 前端不将就（Atlas 执行）🎨 fullstack-dev                     ← 全栈通吃（Atlas 执行）🚀 subagent-driven-development       ← 效率翻倍（Sisyphus 核心）+ 5 个内置王牌（playwright / frontend-ui-ux / git-master / review-work / ai-slop-remover）
 
 装上这 13 个，你的 DeepSeek v4 + MiniMax M2.7 开发体验会从”能用”直接跃迁到 **”恐怖如斯”**。
 
-
 👁️ 第十四章：多模态视觉体系——打通 Sisyphus 的”眼睛”14.1 痛点——Sisyphus 是个”盲人”OhMyOpenAgent 的多智能体体系有个致命盲区：
 你粘贴图片给 Sisyphus（主编排器）         ↓Sisyphus 是 DeepSeek v4 Pro（纯文本模型）         ↓💥 &quot;Cannot read clipboard&quot; ——图片根本没机会路由给多模态 Agent！
 
-根因：MiniMax M2.7（Atlas &#x2F; multimodal-looker 的模型）虽然能做视觉分析，但它不是原生多模态模型——只能通过 MCP 工具（MiniMax_understand_image）”间接”看图。而 opencode 的图片粘贴是发给当前激活的 Agent 的——如果当前是 Sisyphus（DeepSeek v4 Pro），图片在入口就被拒绝了。
+根因：MiniMax M2.7（Atlas 的模型）虽然能做视觉分析，但它不是原生多模态模型——只能通过 MCP 工具（MiniMax_understand_image）”间接”看图。而 opencode 的图片粘贴是发给当前激活的 Agent 的——如果当前是 Sisyphus（DeepSeek v4 Pro），图片在入口就被拒绝了。
 14.2 解决方案——双层图片链路我们需要在两个层面解决问题：
 
 https://github.com/devadathanmb/opencode-minimax-easy-vision
@@ -2643,7 +2642,7 @@ multimodal-looker 切到 MiMo-V2.5（原生全模态）
 
                   你粘贴图片                      │         ┌────────────┴────────────┐         ▼                         ▼┌─────────────────┐      ┌─────────────────────┐│  Sisyphus        │      │ multimodal-looker   ││  (DeepSeek v4 Pro)│      │  (MiMo-V2.5 🆕)     ││  纯文本模型       │      │  原生全模态模型       │└────────┬────────┘      └──────────┬──────────┘         │                          │┌────────▼────────┐        ┌────────▼────────┐│ EasyVision 拦截  │        │ 图片直通模型      ││ 保存图片到 /tmp   │        │ 310B ViT编码器    ││ ↓                │        │ 1M 上下文         ││ MCP understand   │        │ ↓                ││ _image 分析       │        │ 端到端多模态推理   │└────────┬────────┘        └────────┬────────┘         │                          │         └──────────┬───────────────┘                    ▼              Sisyphus 编排路由
 
-记得修改”\.config\opencode\opencode-minimax-easy-vision.jsonc“，给DeepSeek加入拦截的名单里。
+记得修改 ~/.config/opencode/opencode-minimax-easy-vision.jsonc，给 DeepSeek 加入拦截的名单里。
 &#123;  // Which models this plugin activates for.  // Wildcards: &quot;*&quot; = all, &quot;provider/*&quot; = all from provider,  // &quot;*/model&quot; = specific model from any provider, &quot;provider/model&quot; = exact.  // 拦截所有需要 MCP 识图的模型（包括非原生多模态的 DeepSeek）  &quot;models&quot;: [    &quot;minimax/*&quot;,    &quot;minimax-cn/*&quot;,    &quot;minimax-coding-plan/*&quot;,    &quot;minimax-cn-coding-plan/*&quot;,    &quot;minimax-token-plan/*&quot;,    &quot;minimax-cn-token-plan/*&quot;,    &quot;opencode-go/deepseek-v4-pro&quot;,    &quot;opencode-go/deepseek-v4-flash&quot;  ],  // MCP tool name for image analysis.  // Format: mcp_&lt;server-key&gt;_&lt;tool&gt;  &quot;imageAnalysisTool&quot;: &quot;mcp_minimax_understand_image&quot;,  // Custom prompt template. Must include at least one variable:  //   &#123;imageList&#125;  — newline-separated &quot;- Image N: /path&quot;  //   &#123;imageCount&#125; — number of images  //   &#123;toolName&#125;   — the configured MCP tool name  //   &#123;userText&#125;   — the user&#x27;s original text (may be empty)  // Leave as null to use the built-in default template.  &quot;promptTemplate&quot;: null,  // Directory where pasted images are saved before being passed to the MCP tool.  // Leave as null to use the OS temp directory + &quot;opencode-minimax-vision/&quot;.  &quot;tempDir&quot;: null,  // Delete temp files older than this many hours on plugin startup.  &quot;cleanupAfterHours&quot;: 24&#125;
 
 14.3 MiMo-V2.5 是什么？MiMo-V2.5 是 opencode-go（Go 套餐）提供的一款原生全模态模型：
@@ -2680,7 +2679,7 @@ ViT 7.29亿参数（原生）
 
 
 定价
-1x（1 token &#x3D; 1 credit），Go 套餐 $10&#x2F;月
+1x（1 token &#x3D; 1 credit），Go 套餐 $10&#x2F;月（截至 2026.05）
 
 
 14.4 三种图片识别路径
@@ -2784,7 +2783,7 @@ Sisyphus(5) &#x2F; Atlas(10) &#x2F; Hephaestus(3) &#x2F; Oracle(3) &#x2F; Momus(
 
 
 oh-my-openagent.json
-multimodal-looker 模型切 opencode-go/mimo-v2.5 + fallback
+multimodal-looker 从之前MiniMax模型切 opencode-go/MiMo-V2.5 + fallback
 原生全模态视觉
 
 
@@ -2825,7 +2824,291 @@ multimodal-looker + MiMo-V2.5 原生视觉
 
 
 
-附录 ohmyopencode配置（优化版——含 skills + prompt_append + vision）&#123;  &quot;$schema&quot;: &quot;https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json&quot;,  &quot;agents&quot;: &#123;    &quot;sisyphus&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🎯 主控智能体（DeepSeek v4 Pro）——任务拆解与多智能体编排中枢。职责：① 将复杂需求拆分为可并行执行的子任务；② 委托给最合适的子智能体（Atlas执行、Oracle顾问、Explore探索、Momus审查）；③ 质量把控与最终决策。核心 Skill：subagent-driven-development（多子代理并行驱动）、executing-plans（按计划执行）、brainstorming（开工前澄清需求）、find-skills（发现新Skill）、handoff（跨Session交接）。可利用MiniMax MCP的web_search获取最新实践。协作模式：Sisyphus拆解 → Prometheus规划 → Atlas执行 → Momus审查 → Oracle架构决策。&quot;,      &quot;skills&quot;: [        &quot;subagent-driven-development&quot;,        &quot;executing-plans&quot;,        &quot;brainstorming&quot;,        &quot;find-skills&quot;,        &quot;handoff&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的能力速查表\n### 可调度子智能体\n- 🔮 Oracle(DeepSeek v4 Pro)：只读架构顾问——架构权衡、根因诊断、安全审查\n- 📐 Prometheus(DeepSeek v4 Pro)：需求→分步可验证计划\n- 📚 Metis(DeepSeek v4 Pro)：1M上下文全局分析\n- 🚀 Atlas(MiniMax M2.7)：执行主力——全模态管线(视频/语音/音乐/图片)+ 全栈开发\n- 🔥 Hephaestus(DeepSeek v4 Pro)：高难度Bug/深层重构攻坚（2+次失败后调用）\n- 🔎 Momus(MiniMax M2.7)：代码审查——双轴审查+强制验证门禁\n- 🔍 Explore(Flash)：内部代码搜索（ast_grep/grep/glob）\n- 📖 Librarian(Flash)：外部资料查询（MiniMax web_search）\n- 👁️ Multimodal-Looker(MiniMax M2.7)：图片分析/OCR/UI审查\n### 核心规则\n- 所有实现必须委托(用task)，不自己写代码\n- 视觉工作→visual-engineering category\n- 并行化一切能并行的\n- 完成后：momus审查→verification-before-completion验证&quot;    &#125;,    &quot;atlas&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🚀 执行主力智能体（MiniMax M2.7，Pro推理兜底）——代码落地 + MiniMax全模态管线。开发Skill全栈覆盖：【前端】frontend-dev（电影级动画Framer Motion/GSAP+媒体生成）、shader-dev（GLSL着色器特效）；【全栈】fullstack-dev（Express/Next.js/Go/Python）；【移动端】react-native-dev（RN/Expo全家桶）；【文档】minimax-pdf（三管线PDF）、minimax-docx（Word文档）、minimax-xlsx（Excel零格式丢失）、pptx-generator（PPT全流程）；【多模态】minimax-multimodal-toolkit（Hailuo视频+Speech语音+Music音乐+Image图片一站生成）。通过MCP做视觉分析(understand_image)和资料检索(web_search)。工具：MiniMax CLI（多模态生成）+ 全模态MCP工具集。&quot;,      &quot;skills&quot;: [        &quot;frontend-dev&quot;,        &quot;fullstack-dev&quot;,        &quot;react-native-dev&quot;,        &quot;shader-dev&quot;,        &quot;minimax-multimodal-toolkit&quot;,        &quot;minimax-pdf&quot;,        &quot;minimax-docx&quot;,        &quot;minimax-xlsx&quot;,        &quot;pptx-generator&quot;,        &quot;test-driven-development&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的工具清单\n### 核心Skill（预加载）\n- frontend-dev：电影级前端(Framer Motion/GSAP + AI素材生成)\n- fullstack-dev：全栈(Express/Next.js/Go/Python)\n- react-native-dev：RN/Expo全家桶\n- shader-dev：GLSL着色器特效\n- minimax-multimodal-toolkit：视频(Hailuo)/语音(Speech)/音乐(Music)/图片(Image)一站式生成\n- minimax-pdf/docx/xlsx：文档三件套(零格式丢失)\n- pptx-generator：PPT全流程(封面/目录/内容/总结)\n- test-driven-development：红灯→绿灯→重构\n### 可用工具（直接调用）\n- MiniMax CLI：多模态生成(视频/语音/音乐/图片)\n- MiniMax MCP：understand_image(视觉分析) + web_search(资料检索)\n- Playwright：浏览器自动化测试\n### 关键规则\n- 完成后跑 webapp-testing 验证前端效果\n- 文档类产出用 minimax-pdf/docx/xlsx 而非手写Markdown\n- 前端产出必须带电影级动画&quot;    &#125;,    &quot;hephaestus&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔥 攻坚智能体（DeepSeek v4 Pro）——高难度Bug/深层重构专家。触发条件：① 其他Agent反复失败（2+次）；② Oracle诊断出根因后需要高强度编码攻坚；③ 跨模块架构级改动。核心 Skill：systematic-debugging（复现→缩小→假设→打桩→修复→回归六步法）、diagnose（疑难Bug专家诊断）、improve-codebase-architecture（深层架构重构）。Pro的强推理能力确保一击必中，不下补丁式修补。&quot;,      &quot;skills&quot;: [        &quot;systematic-debugging&quot;,        &quot;diagnose&quot;,        &quot;improve-codebase-architecture&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的工作流程\n### 调试六步法(systematic-debugging)\n1. 复现Bug 2. 缩小范围 3. 建立假设 4. 打桩/日志 5. 修复根因 6. 回归测试防复发\n### 何时调用Oracle\n- 2次修复失败后→让Oracle读代码做根因分析\n- 跨模块改动前→让Oracle评审影响面\n### 关键规则\n- 修复根因，不修症状\n- 每步修复后验证(must pass tests)\n- 不改测试来&#x27;pass&#x27;——那是作弊\n- 3次失败→立即停止→回滚→咨询Oracle&quot;    &#125;,    &quot;prometheus&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📐 规划师智能体（DeepSeek v4 Pro）——模糊需求→分步可验证计划。职责：将需求转化为结构化工程任务，标注依赖关系和并行机会，确保每个子任务有明确的验收标准。核心 Skill：executing-plans（计划执行引擎）。可将Skills技能库作为任务拆分的参考模板，输出包含：任务分解、优先级排序、并行执行策略、检查点定义。&quot;,      &quot;skills&quot;: [        &quot;executing-plans&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的规划模板\n### 输出结构\n1. 任务拆解：原子级子任务列表，标注可并行项\n2. 依赖关系：哪些任务必须等前面的完成\n3. 验收标准：每个子任务的&#x27;done&#x27;条件\n4. 模型推荐：每个任务建议用哪个category/agent\n5. Skill推荐：每个任务建议加载哪些Skill\n### 关键规则\n- 每个子任务必须可独立验证\n- 并行机会必须明确标注\n- 输出保存为 .sisyphus/plans/*.md 格式&quot;    &#125;,    &quot;oracle&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔮 只读顾问智能体（DeepSeek v4 Pro）——不写代码、不做决策、仅提供分析建议。适用场景：① 多系统架构权衡（微服务 vs 单体）；② 2次以上调试失败后的根因分析；③ 陌生代码模式的安全/性能审查；④ 技术选型对比评估。核心 Skill：zoom-out（全局视角）、grill-with-docs（计划vs文档对照挑战）、improve-codebase-architecture（架构深化建议）。Pro的最强推理模式专为深度思考场景设计。&quot;,      &quot;skills&quot;: [        &quot;zoom-out&quot;,        &quot;grill-with-docs&quot;,        &quot;improve-codebase-architecture&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的分析边界\n### 你可以做\n- 分析架构/代码模式/性能瓶颈\n- 提出多个方案并给出权衡分析\n- 对照文档挑战现有设计\n- 审查安全问题和潜在风险\n### 你绝不能做\n- 写代码、改文件\n- 做最终决策（由Sisyphus决策）\n- 代替其他Agent执行任务&quot;    &#125;,    &quot;metis&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📚 长上下文分析专家（DeepSeek v4 Pro，1M上下文窗口）——全库深度分析。适用场景：① 大型代码库架构审查；② 跨模块依赖追踪；③ 长文档（PRD/ADR）综合评审；④ 一次性消化整个仓库的结构和模式输出全局洞察。核心 Skill：zoom-out（拉远视角理解局部代码在全局中的位置）。不同于Oracle的单点分析，Metis擅长全局视角的系统级审查。&quot;,      &quot;skills&quot;: [        &quot;zoom-out&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的分析策略\n### 优势\n- 1M上下文窗口：可一次性读入整个仓库\n- 全局视角：跨模块依赖追踪、架构全景图\n### 与Oracle分工\n- Metis：全局视角、系统级审查、跨模块分析\n- Oracle：单点深度分析、架构决策权衡、根因诊断\n- 需要全景→Metis；需要深度→Oracle&quot;    &#125;,    &quot;momus&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🔎 代码审查与批评智能体（MiniMax M2.7，Pro审查兜底）——不为礼貌牺牲质量。能力：① 双轴审查（规范合规+需求对齐）；② 利用MiniMax MCP的web_search获取业界最佳实践作为参照基准；③ 给出有据可查的改进建议。核心 Skill：review（双轴审查：Standards+Spec并行）、verification-before-completion（强制验证门禁——声称完成前必须跑验证命令）。触发时机：PR提交前、重大重构后、需要第三方视角时。审查链：review（初步）→ review-work（五重并行终极审查）。&quot;,      &quot;skills&quot;: [        &quot;review&quot;,        &quot;verification-before-completion&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的审查清单\n### 双轴审查(review)\n- Standards轴：代码是否符合项目规范\n- Spec轴：代码是否匹配原始需求\n### 强制验证(verification-before-completion)\n- 触发词：done/complete/finished/fixed→必须先跑验证\n- 验证通过前不说&#x27;完成&#x27;\n### 审查工具\n- MiniMax MCP web_search：查业界最佳实践做参照\n- lsp_diagnostics：检查Lint/类型错误\n- bash：运行测试/build命令\n### 审查链\n- 日常：review（双轴并行）\n- PR前：review-work（五重并行：Oracle×2 + QA + 上下文挖掘）&quot;    &#125;,    &quot;explore&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔍 极速代码探索（DeepSeek v4 Flash，成本最低速度最快）——内部代码库搜索。能力：闪电级文件搜索、AST模式匹配、代码库结构发现。适用场景：查找特定实现、追踪调用链、扫描代码模式、发现项目约定。可使用MiniMax MCP的web_search查找外部开源代码参考。注意：此为内部搜索Agent，与librarian（外部资料搜索）互补。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 你的搜索工具箱\n### 内部搜索(代码库)\n- Grep：正则全文搜索\n- Glob：文件名模式匹配\n- ast_grep_search：AST结构化搜索(25种语言)\n- lsp_find_references：查找所有引用\n- lsp_symbols：文档/工作区符号搜索\n### 外部搜索\n- MiniMax MCP web_search：查开源代码参考\n### 互补分工\n- explore → 内部代码库搜索\n- librarian → 外部文档/开源参考查询&quot;    &#125;,    &quot;librarian&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📖 文档与外部参考查询（DeepSeek v4 Flash）——外部资料检索。能力：查阅官方API文档、搜索npm/pip/cargo包用法、查找开源实现示例。使用MiniMax MCP的web_search工具检索最新文档和最佳实践。注意：此为外部资料搜索Agent，与explore（内部代码搜索）互补。适合：遇到不熟悉的库/框架时，先查文档再写代码。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 你的搜索策略\n### 搜索工具\n- MiniMax MCP web_search：实时网页搜索\n- websearch_web_search_exa：语义搜索GitHub等\n- context7_query-docs：Context7文档库查询(先resolve-library-id)\n- grep_app_searchGitHub：GitHub代码搜索\n### 互补分工\n- librarian → 外部文档/API/最佳实践查询\n- explore → 内部代码库搜索&quot;    &#125;,    &quot;sisyphus-junior&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;👶 Sisyphus辅助（DeepSeek v4 Flash）——处理明确、单一、重复性的子任务。接收Sisyphus明确指令执行，不自行决策。适用：修Lint错误、更新依赖版本、批量重命名、简单格式调整。Flash的低成本适合大量微小任务。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 你的工作范围\n### 能做\n- 修单文件Lint错误\n- 更新依赖版本号\n- 批量重命名变量/文件\n- 简单格式调整(缩进、换行)\n### 不能做\n- 自行决策架构/设计\n- 跨多文件的复杂改动\n- 需要逻辑推理的任务&quot;    &#125;,    &quot;multimodal-looker&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/mimo-v2.5&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;👁️ 原生全模态视觉分析智能体（MiMo-V2.5，310B参数/15B激活/1M上下文）——支持直接接收粘贴的图片、无需MCP中转。能力：文本+图片+视频+音频理解，原生ViT(7.29亿参数)视觉编码器。适用：粘贴图片分析、截图审查、UI评审、OCR提取、图表解析。核心 Skill：vision-analysis（结构化视觉分析报告）。注意：仅做视觉理解（look），不生成图片（生成用 image-generation category + Atlas）。如MiMo-V2.5图片路由未生效，自动fallback到MiniMax M2.7 + MCP understand_image。&quot;,      &quot;skills&quot;: [        &quot;vision-analysis&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你是 MiMo-V2.5——原生全模态模型\n### 原生能力（直接接收，无需MCP）\n- 图片输入：粘贴截图/设计稿/图表直接理解\n- 视频理解：视频帧分析\n- 音频理解：音频内容转录与分析\n### 优势\n- 310B总参数/15B激活（Sparse MoE），1M上下文\n- 7.29亿参数ViT原生视觉编码——比MCP中转快3-5x\n- 端到端理解：图片和文字在同一上下文中推理\n### 备用路径（fallback到MiniMax时）\n- MiniMax_understand_image：MCP图片分析(JPEG/PNG/WebP)\n- vision-analysis技能：结构化视觉报告\n### 不做什么\n- 不生成图片/视频/音频(那是 atlas + image-generation 的活)&quot;    &#125;  &#125;,  &quot;categories&quot;: &#123;    &quot;visual-engineering&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎨 前端/UI/动画/图片生成（MiniMax M2.7执行，Pro推理兜底）。推荐 Skill：frontend-dev（电影级动画Framer Motion/GSAP+AI媒体素材生成）、frontend-ui-ux（设计师级UI/UX）、shader-dev（GLSL着色器特效）、minimax-multimodal-toolkit（通过MiniMax CLI生成图片/视频素材）。适用：着陆页、营销站、产品页、仪表板、媒体素材生成、电影级滚动动画。不适用：纯后端逻辑。&quot;,      &quot;prompt_append&quot;: &quot;## 🎨 前端任务必加载Skill\n- frontend-dev：电影级动画(Framer Motion/GSAP)+ AI媒体素材生成\n- frontend-ui-ux：设计师级UI/UX(无设计稿也能出精品)\n- shader-dev：GLSL着色器特效(按需)\n- minimax-multimodal-toolkit：通过MiniMax CLI生成图片/视频素材\n- webapp-testing：Playwright E2E验证前端效果\n### 产出标准\n- 必须带动画效果\n- 响应式设计\n- E2E测试通过&quot;    &#125;,    &quot;multimodal&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🌐 全模态生成与理解（MiniMax M2.7一站式）。推荐 Skill：minimax-multimodal-toolkit。能力：通过MiniMax CLI调用Hailuo视频生成、Speech语音合成（TTS/声音克隆/多段合成）、Music音乐创作（歌曲/纯音乐）、Image图片生成；通过MCP的understand_image做视觉分析。适用：需要同时产出多种媒体格式的复杂任务。&quot;,      &quot;prompt_append&quot;: &quot;## 🌐 全模态任务必加载Skill\n- minimax-multimodal-toolkit：一站式全模态生成\n### MiniMax CLI命令速查\n- 视频生成→minimax video generate\n- 语音合成→minimax speech generate\n- 音乐创作→minimax music generate\n- 图片生成→minimax image generate&quot;    &#125;,    &quot;video-generation&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎬 Hailuo 2.3 视频生成（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的视频生成命令，支持：文本到视频(text-to-video)、图片到视频(image-to-video)、首尾帧视频(start-end frame)、主题参考视频(subject reference)、模板化视频、长视频多场景编排。&quot;,      &quot;prompt_append&quot;: &quot;## 🎬 视频生成必加载Skill: minimax-multimodal-toolkit\n### 支持模式\n- text-to-video：文本直接生成视频\n- image-to-video：图片+描述生成视频\n- start-end frame：首尾帧控制\n- subject reference：主题参考保持一致性\n- long-form：多场景长视频编排&quot;    &#125;,    &quot;speech-synthesis&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎙️ Speech 2.8 语音合成（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的语音合成命令，支持：文本转语音(TTS)、声音克隆、声音设计、多段合成拼接。适用：配音、播客、有声书、语音助手。&quot;,      &quot;prompt_append&quot;: &quot;## 🎙️ 语音合成必加载Skill: minimax-multimodal-toolkit\n### 支持能力\n- TTS：文本→自然语音\n- 声音克隆：从样本克隆音色\n- 声音设计：自定义音色参数\n- 多段合成：拼接多段语音为长音频&quot;    &#125;,    &quot;music-composition&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎵 Music 2.6 音乐创作（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的音乐生成命令，根据文本描述生成原创歌曲（带歌词+人声）或纯音乐（器乐演奏）。适用：BGM、主题曲、广告配乐。&quot;,      &quot;prompt_append&quot;: &quot;## 🎵 音乐创作必加载Skill: minimax-multimodal-toolkit\n### 支持模式\n- 歌曲(song)：带歌词+人声演唱\n- 纯音乐(instrumental)：器乐演奏\n- 风格描述：如&#x27;中国风电音&#x27;、&#x27;钢琴叙事曲&#x27;&quot;    &#125;,    &quot;image-generation&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🖼️ Image 01 图片生成（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的图片生成命令，支持：文本到图片(text-to-image)、图片到图片(image-to-image)、角色参考图生成。适用：营销图、概念图、角色设计、插图。&quot;,      &quot;prompt_append&quot;: &quot;## 🖼️ 图片生成必加载Skill: minimax-multimodal-toolkit\n### 支持模式\n- text-to-image：文本描述生成图片\n- image-to-image：参考图+描述生成新图\n- character reference：角色一致性参考生成&quot;    &#125;,    &quot;local-vision&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/mimo-v2.5&quot;      ],      &quot;description&quot;: &quot;📂 本地图片文件识别（MiniMax M2.7 + MCP understand_image）——专门处理本地文件路径的图片。使用MiniMax MCP的MiniMax_understand_image工具对本地图片文件（JPEG/PNG/WebP）进行内容分析、OCR文字识别、图表数据提取。推荐 Skill：vision-analysis（结构化视觉分析报告）。与 vision-analysis 区别：本类别聚焦本地文件路径图片，通过MCP工具调用而非原生视觉模型。适用：本地截图分析、图片文件批量处理、文档扫描件识别。&quot;,      &quot;prompt_append&quot;: &quot;## 📂 本地图片识别专用通道\n### 工具\n- MiniMax_understand_image：通过文件路径分析图片\n### 适用场景\n- 明确提供本地文件路径的图片（如 /tmp/screenshot.png）\n- 大量图片文件的批量分析\n- 需要结构化OCR输出的文档扫描件\n### 与 vision-analysis 的区别\n- local-vision：专门走 MCP 文件路径分析（专用于本地文件）\n- vision-analysis：通用视觉理解（可直接接收粘贴的图片）\n### 不做什么\n- 不处理非文件路径的图片（粘贴图片→用 vision-analysis）\n- 不生成图片（生成→用 image-generation）&quot;    &#125;,    &quot;vision-analysis&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;👁️ 视觉理解与分析（MiniMax M2.7）。推荐 Skill：vision-analysis（结构化视觉分析报告）。使用MiniMax MCP的MiniMax_understand_image工具进行：图片内容分析、OCR文字识别、UI界面审查、图表数据提取、设计稿评审、照片场景描述。注意：这是视觉理解类别，不是图片生成——生成图片请用 image-generation category。&quot;,      &quot;prompt_append&quot;: &quot;## 👁️ 视觉分析必加载Skill: vision-analysis\n### 分析工具\n- MiniMax_understand_image：核心视觉分析API\n### 输出格式\n- 结构化报告：分类描述+关键发现+建议\n### 不要混淆\n- vision-analysis=图片理解\n- image-generation=图片生成&quot;    &#125;,    &quot;web-research&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🌐 上网搜索与资料查找（DeepSeek v4 Flash快速搜索，复杂分析回退到Pro）。工具：MiniMax MCP的web_search（实时搜索）、websearch_web_search_exa（语义搜索GitHub等）。适用：查最新API文档、找开源实现、调研技术方案、获取业界最佳实践、验证技术决策。策略：先用Flash低成本搜，结果不满足时fallback到Pro做深度分析。&quot;,      &quot;prompt_append&quot;: &quot;## 🌐 搜索策略\n### 工具选择\n- MiniMax_web_search：中文/实时信息搜索\n- websearch_web_search_exa：英文/语义搜索\n- context7_query-docs：官方文档库查询\n- grep_app_searchGitHub：GitHub代码搜索\n### 成本策略\n- 先用Flash搜（低成本）\n- 结果不足→fallback到Pro做深度分析&quot;    &#125;,    &quot;quick&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;⚡ 快速修复（DeepSeek v4 Flash最低成本）——单文件typo、简单配置修改、明确小改动。适用：拼写错误、依赖版本号更新、单行配置调整。不适用：需要多文件协调、逻辑推理、架构变更的任务——这些请用 deep 或 ultrabrain。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 快速修复边界\n### 能做\n- 单文件typo/语法错误\n- 单行配置修改\n- 依赖版本号更新\n### 不能做\n- 多文件协调改动→用 deep\n- 逻辑推理/架构变更→用 ultrabrain\n- 代码重构→用 deep&quot;    &#125;,    &quot;deep&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔬 自主深度研究（DeepSeek v4 Pro强推理）——目标驱动的端到端问题解决。适用：需要自主探索、多步推理、跨文件实现的复杂研究型任务。Pro的强推理能力确保分析的深度和准确性。适合：调研型任务、复杂功能实现探索、多方案对比验证。&quot;,      &quot;prompt_append&quot;: &quot;## 🔬 深度研究策略\n### 方法论\n1. 先Explore探索代码库结构\n2. 再Librarian查外部最佳实践\n3. Pro推理整合方案\n4. 输出有据可查的结论\n### 与ultrabrain区别\n- deep：研究+实现（有明确输出）\n- ultrabrain：纯推理（算法/架构/逻辑难题）&quot;    &#125;,    &quot;artistry&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎭 创意突破（MiniMax M2.7创造性思维）——超越常规模式，用非传统、创新性方法解决复杂问题。推荐 Skill：brainstorming（创意工作前强制需求探索+方案设计）。M2.7的创造性思维擅长跳出框架的解决方案。适用：需要打破常规的设计方案、创新架构探索、非传统解法。&quot;,      &quot;prompt_append&quot;: &quot;## 🎭 创意流程\n### 必加载Skill: brainstorming\n1. 需求探索：理解用户真实意图\n2. 方案发散：3+个不同方向的方案\n3. 方案评估：可行性/创新性/成本\n4. 原型验证：低成本快速试错\n### 与其他category区别\n- artistry=跳出框架的创新方案\n- deep=深入研究+落地实现\n- ultrabrain=硬核逻辑推理&quot;    &#125;,    &quot;ultrabrain&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🧠 硬核推理（DeepSeek v4 Pro最强模式）——仅用于真正困难、逻辑密集型任务。给明确目标而非分步指令，让Pro自行推理最优路径。适用：复杂算法设计、深层架构决策、多系统协同难题、高难度数学/逻辑问题。不适用：日常编码、简单重构——这些请用 deep。&quot;,      &quot;prompt_append&quot;: &quot;## 🧠 硬核推理策略\n### 适用场景\n- 复杂算法设计与优化\n- 多系统架构权衡决策\n- 高难度数学/逻辑证明\n- 分布式系统协同方案\n### 与deep区别\n- ultrabrain：给目标→自己推理最优路径(不干预)\n- deep：自主探索+分步实现(可干预)\n### 不要滥用\n- 日常代码→用 quick/deep\n- 简单算法→用 deep&quot;    &#125;,    &quot;unspecified-low&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📦 未分类低难度任务（DeepSeek v4 Flash）——不属于特定类别但工作量小的通用任务。Flash的低成本确保效率。适用：不属于以上任何特定类别的小型任务。如不确定难度，先看是否匹配 quick/deep 等其他类别。&quot;,      &quot;prompt_append&quot;: &quot;## 📦 使用提醒\n- 这是fallback类别，优先匹配 quick/deep 等专项类别\n- 仅用于小型通用任务\n- 如发现任务有明确特征→切换到适配的category&quot;    &#125;,    &quot;unspecified-high&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📦 未分类高难度任务（DeepSeek v4 Pro）——不属于特定类别但需要强推理的通用任务。Pro的深度思考能力确保输出质量。适用：不属于以上任何特定类别但复杂度较高的任务。如不确定难度，优先匹配 deep/ultrabrain/artistry 等专项类别。&quot;,      &quot;prompt_append&quot;: &quot;## 📦 使用提醒\n- 这是fallback类别，优先匹配 deep/ultrabrain/artistry 等专项类别\n- 仅用于高复杂度通用任务\n- 如发现任务有明确特征→切换到适配的category&quot;    &#125;,    &quot;writing&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;✍️ 文档与写作（DeepSeek v4 Pro语感和逻辑）——专业技术写作。产出：技术文档、设计说明、API文档、Release Notes、架构决策记录(ADR)、PRD。推荐 Skill：minimax-pdf（专业PDF）、minimax-docx（Word文档）、pptx-generator（PPT演示）、to-prd（需求文档）。Pro的语感和逻辑性确保文档清晰准确。&quot;,      &quot;prompt_append&quot;: &quot;## ✍️ 写作任务Skill选择\n### 文档类型→推荐Skill\n- 技术报告/设计文档→minimax-pdf(专业排版)\n- Word文档/合同→minimax-docx\n- PPT演示→pptx-generator\n- PRD需求文档→to-prd\n- 纯Markdown→直接写(不需要额外Skill)\n### 关键规则\n- 专业文档必须用对应Skill生成(不用手写Markdown)\n- 排版美观度是验收标准之一&quot;    &#125;  &#125;&#125;
+📦 附录 A：Skill 仓库索引（一键安装）
+以下将文中 28 个安装型 Skill + 5 个内置 Skill 按 GitHub 仓库归类，每个仓库均提供一键安装命令。安装后重启 OpenCode 即可生效。
+
+🏢 仓库一：MiniMax-AI&#x2F;skills（10 个 Skill）⭐ 主力仓库仓库地址：https://github.com/MiniMax-AI/skills许可证：MIT包含 Skill：
+
+
+
+#
+Skill 名称
+文中章节
+类型
+
+
+
+1
+frontend-dev
+第四章 §6
+🎨 前端&#x2F;动画
+
+
+2
+fullstack-dev
+第四章 §7
+🔧 全栈
+
+
+3
+react-native-dev
+第四章 §8
+📱 移动端
+
+
+4
+shader-dev
+第四章 §9
+🎨 着色器
+
+
+5
+minimax-pdf
+第五章 §10
+📄 PDF
+
+
+6
+minimax-docx
+第五章 §11
+📄 Word
+
+
+7
+minimax-xlsx
+第五章 §12
+📊 Excel
+
+
+8
+pptx-generator
+第五章 §13
+📊 PPT
+
+
+9
+minimax-multimodal-toolkit
+第六章 §15
+🎤🎵🎬🖼️ 多模态
+
+
+10
+vision-analysis
+第六章 §16
+👁️ 视觉分析
+
+
+🔧 一键安装（Linux&#x2F;macOS&#x2F;WSL）：
+# 克隆仓库git clone https://github.com/MiniMax-AI/skills.git ~/.minimax-skills# 创建 skills 目录并建立符号链接mkdir -p ~/.config/opencode/skillsfor skill in ~/.minimax-skills/skills/*/; do  skill_name=$(basename &quot;$skill&quot;)  ln -sfn &quot;$skill&quot; ~/.config/opencode/skills/&quot;$skill_name&quot;doneecho &quot;✅ MiniMax Skills 安装完成！重启 OpenCode 生效&quot;
+
+🔧 Windows（PowerShell）：
+git clone https://github.com/MiniMax-AI/skills.git &quot;$env:USERPROFILE\.minimax-skills&quot;New-Item -ItemType Directory -Force -Path &quot;$env:USERPROFILE\.config\opencode\skills&quot;Get-ChildItem &quot;$env:USERPROFILE\.minimax-skills\skills&quot; -Directory | ForEach-Object &#123;  New-Item -ItemType SymbolicLink -Path &quot;$env:USERPROFILE\.config\opencode\skills\$($_.Name)&quot; -Target $_.FullName -Force&#125;Write-Host &quot;✅ MiniMax Skills 安装完成！&quot;
+
+
+🔌 仓库二：code-yeongyu&#x2F;oh-my-openagent（核心插件 + 5 内置 Skill）仓库地址：https://github.com/code-yeongyu/oh-my-openagent说明：OhMyOpenAgent 核心插件，提供 11 智能体 + 14 任务分类 + 5 个内置 Skill。这是整套多智能体系统的基石，必须先装。
+🔧 安装核心插件：
+# 方式一：bun（推荐）bunx oh-my-opencode@latest# 方式二：npmnpx oh-my-opencode@latest
+
+内置 Skill（无需额外安装，插件自带）：
+
+
+
+#
+Skill
+文中章节
+说明
+
+
+
+⚡1
+playwright
+第十章
+浏览器全自动化
+
+
+⚡2
+frontend-ui-ux
+第十章
+设计师级 UI&#x2F;UX
+
+
+⚡3
+git-master
+第十章
+Git 全操作专家
+
+
+⚡4
+review-work
+第十章
+五重并行审查门禁
+
+
+⚡5
+ai-slop-remover
+第十章
+AI 代码味清理
+
+
+
+👁️ 仓库三：devadathanmb&#x2F;opencode-minimax-easy-vision（视觉链路插件）仓库地址：https://github.com/devadathanmb/opencode-minimax-easy-vision说明：让 DeepSeek（纯文本模型）粘贴图片时自动拦截 → MiniMax MCP 识图，打通 Sisyphus 的”眼睛”。详见第十四章。
+🔧 一键安装：
+# 克隆到 opencode 插件目录git clone https://github.com/devadathanmb/opencode-minimax-easy-vision.git \  ~/.config/opencode/plugins/opencode-minimax-easy-vision# 编辑配置，将 DeepSeek 加入拦截名单# 配置文件路径：~/.config/opencode/opencode-minimax-easy-vision.jsonc
+
+配置示例（opencode-minimax-easy-vision.jsonc）：
+&#123;  &quot;models&quot;: [    &quot;minimax/*&quot;,    &quot;minimax-cn/*&quot;,    &quot;opencode-go/deepseek-v4-pro&quot;,   // ← 关键：DeepSeek 加入拦截    &quot;opencode-go/deepseek-v4-flash&quot;  // ← 关键：Flash 也加入  ],  &quot;imageAnalysisTool&quot;: &quot;mcp_minimax_understand_image&quot;,  &quot;cleanupAfterHours&quot;: 24&#125;
+
+
+🌐 仓库四：社区编排类 Skill（通过 npx skills 安装）以下编排类 Skill 来自开源社区多个仓库，可通过通用 Skills CLI 一键安装：
+🔧 通用安装方式：
+# 搜索可用 Skillnpx skills find &quot;test-driven-development&quot;# 安装指定 Skill（示例）npx skills add &lt;owner/repo&gt; --skill &lt;skill-name&gt; -g -y
+
+
+
+
+#
+Skill 名称
+文中章节
+推荐来源
+安装命令
+
+
+
+11
+test-driven-development
+第三章
+community
+npx skills find &quot;test-driven-development&quot;
+
+
+12
+verification-before-completion
+第三章
+superpowers
+npx skills add obra/superpowers-skills --skill &quot;Verification Before Completion&quot; -g -y
+
+
+13
+systematic-debugging
+第三章
+community
+npx skills find &quot;systematic-debugging&quot;
+
+
+14
+review
+第三章
+community
+npx skills find &quot;review&quot;
+
+
+15
+diagnose
+第三章
+mattpocock
+npx skills add mattpocock/skills --skill diagnose -g -y
+
+
+16
+subagent-driven-development
+第七章
+superpowers
+npx skills add obra/superpowers-skills --skill &quot;Subagent-Driven Development&quot; -g -y
+
+
+17
+executing-plans
+第七章
+superpowers
+npx skills add obra/superpowers-skills --skill &quot;Executing Plans&quot; -g -y
+
+
+18
+brainstorming
+第七章
+superpowers
+npx skills add obra/superpowers-skills --skill brainstorming -g -y
+
+
+19
+find-skills
+第七章
+community
+npx skills find &quot;find-skills&quot;
+
+
+20
+handoff
+第七章
+mattpocock
+npx skills add mattpocock/skills --skill handoff -g -y
+
+
+21
+improve-codebase-architecture
+第八章
+mattpocock
+npx skills add mattpocock/skills --skill improve-codebase-architecture -g -y
+
+
+22
+zoom-out
+第八章
+mattpocock
+npx skills add mattpocock/skills --skill zoom-out -g -y
+
+
+23
+grill-with-docs
+第八章
+mattpocock
+npx skills add mattpocock/skills --skill grill-with-docs -g -y
+
+
+24
+prototype
+第八章
+mattpocock
+npx skills add mattpocock/skills --skill prototype -g -y
+
+
+25
+mcp-builder
+第八章
+community
+npx skills find &quot;mcp-builder&quot;
+
+
+26
+webapp-testing
+第九章
+community
+npx skills find &quot;webapp-testing&quot;
+
+
+27
+triage
+第九章
+mattpocock
+npx skills add mattpocock/skills --skill github-triage -g -y
+
+
+28
+to-prd
+第五章
+mattpocock
+npx skills add mattpocock/skills --skill to-prd -g -y
+
+
+
+📌 备注：标记为 community 的 Skill 可通过 skills.sh 搜索最新来源。标记为 mattpocock &#x2F; superpowers 的 Skill 已验证上游仓库存在。
+💡 一键安装全部社区 Skill（推荐）：在 npx skills find 搜索后逐个安装，或访问 https://skills.sh/ 浏览排行榜挑选。
+
+
+🗺️ 完整 Skill 来源速查表┌─────────────────────────────────────────────────────────┐│                    Skill 来源全景                         │├─────────────────────┬───────────────────────────────────┤│ MiniMax-AI/skills   │ 10 个（主力仓库）                  ││   git clone → ln    │ frontend-dev, fullstack-dev,      ││                     │ react-native-dev, shader-dev,     ││                     │ minimax-pdf, minimax-docx,        ││                     │ minimax-xlsx, pptx-generator,     ││                     │ minimax-multimodal-toolkit,       ││                     │ vision-analysis                   │├─────────────────────┼───────────────────────────────────┤│ oh-my-openagent     │ 5 个内置 Skill（插件自带）          ││   核心插件           │ playwright, frontend-ui-ux,       ││   bunx 一键安装      │ git-master, review-work,          ││                     │ ai-slop-remover                   │├─────────────────────┼───────────────────────────────────┤│ easy-vision 插件     │ 1 个视觉链路插件（独立安装）        ││   git clone         │ 让 DeepSeek 也能&quot;看图&quot;            │├─────────────────────┼───────────────────────────────────┤│ mattpocock/skills   │ 8 个编排类 Skill                  ││   npx skills add    │ diagnose, handoff, prototype,     ││                     │ zoom-out, grill-with-docs,        ││                     │ to-prd, triage,                   ││                     │ improve-codebase-architecture     │├─────────────────────┼───────────────────────────────────┤│ superpowers-skills  │ 4 个流程类 Skill                  ││   npx skills add    │ brainstorming, subagent-driven-   ││                     │ development, executing-plans,     ││                     │ verification-before-completion    │├─────────────────────┼───────────────────────────────────┤│ community           │ 6 个通用 Skill                    ││   npx skills find   │ test-driven-development,          ││   → skills.sh       │ systematic-debugging, review,     ││                     │ mcp-builder, webapp-testing,      ││                     │ find-skills                       │└─────────────────────┴───────────────────────────────────┘
+
+
+附录 B：ohmyopencode 配置（优化版——含 skills + prompt_append + vision）&#123;  &quot;$schema&quot;: &quot;https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json&quot;,  &quot;agents&quot;: &#123;    &quot;sisyphus&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🎯 主控智能体（DeepSeek v4 Pro）——任务拆解与多智能体编排中枢。职责：① 将复杂需求拆分为可并行执行的子任务；② 委托给最合适的子智能体（Atlas执行、Oracle顾问、Explore探索、Momus审查）；③ 质量把控与最终决策。核心 Skill：subagent-driven-development（多子代理并行驱动）、executing-plans（按计划执行）、brainstorming（开工前澄清需求）、find-skills（发现新Skill）、handoff（跨Session交接）。可利用MiniMax MCP的web_search获取最新实践。协作模式：Sisyphus拆解 → Prometheus规划 → Atlas执行 → Momus审查 → Oracle架构决策。&quot;,      &quot;skills&quot;: [        &quot;subagent-driven-development&quot;,        &quot;executing-plans&quot;,        &quot;brainstorming&quot;,        &quot;find-skills&quot;,        &quot;handoff&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的能力速查表\n### 可调度子智能体\n- 🔮 Oracle(DeepSeek v4 Pro)：只读架构顾问——架构权衡、根因诊断、安全审查\n- 📐 Prometheus(DeepSeek v4 Pro)：需求→分步可验证计划\n- 📚 Metis(DeepSeek v4 Pro)：1M上下文全局分析\n- 🚀 Atlas(MiniMax M2.7)：执行主力——全模态管线(视频/语音/音乐/图片)+ 全栈开发\n- 🔥 Hephaestus(DeepSeek v4 Pro)：高难度Bug/深层重构攻坚（2+次失败后调用）\n- 🔎 Momus(MiniMax M2.7)：代码审查——双轴审查+强制验证门禁\n- 🔍 Explore(Flash)：内部代码搜索（ast_grep/grep/glob）\n- 📖 Librarian(Flash)：外部资料查询（MiniMax web_search）\n- 👁️ Multimodal-Looker(MiniMax M2.7)：图片分析/OCR/UI审查\n### 核心规则\n- 所有实现必须委托(用task)，不自己写代码\n- 视觉工作→visual-engineering category\n- 并行化一切能并行的\n- 完成后：momus审查→verification-before-completion验证&quot;    &#125;,    &quot;atlas&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🚀 执行主力智能体（MiniMax M2.7，Pro推理兜底）——代码落地 + MiniMax全模态管线。开发Skill全栈覆盖：【前端】frontend-dev（电影级动画Framer Motion/GSAP+媒体生成）、shader-dev（GLSL着色器特效）；【全栈】fullstack-dev（Express/Next.js/Go/Python）；【移动端】react-native-dev（RN/Expo全家桶）；【文档】minimax-pdf（三管线PDF）、minimax-docx（Word文档）、minimax-xlsx（Excel零格式丢失）、pptx-generator（PPT全流程）；【多模态】minimax-multimodal-toolkit（Hailuo视频+Speech语音+Music音乐+Image图片一站生成）。通过MCP做视觉分析(understand_image)和资料检索(web_search)。工具：MiniMax CLI（多模态生成）+ 全模态MCP工具集。&quot;,      &quot;skills&quot;: [        &quot;frontend-dev&quot;,        &quot;fullstack-dev&quot;,        &quot;react-native-dev&quot;,        &quot;shader-dev&quot;,        &quot;minimax-multimodal-toolkit&quot;,        &quot;minimax-pdf&quot;,        &quot;minimax-docx&quot;,        &quot;minimax-xlsx&quot;,        &quot;pptx-generator&quot;,        &quot;test-driven-development&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的工具清单\n### 核心Skill（预加载）\n- frontend-dev：电影级前端(Framer Motion/GSAP + AI素材生成)\n- fullstack-dev：全栈(Express/Next.js/Go/Python)\n- react-native-dev：RN/Expo全家桶\n- shader-dev：GLSL着色器特效\n- minimax-multimodal-toolkit：视频(Hailuo)/语音(Speech)/音乐(Music)/图片(Image)一站式生成\n- minimax-pdf/docx/xlsx：文档三件套(零格式丢失)\n- pptx-generator：PPT全流程(封面/目录/内容/总结)\n- test-driven-development：红灯→绿灯→重构\n### 可用工具（直接调用）\n- MiniMax CLI：多模态生成(视频/语音/音乐/图片)\n- MiniMax MCP：understand_image(视觉分析) + web_search(资料检索)\n- Playwright：浏览器自动化测试\n### 关键规则\n- 完成后跑 webapp-testing 验证前端效果\n- 文档类产出用 minimax-pdf/docx/xlsx 而非手写Markdown\n- 前端产出必须带电影级动画&quot;    &#125;,    &quot;hephaestus&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔥 攻坚智能体（DeepSeek v4 Pro）——高难度Bug/深层重构专家。触发条件：① 其他Agent反复失败（2+次）；② Oracle诊断出根因后需要高强度编码攻坚；③ 跨模块架构级改动。核心 Skill：systematic-debugging（复现→缩小→假设→打桩→修复→回归六步法）、diagnose（疑难Bug专家诊断）、improve-codebase-architecture（深层架构重构）。Pro的强推理能力确保一击必中，不下补丁式修补。&quot;,      &quot;skills&quot;: [        &quot;systematic-debugging&quot;,        &quot;diagnose&quot;,        &quot;improve-codebase-architecture&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的工作流程\n### 调试六步法(systematic-debugging)\n1. 复现Bug 2. 缩小范围 3. 建立假设 4. 打桩/日志 5. 修复根因 6. 回归测试防复发\n### 何时调用Oracle\n- 2次修复失败后→让Oracle读代码做根因分析\n- 跨模块改动前→让Oracle评审影响面\n### 关键规则\n- 修复根因，不修症状\n- 每步修复后验证(must pass tests)\n- 不改测试来&#x27;pass&#x27;——那是作弊\n- 3次失败→立即停止→回滚→咨询Oracle&quot;    &#125;,    &quot;prometheus&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📐 规划师智能体（DeepSeek v4 Pro）——模糊需求→分步可验证计划。职责：将需求转化为结构化工程任务，标注依赖关系和并行机会，确保每个子任务有明确的验收标准。核心 Skill：executing-plans（计划执行引擎）。可将Skills技能库作为任务拆分的参考模板，输出包含：任务分解、优先级排序、并行执行策略、检查点定义。&quot;,      &quot;skills&quot;: [        &quot;executing-plans&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的规划模板\n### 输出结构\n1. 任务拆解：原子级子任务列表，标注可并行项\n2. 依赖关系：哪些任务必须等前面的完成\n3. 验收标准：每个子任务的&#x27;done&#x27;条件\n4. 模型推荐：每个任务建议用哪个category/agent\n5. Skill推荐：每个任务建议加载哪些Skill\n### 关键规则\n- 每个子任务必须可独立验证\n- 并行机会必须明确标注\n- 输出保存为 .sisyphus/plans/*.md 格式&quot;    &#125;,    &quot;oracle&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔮 只读顾问智能体（DeepSeek v4 Pro）——不写代码、不做决策、仅提供分析建议。适用场景：① 多系统架构权衡（微服务 vs 单体）；② 2次以上调试失败后的根因分析；③ 陌生代码模式的安全/性能审查；④ 技术选型对比评估。核心 Skill：zoom-out（全局视角）、grill-with-docs（计划vs文档对照挑战）、improve-codebase-architecture（架构深化建议）。Pro的最强推理模式专为深度思考场景设计。&quot;,      &quot;skills&quot;: [        &quot;zoom-out&quot;,        &quot;grill-with-docs&quot;,        &quot;improve-codebase-architecture&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的分析边界\n### 你可以做\n- 分析架构/代码模式/性能瓶颈\n- 提出多个方案并给出权衡分析\n- 对照文档挑战现有设计\n- 审查安全问题和潜在风险\n### 你绝不能做\n- 写代码、改文件\n- 做最终决策（由Sisyphus决策）\n- 代替其他Agent执行任务&quot;    &#125;,    &quot;metis&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📚 长上下文分析专家（DeepSeek v4 Pro，1M上下文窗口）——全库深度分析。适用场景：① 大型代码库架构审查；② 跨模块依赖追踪；③ 长文档（PRD/ADR）综合评审；④ 一次性消化整个仓库的结构和模式输出全局洞察。核心 Skill：zoom-out（拉远视角理解局部代码在全局中的位置）。不同于Oracle的单点分析，Metis擅长全局视角的系统级审查。&quot;,      &quot;skills&quot;: [        &quot;zoom-out&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的分析策略\n### 优势\n- 1M上下文窗口：可一次性读入整个仓库\n- 全局视角：跨模块依赖追踪、架构全景图\n### 与Oracle分工\n- Metis：全局视角、系统级审查、跨模块分析\n- Oracle：单点深度分析、架构决策权衡、根因诊断\n- 需要全景→Metis；需要深度→Oracle&quot;    &#125;,    &quot;momus&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🔎 代码审查与批评智能体（MiniMax M2.7，Pro审查兜底）——不为礼貌牺牲质量。能力：① 双轴审查（规范合规+需求对齐）；② 利用MiniMax MCP的web_search获取业界最佳实践作为参照基准；③ 给出有据可查的改进建议。核心 Skill：review（双轴审查：Standards+Spec并行）、verification-before-completion（强制验证门禁——声称完成前必须跑验证命令）。触发时机：PR提交前、重大重构后、需要第三方视角时。审查链：review（初步）→ review-work（五重并行终极审查）。&quot;,      &quot;skills&quot;: [        &quot;review&quot;,        &quot;verification-before-completion&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的审查清单\n### 双轴审查(review)\n- Standards轴：代码是否符合项目规范\n- Spec轴：代码是否匹配原始需求\n### 强制验证(verification-before-completion)\n- 触发词：done/complete/finished/fixed→必须先跑验证\n- 验证通过前不说&#x27;完成&#x27;\n### 审查工具\n- MiniMax MCP web_search：查业界最佳实践做参照\n- lsp_diagnostics：检查Lint/类型错误\n- bash：运行测试/build命令\n### 审查链\n- 日常：review（双轴并行）\n- PR前：review-work（五重并行：Oracle×2 + QA + 上下文挖掘）&quot;    &#125;,    &quot;explore&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔍 极速代码探索（DeepSeek v4 Flash，成本最低速度最快）——内部代码库搜索。能力：闪电级文件搜索、AST模式匹配、代码库结构发现。适用场景：查找特定实现、追踪调用链、扫描代码模式、发现项目约定。可使用MiniMax MCP的web_search查找外部开源代码参考。注意：此为内部搜索Agent，与librarian（外部资料搜索）互补。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 你的搜索工具箱\n### 内部搜索(代码库)\n- Grep：正则全文搜索\n- Glob：文件名模式匹配\n- ast_grep_search：AST结构化搜索(25种语言)\n- lsp_find_references：查找所有引用\n- lsp_symbols：文档/工作区符号搜索\n### 外部搜索\n- MiniMax MCP web_search：查开源代码参考\n### 互补分工\n- explore → 内部代码库搜索\n- librarian → 外部文档/开源参考查询&quot;    &#125;,    &quot;librarian&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📖 文档与外部参考查询（DeepSeek v4 Flash）——外部资料检索。能力：查阅官方API文档、搜索npm/pip/cargo包用法、查找开源实现示例。使用MiniMax MCP的web_search工具检索最新文档和最佳实践。注意：此为外部资料搜索Agent，与explore（内部代码搜索）互补。适合：遇到不熟悉的库/框架时，先查文档再写代码。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 你的搜索策略\n### 搜索工具\n- MiniMax MCP web_search：实时网页搜索\n- websearch_web_search_exa：语义搜索GitHub等\n- context7_query-docs：Context7文档库查询(先resolve-library-id)\n- grep_app_searchGitHub：GitHub代码搜索\n### 互补分工\n- librarian → 外部文档/API/最佳实践查询\n- explore → 内部代码库搜索&quot;    &#125;,    &quot;sisyphus-junior&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;👶 Sisyphus辅助（DeepSeek v4 Flash）——处理明确、单一、重复性的子任务。接收Sisyphus明确指令执行，不自行决策。适用：修Lint错误、更新依赖版本、批量重命名、简单格式调整。Flash的低成本适合大量微小任务。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 你的工作范围\n### 能做\n- 修单文件Lint错误\n- 更新依赖版本号\n- 批量重命名变量/文件\n- 简单格式调整(缩进、换行)\n### 不能做\n- 自行决策架构/设计\n- 跨多文件的复杂改动\n- 需要逻辑推理的任务&quot;    &#125;,    &quot;multimodal-looker&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/mimo-v2.5&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;👁️ 原生全模态视觉分析智能体（MiMo-V2.5，310B参数/15B激活/1M上下文）——支持直接接收粘贴的图片、无需MCP中转。能力：文本+图片+视频+音频理解，原生ViT(7.29亿参数)视觉编码器。适用：粘贴图片分析、截图审查、UI评审、OCR提取、图表解析。核心 Skill：vision-analysis（结构化视觉分析报告）。注意：仅做视觉理解（look），不生成图片（生成用 image-generation category + Atlas）。如MiMo-V2.5图片路由未生效，自动fallback到MiniMax M2.7 + MCP understand_image。&quot;,      &quot;skills&quot;: [        &quot;vision-analysis&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你是 MiMo-V2.5——原生全模态模型\n### 原生能力（直接接收，无需MCP）\n- 图片输入：粘贴截图/设计稿/图表直接理解\n- 视频理解：视频帧分析\n- 音频理解：音频内容转录与分析\n### 优势\n- 310B总参数/15B激活（Sparse MoE），1M上下文\n- 7.29亿参数ViT原生视觉编码——比MCP中转快3-5x\n- 端到端理解：图片和文字在同一上下文中推理\n### 备用路径（fallback到MiniMax时）\n- MiniMax_understand_image：MCP图片分析(JPEG/PNG/WebP)\n- vision-analysis技能：结构化视觉报告\n### 不做什么\n- 不生成图片/视频/音频(那是 atlas + image-generation 的活)&quot;    &#125;  &#125;,  &quot;categories&quot;: &#123;    &quot;visual-engineering&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎨 前端/UI/动画/图片生成（MiniMax M2.7执行，Pro推理兜底）。推荐 Skill：frontend-dev（电影级动画Framer Motion/GSAP+AI媒体素材生成）、frontend-ui-ux（设计师级UI/UX）、shader-dev（GLSL着色器特效）、minimax-multimodal-toolkit（通过MiniMax CLI生成图片/视频素材）。适用：着陆页、营销站、产品页、仪表板、媒体素材生成、电影级滚动动画。不适用：纯后端逻辑。&quot;,      &quot;prompt_append&quot;: &quot;## 🎨 前端任务必加载Skill\n- frontend-dev：电影级动画(Framer Motion/GSAP)+ AI媒体素材生成\n- frontend-ui-ux：设计师级UI/UX(无设计稿也能出精品)\n- shader-dev：GLSL着色器特效(按需)\n- minimax-multimodal-toolkit：通过MiniMax CLI生成图片/视频素材\n- webapp-testing：Playwright E2E验证前端效果\n### 产出标准\n- 必须带动画效果\n- 响应式设计\n- E2E测试通过&quot;    &#125;,    &quot;multimodal&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🌐 全模态生成与理解（MiniMax M2.7一站式）。推荐 Skill：minimax-multimodal-toolkit。能力：通过MiniMax CLI调用Hailuo视频生成、Speech语音合成（TTS/声音克隆/多段合成）、Music音乐创作（歌曲/纯音乐）、Image图片生成；通过MCP的understand_image做视觉分析。适用：需要同时产出多种媒体格式的复杂任务。&quot;,      &quot;prompt_append&quot;: &quot;## 🌐 全模态任务必加载Skill\n- minimax-multimodal-toolkit：一站式全模态生成\n### MiniMax CLI命令速查\n- 视频生成→minimax video generate\n- 语音合成→minimax speech generate\n- 音乐创作→minimax music generate\n- 图片生成→minimax image generate&quot;    &#125;,    &quot;video-generation&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎬 Hailuo 2.3 视频生成（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的视频生成命令，支持：文本到视频(text-to-video)、图片到视频(image-to-video)、首尾帧视频(start-end frame)、主题参考视频(subject reference)、模板化视频、长视频多场景编排。&quot;,      &quot;prompt_append&quot;: &quot;## 🎬 视频生成必加载Skill: minimax-multimodal-toolkit\n### 支持模式\n- text-to-video：文本直接生成视频\n- image-to-video：图片+描述生成视频\n- start-end frame：首尾帧控制\n- subject reference：主题参考保持一致性\n- long-form：多场景长视频编排&quot;    &#125;,    &quot;speech-synthesis&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎙️ Speech 2.8 语音合成（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的语音合成命令，支持：文本转语音(TTS)、声音克隆、声音设计、多段合成拼接。适用：配音、播客、有声书、语音助手。&quot;,      &quot;prompt_append&quot;: &quot;## 🎙️ 语音合成必加载Skill: minimax-multimodal-toolkit\n### 支持能力\n- TTS：文本→自然语音\n- 声音克隆：从样本克隆音色\n- 声音设计：自定义音色参数\n- 多段合成：拼接多段语音为长音频&quot;    &#125;,    &quot;music-composition&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎵 Music 2.6 音乐创作（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的音乐生成命令，根据文本描述生成原创歌曲（带歌词+人声）或纯音乐（器乐演奏）。适用：BGM、主题曲、广告配乐。&quot;,      &quot;prompt_append&quot;: &quot;## 🎵 音乐创作必加载Skill: minimax-multimodal-toolkit\n### 支持模式\n- 歌曲(song)：带歌词+人声演唱\n- 纯音乐(instrumental)：器乐演奏\n- 风格描述：如&#x27;中国风电音&#x27;、&#x27;钢琴叙事曲&#x27;&quot;    &#125;,    &quot;image-generation&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🖼️ Image 01 图片生成（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的图片生成命令，支持：文本到图片(text-to-image)、图片到图片(image-to-image)、角色参考图生成。适用：营销图、概念图、角色设计、插图。&quot;,      &quot;prompt_append&quot;: &quot;## 🖼️ 图片生成必加载Skill: minimax-multimodal-toolkit\n### 支持模式\n- text-to-image：文本描述生成图片\n- image-to-image：参考图+描述生成新图\n- character reference：角色一致性参考生成&quot;    &#125;,    &quot;local-vision&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/mimo-v2.5&quot;      ],      &quot;description&quot;: &quot;📂 本地图片文件识别（MiniMax M2.7 + MCP understand_image）——专门处理本地文件路径的图片。使用MiniMax MCP的MiniMax_understand_image工具对本地图片文件（JPEG/PNG/WebP）进行内容分析、OCR文字识别、图表数据提取。推荐 Skill：vision-analysis（结构化视觉分析报告）。与 vision-analysis 区别：本类别聚焦本地文件路径图片，通过MCP工具调用而非原生视觉模型。适用：本地截图分析、图片文件批量处理、文档扫描件识别。&quot;,      &quot;prompt_append&quot;: &quot;## 📂 本地图片识别专用通道\n### 工具\n- MiniMax_understand_image：通过文件路径分析图片\n### 适用场景\n- 明确提供本地文件路径的图片（如 /tmp/screenshot.png）\n- 大量图片文件的批量分析\n- 需要结构化OCR输出的文档扫描件\n### 与 vision-analysis 的区别\n- local-vision：专门走 MCP 文件路径分析（专用于本地文件）\n- vision-analysis：通用视觉理解（可直接接收粘贴的图片）\n### 不做什么\n- 不处理非文件路径的图片（粘贴图片→用 vision-analysis）\n- 不生成图片（生成→用 image-generation）&quot;    &#125;,    &quot;vision-analysis&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;👁️ 视觉理解与分析（MiniMax M2.7）。推荐 Skill：vision-analysis（结构化视觉分析报告）。使用MiniMax MCP的MiniMax_understand_image工具进行：图片内容分析、OCR文字识别、UI界面审查、图表数据提取、设计稿评审、照片场景描述。注意：这是视觉理解类别，不是图片生成——生成图片请用 image-generation category。&quot;,      &quot;prompt_append&quot;: &quot;## 👁️ 视觉分析必加载Skill: vision-analysis\n### 分析工具\n- MiniMax_understand_image：核心视觉分析API\n### 输出格式\n- 结构化报告：分类描述+关键发现+建议\n### 不要混淆\n- vision-analysis=图片理解\n- image-generation=图片生成&quot;    &#125;,    &quot;web-research&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🌐 上网搜索与资料查找（DeepSeek v4 Flash快速搜索，复杂分析回退到Pro）。工具：MiniMax MCP的web_search（实时搜索）、websearch_web_search_exa（语义搜索GitHub等）。适用：查最新API文档、找开源实现、调研技术方案、获取业界最佳实践、验证技术决策。策略：先用Flash低成本搜，结果不满足时fallback到Pro做深度分析。&quot;,      &quot;prompt_append&quot;: &quot;## 🌐 搜索策略\n### 工具选择\n- MiniMax_web_search：中文/实时信息搜索\n- websearch_web_search_exa：英文/语义搜索\n- context7_query-docs：官方文档库查询\n- grep_app_searchGitHub：GitHub代码搜索\n### 成本策略\n- 先用Flash搜（低成本）\n- 结果不足→fallback到Pro做深度分析&quot;    &#125;,    &quot;quick&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;⚡ 快速修复（DeepSeek v4 Flash最低成本）——单文件typo、简单配置修改、明确小改动。适用：拼写错误、依赖版本号更新、单行配置调整。不适用：需要多文件协调、逻辑推理、架构变更的任务——这些请用 deep 或 ultrabrain。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 快速修复边界\n### 能做\n- 单文件typo/语法错误\n- 单行配置修改\n- 依赖版本号更新\n### 不能做\n- 多文件协调改动→用 deep\n- 逻辑推理/架构变更→用 ultrabrain\n- 代码重构→用 deep&quot;    &#125;,    &quot;deep&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔬 自主深度研究（DeepSeek v4 Pro强推理）——目标驱动的端到端问题解决。适用：需要自主探索、多步推理、跨文件实现的复杂研究型任务。Pro的强推理能力确保分析的深度和准确性。适合：调研型任务、复杂功能实现探索、多方案对比验证。&quot;,      &quot;prompt_append&quot;: &quot;## 🔬 深度研究策略\n### 方法论\n1. 先Explore探索代码库结构\n2. 再Librarian查外部最佳实践\n3. Pro推理整合方案\n4. 输出有据可查的结论\n### 与ultrabrain区别\n- deep：研究+实现（有明确输出）\n- ultrabrain：纯推理（算法/架构/逻辑难题）&quot;    &#125;,    &quot;artistry&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎭 创意突破（MiniMax M2.7创造性思维）——超越常规模式，用非传统、创新性方法解决复杂问题。推荐 Skill：brainstorming（创意工作前强制需求探索+方案设计）。M2.7的创造性思维擅长跳出框架的解决方案。适用：需要打破常规的设计方案、创新架构探索、非传统解法。&quot;,      &quot;prompt_append&quot;: &quot;## 🎭 创意流程\n### 必加载Skill: brainstorming\n1. 需求探索：理解用户真实意图\n2. 方案发散：3+个不同方向的方案\n3. 方案评估：可行性/创新性/成本\n4. 原型验证：低成本快速试错\n### 与其他category区别\n- artistry=跳出框架的创新方案\n- deep=深入研究+落地实现\n- ultrabrain=硬核逻辑推理&quot;    &#125;,    &quot;ultrabrain&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🧠 硬核推理（DeepSeek v4 Pro最强模式）——仅用于真正困难、逻辑密集型任务。给明确目标而非分步指令，让Pro自行推理最优路径。适用：复杂算法设计、深层架构决策、多系统协同难题、高难度数学/逻辑问题。不适用：日常编码、简单重构——这些请用 deep。&quot;,      &quot;prompt_append&quot;: &quot;## 🧠 硬核推理策略\n### 适用场景\n- 复杂算法设计与优化\n- 多系统架构权衡决策\n- 高难度数学/逻辑证明\n- 分布式系统协同方案\n### 与deep区别\n- ultrabrain：给目标→自己推理最优路径(不干预)\n- deep：自主探索+分步实现(可干预)\n### 不要滥用\n- 日常代码→用 quick/deep\n- 简单算法→用 deep&quot;    &#125;,    &quot;unspecified-low&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📦 未分类低难度任务（DeepSeek v4 Flash）——不属于特定类别但工作量小的通用任务。Flash的低成本确保效率。适用：不属于以上任何特定类别的小型任务。如不确定难度，先看是否匹配 quick/deep 等其他类别。&quot;,      &quot;prompt_append&quot;: &quot;## 📦 使用提醒\n- 这是fallback类别，优先匹配 quick/deep 等专项类别\n- 仅用于小型通用任务\n- 如发现任务有明确特征→切换到适配的category&quot;    &#125;,    &quot;unspecified-high&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📦 未分类高难度任务（DeepSeek v4 Pro）——不属于特定类别但需要强推理的通用任务。Pro的深度思考能力确保输出质量。适用：不属于以上任何特定类别但复杂度较高的任务。如不确定难度，优先匹配 deep/ultrabrain/artistry 等专项类别。&quot;,      &quot;prompt_append&quot;: &quot;## 📦 使用提醒\n- 这是fallback类别，优先匹配 deep/ultrabrain/artistry 等专项类别\n- 仅用于高复杂度通用任务\n- 如发现任务有明确特征→切换到适配的category&quot;    &#125;,    &quot;writing&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;✍️ 文档与写作（DeepSeek v4 Pro语感和逻辑）——专业技术写作。产出：技术文档、设计说明、API文档、Release Notes、架构决策记录(ADR)、PRD。推荐 Skill：minimax-pdf（专业PDF）、minimax-docx（Word文档）、pptx-generator（PPT演示）、to-prd（需求文档）。Pro的语感和逻辑性确保文档清晰准确。&quot;,      &quot;prompt_append&quot;: &quot;## ✍️ 写作任务Skill选择\n### 文档类型→推荐Skill\n- 技术报告/设计文档→minimax-pdf(专业排版)\n- Word文档/合同→minimax-docx\n- PPT演示→pptx-generator\n- PRD需求文档→to-prd\n- 纯Markdown→直接写(不需要额外Skill)\n### 关键规则\n- 专业文档必须用对应Skill生成(不用手写Markdown)\n- 排版美观度是验收标准之一&quot;    &#125;  &#125;&#125;
 ]]></content>
       <categories>
         <category>AI 开发</category>
@@ -33546,5 +33829,2026 @@ import requestsurl = &quot;https://api.yijiayun.com/v1/chat/completions&quot;hea
 扩展练习：可以尝试用自己的数据集微调模型，比如注入动漫人格、专业领域知识等
 
 ]]></content>
+  </entry>
+  <entry>
+    <title>OpenCode + OhMyOpenAgent Skill 必装合集 — DeepSeek v4 × MiniMax M2.7 双引擎效率革命</title>
+    <url>/2026/05/19/opencode/ohmyopencode%E7%9A%84skill%E5%BF%85%E8%A3%85%E5%90%88%E9%9B%86%20(copy)/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+📌 前言：不只是 Skill，是一套完整的 Agent 操作系统很多人以为 OpenCode 只是一个”AI 写代码工具”——装上 Skill 让它更会写代码。但当你装上 OhMyOpenAgent 插件后，事情完全变了。
+OhMyOpenAgent 把 OpenCode 变成了一个 多智能体操作系统：11 个专业 Agent 各司其职、14 种任务分类自动路由到最优模型、28 个 Skill 为每个 Agent 注入领域知识。DeepSeek v4 Pro 负责强力推理，MiniMax M2.7 负责创意执行和多模态生成（通过工具调用”补全”多模态能力）——双引擎各展所长。
+
+MiniMax的多模态需要通过MiniMaxCLI来实现（Token订阅套餐有赠送多模态额度，视频生成、语音合成、音乐创作、编程、识图、webSearch）
+本文基于个人 oh-my-openagent.json 实际配置，详解这套体系的运作原理与 Skill 选装策略。
+
+
+🏛️ 第一章：架构全景——理解你在操作的是一支军队1.1 双模型引擎┌─────────────────────────────────────────────────────────┐│                   OhMyOpenAgent 双引擎                    │├─────────────────────────┬───────────────────────────────┤│   DeepSeek v4 Pro       │   MiniMax M2.7                 ││   (推理引擎)             │   (执行引擎)                    │├─────────────────────────┤───────────────────────────────┤│ • 硬核推理 / 逻辑分析    │ • Agent 任务执行                ││ • 架构决策 / 算法设计    │ • 创意突破 / 跳出框架            ││ • 长上下文分析（Metis）  │ • 多模态生成（视频/语音/音乐/图片）││ • 技术文档写作           │ • 视觉分析 / OCR                ││ • 深度研究 / 复杂重构    │ • 前端 UI / 动画                │├─────────────────────────┤───────────────────────────────┤│ Flash 变体（低成本）:     │ 全模态生产管线:                  ││ • 代码探索               │ • Hailuo 视频生成               ││ • 文档查询               │ • Speech 语音合成               ││ • 简单任务               │ • Music 音乐创作                ││ • Web 搜索               │ • Image 图片生成                │└─────────────────────────┴───────────────────────────────┘
+
+核心原则：DeepSeek “想”，MiniMax “做”。每个 Agent 和 Category 都配置了 fallback 链（反向互备），一个模型挂了自动切另一个。
+1.2 11 智能体军团OhMyOpenAgent 定义了 11 个专业智能体，每个都有明确的角色定位和模型分配：
+
+
+
+#
+智能体
+主力模型
+职责
+
+
+
+🎯
+Sisyphus
+DeepSeek v4 Pro
+主控——任务拆解、多智能体编排、质量决策
+
+
+📐
+Prometheus
+DeepSeek v4 Pro
+规划——模糊需求 → 分步可验证计划
+
+
+🚀
+Atlas
+MiniMax M2.7
+执行——代码落地 + MiniMax 全模态管线
+
+
+🔥
+Hephaestus
+DeepSeek v4 Pro
+攻坚——其他 Agent 反复失败的高难度 Bug &#x2F; 重构
+
+
+🔮
+Oracle
+DeepSeek v4 Pro
+顾问——只读分析：架构权衡、根因诊断、安全审查
+
+
+📚
+Metis
+DeepSeek v4 Pro
+长上下文分析——1M 窗口全库深度审查
+
+
+🔎
+Momus
+MiniMax M2.7
+批评——严格代码审查 + 业界最佳实践对照
+
+
+🔍
+Explore
+DeepSeek v4 Flash
+探索——闪电级代码搜索、模式匹配
+
+
+📖
+Librarian
+DeepSeek v4 Flash
+查询——文档检索、开源参考查找
+
+
+👁️
+Multimodal-Looker
+MiniMax M2.7
+视觉——图片分析、OCR、UI 审查
+
+
+👶
+Sisyphus-Junior
+DeepSeek v4 Flash
+打杂——Lint 修复、批量重命名、简单格式调整
+
+
+
+💡 协作模式：Sisyphus 拆解任务 → Prometheus 做计划 → Atlas 带队执行 → Momus 审查代码 → Oracle 做架构决策支持。遇到硬骨头交给 Hephaestus 攻坚。所有 Agent 都通过 fallback 互备，不存在单点故障。
+
+1.3 14 种任务分类——智能路由你的每个任务会被自动路由到最优模型。这套机制让你无需手动选择模型：
+任务类型                    →  主力模型           适用场景──────────────────────────────────────────────────────🧠 ultrabrain (硬核推理)    →  DeepSeek v4 Pro    复杂算法、架构决策🔬 deep (深度研究)          →  DeepSeek v4 Pro    多步推理、跨文件实现✍️  writing (文档写作)      →  DeepSeek v4 Pro    技术文档、API 文档🌐 web-research (搜索)      →  DeepSeek v4 Flash  查文档、找方案⚡ quick (快速修复)          →  DeepSeek v4 Flash  typo、配置修改📦 unspecified-low (低难度)  →  DeepSeek v4 Flash  通用小任务📦 unspecified-high (高难度) →  DeepSeek v4 Pro    通用复杂任务──────────────────────────────────────────────────────🎨 visual-engineering (前端) →  MiniMax M2.7      UI、动画、图片🎭 artistry (创意突破)       →  MiniMax M2.7      非传统方案🌐 multimodal (多模态)       →  MiniMax M2.7      视频/语音/音乐/图片🎬 video-generation          →  MiniMax M2.7      Hailuo 视频🎙️ speech-synthesis           →  MiniMax M2.7      Speech 语音🎵 music-composition          →  MiniMax M2.7      Music 音乐🖼️ image-generation           →  MiniMax M2.7      Image 图片👁️ vision-analysis            →  MiniMax M2.7      图片理解
+
+关键规律：
+
+需要推理 → DeepSeek v4 Pro
+需要执行&#x2F;创意&#x2F;多模态 → MiniMax M2.7
+简单快速 → DeepSeek v4 Flash（降成本）
+
+
+🎯 第二章：Skill 全景地图——28 个 Skill 按 Agent 分工把 Skill 按它们在多智能体体系中扮演的角色重新分类：
+🎯 Sisyphus（主控编排）  ├── subagent-driven-development  ← 多子代理并行驱动  ├── executing-plans              ← 按计划分步执行  ├── brainstorming                ← 开工前需求澄清  ├── find-skills                  ← 发现新 Skill  └── handoff                      ← 跨 Session 交接📐 Prometheus（规划）  └── executing-plans              ← 计划执行引擎🚀 Atlas（执行）  ├── frontend-dev                 ← 电影级前端（Framer Motion + 媒体生成）  ├── fullstack-dev                ← 全栈（Express/Next.js/Go/Python）  ├── react-native-dev             ← RN / Expo 全家桶  ├── shader-dev                   ← GLSL 着色器特效  ├── minimax-pdf                  ← 专业 PDF（三管线）  ├── minimax-docx                 ← Word 文档  ├── minimax-xlsx                 ← Excel 零格式丢失  ├── pptx-generator               ← PPT 全流程  └── minimax-multimodal-toolkit   ← 语音/音乐/视频/图片一站生成🔥 Hephaestus（攻坚）  └── systematic-debugging         ← 科学调试六步法🔮 Oracle（顾问）  ├── zoom-out                     ← 全局视角分析  ├── grill-with-docs              ← 文档对照挑战  └── improve-codebase-architecture ← 架构深化🔎 Momus（审查）  ├── review                       ← 双轴审查（规范 + 需求）  └── verification-before-completion ← 强制验证门禁👁️ Multimodal-Looker（视觉）  └── vision-analysis              ← 图片分析/OCR/UI审查🔧 通用（所有 Agent）  ├── test-driven-development      ← TDD 红灯→绿灯→重构  ├── diagnose                     ← 疑难 Bug 专家诊断  ├── webapp-testing               ← Playwright E2E  ├── triage                       ← Issue 状态机  ├── to-prd                       ← PRD 生成  ├── prototype                    ← 快速原型  └── mcp-builder                  ← MCP Server 构建⚡ 内置王牌（已随系统自带）  ├── playwright                   ← 浏览器自动化  ├── frontend-ui-ux               ← 设计师级 UI/UX  ├── git-master                   ← Git 全操作  ├── review-work                  ← 五重并行审查门禁  └── ai-slop-remover             ← AI 代码味清理
+
+
+🛡️ 第三章：第一梯队——质量保障（不装就是在裸奔）1. verification-before-completion ⭐️⭐️⭐️⭐️⭐️
+“完成前必须跑验证，不许空口说白话”
+
+在 OhMyOpenAgent 体系中，Atlas 负责执行代码，Momus 负责审查——但最终验收需要这个 Skill 来强制把关。它会在 Agent 声称”做完了”之前，自动触发验证命令。
+触发条件：fix、complete、done 等声明性词汇。
+2. test-driven-development ⭐️⭐️⭐️⭐️⭐️
+“红灯 → 绿灯 → 重构，标准 TDD 循环”
+
+DeepSeek v4 Pro 写代码极快，但没有约束时也极快写出 Bug。TDD Skill 把 Atlas 的执行能力约束在测试框架内。
+推荐配合：Hephaestus 攻坚时，先用 TDD Skill 补齐测试覆盖。
+3. systematic-debugging ⭐️⭐️⭐️⭐️
+“复现 → 缩小 → 假设 → 打桩 → 修复 → 回归”
+
+科学调试六步法。在 Hephaestus 接管前，先走标准流程；走不通再交给 Hephaestus 攻坚。
+4. review ⭐️⭐️⭐️⭐️
+“双轴并行审查：规范符合度 + 需求符合度”
+
+启动两个并行子审查——一个检查代码规范，一个检查需求匹配。比 Momus 的内置审查更轻量，适合日常快速审查。
+5. diagnose ⭐️⭐️⭐️
+“疑难杂症专家门诊”
+
+systematic-debugging 搞不定时，diagnose 提供更专业的诊断链路。如果还搞不定 → 交给 Hephaestus。
+
+🎨 第四章：第二梯队——Atlas 执行工具箱Atlas 是 OhMyOpenAgent 中的主力执行 Agent（MiniMax M2.7），肩负代码落地和多模态产出的双重使命。以下 Skill 直接增强 Atlas 的战斗力。
+6. frontend-dev ⭐️⭐️⭐️⭐️⭐️
+“电影级前端：Framer Motion &#x2F; GSAP + MiniMax 媒体生成”
+
+配合 Atlas 的 MiniMax CLI 能力，直接生成页面所需的图片和视频素材，加上电影级动画——一个 Prompt 出整站。
+集成点：Atlas → visual-engineering category（MiniMax M2.7） → frontend-dev Skill。
+7. fullstack-dev ⭐️⭐️⭐️⭐️⭐️
+“全栈最佳实践：Express &#x2F; Next.js &#x2F; Go &#x2F; Python + 生产加固”
+
+覆盖 REST API 设计、实时通信（SSE&#x2F;WebSocket）、认证流、文件上传。Atlas 用它来保证代码不走野路子。
+8. react-native-dev ⭐️⭐️⭐️⭐️
+“React Native &#x2F; Expo 全家桶”
+
+组件、动画、导航、状态管理、性能优化、App Store 部署——Atlas 的移动端能力全靠它。
+9. shader-dev ⭐️⭐️⭐️
+“GLSL 着色器：Ray Marching + SDF + 粒子系统”
+
+WebGL 创意编程、视觉特效。适合前端需要炫酷效果时加载。
+
+📄 第五章：第三梯队——文档产出四件套MiniMax M2.7 在结构化内容生成上表现优异，文档四件套是 OhMyOpenAgent 生态的独有优势。
+10. minimax-pdf ⭐️⭐️⭐️⭐️⭐️
+“PDF 设计系统：颜色 → 排版 → 间距，自顶向下流动”
+
+
+
+
+管线
+说明
+
+
+
+CREATE
+从零生成：报告、提案、简历、封面
+
+
+FILL
+智能填写 PDF 表单字段
+
+
+REFORMAT
+Markdown&#x2F;文本一键转专业 PDF
+
+
+11. minimax-docx ⭐️⭐️⭐️⭐️
+“Word 文档三管线：新建 &#x2F; 填写 &#x2F; 模板套用，基于 OpenXML SDK”
+
+合同、正式报告、企业文档——格式精确到像素级。
+12. minimax-xlsx ⭐️⭐️⭐️⭐️
+“零格式丢失编辑 Excel，公式重算 + 专业财务格式”
+
+财务模型、数据报表、透视表——改数据不毁格式。
+13. pptx-generator ⭐️⭐️⭐️⭐️
+“PPT 全流程：封面 → TOC → 内容 → 章节分隔 → 总结”
+
+PptxGenJS 生成 + 编辑已有 PPTX。技术分享、项目汇报必备。
+14. to-prd ⭐️⭐️⭐️
+“对话上下文 → 标准 PRD → 发布到 Issue Tracker”
+
+Prometheus 做完规划后，一键输出 PRD。
+
+🌐 第六章：第四梯队——MiniMax 多模态全栈15. minimax-multimodal-toolkit ⭐️⭐️⭐️⭐️⭐️
+“MiniMax 全模态一站生成：🎤语音 + 🎵音乐 + 🎬视频 + 🖼️图片”
+
+这是 Atlas 执行 Agent 的核心武器。在 OhMyOpenAgent 架构中，Atlas 通过 MiniMax CLI 直接调用以下能力：
+
+
+
+能力
+底层模型
+说明
+
+
+
+🎤 Speech 2.8
+MiniMax TTS
+文字转语音、声音克隆、声音设计、多段合成
+
+
+🎵 Music 2.6
+MiniMax Music
+原创歌曲、纯音乐
+
+
+🎬 Hailuo 2.3
+MiniMax Video
+文生视频、图生视频、首尾帧、主体参考、长视频多场景
+
+
+🖼️ Image 01
+MiniMax Image
+文生图、图生图（角色一致性保持）
+
+
+🔧 FFmpeg
+媒体处理
+转换、拼接、裁剪、提取
+
+
+Category 路由：Atlas 根据子任务类型，自动路由到 video-generation &#x2F; speech-synthesis &#x2F; music-composition &#x2F; image-generation category——全部跑在 MiniMax M2.7 上。
+16. vision-analysis ⭐️⭐️⭐️⭐️
+“MiniMax 视觉理解：图片分析 + OCR + UI 审查”
+
+配合 Multimodal-Looker 智能体（MiniMax M2.7 原生），处理所有视觉任务。触发条件：消息中包含图片路径或 URL。
+
+🚀 第七章：第五梯队——效率跃迁17. subagent-driven-development ⭐️⭐️⭐️⭐️⭐️
+“复杂任务拆解 → 多子代理并行 → Sisyphus 居中调度”
+
+这是 Sisyphus 主控 Agent 的核心 Skill。大型任务会被拆成独立单元，Sisyphus 派发子代理并行执行——DeepSeek v4 Pro 做推理拆分，Atlas（M2.7）或 DeepSeek v4 Flash Agent 并行落地。
+18. executing-plans ⭐️⭐️⭐️⭐️
+“Prometheus 出计划 → 按检查点分步执行 → 自动 Review”
+
+Prometheus（DeepSeek v4 Pro）规划完成后的执行引擎。每个检查点自动触发 Momus 审查。
+19. brainstorming ⭐️⭐️⭐️⭐️
+“任何创意工作前强制走需求探索 + 方案设计”
+
+面向 artistry category（MiniMax M2.7）的创意流程。在写代码之前先把需求想清楚。
+20. find-skills ⭐️⭐️⭐️
+“快速发现和安装新 Skill”
+
+当你想扩展 Agent 能力时，用它搜索可用 Skill。
+21. handoff ⭐️⭐️⭐️
+“会话交接：当前上下文 → 结构化交接文档”
+
+对话太长要换 Session？一键打包所有上下文，新 Session 无缝续接。
+
+🏗️ 第八章：第六梯队——架构 &amp; 项目管理22. improve-codebase-architecture ⭐️⭐️⭐️⭐️
+“基于 CONTEXT.md 和 ADR，找出架构优化点”
+
+配合 Oracle 的只读分析能力，在不动代码的情况下先分析架构瓶颈。
+23. zoom-out ⭐️⭐️⭐️⭐️
+“拉远视角，理解局部代码在全局中的位置”
+
+Metis（1M 上下文）或 Oracle 分析陌生代码时的必备视角切换工具。
+24. grill-with-docs ⭐️⭐️⭐️
+“计划 vs 文档对照审查——用领域语言挑战你的设计”
+
+Prometheus 出计划后、Atlas 执行前，用这个 Skill 做一次压力测试。
+25. prototype ⭐️⭐️⭐️
+“两路快速原型：终端状态机 + 多风格 UI 并行探索”
+
+方案不确定时先做原型，低成本验证假设。
+26. mcp-builder ⭐️⭐️⭐️
+“构建 MCP Server：Python FastMCP &#x2F; Node MCP SDK”
+
+扩展 OhMyOpenAgent 能力边界——把外部 API 封装成 MCP 工具，所有 Agent 都能调用。
+
+🔧 第九章：第七梯队——调试 &amp; 测试27. webapp-testing ⭐️⭐️⭐️⭐️
+“Playwright E2E + 截图 + Console 日志”
+
+前端功能验证、UI 渲染调试。在 Atlas 生成前端代码后，用它做自动验收。
+28. triage ⭐️⭐️⭐️
+“Issue 状态机：分类 → 优先级 → 分配 → 关闭”
+
+项目管理流程规范化。
+
+⚡ 第十章：内置王牌——无需安装已就绪这 5 个 Skill 随 OpenCode 系统自带，但你得知道它们有多强：
+
+
+
+Skill
+模型
+亮点
+
+
+
+playwright
+—
+浏览器全自动化——测试、爬虫、截图、表单填写
+
+
+frontend-ui-ux
+—
+设计师级 UI&#x2F;UX——无设计稿也能出精品
+
+
+git-master
+—
+Git 全操作专家——原子提交、rebase、blame、bisect
+
+
+review-work
+—
+五重并行审查门禁：目标验证 + 代码质量 + 安全审查 + QA 执行 + 上下文挖掘（同时启动 5 个 Agent！）
+
+
+ai-slop-remover
+—
+移除过度注释、无用抽象等 AI 痕迹
+
+
+
+⚠️ review-work 是审查链的终极形态——比 review Skill 更强（五重并行 vs 双轴），适合 PR 提交前的最终门禁。它在 OhMyOpenAgent 架构中会同时启动 Oracle、Momus 等多个 Agent 并行审查。
+
+
+🧭 第十一章：场景速查——什么时候加载哪个 Skill
+
+
+场景
+涉及 Agent
+必装 Skill
+
+
+
+🔧 日常写代码
+Atlas + Sisyphus
+fullstack-dev + frontend-dev + brainstorming
+
+
+🧪 写测试
+Atlas
+test-driven-development + webapp-testing
+
+
+🐛 修 Bug
+Hephaestus
+systematic-debugging + diagnose
+
+
+📦 提交 PR
+Momus + Oracle
+review + verification-before-completion + review-work
+
+
+📝 出文档
+Atlas（M2.7）
+minimax-pdf + minimax-docx + pptx-generator + to-prd
+
+
+📊 处理数据
+Atlas
+minimax-xlsx
+
+
+🎙️ 多模态生成
+Atlas（M2.7）
+minimax-multimodal-toolkit
+
+
+👁️ 图片分析
+Multimodal-Looker
+vision-analysis
+
+
+🏗️ 重构架构
+Oracle + Hephaestus
+improve-codebase-architecture + zoom-out + grill-with-docs
+
+
+🚀 大任务拆解
+Sisyphus + Prometheus
+subagent-driven-development + executing-plans
+
+
+🔄 换 Session
+Sisyphus
+handoff
+
+
+🎨 视觉特效
+Atlas（M2.7）
+shader-dev + frontend-dev
+
+
+📱 移动开发
+Atlas
+react-native-dev
+
+
+🔌 自定义工具
+—
+mcp-builder
+
+
+📋 项目管理
+—
+triage
+
+
+
+💡 第十二章：按 Agent 角色推荐 Skill 组合不同 Agent 在 OhMyOpenAgent 架构中承担不同职责，加载合适的 Skill 能最大化每个 Agent 的战斗力：
+🎯 Sisyphus（主控编排）— DeepSeek v4 Prosubagent-driven-development  ← 核心：拆解 + 派发 + 调度executing-plans              ← 按 Prometheus 计划执行brainstorming                ← 需求澄清handoff                      ← 长久任务交接
+
+🚀 Atlas（执行主力）— MiniMax M2.7frontend-dev                 ← 前端（Framer Motion + 媒体生成）fullstack-dev                ← 全栈（Express/Next.js/Go/Python）minimax-multimodal-toolkit   ← 语音/音乐/视频/图片minimax-pdf + docx + xlsx    ← 文档产出pptx-generator               ← PPT
+
+🔥 Hephaestus（攻坚）— DeepSeek v4 Prosystematic-debugging         ← 科学调试diagnose                     ← 专家诊断improve-codebase-architecture ← 深层重构
+
+🔎 Momus（审查）— MiniMax M2.7review                       ← 双轴审查verification-before-completion ← 强制验证
+
+
+🎯 第十三章：最小必装清单（8 + 5 &#x3D; 13）如果只装最核心的，推荐这个组合：
+🛡️ verification-before-completion    ← 拒绝假交付（Momus 门禁）🛡️ test-driven-development          ← 代码有保障（Atlas 约束）🛡️ systematic-debugging             ← Bug 不求人（Hephaestus 前置）📄 minimax-pdf                       ← 文档一键出（M2.7 优势）📄 minimax-multimodal-toolkit        ← 多模态核心（Atlas 武器库）🎨 frontend-dev                      ← 前端不将就（Atlas 执行）🎨 fullstack-dev                     ← 全栈通吃（Atlas 执行）🚀 subagent-driven-development       ← 效率翻倍（Sisyphus 核心）+ 5 个内置王牌（playwright / frontend-ui-ux / git-master / review-work / ai-slop-remover）
+
+装上这 13 个，你的 DeepSeek v4 + MiniMax M2.7 开发体验会从”能用”直接跃迁到 **”恐怖如斯”**。
+
+
+👁️ 第十四章：多模态视觉体系——打通 Sisyphus 的”眼睛”14.1 痛点——Sisyphus 是个”盲人”OhMyOpenAgent 的多智能体体系有个致命盲区：
+你粘贴图片给 Sisyphus（主编排器）         ↓Sisyphus 是 DeepSeek v4 Pro（纯文本模型）         ↓💥 &quot;Cannot read clipboard&quot; ——图片根本没机会路由给多模态 Agent！
+
+根因：MiniMax M2.7（Atlas 的模型）虽然能做视觉分析，但它不是原生多模态模型——只能通过 MCP 工具（MiniMax_understand_image）”间接”看图。而 opencode 的图片粘贴是发给当前激活的 Agent 的——如果当前是 Sisyphus（DeepSeek v4 Pro），图片在入口就被拒绝了。
+14.2 解决方案——双层图片链路我们需要在两个层面解决问题：
+
+https://github.com/devadathanmb/opencode-minimax-easy-vision
+
+
+
+
+层
+机制
+解决什么
+
+
+
+🛡️ 入口层
+EasyVision 插件拦截 Sisyphus 的图片 → 转 MiniMax MCP 识图
+让主编排器也能”看懂”图片，然后智能路由
+
+
+🚀 直达层
+multimodal-looker 切到 MiMo-V2.5（原生全模态）
+切到该 Agent 后，图片直通模型，端到端推理
+
+
+                  你粘贴图片                      │         ┌────────────┴────────────┐         ▼                         ▼┌─────────────────┐      ┌─────────────────────┐│  Sisyphus        │      │ multimodal-looker   ││  (DeepSeek v4 Pro)│      │  (MiMo-V2.5 🆕)     ││  纯文本模型       │      │  原生全模态模型       │└────────┬────────┘      └──────────┬──────────┘         │                          │┌────────▼────────┐        ┌────────▼────────┐│ EasyVision 拦截  │        │ 图片直通模型      ││ 保存图片到 /tmp   │        │ 310B ViT编码器    ││ ↓                │        │ 1M 上下文         ││ MCP understand   │        │ ↓                ││ _image 分析       │        │ 端到端多模态推理   │└────────┬────────┘        └────────┬────────┘         │                          │         └──────────┬───────────────┘                    ▼              Sisyphus 编排路由
+
+记得修改”\.config\opencode\opencode-minimax-easy-vision.jsonc“，给DeepSeek加入拦截的名单里。
+&#123;  // Which models this plugin activates for.  // Wildcards: &quot;*&quot; = all, &quot;provider/*&quot; = all from provider,  // &quot;*/model&quot; = specific model from any provider, &quot;provider/model&quot; = exact.  // 拦截所有需要 MCP 识图的模型（包括非原生多模态的 DeepSeek）  &quot;models&quot;: [    &quot;minimax/*&quot;,    &quot;minimax-cn/*&quot;,    &quot;minimax-coding-plan/*&quot;,    &quot;minimax-cn-coding-plan/*&quot;,    &quot;minimax-token-plan/*&quot;,    &quot;minimax-cn-token-plan/*&quot;,    &quot;opencode-go/deepseek-v4-pro&quot;,    &quot;opencode-go/deepseek-v4-flash&quot;  ],  // MCP tool name for image analysis.  // Format: mcp_&lt;server-key&gt;_&lt;tool&gt;  &quot;imageAnalysisTool&quot;: &quot;mcp_minimax_understand_image&quot;,  // Custom prompt template. Must include at least one variable:  //   &#123;imageList&#125;  — newline-separated &quot;- Image N: /path&quot;  //   &#123;imageCount&#125; — number of images  //   &#123;toolName&#125;   — the configured MCP tool name  //   &#123;userText&#125;   — the user&#x27;s original text (may be empty)  // Leave as null to use the built-in default template.  &quot;promptTemplate&quot;: null,  // Directory where pasted images are saved before being passed to the MCP tool.  // Leave as null to use the OS temp directory + &quot;opencode-minimax-vision/&quot;.  &quot;tempDir&quot;: null,  // Delete temp files older than this many hours on plugin startup.  &quot;cleanupAfterHours&quot;: 24&#125;
+
+14.3 MiMo-V2.5 是什么？MiMo-V2.5 是 opencode-go（Go 套餐）提供的一款原生全模态模型：
+
+
+
+指标
+数值
+
+
+
+总参数
+310B（Sparse MoE）
+
+
+激活参数
+15B
+
+
+上下文窗口
+1M tokens
+
+
+视觉编码器
+ViT 7.29亿参数（原生）
+
+
+输入模态
+文本 + 图片 + 视频 + 音频
+
+
+输出模态
+文本
+
+
+定价
+1x（1 token &#x3D; 1 credit），Go 套餐 $10&#x2F;月
+
+
+14.4 三种图片识别路径
+
+
+#
+场景
+使用方式
+机制
+
+
+
+1
+🖼️ 在 Sisyphus 粘贴图片
+EasyVision 自动拦截
+保存到文件 → MiniMax MCP understand_image → 文字返回 → Sisyphus 路由
+
+
+2
+🖼️ 切到 multimodal-looker 粘贴
+MiMo-V2.5 原生
+ViT 端到端视觉推理（比 MCP 快 3-5x）
+
+
+3
+📂 本地文件路径（如 /tmp/photo.png）
+local-vision category
+MiniMax MCP understand_image（专用于文件路径）
+
+
+
+🔧 第十五章：配置优化实战——skills + prompt_append + vision 三级增强15.1 Schema 隐藏字段翻阅 官方 Schema 后发现，除了文档常见的 model&#x2F;fallback&#x2F;description，还支持两个关键字段：
+
+
+
+字段
+类型
+适用对象
+作用
+
+
+
+skills
+string[]
+Agent（专属）
+预定义该 Agent 默认加载的 Skill 列表
+
+
+prompt_append
+string
+Agent + Category
+注入到系统提示词的额外指令文本
+
+
+15.2 优化效果对比
+
+
+维度
+优化前
+优化后
+
+
+
+Agent 能力感知
+仅描述角色职责
+✅ prompt_append 注入能力速查表（子智能体清单+核心规则）
+
+
+Skill 预关联
+无
+✅ skills 字段预关联（Sisyphus 5个、Atlas 10个等）
+
+
+多模态视觉
+粘贴图片即报错
+✅ EasyVision 拦截 + MiMo-V2.5 原生视觉双链路
+
+
+Category 指引
+场景描述
+✅ prompt_append 注入 Skill推荐+产出标准
+
+
+15.3 改动文件清单
+
+
+文件
+改动
+作用
+
+
+
+oh-my-openagent.json
+11 Agent + 15 Category 全部添加 prompt_append
+Agent 启动时注入能力速查表
+
+
+oh-my-openagent.json
+7 个 Agent 添加 skills 预关联
+Sisyphus(5) &#x2F; Atlas(10) &#x2F; Hephaestus(3) &#x2F; Oracle(3) &#x2F; Momus(2) &#x2F; Prometheus(1) &#x2F; Metis(1) &#x2F; Multimodal-Looker(1)
+
+
+oh-my-openagent.json
+multimodal-looker 模型切 opencode-go/mimo-v2.5 + fallback
+原生全模态视觉
+
+
+oh-my-openagent.json
+新增 local-vision category
+本地文件图片专用 MCP 通道
+
+
+opencode-minimax-easy-vision.jsonc
+模型列表新增 deepseek-v4-pro &#x2F; deepseek-v4-flash
+Sisyphus 粘贴图片 → EasyVision 拦截 → MCP 识图
+
+
+15.4 Sisyphus 的 prompt_append 示例## ⚡ 你的能力速查表### 可调度子智能体- 🔮 Oracle(DeepSeek v4 Pro)：只读架构顾问- 📐 Prometheus(DeepSeek v4 Pro)：需求→分步可验证计划- 🚀 Atlas(MiniMax M2.7)：执行主力——全模态管线+全栈开发- 🔥 Hephaestus(DeepSeek v4 Pro)：高难度Bug/深层重构攻坚- 🔎 Momus(MiniMax M2.7)：代码审查——双轴审查+强制验证门禁- 🔍 Explore(Flash)：内部代码搜索- 📖 Librarian(Flash)：外部资料查询- 👁️ Multimodal-Looker(MiMo-V2.5)：原生全模态视觉分析### 核心规则- 所有实现必须委托(用task)，不自己写代码- 视觉工作→visual-engineering category- 并行化一切能并行的- 完成后：momus审查→verification-before-completion验证
+
+15.5 验收测试结果
+
+
+测试项
+结果
+
+
+
+在 Sisyphus 粘贴图片 → EasyVision 拦截
+✅ 通过
+
+
+MiniMax MCP understand_image 分析截图
+✅ 通过
+
+
+图片→文字→Sisyphus 智能路由
+✅ 通过
+
+
+multimodal-looker + MiMo-V2.5 原生视觉
+✅ 通过
+
+
+
+📦 附录 A：Skill 仓库索引（一键安装）
+以下将文中 28 个安装型 Skill + 5 个内置 Skill 按 GitHub 仓库归类，每个仓库均提供一键安装命令。安装后重启 OpenCode 即可生效。
+
+🏢 仓库一：MiniMax-AI&#x2F;skills（10 个 Skill）⭐ 主力仓库仓库地址：https://github.com/MiniMax-AI/skills许可证：MIT包含 Skill：
+
+
+
+#
+Skill 名称
+文中章节
+类型
+
+
+
+1
+frontend-dev
+第四章 §6
+🎨 前端&#x2F;动画
+
+
+2
+fullstack-dev
+第四章 §7
+🔧 全栈
+
+
+3
+react-native-dev
+第四章 §8
+📱 移动端
+
+
+4
+shader-dev
+第四章 §9
+🎨 着色器
+
+
+5
+minimax-pdf
+第五章 §10
+📄 PDF
+
+
+6
+minimax-docx
+第五章 §11
+📄 Word
+
+
+7
+minimax-xlsx
+第五章 §12
+📊 Excel
+
+
+8
+pptx-generator
+第五章 §13
+📊 PPT
+
+
+9
+minimax-multimodal-toolkit
+第六章 §15
+🎤🎵🎬🖼️ 多模态
+
+
+10
+vision-analysis
+第六章 §16
+👁️ 视觉分析
+
+
+🔧 一键安装（Linux&#x2F;macOS&#x2F;WSL）：
+# 克隆仓库git clone https://github.com/MiniMax-AI/skills.git ~/.minimax-skills# 创建 skills 目录并建立符号链接mkdir -p ~/.config/opencode/skillsfor skill in ~/.minimax-skills/skills/*/; do  skill_name=$(basename &quot;$skill&quot;)  ln -sfn &quot;$skill&quot; ~/.config/opencode/skills/&quot;$skill_name&quot;doneecho &quot;✅ MiniMax Skills 安装完成！重启 OpenCode 生效&quot;
+
+🔧 Windows（PowerShell）：
+git clone https://github.com/MiniMax-AI/skills.git &quot;$env:USERPROFILE\.minimax-skills&quot;New-Item -ItemType Directory -Force -Path &quot;$env:USERPROFILE\.config\opencode\skills&quot;Get-ChildItem &quot;$env:USERPROFILE\.minimax-skills\skills&quot; -Directory | ForEach-Object &#123;  New-Item -ItemType SymbolicLink -Path &quot;$env:USERPROFILE\.config\opencode\skills\$($_.Name)&quot; -Target $_.FullName -Force&#125;Write-Host &quot;✅ MiniMax Skills 安装完成！&quot;
+
+
+🔌 仓库二：code-yeongyu&#x2F;oh-my-openagent（核心插件 + 5 内置 Skill）仓库地址：https://github.com/code-yeongyu/oh-my-openagent说明：OhMyOpenAgent 核心插件，提供 11 智能体 + 14 任务分类 + 5 个内置 Skill。这是整套多智能体系统的基石，必须先装。
+🔧 安装核心插件：
+# 方式一：bun（推荐）bunx oh-my-opencode@latest# 方式二：npmnpx oh-my-opencode@latest
+
+内置 Skill（无需额外安装，插件自带）：
+
+
+
+#
+Skill
+文中章节
+说明
+
+
+
+⚡1
+playwright
+第十章
+浏览器全自动化
+
+
+⚡2
+frontend-ui-ux
+第十章
+设计师级 UI&#x2F;UX
+
+
+⚡3
+git-master
+第十章
+Git 全操作专家
+
+
+⚡4
+review-work
+第十章
+五重并行审查门禁
+
+
+⚡5
+ai-slop-remover
+第十章
+AI 代码味清理
+
+
+
+👁️ 仓库三：devadathanmb&#x2F;opencode-minimax-easy-vision（视觉链路插件）仓库地址：https://github.com/devadathanmb/opencode-minimax-easy-vision说明：让 DeepSeek（纯文本模型）粘贴图片时自动拦截 → MiniMax MCP 识图，打通 Sisyphus 的”眼睛”。详见第十四章。
+🔧 一键安装：
+# 克隆到 opencode 插件目录git clone https://github.com/devadathanmb/opencode-minimax-easy-vision.git \  ~/.config/opencode/plugins/opencode-minimax-easy-vision# 编辑配置，将 DeepSeek 加入拦截名单# 配置文件路径：~/.config/opencode/opencode-minimax-easy-vision.jsonc
+
+配置示例（opencode-minimax-easy-vision.jsonc）：
+&#123;  &quot;models&quot;: [    &quot;minimax/*&quot;,    &quot;minimax-cn/*&quot;,    &quot;opencode-go/deepseek-v4-pro&quot;,   // ← 关键：DeepSeek 加入拦截    &quot;opencode-go/deepseek-v4-flash&quot;  // ← 关键：Flash 也加入  ],  &quot;imageAnalysisTool&quot;: &quot;mcp_minimax_understand_image&quot;,  &quot;cleanupAfterHours&quot;: 24&#125;
+
+
+🌐 仓库四：社区编排类 Skill（通过 npx skills 安装）以下编排类 Skill 来自开源社区多个仓库，可通过通用 Skills CLI 一键安装：
+🔧 通用安装方式：
+# 搜索可用 Skillnpx skills find &quot;test-driven-development&quot;# 安装指定 Skill（示例）npx skills add &lt;owner/repo&gt; --skill &lt;skill-name&gt; -g -y
+
+
+
+
+#
+Skill 名称
+文中章节
+推荐来源
+安装命令
+
+
+
+11
+test-driven-development
+第三章
+community
+npx skills find &quot;test-driven-development&quot;
+
+
+12
+verification-before-completion
+第三章
+superpowers
+npx skills add obra/superpowers-skills --skill &quot;Verification Before Completion&quot; -g -y
+
+
+13
+systematic-debugging
+第三章
+community
+npx skills find &quot;systematic-debugging&quot;
+
+
+14
+review
+第三章
+community
+npx skills find &quot;review&quot;
+
+
+15
+diagnose
+第三章
+mattpocock
+npx skills add mattpocock/skills --skill diagnose -g -y
+
+
+16
+subagent-driven-development
+第七章
+superpowers
+npx skills add obra/superpowers-skills --skill &quot;Subagent-Driven Development&quot; -g -y
+
+
+17
+executing-plans
+第七章
+superpowers
+npx skills add obra/superpowers-skills --skill &quot;Executing Plans&quot; -g -y
+
+
+18
+brainstorming
+第七章
+superpowers
+npx skills add obra/superpowers-skills --skill brainstorming -g -y
+
+
+19
+find-skills
+第七章
+community
+npx skills find &quot;find-skills&quot;
+
+
+20
+handoff
+第七章
+mattpocock
+npx skills add mattpocock/skills --skill handoff -g -y
+
+
+21
+improve-codebase-architecture
+第八章
+mattpocock
+npx skills add mattpocock/skills --skill improve-codebase-architecture -g -y
+
+
+22
+zoom-out
+第八章
+mattpocock
+npx skills add mattpocock/skills --skill zoom-out -g -y
+
+
+23
+grill-with-docs
+第八章
+mattpocock
+npx skills add mattpocock/skills --skill grill-with-docs -g -y
+
+
+24
+prototype
+第八章
+mattpocock
+npx skills add mattpocock/skills --skill prototype -g -y
+
+
+25
+mcp-builder
+第八章
+community
+npx skills find &quot;mcp-builder&quot;
+
+
+26
+webapp-testing
+第九章
+community
+npx skills find &quot;webapp-testing&quot;
+
+
+27
+triage
+第九章
+mattpocock
+npx skills add mattpocock/skills --skill github-triage -g -y
+
+
+28
+to-prd
+第五章
+mattpocock
+npx skills add mattpocock/skills --skill to-prd -g -y
+
+
+
+📌 备注：标记为 community 的 Skill 可通过 skills.sh 搜索最新来源。标记为 mattpocock &#x2F; superpowers 的 Skill 已验证上游仓库存在。
+💡 一键安装全部社区 Skill（推荐）：在 npx skills find 搜索后逐个安装，或访问 https://skills.sh/ 浏览排行榜挑选。
+
+
+🗺️ 完整 Skill 来源速查表┌─────────────────────────────────────────────────────────┐│                    Skill 来源全景                         │├─────────────────────┬───────────────────────────────────┤│ MiniMax-AI/skills   │ 10 个（主力仓库）                  ││   git clone → ln    │ frontend-dev, fullstack-dev,      ││                     │ react-native-dev, shader-dev,     ││                     │ minimax-pdf, minimax-docx,        ││                     │ minimax-xlsx, pptx-generator,     ││                     │ minimax-multimodal-toolkit,       ││                     │ vision-analysis                   │├─────────────────────┼───────────────────────────────────┤│ oh-my-openagent     │ 5 个内置 Skill（插件自带）          ││   核心插件           │ playwright, frontend-ui-ux,       ││   bunx 一键安装      │ git-master, review-work,          ││                     │ ai-slop-remover                   │├─────────────────────┼───────────────────────────────────┤│ easy-vision 插件     │ 1 个视觉链路插件（独立安装）        ││   git clone         │ 让 DeepSeek 也能&quot;看图&quot;            │├─────────────────────┼───────────────────────────────────┤│ mattpocock/skills   │ 8 个编排类 Skill                  ││   npx skills add    │ diagnose, handoff, prototype,     ││                     │ zoom-out, grill-with-docs,        ││                     │ to-prd, triage,                   ││                     │ improve-codebase-architecture     │├─────────────────────┼───────────────────────────────────┤│ superpowers-skills  │ 4 个流程类 Skill                  ││   npx skills add    │ brainstorming, subagent-driven-   ││                     │ development, executing-plans,     ││                     │ verification-before-completion    │├─────────────────────┼───────────────────────────────────┤│ community           │ 6 个通用 Skill                    ││   npx skills find   │ test-driven-development,          ││   → skills.sh       │ systematic-debugging, review,     ││                     │ mcp-builder, webapp-testing,      ││                     │ find-skills                       │└─────────────────────┴───────────────────────────────────┘
+
+
+附录 B：ohmyopencode 配置（优化版——含 skills + prompt_append + vision）&#123;  &quot;$schema&quot;: &quot;https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json&quot;,  &quot;agents&quot;: &#123;    &quot;sisyphus&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🎯 主控智能体（DeepSeek v4 Pro）——任务拆解与多智能体编排中枢。职责：① 将复杂需求拆分为可并行执行的子任务；② 委托给最合适的子智能体（Atlas执行、Oracle顾问、Explore探索、Momus审查）；③ 质量把控与最终决策。核心 Skill：subagent-driven-development（多子代理并行驱动）、executing-plans（按计划执行）、brainstorming（开工前澄清需求）、find-skills（发现新Skill）、handoff（跨Session交接）。可利用MiniMax MCP的web_search获取最新实践。协作模式：Sisyphus拆解 → Prometheus规划 → Atlas执行 → Momus审查 → Oracle架构决策。&quot;,      &quot;skills&quot;: [        &quot;subagent-driven-development&quot;,        &quot;executing-plans&quot;,        &quot;brainstorming&quot;,        &quot;find-skills&quot;,        &quot;handoff&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的能力速查表\n### 可调度子智能体\n- 🔮 Oracle(DeepSeek v4 Pro)：只读架构顾问——架构权衡、根因诊断、安全审查\n- 📐 Prometheus(DeepSeek v4 Pro)：需求→分步可验证计划\n- 📚 Metis(DeepSeek v4 Pro)：1M上下文全局分析\n- 🚀 Atlas(MiniMax M2.7)：执行主力——全模态管线(视频/语音/音乐/图片)+ 全栈开发\n- 🔥 Hephaestus(DeepSeek v4 Pro)：高难度Bug/深层重构攻坚（2+次失败后调用）\n- 🔎 Momus(MiniMax M2.7)：代码审查——双轴审查+强制验证门禁\n- 🔍 Explore(Flash)：内部代码搜索（ast_grep/grep/glob）\n- 📖 Librarian(Flash)：外部资料查询（MiniMax web_search）\n- 👁️ Multimodal-Looker(MiniMax M2.7)：图片分析/OCR/UI审查\n### 核心规则\n- 所有实现必须委托(用task)，不自己写代码\n- 视觉工作→visual-engineering category\n- 并行化一切能并行的\n- 完成后：momus审查→verification-before-completion验证&quot;    &#125;,    &quot;atlas&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🚀 执行主力智能体（MiniMax M2.7，Pro推理兜底）——代码落地 + MiniMax全模态管线。开发Skill全栈覆盖：【前端】frontend-dev（电影级动画Framer Motion/GSAP+媒体生成）、shader-dev（GLSL着色器特效）；【全栈】fullstack-dev（Express/Next.js/Go/Python）；【移动端】react-native-dev（RN/Expo全家桶）；【文档】minimax-pdf（三管线PDF）、minimax-docx（Word文档）、minimax-xlsx（Excel零格式丢失）、pptx-generator（PPT全流程）；【多模态】minimax-multimodal-toolkit（Hailuo视频+Speech语音+Music音乐+Image图片一站生成）。通过MCP做视觉分析(understand_image)和资料检索(web_search)。工具：MiniMax CLI（多模态生成）+ 全模态MCP工具集。&quot;,      &quot;skills&quot;: [        &quot;frontend-dev&quot;,        &quot;fullstack-dev&quot;,        &quot;react-native-dev&quot;,        &quot;shader-dev&quot;,        &quot;minimax-multimodal-toolkit&quot;,        &quot;minimax-pdf&quot;,        &quot;minimax-docx&quot;,        &quot;minimax-xlsx&quot;,        &quot;pptx-generator&quot;,        &quot;test-driven-development&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的工具清单\n### 核心Skill（预加载）\n- frontend-dev：电影级前端(Framer Motion/GSAP + AI素材生成)\n- fullstack-dev：全栈(Express/Next.js/Go/Python)\n- react-native-dev：RN/Expo全家桶\n- shader-dev：GLSL着色器特效\n- minimax-multimodal-toolkit：视频(Hailuo)/语音(Speech)/音乐(Music)/图片(Image)一站式生成\n- minimax-pdf/docx/xlsx：文档三件套(零格式丢失)\n- pptx-generator：PPT全流程(封面/目录/内容/总结)\n- test-driven-development：红灯→绿灯→重构\n### 可用工具（直接调用）\n- MiniMax CLI：多模态生成(视频/语音/音乐/图片)\n- MiniMax MCP：understand_image(视觉分析) + web_search(资料检索)\n- Playwright：浏览器自动化测试\n### 关键规则\n- 完成后跑 webapp-testing 验证前端效果\n- 文档类产出用 minimax-pdf/docx/xlsx 而非手写Markdown\n- 前端产出必须带电影级动画&quot;    &#125;,    &quot;hephaestus&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔥 攻坚智能体（DeepSeek v4 Pro）——高难度Bug/深层重构专家。触发条件：① 其他Agent反复失败（2+次）；② Oracle诊断出根因后需要高强度编码攻坚；③ 跨模块架构级改动。核心 Skill：systematic-debugging（复现→缩小→假设→打桩→修复→回归六步法）、diagnose（疑难Bug专家诊断）、improve-codebase-architecture（深层架构重构）。Pro的强推理能力确保一击必中，不下补丁式修补。&quot;,      &quot;skills&quot;: [        &quot;systematic-debugging&quot;,        &quot;diagnose&quot;,        &quot;improve-codebase-architecture&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的工作流程\n### 调试六步法(systematic-debugging)\n1. 复现Bug 2. 缩小范围 3. 建立假设 4. 打桩/日志 5. 修复根因 6. 回归测试防复发\n### 何时调用Oracle\n- 2次修复失败后→让Oracle读代码做根因分析\n- 跨模块改动前→让Oracle评审影响面\n### 关键规则\n- 修复根因，不修症状\n- 每步修复后验证(must pass tests)\n- 不改测试来&#x27;pass&#x27;——那是作弊\n- 3次失败→立即停止→回滚→咨询Oracle&quot;    &#125;,    &quot;prometheus&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📐 规划师智能体（DeepSeek v4 Pro）——模糊需求→分步可验证计划。职责：将需求转化为结构化工程任务，标注依赖关系和并行机会，确保每个子任务有明确的验收标准。核心 Skill：executing-plans（计划执行引擎）。可将Skills技能库作为任务拆分的参考模板，输出包含：任务分解、优先级排序、并行执行策略、检查点定义。&quot;,      &quot;skills&quot;: [        &quot;executing-plans&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的规划模板\n### 输出结构\n1. 任务拆解：原子级子任务列表，标注可并行项\n2. 依赖关系：哪些任务必须等前面的完成\n3. 验收标准：每个子任务的&#x27;done&#x27;条件\n4. 模型推荐：每个任务建议用哪个category/agent\n5. Skill推荐：每个任务建议加载哪些Skill\n### 关键规则\n- 每个子任务必须可独立验证\n- 并行机会必须明确标注\n- 输出保存为 .sisyphus/plans/*.md 格式&quot;    &#125;,    &quot;oracle&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔮 只读顾问智能体（DeepSeek v4 Pro）——不写代码、不做决策、仅提供分析建议。适用场景：① 多系统架构权衡（微服务 vs 单体）；② 2次以上调试失败后的根因分析；③ 陌生代码模式的安全/性能审查；④ 技术选型对比评估。核心 Skill：zoom-out（全局视角）、grill-with-docs（计划vs文档对照挑战）、improve-codebase-architecture（架构深化建议）。Pro的最强推理模式专为深度思考场景设计。&quot;,      &quot;skills&quot;: [        &quot;zoom-out&quot;,        &quot;grill-with-docs&quot;,        &quot;improve-codebase-architecture&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的分析边界\n### 你可以做\n- 分析架构/代码模式/性能瓶颈\n- 提出多个方案并给出权衡分析\n- 对照文档挑战现有设计\n- 审查安全问题和潜在风险\n### 你绝不能做\n- 写代码、改文件\n- 做最终决策（由Sisyphus决策）\n- 代替其他Agent执行任务&quot;    &#125;,    &quot;metis&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📚 长上下文分析专家（DeepSeek v4 Pro，1M上下文窗口）——全库深度分析。适用场景：① 大型代码库架构审查；② 跨模块依赖追踪；③ 长文档（PRD/ADR）综合评审；④ 一次性消化整个仓库的结构和模式输出全局洞察。核心 Skill：zoom-out（拉远视角理解局部代码在全局中的位置）。不同于Oracle的单点分析，Metis擅长全局视角的系统级审查。&quot;,      &quot;skills&quot;: [        &quot;zoom-out&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的分析策略\n### 优势\n- 1M上下文窗口：可一次性读入整个仓库\n- 全局视角：跨模块依赖追踪、架构全景图\n### 与Oracle分工\n- Metis：全局视角、系统级审查、跨模块分析\n- Oracle：单点深度分析、架构决策权衡、根因诊断\n- 需要全景→Metis；需要深度→Oracle&quot;    &#125;,    &quot;momus&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🔎 代码审查与批评智能体（MiniMax M2.7，Pro审查兜底）——不为礼貌牺牲质量。能力：① 双轴审查（规范合规+需求对齐）；② 利用MiniMax MCP的web_search获取业界最佳实践作为参照基准；③ 给出有据可查的改进建议。核心 Skill：review（双轴审查：Standards+Spec并行）、verification-before-completion（强制验证门禁——声称完成前必须跑验证命令）。触发时机：PR提交前、重大重构后、需要第三方视角时。审查链：review（初步）→ review-work（五重并行终极审查）。&quot;,      &quot;skills&quot;: [        &quot;review&quot;,        &quot;verification-before-completion&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你的审查清单\n### 双轴审查(review)\n- Standards轴：代码是否符合项目规范\n- Spec轴：代码是否匹配原始需求\n### 强制验证(verification-before-completion)\n- 触发词：done/complete/finished/fixed→必须先跑验证\n- 验证通过前不说&#x27;完成&#x27;\n### 审查工具\n- MiniMax MCP web_search：查业界最佳实践做参照\n- lsp_diagnostics：检查Lint/类型错误\n- bash：运行测试/build命令\n### 审查链\n- 日常：review（双轴并行）\n- PR前：review-work（五重并行：Oracle×2 + QA + 上下文挖掘）&quot;    &#125;,    &quot;explore&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔍 极速代码探索（DeepSeek v4 Flash，成本最低速度最快）——内部代码库搜索。能力：闪电级文件搜索、AST模式匹配、代码库结构发现。适用场景：查找特定实现、追踪调用链、扫描代码模式、发现项目约定。可使用MiniMax MCP的web_search查找外部开源代码参考。注意：此为内部搜索Agent，与librarian（外部资料搜索）互补。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 你的搜索工具箱\n### 内部搜索(代码库)\n- Grep：正则全文搜索\n- Glob：文件名模式匹配\n- ast_grep_search：AST结构化搜索(25种语言)\n- lsp_find_references：查找所有引用\n- lsp_symbols：文档/工作区符号搜索\n### 外部搜索\n- MiniMax MCP web_search：查开源代码参考\n### 互补分工\n- explore → 内部代码库搜索\n- librarian → 外部文档/开源参考查询&quot;    &#125;,    &quot;librarian&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📖 文档与外部参考查询（DeepSeek v4 Flash）——外部资料检索。能力：查阅官方API文档、搜索npm/pip/cargo包用法、查找开源实现示例。使用MiniMax MCP的web_search工具检索最新文档和最佳实践。注意：此为外部资料搜索Agent，与explore（内部代码搜索）互补。适合：遇到不熟悉的库/框架时，先查文档再写代码。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 你的搜索策略\n### 搜索工具\n- MiniMax MCP web_search：实时网页搜索\n- websearch_web_search_exa：语义搜索GitHub等\n- context7_query-docs：Context7文档库查询(先resolve-library-id)\n- grep_app_searchGitHub：GitHub代码搜索\n### 互补分工\n- librarian → 外部文档/API/最佳实践查询\n- explore → 内部代码库搜索&quot;    &#125;,    &quot;sisyphus-junior&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;👶 Sisyphus辅助（DeepSeek v4 Flash）——处理明确、单一、重复性的子任务。接收Sisyphus明确指令执行，不自行决策。适用：修Lint错误、更新依赖版本、批量重命名、简单格式调整。Flash的低成本适合大量微小任务。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 你的工作范围\n### 能做\n- 修单文件Lint错误\n- 更新依赖版本号\n- 批量重命名变量/文件\n- 简单格式调整(缩进、换行)\n### 不能做\n- 自行决策架构/设计\n- 跨多文件的复杂改动\n- 需要逻辑推理的任务&quot;    &#125;,    &quot;multimodal-looker&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/mimo-v2.5&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;👁️ 原生全模态视觉分析智能体（MiMo-V2.5，310B参数/15B激活/1M上下文）——支持直接接收粘贴的图片、无需MCP中转。能力：文本+图片+视频+音频理解，原生ViT(7.29亿参数)视觉编码器。适用：粘贴图片分析、截图审查、UI评审、OCR提取、图表解析。核心 Skill：vision-analysis（结构化视觉分析报告）。注意：仅做视觉理解（look），不生成图片（生成用 image-generation category + Atlas）。如MiMo-V2.5图片路由未生效，自动fallback到MiniMax M2.7 + MCP understand_image。&quot;,      &quot;skills&quot;: [        &quot;vision-analysis&quot;      ],      &quot;prompt_append&quot;: &quot;## ⚡ 你是 MiMo-V2.5——原生全模态模型\n### 原生能力（直接接收，无需MCP）\n- 图片输入：粘贴截图/设计稿/图表直接理解\n- 视频理解：视频帧分析\n- 音频理解：音频内容转录与分析\n### 优势\n- 310B总参数/15B激活（Sparse MoE），1M上下文\n- 7.29亿参数ViT原生视觉编码——比MCP中转快3-5x\n- 端到端理解：图片和文字在同一上下文中推理\n### 备用路径（fallback到MiniMax时）\n- MiniMax_understand_image：MCP图片分析(JPEG/PNG/WebP)\n- vision-analysis技能：结构化视觉报告\n### 不做什么\n- 不生成图片/视频/音频(那是 atlas + image-generation 的活)&quot;    &#125;  &#125;,  &quot;categories&quot;: &#123;    &quot;visual-engineering&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎨 前端/UI/动画/图片生成（MiniMax M2.7执行，Pro推理兜底）。推荐 Skill：frontend-dev（电影级动画Framer Motion/GSAP+AI媒体素材生成）、frontend-ui-ux（设计师级UI/UX）、shader-dev（GLSL着色器特效）、minimax-multimodal-toolkit（通过MiniMax CLI生成图片/视频素材）。适用：着陆页、营销站、产品页、仪表板、媒体素材生成、电影级滚动动画。不适用：纯后端逻辑。&quot;,      &quot;prompt_append&quot;: &quot;## 🎨 前端任务必加载Skill\n- frontend-dev：电影级动画(Framer Motion/GSAP)+ AI媒体素材生成\n- frontend-ui-ux：设计师级UI/UX(无设计稿也能出精品)\n- shader-dev：GLSL着色器特效(按需)\n- minimax-multimodal-toolkit：通过MiniMax CLI生成图片/视频素材\n- webapp-testing：Playwright E2E验证前端效果\n### 产出标准\n- 必须带动画效果\n- 响应式设计\n- E2E测试通过&quot;    &#125;,    &quot;multimodal&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🌐 全模态生成与理解（MiniMax M2.7一站式）。推荐 Skill：minimax-multimodal-toolkit。能力：通过MiniMax CLI调用Hailuo视频生成、Speech语音合成（TTS/声音克隆/多段合成）、Music音乐创作（歌曲/纯音乐）、Image图片生成；通过MCP的understand_image做视觉分析。适用：需要同时产出多种媒体格式的复杂任务。&quot;,      &quot;prompt_append&quot;: &quot;## 🌐 全模态任务必加载Skill\n- minimax-multimodal-toolkit：一站式全模态生成\n### MiniMax CLI命令速查\n- 视频生成→minimax video generate\n- 语音合成→minimax speech generate\n- 音乐创作→minimax music generate\n- 图片生成→minimax image generate&quot;    &#125;,    &quot;video-generation&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎬 Hailuo 2.3 视频生成（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的视频生成命令，支持：文本到视频(text-to-video)、图片到视频(image-to-video)、首尾帧视频(start-end frame)、主题参考视频(subject reference)、模板化视频、长视频多场景编排。&quot;,      &quot;prompt_append&quot;: &quot;## 🎬 视频生成必加载Skill: minimax-multimodal-toolkit\n### 支持模式\n- text-to-video：文本直接生成视频\n- image-to-video：图片+描述生成视频\n- start-end frame：首尾帧控制\n- subject reference：主题参考保持一致性\n- long-form：多场景长视频编排&quot;    &#125;,    &quot;speech-synthesis&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎙️ Speech 2.8 语音合成（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的语音合成命令，支持：文本转语音(TTS)、声音克隆、声音设计、多段合成拼接。适用：配音、播客、有声书、语音助手。&quot;,      &quot;prompt_append&quot;: &quot;## 🎙️ 语音合成必加载Skill: minimax-multimodal-toolkit\n### 支持能力\n- TTS：文本→自然语音\n- 声音克隆：从样本克隆音色\n- 声音设计：自定义音色参数\n- 多段合成：拼接多段语音为长音频&quot;    &#125;,    &quot;music-composition&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎵 Music 2.6 音乐创作（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的音乐生成命令，根据文本描述生成原创歌曲（带歌词+人声）或纯音乐（器乐演奏）。适用：BGM、主题曲、广告配乐。&quot;,      &quot;prompt_append&quot;: &quot;## 🎵 音乐创作必加载Skill: minimax-multimodal-toolkit\n### 支持模式\n- 歌曲(song)：带歌词+人声演唱\n- 纯音乐(instrumental)：器乐演奏\n- 风格描述：如&#x27;中国风电音&#x27;、&#x27;钢琴叙事曲&#x27;&quot;    &#125;,    &quot;image-generation&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🖼️ Image 01 图片生成（MiniMax M2.7）。推荐 Skill：minimax-multimodal-toolkit。通过MiniMax CLI的图片生成命令，支持：文本到图片(text-to-image)、图片到图片(image-to-image)、角色参考图生成。适用：营销图、概念图、角色设计、插图。&quot;,      &quot;prompt_append&quot;: &quot;## 🖼️ 图片生成必加载Skill: minimax-multimodal-toolkit\n### 支持模式\n- text-to-image：文本描述生成图片\n- image-to-image：参考图+描述生成新图\n- character reference：角色一致性参考生成&quot;    &#125;,    &quot;local-vision&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/mimo-v2.5&quot;      ],      &quot;description&quot;: &quot;📂 本地图片文件识别（MiniMax M2.7 + MCP understand_image）——专门处理本地文件路径的图片。使用MiniMax MCP的MiniMax_understand_image工具对本地图片文件（JPEG/PNG/WebP）进行内容分析、OCR文字识别、图表数据提取。推荐 Skill：vision-analysis（结构化视觉分析报告）。与 vision-analysis 区别：本类别聚焦本地文件路径图片，通过MCP工具调用而非原生视觉模型。适用：本地截图分析、图片文件批量处理、文档扫描件识别。&quot;,      &quot;prompt_append&quot;: &quot;## 📂 本地图片识别专用通道\n### 工具\n- MiniMax_understand_image：通过文件路径分析图片\n### 适用场景\n- 明确提供本地文件路径的图片（如 /tmp/screenshot.png）\n- 大量图片文件的批量分析\n- 需要结构化OCR输出的文档扫描件\n### 与 vision-analysis 的区别\n- local-vision：专门走 MCP 文件路径分析（专用于本地文件）\n- vision-analysis：通用视觉理解（可直接接收粘贴的图片）\n### 不做什么\n- 不处理非文件路径的图片（粘贴图片→用 vision-analysis）\n- 不生成图片（生成→用 image-generation）&quot;    &#125;,    &quot;vision-analysis&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;👁️ 视觉理解与分析（MiniMax M2.7）。推荐 Skill：vision-analysis（结构化视觉分析报告）。使用MiniMax MCP的MiniMax_understand_image工具进行：图片内容分析、OCR文字识别、UI界面审查、图表数据提取、设计稿评审、照片场景描述。注意：这是视觉理解类别，不是图片生成——生成图片请用 image-generation category。&quot;,      &quot;prompt_append&quot;: &quot;## 👁️ 视觉分析必加载Skill: vision-analysis\n### 分析工具\n- MiniMax_understand_image：核心视觉分析API\n### 输出格式\n- 结构化报告：分类描述+关键发现+建议\n### 不要混淆\n- vision-analysis=图片理解\n- image-generation=图片生成&quot;    &#125;,    &quot;web-research&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🌐 上网搜索与资料查找（DeepSeek v4 Flash快速搜索，复杂分析回退到Pro）。工具：MiniMax MCP的web_search（实时搜索）、websearch_web_search_exa（语义搜索GitHub等）。适用：查最新API文档、找开源实现、调研技术方案、获取业界最佳实践、验证技术决策。策略：先用Flash低成本搜，结果不满足时fallback到Pro做深度分析。&quot;,      &quot;prompt_append&quot;: &quot;## 🌐 搜索策略\n### 工具选择\n- MiniMax_web_search：中文/实时信息搜索\n- websearch_web_search_exa：英文/语义搜索\n- context7_query-docs：官方文档库查询\n- grep_app_searchGitHub：GitHub代码搜索\n### 成本策略\n- 先用Flash搜（低成本）\n- 结果不足→fallback到Pro做深度分析&quot;    &#125;,    &quot;quick&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;⚡ 快速修复（DeepSeek v4 Flash最低成本）——单文件typo、简单配置修改、明确小改动。适用：拼写错误、依赖版本号更新、单行配置调整。不适用：需要多文件协调、逻辑推理、架构变更的任务——这些请用 deep 或 ultrabrain。&quot;,      &quot;prompt_append&quot;: &quot;## ⚡ 快速修复边界\n### 能做\n- 单文件typo/语法错误\n- 单行配置修改\n- 依赖版本号更新\n### 不能做\n- 多文件协调改动→用 deep\n- 逻辑推理/架构变更→用 ultrabrain\n- 代码重构→用 deep&quot;    &#125;,    &quot;deep&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🔬 自主深度研究（DeepSeek v4 Pro强推理）——目标驱动的端到端问题解决。适用：需要自主探索、多步推理、跨文件实现的复杂研究型任务。Pro的强推理能力确保分析的深度和准确性。适合：调研型任务、复杂功能实现探索、多方案对比验证。&quot;,      &quot;prompt_append&quot;: &quot;## 🔬 深度研究策略\n### 方法论\n1. 先Explore探索代码库结构\n2. 再Librarian查外部最佳实践\n3. Pro推理整合方案\n4. 输出有据可查的结论\n### 与ultrabrain区别\n- deep：研究+实现（有明确输出）\n- ultrabrain：纯推理（算法/架构/逻辑难题）&quot;    &#125;,    &quot;artistry&quot;: &#123;      &quot;model&quot;: &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;,      &quot;fallback&quot;: [        &quot;opencode-go/deepseek-v4-pro&quot;      ],      &quot;description&quot;: &quot;🎭 创意突破（MiniMax M2.7创造性思维）——超越常规模式，用非传统、创新性方法解决复杂问题。推荐 Skill：brainstorming（创意工作前强制需求探索+方案设计）。M2.7的创造性思维擅长跳出框架的解决方案。适用：需要打破常规的设计方案、创新架构探索、非传统解法。&quot;,      &quot;prompt_append&quot;: &quot;## 🎭 创意流程\n### 必加载Skill: brainstorming\n1. 需求探索：理解用户真实意图\n2. 方案发散：3+个不同方向的方案\n3. 方案评估：可行性/创新性/成本\n4. 原型验证：低成本快速试错\n### 与其他category区别\n- artistry=跳出框架的创新方案\n- deep=深入研究+落地实现\n- ultrabrain=硬核逻辑推理&quot;    &#125;,    &quot;ultrabrain&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;🧠 硬核推理（DeepSeek v4 Pro最强模式）——仅用于真正困难、逻辑密集型任务。给明确目标而非分步指令，让Pro自行推理最优路径。适用：复杂算法设计、深层架构决策、多系统协同难题、高难度数学/逻辑问题。不适用：日常编码、简单重构——这些请用 deep。&quot;,      &quot;prompt_append&quot;: &quot;## 🧠 硬核推理策略\n### 适用场景\n- 复杂算法设计与优化\n- 多系统架构权衡决策\n- 高难度数学/逻辑证明\n- 分布式系统协同方案\n### 与deep区别\n- ultrabrain：给目标→自己推理最优路径(不干预)\n- deep：自主探索+分步实现(可干预)\n### 不要滥用\n- 日常代码→用 quick/deep\n- 简单算法→用 deep&quot;    &#125;,    &quot;unspecified-low&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-flash&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📦 未分类低难度任务（DeepSeek v4 Flash）——不属于特定类别但工作量小的通用任务。Flash的低成本确保效率。适用：不属于以上任何特定类别的小型任务。如不确定难度，先看是否匹配 quick/deep 等其他类别。&quot;,      &quot;prompt_append&quot;: &quot;## 📦 使用提醒\n- 这是fallback类别，优先匹配 quick/deep 等专项类别\n- 仅用于小型通用任务\n- 如发现任务有明确特征→切换到适配的category&quot;    &#125;,    &quot;unspecified-high&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;📦 未分类高难度任务（DeepSeek v4 Pro）——不属于特定类别但需要强推理的通用任务。Pro的深度思考能力确保输出质量。适用：不属于以上任何特定类别但复杂度较高的任务。如不确定难度，优先匹配 deep/ultrabrain/artistry 等专项类别。&quot;,      &quot;prompt_append&quot;: &quot;## 📦 使用提醒\n- 这是fallback类别，优先匹配 deep/ultrabrain/artistry 等专项类别\n- 仅用于高复杂度通用任务\n- 如发现任务有明确特征→切换到适配的category&quot;    &#125;,    &quot;writing&quot;: &#123;      &quot;model&quot;: &quot;opencode-go/deepseek-v4-pro&quot;,      &quot;fallback&quot;: [        &quot;minimax-cn-coding-plan/MiniMax-M2.7&quot;      ],      &quot;description&quot;: &quot;✍️ 文档与写作（DeepSeek v4 Pro语感和逻辑）——专业技术写作。产出：技术文档、设计说明、API文档、Release Notes、架构决策记录(ADR)、PRD。推荐 Skill：minimax-pdf（专业PDF）、minimax-docx（Word文档）、pptx-generator（PPT演示）、to-prd（需求文档）。Pro的语感和逻辑性确保文档清晰准确。&quot;,      &quot;prompt_append&quot;: &quot;## ✍️ 写作任务Skill选择\n### 文档类型→推荐Skill\n- 技术报告/设计文档→minimax-pdf(专业排版)\n- Word文档/合同→minimax-docx\n- PPT演示→pptx-generator\n- PRD需求文档→to-prd\n- 纯Markdown→直接写(不需要额外Skill)\n### 关键规则\n- 专业文档必须用对应Skill生成(不用手写Markdown)\n- 排版美观度是验收标准之一&quot;    &#125;  &#125;&#125;
+]]></content>
+      <categories>
+        <category>AI 开发</category>
+      </categories>
+      <tags>
+        <tag>Skill</tag>
+        <tag>OpenCode</tag>
+        <tag>多智能体</tag>
+        <tag>OhMyOpenAgent</tag>
+        <tag>DeepSeek v4</tag>
+        <tag>MiniMax M2.7</tag>
+        <tag>AI 编程</tag>
+        <tag>效率工具</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JavaScript -- 面向前端小白的完整教程</title>
+    <url>/2026/05/21/%E5%89%8D%E7%AB%AF/JavaScript/JavaScript%E5%9F%BA%E7%A1%80%E5%A4%A7%E5%85%A8/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+🎯 面向人群：前端基础薄弱，了解 HTML&#x2F;CSS，想系统学习 JavaScript 的开发者📚 参考来源：阮一峰 JavaScript 教程 + 阮一峰 ES6 教程 + MDN + 网络优质资料  
+
+
+目录
+JavaScript 是什么？
+JS 的组成：ECMAScript + DOM + BOM
+基础语法
+数据类型详解
+运算符与流程控制
+函数（Function）
+作用域与闭包
+对象与原型链
+数组与常用方法
+DOM 操作
+事件机制
+异步编程：从回调到 Promise 到 async&#x2F;await
+事件循环 Event Loop
+ES6+ 核心新特性
+模块化
+总结与学习路线
+
+
+1. JavaScript 是什么？1.1 一句话理解 🔑
+JavaScript 是一种运行在浏览器中的脚本语言，用来给网页添加交互功能。
+
+┌──────────┐     ┌──────────┐     ┌──────────┐│  HTML    │     │   CSS    │     │    JS    ││ (结构)   │  +  │  (样式)  │  +  │  (行为)  │  =  完整网页│ 骨架     │     │  衣服    │     │  动作    │└──────────┘     └──────────┘     └──────────┘
+
+1.2 历史与现状
+1995 年：网景公司 Brendan Eich 用 10 天设计出 JavaScript（最初叫 LiveScript）
+1996 年：微软推出 JScript，浏览器大战开始
+1997 年：ECMAScript 1.0 标准发布，统一语法规范
+2009 年：ES5 发布（strict mode、JSON、数组新方法等）
+2015 年：ES6（ES2015）发布，是 JS 历史上最大的一次升级
+2016 至今：每年发布一个新版本（ES2016 ~ ES2025），持续进化
+2009 年 Node.js 诞生：JS 从此可以跑在服务器端
+
+
+📌 关键概念：JavaScript ≠ Java，两者除了名字相似，没有任何关系！
+
+1.3 JS 能做什么？
+
+
+领域
+说明
+
+
+
+🌐 网页交互
+表单验证、动画效果、数据展示
+
+
+🖥️ 服务端开发
+Node.js（Express&#x2F;Koa&#x2F;NestJS）
+
+
+📱 移动 App
+React Native、Flutter（Dart，但理念相通）
+
+
+🖥️ 桌面应用
+Electron（VS Code、Slack 就是用 JS 写的）
+
+
+🎮 游戏开发
+Cocos2d-js、Phaser、Three.js（3D）
+
+
+🤖 物联网
+Ruff、Johnny-Five 控制硬件
+
+
+1.4 浏览器如何执行 JS？浏览器由两部分组成：
+
+渲染引擎：解析 HTML + CSS，画出网页（如 Chrome 的 Blink）
+JS 引擎：解析和执行 JavaScript（如 Chrome 的 V8）
+
+&lt;!-- JS 代码写在 &lt;script&gt; 标签中 --&gt;&lt;script&gt;  console.log(&quot;Hello World!&quot;);&lt;/script&gt;&lt;!-- 或引入外部 .js 文件（推荐） --&gt;&lt;script src=&quot;./app.js&quot;&gt;&lt;/script&gt;
+
+
+⚠️ 注意：&lt;script&gt; 标签会阻塞 HTML 解析！通常放在 &lt;/body&gt; 之前，或使用 defer &#x2F; async 属性。
+
+
+2. JS 的组成：ECMAScript + DOM + BOM┌──────────────────────────────────────┐│           JavaScript                 ││  ┌────────────┐ ┌──────┐ ┌──────┐  ││  │ ECMAScript │ │ DOM  │ │ BOM  │  ││  │  核心语法  │ │操作  │ │操作  │  ││  │  变量/函数 │ │页面  │ │浏览器│  ││  │  对象/数组 │ │元素  │ │窗口  │  ││  └────────────┘ └──────┘ └──────┘  │└──────────────────────────────────────┘
+
+
+
+
+组成部分
+全称
+作用
+示例
+
+
+
+ECMAScript
+核心语法标准
+变量、函数、对象、循环等基础语法
+let a = 1; function fn()&#123;&#125;
+
+
+DOM
+Document Object Model
+操作 HTML 页面元素
+document.getElementById()
+
+
+BOM
+Browser Object Model
+操作浏览器窗口
+window.alert()、location.href
+
+
+
+🧠 记忆口诀：ECMAScript 是”语言本身”，DOM 是”操作页面”，BOM 是”操作浏览器”。
+
+
+3. 基础语法3.1 变量声明// ES5 方式（有缺陷，不推荐）var name = &quot;张三&quot;;    // 函数作用域，有变量提升// ES6 方式（推荐 ⭐）let age = 25;         // 块级作用域，无变量提升const PI = 3.14159;   // 常量，声明后不可修改
+
+
+
+
+关键字
+作用域
+可重复声明
+可修改值
+变量提升
+
+
+
+var
+函数级
+✅
+✅
+✅（值为 undefined）
+
+
+let
+块级 &#123;&#125;
+❌
+✅
+❌（暂时性死区）
+
+
+const
+块级 &#123;&#125;
+❌
+❌
+❌（暂时性死区）
+
+
+3.2 var 的”坑” 与 let 的改进// 坑1：var 变量提升console.log(a);  // undefined（不报错！）var a = 1;console.log(b);  // ❌ ReferenceErrorlet b = 2;// 坑2：var 没有块级作用域for (var i = 0; i &lt; 3; i++) &#123;  setTimeout(() =&gt; console.log(i), 100);&#125;// 输出：3, 3, 3（全都指向同一个 i）// let 修复for (let i = 0; i &lt; 3; i++) &#123;  setTimeout(() =&gt; console.log(i), 100);&#125;// 输出：0, 1, 2（每次循环都是新的 i）// 坑3：var 可以重复声明var x = 1;var x = 2;  // ✅ 不报错！容易出 buglet y = 1;let y = 2;  // ❌ SyntaxError
+
+3.3 暂时性死区（TDZ）在 let&#x2F;const 声明之前，变量不可使用：
+// TDZ 开始console.log(tmp);  // ❌ ReferenceError// TDZ 结束let tmp = &quot;hello&quot;;
+
+3.4 注释// 单行注释/*  多行注释  可以写很多行*//**  * JSDoc 注释（用于生成文档） * @param &#123;number&#125; a - 第一个数 * @param &#123;number&#125; b - 第二个数 * @returns &#123;number&#125; 两数之和 */function add(a, b) &#123;  return a + b;&#125;
+
+
+4. 数据类型详解4.1 两大类：原始类型 vs 引用类型// ── 原始类型（7种）：存在栈中，按值访问 ──let str = &quot;hello&quot;;        // stringlet num = 42;             // numberlet big = 9007199254740991n; // bigintlet bool = true;          // booleanlet undef = undefined;    // undefinedlet nul = null;           // nulllet sym = Symbol(&quot;id&quot;);   // symbol// ── 引用类型：存在堆中，按引用访问 ──let obj = &#123; name: &quot;张三&quot; &#125;;        // Objectlet arr = [1, 2, 3];               // Array（特殊对象）let fn = function() &#123;&#125;;            // Function（可调用对象）let date = new Date();             // Datelet reg = /abc/;                   // RegExp
+
+4.2 原始类型详解// String —— 用 &#x27;&#x27; 或 &quot;&quot; 或 `` 包裹let s1 = &quot;hello&quot;;let s2 = &#x27;world&#x27;;let s3 = `模板字符串：$&#123;s1&#125; $&#123;s2&#125;`;  // ES6 模板字符串 ⭐// Number —— 整数和浮点数都是 numberlet n1 = 42;let n2 = 3.14;let n3 = Infinity;   // 无穷大let n4 = NaN;        // Not a Number（不是数字）// ⚠️ typeof NaN === &quot;number&quot;  // true！这是历史 bug// Boolean —— true / falselet isLogin = true;// undefined —— 声明但未赋值let x;console.log(x);  // undefined// null —— 空值（需要主动赋值）let y = null;    // 通常表示&quot;应该有一个对象，但目前没有&quot;// Symbol —— 唯一标识符（ES6）let s1 = Symbol(&quot;id&quot;);let s2 = Symbol(&quot;id&quot;);console.log(s1 === s2);  // false！每个 Symbol 都唯一// BigInt —— 大整数（ES2020）let big = 12345678901234567890n;  // 后缀 n
+
+4.3 typeof 运算符typeof &quot;hello&quot;      // &quot;string&quot;typeof 42           // &quot;number&quot;typeof 123n         // &quot;bigint&quot;typeof true         // &quot;boolean&quot;typeof undefined    // &quot;undefined&quot;typeof Symbol()     // &quot;symbol&quot;typeof &#123;&#125;           // &quot;object&quot;typeof []           // &quot;object&quot;（⚠️ 数组也是 object）typeof null         // &quot;object&quot;（⚠️ 历史遗留 bug）typeof function()&#123;&#125; // &quot;function&quot;
+
+4.4 类型转换// ── 转字符串 ──String(123);       // &quot;123&quot;(123).toString();  // &quot;123&quot;123 + &quot;&quot;;          // &quot;123&quot;（隐式转换）// ── 转数字 ──Number(&quot;123&quot;);     // 123parseInt(&quot;123px&quot;); // 123（解析到非数字停止）parseFloat(&quot;3.14&quot;);// 3.14+&quot;123&quot;;            // 123（隐式转换）// ── 转布尔 ──Boolean(1);        // trueBoolean(0);        // falseBoolean(&quot;&quot;);       // falseBoolean(&quot;hello&quot;);  // true!!&quot;hello&quot;;         // true（隐式转换）// ⚠️ 6 个假值（转为 false）false, 0, &quot;&quot;, null, undefined, NaN// 其他所有值转为 true（包括 &quot;0&quot;, &quot; &quot;, [], &#123;&#125;）
+
+4.5 &#x3D;&#x3D; vs &#x3D;&#x3D;&#x3D;// == 宽松相等（会类型转换）0 == false;        // true  ❗&quot;&quot; == false;       // true  ❗null == undefined; // true&quot;5&quot; == 5;          // true（字符串转数字）// === 严格相等（类型和值都相同）⭐ 推荐使用0 === false;       // false ✅&quot;&quot; === false;      // false ✅null === undefined;// false ✅&quot;5&quot; === 5;         // false ✅
+
+
+📌 铁律：永远用 ===，除非你非常确定需要 ==！
+
+
+5. 运算符与流程控制5.1 运算符速查// 算术：+ - * / % **2 ** 3;           // 8（ES6 指数运算符）// 比较：&gt; &lt; &gt;= &lt;= === !==// 逻辑：&amp;&amp;（与）||（或）!（非）// 短路求值（常用技巧 ⭐）let name = user.name || &quot;匿名&quot;;     // user.name 为空时用默认值let result = isReady &amp;&amp; doSomething(); // isReady 为真才执行// 空值合并 ??（ES2020）：只有 null/undefined 才取默认值let name = user.name ?? &quot;匿名&quot;;     // 比 || 更精确// 可选链 ?.（ES2020）：安全访问深层属性let city = user?.address?.city;    // 不会报错，返回 undefined// 三元运算符let status = age &gt;= 18 ? &quot;成年&quot; : &quot;未成年&quot;;
+
+5.2 流程控制// if-elseif (score &gt;= 90) &#123;  console.log(&quot;优秀&quot;);&#125; else if (score &gt;= 60) &#123;  console.log(&quot;及格&quot;);&#125; else &#123;  console.log(&quot;不及格&quot;);&#125;// switch（适合多条件等值判断）switch (color) &#123;  case &quot;red&quot;:   console.log(&quot;红色&quot;); break;  case &quot;green&quot;: console.log(&quot;绿色&quot;); break;  default:      console.log(&quot;其他颜色&quot;);&#125;// for 循环for (let i = 0; i &lt; 5; i++) &#123;  console.log(i);&#125;// for...of（ES6，遍历数组/可迭代对象 ⭐）for (let item of [1, 2, 3]) &#123;  console.log(item);&#125;// for...in（遍历对象键名）for (let key in obj) &#123;  console.log(key, obj[key]);&#125;// while / do-whilewhile (count &gt; 0) &#123; count--; &#125;do &#123; count--; &#125; while (count &gt; 0);
+
+
+6. 函数（Function）6.1 函数的 4 种写法// 1. 函数声明（会提升）function add(a, b) &#123;  return a + b;&#125;// 2. 函数表达式（不会提升）const add = function(a, b) &#123;  return a + b;&#125;;// 3. 箭头函数（ES6 ⭐）const add = (a, b) =&gt; a + b;         // 单行可省略 &#123;&#125; 和 returnconst greet = name =&gt; `Hello, $&#123;name&#125;`; // 一个参数可省略 ()const getObj = () =&gt; (&#123; x: 1 &#125;);     // 返回对象要加 ()// 4. 立即执行函数（IIFE）(function() &#123;  console.log(&quot;立即执行！&quot;);&#125;)();
+
+6.2 箭头函数 vs 普通函数// 关键区别：// ① 箭头函数没有自己的 this（继承外层）// ② 箭头函数不能用作构造函数// ③ 箭头函数没有 arguments 对象// 经典场景：setTimeout 中的 thisconst obj = &#123;  name: &quot;张三&quot;,  // ❌ 普通函数：this 指向 window（不是 obj）  sayHi1: function() &#123;    setTimeout(function() &#123;      console.log(this.name);  // undefined    &#125;, 100);  &#125;,  // ✅ 箭头函数：this 继承自 sayHi2，指向 obj  sayHi2: function() &#123;    setTimeout(() =&gt; &#123;      console.log(this.name);  // &quot;张三&quot;    &#125;, 100);  &#125;,&#125;;
+
+6.3 参数处理// 默认参数（ES6）function greet(name = &quot;匿名&quot;) &#123;  return `Hello, $&#123;name&#125;`;&#125;// 剩余参数 ...（ES6）⭐ 代替 argumentsfunction sum(...nums) &#123;  return nums.reduce((a, b) =&gt; a + b, 0);&#125;sum(1, 2, 3, 4);  // 10// 参数解构function print(&#123; name, age &#125;) &#123;  console.log(name, age);&#125;print(&#123; name: &quot;张三&quot;, age: 25 &#125;);
+
+
+7. 作用域与闭包7.1 三种作用域// 全局作用域let globalVar = &quot;我能被任何地方访问&quot;;function outer() &#123;  // 函数作用域  let outerVar = &quot;我在 outer 函数内部&quot;;    if (true) &#123;    // 块级作用域（ES6，let/const）    let blockVar = &quot;我在 if 块内部&quot;;    console.log(blockVar);  // ✅  &#125;  console.log(blockVar);    // ❌ ReferenceError&#125;
+
+7.2 作用域链let a = &quot;全局&quot;;function outer() &#123;  let b = &quot;外层&quot;;    function inner() &#123;    let c = &quot;内层&quot;;    console.log(a);  // &quot;全局&quot;（从 outer → 全局 查找）    console.log(b);  // &quot;外层&quot;（从 outer 查找）    console.log(c);  // &quot;内层&quot;  &#125;  inner();&#125;// 查找顺序：当前 → 外层 → 更外层 → 全局。找到就停。
+
+7.3 闭包（Closure）⭐ 面试高频
+闭包 &#x3D; 函数 + 该函数能访问的外部变量。简单说：内部函数引用外部函数的变量。
+
+// 经典闭包示例function createCounter() &#123;  let count = 0;  // 这个变量被内部函数&quot;记住&quot;了    return function() &#123;    count++;      // 每次调用都能访问并修改 count    return count;  &#125;;&#125;const counter = createCounter();console.log(counter());  // 1console.log(counter());  // 2console.log(counter());  // 3// count 变量没有被销毁！这就是闭包的魔力// 实际应用1：数据私有化function createPerson(name) &#123;  let age = 0;  // 私有变量，外部无法直接访问  return &#123;    getName: () =&gt; name,    getAge: () =&gt; age,    growUp: () =&gt; age++,  &#125;;&#125;// 实际应用2：解决 var 循环问题for (var i = 0; i &lt; 3; i++) &#123;  (function(j) &#123;  // 闭包保存每次的 j    setTimeout(() =&gt; console.log(j), 100);  &#125;)(i);&#125;// 输出：0, 1, 2
+
+
+8. 对象与原型链8.1 创建对象// 方式1：字面量（最常用）const user = &#123;  name: &quot;张三&quot;,  age: 25,  sayHi() &#123;           // ES6 方法简写    console.log(`Hi, I&#x27;m $&#123;this.name&#125;`);  &#125;,&#125;;// 方式2：构造函数function User(name, age) &#123;  this.name = name;  this.age = age;&#125;const user = new User(&quot;张三&quot;, 25);// 方式3：Object.create()const user = Object.create(null);// 方式4：class（ES6）—— 本质是语法糖class User &#123;  constructor(name, age) &#123;    this.name = name;    this.age = age;  &#125;  sayHi() &#123;    console.log(`Hi, I&#x27;m $&#123;this.name&#125;`);  &#125;&#125;
+
+8.2 对象常用操作const user = &#123; name: &quot;张三&quot;, age: 25 &#125;;// 访问属性user.name;           // &quot;张三&quot;user[&quot;name&quot;];        // &quot;张三&quot;（动态键名用这个）// 添加/修改/删除user.email = &quot;zhang@test.com&quot;;   // 添加user.age = 26;                   // 修改delete user.age;                 // 删除// 检查属性&quot;name&quot; in user;                  // trueuser.hasOwnProperty(&quot;name&quot;);     // true（只检查自身属性）// 遍历Object.keys(user);     // [&quot;name&quot;, &quot;age&quot;]（自身可枚举属性）Object.values(user);   // [&quot;张三&quot;, 25]Object.entries(user);  // [[&quot;name&quot;,&quot;张三&quot;], [&quot;age&quot;,25]]// 合并对象（ES6）const merged = &#123; ...obj1, ...obj2 &#125;;    // 展开运算符 ⭐const merged2 = Object.assign(&#123;&#125;, obj1, obj2);
+
+8.3 this 关键字this 的值取决于函数如何被调用，而非函数定义的位置：
+// 1. 全局：this → window（浏览器）/ global（Node）console.log(this);  // window// 2. 对象方法：this → 调用方法的对象const obj = &#123;  name: &quot;张三&quot;,  sayHi() &#123;    console.log(this.name);  // &quot;张三&quot;  &#125;,&#125;;obj.sayHi();// 3. 构造函数：this → 新创建的实例function User(name) &#123;  this.name = name;&#125;const u = new User(&quot;张三&quot;);// 4. 箭头函数：this → 定义时的外层 this（不会变！）const obj2 = &#123;  sayHi: () =&gt; &#123;    console.log(this);  // window（不是 obj2！）  &#125;,&#125;;// 5. 显式绑定：call / apply / bindfunction fn() &#123; console.log(this.name); &#125;fn.call(&#123; name: &quot;张三&quot; &#125;);   // &quot;张三&quot;fn.apply(&#123; name: &quot;李四&quot; &#125;);  // &quot;李四&quot;const bound = fn.bind(&#123; name: &quot;王五&quot; &#125;);bound();                      // &quot;王五&quot;
+
+8.4 原型与原型链 ⭐ 面试高频
+每个 JS 对象都有一个隐藏的 [[Prototype]]（通过 __proto__ 访问），指向它的原型对象。原型对象也有自己的原型，形成”原型链”。
+
+// 原型链示意const arr = [1, 2, 3];// arr.__proto__ === Array.prototype// Array.prototype.__proto__ === Object.prototype// Object.prototype.__proto__ === null（链的终点）// arr 可以使用 Array.prototype 上的方法（push、pop、map...）// 也可以使用 Object.prototype 上的方法（toString、hasOwnProperty...）// 查找顺序：arr 自身 → Array.prototype → Object.prototype → null// 这种沿原型链向上查找的机制就是&quot;原型链&quot;// 构造函数 + 原型function Animal(name) &#123;  this.name = name;&#125;Animal.prototype.sayName = function() &#123;  console.log(this.name);&#125;;const dog = new Animal(&quot;旺财&quot;);dog.sayName();  // &quot;旺财&quot;（方法在原型上，不在实例上）// ES6 class 本质是原型继承的语法糖class Animal &#123;  constructor(name) &#123;    this.name = name;  &#125;  sayName() &#123;  // 自动挂到 Animal.prototype 上    console.log(this.name);  &#125;&#125;
+
+
+9. 数组与常用方法9.1 创建与基本操作// 创建const arr = [1, 2, 3];const arr2 = new Array(3);     // [empty × 3]const arr3 = Array.from(&quot;hello&quot;); // [&#x27;h&#x27;,&#x27;e&#x27;,&#x27;l&#x27;,&#x27;l&#x27;,&#x27;o&#x27;]// 增删改查arr.push(4);        // 尾部添加 → [1,2,3,4]arr.pop();          // 尾部删除 → 4arr.unshift(0);     // 头部添加 → [0,1,2,3]arr.shift();        // 头部删除 → 0arr.splice(1, 1);   // 从索引1删除1个 → [1,3]arr.splice(1, 0, &quot;x&quot;); // 在索引1插入&quot;x&quot; → [1,&quot;x&quot;,2,3]
+
+9.2 遍历方法const arr = [1, 2, 3, 4, 5];// forEach：遍历（无返回值）arr.forEach((item, index) =&gt; console.log(index, item));// map：映射，返回新数组 ⭐const doubled = arr.map(x =&gt; x * 2);  // [2, 4, 6, 8, 10]// filter：过滤，返回新数组 ⭐const evens = arr.filter(x =&gt; x % 2 === 0);  // [2, 4]// find：查找第一个满足条件的元素（ES6）const found = arr.find(x =&gt; x &gt; 3);  // 4// reduce：归并，超级强大 ⭐const sum = arr.reduce((acc, cur) =&gt; acc + cur, 0);  // 15// some / every：判断arr.some(x =&gt; x &gt; 3);    // true（至少有一个满足）arr.every(x =&gt; x &gt; 0);   // true（全部满足）
+
+9.3 其他常用方法// 查找索引arr.indexOf(3);        // 2（返回第一个匹配的索引，找不到返回 -1）arr.includes(3);       // true（ES6，判断是否包含）// 排序arr.sort((a, b) =&gt; a - b);  // 升序（数字必须传比较函数！）// 合并/截取const merged = [...arr1, ...arr2];   // ES6 展开const part = arr.slice(1, 3);        // 索引1~2（不改变原数组）// join：转字符串arr.join(&quot;-&quot;);  // &quot;1-2-3-4-5&quot;// flat：展平嵌套数组（ES2019）[[1, 2], [3, [4]]].flat(2);  // [1, 2, 3, 4]
+
+9.4 数组去重// 方法1：Set（ES6，最简洁 ⭐）const unique = [...new Set([1, 2, 2, 3])];  // [1, 2, 3]// 方法2：filter + indexOfconst unique = arr.filter((item, index) =&gt; arr.indexOf(item) === index);
+
+
+10. DOM 操作10.1 什么是 DOM？DOM（Document Object Model）把 HTML 文档变成一棵树，每个标签都是一个节点，JS 可以操作这些节点来改变页面内容。
+&lt;html&gt;  &lt;head&gt;&lt;title&gt;页面标题&lt;/title&gt;&lt;/head&gt;  &lt;body&gt;    &lt;div id=&quot;app&quot;&gt;      &lt;p class=&quot;text&quot;&gt;Hello&lt;/p&gt;    &lt;/div&gt;  &lt;/body&gt;&lt;/html&gt;
+
+     document        │     &lt;html&gt;     /    \ &lt;head&gt;  &lt;body&gt;   │        │&lt;title&gt;  &lt;div#app&gt;            │         &lt;p.text&gt;            │         &quot;Hello&quot;
+
+10.2 获取元素// 通过 ID（最常用）const el = document.getElementById(&quot;app&quot;);// 通过选择器（ES6+，最灵活 ⭐）const el = document.querySelector(&quot;#app&quot;);          // 第一个匹配const els = document.querySelectorAll(&quot;.text&quot;);     // 所有匹配（NodeList）// 通过类名const els = document.getElementsByClassName(&quot;text&quot;); // HTMLCollection（动态！）// 通过标签名const els = document.getElementsByTagName(&quot;div&quot;);
+
+10.3 操作内容与属性const el = document.querySelector(&quot;#app&quot;);// 内容el.textContent = &quot;纯文本&quot;;        // 只设置文本（安全）el.innerHTML = &quot;&lt;b&gt;加粗&lt;/b&gt;&quot;;     // 可设置 HTML（⚠️ XSS 风险！）// 属性el.getAttribute(&quot;data-id&quot;);       // 获取自定义属性el.setAttribute(&quot;data-id&quot;, &quot;1&quot;);  // 设置el.id = &quot;new-id&quot;;                 // 标准属性可直接赋值// class 操作（推荐用 classList）el.classList.add(&quot;active&quot;);       // 添加类名el.classList.remove(&quot;active&quot;);    // 移除el.classList.toggle(&quot;active&quot;);    // 切换el.classList.contains(&quot;active&quot;);  // 判断// 样式el.style.color = &quot;red&quot;;el.style.fontSize = &quot;20px&quot;;       // 驼峰命名（不是 font-size）
+
+10.4 创建与删除元素// 创建const div = document.createElement(&quot;div&quot;);div.textContent = &quot;新元素&quot;;div.className = &quot;new-box&quot;;// 添加到页面parent.appendChild(div);              // 追加到最后parent.insertBefore(div, reference);  // 插入到 reference 之前parent.append(div, &quot;文本节点&quot;);        // 现代方法，支持多种参数// 删除el.remove();           // 现代方法（IE 不支持）parent.removeChild(el);// 传统方法// 替换parent.replaceChild(newEl, oldEl);// 克隆const clone = el.cloneNode(true);  // true = 深克隆（含子元素）
+
+
+11. 事件机制11.1 事件绑定// 方式1：on 属性（只能绑定一个处理函数，不推荐）btn.onclick = function() &#123; console.log(&quot;clicked&quot;); &#125;;// 方式2：addEventListener（推荐 ⭐）btn.addEventListener(&quot;click&quot;, function(e) &#123;  console.log(&quot;点击了！&quot;, e.target);&#125;);// 移除事件const handler = () =&gt; console.log(&quot;clicked&quot;);btn.addEventListener(&quot;click&quot;, handler);btn.removeEventListener(&quot;click&quot;, handler);  // 必须用同一个函数引用！// 常用事件// 鼠标：click, dblclick, mousedown, mouseup, mousemove, mouseenter, mouseleave// 键盘：keydown, keyup, keypress// 表单：submit, change, focus, blur, input// 文档：DOMContentLoaded, load, scroll, resize
+
+11.2 事件对象btn.addEventListener(&quot;click&quot;, function(e) &#123;  e.target;              // 触发事件的元素  e.currentTarget;       // 绑定事件的元素（与 this 相同）  e.type;                // 事件类型 &quot;click&quot;  e.clientX / e.clientY; // 鼠标坐标（相对视口）  e.key;                 // 键盘按键（如 &quot;Enter&quot;）    e.preventDefault();    // 阻止默认行为（如阻止链接跳转）  e.stopPropagation();   // 阻止事件冒泡&#125;);
+
+11.3 事件冒泡与捕获// DOM 事件传播三阶段：// 1. 捕获阶段：从 window → document → ... → 目标元素// 2. 目标阶段：到达目标元素// 3. 冒泡阶段：从目标元素 → ... → document → window（默认在此阶段处理）// 默认在冒泡阶段触发parent.addEventListener(&quot;click&quot;, () =&gt; console.log(&quot;父元素&quot;));// 在捕获阶段触发（第三个参数设为 true）parent.addEventListener(&quot;click&quot;, () =&gt; console.log(&quot;捕获阶段&quot;), true);// 利用冒泡实现&quot;事件委托&quot; ⭐// 给父元素绑定事件，通过 e.target 判断具体子元素document.querySelector(&quot;#list&quot;).addEventListener(&quot;click&quot;, function(e) &#123;  if (e.target.tagName === &quot;LI&quot;) &#123;    console.log(&quot;点击了：&quot;, e.target.textContent);  &#125;&#125;);// 好处：动态添加的子元素也能响应事件！
+
+
+12. 异步编程：从回调到 Promise 到 async&#x2F;await12.1 JavaScript 为什么需要异步？JS 是单线程的，一次只能做一件事。如果网络请求要等 3 秒，期间页面就会卡死。所以耗时操作（网络请求、定时器、文件读取等）必须是异步的。
+同步：做A → 等A做完 → 做B → 等B做完 → 做C异步：做A（不等）→ 做B（不等）→ 做C → A的回调执行 → B的回调执行
+
+12.2 回调函数 —— 回调地狱长什么样？💀先定义 3 个模拟的异步函数（用 setTimeout 假装请求服务器）：
+// 模拟：根据 userId 获取用户信息（1秒后返回）function getUser(userId, callback) &#123;  setTimeout(() =&gt; &#123;    console.log(&quot;✅ 拿到用户数据&quot;);    callback(&#123; id: userId, name: &quot;张三&quot; &#125;);   // 结果通过 callback 传回  &#125;, 1000);&#125;// 模拟：根据 userId 获取他的文章列表（1秒后返回）function getPosts(userId, callback) &#123;  setTimeout(() =&gt; &#123;    console.log(&quot;✅ 拿到文章列表&quot;);    callback([&#123; id: 1, title: &quot;文章A&quot; &#125;, &#123; id: 2, title: &quot;文章B&quot; &#125;]);  &#125;, 1000);&#125;// 模拟：根据文章 id 获取评论列表（1秒后返回）function getComments(postId, callback) &#123;  setTimeout(() =&gt; &#123;    console.log(&quot;✅ 拿到评论列表&quot;);    callback([&quot;好文！&quot;, &quot;学习了！&quot;, &quot;赞！&quot;]);  &#125;, 1000);&#125;
+
+现在用回调来执行：”获取用户 → 获取他的文章 → 获取第一篇文章的评论”：
+// 💀 回调地狱 —— 每一步的结果都在回调函数里，层层嵌套getUser(1, function(user) &#123;                    // 第1层：等拿到用户  console.log(&quot;用户：&quot;, user.name);    getPosts(user.id, function(posts) &#123;          // 第2层：等拿到文章    console.log(&quot;第一篇文章：&quot;, posts[0].title);        getComments(posts[0].id, function(comments) &#123; // 第3层：等拿到评论      console.log(&quot;评论：&quot;, comments.join(&quot;、&quot;));            // 如果还要继续：&quot;获取评论的回复&quot;→ 第4层      // &quot;获取回复的点赞&quot;→ 第5层      // &quot;获取点赞用户&quot;→ 第6层 ...      // 每加一步，就多缩进一层，代码越来越像 &gt; 形状    &#125;);  &#125;);&#125;);// 运行结果（约3秒后）：// ✅ 拿到用户数据// 用户： 张三// ✅ 拿到文章列表// 第一篇文章： 文章A// ✅ 拿到评论列表// 评论： 好文！、学习了！、赞！
+
+回调地狱的三大痛点：
+
+❌ 横向增长：每多一步就多一层缩进，10 层之后根本读不了
+❌ 错误处理混乱：每层回调都要单独处理错误（上面例子甚至没写错误处理！）
+❌ 无法中途 return：你想在第 2 层根据条件提前结束？做不到，必须一路回调到底
+
+12.3 Promise（ES6）⭐ —— 把嵌套变成链条把上面 3 个函数改写成返回 Promise 的版本：
+// 改写：不再接收 callback，而是 new Promise 包起来function getUser(userId) &#123;  return new Promise((resolve, reject) =&gt; &#123;    setTimeout(() =&gt; &#123;      console.log(&quot;✅ 拿到用户数据&quot;);      resolve(&#123; id: userId, name: &quot;张三&quot; &#125;);  // 成功用 resolve    &#125;, 1000);  &#125;);&#125;function getPosts(userId) &#123;  return new Promise((resolve, reject) =&gt; &#123;    setTimeout(() =&gt; &#123;      console.log(&quot;✅ 拿到文章列表&quot;);      resolve([&#123; id: 1, title: &quot;文章A&quot; &#125;, &#123; id: 2, title: &quot;文章B&quot; &#125;]);    &#125;, 1000);  &#125;);&#125;function getComments(postId) &#123;  return new Promise((resolve, reject) =&gt; &#123;    setTimeout(() =&gt; &#123;      console.log(&quot;✅ 拿到评论列表&quot;);      resolve([&quot;好文！&quot;, &quot;学习了！&quot;, &quot;赞！&quot;]);    &#125;, 1000);  &#125;);&#125;
+
+现在用 Promise 的 .then() 链式调用来执行同样的事情：
+// Promise 链式调用 —— 不再是嵌套，而是&quot;排队&quot;getUser(1)  .then(user =&gt; &#123;    console.log(&quot;用户：&quot;, user.name);    return getPosts(user.id);     // return 一个 Promise，下一层 .then 才能接到  &#125;)  .then(posts =&gt; &#123;    console.log(&quot;第一篇文章：&quot;, posts[0].title);    return getComments(posts[0].id);  &#125;)  .then(comments =&gt; &#123;    console.log(&quot;评论：&quot;, comments.join(&quot;、&quot;));  &#125;)  .catch(error =&gt; &#123;               // ⭐ 一个 catch 管全部，不用每层都写    console.error(&quot;出错了：&quot;, error);  &#125;);
+
+回调 vs Promise 直观对比：
+回调 —— 嵌套的金字塔：
+getUser(1,  function(user) &#123;                      // ← 第1层    getPosts(      user.id,      function(posts) &#123;                 // ← 第2层        getComments(          posts[0].id,          function(comments) &#123;          // ← 第3层            console.log(...)          &#125;        )      &#125;    )  &#125;)
+
+Promise —— 链式排队：
+getUser(1)  .then(user =&gt; getPosts(user.id))      // ← 第1步  .then(posts =&gt; getComments(posts[0].id))  // ← 第2步  .then(comments =&gt; console.log(...))       // ← 第3步  .catch(err =&gt; console.error(...))         // ← 统一错误处理
+
+进步很明显：
+
+✅ 不再向右缩进：链式调用是”向下”发展的，不是”向右”
+✅ 一个 catch 管全部：不用每层都写错误处理
+⚠️ **但还是要写很多 .then()**：每个步骤都是一个 .then() 回调，读起来还是不如同步代码直观
+
+12.4 async &#x2F; await（ES2017）⭐⭐⭐ —— 终极方案
+async&#x2F;await 是 Promise 的语法糖，让异步代码看起来完全像同步代码！
+
+// async 函数自动返回 Promiseasync function fetchUser(id) &#123;  const response = await fetch(`/api/users/$&#123;id&#125;`);  const user = await response.json();  return user;  // 自动包装成 Promise&#125;
+
+现在用 async&#x2F;await 改写同一个场景（函数还是 12.3 里那 3 个，不用改）：
+// 🎉 async/await —— 和同步代码一模一样！async function loadPage(userId) &#123;  try &#123;    const user = await getUser(userId);           // &quot;等着，拿到再继续&quot;──看起来像同步    console.log(&quot;用户：&quot;, user.name);        const posts = await getPosts(user.id);        // 同上    console.log(&quot;第一篇文章：&quot;, posts[0].title);        const comments = await getComments(posts[0].id);    console.log(&quot;评论：&quot;, comments.join(&quot;、&quot;));  &#125; catch (error) &#123;    console.error(&quot;出错了：&quot;, error);              // try/catch 管全部错误  &#125;&#125;loadPage(1);
+
+三种写法做同一件事，逐一看过来：
+① 回调地狱 💀—— 每加一步就多缩进一层，向右无限增长：
+getUser(1, function(user) &#123;  getPosts(user.id,    function(posts) &#123;      getComments(        posts[0].id,        function(comments) &#123;          console.log(comments);        &#125;      )    &#125;  )&#125;);// 10 步之后根本读不了！
+
+② Promise 链式 🙂—— 不嵌套了，但要数 .then() 了几次：
+getUser(1)  .then(user =&gt; getPosts(user.id))  .then(posts =&gt; getComments(posts[0].id))  .then(comments =&gt; console.log(comments))  .catch(err =&gt; console.error(err));// 每加一步 → 多一个 .then()
+
+③ async&#x2F;await 😍—— 看起来就是顺序执行的代码：
+async function load() &#123;  try &#123;    const user = await getUser(1);    const posts = await getPosts(user.id);    const comments = await getComments(posts[0].id);    console.log(comments);  &#125; catch(err) &#123;    console.error(err);  &#125;&#125;// 每加一步 → 多一行 await，和同步代码一个样！
+
+为什么 async&#x2F;await 这么好？
+// 1. 变量可以直接赋值，不用在回调里接收const user = await getUser(1);     // user 直接拿到结果// vs 回调：结果在 function(user) 参数里// vs Promise：结果在 .then(user =&gt; ...) 参数里// 2. 可以用普通 if/for 控制流程async function process(userId) &#123;  const user = await getUser(userId);    if (user.name === &quot;张三&quot;) &#123;              // ✅ 直接判断，和同步一样    const posts = await getPosts(user.id);    for (const post of posts) &#123;            // ✅ 直接循环      const comments = await getComments(post.id);      console.log(comments.length);    &#125;  &#125;&#125;// 这在回调/Promise 里写起来极其痛苦！// 3. try/catch 包一切async function safeLoad(userId) &#123;  try &#123;    const user = await getUser(userId);    // 这三步，任何一步出错    const posts = await getPosts(user.id); // 都会被下面的 catch    const comments = await getComments(posts[0].id);// 统一捕获  &#125; catch (error) &#123;    console.error(&quot;任何一步出错都会到这里&quot;);  &#125;&#125;
+
+⚠️ 常见误区：await 会让请求变成”串行”
+// ❌ 串行（总耗时 ≈ 3秒）：等一个完成才开始下一个const user = await getUser(1);       // 等 1 秒const posts = await getPosts(1);     // 再等 1 秒const comments = await getComments(1);// 再等 1 秒// ✅ 并行（总耗时 ≈ 1秒）：如果 posts 和 comments 不依赖 user 的结果const [user, posts, comments] = await Promise.all([  getUser(1),  getPosts(1),  getComments(1),]);
+
+
+
+
+对比
+回调
+Promise
+async&#x2F;await
+
+
+
+可读性
+💀 差
+🙂 中
+😍 好
+
+
+错误处理
+混乱
+.catch()
+try&#x2F;catch
+
+
+链式调用
+嵌套
+.then() 链
+直接赋值
+
+
+调试
+困难
+一般
+和同步代码一样
+
+
+
+13. 事件循环 Event Loop13.1 核心概念
+事件循环是 JS 处理异步任务的运行机制。JS 是单线程的，但通过事件循环，可以”同时”处理多个任务。
+
+console.log(&quot;1&quot;);  // 同步任务setTimeout(() =&gt; &#123;  console.log(&quot;2&quot;);  // 宏任务&#125;, 0);Promise.resolve().then(() =&gt; &#123;  console.log(&quot;3&quot;);  // 微任务&#125;);console.log(&quot;4&quot;);  // 同步任务// 输出顺序：1 → 4 → 3 → 2
+
+13.2 执行顺序┌──────────────────────────────────────┐│         事件循环执行顺序               │├──────────────────────────────────────┤│  1. 执行所有同步代码（调用栈）          ││  2. 调用栈清空后，执行所有微任务        ││  3. 微任务清空后，执行一个宏任务        ││  4. 回到步骤2（循环往复）               │└──────────────────────────────────────┘
+
+13.3 宏任务 vs 微任务
+
+
+类型
+常见任务
+优先级
+
+
+
+微任务 Microtask
+Promise.then/catch/finally、MutationObserver、queueMicrotask
+高（清空才停）
+
+
+宏任务 Macrotask
+setTimeout、setInterval、I&#x2F;O、setImmediate（Node）、UI渲染
+低（一次一个）
+
+
+// 经典面试题 ⭐console.log(&quot;start&quot;);setTimeout(() =&gt; console.log(&quot;timeout&quot;), 0);new Promise((resolve) =&gt; &#123;  console.log(&quot;promise1&quot;);  resolve();&#125;).then(() =&gt; console.log(&quot;promise2&quot;));console.log(&quot;end&quot;);// 输出：start → promise1 → end → promise2 → timeout// 解析：// 1. 同步：start, promise1(executor是同步), end// 2. 微任务：promise2（then回调）// 3. 宏任务：timeout
+
+
+14. ES6+ 核心新特性14.1 let &#x2F; const（块级作用域）// 替代 var，解决变量提升和作用域问题let x = 1;const PI = 3.14;
+
+14.2 箭头函数const add = (a, b) =&gt; a + b;const fn = () =&gt; &#123; /* 没有自己的 this */ &#125;;
+
+14.3 模板字符串const name = &quot;张三&quot;;const msg = `你好，$&#123;name&#125;！这是多行字符串。`;  // 支持多行和变量插值
+
+14.4 解构赋值 ⭐// 数组解构const [a, b, ...rest] = [1, 2, 3, 4];  // a=1, b=2, rest=[3,4]// 对象解构（最常用！）const &#123; name, age, city = &quot;北京&quot; &#125; = user;// 等同于：const name = user.name; const age = user.age;// 函数参数解构function print(&#123; name, age &#125;) &#123;  console.log(name, age);&#125;
+
+14.5 展开运算符 …// 合并数组const arr = [...arr1, ...arr2];// 合并对象const obj = &#123; ...defaultConfig, ...userConfig &#125;;// 函数传参Math.max(...[1, 2, 3]);  // Math.max(1, 2, 3)
+
+14.6 Class 类class Animal &#123;  constructor(name) &#123;    this.name = name;  &#125;    speak() &#123;    console.log(`$&#123;this.name&#125; 发出声音`);  &#125;&#125;class Dog extends Animal &#123;  // 继承  constructor(name, breed) &#123;    super(name);  // 调用父类构造函数    this.breed = breed;  &#125;    speak() &#123;  // 重写    console.log(`$&#123;this.name&#125; 汪汪叫`);  &#125;&#125;const dog = new Dog(&quot;旺财&quot;, &quot;金毛&quot;);dog.speak();  // &quot;旺财 汪汪叫&quot;
+
+14.7 Set 和 Map（ES6 新数据结构）// Set：不重复的集合const set = new Set([1, 2, 2, 3]);  // Set &#123;1, 2, 3&#125;set.add(4);       // 添加set.has(2);       // trueset.delete(2);    // 删除set.size;         // 3// 数组去重一行搞定 ⭐const unique = [...new Set(arr)];// Map：键值对集合（键可以是任意类型！）const map = new Map();map.set(&quot;name&quot;, &quot;张三&quot;);map.set(1, &quot;数字键&quot;);map.set(&#123;&#125;, &quot;对象键&quot;);  // 对象也能做键！map.get(&quot;name&quot;);  // &quot;张三&quot;map.has(1);       // truemap.size;         // 3
+
+14.8 可选链 ?. 和空值合并 ??// ?. 可选链：安全访问深层属性const city = user?.address?.city;  // 不会报错！// ?? 空值合并：只有 null/undefined 才用默认值const name = input ?? &quot;默认值&quot;;    // 比 || 更精确（0 和 &quot;&quot; 不会被替换）
+
+14.9 其他 ES6+ 亮点// Object 简写const name = &quot;张三&quot;;const age = 25;const user = &#123; name, age &#125;;  // 等同于 &#123; name: name, age: age &#125;// includes 方法&quot;hello&quot;.includes(&quot;ell&quot;);  // true[1, 2, 3].includes(2);    // true// 指数运算符2 ** 10;  // 1024// padStart / padEnd（字符串补全）&quot;5&quot;.padStart(3, &quot;0&quot;);  // &quot;005&quot;// flat / flatMap（数组展平）[1, [2, [3]]].flat(2);  // [1, 2, 3]
+
+
+15. 模块化15.1 为什么需要模块化？把代码拆分到不同文件，每个文件是一个模块，有自己的作用域，互不污染：
+// math.js —— 导出export const PI = 3.14159;export function add(a, b) &#123;  return a + b;&#125;// 或统一导出export &#123; PI, add &#125;;// 默认导出（一个模块只能有一个）export default function multiply(a, b) &#123;  return a * b;&#125;
+
+// app.js —— 导入import &#123; PI, add &#125; from &quot;./math.js&quot;;import multiply from &quot;./math.js&quot;;    // 默认导入（不用花括号）console.log(add(1, 2));        // 3console.log(multiply(3, 4));   // 12// 导入全部import * as Math from &quot;./math.js&quot;;console.log(Math.PI);// 动态导入（按需加载 ⭐）const module = await import(&quot;./heavy-module.js&quot;);
+
+15.2 ES Module vs CommonJS
+
+
+特性
+ES Module
+CommonJS (Node.js)
+
+
+
+语法
+import &#x2F; export
+require &#x2F; module.exports
+
+
+加载时机
+编译时（静态）
+运行时（动态）
+
+
+输出
+值的引用（绑定）
+值的拷贝
+
+
+浏览器
+原生支持 ✅
+需要打包工具
+
+
+顶层 await
+✅
+❌
+
+
+
+16. 总结与学习路线📋 知识体系全景图┌─────────────────────────────────────────────────────┐│                 JavaScript 知识体系                   │├─────────────────────────────────────────────────────┤│  基础层                                              ││  ├── 变量（var / let / const）                       ││  ├── 数据类型（7 原始 + Object）                      ││  ├── 运算符（算术/比较/逻辑/三元）                     ││  └── 流程控制（if/switch/for/while）                 │├─────────────────────────────────────────────────────┤│  核心层                                              ││  ├── 函数（声明/表达式/箭头/this）                     ││  ├── 作用域 + 闭包                                   ││  ├── 对象 + 原型链                                   ││  ├── 数组 + 常用方法（map/filter/reduce）             ││  └── 错误处理（try/catch/throw）                     │├─────────────────────────────────────────────────────┤│  浏览器层                                            ││  ├── DOM 操作（增删改查）                             ││  ├── 事件机制（冒泡/捕获/委托）                        ││  ├── BOM（window/location/history）                 ││  └── 网络请求（fetch/XMLHttpRequest）               │├─────────────────────────────────────────────────────┤│  异步层                                              ││  ├── 回调（基础）                                     ││  ├── Promise（then/catch/all/race）                 ││  ├── async/await（现代方案）                         ││  └── 事件循环（宏任务/微任务）                         │├─────────────────────────────────────────────────────┤│  ES6+ 层                                             ││  ├── let/const、箭头函数、模板字符串                  ││  ├── 解构/展开、Class、模块化                        ││  ├── Set/Map、可选链/空值合并                         ││  └── ...（持续更新中）                                │└─────────────────────────────────────────────────────┘
+
+🗺️ 推荐学习路线第 1 天：变量声明 + 数据类型 + typeof + 类型转换    ↓     在浏览器 Console 中尝试每个操作第 2 天：运算符 + 流程控制 + 函数基础    ↓     写几个小函数（计算器、判断闰年等）第 3 天：作用域 + 闭包 + this + 对象基础    ↓     闭包是难点，多写几个例子就懂了第 4 天：数组方法 + 对象操作 + 原型链入门    ↓     重点掌握 map/filter/reduce第 5 天：DOM 操作 + 事件机制    ↓     做一个 Todolist 小应用第 6 天：异步编程：回调 → Promise → async/await    ↓     用 fetch 请求真实 API 数据第 7 天：事件循环 + ES6 核心新特性    ↓     理解 JS 执行机制，写出面试题答案第 8 天开始：用 JS 做项目！边做边学
+
+🔑 五个核心心法
+JS 是弱类型动态语言 —— 变量类型运行时确定，要时刻注意 === vs ==
+理解 this 的四条规则 —— 全局&#x2F;方法&#x2F;构造函数&#x2F;箭头，面试必考
+闭包 &#x3D; 函数记住了它的出生地 —— 回调、数据私有化、模块化的底层机制
+异步不等于多线程 —— JS 是单线程的，靠事件循环实现”并发”
+ES6+ 不是可选项 —— let&#x2F;const、箭头函数、解构、Promise 已是现代 JS 的基本功
+
+📚 推荐资源
+🔗 MDN Web Docs —— 最权威的 JS 参考
+🔗 阮一峰 JavaScript 教程 —— 本文档的主要参考
+🔗 阮一峰 ES6 教程 —— ES6+ 全覆盖
+🔗 JavaScript.info —— 现代 JS 教程（强烈推荐）
+🔗 You Don’t Know JS —— 深入理解 JS 底层机制
+
+
+
+📝 本文档由 Sisyphus 综合 wangdoc&#x2F;javascript-tutorial、wangdoc&#x2F;es6-tutorial、MDN 及网络优质资料整理而成，面向前端基础薄弱人群，力求内容饱满、排版得体。
+
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>异步编程</tag>
+        <tag>JavaScript</tag>
+        <tag>ES6</tag>
+        <tag>前端</tag>
+        <tag>DOM</tag>
+        <tag>基础教程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TypeScript -- 面向前端小白的完整教程</title>
+    <url>/2026/05/21/%E5%89%8D%E7%AB%AF/TypeScript/TypeScript%E5%9F%BA%E7%A1%80%E5%A4%A7%E5%85%A8/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+🎯 面向人群：前端基础薄弱，熟悉 JavaScript 基本语法，想系统学习 TypeScript 的开发者📚 参考来源：阮一峰 TypeScript 教程 + 网络优质资料  
+
+
+目录
+TypeScript 是什么？
+环境搭建与编译
+基础类型系统
+数组与元组
+函数类型
+对象类型
+Interface 接口
+Class 类
+Enum 枚举
+泛型 Generics
+特殊类型：any &#x2F; unknown &#x2F; never &#x2F; void
+类型断言
+常用工具类型（Utility Types）
+模块化
+总结与学习路线
+
+
+1. TypeScript 是什么？1.1 一句话理解 🔑
+TypeScript &#x3D; JavaScript + 类型系统
+
+TypeScript（简称 TS）是微软开发的开源编程语言，它是 JavaScript 的超集（Superset）。
+┌─────────────────────────┐│     TypeScript          ││  ┌───────────────────┐  ││  │   JavaScript      │  ││  │  (所有 JS 语法)   │  ││  └───────────────────┘  ││  + 类型注解             ││  + 接口 / 泛型 / 枚举   ││  + 编译时检查           │└─────────────────────────┘
+
+超集意味着：所有合法的 JavaScript 代码，都是合法的 TypeScript 代码。你可以把一个 .js 文件直接改名为 .ts，它就变成 TypeScript 了。
+1.2 为什么需要 TypeScript？🤔JavaScript 是动态类型语言，变量的类型在运行时才确定：
+// JS：运行时才报错，而且错误信息不直观let age = 18;age = &quot;十八岁&quot;;     // ✅ JS 不报错age.toFixed(2);     // 💥 运行时崩溃：age.toFixed is not a function
+
+TypeScript 加入了静态类型检查，在写代码时就能发现问题：
+// TS：写代码时就报错let age: number = 18;age = &quot;十八岁&quot;;     // ❌ 编译时报错：Type &#x27;string&#x27; is not assignable to type &#x27;number&#x27;
+
+
+
+
+对比维度
+JavaScript
+TypeScript
+
+
+
+类型检查
+运行时
+编译时（写代码时）
+
+
+IDE 提示
+弱
+强（属性智能补全）
+
+
+重构安全性
+低
+高
+
+
+大型项目维护
+困难
+容易
+
+
+学习曲线
+低
+中
+
+
+1.3 核心设计理念
+类型声明是可选的：可以加，也可以不加，不加时 TS 会自动推断
+编译时检查，运行时消失：类型只在编译阶段存在，编译成 JS 后全部擦除
+渐进式采用：可以在 JS 项目中逐步添加 TS，无需一次性全部迁移
+
+
+⚠️ 重要区分：TypeScript 代码分为两层——**”值代码”**（运行时执行的 JS 逻辑）和 **”类型代码”**（编译时的类型标注）。编译过程就是删除所有”类型代码”，只保留”值代码”。
+
+
+2. 环境搭建与编译2.1 安装 TypeScript# 全局安装 TypeScript 编译器npm install -g typescript# 验证安装tsc --version    # 应输出类似 Version 5.x.x
+
+2.2 你的第一个 TS 文件// hello.tsfunction greet(name: string): string &#123;  return `Hello, $&#123;name&#125;!`;&#125;console.log(greet(&quot;World&quot;));
+
+# 编译：将 .ts 转为 .jstsc hello.ts# 运行编译后的 JSnode hello.js
+
+编译后的 hello.js（类型标注全部消失）：
+function greet(name) &#123;  return &quot;Hello, &quot; + name + &quot;!&quot;;&#125;console.log(greet(&quot;World&quot;));
+
+2.3 tsconfig.json 配置文件在项目根目录创建配置文件：
+tsc --init    # 自动生成 tsconfig.json
+
+关键配置项（初学者重点关注）：
+&#123;  &quot;compilerOptions&quot;: &#123;    &quot;target&quot;: &quot;ES2020&quot;,        // 编译目标 JS 版本    &quot;module&quot;: &quot;commonjs&quot;,      // 模块系统    &quot;strict&quot;: true,            // ⭐ 严格模式总开关（强烈建议开启）    &quot;outDir&quot;: &quot;./dist&quot;,        // 编译输出目录    &quot;rootDir&quot;: &quot;./src&quot;,        // 源码目录    &quot;esModuleInterop&quot;: true,   // 兼容 CommonJS 模块导入    &quot;skipLibCheck&quot;: true       // 跳过 .d.ts 类型检查，加快编译  &#125;,  &quot;include&quot;: [&quot;src/**/*&quot;],     // 包含哪些文件  &quot;exclude&quot;: [&quot;node_modules&quot;]  // 排除哪些文件&#125;
+
+
+💡 strict: true 会同时开启 noImplicitAny、strictNullChecks 等多个子选项，是保证代码质量的基石。
+
+2.4 实时编译tsc --watch    # 或 tsc -w，文件修改后自动重新编译
+
+2.5 🎮 TypeScript Playground不想搭建本地环境？直接用官方的在线编译器：TypeScript Playground，贴代码进去就能实时看到编译结果和类型信息。
+
+3. 基础类型系统3.1 类型声明语法// 语法：变量名: 类型 = 值let name: string = &quot;张三&quot;;let age: number = 25;let isStudent: boolean = true;
+
+函数参数和返回值也是同样的写法：
+function add(x: number, y: number): number &#123;  return x + y;    // 返回值类型写在参数括号后面&#125;
+
+3.2 JavaScript 的 8 种类型（TS 全部继承）
+
+
+类型
+说明
+示例
+
+
+
+boolean
+布尔值
+true, false
+
+
+number
+整数 + 浮点数
+1, 3.14, 0xff
+
+
+string
+字符串
+&quot;hello&quot;, &#39;world&#39;, `模板`
+
+
+bigint
+大整数
+123n
+
+
+symbol
+唯一符号
+Symbol(&quot;id&quot;)
+
+
+object
+对象&#x2F;数组&#x2F;函数
+&#123;&#125;, [], ()=&gt;&#123;&#125;
+
+
+undefined
+未定义
+undefined
+
+
+null
+空
+null
+
+
+// 基础类型示例let isDone: boolean = false;let decimal: number = 6;let hex: number = 0xf00d;let binary: number = 0b1010;let color: string = &quot;blue&quot;;let big: bigint = 100n;let unique: symbol = Symbol();// ⚠️ 注意：首字母大写的 Number/String/Boolean 是包装对象，不要用作类型！let wrong: Number = 1;     // ❌ 不推荐let correct: number = 1;   // ✅ 推荐
+
+3.3 类型推断（Type Inference）不写类型标注，TS 会自动推断：
+let foo = 123;          // TS 推断 foo 为 numberfoo = &quot;hello&quot;;          // ❌ 报错：不能将 string 赋值给 number// 函数返回值也可以推断function add(x: number, y: number) &#123;  return x + y;         // TS 推断返回值为 number&#125;
+
+
+📌 最佳实践：能推断出来的就不写类型，推断不出来的（如函数参数）必须写。
+
+3.4 字面量类型将具体的”值”作为类型使用：
+// 字符串字面量类型let direction: &quot;left&quot; | &quot;right&quot; | &quot;up&quot; | &quot;down&quot;;direction = &quot;left&quot;;   // ✅direction = &quot;top&quot;;    // ❌ 报错// 数字字面量类型let dice: 1 | 2 | 3 | 4 | 5 | 6;dice = 3;   // ✅dice = 7;   // ❌ 报错
+
+3.5 联合类型（Union Types）用 | 连接多个类型，表示”或”的关系：
+let id: string | number;id = &quot;abc&quot;;    // ✅id = 123;      // ✅id = true;     // ❌ 报错
+
+3.6 交叉类型（Intersection Types）用 &amp; 连接多个类型，表示”且”的关系（必须同时满足）：
+type A = &#123; name: string &#125;;type B = &#123; age: number &#125;;type C = A &amp; B;   // &#123; name: string; age: number &#125;const person: C = &#123; name: &quot;张三&quot;, age: 25 &#125;;  // ✅ 必须同时有 name 和 age
+
+3.7 type 别名用 type 关键字给类型起一个名字，便于复用：
+// 基本用法type Age = number;type Name = string;// 复杂类型的别名type Point = &#123;  x: number;  y: number;&#125;;type ID = string | number;// 函数的类型别名type Callback = (data: string) =&gt; void;
+
+
+4. 数组与元组4.1 数组（Array）JS 数组在 TS 中要求所有成员类型相同：
+// 写法一：类型 + []let nums: number[] = [1, 2, 3];let strs: string[] = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;];// 写法二：泛型写法（Array&lt;类型&gt;）let nums2: Array&lt;number&gt; = [1, 2, 3];// 联合类型数组let mixed: (number | string)[] = [1, &quot;hello&quot;, 2, &quot;world&quot;];// ⚠️ 注意括号：number | string[]  ≠ (number | string)[]// number | string[] 意思是 number 或 string数组// (number | string)[] 意思是数组元素可以是 number 或 string
+
+数组可以动态增删成员：
+let arr: number[] = [1, 2, 3];arr[3] = 4;         // ✅arr.push(5);        // ✅arr.length = 2;     // ✅ arr 变成 [1, 2]
+
+4.2 只读数组（readonly）const arr: readonly number[] = [1, 2, 3];arr[0] = 5;      // ❌ 报错：无法修改只读属性arr.push(4);     // ❌ 报错：push 不存在于只读数组
+
+4.3 元组（Tuple）⭐ TypeScript 特有元组是每个位置类型可以不同的数组，且成员数量固定：
+// 元组：类型写在方括号里面let tuple: [string, number, boolean];tuple = [&quot;hello&quot;, 42, true];    // ✅tuple = [42, &quot;hello&quot;, true];    // ❌ 位置不对tuple = [&quot;hello&quot;, 42];          // ❌ 少了一个tuple = [&quot;hello&quot;, 42, true, &quot;extra&quot;]; // ❌ 多了一个
+
+
+📌 区分记忆：number[] 是数组（类型在外）、[number] 是元组（类型在内）
+
+可选成员：用 ? 标记（只能在尾部！）
+let t: [number, string?] = [1];       // ✅ 第二个可选let t2: [number, string?] = [1, &quot;a&quot;]; // ✅
+
+不定长元组：用扩展运算符 ...
+type NamedNums = [string, ...number[]];const a: NamedNums = [&quot;A&quot;, 1, 2, 3];    // ✅const b: NamedNums = [&quot;B&quot;, 1, 2, 3, 4]; // ✅ 可以有任意多个数字
+
+带标签的元组（提高可读性）：
+type RGB = [red: number, green: number, blue: number];const white: RGB = [255, 255, 255];// 标签只是说明性的，不影响实际类型
+
+4.4 数组 vs 元组 总结
+
+
+特性
+数组 number[]
+元组 [string, number]
+
+
+
+成员类型
+全部相同
+每个位置可不同
+
+
+成员数量
+不限制
+固定（声明多少就多少）
+
+
+可选成员
+❌
+✅（仅尾部）
+
+
+运行时的值
+普通数组
+普通数组（编译后一样）
+
+
+
+5. 函数类型5.1 基本声明// 完整写法function add(x: number, y: number): number &#123;  return x + y;&#125;// 无返回值用 voidfunction log(msg: string): void &#123;  console.log(msg);&#125;// 返回值通常可以不写（TS自动推断）function add(x: number, y: number) &#123;  return x + y;  // TS 推断返回 number&#125;
+
+5.2 函数类型的两种写法// 写法一：类型写在等号右边（推断）const add1 = function (x: number, y: number): number &#123;  return x + y;&#125;;// 写法二：类型写在变量上（箭头语法）const add2: (x: number, y: number) =&gt; number = function (x, y) &#123;  return x + y;&#125;;
+
+5.3 用 type 定义函数类型别名// 定义函数类型type MathFunc = (a: number, b: number) =&gt; number;const add: MathFunc = (a, b) =&gt; a + b;const multiply: MathFunc = (a, b) =&gt; a * b;
+
+5.4 函数参数的”宽进严出”规则// TS 允许函数实际参数少于类型定义的参数（但不能多于）let fn: (a: number, b: number) =&gt; number;fn = (a: number) =&gt; a;                        // ✅ 少一个 OKfn = (a: number, b: number) =&gt; a + b;         // ✅ 刚好 OKfn = (a: number, b: number, c: number) =&gt; a;  // ❌ 多了报错
+
+
+🧠 为什么少参数 OK？ 因为 JS 中很多回调函数有默认 3 个参数，实际只用 1 个。比如 [1,2,3].forEach(item =&gt; ...) 这里只用了 item，但如果 TS 强制要 3 个参数就不合理了。
+
+5.5 可选参数function greet(name: string, title?: string): string &#123;  if (title) &#123;    return `Hello, $&#123;title&#125; $&#123;name&#125;`;  &#125;  return `Hello, $&#123;name&#125;`;&#125;greet(&quot;张三&quot;);                 // ✅greet(&quot;张三&quot;, &quot;先生&quot;);         // ✅
+
+
+⚠️ 可选参数必须在必选参数后面！
+
+5.6 参数默认值function createUser(name: string, age: number = 18): object &#123;  return &#123; name, age &#125;;&#125;createUser(&quot;张三&quot;);       // age = 18createUser(&quot;李四&quot;, 25);   // age = 25
+
+5.7 剩余参数function sum(...nums: number[]): number &#123;  return nums.reduce((total, n) =&gt; total + n, 0);&#125;sum(1, 2, 3, 4, 5);  // 15
+
+5.8 函数重载（Overload）⭐同一个函数可以有多种调用方式：
+// 重载签名（只写类型，不写实现）function reverse(x: string): string;function reverse(x: string[]): string[];// 实现签名（写具体逻辑）function reverse(x: string | string[]): string | string[] &#123;  if (typeof x === &quot;string&quot;) &#123;    return x.split(&quot;&quot;).reverse().join(&quot;&quot;);  &#125;  return x.slice().reverse();&#125;reverse(&quot;hello&quot;);       // 返回 &quot;olleh&quot;，类型是 stringreverse([&quot;a&quot;, &quot;b&quot;]);    // 返回 [&quot;b&quot;, &quot;a&quot;]，类型是 string[]
+
+5.9 typeof 获取函数类型function add(x: number, y: number) &#123;  return x + y;&#125;// typeof 可以从一个&quot;值&quot;获取它的&quot;类型&quot;const myAdd: typeof add = function (x, y) &#123;  return x + y;&#125;;
+
+
+6. 对象类型6.1 基本语法// 直接在变量后面用 &#123;&#125; 描述对象结构const user: &#123;  name: string;  age: number;&#125; = &#123;  name: &quot;张三&quot;,  age: 25,&#125;;// 不能多属性，也不能少属性const user2: &#123; name: string; age: number &#125; = &#123; name: &quot;李四&quot; &#125;;         // ❌ 少了 ageconst user3: &#123; name: string; age: number &#125; = &#123; name: &quot;李四&quot;, age: 25, gender: &quot;男&quot; &#125;; // ❌ 多了 gender
+
+6.2 可选属性 ?type User = &#123;  name: string;  age?: number;       // age 可选，可以不写&#125;;const u1: User = &#123; name: &quot;张三&quot; &#125;;            // ✅const u2: User = &#123; name: &quot;张三&quot;, age: 25 &#125;;   // ✅
+
+
+⚠️ 读取可选属性前要先判断是否为 undefined！
+
+6.3 只读属性 readonlytype User = &#123;  readonly id: number;  name: string;&#125;;const u: User = &#123; id: 1, name: &quot;张三&quot; &#125;;u.name = &quot;李四&quot;;   // ✅u.id = 2;          // ❌ 报错：id 是只读的
+
+6.4 方法类型type Calculator = &#123;  x: number;  y: number;  add(): number;                            // 写法一：简写  subtract: () =&gt; number;                   // 写法二：箭头  multiply: (a: number, b: number) =&gt; number; // 写法三：带参数&#125;;
+
+6.5 索引签名（Index Signature）当一个对象的属性名和属性值都有规律时使用：
+// 所有字符串键的值都是 number 类型type StringMap = &#123;  [key: string]: number;&#125;;const scores: StringMap = &#123;  math: 90,  english: 85,  // chinese: &quot;A&quot;,  ❌ 值必须是 number&#125;;// 数组也可以用数字索引type StringArray = &#123;  [index: number]: string;&#125;;const arr: StringArray = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;];
+
+6.6 解构赋值的类型标注// 解构时标注类型function draw(&#123; x, y &#125;: &#123; x: number; y: number &#125;) &#123;  console.log(x, y);&#125;draw(&#123; x: 100, y: 200 &#125;);
+
+
+7. Interface 接口7.1 什么是接口？接口（Interface）是用来描述对象形状的模板。可以理解为”对象的规格说明书”。
+// 定义一个接口interface Person &#123;  name: string;  age: number;  greet(): void;&#125;// 使用接口const zhangsan: Person = &#123;  name: &quot;张三&quot;,  age: 25,  greet() &#123;    console.log(`你好，我是$&#123;this.name&#125;`);  &#125;,&#125;;
+
+7.2 interface 的 5 种成员形式interface Example &#123;  // ① 属性  prop: string;    // ② 属性索引  [key: string]: any;    // ③ 方法（简写）  method1(): void;    // ④ 方法（箭头写法）  method2: () =&gt; void;    // ⑤ 函数（调用签名）  (x: number): string;&#125;
+
+7.3 接口继承（extends）interface Animal &#123;  name: string;&#125;// Dog 继承 Animal，自动拥有 name 属性interface Dog extends Animal &#123;  breed: string;  bark(): void;&#125;const myDog: Dog = &#123;  name: &quot;旺财&quot;,  breed: &quot;金毛&quot;,  bark() &#123;    console.log(&quot;汪汪！&quot;);  &#125;,&#125;;
+
+一个接口可以继承多个接口：
+interface A &#123; a: number; &#125;interface B &#123; b: string; &#125;interface C extends A, B &#123; c: boolean; &#125;// C 同时拥有 a, b, c 三个属性
+
+7.4 interface 合并（Declaration Merging）同名 interface 会自动合并！
+interface User &#123;  name: string;&#125;interface User &#123;  age: number;&#125;// 最终 User = &#123; name: string; age: number &#125;const u: User = &#123; name: &quot;张三&quot;, age: 25 &#125;;
+
+
+📌 这是 interface 独有的特性，type 不支持同名合并。
+
+7.5 interface vs type
+
+
+特性
+interface
+type
+
+
+
+描述对象形状
+✅
+✅
+
+
+描述联合类型 A | B
+❌
+✅
+
+
+描述元组 [string, number]
+❌
+✅
+
+
+同名自动合并
+✅
+❌
+
+
+继承&#x2F;扩展
+extends
+&amp; 交叉类型
+
+
+函数类型
+✅
+✅
+
+
+// interface 做不到的事情，只能用 typetype Status = &quot;pending&quot; | &quot;success&quot; | &quot;error&quot;;   // 联合类型type Tuple = [string, number];                    // 元组type StrOrNum = string | number;                  // 简单别名// 一般建议：对象形状优先用 interface，联合类型/元组用 type
+
+
+8. Class 类8.1 基本语法class Point &#123;  // 先声明属性（必须！）  x: number;  y: number;  // 构造函数  constructor(x: number, y: number) &#123;    this.x = x;    this.y = y;  &#125;  // 方法  distance(): number &#123;    return Math.sqrt(this.x ** 2 + this.y ** 2);  &#125;&#125;const p = new Point(3, 4);console.log(p.distance()); // 5
+
+
+⚠️ TS 中必须先声明类的属性，才能在构造函数中赋值；JS 可以不用声明直接 this.x = x。
+
+8.2 访问修饰符
+
+
+修饰符
+含义
+谁能访问
+
+
+
+public
+公开（默认）
+任何地方
+
+
+private
+私有
+只有本类内部
+
+
+protected
+受保护
+本类 + 子类
+
+
+class Person &#123;  public name: string;         // 公开  private age: number;         // 私有  protected id: number;        // 受保护  constructor(name: string, age: number, id: number) &#123;    this.name = name;    this.age = age;    this.id = id;  &#125;&#125;class Employee extends Person &#123;  showId() &#123;    console.log(this.id);     // ✅ 子类可以访问 protected    // console.log(this.age); // ❌ 子类不能访问 private  &#125;&#125;const p = new Person(&quot;张三&quot;, 25, 1);console.log(p.name);    // ✅// console.log(p.age);  // ❌ 外部不能访问 private// console.log(p.id);   // ❌ 外部不能访问 protected
+
+8.3 参数属性（简写）在构造函数参数前加修饰符，可以一步完成声明+赋值：
+// 繁琐写法class Point1 &#123;  x: number;  y: number;  constructor(x: number, y: number) &#123;    this.x = x;    this.y = y;  &#125;&#125;// 简洁写法（参数属性）⭐class Point2 &#123;  constructor(public x: number, public y: number) &#123;&#125;&#125;// 效果完全一样！
+
+8.4 readonly 属性class Card &#123;  readonly id: number;    constructor(id: number) &#123;    this.id = id;   // ✅ 构造函数中可以赋值  &#125;    changeId(newId: number) &#123;    // this.id = newId;  // ❌ 其他方法中不能修改  &#125;&#125;
+
+8.5 存取器（Getter &#x2F; Setter）class User &#123;  private _age: number = 0;  // Getter：读取时调用  get age(): number &#123;    return this._age;  &#125;  // Setter：写入时调用  set age(value: number) &#123;    if (value &lt; 0 || value &gt; 150) &#123;      throw new Error(&quot;年龄不合法！&quot;);    &#125;    this._age = value;  &#125;&#125;const u = new User();u.age = 25;          // 自动调用 setterconsole.log(u.age);  // 自动调用 getter → 25
+
+8.6 实现接口（implements）interface Flyable &#123;  fly(): void;&#125;interface Swimmable &#123;  swim(): void;&#125;// 一个类可以实现多个接口class Duck implements Flyable, Swimmable &#123;  fly() &#123;    console.log(&quot;鸭子飞起来了&quot;);  &#125;  swim() &#123;    console.log(&quot;鸭子在游泳&quot;);  &#125;&#125;
+
+8.7 抽象类（abstract）abstract class Animal &#123;  abstract makeSound(): void;    // 抽象方法：子类必须实现    move(): void &#123;                 // 普通方法：有默认实现    console.log(&quot;动物在移动...&quot;);  &#125;&#125;class Dog extends Animal &#123;  makeSound() &#123;    console.log(&quot;汪汪！&quot;);  &#125;&#125;// const a = new Animal();  // ❌ 抽象类不能直接实例化const d = new Dog();        // ✅d.makeSound();               // 汪汪！
+
+
+9. Enum 枚举9.1 什么是枚举？枚举用于定义一组有名字的常量，使代码更具可读性：
+// 没有枚举时const RED = 0;const GREEN = 1;const BLUE = 2;// 使用枚举enum Color &#123;  Red,    // 0  Green,  // 1  Blue,   // 2&#125;let c: Color = Color.Green;  // c = 1
+
+
+📌 默认规则：第一个成员值为 0，往后依次 +1
+
+9.2 自定义值// 手动指定值enum Status &#123;  Success = 200,  NotFound = 404,  ServerError = 500,&#125;// 部分指定（未指定的继续自动递增）enum Direction &#123;  Up = 1,  Down,      // 2  Left = 10,  Right,     // 11&#125;
+
+9.3 字符串枚举enum Message &#123;  Success = &quot;SUCCESS&quot;,  Failure = &quot;FAILURE&quot;,  Pending = &quot;PENDING&quot;,&#125;
+
+9.4 枚举编译后的样子// TS 源码enum Color &#123; Red, Green, Blue &#125;// 编译成 JSvar Color;(function (Color) &#123;  Color[Color[&quot;Red&quot;] = 0] = &quot;Red&quot;;  Color[Color[&quot;Green&quot;] = 1] = &quot;Green&quot;;  Color[Color[&quot;Blue&quot;] = 2] = &quot;Blue&quot;;&#125;)(Color || (Color = &#123;&#125;));// 结果：Color = &#123; 0: &quot;Red&quot;, 1: &quot;Green&quot;, 2: &quot;Blue&quot;, Red: 0, Green: 1, Blue: 2 &#125;
+
+
+⚠️ 注意：枚举是 TypeScript 中少数”既是类型，也是值”的语法，编译后会生成 JS 对象。
+
+9.5 const 枚举（更轻量）const enum Direction &#123;  Up,  Down,  Left,  Right,&#125;let dir = Direction.Up;// 编译后：// let dir = 0;  （直接内联成值，不生成对象！）
+
+9.6 枚举的替代方案：as const// 枚举写法enum Color &#123; Red, Green, Blue &#125;// 等价的对象 + as const 写法（更推荐⭐）const Color = &#123;  Red: 0,  Green: 1,  Blue: 2,&#125; as const;type Color = (typeof Color)[keyof typeof Color]; // 0 | 1 | 2
+
+
+10. 泛型 Generics10.1 为什么需要泛型？// 没有泛型时：丢失了类型信息function getFirst(arr: any[]): any &#123;  return arr[0];&#125;const n = getFirst([1, 2, 3]);  // n 的类型是 any，不精确// 使用泛型：保留类型信息 ⭐function getFirst&lt;T&gt;(arr: T[]): T &#123;  return arr[0];&#125;const n = getFirst([1, 2, 3]);  // n 的类型是 number ✅const s = getFirst([&quot;a&quot;, &quot;b&quot;]); // s 的类型是 string ✅
+
+
+🎯 泛型的本质：把”类型”当作”参数”来传递，让函数&#x2F;接口&#x2F;类可以在定义时不指定具体类型，使用时再确定。
+
+10.2 泛型的基本语法// 类型参数放在尖括号 &lt;&gt; 里// T, U, V 是约定俗成的命名（T = Type）function identity&lt;T&gt;(arg: T): T &#123;  return arg;&#125;// 调用方式identity&lt;string&gt;(&quot;hello&quot;);     // 显式指定类型identity(&quot;hello&quot;);             // 自动推断（推荐）identity&lt;number&gt;(42);          // 显式指定
+
+10.3 多个类型参数// map 函数：输入 T[]，经过函数 f: T→U，输出 U[]function map&lt;T, U&gt;(arr: T[], fn: (item: T) =&gt; U): U[] &#123;  return arr.map(fn);&#125;const result = map([1, 2, 3], (n) =&gt; n.toString());// result 的类型是 string[]✅
+
+10.4 泛型约束（extends）限制类型参数必须满足某些条件：
+// 约束 T 必须有 length 属性function logLength&lt;T extends &#123; length: number &#125;&gt;(arg: T): T &#123;  console.log(arg.length);  return arg;&#125;logLength(&quot;hello&quot;);      // ✅ string 有 lengthlogLength([1, 2, 3]);    // ✅ 数组有 length// logLength(123);       // ❌ number 没有 length
+
+10.5 泛型接口// 泛型接口interface ApiResponse&lt;T&gt; &#123;  code: number;  message: string;  data: T;           // data 的具体类型由使用时确定&#125;// 使用const userRes: ApiResponse&lt;User&gt; = &#123;  code: 200,  message: &quot;ok&quot;,  data: &#123; name: &quot;张三&quot;, age: 25 &#125;,&#125;;const listRes: ApiResponse&lt;string[]&gt; = &#123;  code: 200,  message: &quot;ok&quot;,  data: [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;],&#125;;
+
+10.6 泛型类class Stack&lt;T&gt; &#123;  private items: T[] = [];  push(item: T): void &#123;    this.items.push(item);  &#125;  pop(): T | undefined &#123;    return this.items.pop();  &#125;&#125;const numStack = new Stack&lt;number&gt;();numStack.push(1);numStack.push(2);// numStack.push(&quot;hello&quot;);  // ❌ 类型不匹配const strStack = new Stack&lt;string&gt;();strStack.push(&quot;hello&quot;);
+
+10.7 keyof + 泛型（常用组合）// keyof 获取对象所有键的联合类型interface Person &#123;  name: string;  age: number;&#125;type PersonKey = keyof Person;  // &quot;name&quot; | &quot;age&quot;// 泛型 + keyof：安全地读取对象属性function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] &#123;  return obj[key];&#125;const person: Person = &#123; name: &quot;张三&quot;, age: 25 &#125;;getProperty(person, &quot;name&quot;);   // ✅ 返回 stringgetProperty(person, &quot;age&quot;);    // ✅ 返回 number// getProperty(person, &quot;email&quot;); // ❌ &quot;email&quot; 不是 Person 的键
+
+
+11. 特殊类型：any &#x2F; unknown &#x2F; never &#x2F; void11.1 any 类型 🚨any 表示关闭类型检查，可以赋任意值，做任意操作：
+let x: any;x = 1;           // ✅x = &quot;hello&quot;;     // ✅x = true;        // ✅x.foo.bar();     // ✅ 编译不报错，但运行时可能崩溃 💥
+
+
+🚨 any 的危害：
+
+会”污染”其他变量（any 可以赋值给任何类型）
+丢失所有 IDE 智能提示
+让 TypeScript 变成 “AnyScript”
+
+仅在以下场景使用：
+
+迁移旧 JS 项目时的临时方案
+确实无法确定类型的极端情况
+
+
+11.2 unknown 类型 ✅（any 的安全替代）unknown 也是”未知类型”，但必须先做类型判断才能使用：
+let x: unknown;x = 1;           // ✅ 可以赋任意值x = &quot;hello&quot;;     // ✅// 但是不能直接使用// x.toFixed();  // ❌ 报错// x + 1;        // ❌ 报错// 必须先进行类型判断（类型收窄）if (typeof x === &quot;number&quot;) &#123;  console.log(x.toFixed(2));  // ✅ 安全&#125;if (typeof x === &quot;string&quot;) &#123;  console.log(x.toUpperCase()); // ✅ 安全&#125;
+
+
+
+
+特性
+any
+unknown
+
+
+
+可以赋任意值
+✅
+✅
+
+
+赋值给其他类型
+✅（危险）
+❌（安全）
+
+
+直接调用方法
+✅（危险）
+❌（安全）
+
+
+需要类型判断
+❌
+✅
+
+
+
+📌 黄金法则：永远优先用 unknown 替代 any！
+
+11.3 void 类型表示没有返回值：
+function log(msg: string): void &#123;  console.log(msg);    // 没有 return 语句&#125;// void 类型变量只能赋值为 undefined（严格模式下）let v: void = undefined;  // ✅// let v: void = null;    // ❌ strictNullChecks 开启时报错
+
+11.4 never 类型表示永远不会发生的类型：
+// 场景一：永远抛出异常的函数function throwError(msg: string): never &#123;  throw new Error(msg);&#125;// 场景二：无限循环的函数function infiniteLoop(): never &#123;  while (true) &#123;&#125;&#125;// 场景三：类型守卫的穷尽性检查 ⭐type Shape = &quot;circle&quot; | &quot;square&quot; | &quot;triangle&quot;;function getArea(shape: Shape): number &#123;  switch (shape) &#123;    case &quot;circle&quot;:    return Math.PI;    case &quot;square&quot;:    return 4;    case &quot;triangle&quot;:  return 2;    default:      // 如果 Shape 新增了类型但这里没处理，编译时会报错      const _exhaustive: never = shape;      return _exhaustive;  &#125;&#125;
+
+
+12. 类型断言12.1 什么是类型断言？当 TS 推断的类型不够精确时，手动告诉编译器”这个值是什么类型”：
+// 场景：TS 推断 foo 为 string，但我们知道它应该是更精确的字面量联合类型type Color = &quot;red&quot; | &quot;green&quot; | &quot;blue&quot;;let foo = &quot;red&quot;;                   // TS 推断为 string// let bar: Color = foo;           // ❌ string 不能赋值给 Color// 使用类型断言let bar: Color = foo as Color;     // ✅ &quot;相信我，foo 就是 Color 类型&quot;
+
+12.2 两种语法// 语法一：值 as 类型（推荐 ⭐）let str: any = &quot;hello&quot;;let len: number = (str as string).length;// 语法二：&lt;类型&gt;值（不推荐，与 JSX 冲突）let len2: number = (&lt;string&gt;str).length;
+
+12.3 常见使用场景场景一：DOM 元素类型细化
+const el = document.getElementById(&quot;myInput&quot;);// el 的类型是 HTMLElement | nullif (el) &#123;  // 告诉 TS：这是一个 input 元素，有 value 属性  const input = el as HTMLInputElement;  console.log(input.value);  // ✅&#125;
+
+场景二：指定 unknown 变量的具体类型
+const value: unknown = &quot;hello world&quot;;const str: string = value as string;  // ✅
+
+场景三：绕过严格字面量检查（慎用）
+// 正常情况：多余属性报错// const p: &#123; x: number &#125; = &#123; x: 1, y: 2 &#125;;  // ❌// 用断言绕过const p: &#123; x: number &#125; = &#123; x: 1, y: 2 &#125; as &#123; x: number &#125;;  // ✅
+
+12.4 断言的条件限制不能把值断言为完全不相关的类型：
+const n = 1;// const s: string = n as string;  // ❌ number 和 string 不兼容
+
+如果需要强制转换，可以双重断言（极其不推荐，仅作了解）：
+const n = 1;const s: string = n as unknown as string;  // ⚠️ 能通过，但危险
+
+12.5 非空断言 !告诉 TS”这个值一定不是 null&#x2F;undefined”：
+// 正常情况需要判空function process(el: HTMLElement | null) &#123;  // el.innerHTML;  // ❌ 可能为 null    // 方式一：判空  if (el) &#123;    console.log(el.innerHTML);  &#125;    // 方式二：非空断言（确定不为空时使用）  console.log(el!.innerHTML);&#125;
+
+
+13. 常用工具类型（Utility Types）TypeScript 内置了很多实用的类型转换工具。这些是面试和日常开发中最常用的：
+13.1 Partial&lt;T&gt; —— 全部变可选interface User &#123;  name: string;  age: number;  email: string;&#125;// Partial 将所有属性变成可选的type PartialUser = Partial&lt;User&gt;;// 等价于：&#123; name?: string; age?: number; email?: string; &#125;// 使用场景：更新接口只需要传部分字段function updateUser(id: number, data: Partial&lt;User&gt;) &#123;  // ...&#125;updateUser(1, &#123; age: 26 &#125;);  // ✅ 只传要更新的字段
+
+13.2 Required&lt;T&gt; —— 全部变必选interface Config &#123;  host?: string;  port?: number;  ssl?: boolean;&#125;// Required 将所有属性变成必选的type FullConfig = Required&lt;Config&gt;;// 等价于：&#123; host: string; port: number; ssl: boolean; &#125;
+
+13.3 Readonly&lt;T&gt; —— 全部变只读interface Todo &#123;  title: string;  completed: boolean;&#125;// Readonly 所有属性只读const todo: Readonly&lt;Todo&gt; = &#123;  title: &quot;学习 TypeScript&quot;,  completed: false,&#125;;// todo.title = &quot;xxx&quot;;  // ❌ 报错
+
+13.4 Pick&lt;T, K&gt; —— 挑选属性interface User &#123;  id: number;  name: string;  age: number;  email: string;&#125;// 从 User 中只挑选 name 和 emailtype UserBrief = Pick&lt;User, &quot;name&quot; | &quot;email&quot;&gt;;// 等价于：&#123; name: string; email: string; &#125;
+
+13.5 Omit&lt;T, K&gt; —— 排除属性interface User &#123;  id: number;  name: string;  password: string;  email: string;&#125;// 从 User 中排除 password（常用于接口返回时去掉敏感字段）type SafeUser = Omit&lt;User, &quot;password&quot;&gt;;// 等价于：&#123; id: number; name: string; email: string; &#125;
+
+13.6 Record&lt;K, T&gt; —— 构造键值对// 构造一个对象类型，键是 K，值都是 Ttype PageInfo = Record&lt;&quot;home&quot; | &quot;about&quot; | &quot;contact&quot;, &#123; title: string &#125;&gt;;// 等价于：// &#123;//   home: &#123; title: string &#125;;//   about: &#123; title: string &#125;;//   contact: &#123; title: string &#125;;// &#125;// 常见用法：用 string 做键type Dictionary = Record&lt;string, number&gt;;const scores: Dictionary = &#123; math: 90, english: 85 &#125;;
+
+13.7 Exclude&lt;T, U&gt; —— 从联合类型中排除type All = &quot;a&quot; | &quot;b&quot; | &quot;c&quot; | &quot;d&quot;;type WithoutA = Exclude&lt;All, &quot;a&quot;&gt;;       // &quot;b&quot; | &quot;c&quot; | &quot;d&quot;type WithoutAB = Exclude&lt;All, &quot;a&quot; | &quot;b&quot;&gt;; // &quot;c&quot; | &quot;d&quot;// 实用例子：排除 null 和 undefinedtype MaybeNull = string | number | null | undefined;type Definitely = Exclude&lt;MaybeNull, null | undefined&gt;; // string | number
+
+13.8 Extract&lt;T, U&gt; —— 从联合类型中提取type All = &quot;a&quot; | &quot;b&quot; | &quot;c&quot; | &quot;d&quot;;type OnlyA = Extract&lt;All, &quot;a&quot;&gt;;  // &quot;a&quot;type Types = string | number | boolean | (() =&gt; void);type Functions = Extract&lt;Types, Function&gt;; // () =&gt; void
+
+13.9 NonNullable&lt;T&gt; —— 排除 null 和 undefinedtype T = string | number | null | undefined;type Clean = NonNullable&lt;T&gt;;  // string | number
+
+13.10 ReturnType&lt;T&gt; —— 获取函数返回值类型function getUser() &#123;  return &#123; name: &quot;张三&quot;, age: 25 &#125;;&#125;// 提取函数返回值类型type User = ReturnType&lt;typeof getUser&gt;;// 等价于：&#123; name: string; age: number; &#125;// 非常实用！不需要重复定义类型const user: User = getUser();
+
+13.11 Parameters&lt;T&gt; —— 获取函数参数类型function createUser(name: string, age: number) &#123;  return &#123; name, age &#125;;&#125;// 提取参数类型（以元组形式返回）type CreateUserParams = Parameters&lt;typeof createUser&gt;;// 等价于：[name: string, age: number]// 实用：复用一个函数的参数类型const params: CreateUserParams = [&quot;张三&quot;, 25];
+
+📊 工具类型速查表
+
+
+工具类型
+作用
+口诀
+
+
+
+Partial&lt;T&gt;
+全部属性 → 可选
+“部分更新”
+
+
+Required&lt;T&gt;
+全部属性 → 必选
+“缺一不可”
+
+
+Readonly&lt;T&gt;
+全部属性 → 只读
+“只许看不许改”
+
+
+Pick&lt;T, K&gt;
+挑选指定属性
+“只要这几样”
+
+
+Omit&lt;T, K&gt;
+排除指定属性
+“不要这几样”
+
+
+Record&lt;K, T&gt;
+构造键值对类型
+“批量生产”
+
+
+Exclude&lt;T, U&gt;
+从联合类型排除
+“去掉这些”
+
+
+Extract&lt;T, U&gt;
+从联合类型提取
+“只要这些”
+
+
+NonNullable&lt;T&gt;
+去掉 null&#x2F;undefined
+“去空”
+
+
+ReturnType&lt;T&gt;
+取函数返回值类型
+“返回啥类型”
+
+
+Parameters&lt;T&gt;
+取函数参数类型
+“参数啥类型”
+
+
+
+14. 模块化14.1 什么是模块？在 TypeScript 中，任何包含 import 或 export 的文件就是一个模块。反之，没有 export 的就是全局脚本。
+// math.ts —— 这是一个模块export function add(x: number, y: number): number &#123;  return x + y;&#125;export const PI = 3.14159;// app.ts —— 使用模块import &#123; add, PI &#125; from &quot;./math&quot;;console.log(add(1, 2));  // 3
+
+14.2 导出和导入类型TypeScript 支持单独导入&#x2F;导出类型：
+// types.tsexport interface User &#123;  name: string;  age: number;&#125;export type Status = &quot;pending&quot; | &quot;success&quot; | &quot;error&quot;;// app.tsimport type &#123; User, Status &#125; from &quot;./types&quot;;  // ⭐ import type 只导入类型const user: User = &#123; name: &quot;张三&quot;, age: 25 &#125;;// 编译后 import type 语句会被完全删除
+
+
+💡 import type 的好处：明确区分哪些是类型（编译时删除），哪些是值（运行时保留）。
+
+14.3 让全局脚本变成模块如果文件没有 export，但又想让它拥有模块作用域（变量不污染全局）：
+// 在文件头部加这行即可export &#123;&#125;;
+
+
+15. 总结与学习路线📋 核心概念回顾┌─────────────────────────────────────────────┐│              TypeScript 知识体系              │├─────────────────────────────────────────────┤│  基础层                                       ││  ├── 类型标注（: string, : number）           ││  ├── 类型推断（自动推导类型）                  ││  ├── 基础类型（boolean, string, number...）   ││  └── 联合类型/交叉类型（| / &amp;）               │├─────────────────────────────────────────────┤│  结构层                                       ││  ├── 数组 / 元组（[] / [string, number]）     ││  ├── 对象类型（&#123;&#125;）                            ││  ├── 函数类型（参数+返回值类型）               ││  └── Interface（对象的&quot;规格书&quot;）               │├─────────────────────────────────────────────┤│  面向对象层                                    ││  ├── Class（public/private/protected）        ││  ├── 继承（extends）/ 实现（implements）       ││  └── Enum（枚举）/ 抽象类                      │├─────────────────────────────────────────────┤│  高级层                                       ││  ├── 泛型（&lt;T&gt;：类型参数化）                    ││  ├── 类型断言（as / !）                       ││  ├── 工具类型（Partial, Pick, Omit...）        ││  └── 特殊类型（any, unknown, never, void）     │└─────────────────────────────────────────────┘
+
+🗺️ 推荐学习路线第 1 天：环境搭建 + 基础类型标注 + 类型推断    ↓       （写 10 个带类型标注的小函数）第 2 天：数组/元组 + 对象类型 + 函数类型    ↓       （把之前写的 JS 项目改写成 TS）第 3 天：Interface 接口 + Class 类    ↓       （理解面向对象在 TS 中的写法）第 4 天：泛型 + Enum + 类型守卫    ↓       （理解&quot;类型即参数&quot;的思想）第 5 天：工具类型 + 模块化 + any/unknown/never    ↓       （能看懂开源 TS 项目的类型定义）第 6 天：实战！在 React / Vue / Node 项目中使用 TS
+
+🔑 三个最重要的心法
+类型是你给未来的自己写的情书 —— 花 30 秒写类型，省下未来的 30 分钟调试
+any 是毒品，unknown 是解药 —— 永远优先用 unknown，any 只在万不得已时
+写不出的类型 &#x3D; 理解不够深 —— 当你写不出某个函数的类型签名时，说明你对它的理解还有缺口
+
+📚 推荐资源
+🔗 TypeScript 官方文档
+🔗 TypeScript Playground —— 在线练习
+🔗 阮一峰 TypeScript 教程 —— 本文档的主要参考
+🔗 TypeScript 类型挑战 —— 刷题提升类型思维
+
+
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>JavaScript</tag>
+        <tag>前端</tag>
+        <tag>基础教程</tag>
+        <tag>TypeScript</tag>
+        <tag>类型系统</tag>
+        <tag>泛型</tag>
+      </tags>
   </entry>
 </search>
