@@ -36019,4 +36019,1746 @@ Windows 文件名区分大小写
         <tag>速通</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Python 函数与高级特性 — 写出简洁高效的代码</title>
+    <url>/2025/01/01/Python/02-%E5%87%BD%E6%95%B0%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7/</url>
+    <content><![CDATA[02 函数与高级特性
+从函数到函数式编程，三语对照助你融会贯通。
+
+
+2.1 定义与调用函数2.1.1 基本定义def greet(name):    &quot;&quot;&quot;给某人打招呼（这是 docstring）&quot;&quot;&quot;    return f&#x27;你好，&#123;name&#125;!&#x27;print(greet(&#x27;小明&#x27;))  # 你好，小明!
+
+三语对照# Pythondef add(x, y):    return x + y
+
+// TypeScriptfunction add(x: number, y: number): number &#123;    return x + y;&#125;
+
+// Javapublic static int add(int x, int y) &#123;    return x + y;&#125;
+
+
+
+
+特性
+Python
+TypeScript
+Java
+
+
+
+关键字
+def
+function
+返回类型 + 方法名
+
+
+类型标注
+可选（def f(x: int) -&gt; int:）
+必须
+必须
+
+
+返回值
+return &#x2F; 默认 None
+return &#x2F; 默认 undefined
+return &#x2F; void
+
+
+文档
+docstring &quot;&quot;&quot;...&quot;&quot;&quot;
+JSDoc /**...*/
+Javadoc /**...*/
+
+
+2.1.2 空函数def nop():    pass   # pass = 啥也不做，占位用
+
+2.1.3 返回多值Python 函数可以”返回多个值”——实际是返回一个 tuple：
+import mathdef move(x, y, step, angle=0):    nx = x + step * math.cos(angle)    ny = y - step * math.sin(angle)    return nx, ny   # 返回 tuplex, y = move(100, 100, 60, math.pi / 6)# 拆包赋值
+
+
+2.2 参数系统（Python 最强特性之一）Python 的参数系统非常灵活，共 5 种参数类型：
+① 位置参数def power(x, n):    return x ** npower(2, 3)  # 8 —— x=2, n=3（按位置匹配）
+
+② 默认参数def power(x, n=2):    return x ** npower(2)    # 4 —— n 使用默认值 2power(2, 3) # 8 —— 显式传入 n=3
+
+
+⚠️ 巨坑：默认参数必须是不可变对象！
+# ❌ 踩坑：默认参数是可变对象def add_end(L=[]):      # [] 只创建一次！    L.append(&#x27;END&#x27;)    return Ladd_end()  # [&#x27;END&#x27;]add_end()  # [&#x27;END&#x27;, &#x27;END&#x27;]  ← 同一个 list 在累积# ✅ 正确：用 None 做标记def add_end(L=None):    if L is None:        L = []    L.append(&#x27;END&#x27;)    return L
+
+③ 可变参数（*args）接收任意数量的参数，函数内部收到一个 tuple：
+def calc(*numbers):    total = 0    for n in numbers:        total += n * n    return totalcalc(1, 2, 3)       # 14calc()              # 0calc(*[1, 2, 3])    # 14 —— list/tuple 前加 * 解包传入
+
+④ 关键字参数（**kwargs）接收任意数量的 key&#x3D;value 参数，函数内部收到一个 dict：
+def person(name, age, **kw):    print(name, age, kw)person(&#x27;Bob&#x27;, 35)                           # Bob 35 &#123;&#125;person(&#x27;Bob&#x27;, 35, city=&#x27;Beijing&#x27;)           # Bob 35 &#123;&#x27;city&#x27;: &#x27;Beijing&#x27;&#125;person(&#x27;Bob&#x27;, 35, city=&#x27;Beijing&#x27;, job=&#x27;Eng&#x27;) # Bob 35 &#123;&#x27;city&#x27;: &#x27;Beijing&#x27;, &#x27;job&#x27;: &#x27;Eng&#x27;&#125;
+
+⑤ 命名关键字参数（*, name）* 后面的参数必须按名字传入：
+def person(name, age, *, city, job):    print(name, age, city, job)person(&#x27;Jack&#x27;, 24, city=&#x27;Beijing&#x27;, job=&#x27;Engineer&#x27;)  # ✅ 正确person(&#x27;Jack&#x27;, 24, &#x27;Beijing&#x27;, &#x27;Engineer&#x27;)            # ❌ TypeError
+
+参数顺序
+位置参数 → 默认参数 → 可变参数 → 命名关键字参数 → 关键字参数
+
+def f(a, b, c=0, *args, **kw):    passdef f(a, b, c=0, *, d, **kw):    pass
+
+三语对照：参数
+
+
+特性
+Python
+TypeScript
+Java
+
+
+
+默认值
+def f(x=0)
+function f(x=0)
+方法重载
+
+
+可变参数
+*args → tuple
+...args: number[]
+int... nums
+
+
+关键字参数
+**kwargs → dict
+对象参数
+无（需自己封装）
+
+
+命名关键字
+*, name
+无语法支持
+无语法支持
+
+
+
+2.3 递归函数def fact(n):    if n == 1:        return 1    return n * fact(n - 1)
+
+
+⚠️ Python 默认递归深度限制约 1000，且没有尾递归优化，递归过深会栈溢出。
+
+
+2.4 高级特性2.4.1 切片（Slice）L = [&#x27;Michael&#x27;, &#x27;Sarah&#x27;, &#x27;Tracy&#x27;, &#x27;Bob&#x27;, &#x27;Jack&#x27;]L[0:3]       # [&#x27;Michael&#x27;, &#x27;Sarah&#x27;, &#x27;Tracy&#x27;]（索引 0~2）L[:3]        # 同上，0 省略L[-2:]       # [&#x27;Bob&#x27;, &#x27;Jack&#x27;]（倒数两个）L[::2]       # [&#x27;Michael&#x27;, &#x27;Tracy&#x27;, &#x27;Jack&#x27;]（步长2）L[::-1]      # [&#x27;Jack&#x27;, &#x27;Bob&#x27;, &#x27;Tracy&#x27;, &#x27;Sarah&#x27;, &#x27;Michael&#x27;]（反转）# 字符串切片&#x27;Hello World&#x27;[:5]  # &#x27;Hello&#x27;&#x27;Python&#x27;[::-1]     # &#x27;nohtyP&#x27;
+
+
+TypeScript 用 .slice(0, 3) &#x2F; .slice(-2)，Java 用 substring(0, 3) 或 Arrays.copyOfRange()。
+
+2.4.2 列表生成式（List Comprehension）Python 最优雅的特性之一：
+# 普通方式squares = []for x in range(1, 11):    squares.append(x * x)# 一行搞定squares = [x * x for x in range(1, 11)]# 加条件evens = [x * x for x in range(1, 11) if x % 2 == 0]# [4, 16, 36, 64, 100]# 双层循环[m + n for m in &#x27;ABC&#x27; for n in &#x27;XYZ&#x27;]# [&#x27;AX&#x27;, &#x27;AY&#x27;, &#x27;AZ&#x27;, &#x27;BX&#x27;, &#x27;BY&#x27;, &#x27;BZ&#x27;, &#x27;CX&#x27;, &#x27;CY&#x27;, &#x27;CZ&#x27;]# 实用：遍历目录import os[f for f in os.listdir(&#x27;.&#x27;) if f.endswith(&#x27;.py&#x27;)]
+
+2.4.3 生成器（Generator）惰性求值——需要时才计算，节省内存。适用于大数据集。
+方式一：把 [] 变 ()
+g = (x * x for x in range(1000000))  # ← 生成器，几乎不占内存next(g)  # 0next(g)  # 1# 或for n in g:    if n &gt; 100:        break    print(n)
+
+方式二：yield 关键字
+def fib(max):    n, a, b = 0, 0, 1    while n &lt; max:        yield b          # 每次执行到这里暂停，返回 b        a, b = b, a + b        n += 1for x in fib(6):    print(x)  # 1 1 2 3 5 8
+
+2.4.4 迭代器（Iterator）
+
+
+概念
+说明
+示例
+
+
+
+Iterable（可迭代）
+可用于 for 循环
+list, dict, str, generator
+
+
+Iterator（迭代器）
+可被 next() 调用
+generator 是 Iterator
+
+
+from collections.abc import Iterable, Iteratorisinstance([], Iterable)      # Trueisinstance([], Iterator)      # Falseisinstance(iter([]), Iterator) # True# list/dict/str 是 Iterable 但不是 Iterator# iter() 函数可将 Iterable 转为 Iterator
+
+
+2.5 函数式编程2.5.1 高阶函数函数本身可以作为参数传递：
+# 函数可以赋值给变量f = absf(-10)  # 10# 函数作为参数def add(x, y, f):    return f(x) + f(y)add(-5, 6, abs)  # 11
+
+2.5.2 map &#x2F; filter &#x2F; reducefrom functools import reduce# map —— 对序列每个元素执行函数list(map(str, [1, 2, 3]))         # [&#x27;1&#x27;, &#x27;2&#x27;, &#x27;3&#x27;]list(map(lambda x: x * x, [1,2,3])) # [1, 4, 9]# filter —— 过滤list(filter(lambda x: x % 2 == 0, range(10)))  # [0, 2, 4, 6, 8]# reduce —— 累积reduce(lambda x, y: x + y, [1, 2, 3, 4])  # 10（1+2+3+4）
+
+三语对照：map
+# Pythonlist(map(str, [1, 2, 3]))
+
+// TypeScript[1, 2, 3].map(String)
+
+// JavaArrays.stream(new int[]&#123;1, 2, 3&#125;)      .mapToObj(String::valueOf)      .collect(Collectors.toList());
+
+2.5.3 sortedsorted([36, 5, -12, 9, -21])             # [-21, -12, 5, 9, 36]sorted([36, 5, -12, 9, -21], key=abs)    # [5, 9, -12, -21, 36]sorted([&#x27;bob&#x27;, &#x27;about&#x27;, &#x27;Zoo&#x27;], key=str.lower)  # [&#x27;about&#x27;, &#x27;bob&#x27;, &#x27;Zoo&#x27;]sorted([&#x27;bob&#x27;, &#x27;about&#x27;, &#x27;Zoo&#x27;], key=str.lower, reverse=True)
+
+2.5.4 匿名函数（lambda）# 普通函数def f(x): return x * x# 等价的 lambdalambda x: x * x# 实际使用list(map(lambda x: x * x, [1, 2, 3, 4, 5]))
+
+三语对照：lambda
+# Pythonlambda x, y: x + y
+
+// TypeScript(x: number, y: number) =&gt; x + y
+
+// Java(int x, int y) -&gt; x + y
+
+2.5.5 装饰器（Decorator）—— Python 的”切面编程”不修改原函数，动态增加功能，相当于 TS 的装饰器 &#x2F; Java 的 AOP。
+import functools# 定义一个装饰器：打印函数名def log(func):    @functools.wraps(func)   # 保留原函数名等元信息    def wrapper(*args, **kwargs):        print(f&#x27;call &#123;func.__name__&#125;()&#x27;)        return func(*args, **kwargs)    return wrapper# 使用装饰器@logdef now():    print(&#x27;2022-01-01&#x27;)now()# 输出：# call now()# 2022-01-01
+
+带参数的装饰器：
+def log(text):    def decorator(func):        @functools.wraps(func)        def wrapper(*args, **kwargs):            print(f&#x27;&#123;text&#125; &#123;func.__name__&#125;()&#x27;)            return func(*args, **kwargs)        return wrapper    return decorator@log(&#x27;DEBUG&#x27;)    # 等价于 now = log(&#x27;DEBUG&#x27;)(now)def now():    print(&#x27;2022-01-01&#x27;)
+
+
+
+
+概念
+Python
+TypeScript
+Java
+
+
+
+装饰器
+@decorator
+@Decorator
+@Annotation（需 AOP 框架）
+
+
+原理
+语法糖，等价于 f = decorator(f)
+编译时转换
+运行时&#x2F;编译时处理
+
+
+权限
+可完全替换函数
+可修改&#x2F;替换
+通常只加元数据
+
+
+2.5.6 偏函数（Partial）固定函数的部分参数：
+from functools import partial# 将 int 的默认 base 固定为 2int2 = partial(int, base=2)int2(&#x27;1000000&#x27;)   # 64
+
+三语对照：
+// TypeScript —— 箭头函数实现偏函数const add = (x: number, y: number) =&gt; x + y;const add5 = (y: number) =&gt; add(5, y);
+
+// Java —— 方法引用 + lambdaFunction&lt;Integer, Integer&gt; add5 = y -&gt; add(5, y);
+
+
+本章小结
+
+
+知识点
+Python 要点
+TS&#x2F;Java 差异
+
+
+
+✅ 函数定义
+def f():
+TS: function f() &#x2F; Java: 返回类型 f()
+
+
+✅ *args &#x2F; **kwargs
+可变参数&#x2F;关键字参数
+TS: 剩余参数 ...args; Java: int... nums
+
+
+✅ lambda
+lambda x: expr
+x =&gt; expr (TS) &#x2F; x -&gt; expr (Java)
+
+
+✅ 列表生成式
+[x*x for x in range(10)]
+TS: .map(); Java: stream
+
+
+✅ 生成器
+yield 惰性求值
+TS: function*; Java: 无（Stream 近似）
+
+
+✅ 装饰器
+@decorator 动态增强
+TS: @Decorator; Java: @Annotation + AOP
+
+
+✅ map&#x2F;filter&#x2F;reduce
+Python 内置
+TS&#x2F;Java 都有，Java 在 Stream API 中
+
+
+]]></content>
+      <categories>
+        <category>Python学习</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>python</tag>
+        <tag>function</tag>
+        <tag>functional</tag>
+        <tag>generator</tag>
+        <tag>decorator</tag>
+        <tag>typescript</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python 基础入门 — 从零开始的语法之旅</title>
+    <url>/2025/01/01/Python/01-Python%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/</url>
+    <content><![CDATA[01 Python 基础入门
+目标读者：有 JS&#x2F;TS 或 Java 基础的初学者。我们会三语对照，帮你快速从已知迁移到 Python。
+
+
+1.1 认识 Python它从哪来？
+作者：Guido van Rossum（荷兰人，人称”龟叔”）
+诞生：1989 年圣诞节（打发无聊写的）
+设计哲学：优雅 · 明确 · 简单——尽量写容易看懂的代码
+
+它能干什么？
+
+
+领域
+代表库&#x2F;框架
+
+
+
+🌐 Web 后端
+Flask, Django, FastAPI
+
+
+🤖 自动化脚本
+内置 os, shutil
+
+
+📊 数据科学
+NumPy, Pandas
+
+
+🧠 AI &#x2F; 机器学习
+PyTorch, TensorFlow
+
+
+🔧 运维工具
+Ansible, SaltStack
+
+
+Python vs TS vs Java：语言定位
+
+
+特性
+Python
+TypeScript
+Java
+
+
+
+类型系统
+动态（运行时检查）
+静态（编译时检查）
+静态（编译时检查）
+
+
+语法风格
+缩进驱动
+花括号 &#123;&#125; 驱动
+花括号 &#123;&#125; 驱动
+
+
+运行方式
+解释执行
+编译 → JS 执行
+JVM 字节码
+
+
+典型场景
+脚本&#x2F;数据&#x2F;后端
+前端&#x2F;全栈&#x2F;Node 后端
+企业后端&#x2F;Android
+
+
+
+1.2 安装与运行安装
+
+
+系统
+命令 &#x2F; 方法
+
+
+
+Windows
+python.org 下载安装包，勾选 “Add to PATH”
+
+
+macOS
+brew install python3
+
+
+Linux
+sudo apt install python3
+
+
+验证安装：
+python --version   # Windowspython3 --version  # macOS / Linux
+
+两种运行模式
+
+
+模式
+命令
+特点
+
+
+
+交互模式
+python 进入 &gt;&gt;&gt;
+输入一行执行一行，适合调试学习
+
+
+文件模式
+python hello.py
+一次性执行全部代码
+
+
+你的第一个程序 hello.py：
+print(&#x27;Hello, World!&#x27;)
+
+python hello.py
+
+三语对照：Hello World# Pythonprint(&#x27;Hello, World!&#x27;)
+
+// TypeScriptconsole.log(&#x27;Hello, World!&#x27;);
+
+// Javapublic class Hello &#123;    public static void main(String[] args) &#123;        System.out.println(&quot;Hello, World!&quot;);    &#125;&#125;
+
+
+1.3 Python 语法基础1.3.1 缩进规则（最重要的区别！）Python 不用花括号，用缩进表示代码块。
+a = 100if a &gt;= 0:    print(a)     # 缩进 4 个空格 = 属于 ifelse:    print(-a)    # 对齐 = 属于 else
+
+
+
+
+语言
+代码块标识
+
+
+
+Python
+缩进（推荐 4 空格）
+
+
+TypeScript
+&#123;&#125; 花括号
+
+
+Java
+&#123;&#125; 花括号
+
+
+
+⚠️ 不要混用 Tab 和空格！设置编辑器把 Tab 自动转成 4 空格。
+
+1.3.2 注释# 单行注释&quot;&quot;&quot;多行注释 / 文档字符串可以跨多行&quot;&quot;&quot;
+
+1.3.3 变量与常量Python 是动态类型语言——变量不需要声明类型。
+# Python —— 动态类型，随时改变类型a = 123       # 整数a = &#x27;ABC&#x27;     # ✅ 变成字符串（动态语言的特性/陷阱）PI = 3.14     # 约定全大写表示&quot;常量&quot;（实际仍是变量）
+
+// TypeScript —— 静态类型，类型固定let a: number = 123;a = &#x27;ABC&#x27;;  // ❌ 报错：Type &#x27;string&#x27; is not assignable to type &#x27;number&#x27;
+
+// Java —— 静态类型，类型固定int a = 123;a = &quot;ABC&quot;;  // ❌ 报错：Type mismatch
+
+1.3.4 基本数据类型
+
+
+类型
+Python 示例
+TS 对应
+Java 对应
+
+
+
+整数
+a = 42
+number
+int, long
+
+
+浮点数
+a = 3.14
+number
+float, double
+
+
+字符串
+&#39;hello&#39; &#x2F; &quot;hello&quot;
+string
+String
+
+
+布尔值
+True &#x2F; False
+boolean
+boolean
+
+
+空值
+None
+null &#x2F; undefined
+null
+
+
+# Python 类型示例n = 42f = 3.14s = &#x27;hello&#x27;b = Truenothing = None# 类型检查type(n)        # &lt;class &#x27;int&#x27;&gt;isinstance(s, str)  # True
+
+1.3.5 运算符# 算术运算a + b, a - b, a * b, a / b   # 除法结果是浮点数a // b                       # 整除（取整）a % b                        # 取余a ** b                       # 幂运算# 比较运算：== != &lt; &gt; &lt;= &gt;=  （与 TS/Java 相同）# 逻辑运算a and b      # 与（类似 TS 的 &amp;&amp;）a or b       # 或（类似 TS 的 ||）not a        # 非（类似 TS 的 !）
+
+注意除法差异：
+# Python10 / 3   # 3.3333333333333335（浮点数）10 // 3  # 3（整除）
+
+// TypeScript10 / 3   // 3.3333333333333335Math.floor(10 / 3)  // 3
+
+// Java10 / 3      // 3（整数除法！）10 / 3.0    // 3.3333333333333335
+
+
+1.4 字符串（String）字符串定义s1 = &#x27;hello&#x27;          # 单引号s2 = &quot;world&quot;          # 双引号（效果一样）s3 = &#x27;&#x27;&#x27;多行字符串&#x27;&#x27;&#x27;              # 三引号多行s4 = r&#x27;raw\nstring&#x27;   # 前缀 r = 不转义（\n 就是 \n 原文）
+
+字符串操作# 拼接&#x27;hello&#x27; + &#x27; &#x27; + &#x27;world&#x27;  # &#x27;hello world&#x27;# 索引（从0开始）&#x27;hello&#x27;[0]    # &#x27;h&#x27;&#x27;hello&#x27;[-1]   # &#x27;o&#x27;（倒数第一个）# 切片&#x27;hello&#x27;[1:4]  # &#x27;ell&#x27;（[start:end] 左闭右开）# 长度len(&#x27;hello&#x27;)  # 5# 分割/合并&#x27;a,b,c&#x27;.split(&#x27;,&#x27;)       # [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]&#x27;-&#x27;.join([&#x27;a&#x27;, &#x27;b&#x27;])     # &#x27;a-b&#x27;# 判断&#x27;Hello&#x27;.istitle()        # True&#x27;hello&#x27;.isalpha()        # True&#x27;123&#x27;.isdigit()          # True
+
+三语对照：字符串模板# Pythonname = &#x27;小明&#x27;f&#x27;你好，&#123;name&#125;！你的得分是 &#123;score&#125;&#x27;  # ✅ f-string（推荐）&#x27;你好，%s！&#x27; % name                   # % 格式化（旧式）&#x27;你好，&#123;&#125;！&#x27;.format(name)             # format 方法
+
+// TypeScriptconst name = &#x27;小明&#x27;;`你好，$&#123;name&#125;！你的得分是 $&#123;score&#125;`;  // 模板字面量
+
+// JavaString name = &quot;小明&quot;;String.format(&quot;你好，%s！你的得分是 %d&quot;, name, score);  // String.format&quot;你好，&quot; + name + &quot;！&quot;;  // 拼接
+
+编码（重要）Python 3 字符串默认是 Unicode，内存中用 Unicode 表示。
+ord(&#x27;A&#x27;)   # 65 —— 获取字符的 Unicode 码点chr(65)    # &#x27;A&#x27; —— 码点转字符# 编码成字节&#x27;中文&#x27;.encode(&#x27;utf-8&#x27;)   # b&#x27;\xe4\xb8\xad\xe6\x96\x87&#x27;b&#x27;\xe4\xb8\xad&#x27;.decode(&#x27;utf-8&#x27;)  # &#x27;中&#x27;
+
+
+1.5 容器类型1.5.1 list（列表）≈ TS&#x2F;Java 的数组list1 = [1, 2, 3, 4, 5]# 增删改list1.append(6)        # 末尾追加 → [1,2,3,4,5,6]list1.insert(0, 0)     # 指定位置插入 → [0,1,2,3,4,5,6]list1.pop()            # 删除末尾 → 返回 6list1.pop(0)           # 删除索引0 → 返回 0list1[0] = 99          # 修改 → [99,2,3,4,5]# 切片（list 的&quot;大杀器&quot;）list1[1:3]             # [2, 3]list1[-2:]             # [4, 5]（倒数两个）list1[::2]             # [99, 3, 5]（步长为2）# 推导式（list comprehension）[x * x for x in range(10)]            # [0,1,4,9,...,81][x for x in range(10) if x % 2 == 0]  # [0,2,4,6,8]# 排序sorted([3, 1, 2])                     # [1, 2, 3]sorted([3, 1, 2], reverse=True)       # [3, 2, 1]
+
+
+
+
+操作
+Python
+TypeScript
+Java
+
+
+
+创建
+[1, 2]
+[1, 2]
+new int[]&#123;1,2&#125;
+
+
+追加
+.append(x)
+.push(x)
+ArrayList.add(x)
+
+
+长度
+len(lst)
+arr.length
+arr.length &#x2F; list.size()
+
+
+切片
+lst[1:3]
+.slice(1,3)
+Arrays.copyOfRange()
+
+
+遍历
+for x in lst:
+for (let x of arr)
+for (int x : arr)
+
+
+1.5.2 tuple（元组）—— 不可变列表t = (1, 2, 3)     # 创建t = (1,)           # ⚠️ 单元素必须加逗号t = ()             # 空元组# 不可变意味着：不能修改，不能增删# 比 list 更安全，能用则用
+
+1.5.3 dict（字典）≈ TS 对象 &#x2F; Java HashMapd = &#123;&#x27;Michael&#x27;: 95, &#x27;Bob&#x27;: 75&#125;d[&#x27;Michael&#x27;]          # 95 —— 取值d[&#x27;Adam&#x27;] = 67        # 新增或修改&#x27;Thomas&#x27; in d         # False —— 判断 key 存在d.get(&#x27;Thomas&#x27;)       # None —— 安全获取（不存在返回 None）d.get(&#x27;Thomas&#x27;, -1)   # -1 —— 不存在返回默认值d.pop(&#x27;Bob&#x27;)          # 删除并返回值d.keys()              # dict_keys([&#x27;Michael&#x27;, &#x27;Bob&#x27;])d.values()            # dict_values([95, 75])# 遍历for k, v in d.items():    print(k, v)# 推导式&#123;x: x**2 for x in range(5)&#125;  # &#123;0:0, 1:1, 2:4, 3:9, 4:16&#125;
+
+
+
+
+操作
+Python dict
+TypeScript Object
+Java HashMap
+
+
+
+取值
+d[&#39;key&#39;]
+obj[&#39;key&#39;] 或 obj.key
+map.get(&quot;key&quot;)
+
+
+赋值
+d[&#39;key&#39;] = v
+obj.key = v
+map.put(&quot;key&quot;, v)
+
+
+查存在
+&#39;key&#39; in d
+&#39;key&#39; in obj
+map.containsKey(&quot;key&quot;)
+
+
+删除
+d.pop(&#39;key&#39;)
+delete obj.key
+map.remove(&quot;key&quot;)
+
+
+
+⚠️ dict 的 key 必须为不可变类型（字符串、整数、tuple），list 不可以当 key。
+
+1.5.4 set（集合）s = &#123;1, 2, 3&#125;          # 直接创建s = set([1, 2, 2, 3])  # → &#123;1, 2, 3&#125;（自动去重）s.add(4)s.remove(3)# 集合运算&#123;1, 2, 3&#125; &amp; &#123;2, 3, 4&#125;  # &#123;2, 3&#125; 交集&#123;1, 2, 3&#125; | &#123;2, 3, 4&#125;  # &#123;1, 2, 3, 4&#125; 并集
+
+
+1.6 条件判断age = 20if age &gt;= 18:    print(&#x27;成年&#x27;)elif age &gt;= 6:       # 注意是 elif，不是 else if    print(&#x27;青少年&#x27;)else:    print(&#x27;儿童&#x27;)# 简洁写法（三元表达式）result = &#x27;成年&#x27; if age &gt;= 18 else &#x27;未成年&#x27;
+
+三语对照：条件语句# Pythonif x &gt; 0:    print(&#x27;正数&#x27;)elif x == 0:    print(&#x27;零&#x27;)else:    print(&#x27;负数&#x27;)
+
+// TypeScriptif (x &gt; 0) &#123;    console.log(&#x27;正数&#x27;);&#125; else if (x === 0) &#123;    console.log(&#x27;零&#x27;);&#125; else &#123;    console.log(&#x27;负数&#x27;);&#125;
+
+// Javaif (x &gt; 0) &#123;    System.out.println(&quot;正数&quot;);&#125; else if (x == 0) &#123;    System.out.println(&quot;零&quot;);&#125; else &#123;    System.out.println(&quot;负数&quot;);&#125;
+
+真值判断（Python 的特色）# 以下值被视为 False：False, None, 0, &#x27;&#x27;, [], (), &#123;&#125;# 所以可以直接写：if not list:     # 等同于 if len(list) == 0:    print(&#x27;空列表&#x27;)if name:         # 等同于 if name is not None and name != &#x27;&#x27;:    print(name)
+
+模式匹配（Python 3.10+）score = &#x27;A&#x27;match score:    case &#x27;A&#x27;:        print(&#x27;优秀&#x27;)    case &#x27;B&#x27;:        print(&#x27;良好&#x27;)    case _:        print(&#x27;未知&#x27;)
+
+类似 Java 17+ 的 switch &#x2F; TypeScript 的 switch。
+
+1.7 循环for 循环（遍历迭代器）# 遍历 listfor name in [&#x27;Michael&#x27;, &#x27;Bob&#x27;, &#x27;Tracy&#x27;]:    print(name)# 带索引for i, name in enumerate([&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;]):    print(i, name)# 遍历 rangefor i in range(5):       # 0,1,2,3,4    print(i)for i in range(2, 5):    # 2,3,4    print(i)for i in range(0, 10, 2):  # 0,2,4,6,8（步长2）    print(i)# 遍历 dictd = &#123;&#x27;a&#x27;: 1, &#x27;b&#x27;: 2&#125;for k in d:            # 遍历 key    ...for v in d.values():   # 遍历 value    ...for k, v in d.items(): # 同时遍历    ...
+
+while 循环n = 10while n &gt; 0:    print(n)    n -= 1
+
+break &#x2F; continuefor x in range(10):    if x == 5:        break      # 跳出整个循环    if x % 2 == 0:        continue   # 跳过本次迭代    print(x)
+
+三语对照：循环# Pythonfor i in range(5):    print(i)
+
+// TypeScriptfor (let i = 0; i &lt; 5; i++) &#123;    console.log(i);&#125;
+
+// Javafor (int i = 0; i &lt; 5; i++) &#123;    System.out.println(i);&#125;
+
+
+本章小结
+
+
+知识点
+Python 关键点
+TS&#x2F;Java 差异提醒
+
+
+
+✅ 缩进
+4 空格定义代码块
+TS&#x2F;Java 用 &#123;&#125;
+
+
+✅ 变量
+动态类型，无需声明
+TS&#x2F;Java 需要类型声明
+
+
+✅ 字符串
+f&#39;&#123;name&#125;&#39; 最常用
+TS 模板字面量类似
+
+
+✅ list
+下标从 0，切片 [start:end:step]
+类似但语法不同
+
+
+✅ dict
+d.get(key) 安全取值
+Java 用 getOrDefault
+
+
+✅ 条件
+elif 不是 else if
+else if (TS&#x2F;Java)
+
+
+✅ 循环
+for x in iterable
+TS: for...of, Java: for-each
+
+
+]]></content>
+      <categories>
+        <category>Python学习</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>python</tag>
+        <tag>typescript</tag>
+        <tag>beginner</tag>
+        <tag>syntax</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python IO 编程与并发 — 文件、网络与多任务的正确姿势</title>
+    <url>/2025/01/01/Python/04-IO%E7%BC%96%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/</url>
+    <content><![CDATA[04 IO 编程与并发
+文件操作、序列化、正则表达式、进程与线程 —— 三语对照实战。
+
+
+4.1 文件读写核心模式：with 语句（自动资源管理）# 读文件with open(&#x27;/path/to/file.txt&#x27;, &#x27;r&#x27;, encoding=&#x27;utf-8&#x27;) as f:    content = f.read()         # 一次性读取全部    # 或    for line in f.readlines(): # 逐行读取        print(line.strip())    # 或    line = f.readline()        # 读一行# 写文件with open(&#x27;/path/to/file.txt&#x27;, &#x27;w&#x27;, encoding=&#x27;utf-8&#x27;) as f:    f.write(&#x27;Hello, Python!&#x27;)
+
+文件模式
+
+
+模式
+说明
+指针位置
+文件不存在
+
+
+
+&#39;r&#39;
+读（文本）
+开头
+报错
+
+
+&#39;w&#39;
+写（覆盖）
+开头
+创建
+
+
+&#39;a&#39;
+追加
+末尾
+创建
+
+
+&#39;r+&#39;
+读写
+开头
+报错
+
+
+&#39;rb&#39;
+读（二进制）
+开头
+报错
+
+
+&#39;wb&#39;
+写（二进制）
+开头
+创建
+
+
+三语对照：写文件# Pythonwith open(&#x27;file.txt&#x27;, &#x27;w&#x27;) as f:    f.write(&#x27;Hello&#x27;)
+
+// TypeScript（Node.js）import &#123; writeFileSync &#125; from &#x27;fs&#x27;;writeFileSync(&#x27;file.txt&#x27;, &#x27;Hello&#x27;, &#x27;utf-8&#x27;);
+
+// Javatry (FileWriter fw = new FileWriter(&quot;file.txt&quot;)) &#123;    fw.write(&quot;Hello&quot;);&#125; catch (IOException e) &#123;    e.printStackTrace();&#125;
+
+
+
+
+资源管理
+Python
+TypeScript
+Java
+
+
+
+自动关闭
+with 语句
+try-finally 或上层封装
+try-with-resources
+
+
+编码
+参数 encoding=&#39;utf-8&#39;
+默认 UTF-8
+需指定 StandardCharsets.UTF_8
+
+
+StringIO &#x2F; BytesIO（内存中的文件）from io import StringIO, BytesIOf = StringIO()f.write(&#x27;hello\n&#x27;)f.write(&#x27;world\n&#x27;)print(f.getvalue())  # &#x27;hello\nworld\n&#x27;# 二进制版buf = BytesIO()buf.write(b&#x27;\xe4\xb8\xad\xe6\x96\x87&#x27;)
+
+操作文件和目录import osimport shutil# 路径操作os.path.join(&#x27;dir&#x27;, &#x27;file.txt&#x27;)     # &#x27;dir/file.txt&#x27;（跨平台）os.path.split(&#x27;/path/to/file.txt&#x27;)  # (&#x27;/path/to&#x27;, &#x27;file.txt&#x27;)os.path.splitext(&#x27;file.txt&#x27;)        # (&#x27;file&#x27;, &#x27;.txt&#x27;)# 文件操作os.rename(&#x27;old.txt&#x27;, &#x27;new.txt&#x27;)os.remove(&#x27;file.txt&#x27;)shutil.copy(&#x27;src.txt&#x27;, &#x27;dst.txt&#x27;)   # 复制（比 os 更方便）# 目录操作os.listdir(&#x27;.&#x27;)                     # 列出当前目录os.mkdir(&#x27;newdir&#x27;)                  # 创建目录os.makedirs(&#x27;a/b/c&#x27;)                # 递归创建
+
+
+4.2 序列化（Serialization）pickle（Python 专用）import pickled = dict(name=&#x27;Bob&#x27;, age=20)data = pickle.dumps(d)         # 序列化成 bytesrestored = pickle.loads(data)  # 反序列化# 写入文件with open(&#x27;data.pkl&#x27;, &#x27;wb&#x27;) as f:    pickle.dump(d, f)with open(&#x27;data.pkl&#x27;, &#x27;rb&#x27;) as f:    d = pickle.load(f)
+
+JSON（通用，推荐用于跨语言）import json# 基本类型d = dict(name=&#x27;Bob&#x27;, age=20, scores=[88, 92])json.dumps(d)         # &#x27;&#123;&quot;name&quot;: &quot;Bob&quot;, &quot;age&quot;: 20, &quot;scores&quot;: [88, 92]&#125;&#x27;json.loads(json_str)   # 反序列化# 写入/读取文件with open(&#x27;data.json&#x27;, &#x27;w&#x27;) as f:    json.dump(d, f)with open(&#x27;data.json&#x27;, &#x27;r&#x27;) as f:    d = json.load(f)# 序列化自定义对象class Student:    def __init__(self, name, age):        self.name = name        self.age = ages = Student(&#x27;Bob&#x27;, 20)json.dumps(s, default=lambda obj: obj.__dict__)  # 用 __dict__ 转
+
+三语对照：JSON# Pythonimport jsondata = json.loads(&#x27;&#123;&quot;name&quot;:&quot;Bob&quot;&#125;&#x27;)json.dumps(&#123;&#x27;name&#x27;: &#x27;Bob&#x27;&#125;)
+
+// TypeScriptconst data = JSON.parse(&#x27;&#123;&quot;name&quot;:&quot;Bob&quot;&#125;&#x27;);JSON.stringify(&#123;name: &#x27;Bob&#x27;&#125;);
+
+// Java// 需要第三方库（如 Jackson / Gson）ObjectMapper mapper = new ObjectMapper();Map data = mapper.readValue(&quot;&#123;\&quot;name\&quot;:\&quot;Bob\&quot;&#125;&quot;, Map.class);String json = mapper.writeValueAsString(new HashMap&lt;&gt;());
+
+
+4.3 正则表达式Python 用 re 模块：
+import re# match() —— 从开头匹配re.match(r&#x27;\d&#123;3&#125;-\d&#123;3,8&#125;&#x27;, &#x27;010-12345&#x27;)  # 返回 Match 对象re.match(r&#x27;\d&#123;3&#125;-\d&#123;3,8&#125;&#x27;, &#x27;abc&#x27;)        # 返回 None# 常用方法re.search(r&#x27;\d+&#x27;, &#x27;年龄: 25&#x27;)       # 搜索第一个匹配re.findall(r&#x27;\d+&#x27;, &#x27;a1b2c3&#x27;)        # [&#x27;1&#x27;, &#x27;2&#x27;, &#x27;3&#x27;] —— 所有匹配re.split(r&#x27;[\s,;]+&#x27;, &#x27;a,b; c d&#x27;)    # [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;, &#x27;d&#x27;]re.sub(r&#x27;\d+&#x27;, &#x27;X&#x27;, &#x27;a1b2c3&#x27;)       # &#x27;aXbXcX&#x27; —— 替换# 分组提取m = re.match(r&#x27;(\d&#123;3&#125;)-(\d&#123;3,8&#125;)&#x27;, &#x27;010-12345&#x27;)m.group(0)  # &#x27;010-12345&#x27;m.group(1)  # &#x27;010&#x27; —— 区号m.group(2)  # &#x27;12345&#x27; —— 号码# 编译（提高重复使用性能）pattern = re.compile(r&#x27;(\d&#123;3&#125;)-(\d&#123;3,8&#125;)&#x27;)pattern.match(&#x27;010-12345&#x27;)
+
+三语对照：正则# Pythonre.match(r&#x27;^\d+$&#x27;, &#x27;123&#x27;)
+
+// TypeScript/^\d+$/.test(&#x27;123&#x27;);
+
+// Java&quot;123&quot;.matches(&quot;\\d+&quot;);  // 注意需要双重转义
+
+
+4.4 进程与线程基本概念
+
+
+概念
+说明
+类比
+
+
+
+进程（Process）
+操作系统分配资源的基本单位
+打开一个浏览器 &#x3D; 一个进程
+
+
+线程（Thread）
+CPU 调度的最小执行单元
+浏览器内的下载&#x2F;渲染&#x2F;交互
+
+
+
+一个进程至少有一个线程。多任务的 3 种模式：多进程、多线程、多进程+多线程。
+
+多进程from multiprocessing import Process, Pool, Queueimport os# 创建进程def run_child(name):    print(f&#x27;子进程 &#123;name&#125; (PID=&#123;os.getpid()&#125;)&#x27;)if __name__ == &#x27;__main__&#x27;:    p = Process(target=run_child, args=(&#x27;worker&#x27;,))    p.start()    p.join()       # 等待子进程结束    print(&#x27;主进程结束&#x27;)# 进程池with Pool(4) as pool:    results = pool.map(lambda x: x*x, [1, 2, 3, 4, 5])# 进程间通信 —— Queuedef write(q):    q.put(&#x27;hello&#x27;)def read(q):    print(q.get())q = Queue()Process(target=write, args=(q,)).start()Process(target=read, args=(q,)).start()
+
+多线程import threadingdef worker():    print(f&#x27;线程 &#123;threading.current_thread().name&#125; 运行&#x27;)t = threading.Thread(target=worker, name=&#x27;Worker&#x27;)t.start()t.join()
+
+线程锁：
+lock = threading.Lock()balance = 0def change(n):    global balance    with lock:               # 自动 acquire/release        balance += n        balance -= n
+
+GIL（全局解释器锁）—— Python 多线程的”坑”
+CPU 密集型任务：多线程不能并行利用多核（GIL 限制）IO 密集型任务：多线程可以提高效率（IO 时会释放 GIL）
+
+
+
+
+场景
+推荐方案
+
+
+
+CPU 密集（计算）
+multiprocessing 多进程
+
+
+IO 密集（网络&#x2F;文件）
+threading 多线程 或 asyncio
+
+
+两者都要
+多进程 + 每个进程内多线程
+
+
+三语对照：多线程# Pythonthreading.Thread(target=func).start()
+
+// TypeScript（Node.js）import &#123; Worker &#125; from &#x27;worker_threads&#x27;;new Worker(&#x27;./worker.js&#x27;);
+
+// Javanew Thread(() -&gt; System.out.println(&quot;running&quot;)).start();
+
+ThreadLocal每个线程独立的数据副本：
+local = threading.local()def process():    name = local.name    # 每个线程独立    print(f&#x27;Hello, &#123;name&#125;&#x27;)def run(name):    local.name = name    process()t1 = threading.Thread(target=run, args=(&#x27;Alice&#x27;,))t2 = threading.Thread(target=run, args=(&#x27;Bob&#x27;,))
+
+
+本章小结
+
+
+知识点
+Python 关键点
+TS&#x2F;Java 差异
+
+
+
+✅ 文件读写
+with open() as f: 自动管理
+TS: fs 模块; Java: try-with-resources
+
+
+✅ JSON
+json.dumps/loads 内置支持
+TS 内置; Java 需第三方库
+
+
+✅ 正则
+re.match/search/findall
+TS: /pattern/.test(); Java: .matches()
+
+
+✅ 多进程
+multiprocessing.Process
+Node: child_process; Java: ProcessBuilder
+
+
+✅ 多线程
+threading.Thread + GIL 注意
+TS: worker_threads; Java: Thread
+
+
+✅ 锁
+with lock: 上下文管理
+TS&#x2F;Java 也有类似机制
+
+
+]]></content>
+      <categories>
+        <category>Python学习</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>python</tag>
+        <tag>typescript</tag>
+        <tag>io</tag>
+        <tag>file</tag>
+        <tag>json</tag>
+        <tag>process</tag>
+        <tag>thread</tag>
+        <tag>regex</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python 生态实战 — 从内建库到 Web 全栈</title>
+    <url>/2025/01/01/Python/05-Python%E7%94%9F%E6%80%81%E5%AE%9E%E6%88%98/</url>
+    <content><![CDATA[05 Python 生态实战
+从标准库到 Web 开发、异步编程 —— Python 的”内置电池”和周边生态。
+
+
+5.1 常用内建模块5.1.1 datetime —— 日期时间处理from datetime import datetime, timedelta, timezonenow = datetime.now()                          # 当前时间dt = datetime(2022, 1, 1, 12, 0)              # 创建指定时间# 格式化now.strftime(&#x27;%Y-%m-%d %H:%M:%S&#x27;)             # &#x27;2022-01-01 12:00:00&#x27;datetime.strptime(&#x27;2022-01-01&#x27;, &#x27;%Y-%m-%d&#x27;)   # 字符串转 datetime# 时间戳now.timestamp()                                # 转 Unix 时间戳datetime.fromtimestamp(1641024000)             # 时间戳转 datetime# 时间加减now + timedelta(days=7, hours=2)               # 7天2小时后# 时区处理utc_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
+
+
+
+
+常用格式
+说明
+
+
+
+%Y
+四位数年份
+
+
+%m
+月份（01-12）
+
+
+%d
+日期（01-31）
+
+
+%H
+小时（00-23）
+
+
+%M
+分钟（00-59）
+
+
+%S
+秒（00-59）
+
+
+5.1.2 collections —— 扩展容器from collections import namedtuple, deque, defaultdict, Counter# namedtuple —— 带名字的不可变对象Point = namedtuple(&#x27;Point&#x27;, [&#x27;x&#x27;, &#x27;y&#x27;])p = Point(1, 2)p.x  # 1p.y  # 2# deque —— 双端队列（高效前后插入删除）q = deque([&#x27;a&#x27;, &#x27;b&#x27;])q.appendleft(&#x27;x&#x27;)   # [&#x27;x&#x27;, &#x27;a&#x27;, &#x27;b&#x27;]# defaultdict —— 带默认值的 dictdd = defaultdict(lambda: &#x27;N/A&#x27;)dd[&#x27;key&#x27;]            # &#x27;N/A&#x27;（key不存在时自动调用工厂函数）# Counter —— 计数器c = Counter(&#x27;programming&#x27;)c[&#x27;r&#x27;]  # 2c.most_common(2)     # [(&#x27;r&#x27;, 2), (&#x27;g&#x27;, 2)]
+
+5.1.3 hashlib —— 哈希算法import hashlibmd5 = hashlib.md5()md5.update(&#x27;hello&#x27;.encode(&#x27;utf-8&#x27;))md5.hexdigest()   # &#x27;5d41402abc4b2a76b9719d911017c592&#x27;# 更简洁hashlib.sha256(&#x27;hello&#x27;.encode()).hexdigest()
+
+5.1.4 itertools —— 迭代器工具from itertools import chain, cycle, groupby, count# chain —— 链接多个可迭代对象list(chain([1,2], [3,4]))         # [1, 2, 3, 4]# cycle —— 循环for x in cycle(&#x27;ABC&#x27;):            # A B C A B C ...    if ...: break# groupby —— 分组[list(g) for k, g in groupby(&#x27;AAABBC&#x27;)]  # [[&#x27;A&#x27;,&#x27;A&#x27;,&#x27;A&#x27;], [&#x27;B&#x27;,&#x27;B&#x27;], [&#x27;C&#x27;]]
+
+5.1.5 contextlib —— 上下文管理器from contextlib import contextmanager@contextmanagerdef tag(name):    print(f&#x27;&lt;&#123;name&#125;&gt;&#x27;)    yield                     # with 块执行到这里    print(f&#x27;&lt;/&#123;name&#125;&gt;&#x27;)with tag(&#x27;h1&#x27;):    print(&#x27;Hello&#x27;)            # 输出: &lt;h1&gt;\nHello\n&lt;/h1&gt;
+
+
+5.2 常用第三方库安装pip install &lt;package&gt;pip list              # 查看已安装pip install -U pip    # 升级 pip
+
+Pillow（图像处理）from PIL import Image, ImageFilterim = Image.open(&#x27;photo.jpg&#x27;)im.thumbnail((128, 128))           # 生成缩略图im.filter(ImageFilter.BLUR)        # 模糊im.save(&#x27;thumb.jpg&#x27;, &#x27;JPEG&#x27;)
+
+requests（HTTP 请求，比内置 urllib 好用很多）import requests# GETr = requests.get(&#x27;https://api.github.com&#x27;)r.status_code    # 200r.json()         # 自动解析 JSONr.headers        # 响应头# POSTrequests.post(&#x27;https://httpbin.org/post&#x27;,              json=&#123;&#x27;key&#x27;: &#x27;value&#x27;&#125;,      # 自动 JSON 编码              headers=&#123;&#x27;Auth&#x27;: &#x27;token&#x27;&#125;)# 带参数requests.get(&#x27;https://httpbin.org/get&#x27;,             params=&#123;&#x27;q&#x27;: &#x27;python&#x27;, &#x27;page&#x27;: 1&#125;)
+
+psutil（系统监控）import psutilpsutil.cpu_count()          # CPU 核心数psutil.cpu_percent()        # CPU 使用率psutil.virtual_memory()     # 内存使用psutil.disk_usage(&#x27;/&#x27;)      # 磁盘使用psutil.net_io_counters()    # 网络 IO
+
+
+5.3 GUI 编程（Tkinter）Python 内置 Tkinter，无需安装：
+from tkinter import *import tkinter.messagebox as messageboxclass App(Frame):    def __init__(self, master=None):        super().__init__(master)        self.pack()        self.create_widgets()    def create_widgets(self):        self.name_input = Entry(self)        self.name_input.pack()        self.hello_btn = Button(self, text=&#x27;Hello&#x27;,                                command=self.say_hello)        self.hello_btn.pack()    def say_hello(self):        name = self.name_input.get() or &#x27;world&#x27;        messagebox.showinfo(&#x27;Message&#x27;, f&#x27;Hello, &#123;name&#125;!&#x27;)app = App()app.master.title(&#x27;Hello&#x27;)app.mainloop()
+
+
+5.4 网络编程TCP 客户端import sockets = socket.socket(socket.AF_INET, socket.SOCK_STREAM)s.connect((&#x27;www.example.com&#x27;, 80))s.send(b&#x27;GET / HTTP/1.1\r\nHost: www.example.com\r\nConnection: close\r\n\r\n&#x27;)buffer = b&#x27;&#x27;while True:    d = s.recv(1024)    if not d:        break    buffer += ds.close()
+
+TCP 服务器import socketimport threadingdef handle(sock, addr):    sock.send(b&#x27;Welcome!&#x27;)    while True:        data = sock.recv(1024)        if not data or data == b&#x27;exit&#x27;:            break        sock.send(b&#x27;Hello, &#x27; + data)    sock.close()s = socket.socket()s.bind((&#x27;0.0.0.0&#x27;, 9999))s.listen(5)while True:    sock, addr = s.accept()    threading.Thread(target=handle, args=(sock, addr)).start()
+
+
+5.5 发送邮件from email.mime.text import MIMETextimport smtplibmsg = MIMEText(&#x27;邮件正文&#x27;, &#x27;plain&#x27;, &#x27;utf-8&#x27;)msg[&#x27;From&#x27;] = &#x27;me@example.com&#x27;msg[&#x27;To&#x27;] = &#x27;friend@example.com&#x27;msg[&#x27;Subject&#x27;] = &#x27;Hello&#x27;server = smtplib.SMTP(&#x27;smtp.example.com&#x27;, 587)server.starttls()             # 启用加密server.login(&#x27;me@example.com&#x27;, &#x27;password&#x27;)server.send_message(msg)server.quit()
+
+
+5.6 数据库SQLite（嵌入式，无需安装服务）import sqlite3conn = sqlite3.connect(&#x27;test.db&#x27;)cursor = conn.cursor()cursor.execute(&#x27;CREATE TABLE IF NOT EXISTS user &#x27;               &#x27;(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)&#x27;)cursor.execute(&#x27;INSERT INTO user VALUES (?, ?, ?)&#x27;,               (1, &#x27;Alice&#x27;, 22))cursor.execute(&#x27;SELECT * FROM user WHERE age &gt; ?&#x27;, (18,))rows = cursor.fetchall()              # [(1, &#x27;Alice&#x27;, 22)]conn.commit()conn.close()
+
+MySQL（生产环境）pip install mysql-connector-python
+
+import mysql.connectorconn = mysql.connector.connect(    host=&#x27;localhost&#x27;,    user=&#x27;root&#x27;,    password=&#x27;password&#x27;,    database=&#x27;test&#x27;)cursor = conn.cursor()cursor.execute(&#x27;SELECT * FROM user WHERE id = %s&#x27;, (1,))cursor.close()conn.close()
+
+SQLAlchemy（ORM —— 把表映射成对象）# pip install sqlalchemyfrom sqlalchemy import create_engine, Column, Integer, Stringfrom sqlalchemy.orm import sessionmaker, declarative_baseBase = declarative_base()class User(Base):    __tablename__ = &#x27;user&#x27;    id = Column(Integer, primary_key=True)    name = Column(String)engine = create_engine(&#x27;sqlite:///test.db&#x27;)Base.metadata.create_all(engine)Session = sessionmaker(bind=engine)session = Session()# 增session.add(User(name=&#x27;Alice&#x27;))session.commit()# 查user = session.query(User).filter_by(name=&#x27;Alice&#x27;).first()print(user.name)session.close()
+
+
+5.7 Web 开发（Flask）极简 Web 应用pip install flask
+
+from flask import Flask, render_template, requestapp = Flask(__name__)@app.route(&#x27;/&#x27;)def index():    return &#x27;&lt;h1&gt;Hello World&lt;/h1&gt;&#x27;@app.route(&#x27;/user/&lt;name&gt;&#x27;)def user(name):    return f&#x27;&lt;h1&gt;Hello, &#123;name&#125;!&lt;/h1&gt;&#x27;@app.route(&#x27;/login&#x27;, methods=[&#x27;POST&#x27;])def login():    username = request.form[&#x27;username&#x27;]    return f&#x27;Welcome, &#123;username&#125;!&#x27;if __name__ == &#x27;__main__&#x27;:    app.run(debug=True)
+
+使用模板（Jinja2）app.py：
+from flask import Flask, render_templateapp = Flask(__name__)@app.route(&#x27;/&#x27;)def index():    return render_template(&#x27;index.html&#x27;,                           title=&#x27;Home&#x27;,                           users=[&#x27;Alice&#x27;, &#x27;Bob&#x27;, &#x27;Charlie&#x27;])
+
+templates&#x2F;index.html：
+&lt;html&gt;&lt;body&gt;    &lt;h1&gt;&#123;&#123; title &#125;&#125;&lt;/h1&gt;    &lt;ul&gt;    &#123;% for user in users %&#125;        &lt;li&gt;&#123;&#123; user &#125;&#125;&lt;/li&gt;    &#123;% endfor %&#125;    &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
+
+
+5.8 异步 IO（asyncio）为什么需要异步？
+
+
+模式
+IO 耗时
+CPU 利用率
+复杂度
+
+
+
+同步
+线程等待
+低
+简单
+
+
+多线程
+线程切换
+中
+中等
+
+
+异步
+不等待
+高
+复杂
+
+
+asyncio 基础import asyncioasync def hello():    print(&#x27;Hello&#x27;)    await asyncio.sleep(1)     # 模拟 IO 操作，不阻塞线程    print(&#x27;World&#x27;)# 运行asyncio.run(hello())
+
+并发执行多个任务import asyncioasync def fetch_url(url):    print(f&#x27;开始下载 &#123;url&#125;&#x27;)    await asyncio.sleep(2)     # 模拟网络请求    print(f&#x27;下载完成 &#123;url&#125;&#x27;)    return f&#x27;data from &#123;url&#125;&#x27;async def main():    tasks = [        fetch_url(&#x27;https://example.com/1&#x27;),        fetch_url(&#x27;https://example.com/2&#x27;),        fetch_url(&#x27;https://example.com/3&#x27;),    ]    # 并发执行所有任务    results = await asyncio.gather(*tasks)    print(results)asyncio.run(main())
+
+aiohttp（异步 HTTP 客户端&#x2F;服务器）pip install aiohttp
+
+import aiohttpimport asyncioasync def fetch(session, url):    async with session.get(url) as response:        return await response.text()async def main():    async with aiohttp.ClientSession() as session:        html = await fetch(session, &#x27;https://python.org&#x27;)        print(len(html))asyncio.run(main())
+
+三语对照：异步# Pythonasync def fetch():    await asyncio.sleep(1)    return &#x27;done&#x27;
+
+// TypeScriptasync function fetch(): Promise&lt;string&gt; &#123;    await new Promise(r =&gt; setTimeout(r, 1000));    return &#x27;done&#x27;;&#125;
+
+// Java// CompletableFuture 或 Spring WebFluxCompletableFuture&lt;String&gt; future = CompletableFuture    .supplyAsync(() -&gt; &#123;        try &#123; Thread.sleep(1000); &#125; catch (...) &#123;&#125;        return &quot;done&quot;;    &#125;);
+
+
+
+
+概念
+Python
+TypeScript
+Java
+
+
+
+定义异步函数
+async def f():
+async function f()
+@Async 注解
+
+
+等待
+await
+await
+.get() &#x2F; .join()
+
+
+事件循环
+asyncio.run()
+内置在运行时
+CompletableFuture
+
+
+并发执行
+asyncio.gather()
+Promise.all()
+CompletableFuture.allOf()
+
+
+
+🎯 最终总结：从 Java 开发者到 Python 全栈5 篇笔记速查表
+
+
+笔记
+适合场景
+核心内容
+
+
+
+01-Python基础入门
+零基础&#x2F;语法迁移
+变量、字符串、list&#x2F;dict、条件、循环
+
+
+02-函数与高级特性
+理解 Python 函数式
+参数系统、lambda、生成器、装饰器
+
+
+03-模块与面向对象
+写出可维护代码
+包管理、类&#x2F;继承、错误处理、测试
+
+
+04-IO编程与并发
+实战文件&#x2F;网络操作
+文件、JSON、正则、多进程&#x2F;线程
+
+
+05-Python生态实战
+Web&#x2F;异步&#x2F;数据库
+datetime、requests、Flask、asyncio
+
+
+Java → Python 心智迁移指南
+
+
+你的 Java 知识
+Python 对应
+
+
+
+public static void main
+if __name__ == &#39;__main__&#39;:
+
+
+&#123;&#125; 代码块
+4 空格缩进
+
+
+接口（interface）
+鸭子类型（duck typing）
+
+
+泛型 &lt;T&gt;
+动态类型，无需泛型
+
+
+List&lt;String&gt;
+list（任意类型混合）
+
+
+try-catch-finally
+try-except-else-finally
+
+
+getter&#x2F;setter
+@property
+
+
+@Annotation
+@decorator
+
+
+Maven&#x2F;Gradle
+pip
+
+
+Spring Boot
+Flask &#x2F; FastAPI
+
+
+JUnit
+unittest &#x2F; pytest
+
+
+Stream API
+列表生成式 + map/filter
+
+
+CompletableFuture
+asyncio
+
+
+]]></content>
+      <categories>
+        <category>Python学习</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>python</tag>
+        <tag>typescript</tag>
+        <tag>datetime</tag>
+        <tag>network</tag>
+        <tag>database</tag>
+        <tag>web</tag>
+        <tag>async</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python 模块与面向对象 — 从代码组织到三大特性</title>
+    <url>/2025/01/01/Python/03-%E6%A8%A1%E5%9D%97%E4%B8%8E%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/</url>
+    <content><![CDATA[03 模块与面向对象编程
+代码组织 + OOP 三大特性 + 错误处理 —— 写出可维护的 Python 代码。
+
+
+3.1 模块与包（Module &amp; Package）为什么需要模块？当代码变多时，把函数&#x2F;类分到不同 .py 文件中。
+一个 .py 文件 &#x3D; 一个模块（Module）。
+模块的好处
+
+
+好处
+说明
+
+
+
+✅ 可维护性
+每个文件职责单一
+
+
+✅ 可复用
+写好的模块到处导入
+
+
+✅ 命名空间
+不同模块的同名函数不会冲突
+
+
+导入模块# 方式一：直接导入import mathmath.sqrt(16)          # 4.0# 方式二：导入特定函数from math import sqrtsqrt(16)               # 4.0# 方式三：起别名import numpy as npfrom math import sqrt as square_root# 方式四：导入全部（不推荐，可能污染命名空间）from math import *
+
+包（Package）包 &#x3D; 按目录组织的模块集合。**每个包目录必须包含 __init__.py**。
+myproject/├── __init__.py          ← 标记这是一个包├── main.py└── utils/    ├── __init__.py    ├── math_helper.py   ← 模块名: myproject.utils.math_helper    └── string_helper.py
+
+# 在主文件导入from myproject.utils.math_helper import add
+
+安装第三方包pip install requestspip install requests==2.28.0  # 指定版本pip install -i https://pypi.tuna.tsinghua.edu.cn/simple requests  # 国内镜像
+
+三语对照
+
+
+概念
+Python
+TypeScript
+Java
+
+
+
+模块
+.py 文件
+.ts 文件
+.java 文件
+
+
+导入
+import x
+import &#123; x &#125; from &#39;x&#39;
+import x.*
+
+
+导出
+任何顶级定义自动导出
+export 关键字
+public class
+
+
+包
+目录 + __init__.py
+npm scope
+package 目录
+
+
+
+3.2 面向对象编程（OOP）3.2.1 类与实例class Student:    &quot;&quot;&quot;学生类&quot;&quot;&quot;    # __init__ 相当于构造函数    def __init__(self, name, score):        self.name = name      # 实例属性        self.score = score    def print_score(self):    # 方法 —— 第一个参数是 self        print(f&#x27;&#123;self.name&#125;: &#123;self.score&#125;&#x27;)# 创建实例bart = Student(&#x27;Bart Simpson&#x27;, 59)bart.print_score()
+
+三语对照：类定义# Pythonclass Student:    def __init__(self, name):        self.name = name    def greet(self):        return f&#x27;Hi, &#123;self.name&#125;&#x27;
+
+// TypeScriptclass Student &#123;    constructor(public name: string) &#123;&#125;    greet(): string &#123;        return `Hi, $&#123;this.name&#125;`;    &#125;&#125;
+
+// Javapublic class Student &#123;    private String name;    public Student(String name) &#123;        this.name = name;    &#125;    public String greet() &#123;        return &quot;Hi, &quot; + this.name;    &#125;&#125;
+
+
+
+
+差异
+Python
+TypeScript
+Java
+
+
+
+构造函数
+__init__(self)
+constructor()
+ClassName()
+
+
+this&#x2F;self 引用
+self（必须显式写）
+this（可选）
+this（可选）
+
+
+属性定义
+运行时动态绑定
+需声明 public&#x2F;private
+需声明类型和访问修饰符
+
+
+方法定义
+def method(self):
+method() &#123;&#125;
+返回类型 method() &#123;&#125;
+
+
+3.2.2 访问限制Python 没有真正的 private，靠命名约定：
+class Student:    def __init__(self, name, score):        self.__name = name     # 双下划线开头 = &quot;私有&quot;        self.__score = score    def get_name(self):        # 公开 getter        return self.__name    def set_score(self, score):        if 0 &lt;= score &lt;= 100:            self.__score = score        else:            raise ValueError(&#x27;bad score&#x27;)# Python 的&quot;私有&quot;实际上被改名了：bart = Student(&#x27;Bart&#x27;, 59)bart._Student__name   # ❌ 可以访问但不应该！
+
+
+
+
+访问控制
+Python
+TypeScript
+Java
+
+
+
+公有
+name
+public name
+public name
+
+
+私有
+__name（约定）
+#name (ES2022+) &#x2F; private name
+private name
+
+
+保护
+_name（约定）
+protected name
+protected name
+
+
+
+Python 没有真正的 private——全靠程序员自觉。俗话说的好：”我们都是成年人了。”
+
+3.2.3 继承（Inheritance）class Animal:    def run(self):        print(&#x27;Animal is running...&#x27;)class Dog(Animal):     # 括号里的 Animal 就是父类    def run(self):     # 覆盖（override）父类方法        print(&#x27;Dog is running...&#x27;)class Cat(Animal):    pass               # 直接继承，不覆盖dog = Dog()dog.run()              # Dog is running...cat = Cat()cat.run()              # Animal is running...（继承来的）
+
+多态（Polymorphism）def run_twice(animal):    animal.run()    animal.run()run_twice(Dog())   # Dog is running... Dog is running...run_twice(Cat())   # Animal is running... Animal is running...# ⭐ 鸭子类型（Duck Typing）——# &quot;如果它走路像鸭子，叫起来像鸭子，它就是鸭子&quot;class Timer:    def run(self):           # 也有 run 方法        print(&#x27;Timer...&#x27;)run_twice(Timer())   # ✅ 不需要继承 Animal！
+
+三语对照：多态
+// TypeScript —— 接口驱动interface Runnable &#123;    run(): void;&#125;function runTwice(animal: Runnable) &#123;    animal.run();    animal.run();&#125;
+
+// Java —— 接口驱动interface Runnable &#123;    void run();&#125;void runTwice(Runnable animal) &#123;    animal.run();    animal.run();&#125;
+
+
+
+
+多态机制
+Python
+TypeScript
+Java
+
+
+
+方式
+鸭子类型（只要方法存在即可）
+结构化类型（接口匹配）
+名义类型（需 implement 接口）
+
+
+灵活性
+最高
+中等
+最低（最严格）
+
+
+3.2.4 获取对象信息type(123)                     # &lt;class &#x27;int&#x27;&gt;type(&#x27;str&#x27;)                   # &lt;class &#x27;str&#x27;&gt;isinstance(&#x27;a&#x27;, str)          # Trueisinstance([1, 2], (list, tuple))  # Truedir(&#x27;ABC&#x27;)                    # 获取所有属性和方法hasattr(obj, &#x27;x&#x27;)             # True —— 有属性 x？getattr(obj, &#x27;x&#x27;, 404)        # 获取属性，不存在返回默认值setattr(obj, &#x27;y&#x27;, 19)         # 设置属性
+
+3.2.5 实例属性 vs 类属性class Student:    name = &#x27;Student&#x27;    # 类属性（所有实例共享）s = Student()s.name       # &#x27;Student&#x27; —— 实例没有 name，取类的s.name = &#x27;Bob&#x27;    # 实例属性覆盖类属性s.name       # &#x27;Bob&#x27;Student.name # &#x27;Student&#x27; —— 类属性不变del s.name   # 删除实例属性s.name       # &#x27;Student&#x27; —— 又变成类属性了
+
+
+3.3 面向对象高级3.3.1 __slots__ —— 限制属性默认情况下，Python 对象可以自由添加属性。__slots__ 可以限制：
+class Student:    __slots__ = (&#x27;name&#x27;, &#x27;age&#x27;)s = Student()s.name = &#x27;Michael&#x27;  # ✅s.score = 99        # ❌ AttributeError: &#x27;Student&#x27; has no attribute &#x27;score&#x27;
+
+3.3.2 @property —— 优雅的 getter&#x2F;setterclass Student:    @property    def score(self):        return self._score    @score.setter    def score(self, value):        if not isinstance(value, int):            raise ValueError(&#x27;必须是整数&#x27;)        if value &lt; 0 or value &gt; 100:            raise ValueError(&#x27;分数必须在 0-100 之间&#x27;)        self._score = values = Student()s.score = 85      # ✅ 像属性一样写，实际走 setterprint(s.score)    # ✅ 像属性一样读，实际走 getter
+
+三语对照：
+// Java —— 传统 getter/setterpublic class Student &#123;    private int score;    public int getScore() &#123; return score; &#125;    public void setScore(int score) &#123;        if (score &lt; 0 || score &gt; 100)            throw new IllegalArgumentException();        this.score = score;    &#125;&#125;
+
+3.3.3 多重继承与 MixInclass RunnableMixIn:    def run(self):        print(&#x27;Running...&#x27;)class FlyableMixIn:    def fly(self):        print(&#x27;Flying...&#x27;)# 同时继承多个父类class Bat(Mammal, FlyableMixIn):    passbat = Bat()bat.run()   # ❌ 没有 —— Bat 没有继承 RunnableMixIn
+
+3.3.4 定制类（特殊方法）class Student:    def __init__(self, name):        self.name = name    def __str__(self):              # 类似 toString()        return f&#x27;Student(&#123;self.name&#125;)&#x27;    def __repr__(self):             # 开发调试用        return f&#x27;Student(name=&#123;self.name!r&#125;)&#x27;    def __call__(self):             # 使实例可调用        print(f&#x27;My name is &#123;self.name&#125;&#x27;)s = Student(&#x27;Alice&#x27;)print(s)     # Student(Alice) —— __str__s()          # My name is Alice —— __call__
+
+
+
+
+特殊方法
+作用
+触发方式
+
+
+
+__str__
+用户友好的字符串
+print(obj) &#x2F; str(obj)
+
+
+__repr__
+开发者友好的字符串
+直接输入变量名
+
+
+__len__
+长度
+len(obj)
+
+
+__iter__ &#x2F; __next__
+迭代
+for x in obj
+
+
+__getitem__
+下标访问
+obj[key]
+
+
+__call__
+可调用对象
+obj()
+
+
+3.3.5 枚举类from enum import Enum, unique@unique  # 确保没有重复值class Weekday(Enum):    SUN = 0    MON = 1    TUE = 2    # ...Weekday.MON           # Weekday.MONWeekday.MON.value     # 1Weekday(1)            # Weekday.MON（通过值获取）
+
+3.3.6 元类（Metaclass）—— 类的”类”元类是创建类的类。ORM 框架（如 SQLAlchemy）的核心机制。
+# type() 可以动态创建类Hello = type(&#x27;Hello&#x27;, (object,), &#123;&#x27;hello&#x27;: lambda self: &#x27;Hello&#x27;&#125;)# 更强大的 metaclassclass ListMetaclass(type):    def __new__(cls, name, bases, attrs):        attrs[&#x27;add&#x27;] = lambda self, value: self.append(value)        return type.__new__(cls, name, bases, attrs)class MyList(list, metaclass=ListMetaclass):    passl = MyList()l.add(1)  # 自动有了 add 方法
+
+
+Python 之禅：”元类比 99% 的用户想象的还要深奥。如果你在纠结是否需要它们，那就不需要。”—— 实际开发中用不到，理解概念即可。
+
+
+3.4 错误处理try &#x2F; except &#x2F; finallytry:    r = 10 / 0except ZeroDivisionError as e:    print(&#x27;除零错误:&#x27;, e)    # 捕获异常except ValueError as e:    print(&#x27;值错误:&#x27;, e)else:    print(&#x27;没有错误&#x27;)        # 可选，无异常时执行finally:    print(&#x27;无论如何都会执行&#x27;)  # 可选，清理资源
+
+抛出异常raise ValueError(&#x27;参数不合法&#x27;)
+
+三语对照# Pythontry:    value = int(s)except ValueError as e:    print(f&#x27;错误: &#123;e&#125;&#x27;)finally:    cleanup()
+
+// TypeScripttry &#123;    const value = parseInt(s);&#125; catch (e: unknown) &#123;    console.error(&#x27;错误:&#x27;, e);&#125; finally &#123;    cleanup();&#125;
+
+// Javatry &#123;    int value = Integer.parseInt(s);&#125; catch (NumberFormatException e) &#123;    System.err.println(&quot;错误: &quot; + e.getMessage());&#125; finally &#123;    cleanup();&#125;
+
+
+3.5 调试方法一：print（最简单）def foo(s):    n = int(s)    print(f&#x27;&gt;&gt;&gt; n = &#123;n&#125;&#x27;)   # 简单粗暴    return 10 / n
+
+方法二：assert（断言，可用 -O 关闭）def foo(s):    n = int(s)    assert n != 0, &#x27;n 不能为 0&#x27;    return 10 / n
+
+方法三：logging（推荐用于生产）import logginglogging.basicConfig(level=logging.INFO)s = &#x27;0&#x27;n = int(s)logging.info(f&#x27;n = &#123;n&#125;&#x27;)
+
+方法四：pdb 调试器python -m pdb my_script.py
+
+
+
+
+pdb 命令
+说明
+
+
+
+l
+查看上下文代码
+
+
+n
+执行下一行
+
+
+s
+进入函数内部
+
+
+p 变量名
+打印变量值
+
+
+q
+退出
+
+
+
+3.6 测试单元测试import unittestclass TestMyFunction(unittest.TestCase):    def test_add(self):        self.assertEqual(add(1, 2), 3)        self.assertEqual(add(-1, 1), 0)    def test_type_error(self):        with self.assertRaises(TypeError):            add(&#x27;1&#x27;, 2)if __name__ == &#x27;__main__&#x27;:    unittest.main()
+
+文档测试（doctest）把测试用例写在文档里：
+def add(x, y):    &quot;&quot;&quot;    返回 x + y 的结果。    &gt;&gt;&gt; add(1, 2)    3    &gt;&gt;&gt; add(-1, 1)    0    &quot;&quot;&quot;    return x + yimport doctestdoctest.testmod()   # 运行文档中的测试用例
+
+
+本章小结
+
+
+知识点
+Python 关键点
+TS&#x2F;Java 差异
+
+
+
+✅ 模块
+import x &#x2F; from x import y
+TS: import &#123;y&#125; &#x2F; Java: import x.Y
+
+
+✅ 类
+class A:，self 必须显式
+TS&#x2F;Java 的 this 可选
+
+
+✅ 继承
+class Dog(Animal): 括号写法
+TS: extends &#x2F; Java: extends
+
+
+✅ 私有
+__name 命名约定
+TS: #name &#x2F; Java: private
+
+
+✅ 多态
+鸭子类型（无接口约束）
+TS: 接口 &#x2F; Java: 接口
+
+
+✅ @property
+Python 特有 getter&#x2F;setter 语法
+Java 需手动写 getter&#x2F;setter
+
+
+✅ 错误
+try/except/else/finally
+try/catch/finally（没有 else）
+
+
+]]></content>
+      <categories>
+        <category>Python学习</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>python</tag>
+        <tag>typescript</tag>
+        <tag>oop</tag>
+        <tag>module</tag>
+        <tag>package</tag>
+        <tag>class</tag>
+        <tag>inheritance</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Pi-VibeCodingExtension — 把 Vibe Coding 从&quot;野路子&quot;变成&quot;规范流程&quot;</title>
+    <url>/2026/05/25/pi/Pi-VibeCodingExtension/</url>
+    <content><![CDATA[缘起：Vibe Coding 的两个核心矛盾在长期使用 AI 辅助编程（Vibe Coding）的过程中，我逐渐感受到两个越来越明显的矛盾：
+矛盾一：大模型会「范围膨胀」。 你跟它说”帮我实现登录页面”，它写着写着就开始改路由、改样式、甚至改 package.json。需求像滚雪球一样越来越大，最后你都不知道它改了什么。
+矛盾二：上下文越用越长。 每次开新 session，你都得重新描述一遍项目状态——“我们在做这个项目，上次改了这些文件，现在要做这个任务…”。几轮下来，上下文就爆了，然后压缩（compaction），然后丢信息，然后你又得重新描述。死循环。
+
+解法只有一个：最小化每一步，让 AI 始终知道「在做什么、做了什么、边界在哪」。
+
+这就是 Pi-VibeCodingExtension 的起源——一套把上述理念工程化的 pi 扩展。
+
+它是什么一个面向 pi 的扩展，核心做三件事：
+
+约束注入：读取 AGENTS.md（项目宪法），在每次对话中自动提醒 LLM「当前任务边界」
+原子 Checkpoint：每个小任务完成后 → git commit → 自动生成 diff 摘要 → 更新 session 文档
+无缝交接：Session 结束时生成完整交接文档，新 session 自动读取上下文，无需重新描述
+
+
+快速上手
+⚠️ /vibe-init 必须在 Git 仓库根目录运行（.git 所在目录），否则面板无法找到 plan 文件和 session 文档。
+
+# 1. 安装pi install git:github.com/meisijiya/Pi-VibeCodingExtension# 2. 在项目中初始化cd your-projectpi/vibe-init       # 创建目录 + AGENTS.md 模板/vibe-enable     # 启用工作流# 3. 开始/vibe-task &quot;实现登录页面&quot;&quot;帮我实现登录，每完成一个小任务调用 vibe_checkpoint&quot;
+
+AGENTS.md 示例（项目宪法）：
+# 项目名称## Task Boundaries- 每个任务 MUST 是单个、小型、可验证的原子工作单元- 每个任务完成后 MUST 调用 vibe_checkpoint 工具- DO NOT 在当前任务未完成前扩展到其他需求## Current Focus### 🔄 进行中- [ ] 实现用户登录页面## Constraints- 所有函数必须添加函数级注释- 不要修改 package.json 除非明确要求
+
+
+完整的工作流AGENTS.md（约束）  ↓/vibe-task &quot;实现登录&quot;  →  设置当前任务  ↓AI 实现  →  vibe_checkpoint  →  git commit + diff + 文档更新  ↓/vibe-task &quot;添加验证&quot;  →  下一个任务  ↓...重复...  ↓/vibe-handoff  →  生成交接文档 + 触发 /skill:handoff  ↓新 session: /vibe-enable  →  AI 自动读取上下文，无缝衔接
+
+
+核心命令一览（20 个）
+
+
+分类
+命令
+用途
+
+
+
+基础
+/vibe-init /vibe-enable /vibe-task /vibe-checkpoint
+日常使用
+
+
+状态
+/vibe-status /vibe-metrics /vibe-context
+查看进度
+
+
+Git
+/vibe-branch /vibe-merge /vibe-squash /vibe-rollback
+分支&#x2F;回滚
+
+
+发布
+/vibe-release /vibe-handoff
+打 tag + 交接
+
+
+智能
+/vibe-plan /vibe-autocheckpoint /vibe-model
+计划 + 模型切换
+
+
+多模态
+/vibe-mimo /vibe-minimax /vibe-paste
+识图&#x2F;搜索&#x2F;生成&#x2F;贴图
+
+
+
+亮点：多模态无缝路由主力模型（如 DeepSeek v4）是纯文本模型，不能直接”看”图。传统做法是手动切到多模态模型，分析完再切回来——割裂且容易忘记切。
+本扩展的做法：
+用户 Ctrl+V 贴图  → input hook 自动拦截，保存到 assets/pasted/  → 改写消息为纯文本 + 提示 LLM 调用 minimax_describe_image 工具  → LLM 自动调 MiniMax CLI 识图  → 结果回传给主力模型  → 主力模型基于描述继续写代码
+
+用户完全无感——就像主力模型「会看图」一样。同时保留了 /vibe-mimo 作为兜底方案，手动切换到原生多模态模型。
+WSL 用户贴图方案Windows Terminal 不支持图像协议，Ctrl+V 无法贴图。/vibe-paste 通过 PowerShell 从 Windows 剪贴板取图：
+# 在 Windows 中截图/复制图片 → 在 pi 中运行：/vibe-paste# → 📷 图片保存到 assets/pasted/xxx.png# → 文本模型：注入文件引用，LLM 自动调用 MiniMax CLI 识图# → 多模态模型（如 Mimo）：直接发送 base64 图片数据
+
+
+状态面板 + TODO 联动/vibe-enable 后编辑器上方自动显示状态面板，TODO 自动读取 /skill:writing-plans 生成的计划文件，LLM 每完成一步自动刷新进度。设置 /vibe-task 后，LLM 被强制约束「仅完成当前任务，不跳步」。/vibe-todo 查看完整清单，/vibe-files 按 checkpoint 查看变更文件。
+
+多模型协作通过 /vibe-model 在不同模型间快速切换，按任务复杂度分配模型，节省 Token 成本。
+模型能力边界
+
+
+别名
+模型
+上下文
+擅长
+不擅长
+
+
+
+pro
+DeepSeek v4-pro
+1M
+架构设计、复杂逻辑
+简单代码（浪费）
+
+
+flash
+DeepSeek v4-flash
+1M
+CRUD、类型、配置
+深度设计
+
+
+mmx
+MiniMax M2.7
+256K
+审查、简短问答
+大项目、长上下文
+
+
+/vibe-model pro    # 设计架构/vibe-model flash  # 日常编码/vibe-model mmx    # 代码审查/vibe-model back   # 切回上一个
+
+上下文自动适配：大上下文模型（≥300K）注入全量 vibe 上下文；小上下文模型（如 MiniMax 256K）自动降级为精简注入（~50 tokens），防止溢出。
+Plan 中标注模型建议/vibe-plan 生成的 plan 可包含模型推荐，面板自动显示：
+- [ ] Step 1: 创建组件 💡flash- [ ] Step 2: 核心逻辑 💡pro面板 → 📋 核心逻辑  💡 /vibe-model pro
+
+
+Context7 文档 + Karpathy 行为准则扩展内置两个提升代码质量的机制：
+Context7 文档：LLM 写代码前自动查询最新官方文档，消除”编造 API”问题。需要注册免费 API Key。
+Karpathy 行为准则：整合 Andrej Karpathy 的 LLM 编程观察（15 万 stars），在每次对话中注入：
+
+Simplicity First：最小代码，不加投机功能
+Surgical Changes：只改必须改的，不碰无关代码
+Goal-Driven：先定义可验证成功标准，再动手
+
+
+上下文注入策略（Token 最优 + 多模型感知）主力模型（DeepSeek v4-pro/flash · 1M）：  全量注入（~300 tokens）：任务、checkpoint、diff 引用、规则小上下文模型（MiniMax M2.7 · 256K）：  自动降级为精简注入（~50 tokens）：仅任务描述工具模型（Mimo · 1M）：  精简注入（~50 tokens）：仅任务描述外部 CLI（MiniMax）：  零注入：纯 shell 命令，不经过 LLM
+
+注入仅在状态变化时触发（任务切换 &#x2F; checkpoint 完成），避免每轮都重复注入。使用 message 注入而非 systemPrompt 注入，保证 Anthropic cache 命中率 97%。
+
+Skills 联动扩展与 11 个 skills 联动，分桥接级、推荐级、协作级三级集成。
+进阶功能WSL 贴图（&#x2F;vibe-paste）Windows Terminal + WSL 无法 Ctrl+V 贴图。/vibe-paste 通过 PowerShell 从 Windows 剪贴板取图 → 保存 → 注入会话：
+/vibe-paste# → 📷 Image saved → LLM 自动调用 minimax_describe_image 分析
+
+Context7 最新文档消除 LLM「编造 API」问题。LLM 写代码前自动查询最新官方文档：
+export CONTEXT7_API_KEY=ctx7sk-xxx# LLM: context7_resolve(&quot;next.js&quot;) → context7_docs(&quot;/vercel/next.js&quot;, &quot;routing&quot;)# → 基于最新文档写代码，告别过时 API
+
+智能代码搜索（smart_search）内置 grep 无结果时自动降级：精确匹配 → 大小写不敏感 → 单词拆分，一次调用覆盖多种策略。
+Karpathy 编程原则整合 Andrej Karpathy 的 LLM 编程行为准则，每次对话注入：Simplicity First（最小代码）、Surgical Changes（精准修改）、Goal-Driven（可验证目标）。
+
+总结Vibe Coding 的最大问题不是「AI 不够聪明」，而是「AI 不知道边界在哪」。给 AI 一个清晰的宪法（AGENTS.md）、一套原子化的任务节奏（checkpoint）、一份完整的上下文（session docs），它就能在边界内高效工作，不膨胀、不跑偏、不丢失上下文。
+
+最小化每一步，让 AI 始终知道「在做什么、做了什么、边界在哪」。
+
+
+GitHub: meisijiya&#x2F;Pi-VibeCodingExtension
+安装: pi install git:github.com/meisijiya/Pi-VibeCodingExtension
+
+关于上下文压缩一个常见的误解是「用了工作流就永远不需要压缩了」。更准确的说法是：
+
+vibe 工作流大幅降低压缩频率，但不能完全替代压缩。
+
+三层防护
+
+
+层
+机制
+说明
+
+
+
+1️⃣ 预防
+短 session + 精简注入 + handoff 交接
+从根源减少上下文堆积
+
+
+2️⃣ 监控
+/vibe-status 实时显示用量（🟢🟡🔴）
+看得到，就不会意外溢出
+
+
+3️⃣ 兜底
+pi 自动压缩 + 压缩前自动 checkpoint
+git 永远有完整记录
+
+
+handoff 交接的三种场景/vibe-handoff 是「存档」→ 生成 docs/vibe/sessions/handoff-xxx.md。/vibe-enable 是「读档」→ LLM 自动读取。适用于：
+
+/new 开新 session 前
+当前 session 快结束时
+多分支并行（分支 A 存档 → 分支 B 读档）
+
+/vibe-status 上下文监控/vibe-status# → | Context Usage | 🟢 45,230 / 200,000 (22.6%) |# 🟢 &lt;60%  → 正常# 🟡 60-80% → 提示：完成后交接新 session# 🔴 &gt;80%   → 警告：建议 /vibe-handoff → /new
+
+实际操作建议# 每完成 3-5 个 checkpoint，看一眼状态：/vibe-status# 如果接近 60%：/vibe-handoff   # 生成交接/new            # 开新 session/vibe-enable    # 启用（自动注入上下文）# → 无缝衔接，不需要重新描述# 如果接近 80%：/compact        # pi 手动压缩（保留关键信息）# 或直接用上面的 handoff + new 方式
+]]></content>
+      <categories>
+        <category>AI开发</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
+        <tag>pi</tag>
+        <tag>vibe-coding</tag>
+        <tag>ai</tag>
+        <tag>workflow</tag>
+        <tag>extension</tag>
+      </tags>
+  </entry>
 </search>
