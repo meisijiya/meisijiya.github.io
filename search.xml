@@ -36189,14 +36189,119 @@ from collections.abc import Iterable, Iteratorisinstance([], Iterable)      # Tr
 
 2.5.3 sortedsorted([36, 5, -12, 9, -21])             # [-21, -12, 5, 9, 36]sorted([36, 5, -12, 9, -21], key=abs)    # [5, 9, -12, -21, 36]sorted([&#x27;bob&#x27;, &#x27;about&#x27;, &#x27;Zoo&#x27;], key=str.lower)  # [&#x27;about&#x27;, &#x27;bob&#x27;, &#x27;Zoo&#x27;]sorted([&#x27;bob&#x27;, &#x27;about&#x27;, &#x27;Zoo&#x27;], key=str.lower, reverse=True)
 
-2.5.4 匿名函数（lambda）# 普通函数def f(x): return x * x# 等价的 lambdalambda x: x * x# 实际使用list(map(lambda x: x * x, [1, 2, 3, 4, 5]))
+2.5.4 匿名函数（lambda）—— 与”箭头函数”的区别
+⚠️ 概念澄清：Python 没有箭头函数（=&gt;）。你说的”箭头函数”是 JavaScript&#x2F;TypeScript 的概念，Python 中最接近的是 lambda 表达式。不要混淆二者——Lambda 受限得多，后面会详细对比。
 
-三语对照：lambda
-# Pythonlambda x, y: x + y
+Python：def vs lambda# 普通函数 defdef f(x):    return x * x# 匿名函数 lambda —— 单行表达式版本lambda x: x * x# 实际使用场景：作为回调顺手传入list(map(lambda x: x * x, [1, 2, 3, 4, 5]))   # [1, 4, 9, 16, 25]# 也可以赋值给变量（但不推荐——既然要用名字，干嘛不用 def?）square = lambda x: x * xsquare(5)  # 25 — 但 PyCharm 会警告你&quot;Assignment to lambda&quot;
 
-// TypeScript(x: number, y: number) =&gt; x + y
+def vs lambda 关键差异
 
-// Java(int x, int y) -&gt; x + y
+
+
+维度
+def 普通函数
+lambda 匿名函数
+
+
+
+名称
+有函数名（__name__）
+匿名，__name__ 恒为 &quot;&lt;lambda&gt;&quot;
+
+
+主体
+任意多条语句
+只能是一个表达式（不能有 if&#x2F;for&#x2F;print 等语句）
+
+
+返回值
+显式 return，没有则 None
+隐式返回表达式结果，无需写 return
+
+
+类型标注
+支持 def f(x: int) -&gt; str:
+不支持类型标注
+
+
+文档
+支持 docstring
+不支持 docstring
+
+
+可读性
+好——适合多行逻辑
+差——复杂逻辑不要用 lambda
+
+
+适用场景
+一切函数
+极简单的单行回调（传给 map&#x2F;filter&#x2F;sorted 等）
+
+
+# ❌ lambda 不能做的事lambda x: if x &gt; 0: return x   # SyntaxError —— if 是语句，不是表达式lambda x: print(x)             # 能跑但没意义 —— lambda 应返回值，不是副作用# ✅ 用条件表达式（三目运算）可以lambda x: x if x &gt; 0 else -x   # ✅ 条件表达式是表达式
+
+三语对照：匿名函数 vs 箭头函数一个重要的跨语言区别：Python 的 lambda 是阉割版，TS 的箭头函数是完整版。
+# Python — lambda：只能一行表达式lambda x, y: x + y
+
+// TypeScript — 箭头函数：完整函数体(x: number, y: number): number =&gt; x + y// 多行箭头函数完全 OK(x: number, y: number): number =&gt; &#123;    const result = x + y;    console.log(result);    return result;&#125;
+
+// Java — lambda：单表达式或多行（需用花括号）(int x, int y) -&gt; x + y// 多行(int x, int y) -&gt; &#123;    int result = x + y;    System.out.println(result);    return result;&#125;
+
+
+
+
+特性
+Python lambda
+TypeScript =&gt; 箭头函数
+Java -&gt; lambda
+
+
+
+多行语句
+❌ 只能单表达式
+✅ 完整函数体
+✅ 花括号多行
+
+
+类型标注
+❌ 不支持
+✅ (x: number) =&gt; x
+✅ 参数可标注
+
+
+return
+隐式（自动）
+单行隐式，多行需写
+隐式或显式
+
+
+闭包（捕获外层变量）
+✅ 支持（但有坑👇）
+✅ 完美支持
+✅ 支持（要求 effectively final）
+
+
+访问 this&#x2F;self
+N&#x2F;A（无 this）
+✅ 捕获父级 this
+N&#x2F;A（无 this）
+
+
+可读性
+差（复杂逻辑勿用）
+好
+一般
+
+
+
+TypeScript 箭头函数最独特的能力是**绑定父级 this**——普通函数 function f() 的 this 由调用方式决定，箭头函数的 this 始终指向定义时的上下文。Python 没有这个困扰，因为方法第一个参数显式写 self。
+
+lambda 的闭包陷阱（Late Binding）这是一个经典的 Python 坑：
+# 想创建一组函数：f0()=0, f1()=1, f2()=2...funcs = [lambda: i for i in range(3)]print([f() for f in funcs])  # [2, 2, 2] ❌ 不是 [0, 1, 2]# 原因：i 在调用时才取值，循环结束时 i=2# 修复：用默认参数绑定当前值funcs = [lambda i=i: i for i in range(3)]print([f() for f in funcs])  # [0, 1, 2] ✅
+
+
+TypeScript 和 Java 也有类似的闭包问题，TS 用 let 解决（每次循环创建新绑定），Java 要求变量是 effectively final。
 
 2.5.5 装饰器（Decorator）—— Python 的”切面编程”不修改原函数，动态增加功能，相当于 TS 的装饰器 &#x2F; Java 的 AOP。
 import functools# 定义一个装饰器：打印函数名def log(func):    @functools.wraps(func)   # 保留原函数名等元信息    def wrapper(*args, **kwargs):        print(f&#x27;call &#123;func.__name__&#125;()&#x27;)        return func(*args, **kwargs)    return wrapper# 使用装饰器@logdef now():    print(&#x27;2022-01-01&#x27;)now()# 输出：# call now()# 2022-01-01
@@ -37310,7 +37415,7 @@ this（可选）
 
 属性定义
 运行时动态绑定
-需声明 public&#x2F;private
+需声明类型，可选加访问修饰符（默认 public）
 需声明类型和访问修饰符
 
 
@@ -37396,6 +37501,8 @@ class Student:    __slots__ = (&#x27;name&#x27;, &#x27;age&#x27;)s = Student()s.
 3.3.2 @property —— 优雅的 getter&#x2F;setterclass Student:    @property    def score(self):        return self._score    @score.setter    def score(self, value):        if not isinstance(value, int):            raise ValueError(&#x27;必须是整数&#x27;)        if value &lt; 0 or value &gt; 100:            raise ValueError(&#x27;分数必须在 0-100 之间&#x27;)        self._score = values = Student()s.score = 85      # ✅ 像属性一样写，实际走 setterprint(s.score)    # ✅ 像属性一样读，实际走 getter
 
 三语对照：
+// TypeScript —— get / set 语法class Student &#123;    private _score: number = 0;    get score(): number &#123;        return this._score;    &#125;    set score(value: number) &#123;        if (!Number.isInteger(value)) &#123;            throw new Error(&#x27;必须是整数&#x27;);        &#125;        if (value &lt; 0 || value &gt; 100) &#123;            throw new Error(&#x27;分数必须在 0-100 之间&#x27;);        &#125;        this._score = value;    &#125;&#125;const s = new Student();s.score = 85;      // ✅ setterconsole.log(s.score); // ✅ getter
+
 // Java —— 传统 getter/setterpublic class Student &#123;    private int score;    public int getScore() &#123; return score; &#125;    public void setScore(int score) &#123;        if (score &lt; 0 || score &gt; 100)            throw new IllegalArgumentException();        this.score = score;    &#125;&#125;
 
 3.3.3 多重继承与 MixInclass RunnableMixIn:    def run(self):        print(&#x27;Running...&#x27;)class FlyableMixIn:    def fly(self):        print(&#x27;Flying...&#x27;)# 同时继承多个父类class Bat(Mammal, FlyableMixIn):    passbat = Bat()bat.run()   # ❌ 没有 —— Bat 没有继承 RunnableMixIn

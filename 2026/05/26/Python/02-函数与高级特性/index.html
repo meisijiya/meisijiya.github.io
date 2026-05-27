@@ -969,15 +969,120 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <h3 id="2-5-3-sorted"><a href="#2-5-3-sorted" class="headerlink" title="2.5.3 sorted"></a>2.5.3 sorted</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sorted</span>([<span class="number">36</span>, <span class="number">5</span>, -<span class="number">12</span>, <span class="number">9</span>, -<span class="number">21</span>])             <span class="comment"># [-21, -12, 5, 9, 36]</span></span><br><span class="line"><span class="built_in">sorted</span>([<span class="number">36</span>, <span class="number">5</span>, -<span class="number">12</span>, <span class="number">9</span>, -<span class="number">21</span>], key=<span class="built_in">abs</span>)    <span class="comment"># [5, 9, -12, -21, 36]</span></span><br><span class="line"><span class="built_in">sorted</span>([<span class="string">&#x27;bob&#x27;</span>, <span class="string">&#x27;about&#x27;</span>, <span class="string">&#x27;Zoo&#x27;</span>], key=<span class="built_in">str</span>.lower)  <span class="comment"># [&#x27;about&#x27;, &#x27;bob&#x27;, &#x27;Zoo&#x27;]</span></span><br><span class="line"><span class="built_in">sorted</span>([<span class="string">&#x27;bob&#x27;</span>, <span class="string">&#x27;about&#x27;</span>, <span class="string">&#x27;Zoo&#x27;</span>], key=<span class="built_in">str</span>.lower, reverse=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
 
-<h3 id="2-5-4-匿名函数（lambda）"><a href="#2-5-4-匿名函数（lambda）" class="headerlink" title="2.5.4 匿名函数（lambda）"></a>2.5.4 匿名函数（lambda）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 普通函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">f</span>(<span class="params">x</span>): <span class="keyword">return</span> x * x</span><br><span class="line"></span><br><span class="line"><span class="comment"># 等价的 lambda</span></span><br><span class="line"><span class="keyword">lambda</span> x: x * x</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实际使用</span></span><br><span class="line"><span class="built_in">list</span>(<span class="built_in">map</span>(<span class="keyword">lambda</span> x: x * x, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]))</span><br></pre></td></tr></table></figure>
+<h3 id="2-5-4-匿名函数（lambda）——-与”箭头函数”的区别"><a href="#2-5-4-匿名函数（lambda）——-与”箭头函数”的区别" class="headerlink" title="2.5.4 匿名函数（lambda）—— 与”箭头函数”的区别"></a>2.5.4 匿名函数（lambda）—— 与”箭头函数”的区别</h3><blockquote>
+<p>⚠️ <strong>概念澄清</strong>：Python <strong>没有</strong>箭头函数（<code>=&gt;</code>）。你说的”箭头函数”是 JavaScript&#x2F;TypeScript 的概念，Python 中最接近的是 <strong>lambda 表达式</strong>。不要混淆二者——Lambda 受限得多，后面会详细对比。</p>
+</blockquote>
+<h4 id="Python：def-vs-lambda"><a href="#Python：def-vs-lambda" class="headerlink" title="Python：def vs lambda"></a>Python：<code>def</code> vs <code>lambda</code></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 普通函数 def</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">f</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> x * x</span><br><span class="line"></span><br><span class="line"><span class="comment"># 匿名函数 lambda —— 单行表达式版本</span></span><br><span class="line"><span class="keyword">lambda</span> x: x * x</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实际使用场景：作为回调顺手传入</span></span><br><span class="line"><span class="built_in">list</span>(<span class="built_in">map</span>(<span class="keyword">lambda</span> x: x * x, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]))   <span class="comment"># [1, 4, 9, 16, 25]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 也可以赋值给变量（但不推荐——既然要用名字，干嘛不用 def?）</span></span><br><span class="line">square = <span class="keyword">lambda</span> x: x * x</span><br><span class="line">square(<span class="number">5</span>)  <span class="comment"># 25 — 但 PyCharm 会警告你&quot;Assignment to lambda&quot;</span></span><br></pre></td></tr></table></figure>
 
-<p><strong>三语对照：lambda</strong></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Python</span></span><br><span class="line"><span class="keyword">lambda</span> x, y: x + y</span><br></pre></td></tr></table></figure>
+<p><strong><code>def</code> vs <code>lambda</code> 关键差异</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th><code>def</code> 普通函数</th>
+<th><code>lambda</code> 匿名函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>名称</td>
+<td>有函数名（<code>__name__</code>）</td>
+<td>匿名，<code>__name__</code> 恒为 <code>&quot;&lt;lambda&gt;&quot;</code></td>
+</tr>
+<tr>
+<td>主体</td>
+<td>任意多条语句</td>
+<td><strong>只能是一个表达式</strong>（不能有 <code>if</code>&#x2F;<code>for</code>&#x2F;<code>print</code> 等语句）</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>显式 <code>return</code>，没有则 <code>None</code></td>
+<td><strong>隐式返回</strong>表达式结果，无需写 <code>return</code></td>
+</tr>
+<tr>
+<td>类型标注</td>
+<td>支持 <code>def f(x: int) -&gt; str:</code></td>
+<td><strong>不支持类型标注</strong></td>
+</tr>
+<tr>
+<td>文档</td>
+<td>支持 docstring</td>
+<td><strong>不支持</strong> docstring</td>
+</tr>
+<tr>
+<td>可读性</td>
+<td>好——适合多行逻辑</td>
+<td>差——复杂逻辑不要用 lambda</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>一切函数</td>
+<td>极简单的单行回调（传给 <code>map</code>&#x2F;<code>filter</code>&#x2F;<code>sorted</code> 等）</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ❌ lambda 不能做的事</span></span><br><span class="line"><span class="keyword">lambda</span> x: <span class="keyword">if</span> x &gt; <span class="number">0</span>: <span class="keyword">return</span> x   <span class="comment"># SyntaxError —— if 是语句，不是表达式</span></span><br><span class="line"><span class="keyword">lambda</span> x: <span class="built_in">print</span>(x)             <span class="comment"># 能跑但没意义 —— lambda 应返回值，不是副作用</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 用条件表达式（三目运算）可以</span></span><br><span class="line"><span class="keyword">lambda</span> x: x <span class="keyword">if</span> x &gt; <span class="number">0</span> <span class="keyword">else</span> -x   <span class="comment"># ✅ 条件表达式是表达式</span></span><br></pre></td></tr></table></figure>
 
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TypeScript</span></span><br><span class="line">(<span class="attr">x</span>: <span class="built_in">number</span>, <span class="attr">y</span>: <span class="built_in">number</span>) =&gt; x + y</span><br></pre></td></tr></table></figure>
+<h4 id="三语对照：匿名函数-vs-箭头函数"><a href="#三语对照：匿名函数-vs-箭头函数" class="headerlink" title="三语对照：匿名函数 vs 箭头函数"></a>三语对照：匿名函数 vs 箭头函数</h4><p>一个重要的跨语言区别：<strong>Python 的 lambda 是阉割版，TS 的箭头函数是完整版。</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Python — lambda：只能一行表达式</span></span><br><span class="line"><span class="keyword">lambda</span> x, y: x + y</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java</span></span><br><span class="line">(<span class="type">int</span> x, <span class="type">int</span> y) -&gt; x + y</span><br></pre></td></tr></table></figure>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TypeScript — 箭头函数：完整函数体</span></span><br><span class="line">(<span class="attr">x</span>: <span class="built_in">number</span>, <span class="attr">y</span>: <span class="built_in">number</span>): <span class="function"><span class="params">number</span> =&gt;</span> x + y</span><br><span class="line"></span><br><span class="line"><span class="comment">// 多行箭头函数完全 OK</span></span><br><span class="line">(<span class="attr">x</span>: <span class="built_in">number</span>, <span class="attr">y</span>: <span class="built_in">number</span>): <span class="function"><span class="params">number</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> result = x + y;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(result);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java — lambda：单表达式或多行（需用花括号）</span></span><br><span class="line">(<span class="type">int</span> x, <span class="type">int</span> y) -&gt; x + y</span><br><span class="line"></span><br><span class="line"><span class="comment">// 多行</span></span><br><span class="line">(<span class="type">int</span> x, <span class="type">int</span> y) -&gt; &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> x + y;</span><br><span class="line">    System.out.println(result);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Python <code>lambda</code></th>
+<th>TypeScript <code>=&gt;</code> 箭头函数</th>
+<th>Java <code>-&gt;</code> lambda</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多行语句</td>
+<td>❌ 只能单表达式</td>
+<td>✅ 完整函数体</td>
+<td>✅ 花括号多行</td>
+</tr>
+<tr>
+<td>类型标注</td>
+<td>❌ 不支持</td>
+<td>✅ <code>(x: number) =&gt; x</code></td>
+<td>✅ 参数可标注</td>
+</tr>
+<tr>
+<td><code>return</code></td>
+<td>隐式（自动）</td>
+<td>单行隐式，多行需写</td>
+<td>隐式或显式</td>
+</tr>
+<tr>
+<td>闭包（捕获外层变量）</td>
+<td>✅ 支持（但有坑👇）</td>
+<td>✅ 完美支持</td>
+<td>✅ 支持（要求 effectively final）</td>
+</tr>
+<tr>
+<td>访问 <code>this</code>&#x2F;<code>self</code></td>
+<td>N&#x2F;A（无 this）</td>
+<td>✅ 捕获父级 <code>this</code></td>
+<td>N&#x2F;A（无 this）</td>
+</tr>
+<tr>
+<td>可读性</td>
+<td>差（复杂逻辑勿用）</td>
+<td>好</td>
+<td>一般</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>TypeScript 箭头函数最独特的能力是**绑定父级 <code>this</code>**——普通函数 <code>function f()</code> 的 <code>this</code> 由调用方式决定，箭头函数的 <code>this</code> 始终指向定义时的上下文。Python 没有这个困扰，因为方法第一个参数显式写 <code>self</code>。</p>
+</blockquote>
+<h4 id="lambda-的闭包陷阱（Late-Binding）"><a href="#lambda-的闭包陷阱（Late-Binding）" class="headerlink" title="lambda 的闭包陷阱（Late Binding）"></a>lambda 的闭包陷阱（Late Binding）</h4><p>这是一个经典的 Python 坑：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 想创建一组函数：f0()=0, f1()=1, f2()=2...</span></span><br><span class="line">funcs = [<span class="keyword">lambda</span>: i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>)]</span><br><span class="line"><span class="built_in">print</span>([f() <span class="keyword">for</span> f <span class="keyword">in</span> funcs])  <span class="comment"># [2, 2, 2] ❌ 不是 [0, 1, 2]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 原因：i 在调用时才取值，循环结束时 i=2</span></span><br><span class="line"><span class="comment"># 修复：用默认参数绑定当前值</span></span><br><span class="line">funcs = [<span class="keyword">lambda</span> i=i: i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>)]</span><br><span class="line"><span class="built_in">print</span>([f() <span class="keyword">for</span> f <span class="keyword">in</span> funcs])  <span class="comment"># [0, 1, 2] ✅</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>TypeScript 和 Java 也有类似的闭包问题，TS 用 <code>let</code> 解决（每次循环创建新绑定），Java 要求变量是 <code>effectively final</code>。</p>
+</blockquote>
 <h3 id="2-5-5-装饰器（Decorator）——-Python-的”切面编程”"><a href="#2-5-5-装饰器（Decorator）——-Python-的”切面编程”" class="headerlink" title="2.5.5 装饰器（Decorator）—— Python 的”切面编程”"></a>2.5.5 装饰器（Decorator）—— Python 的”切面编程”</h3><p><strong>不修改原函数，动态增加功能</strong>，相当于 TS 的装饰器 &#x2F; Java 的 AOP。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> functools</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个装饰器：打印函数名</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">log</span>(<span class="params">func</span>):</span><br><span class="line"><span class="meta">    @functools.wraps(<span class="params">func</span>)   </span><span class="comment"># 保留原函数名等元信息</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;call <span class="subst">&#123;func.__name__&#125;</span>()&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器</span></span><br><span class="line"><span class="meta">@log</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">now</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;2022-01-01&#x27;</span>)</span><br><span class="line"></span><br><span class="line">now()</span><br><span class="line"><span class="comment"># 输出：</span></span><br><span class="line"><span class="comment"># call now()</span></span><br><span class="line"><span class="comment"># 2022-01-01</span></span><br></pre></td></tr></table></figure>
 
