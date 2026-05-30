@@ -902,7 +902,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <tr>
 <td><strong>团队协作</strong></td>
 <td>大团队协作困难</td>
-<td>小团队独立开发</td>
+<td></td>
 </tr>
 <tr>
 <td><strong>运维复杂度</strong></td>
@@ -997,40 +997,43 @@ document.addEventListener('DOMContentLoaded', function() {
 </thead>
 <tbody><tr>
 <td>服务注册与发现</td>
-<td>Eureka, Consul, Nacos</td>
+<td><strong>Nacos</strong>（推荐）, Consul, Eureka</td>
 <td>服务自动注册与发现</td>
 </tr>
 <tr>
 <td>客户端负载均衡</td>
-<td>Ribbon, LoadBalancer</td>
+<td><strong>LoadBalancer</strong>（推荐）, Ribbon</td>
 <td>请求负载均衡</td>
 </tr>
 <tr>
 <td>服务熔断</td>
-<td>Hystrix, Sentinel, Resilience4j</td>
+<td><strong>Sentinel</strong>（推荐）, Resilience4j</td>
 <td>熔断、降级、限流</td>
 </tr>
 <tr>
 <td>API网关</td>
-<td>Zuul, Gateway</td>
+<td><strong>Gateway</strong>（官方推荐）, Zuul</td>
 <td>路由、过滤、安全</td>
 </tr>
 <tr>
 <td>配置中心</td>
-<td>Config, Nacos</td>
+<td><strong>Nacos</strong>（推荐）, Config</td>
 <td>集中配置管理</td>
 </tr>
 <tr>
 <td>链路追踪</td>
-<td>Sleuth, Zipkin, SkyWalking</td>
+<td><strong>Micrometer + Zipkin&#x2F;SkyWalking</strong></td>
 <td>分布式追踪</td>
 </tr>
 <tr>
 <td>消息总线</td>
-<td>Bus</td>
+<td>Bus, RocketMQ</td>
 <td>配置动态刷新</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p>⚠️ <strong>注意</strong>：Netflix Eureka、Ribbon、Zuul、Hystrix 已停止维护，生产环境推荐使用 Spring Cloud Alibaba 全家桶替代方案。</p>
+</blockquote>
 <h3 id="3-3-Spring-Cloud版本关系-📦"><a href="#3-3-Spring-Cloud版本关系-📦" class="headerlink" title="3.3 Spring Cloud版本关系 📦"></a>3.3 Spring Cloud版本关系 📦</h3><p><strong>Spring Cloud与Spring Boot版本对应关系</strong>：</p>
 <table>
 <thead>
@@ -1041,41 +1044,49 @@ document.addEventListener('DOMContentLoaded', function() {
 </tr>
 </thead>
 <tbody><tr>
+<td>2025.1.x (Oakwood)</td>
+<td>4.0.x</td>
+<td>最新版，需要Java 21</td>
+</tr>
+<tr>
+<td>2025.0.x (Northfields)</td>
+<td>3.5.x</td>
+<td>主流版本</td>
+</tr>
+<tr>
+<td>2024.0.x (Moorgate)</td>
+<td>3.4.x</td>
+<td><strong>当前主流推荐</strong></td>
+</tr>
+<tr>
+<td>2023.0.x (Leyton)</td>
+<td>3.3.x, 3.2.x</td>
+<td>稳定版</td>
+</tr>
+<tr>
 <td>2022.0.x (Kilburn)</td>
-<td>3.0.x</td>
-<td>最新版</td>
+<td>3.0.x, 3.1.x</td>
+<td>旧版，已停止维护</td>
 </tr>
 <tr>
 <td>2021.0.x (Jubilee)</td>
 <td>2.6.x, 2.7.x</td>
-<td>主流版本</td>
+<td>已停止维护</td>
 </tr>
 <tr>
 <td>2020.0.x (Ilford)</td>
 <td>2.4.x, 2.5.x</td>
-<td>稳定版</td>
-</tr>
-<tr>
-<td>Hoxton</td>
-<td>2.2.x, 2.3.x</td>
-<td>经典版本</td>
-</tr>
-<tr>
-<td>Greenwich</td>
-<td>2.1.x</td>
-<td>旧版本</td>
-</tr>
-<tr>
-<td>Finchley</td>
-<td>2.0.x</td>
-<td>旧版本</td>
+<td>已停止维护</td>
 </tr>
 </tbody></table>
 <p><strong>版本命名规则</strong>：</p>
 <ul>
 <li>Spring Cloud采用<strong>伦敦地铁站名称</strong>命名</li>
-<li>按字母顺序排列：Angel → Brixton → Camden → Dalston → Edgware → Finchley → Greenwich → Hoxton → Ilford → Jubilee → Kilburn</li>
+<li>2021.x之后改用年份命名（如2023.0.x, 2024.0.x）</li>
 </ul>
+<p><strong>推荐版本组合</strong>（生产可用）：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Spring Boot 3.4.x + Spring Cloud 2024.0.x + Spring Cloud Alibaba 2023.0.3.4 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">spring-boot.version</span>&gt;</span>3.4.3<span class="tag">&lt;/<span class="name">spring-boot.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">spring-cloud.version</span>&gt;</span>2024.0.0<span class="tag">&lt;/<span class="name">spring-cloud.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">spring-cloud-alibaba.version</span>&gt;</span>2023.0.3.4<span class="tag">&lt;/<span class="name">spring-cloud-alibaba.version</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
 <hr>
 <h2 id="Spring-Cloud与Spring-Boot的关系"><a href="#Spring-Cloud与Spring-Boot的关系" class="headerlink" title="Spring Cloud与Spring Boot的关系"></a>Spring Cloud与Spring Boot的关系</h2><h3 id="4-1-关系概述-🔗"><a href="#4-1-关系概述-🔗" class="headerlink" title="4.1 关系概述 🔗"></a>4.1 关系概述 🔗</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Spring Boot = 快速构建单个微服务</span><br><span class="line">Spring Cloud = 协调管理多个微服务</span><br></pre></td></tr></table></figure>
 

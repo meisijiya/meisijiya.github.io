@@ -37979,7 +37979,7 @@ SOA架构（Service-Oriented Architecture）：
 
 团队协作
 大团队协作困难
-小团队独立开发
+
 
 
 运维复杂度
@@ -38074,39 +38074,42 @@ Spring Cloud组件
 
 
 服务注册与发现
-Eureka, Consul, Nacos
+Nacos（推荐）, Consul, Eureka
 服务自动注册与发现
 
 
 客户端负载均衡
-Ribbon, LoadBalancer
+LoadBalancer（推荐）, Ribbon
 请求负载均衡
 
 
 服务熔断
-Hystrix, Sentinel, Resilience4j
+Sentinel（推荐）, Resilience4j
 熔断、降级、限流
 
 
 API网关
-Zuul, Gateway
+Gateway（官方推荐）, Zuul
 路由、过滤、安全
 
 
 配置中心
-Config, Nacos
+Nacos（推荐）, Config
 集中配置管理
 
 
 链路追踪
-Sleuth, Zipkin, SkyWalking
+Micrometer + Zipkin&#x2F;SkyWalking
 分布式追踪
 
 
 消息总线
-Bus
+Bus, RocketMQ
 配置动态刷新
 
+
+
+⚠️ 注意：Netflix Eureka、Ribbon、Zuul、Hystrix 已停止维护，生产环境推荐使用 Spring Cloud Alibaba 全家桶替代方案。
 
 3.3 Spring Cloud版本关系 📦Spring Cloud与Spring Boot版本对应关系：
 
@@ -38118,40 +38121,48 @@ Spring Boot版本
 
 
 
+2025.1.x (Oakwood)
+4.0.x
+最新版，需要Java 21
+
+
+2025.0.x (Northfields)
+3.5.x
+主流版本
+
+
+2024.0.x (Moorgate)
+3.4.x
+当前主流推荐
+
+
+2023.0.x (Leyton)
+3.3.x, 3.2.x
+稳定版
+
+
 2022.0.x (Kilburn)
-3.0.x
-最新版
+3.0.x, 3.1.x
+旧版，已停止维护
 
 
 2021.0.x (Jubilee)
 2.6.x, 2.7.x
-主流版本
+已停止维护
 
 
 2020.0.x (Ilford)
 2.4.x, 2.5.x
-稳定版
-
-
-Hoxton
-2.2.x, 2.3.x
-经典版本
-
-
-Greenwich
-2.1.x
-旧版本
-
-
-Finchley
-2.0.x
-旧版本
+已停止维护
 
 
 版本命名规则：
 
 Spring Cloud采用伦敦地铁站名称命名
-按字母顺序排列：Angel → Brixton → Camden → Dalston → Edgware → Finchley → Greenwich → Hoxton → Ilford → Jubilee → Kilburn
+2021.x之后改用年份命名（如2023.0.x, 2024.0.x）
+
+推荐版本组合（生产可用）：
+&lt;!-- Spring Boot 3.4.x + Spring Cloud 2024.0.x + Spring Cloud Alibaba 2023.0.3.4 --&gt;&lt;spring-boot.version&gt;3.4.3&lt;/spring-boot.version&gt;&lt;spring-cloud.version&gt;2024.0.0&lt;/spring-cloud.version&gt;&lt;spring-cloud-alibaba.version&gt;2023.0.3.4&lt;/spring-cloud-alibaba.version&gt;
 
 
 Spring Cloud与Spring Boot的关系4.1 关系概述 🔗Spring Boot = 快速构建单个微服务Spring Cloud = 协调管理多个微服务
@@ -38486,70 +38497,110 @@ SpringCloud-Learning - 系统的Spring Cloud学习示例代码
     <title>Spring Cloud核心组件深度解析 🔧</title>
     <url>/2026/05/29/java/SpringCloud/02-Spring%20Cloud%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/</url>
     <content><![CDATA[02-Spring Cloud核心组件深度解析 🔧
-摘要：本文是微服务学习笔记的第二篇，深入解析Spring Cloud的核心组件，包括Eureka服务注册与发现、Ribbon客户端负载均衡、Feign声明式REST调用、Hystrix服务熔断与降级、Spring Cloud Gateway网关、Spring Cloud Config配置中心。每个组件都包含原理分析、代码示例和面试要点。
+摘要：本文是微服务学习笔记的第二篇，深入解析Spring Cloud的核心组件，包括Nacos服务注册与发现、LoadBalancer客户端负载均衡、OpenFeign声明式REST调用、Sentinel流量控制与熔断降级、Spring Cloud Gateway网关、Spring Cloud Config配置中心。每个组件都包含原理分析、代码示例和面试要点。
 
 📑 目录
-Eureka服务注册与发现
-Ribbon客户端负载均衡
-Feign声明式REST调用
-Hystrix服务熔断与降级
+Nacos服务注册与发现
+LoadBalancer客户端负载均衡
+OpenFeign声明式REST调用
+Sentinel流量控制与熔断降级
 Spring Cloud Gateway网关
 Spring Cloud Config配置中心
 面试常见问题与答案
 最佳实践与注意事项
 
 
-Eureka服务注册与发现1.1 Eureka概述 📍Eureka是Netflix开源的服务注册与发现组件，采用AP模型（高可用性），是Spring Cloud Netflix的核心组件之一。
+Nacos服务注册与发现1.1 Nacos概述 📍Nacos（Dynamic Naming and Configuration Service）是阿里巴巴开源的服务注册与发现组件，支持AP和CP两种模型，是Spring Cloud Alibaba的核心组件。
+
+⚠️ 注意：Netflix Eureka 已停止维护（2022.0.0版本后不再更新），生产环境推荐使用 Nacos 作为替代方案。
+
 核心概念：
 
-Eureka Server：服务端，注册中心
-Eureka Client：客户端，服务提供者&#x2F;消费者
-服务注册：服务启动时向Eureka Server注册
-服务续约：服务定期发送心跳
-服务发现：客户端从Eureka Server获取服务列表
-服务下线：服务停止时注销
+Nacos Server：服务端，注册中心 + 配置中心
+Nacos Client：客户端，服务提供者&#x2F;消费者
+服务注册：服务启动时向Nacos Server注册
+服务心跳：服务定期发送心跳（可配置）
+服务发现：客户端从Nacos Server获取服务列表
+服务注销：服务停止时主动注销
 
-1.2 Eureka架构 🏗️┌─────────────────────────────────────────────────────┐│                  Eureka Server                      ││              (服务注册中心)                          ││  ┌─────────────────────────────────────────────┐   ││  │            服务注册表                        │   ││  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐          │   ││  │  │服务A│ │服务B│ │服务C│ │服务D│          │   ││  │  └─────┘ └─────┘ └─────┘ └─────┘          │   ││  └─────────────────────────────────────────────┘   │└─────────────────────────────────────────────────────┘           ↑           ↑           ↑           │           │           │    ┌──────┴───┐ ┌─────┴────┐ ┌────┴─────┐    │ 服务提供者│ │ 服务提供者│ │ 服务消费者│    │  (注册)  │ │  (注册)  │ │  (发现)  │    └──────────┘ └──────────┘ └──────────┘
+Nacos vs Eureka 对比：
 
-1.3 Eureka Server配置 💻1. 添加依赖：
-&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-server&lt;/artifactId&gt;&lt;/dependency&gt;
+
+
+特性
+Nacos
+Eureka
+
+
+
+CAP模型
+AP + CP 可切换
+仅AP
+
+
+配置管理
+支持
+不支持
+
+
+健康检查
+TCP&#x2F;HTTP&#x2F;MySQL
+HTTP心跳
+
+
+界面
+友好
+简单
+
+
+维护状态
+活跃
+已停止维护
+
+
+1.2 Nacos架构 🏗️┌─────────────────────────────────────────────────────┐│                  Nacos Server                        ││              (服务注册中心 + 配置中心)               ││  ┌─────────────────────────────────────────────┐   ││  │            服务注册表                        │   ││  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐          │   ││  │  │服务A│ │服务B│ │服务C│ │服务D│          │   ││  │  └─────┘ └─────┘ └─────┘ └─────┘          │   ││  └─────────────────────────────────────────────┘   │└─────────────────────────────────────────────────────┘           ↑           ↑           ↑           │           │           │    ┌──────┴───┐ ┌─────┴────┐ ┌────┴─────┐    │ 服务提供者│ │ 服务提供者│ │ 服务消费者│    │  (注册)  │ │  (注册)  │ │  (发现)  │    └──────────┘ └──────────┘ └──────────┘
+
+1.3 Nacos Server配置 💻1. 下载并启动Nacos Server：
+# 下载Nacos Server (推荐3.2.x版本，需要Java 17+)wget https://github.com/alibaba/nacos/releases/download/3.2.2/nacos-server-3.2.2.tar.gz# 解压tar -xzf nacos-server-3.2.2.tar.gz# 进入目录cd nacos/bin# 单机模式启动sh startup.sh -m standalone# 集群模式启动sh startup.sh -m cluster
+
+2. 访问Nacos控制台：
+地址：http://localhost:8848/nacos默认账号：nacos默认密码：nacos
+
+1.4 Nacos Client配置 💻1. 添加依赖（Spring Boot 3.4.x + Spring Cloud Alibaba 2023.0.3.4）：
+&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;&lt;/dependency&gt;
 
 2. 启动类配置：
-/** * Eureka服务端启动类 * @author ljh2923 * @since 2024-01-01 */@SpringBootApplication@EnableEurekaServer  // 启用Eureka服务端public class EurekaServerApplication &#123;        /**     * Eureka服务端入口方法     * @param args 命令行参数     */    public static void main(String[] args) &#123;        SpringApplication.run(EurekaServerApplication.class, args);    &#125;&#125;
+/** * 服务提供者启动类 * 使用Nacos作为服务注册与发现 * @author ljh2923 * @since 2024-01-01 */@SpringBootApplication@EnableDiscoveryClient  // 启用服务发现public class UserServiceApplication &#123;    /**     * 服务提供者入口方法     * @param args 命令行参数     */    public static void main(String[] args) &#123;        SpringApplication.run(UserServiceApplication.class, args);    &#125;&#125;
 
 3. 配置文件：
-# application.ymlserver:  port: 8761eureka:  instance:    hostname: localhost  client:    register-with-eureka: false  # 不向自己注册    fetch-registry: false        # 不从自己获取注册表    service-url:      defaultZone: http://$&#123;eureka.instance.hostname&#125;:$&#123;server.port&#125;/eureka/  server:    enable-self-preservation: true  # 启用自我保护机制    eviction-interval-timer-in-ms: 60000  # 清理间隔
+# application.ymlspring:  application:    name: user-service  # 服务名称  cloud:    nacos:      discovery:        server-addr: localhost:8848  # Nacos Server地址        namespace: public  # 命名空间，默认public        group: DEFAULT_GROUP  # 分组        cluster-name: DEFAULT  # 集群名称# 服务端口server:  port: 8081
 
-1.4 Eureka Client配置 💻1. 添加依赖：
-&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;&lt;/dependency&gt;
-
-2. 启动类配置：
-/** * 服务提供者启动类 * @author ljh2923 * @since 2024-01-01 */@SpringBootApplication@EnableDiscoveryClient  // 启用服务发现public class UserServiceApplication &#123;        /**     * 服务提供者入口方法     * @param args 命令行参数     */    public static void main(String[] args) &#123;        SpringApplication.run(UserServiceApplication.class, args);    &#125;&#125;
-
-3. 配置文件：
-# application.ymlserver:  port: 8081spring:  application:    name: user-service  # 服务名称eureka:  client:    service-url:      defaultZone: http://localhost:8761/eureka/  instance:    prefer-ip-address: true  # 使用IP地址注册    instance-id: $&#123;spring.application.name&#125;:$&#123;server.port&#125;
-
-1.5 Eureka核心原理 ⚙️服务注册流程：
-1. 服务启动时，Eureka Client向Eureka Server发送注册请求2. Eureka Server将服务信息保存到注册表3. Eureka Client定期发送心跳（默认30秒）4. Eureka Server接收心跳，更新服务状态5. 如果90秒没有收到心跳，Eureka Server将服务从注册表移除
+1.5 Nacos核心原理 ⚙️服务注册流程：
+1. 服务启动时，Nacos Client向Nacos Server发送注册请求2. Nacos Server将服务信息保存到本地注册表3. Nacos Client定期发送心跳（默认5秒）4. Nacos Server接收心跳，更新服务状态5. 如果超过15秒没有收到心跳，Nacos Server将服务标记为不健康6. 如果超过30秒没有收到心跳，Nacos Server将服务从注册表移除
 
 服务发现流程：
-1. Eureka Client启动时，从Eureka Server获取注册表2. Eureka Client缓存注册表到本地3. Eureka Client定期更新注册表（默认30秒）4. 调用服务时，从本地缓存获取服务列表5. 使用负载均衡策略选择服务实例
+1. Nacos Client启动时，从Nacos Server获取注册表2. Nacos Client缓存注册表到本地3. Nacos Client定期更新注册表（默认10秒）4. 调用服务时，从本地缓存获取服务列表5. 使用负载均衡策略选择服务实例
 
-自我保护机制：
-当Eureka Server在短时间内丢失过多客户端时（网络分区），Eureka Server会进入自我保护模式，不再移除服务实例。这可以防止网络分区导致的服务误删。
+AP&#x2F;CP切换：
+
+AP模式（默认）：保证可用性，节点间数据最终一致
+CP模式：保证一致性，通过Raft协议选举leader
 
 
-Ribbon客户端负载均衡2.1 Ribbon概述 ⚖️Ribbon是Netflix开源的客户端负载均衡器，提供多种负载均衡策略，是Spring Cloud Netflix的核心组件之一。
+LoadBalancer客户端负载均衡2.1 LoadBalancer概述 ⚖️Spring Cloud LoadBalancer是Spring官方推出的客户端负载均衡器，是Netflix Ribbon的官方替代方案，已集成到spring-cloud-commons中。
+
+⚠️ 注意：Netflix Ribbon 已停止维护（2022.0.0版本后不再更新），推荐使用 Spring Cloud LoadBalancer。
+
 核心功能：
 
 负载均衡：将请求均匀分配到多个服务实例
-服务发现：集成Eureka获取服务列表
+服务发现：集成Nacos&#x2F;Consul获取服务列表
 故障容错：支持重试机制
 多种策略：轮询、随机、加权等
 
-2.2 Ribbon架构 🏗️┌─────────────────────────────────────────────────────┐│                  服务消费者                          ││  ┌─────────────────────────────────────────────┐   ││  │              Ribbon客户端                    │   ││  │  ┌─────────┐ ┌─────────┐ ┌─────────┐      │   ││  │  │负载均衡器│ │服务发现器│ │重试处理器│      │   ││  │  └─────────┘ └─────────┘ └─────────┘      │   ││  └─────────────────────────────────────────────┘   │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│              Eureka Server                          ││          (获取服务列表)                              │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│    服务实例1    │    服务实例2    │    服务实例3      ││   (192.168.1.1) │   (192.168.1.2) │   (192.168.1.3)  │└─────────────────────────────────────────────────────┘
+2.2 LoadBalancer架构 🏗️┌─────────────────────────────────────────────────────┐│                  服务消费者                          ││  ┌─────────────────────────────────────────────┐   ││  │           LoadBalancer客户端                 │   ││  │  ┌─────────┐ ┌─────────┐ ┌─────────┐      │   ││  │  │负载均衡器│ │服务发现器│ │重试处理器│      │   ││  │  └─────────┘ └─────────┘ └─────────┘      │   ││  └─────────────────────────────────────────────┘   │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│              Nacos Server                           ││          (获取服务列表)                              │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│    服务实例1    │    服务实例2    │    服务实例3      ││   (192.168.1.1) │   (192.168.1.2) │   (192.168.1.3)  │└─────────────────────────────────────────────────────┘
 
-2.3 Ribbon负载均衡策略 🎯内置策略：
+2.3 LoadBalancer负载均衡策略 🎯内置策略：
 
 
 
@@ -38559,76 +38610,61 @@ Ribbon客户端负载均衡2.1 Ribbon概述 ⚖️Ribbon是Netflix开源的客�
 
 
 
-RoundRobinRule
+RoundRobinLoadBalancer
 轮询策略
 按顺序轮流选择（默认）
 
 
-RandomRule
+RandomLoadBalancer
 随机策略
 随机选择服务实例
 
 
-RetryRule
+RetryLoadBalancer
 重试策略
 在一定时间内重试
 
 
-WeightedResponseTimeRule
+WeightedResponseTimeLoadBalancer
 加权响应时间策略
 根据响应时间分配权重
 
 
-BestAvailableRule
-最少连接数策略
-选择并发请求最少的实例
-
-
-AvailabilityFilteringRule
-可用性过滤策略
-过滤掉故障实例
-
-
-ZoneAvoidanceRule
-区域感知策略
-避免选择不可用区域
-
-
-2.4 Ribbon配置示例 💻1. 添加依赖：
-&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-netflix-ribbon&lt;/artifactId&gt;&lt;/dependency&gt;
+2.4 LoadBalancer配置示例 💻1. 添加依赖（已包含在spring-cloud-starter-openfeign中）：
+&lt;!-- pom.xml - LoadBalancer已包含在openfeign中 --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-loadbalancer&lt;/artifactId&gt;&lt;/dependency&gt;
 
 2. 配置负载均衡策略：
-/** * Ribbon负载均衡配置类 * @author ljh2923 * @since 2024-01-01 */@Configurationpublic class RibbonConfig &#123;        /**     * 配置负载均衡策略为随机     * @return IRule实例     */    @Bean    public IRule ribbonRule() &#123;        return new RandomRule();    &#125;        /**     * 配置重试策略     * @return ILoadBalancer实例     */    @Bean    public ILoadBalancer ribbonLoadBalancer() &#123;        return new ZoneAwareLoadBalancer&lt;&gt;();    &#125;&#125;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClient;import org.springframework.cloud.loadbalancer.core.RandomLoadBalancer;import org.springframework.cloud.loadbalancer.core.RoundRobinLoadBalancer;import org.springframework.cloud.loadbalancer.core.SimpleLoadBalancer;import org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory;import org.springframework.context.annotation.Bean;import org.springframework.context.annotation.Configuration;/** * LoadBalancer负载均衡配置类 * @author ljh2923 * @since 2024-01-01 */@Configurationpublic class LoadBalancerConfig &#123;    /**     * 配置全局默认负载均衡策略为随机     * @param environment 环境配置     * @return RandomLoadBalancer实例     */    @Bean    public org.springframework.cloud.client.loadbalancer.LoadBalancer roundRobinLoadBalancer(            org.springframework.core.env.Environment environment) &#123;        return new RoundRobinLoadBalancer(            new org.springframework.cloud.client.ServiceInstanceListSupplier() &#123;                // 获取服务名称            &#125;        );    &#125;&#125;
 
-3. 自定义负载均衡策略：
-/** * 自定义负载均衡策略：根据用户ID哈希选择实例 * @author ljh2923 * @since 2024-01-01 */public class UserHashRule extends AbstractLoadBalancerRule &#123;        /**     * 根据用户ID哈希选择服务实例     * @param key 负载均衡键，包含用户ID     * @return 选择的服务实例     */    @Override    public Server choose(Object key) &#123;        ILoadBalancer lb = getLoadBalancer();        if (lb == null) &#123;            return null;        &#125;                Server server = null;        int count = 0;        while (server == null &amp;&amp; count++ &lt; 10) &#123;            List&lt;Server&gt; reachableServers = lb.getReachableServers();            List&lt;Server&gt; allServers = lb.getAllServers();                        int upCount = reachableServers.size();            int serverCount = allServers.size();                        if ((upCount == 0) || (serverCount == 0)) &#123;                log.warn(&quot;No up servers available from load balancer&quot;);                return null;            &#125;                        // 根据用户ID哈希选择实例            int userId = getUserId(key);            int index = userId % serverCount;            server = allServers.get(index);                        if (server == null) &#123;                Thread.yield();                continue;            &#125;                        if (server.isAlive()) &#123;                return server;            &#125;                        server = null;        &#125;                return server;    &#125;        /**     * 从负载均衡键中获取用户ID     * @param key 负载均衡键     * @return 用户ID     */    private int getUserId(Object key) &#123;        // 从请求上下文中获取用户ID        // 这里简化处理，实际应该从请求参数中获取        return key.hashCode();    &#125;&#125;
+3. 在RestTemplate上使用：
+/** * 配置RestTemplate使用LoadBalancer * @return RestTemplate实例 */@Bean@LoadBalancedpublic RestTemplate restTemplate() &#123;    return new RestTemplate();&#125;// 使用示例@Autowiredprivate RestTemplate restTemplate;public User getUser(Long userId) &#123;    // 使用服务名代替具体IP和端口    return restTemplate.getForObject(&quot;http://user-service/user/&quot; + userId, User.class);&#125;
 
 4. 配置文件：
-# application.ymluser-service:  ribbon:    NFLoadBalancerRuleClassName: com.example.rule.UserHashRule    ConnectTimeout: 3000    ReadTimeout: 5000    MaxAutoRetries: 1    MaxAutoRetriesNextServer: 2
+# application.ymlspring:  application:    name: order-service  cloud:    loadbalancer:      ribbon:        enabled: false  # 禁用Ribbon，使用LoadBalancer# 配置特定服务的负载均衡策略user-service:  ribbon:    # 已在代码中配置RandomLoadBalancer    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
 
 
-Feign声明式REST调用3.1 Feign概述 📝Feign是Netflix开源的声明式HTTP客户端，通过接口和注解的方式定义HTTP请求，简化HTTP客户端的开发。
+OpenFeign声明式REST调用3.1 OpenFeign概述 📝OpenFeign是Spring官方对Feign的重新实现，是声明式HTTP客户端，通过接口和注解的方式定义HTTP请求，简化HTTP客户端的开发。
 核心特性：
 
 声明式调用：通过接口定义HTTP请求
-集成Ribbon：自动集成负载均衡
-集成Hystrix：自动集成熔断器
+集成LoadBalancer：自动集成负载均衡
+集成Sentinel：可配合Sentinel实现熔断降级（需额外配置）
 请求压缩：支持GZIP压缩
 日志记录：支持请求日志
 
-3.2 Feign架构 🏗️┌─────────────────────────────────────────────────────┐│                  服务消费者                          ││  ┌─────────────────────────────────────────────┐   ││  │              Feign客户端                     │   ││  │  ┌─────────┐ ┌─────────┐ ┌─────────┐      │   ││  │  │接口代理  │ │请求编码器│ │响应解码器│      │   ││  │  └─────────┘ └─────────┘ └─────────┘      │   ││  └─────────────────────────────────────────────┘   │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│                  Ribbon                             ││          (负载均衡选择服务实例)                      │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│              服务提供者                              ││          (处理HTTP请求)                              │└─────────────────────────────────────────────────────┘
+3.2 OpenFeign架构 🏗️┌─────────────────────────────────────────────────────┐│                  服务消费者                          ││  ┌─────────────────────────────────────────────┐   ││  │             OpenFeign客户端                  │   ││  │  ┌─────────┐ ┌─────────┐ ┌─────────┐      │   ││  │  │接口代理  │ │请求编码器│ │响应解码器│      │   ││  │  └─────────┘ └─────────┘ └─────────┘      │   ││  └─────────────────────────────────────────────┘   │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│           Spring Cloud LoadBalancer                  ││          (负载均衡选择服务实例)                      │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│              服务提供者                              ││          (处理HTTP请求)                              │└─────────────────────────────────────────────────────┘
 
-3.3 Feign使用示例 💻1. 添加依赖：
+3.3 OpenFeign使用示例 💻1. 添加依赖：
 &lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;&lt;/dependency&gt;
 
-2. 启用Feign客户端：
-/** * 启用Feign客户端的启动类 * @author ljh2923 * @since 2024-01-01 */@SpringBootApplication@EnableFeignClients  // 启用Feign客户端public class OrderServiceApplication &#123;        /**     * 应用程序入口方法     * @param args 命令行参数     */    public static void main(String[] args) &#123;        SpringApplication.run(OrderServiceApplication.class, args);    &#125;&#125;
+2. 启用OpenFeign客户端：
+/** * 启用Feign客户端的启动类 * @author ljh2923 * @since 2024-01-01 */@SpringBootApplication@EnableFeignClients  // 启用Feign客户端public class OrderServiceApplication &#123;    /**     * 应用程序入口方法     * @param args 命令行参数     */    public static void main(String[] args) &#123;        SpringApplication.run(OrderServiceApplication.class, args);    &#125;&#125;
 
 3. 定义Feign客户端接口：
-/** * 用户服务Feign客户端 * @author ljh2923 * @since 2024-01-01 */@FeignClient(    name = &quot;user-service&quot;,  // 服务名称    fallback = UserClientFallback.class  // 熔断降级类)public interface UserClient &#123;        /**     * 根据用户ID查询用户信息     * @param userId 用户ID     * @return 用户信息     */    @GetMapping(&quot;/user/&#123;id&#125;&quot;)    User getUserById(@PathVariable(&quot;id&quot;) Long userId);        /**     * 根据用户名查询用户信息     * @param username 用户名     * @return 用户信息     */    @GetMapping(&quot;/user/username/&#123;username&#125;&quot;)    User getUserByUsername(@PathVariable(&quot;username&quot;) String username);        /**     * 创建用户     * @param user 用户信息     * @return 创建的用户信息     */    @PostMapping(&quot;/user&quot;)    User createUser(@RequestBody User user);        /**     * 更新用户信息     * @param userId 用户ID     * @param user 用户信息     * @return 更新后的用户信息     */    @PutMapping(&quot;/user/&#123;id&#125;&quot;)    User updateUser(@PathVariable(&quot;id&quot;) Long userId, @RequestBody User user);        /**     * 删除用户     * @param userId 用户ID     * @return 删除结果     */    @DeleteMapping(&quot;/user/&#123;id&#125;&quot;)    Boolean deleteUser(@PathVariable(&quot;id&quot;) Long userId);&#125;
+import org.springframework.cloud.openfeign.FeignClient;import org.springframework.web.bind.annotation.*;/** * 用户服务Feign客户端 * 使用Nacos作为服务发现，无需指定url * @author ljh2923 * @since 2024-01-01 */@FeignClient(    name = &quot;user-service&quot;  // 服务名称，Nacos中注册的服务名)public interface UserClient &#123;    /**     * 根据用户ID查询用户信息     * @param userId 用户ID     * @return 用户信息     */    @GetMapping(&quot;/user/&#123;id&#125;&quot;)    User getUserById(@PathVariable(&quot;id&quot;) Long userId);    /**     * 根据用户名查询用户信息     * @param username 用户名     * @return 用户信息     */    @GetMapping(&quot;/user/username/&#123;username&#125;&quot;)    User getUserByUsername(@PathVariable(&quot;username&quot;) String username);    /**     * 创建用户     * @param user 用户信息     * @return 创建的用户信息     */    @PostMapping(&quot;/user&quot;)    User createUser(@RequestBody User user);    /**     * 更新用户信息     * @param userId 用户ID     * @param user 用户信息     * @return 更新后的用户信息     */    @PutMapping(&quot;/user/&#123;id&#125;&quot;)    User updateUser(@PathVariable(&quot;id&quot;) Long userId, @RequestBody User user);    /**     * 删除用户     * @param userId 用户ID     * @return 删除结果     */    @DeleteMapping(&quot;/user/&#123;id&#125;&quot;)    Boolean deleteUser(@PathVariable(&quot;id&quot;) Long userId);&#125;
 
-4. 熔断降级实现：
-/** * 用户服务Feign客户端熔断降级实现 * @author ljh2923 * @since 2024-01-01 */@Componentpublic class UserClientFallback implements UserClient &#123;        /**     * 根据用户ID查询用户信息（降级方法）     * @param userId 用户ID     * @return 默认用户信息     */    @Override    public User getUserById(Long userId) &#123;        return new User(userId, &quot;默认用户&quot;, &quot;服务暂时不可用&quot;);    &#125;        /**     * 根据用户名查询用户信息（降级方法）     * @param username 用户名     * @return 默认用户信息     */    @Override    public User getUserByUsername(String username) &#123;        return new User(0L, username, &quot;服务暂时不可用&quot;);    &#125;        /**     * 创建用户（降级方法）     * @param user 用户信息     * @return null     */    @Override    public User createUser(User user) &#123;        return null;    &#125;        /**     * 更新用户信息（降级方法）     * @param userId 用户ID     * @param user 用户信息     * @return null     */    @Override    public User updateUser(Long userId, User user) &#123;        return null;    &#125;        /**     * 删除用户（降级方法）     * @param userId 用户ID     * @return false     */    @Override    public Boolean deleteUser(Long userId) &#123;        return false;    &#125;&#125;
+4. 降级实现（使用Sentinel替代Hystrix）：
+import org.springframework.stereotype.Component;/** * 用户服务Feign客户端降级实现 * 当服务不可用时返回默认值 * @author ljh2923 * @since 2024-01-01 */@Componentpublic class UserClientFallback implements UserClient &#123;    /**     * 根据用户ID查询用户信息（降级方法）     * @param userId 用户ID     * @return 默认用户信息     */    @Override    public User getUserById(Long userId) &#123;        return new User(userId, &quot;默认用户&quot;, &quot;服务暂时不可用&quot;);    &#125;    /**     * 根据用户名查询用户信息（降级方法）     * @param username 用户名     * @return 默认用户信息     */    @Override    public User getUserByUsername(String username) &#123;        return new User(0L, username, &quot;服务暂时不可用&quot;);    &#125;    /**     * 创建用户（降级方法）     * @param user 用户信息     * @return null     */    @Override    public User createUser(User user) &#123;        return null;    &#125;    /**     * 更新用户信息（降级方法）     * @param userId 用户ID     * @param user 用户信息     * @return null     */    @Override    public User updateUser(Long userId, User user) &#123;        return null;    &#125;        /**     * 删除用户（降级方法）     * @param userId 用户ID     * @return false     */    @Override    public Boolean deleteUser(Long userId) &#123;        return false;    &#125;&#125;
 
 5. 使用Feign客户端：
 /** * 订单服务控制器 * @author ljh2923 * @since 2024-01-01 */@RestController@RequestMapping(&quot;/order&quot;)public class OrderController &#123;        @Autowired    private UserClient userClient;        /**     * 创建订单，需要查询用户信息     * @param userId 用户ID     * @param productId 商品ID     * @return 订单信息     */    @PostMapping(&quot;/create&quot;)    public Order createOrder(@RequestParam Long userId, @RequestParam Long productId) &#123;        // 使用Feign客户端调用用户服务        User user = userClient.getUserById(userId);                // 创建订单        Order order = new Order();        order.setUserId(userId);        order.setProductId(productId);        order.setUserName(user.getUsername());        order.setCreateTime(new Date());                return order;    &#125;&#125;
@@ -38640,50 +38676,90 @@ Feign声明式REST调用3.1 Feign概述 📝Feign是Netflix开源的声明式HTT
 /** * Feign日志配置 * @author ljh2923 * @since 2024-01-01 */@Configurationpublic class FeignLogConfig &#123;        /**     * 配置Feign日志级别     * @return Logger.Level实例     */    @Bean    public Logger.Level feignLoggerLevel() &#123;        // 日志级别：NONE, BASIC, HEADERS, FULL        return Logger.Level.FULL;    &#125;&#125;
 
 
-Hystrix服务熔断与降级4.1 Hystrix概述 🔥Hystrix是Netflix开源的延迟和容错库，用于隔离访问远程系统、服务或第三方库的请求，防止级联失败。
+Sentinel流量控制与熔断降级4.1 Sentinel概述 🔥Sentinel是阿里巴巴开源的流量控制、熔断降级和系统保护组件，是Hystrix的替代方案，提供更丰富的功能和完善的Dashboard。
+
+⚠️ 注意：Netflix Hystrix 已停止维护（2022.0.0版本后不再更新），生产环境推荐使用 Sentinel。
+
 核心功能：
 
+流量控制：控制请求速率，防止系统过载
 服务熔断：防止服务雪崩
 服务降级：提供降级响应
-服务限流：控制请求速率
-请求缓存：缓存请求结果
-请求合并：合并多个请求
+系统自适应：根据系统负载自动调节
+热点参数限流：针对参数值的精细化限流
+** Dashboard**：提供完善的可视化监控
 
-4.2 Hystrix原理 ⚙️熔断器状态机：
-┌─────────┐     超过阈值     ┌─────────┐│  关闭    │ ─────────────→ │  开启    ││  状态    │ ←───────────── │  状态    │└─────────┘     探测成功     └─────────┘     │                           │     │                           │     ↓                           ↓┌─────────┐                  ┌─────────┐│  正常    │                  │  快速    ││  调用    │                  │  失败    │└─────────┘                  └─────────┘                                   │                                   ↓                              ┌─────────┐                              │  半开    │                              │  状态    │                              └─────────┘
+Sentinel vs Hystrix 对比：
+
+
+
+特性
+Sentinel
+Hystrix
+
+
+
+隔离策略
+信号量隔离
+线程池隔离
+
+
+熔断策略
+基于响应时间&#x2F;异常比例
+基于异常比例
+
+
+限流
+多种维度
+有限
+
+
+Dashboard
+完善
+简单
+
+
+维护状态
+活跃维护
+已停止维护
+
+
+4.2 Sentinel原理 ⚙️Sentinel工作流程：
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐│  请求进入   │ → │  规则检查   │ → │  处理请求   │└─────────────┘    └─────────────┘    └─────────────┘                        │                        ↓              ┌─────────────────────┐              │  超过阈值？触发限流  │              │  异常？触发熔断      │              │  系统负载高？触发保护 │              └─────────────────────┘
+
+熔断器状态机：
+┌─────────┐     超过阈值     ┌─────────┐│  关闭    │ ─────────────→ │  开启    ││  状态    │ ←───────────── │  状态    │└─────────┘     探测成功     └─────────┘     │                           │     │                           │     ↓                           ↓┌─────────┐                  ┌─────────┐│  正常    │                  │  快速    ││  调用    │                  │  失败    │└─────────┘                  └─────────┘                                 │                                 ↓                            ┌─────────┐                            │  半开    │                            │  状态    │                            └─────────┘
 
 状态说明：
 
 关闭状态：正常调用，统计失败率
-开启状态：快速失败，不调用服务
+开启状态：快速失败，拒绝所有请求
 半开状态：允许部分请求通过，测试服务是否恢复
 
-4.3 Hystrix使用示例 💻1. 添加依赖：
-&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-netflix-hystrix&lt;/artifactId&gt;&lt;/dependency&gt;
+4.3 Sentinel使用示例 💻1. 添加依赖：
+&lt;!-- pom.xml - Spring Boot 3.4.x + Spring Cloud Alibaba 2023.0.3.4 --&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-alibaba-sentinel&lt;/artifactId&gt;&lt;/dependency&gt;
 
-2. 启用Hystrix：
-/** * 启用Hystrix的启动类 * @author ljh2923 * @since 2024-01-01 */@SpringBootApplication@EnableHystrix  // 启用Hystrixpublic class OrderServiceApplication &#123;        /**     * 应用程序入口方法     * @param args 命令行参数     */    public static void main(String[] args) &#123;        SpringApplication.run(OrderServiceApplication.class, args);    &#125;&#125;
+2. 配置文件：
+# application.ymlspring:  application:    name: order-service  cloud:    sentinel:      # Sentinel Dashboard地址      transport:        dashboard: localhost:8080      # 端口用于与Dashboard通信      port: 8719
 
-3. 服务熔断示例：
-/** * 订单服务，使用Hystrix熔断 * @author ljh2923 * @since 2024-01-01 */@Servicepublic class OrderService &#123;        @Autowired    private UserClient userClient;        /**     * 创建订单，带熔断降级     * @param userId 用户ID     * @param productId 商品ID     * @return 订单信息     */    @HystrixCommand(        fallbackMethod = &quot;createOrderFallback&quot;,        commandKey = &quot;createOrder&quot;,        groupKey = &quot;orderService&quot;,        threadPoolKey = &quot;orderServicePool&quot;,        commandProperties = &#123;            // 熔断器请求阈值            @HystrixProperty(name = &quot;circuitBreaker.requestVolumeThreshold&quot;, value = &quot;10&quot;),            // 熔断器错误百分比阈值            @HystrixProperty(name = &quot;circuitBreaker.errorThresholdPercentage&quot;, value = &quot;50&quot;),            // 熔断器休眠时间窗口            @HystrixProperty(name = &quot;circuitBreaker.sleepWindowInMilliseconds&quot;, value = &quot;10000&quot;),            // 统计滚动时间窗口            @HystrixProperty(name = &quot;metrics.rollingStats.timeInMilliseconds&quot;, value = &quot;10000&quot;)        &#125;,        threadPoolProperties = &#123;            // 线程池核心线程数            @HystrixProperty(name = &quot;coreSize&quot;, value = &quot;10&quot;),            // 线程池最大队列大小            @HystrixProperty(name = &quot;maxQueueSize&quot;, value = &quot;100&quot;)        &#125;    )    public Order createOrder(Long userId, Long productId) &#123;        // 调用用户服务获取用户信息        User user = userClient.getUserById(userId);                // 创建订单        Order order = new Order();        order.setUserId(userId);        order.setProductId(productId);        order.setUserName(user.getUsername());        order.setCreateTime(new Date());                return order;    &#125;        /**     * 创建订单降级方法     * @param userId 用户ID     * @param productId 商品ID     * @param ex 异常信息     * @return 默认订单信息     */    public Order createOrderFallback(Long userId, Long productId, Throwable ex) &#123;        // 记录降级日志        log.error(&quot;创建订单降级，userId: &#123;&#125;, productId: &#123;&#125;, error: &#123;&#125;&quot;,                   userId, productId, ex.getMessage());                // 返回降级订单        Order order = new Order();        order.setUserId(userId);        order.setProductId(productId);        order.setUserName(&quot;默认用户&quot;);        order.setCreateTime(new Date());        order.setStatus(&quot;降级订单&quot;);                return order;    &#125;&#125;
+3. 下载并启动Sentinel Dashboard：
+# 下载Sentinel Dashboard (最新1.8.10)wget https://github.com/alibaba/Sentinel/releases/download/1.8.10/sentinel-dashboard-1.8.10.jar# 启动Dashboard（默认端口8080）java -Dserver.port=8080 -Dcsp.sentinel.dashboard.server=localhost:8080 -jar sentinel-dashboard-1.8.10.jar# 访问Dashboard# 地址：http://localhost:8080# 默认账号密码：sentinel/sentinel
 
-4. 请求缓存示例：
-/** * 用户服务，使用Hystrix请求缓存 * @author ljh2923 * @since 2024-01-01 */@Servicepublic class UserService &#123;        /**     * 查询用户信息，带请求缓存     * @param userId 用户ID     * @return 用户信息     */    @HystrixCommand    @CacheResult  // 缓存结果    public User getUserById(@CacheKey Long userId) &#123;        // 查询数据库        return userMapper.selectById(userId);    &#125;        /**     * 更新用户信息，清除缓存     * @param user 用户信息     * @return 更新后的用户信息     */    @HystrixCommand    @CacheRemove(commandKey = &quot;getUserById&quot;)  // 清除缓存    public User updateUser(@CacheKey User user) &#123;        // 更新数据库        userMapper.updateById(user);        return user;    &#125;&#125;
+4. 代码实现限流降级：
+import com.alibaba.csp.sentinel.annotation.SentinelResource;import com.alibaba.csp.sentinel.slots.block.BlockException;import org.springframework.stereotype.Service;/** * 订单服务，使用Sentinel进行流量控制和熔断降级 * @author ljh2923 * @since 2024-01-01 */@Servicepublic class OrderService &#123;    /**     * 创建订单，带Sentinel流量控制和熔断降级     * @param userId 用户ID     * @param productId 商品ID     * @return 订单信息     */    @SentinelResource(        value = &quot;createOrder&quot;,        blockHandler = &quot;createOrderBlockHandler&quot;,        fallback = &quot;createOrderFallback&quot;    )    public Order createOrder(Long userId, Long productId) &#123;        // 调用用户服务获取用户信息        User user = userClient.getUserById(userId);        // 创建订单        Order order = new Order();        order.setUserId(userId);        order.setProductId(productId);        order.setUserName(user.getUsername());        order.setCreateTime(new Date());        return order;    &#125;    /**     * 限流降级方法     * @param userId 用户ID     * @param productId 商品ID     * @param ex 限流异常     * @return 默认订单信息     */    public Order createOrderBlockHandler(Long userId, Long productId, BlockException ex) &#123;        log.error(&quot;创建订单限流，userId: &#123;&#125;, productId: &#123;&#125;, error: &#123;&#125;&quot;,                  userId, productId, ex.getMessage());        Order order = new Order();        order.setUserId(userId);        order.setProductId(productId);        order.setUserName(&quot;限流降级用户&quot;);        order.setCreateTime(new Date());        order.setStatus(&quot;限流订单&quot;);        return order;    &#125;    /**     * 熔断降级方法     * @param userId 用户ID     * @param productId 商品ID     * @param ex 异常信息     * @return 默认订单信息     */    public Order createOrderFallback(Long userId, Long productId, Throwable ex) &#123;        log.error(&quot;创建订单降级，userId: &#123;&#125;, productId: &#123;&#125;, error: &#123;&#125;&quot;,                  userId, productId, ex.getMessage());        Order order = new Order();        order.setUserId(userId);        order.setProductId(productId);        order.setUserName(&quot;熔断降级用户&quot;);        order.setCreateTime(new Date());        order.setStatus(&quot;降级订单&quot;);        return order;    &#125;&#125;
+
+5. 基于注解的限流配置：
+import com.alibaba.csp.sentinel.annotation.SentinelResource;import com.alibaba.csp.sentinel.slots.block.BlockException;import org.springframework.web.bind.annotation.*;/** * 商品服务控制器，使用Sentinel保护 * @author ljh2923 * @since 2024-01-01 */@RestController@RequestMapping(&quot;/product&quot;)public class ProductController &#123;    /**     * 获取商品信息，带Sentinel保护     * @param productId 商品ID     * @return 商品信息     */    @GetMapping(&quot;/&#123;id&#125;&quot;)    @SentinelResource(value = &quot;getProduct&quot;,                     blockHandler = &quot;getProductBlockHandler&quot;)    public Product getProduct(@PathVariable Long productId) &#123;        return productService.getProductById(productId);    &#125;    /**     * 获取商品信息限流处理     */    public Product getProductBlockHandler(Long productId, BlockException ex) &#123;        return new Product(0L, &quot;限流商品&quot;, &quot;系统繁忙，请稍后再试&quot;);    &#125;&#125;
+
+6. OpenFeign集成Sentinel降级：
+# application.ymlfeign:  sentinel:    enabled: true  # 启用Sentinel降级
+
+/** * 用户服务Feign客户端，带Sentinel降级 * @author ljh2923 * @since 2024-01-01 */@FeignClient(    name = &quot;user-service&quot;,    fallback = UserClientFallback.class  // Sentinel降级类)public interface UserClient &#123;    @GetMapping(&quot;/user/&#123;id&#125;&quot;)    User getUserById(@PathVariable(&quot;id&quot;) Long userId);&#125;/** * 用户服务降级实现类 * @author ljh2923 * @since 2024-01-01 */@Componentpublic class UserClientFallback implements UserClient &#123;    @Override    public User getUserById(Long userId) &#123;        return new User(userId, &quot;降级用户&quot;, &quot;服务暂时不可用&quot;);    &#125;&#125;
 
 
-Spring Cloud Gateway网关5.1 Gateway概述 🚪Spring Cloud Gateway是Spring Cloud官方提供的API网关，基于WebFlux构建，提供路由转发、负载均衡、安全认证、限流熔断等功能。
-核心特性：
-
-路由转发：根据路径转发到不同服务
-负载均衡：集成Ribbon&#x2F;LoadBalancer
-过滤器链：请求和响应过滤
-限流熔断：集成Sentinel&#x2F;Hystrix
-安全认证：JWT、OAuth2
-
-5.2 Gateway架构 🏗️┌─────────────────────────────────────────────────────┐│                Spring Cloud Gateway                 ││  ┌─────────────────────────────────────────────┐   ││  │              路由定位器                       │   ││  │  ┌─────────┐ ┌─────────┐ ┌─────────┐      │   ││  │  │路由断言  │ │过滤器链  │ │负载均衡器│      │   ││  │  └─────────┘ └─────────┘ └─────────┘      │   ││  └─────────────────────────────────────────────┘   │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│              请求处理流程                            ││  1. 路由断言匹配                                     ││  2. 前置过滤器处理                                   ││  3. 负载均衡选择服务实例                             ││  4. 转发请求到服务实例                               ││  5. 后置过滤器处理                                   ││  6. 返回响应                                        │└─────────────────────────────────────────────────────┘
-
-5.3 Gateway配置示例 💻1. 添加依赖：
-&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-gateway&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;&lt;/dependency&gt;
+---## Spring Cloud Gateway网关### 5.1 Gateway概述 🚪**Spring Cloud Gateway**是Spring Cloud官方提供的**API网关**，基于WebFlux构建，提供路由转发、负载均衡、安全认证、限流熔断等功能。**核心特性**：- **路由转发**：根据路径转发到不同服务- **负载均衡**：集成Ribbon/LoadBalancer- **过滤器链**：请求和响应过滤- **限流熔断**：集成Sentinel/Hystrix- **安全认证**：JWT、OAuth2### 5.2 Gateway架构 🏗️
+┌─────────────────────────────────────────────────────┐│                Spring Cloud Gateway                 ││  ┌─────────────────────────────────────────────┐   ││  │              路由定位器                       │   ││  │  ┌─────────┐ ┌─────────┐ ┌─────────┐      │   ││  │  │路由断言  │ │过滤器链  │ │负载均衡器│      │   ││  │  └─────────┘ └─────────┘ └─────────┘      │   ││  └─────────────────────────────────────────────┘   │└─────────────────────────────────────────────────────┘           │           ↓┌─────────────────────────────────────────────────────┐│              请求处理流程                            ││  1. 路由断言匹配                                     ││  2. 前置过滤器处理                                   ││  3. 负载均衡选择服务实例                             ││  4. 转发请求到服务实例                               ││  5. 后置过滤器处理                                   ││  6. 返回响应                                        │└─────────────────────────────────────────────────────┘
+### 5.3 Gateway配置示例 💻**1. 添加依赖**：```xml&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-gateway&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;&lt;/dependency&gt;
 
 2. 路由配置：
 # application.ymlserver:  port: 8080spring:  application:    name: gateway-service  cloud:    gateway:      routes:        # 用户服务路由        - id: user-service          uri: lb://user-service  # 使用负载均衡          predicates:            - Path=/api/user/**          filters:            - StripPrefix=2  # 去掉前缀                # 订单服务路由        - id: order-service          uri: lb://order-service          predicates:            - Path=/api/order/**          filters:            - StripPrefix=2                # 商品服务路由        - id: product-service          uri: lb://product-service          predicates:            - Path=/api/product/**          filters:            - StripPrefix=2eureka:  client:    service-url:      defaultZone: http://localhost:8761/eureka/
@@ -39081,40 +39157,56 @@ Spring Cloud Alibaba优势：
 中文文档：文档完善，社区活跃
 性能优秀：经过大规模生产验证
 
-1.3 版本关系 📦Spring Cloud Alibaba版本对应关系：
+1.3 版本关系 📦Spring Cloud Alibaba版本对应关系（2024年最新）：
 
 
 
 Spring Cloud Alibaba
 Spring Cloud
 Spring Boot
+Nacos
+Sentinel
+Seata
 
 
 
-2021.0.4.0
-2021.0.4
-2.6.x
-
-
-2021.0.1.0
-2021.0.1
+2023.0.3.4
+2023.0.x
+3.2.x
 2.4.x
+1.8.10
+1.8.x
 
 
-2.2.9.RELEASE
-Hoxton.SR12
-2.3.x
+2023.0.3.3
+2023.0.x
+3.2.x
+2.4.x
+1.8.8
+1.8.x
 
 
-2.2.8.RELEASE
-Hoxton.SR12
-2.3.x
+2022.0.0.2
+2022.0.x
+3.0.x
+2.2.x
+1.8.6
+1.7.x
 
 
-2.2.7.RELEASE
-Hoxton.SR12
-2.3.x
+2021.0.5.0
+2021.0.x
+2.6.x
+2.0.x
+1.8.6
+1.6.x
 
+
+
+⚠️ 注意：Spring Cloud Alibaba 2022.x 分支适配 Spring Boot 3.0，2021.x 分支适配 Spring Boot 2.6.x。
+
+推荐组合（生产可用）：
+&lt;spring-boot.version&gt;3.4.3&lt;/spring-boot.version&gt;&lt;spring-cloud.version&gt;2024.0.0&lt;/spring-cloud.version&gt;&lt;spring-cloud-alibaba.version&gt;2023.0.3.4&lt;/spring-cloud-alibaba.version&gt;
 
 
 Nacos服务发现与配置管理2.1 Nacos概述 📍Nacos（Dynamic Naming and Configuration Service）是阿里巴巴开源的服务发现与配置管理平台，支持几乎所有主流类型的服务发现、配置管理、动态DNS服务。
@@ -40658,14 +40750,14 @@ Spring Cloud Gateway核心概念2.1 Gateway概述 🌟Spring Cloud Gateway是Spr
 自动发现服务实例
 
 
-路由配置与过滤器链3.1 路由配置示例 💻1. 添加依赖：
-&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-gateway&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;&lt;/dependency&gt;
+路由配置与过滤器链3.1 路由配置示例 💻1. 添加依赖（Spring Boot 3.4.x + Spring Cloud Alibaba 2023.0.3.4）：
+&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-gateway&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-alibaba-sentinel&lt;/artifactId&gt;&lt;/dependency&gt;
 
-2. 配置文件：
-# application.ymlserver:  port: 8080spring:  application:    name: gateway-service  cloud:    gateway:      routes:        # 用户服务路由        - id: user-service          uri: lb://user-service  # 使用负载均衡          predicates:            - Path=/api/user/**          filters:            - StripPrefix=2  # 去掉前缀                # 订单服务路由        - id: order-service          uri: lb://order-service          predicates:            - Path=/api/order/**          filters:            - StripPrefix=2                # 商品服务路由        - id: product-service          uri: lb://product-service          predicates:            - Path=/api/product/**          filters:            - StripPrefix=2eureka:  client:    service-url:      defaultZone: http://localhost:8761/eureka/
+2. 配置文件（使用Nacos替代Eureka）：
+# application.ymlserver:  port: 8080spring:  application:    name: gateway-service  cloud:    nacos:      discovery:        server-addr: localhost:8848  # Nacos Server地址        namespace: public        group: DEFAULT_GROUP    gateway:      routes:        # 用户服务路由        - id: user-service          uri: lb://user-service  # 使用负载均衡          predicates:            - Path=/api/user/**          filters:            - StripPrefix=2  # 去掉前缀        # 订单服务路由        - id: order-service          uri: lb://order-service          predicates:            - Path=/api/order/**          filters:            - StripPrefix=2        # 商品服务路由        - id: product-service          uri: lb://product-service          predicates:            - Path=/api/product/**          filters:            - StripPrefix=2      # 开启Sentinel限流（可选）      sentinel:        enabled: true
 
 3. 路由配置类：
-/** * 路由配置类 * @author ljh2923 * @since 2024-01-01 */@Configurationpublic class RouteConfig &#123;        /**     * 自定义路由配置     * @param builder 路由定位器构建器     * @return 路由定位器     */    @Bean    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) &#123;        return builder.routes()            // 用户服务路由            .route(&quot;user-service&quot;, r -&gt; r                .path(&quot;/api/user/**&quot;)                .filters(f -&gt; f.stripPrefix(2))                .lb://user-service&quot;)            // 订单服务路由            .route(&quot;order-service&quot;, r -&gt; r                .path(&quot;/api/order/**&quot;)                .filters(f -&gt; f.stripPrefix(2))                .lb://order-service&quot;)            .build();    &#125;&#125;
+import org.springframework.cloud.gateway.route.RouteLocator;import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;import org.springframework.context.annotation.Bean;import org.springframework.context.annotation.Configuration;/** * 路由配置类 * @author ljh2923 * @since 2024-01-01 */@Configurationpublic class RouteConfig &#123;    /**     * 自定义路由配置     * @param builder 路由定位器构建器     * @return 路由定位器     */    @Bean    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) &#123;        return builder.routes()            // 用户服务路由            .route(&quot;user-service&quot;, r -&gt; r                .path(&quot;/api/user/**&quot;)                .filters(f -&gt; f.stripPrefix(2))                .uri(&quot;lb://user-service&quot;))            // 订单服务路由            .route(&quot;order-service&quot;, r -&gt; r                .path(&quot;/api/order/**&quot;)                .filters(f -&gt; f.stripPrefix(2))                .uri(&quot;lb://order-service&quot;))            .build();    &#125;&#125;
 
 3.2 断言配置示例 🎯1. 路径断言：
 spring:  cloud:    gateway:      routes:        - id: user-service          uri: lb://user-service          predicates:            - Path=/api/user/**
@@ -41112,22 +41204,30 @@ Nacos配置中心实践
 1.3 配置中心架构 🏗️┌─────────────────────────────────────────────────────┐│                  配置中心                            ││  ┌─────────────────────────────────────────────┐   ││  │              配置管理                        │   ││  │  ┌─────────┐ ┌─────────┐ ┌─────────┐      │   ││  │  │配置存储  │ │版本管理  │ │权限控制  │      │   ││  │  └─────────┘ └─────────┘ └─────────┘      │   ││  └─────────────────────────────────────────────┘   ││  ┌─────────────────────────────────────────────┐   ││  │              配置仓库                        │   ││  │  ┌─────────┐ ┌─────────┐ ┌─────────┐      │   ││  │  │Git仓库  │ │数据库   │ │文件系统  │      │   ││  │  └─────────┘ └─────────┘ └─────────┘      │   ││  └─────────────────────────────────────────────┘   │└─────────────────────────────────────────────────────┘           │           │           │           ↓           ↓           ↓┌─────────────────────────────────────────────────────┐│                  微服务集群                          ││  ┌─────────┐ ┌─────────┐ ┌─────────┐              ││  │服务A    │ │服务B    │ │服务C    │              ││  │(动态获取)│ │(动态获取)│ │(动态获取)│              ││  └─────────┘ └─────────┘ └─────────┘              │└─────────────────────────────────────────────────────┘
 
 
-Spring Cloud Config使用2.1 Spring Cloud Config概述 📦Spring Cloud Config是Spring Cloud官方提供的配置中心，支持将配置文件存储在Git、SVN等版本控制系统中。
-核心功能：
+Nacos配置中心实践3.1 Nacos配置管理概述 🌟Nacos作为配置中心，相比Spring Cloud Config具有以下优势：
 
-集中管理：所有服务的配置集中存储
-版本管理：配置文件版本控制
-动态刷新：配置变更后自动刷新
-环境隔离：支持多环境配置
+界面友好：提供Web界面管理配置
+实时生效：配置变更秒级推送到客户端
+命名空间隔离：支持多环境、多租户
+配置版本管理：支持配置回滚
+配置监听：客户端实时感知配置变更
 
-2.2 Config Server配置 💻1. 添加依赖：
-&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-config-server&lt;/artifactId&gt;&lt;/dependency&gt;
+3.2 Nacos配置示例 💻1. 在Nacos控制台创建配置：
+Data ID: order-service.yamlGroup: DEFAULT_GROUP配置格式: YAMLspring:  datasource:    url: jdbc:mysql://localhost:3306/order_db    username: root    password: passwordserver:  port: 8082management:  endpoints:    web:      exposure:        include: &quot;*&quot;
+
+2. 客户端获取配置：
+import org.springframework.beans.factory.annotation.Value;import org.springframework.cloud.context.config.annotation.RefreshScope;import org.springframework.web.bind.annotation.GetMapping;import org.springframework.web.bind.annotation.RestController;/** * 配置控制器，支持动态刷新 * @author ljh2923 * @since 2024-01-01 */@RestController@RefreshScope  // 支持动态刷新配置public class ConfigController &#123;    /**     * 获取数据源URL配置     */    @Value(&quot;$&#123;spring.datasource.url&#125;&quot;)    private String datasourceUrl;    /**     * 获取服务端口配置     */    @Value(&quot;$&#123;server.port&#125;&quot;)    private String serverPort;    /**     * 获取所有配置信息     * @return 配置信息     */    @GetMapping(&quot;/config&quot;)    public String getConfig() &#123;        return &quot;datasourceUrl: &quot; + datasourceUrl + &quot;, serverPort: &quot; + serverPort;    &#125;&#125;
+
+3.3 配置热更新原理 ⚙️┌─────────────────────────────────────────────────────┐│               Nacos配置热更新流程                     ││                                                     ││  1. 管理员在Nacos控制台修改配置                        ││     ↓                                               ││  2. Nacos Server保存配置并通知客户端                   ││     ↓                                               ││  3. Nacos Client收到配置变更通知                      ││     ↓                                               ││  4. Spring Cloud自动刷新@Value注解的Bean              ││     ↓                                               ││  5. @RefreshScope标记的Bean重新创建                    ││     ↓                                               ││  6. 应用无需重启即可使用新配置                         │└─────────────────────────────────────────────────────┘
+
+2.2 Config Server配置 💻1. 添加依赖（使用Nacos替代Spring Cloud Config）：
+&lt;!-- pom.xml - Spring Boot 3.4.x + Spring Cloud Alibaba 2023.0.3.4 --&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-config&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;&lt;/dependency&gt;
 
 2. 启动类配置：
-/** * Config Server启动类 * @author ljh2923 * @since 2024-01-01 */@SpringBootApplication@EnableConfigServer  // 启用配置中心服务端public class ConfigServerApplication &#123;        /**     * Config Server入口方法     * @param args 命令行参数     */    public static void main(String[] args) &#123;        SpringApplication.run(ConfigServerApplication.class, args);    &#125;&#125;
+/** * 使用Nacos作为配置中心的启动类 * @author ljh2923 * @since 2024-01-01 */@SpringBootApplication@EnableDiscoveryClientpublic class OrderServiceApplication &#123;    /**     * 应用入口方法     * @param args 命令行参数     */    public static void main(String[] args) &#123;        SpringApplication.run(OrderServiceApplication.class, args);    &#125;&#125;
 
-3. 配置文件：
-# application.ymlserver:  port: 8888spring:  application:    name: config-server  cloud:    config:      server:        git:          uri: https://github.com/your-repo/config-repo  # Git仓库地址          username: your-username  # Git用户名          password: your-password  # Git密码          default-label: master  # 默认分支          search-paths:  # 搜索路径            - &#x27;&#123;application&#125;&#x27;
+3. 配置文件（bootstrap.yml 或使用 spring.config.import）：
+# bootstrap.yml（Spring Boot 3.4 仍支持，但推荐使用 spring.config.import）spring:  application:    name: order-service  cloud:    nacos:      config:        server-addr: localhost:8848  # Nacos Server地址        namespace: public  # 命名空间        group: DEFAULT_GROUP  # 分组        file-extension: yaml  # 配置文件格式        # 共享配置（可选）        shared-configs:          - data-id: common.yaml            group: COMMON_GROUP            refresh: true  config:    import:      - optional:nacos:common.yaml  # 导入Nacos共享配置
 
 2.3 Config Client配置 💻1. 添加依赖：
 &lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-config&lt;/artifactId&gt;&lt;/dependency&gt;
@@ -41477,13 +41577,13 @@ SpringCloud面试题 - Spring Cloud核心组件面试题
     <title>微服务监控与链路追踪 📊</title>
     <url>/2026/05/29/java/SpringCloud/08-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9B%91%E6%8E%A7%E4%B8%8E%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA/</url>
     <content><![CDATA[08-微服务监控与链路追踪 📊
-摘要：本文是微服务学习笔记的第八篇，深入讲解微服务监控与链路追踪，包括微服务监控指标与体系、Spring Boot Actuator使用、分布式链路追踪原理、Sleuth与Zipkin集成。每个主题都包含原理分析、代码示例和面试要点。
+摘要：本文是微服务学习笔记的第八篇，深入讲解微服务监控与链路追踪，包括微服务监控指标与体系、Spring Boot Actuator使用、分布式链路追踪原理、Micrometer+Zipkin集成。每个主题都包含原理分析、代码示例和面试要点。
 
 📑 目录
 微服务监控指标与体系
 Spring Boot Actuator使用
 分布式链路追踪原理
-Sleuth与Zipkin集成
+Micrometer+Zipkin集成
 SkyWalking监控实践
 面试常见问题与答案
 最佳实践与注意事项
@@ -41647,8 +41747,11 @@ Sleuth与Zipkin集成4.1 Sleuth概述 📦Spring Cloud Sleuth是Spring Cloud提�
 数据展示：展示链路追踪数据
 数据分析：分析链路追踪数据
 
-4.3 Sleuth与Zipkin集成示例 💻1. 添加依赖：
-&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-sleuth-zipkin&lt;/artifactId&gt;&lt;/dependency&gt;
+4.3 Sleuth与Zipkin集成示例 💻1. 添加依赖（Micrometer + Zipkin 替代 Sleuth）：
+&lt;!-- pom.xml - Spring Boot 3.4.x + Spring Cloud 2024.0.x --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;io.micrometer&lt;/groupId&gt;    &lt;artifactId&gt;micrometer-tracing-bridge-brave&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;io.zipkin.reporter2&lt;/groupId&gt;    &lt;artifactId&gt;zipkin-reporter-brave&lt;/artifactId&gt;&lt;/dependency&gt;
+
+2. 配置文件：
+# application.ymlspring:  application:    name: user-service  zipkin:    base-url: http://localhost:9411  # Zipkin服务地址  # Micrometer Tracing 配置（Spring Boot 3.4+）  management:    tracing:      sampling:        probability: 1.0  # 采样比例 100%
 
 2. 配置文件：
 # application.ymlspring:  application:    name: user-service  sleuth:    sampler:      probability: 1.0  # 采样率，1.0表示全量采样  zipkin:    base-url: http://localhost:9411  # Zipkin服务地址    sender:      type: web  # 发送方式
@@ -42033,15 +42136,15 @@ Q3：什么时候应该使用微服务架构？答案：
 对延迟要求极高
 
 Q4：微服务架构的核心组件有哪些？答案：
-微服务架构的核心组件：
+微服务架构的核心组件（2024年最新）：
 
-服务注册与发现：Eureka、Nacos、Consul
-负载均衡：Ribbon、LoadBalancer
-服务熔断：Hystrix、Sentinel、Resilience4j
-API网关：Gateway、Zuul
-配置中心：Config、Nacos Config
-链路追踪：Sleuth、Zipkin、SkyWalking
-消息队列：RabbitMQ、Kafka、RocketMQ
+服务注册与发现：Nacos（推荐）、Consul、Eureka（已停止维护）
+负载均衡：LoadBalancer（推荐）、Nginx
+服务熔断：Sentinel（推荐）、Resilience4j、Hystrix（已停止维护）
+API网关：Gateway（官方推荐）、Zuul（已停止维护）
+配置中心：Nacos Config（推荐）、Spring Cloud Config
+链路追踪：Micrometer + Zipkin&#x2F;SkyWalking、Sleuth（已停止维护）
+消息队列：RocketMQ、RabbitMQ、Kafka
 
 Q5：如何设计微服务的边界？答案：
 微服务边界设计原则：
@@ -42062,64 +42165,68 @@ Q5：如何设计微服务的边界？答案：
 
 Spring Cloud组件面试题Q6：Spring Cloud是什么？它解决了什么问题？答案：
 Spring Cloud是基于Spring Boot的微服务工具集，提供了快速构建分布式系统的通用模式。
-解决的核心问题：
+解决的核心问题（2024年最新）：
 
-服务治理：服务注册与发现（Eureka, Nacos）
-负载均衡：客户端负载均衡（Ribbon, LoadBalancer）
-服务容错：熔断、降级、限流（Hystrix, Sentinel）
-配置管理：集中配置（Config, Nacos Config）
-API管理：统一入口（Gateway, Zuul）
-链路追踪：分布式追踪（Sleuth, Zipkin）
+服务治理：服务注册与发现（Nacos、Consul）
+负载均衡：客户端负载均衡（LoadBalancer、Nginx）
+服务容错：熔断、降级、限流（Sentinel、Resilience4j）
+配置管理：集中配置（Nacos Config、Spring Cloud Config）
+API管理：统一入口（Gateway）
+链路追踪：分布式追踪（Micrometer + Zipkin、SkyWalking）
 
-Q7：Eureka的工作原理是什么？答案：
-Eureka工作原理：
+
+⚠️ 注意：Netflix Eureka、Ribbon、Zuul、Hystrix、Sleuth 已停止维护，生产环境推荐使用 Spring Cloud Alibaba 全家桶替代方案。
+
+Q7：Nacos的工作原理是什么？答案：
+Nacos工作原理：
 
 服务注册：
 
-服务启动时，Eureka Client向Eureka Server发送注册请求
-Eureka Server将服务信息保存到注册表
+服务启动时，Nacos Client向Nacos Server发送注册请求
+Nacos Server将服务信息保存到本地注册表
 服务信息包括：服务名、IP地址、端口、健康状态等
 
 
-服务续约：
+服务心跳：
 
-Eureka Client定期（默认30秒）发送心跳
-Eureka Server接收心跳，更新服务状态
-如果90秒没有收到心跳，服务将被移除
+Nacos Client定期发送心跳（默认5秒）
+Nacos Server接收心跳，更新服务状态
+如果超过15秒没有收到心跳，标记为不健康
+如果超过30秒没有收到心跳，从注册表移除
 
 
 服务发现：
 
-Eureka Client启动时，从Eureka Server获取注册表
-Eureka Client缓存注册表到本地
-Eureka Client定期（默认30秒）更新注册表
+Nacos Client启动时，从Nacos Server获取注册表
+Nacos Client缓存注册表到本地
+Nacos Client定期更新注册表（默认10秒）
 
 
-自我保护机制：
+AP&#x2F;CP切换：
 
-当Eureka Server在短时间内丢失过多客户端时
-Eureka Server进入自我保护模式
-不再移除服务实例，防止网络分区导致的服务误删
+Nacos支持AP和CP两种一致性模型
+默认是AP模式，保证可用性
+可切换为CP模式，保证强一致性
 
 
 
-Q8：Ribbon的负载均衡策略有哪些？答案：
-Ribbon内置负载均衡策略：
+Q8：LoadBalancer的负载均衡策略有哪些？答案：
+LoadBalancer内置负载均衡策略（2024年最新）：
 
-RoundRobinRule（轮询策略）：按顺序轮流选择服务实例
-RandomRule（随机策略）：随机选择服务实例
-RetryRule（重试策略）：在一定时间内重试选择可用实例
-WeightedResponseTimeRule（加权响应时间策略）：根据响应时间分配权重
-BestAvailableRule（最少连接数策略）：选择并发请求最少的实例
-AvailabilityFilteringRule（可用性过滤策略）：过滤掉故障实例
-ZoneAvoidanceRule（区域感知策略）：避免选择不可用区域
+RoundRobinLoadBalancer（轮询策略）：按顺序轮流选择服务实例
+RandomLoadBalancer（随机策略）：随机选择服务实例
+RetryLoadBalancer（重试策略）：在一定时间内重试选择可用实例
+WeightedResponseTimeLoadBalancer（加权响应时间策略）：根据响应时间分配权重
 
-Q9：Feign和RestTemplate有什么区别？答案：
+
+⚠️ 注意：Netflix Ribbon 已停止维护，Spring Cloud LoadBalancer 是官方推荐的替代方案。
+
+Q9：OpenFeign和RestTemplate有什么区别？答案：
 
 
 
 对比维度
-Feign
+OpenFeign
 RestTemplate
 
 
@@ -42140,13 +42247,13 @@ RestTemplate
 
 
 负载均衡
-自动集成Ribbon
-需要手动配置
+自动集成LoadBalancer
+需要手动配置@LoadBalanced
 
 
 熔断降级
-自动集成Hystrix
-需要手动配置
+可配合Sentinel实现
+需要手动实现
 
 
 代码量
@@ -42154,31 +42261,37 @@ RestTemplate
 多，需要编写调用代码
 
 
-Q10：Hystrix的熔断原理是什么？答案：
-Hystrix熔断原理：
+
+⚠️ 注意：Feign已改名为OpenFeign，由Spring官方维护。Hystrix已停止维护，建议使用Sentinel替代。
+
+Q10：Sentinel的熔断原理是什么？答案：
+Sentinel熔断原理（2024年最新）：
 
 熔断器状态：
 
 关闭状态：正常调用，统计失败率
-开启状态：快速失败，不调用服务
+开启状态：快速失败，拒绝所有请求
 半开状态：允许部分请求通过，测试服务是否恢复
 
 
-熔断触发条件：
+熔断触发条件（三选一）：
 
-请求量超过阈值（默认20个）
-错误率超过阈值（默认50%）
-统计时间窗口内（默认10秒）
+慢调用比例：响应时间超过阈值且比例达标
+异常比例：请求异常比例超过阈值
+异常数：请求异常数量超过阈值
 
 
 熔断恢复机制：
 
-熔断器开启后，经过休眠时间窗口（默认5秒）
+熔断器开启后，经过休眠时间窗口
 进入半开状态，允许一个请求通过
 如果请求成功，关闭熔断器
 如果请求失败，保持熔断器开启
 
 
+
+
+⚠️ 注意：Netflix Hystrix 已停止维护，Sentinel 是阿里巴巴开源的替代方案，功能更完善。
 
 Q11：Spring Cloud Gateway和Zuul有什么区别？答案：
 
@@ -42865,11 +42978,11 @@ RM（Resource Manager）：资源管理器，管理分支事务
 2.2 Seata AT模式原理 ⚙️AT模式工作原理：
 ┌─────────────────────────────────────────────────────┐│                  Seata AT模式                        ││                                                     ││  1. TM发起全局事务                                   ││     ↓                                               ││  2. TC生成全局事务ID                                 ││     ↓                                               ││  3. RM执行本地事务                                   ││     ↓                                               ││  4. RM生成undo_log（回滚日志）                       ││     ↓                                               ││  5. RM向TC注册分支事务                               ││     ↓                                               ││  6. 所有分支事务完成后，TM通知TC提交或回滚           ││     ↓                                               ││  7. TC通知所有RM提交或回滚                           ││     ↓                                               ││  8. RM提交本地事务或根据undo_log回滚                │└─────────────────────────────────────────────────────┘
 
-2.3 Seata AT模式示例 💻1. 添加依赖：
-&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-alibaba-seata&lt;/artifactId&gt;&lt;/dependency&gt;
+2.3 Seata AT模式示例 💻1. 添加依赖（Spring Boot 3.4.x + Spring Cloud Alibaba 2023.0.3.4）：
+&lt;!-- pom.xml --&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-alibaba-seata&lt;/artifactId&gt;&lt;/dependency&gt;&lt;!-- Seata 版本已由 spring-cloud-alibaba-dependencies 统一管理 --&gt;&lt;!-- 如需指定版本，可添加以下依赖（Seata 1.8.x 为最新稳定版） --&gt;&lt;dependency&gt;    &lt;groupId&gt;io.seata&lt;/groupId&gt;    &lt;artifactId&gt;seata-spring-boot-starter&lt;/artifactId&gt;    &lt;version&gt;1.8.0&lt;/version&gt;&lt;/dependency&gt;
 
-2. 配置文件：
-# application.ymlseata:  enabled: true  application-id: order-service  tx-service-group: my_tx_group  # 事务组  service:    vgroup-mapping:      my_tx_group: default  # 事务组映射  registry:    type: nacos    nacos:      application: seata-server      server-addr: localhost:8848
+2. 配置文件（Seata 1.8.x + Nacos）：
+# application.ymlseata:  enabled: true  application-id: order-service  tx-service-group: my_tx_group  # 事务组  service:    vgroup-mapping:      my_tx_group: default  # 事务组映射  registry:    type: nacos    nacos:      application: seata-server      server-addr: localhost:8848      # Seata 1.8.x 新增配置      group: DEFAULT_GROUP      namespace: public
 
 3. 全局事务示例：
 /** * 订单服务，使用Seata分布式事务 * @author ljh2923 * @since 2024-01-01 */@Servicepublic class OrderService &#123;        @Autowired    private OrderMapper orderMapper;        @Autowired    private AccountClient accountClient;        @Autowired    private StorageClient storageClient;        /**     * 创建订单，使用分布式事务     * @param userId 用户ID     * @param productId 商品ID     * @param count 商品数量     * @return 订单信息     */    @GlobalTransactional(name = &quot;create-order&quot;, timeoutMills = 300000)  # 全局事务    public Order createOrder(Long userId, Long productId, Integer count) &#123;        // 1. 创建订单        Order order = new Order();        order.setUserId(userId);        order.setProductId(productId);        order.setCount(count);        order.setStatus(0);  # 待支付        orderMapper.insert(order);                // 2. 扣减库存        storageClient.deduct(productId, count);                // 3. 扣减账户余额        accountClient.debit(userId, order.getTotalAmount());                // 4. 更新订单状态        order.setStatus(1);  # 已支付        orderMapper.updateById(order);                return order;    &#125;&#125;
@@ -48169,6 +48282,601 @@ Oracle: Virtual Threads Guide
         <tag>虚拟线程</tag>
         <tag>VirtualThread</tag>
         <tag>Java21</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring Cloud Alibaba 全家桶详尽解析 🚀</title>
+    <url>/2026/05/29/java/SpringCloud/11-SpringCloudAlibaba%E5%85%A8%E9%9D%A2%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[Spring Cloud Alibaba 微服务全面解析
+📚 本笔记综合整理自：传智播客面试知识点、SCA官方文档、GitHub项目(dyc87112&#x2F;SpringCloud-Learning)、macrozheng&#x2F;mall-swarm学习教程、阿里云开发者社区等资料。🔖 适用版本：Spring Cloud Alibaba 2023.x &#x2F; Spring Boot 3.x &#x2F; JDK 17+🎯 适用场景：面试备战 &#x2F; 项目技术选型 &#x2F; 知识体系构建
+
+
+一、Spring Cloud Alibaba 概述1.1 什么是 Spring Cloud AlibabaSpring Cloud Alibaba 是阿里巴巴开源的一套微服务解决方案，为微服务开发提供一站式解决方案。它提供了服务注册与发现、配置管理、服务治理、流量控制、分布式事务等分布式系统所需的核心功能。
+与 Spring Cloud Netflix 那套生态相比，Spring Cloud Alibaba 更贴合国内互联网公司实际需求，组件国产化、社区活跃度高、文档中文友好。
+1.2 Spring Cloud Alibaba 都有哪些组件
+
+
+组件
+作用
+地位
+
+
+
+Nacos
+服务注册与发现 + 配置管理
+替代 Eureka + Config
+
+
+Sentinel
+流量控制、熔断降级、系统保护
+替代 Hystrix
+
+
+Seata
+分布式事务解决方案
+行业标杆
+
+
+Dubbo
+高性能 RPC 框架 + 服务治理
+替代 Feign（RPC 层）
+
+
+RocketMQ
+分布式消息引擎
+替代 RabbitMQ&#x2F;Kafka
+
+
+Alibaba Cloud ACM
+阿里云全局配置中心
+商业化
+
+
+Alibaba Cloud OSS
+对象存储服务
+商业化
+
+
+Alibaba Cloud SchedulerX
+分布式任务调度
+商业化
+
+
+1.3 Spring Cloud Alibaba 与 Spring Boot、Spring Cloud 版本关系Spring Boot 3.x  →  需要 Spring Cloud 2023.x  →  对应 Spring Cloud Alibaba 2023.xSpring Boot 2.x  →  需要 Spring Cloud 2021.x  →  对应 Spring Cloud Alibaba 2021.x
+
+
+⚠️ 版本选择非常关键，版本不匹配会导致依赖冲突。建议在 start.aliyun.com 生成脚手架时选择对应版本。
+
+
+二、服务注册与发现 —— Nacos2.1 Nacos 是什么Nacos（Name as Configuration Service）是一个更易于构建云原生应用的服务发现、配置管理和服务管理平台。它既可以替代传统的 Eureka 作为注册中心，也可以替代 Spring Cloud Config 作为配置中心。
+核心能力：
+
+服务注册与发现（支持 CP&#x2F;AP 两种模式）
+配置管理（配置变更、灰度发布、配置共享）
+服务管理（流量管理、权重路由）
+
+2.2 Nacos 服务注册与发现原理服务注册当服务实例启动时，它会向 Nacos 服务器发送一个注册请求，请求中包含：
+
+服务名（spring.application.name）
+IP 地址 + 端口号
+健康检查信息
+元数据（metadata）
+
+// 引入依赖后，添加如下配置即可完成注册spring:  cloud:    nacos:      discovery:        server-addr: 127.0.0.1:8848   # Nacos 服务地址        namespace: public              # 命名空间（用于环境隔离）        group: DEFAULT_GROUP           # 分组（用于项目隔离）
+
+服务发现Nacos 采用 Distro 协议 进行集群间的数据同步，其工作流程如下：
+服务 Provider 启动        ↓向 Nacos Server 发送注册请求（服务名、IP、Port）        ↓Nacos Server 将服务信息存储到内部数据结构        ↓Nacos Server 向订阅该服务的 Consumer 推送服务变更通知        ↓Consumer 从 Nacos 获取服务列表（心跳续约维持）
+
+
+💡 Distro 协议是阿里巴巴自研的分布式一致性协议，专门为 Nacos 的注册中心场景设计。
+
+2.3 Nacos 的 AP 和 CP 模式Nacos 支持 CPA 理论中的两种一致性模式：
+
+
+
+模式
+全称
+特点
+适用场景
+
+
+
+AP模式（默认）
+Availability + Partition tolerance
+优先保证可用性，节点间数据可能短暂不一致
+注册中心（服务发现）
+
+
+CP模式
+Consistency + Partition tolerance
+优先保证一致性，写操作需同步到多数节点
+配置中心（leader选举）
+
+
+//切换 CP 模式：调用 Nacos Open APIcurl -X PUT &#x27;http://127.0.0.1:8848/nacos/v1/ns/operator/switches?entry=serverMode&amp;value=CP&#x27;
+
+2.4 Nacos 的核心概念
+
+
+概念
+解释
+
+
+
+Namespace
+环境隔离，默认为 public，如 DEV、SIT、UAT、PROD
+
+
+Group
+项目隔离，默认 DEFAULT_GROUP，不同项目可用不同分组
+
+
+Service
+服务名称，唯一标识一个微服务
+
+
+Cluster
+集群隔离，同一服务在不同机房的节点可划为同一集群
+
+
+Instance
+服务实例，即服务Provider的某一个运行进程
+
+
+2.5 Nacos 的配置更新机制服务Provider如何感知Nacos配置变更？
+在需要自动刷新配置的类上添加 @RefreshScope 注解，原理如下：
+配置变更 → Nacos Server 推送变更通知 → Spring Cloud Bus → @RefreshScope 重新创建Bean → 获取最新配置
+
+// application.ymlspring:  cloud:    nacos:      config:        server-addr: 127.0.0.1:8848        file-extension: yaml          # 配置文件格式        namespace: public            # 命名空间        group: DEFAULT_GROUP         # 分组        refresh-enabled: true        # 开启自动刷新        shared-configs:               # 共享配置          - data-id: common.yaml            group: DEFAULT_GROUP            refresh: true
+
+2.6 Nacos 的持久化Nacos 默认使用嵌入式数据库（Derby）存储配置数据，单机模式下没问题，生产环境推荐使用 MySQL 持久化：
+# application.propertiesspring.datasource.platform=mysqldb.num=1db.url.0=jdbc:mysql://127.0.0.1:3306/nacos_config?characterEncoding=utf8&amp;connectTimeout=1000&amp;socketTimeout=3000&amp;autoReconnect=true&amp;useUnicode=true&amp;useSSL=false&amp;serverTimezone=UTCdb.user=rootdb.password=root
+
+2.7 Nacos 集群部署Nacos 集群架构：Nginx（统一入口）→ 多个 Nacos 节点 → MySQL（共享存储）
+                    ┌──────────────────┐Client ──HTTP────▶ │   Nginx (VIP)     │                    └────────┬─────────┘                             │              ┌─────────────┼─────────────┐              ▼             ▼             ▼        ┌──────────┐ ┌──────────┐ ┌──────────┐        │ Nacos-1  │ │ Nacos-2  │ │ Nacos-3  │        │ :8848    │ │ :8848    │ │ :8848    │        └────┬─────┘ └────┬─────┘ └────┬─────┘              │           │           │              └───────────┴───────────┘                             │                    ┌───────▼───────┐                    │    MySQL      │                    └──────────────┘
+
+
+三、流量控制与熔断降级 —— Sentinel3.1 Sentinel 是什么Sentinel（流量防卫兵）是阿里巴巴开源的高性能流量控制组件，以流量为切入点，从流量控制、熔断降级、系统负载保护等多个维度保护服务的稳定性。
+3.2 为什么需要 Sentinel在高并发场景下，如果服务A调用服务B，而服务B因故障导致响应极慢甚至不可用，继续让所有请求打到B上会导致：
+
+级联失败：服务A的资源被耗尽，影响上游服务
+雪崩效应：故障在服务链中蔓延，形成系统级故障
+
+Sentinel 的解决方案：
+
+流量控制：限制单位时间内请求数量
+熔断降级：当失败率&#x2F;响应时间超过阈值时，断开调用链
+系统自适应保护：根据 CPU&#x2F;LOAD&#x2F;响应时间等指标自动调节整体流量
+
+3.3 Sentinel 与 Hystrix 的核心区别
+
+
+对比项
+Hystrix
+Sentinel
+
+
+
+线程池隔离
+✅ 有，但资源消耗大
+❌ 无，采用信号量隔离
+
+
+熔断策略
+基于异常比例
+基于 QPS &#x2F; 异常比例 &#x2F; 响应时间
+
+
+规则配置
+配置在代码中
+运行时动态配置（推模式）
+
+
+规则持久化
+无内置
+支持 Nacos、Apollo 等多种存储
+
+
+控制台
+Turbine 单机聚合
+Sentinel Dashboard 可视化控制台
+
+
+实时指标
+仅聚合，无实时性
+基于滑动窗口，实时准确
+
+
+3.4 流量控制规则（Flow Rule）Sentinel 支持以下几种流控效果：
+
+
+
+效果
+说明
+
+
+
+直接拒绝（Default）
+超出阈值的请求直接拒绝
+
+
+冷启动（Warm Up）
+逐渐预热到阈值，防止冷系统被突发流量击垮
+
+
+排队等待（Queuely Waiting）
+超出的请求排队等候，常用于削峰填谷
+
+
+// 通过代码配置流控规则FlowRule rule = new FlowRule(&quot;orderService&quot;)    .setCount(100)                       // 每秒允许100个请求    .setGrade(RuleConstant.FLOW_GRADE_QPS)  // 基于QPS    .setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_WARM_UP) // 冷启动    .setWarmUpPeriodSec(10);             // 预热时间10秒FlowRuleManager.loadRules(Collections.singletonList(rule));
+
+3.5 熔断降级规则（Degrade Rule）Sentinel 的熔断器状态机：
+     ┌─────────────────────────────────────────────┐     │                                             │     ▼                                             │┌─────────┐    触发熔断条件      ┌───────────────┐ ││ CLOSED  │ ──────────────────▶ │ OPEN (熔断中)  │ ││ (正常)  │ ◀─── 恢复超时        │ (拒绝所有请求) │ │└────┬────┘                     └───────┬───────┘ │     │                                  │         │     │ 探测到半开                        │ 半开    │     │ ◀────────────────────────────────────────┘     ▼┌───────────────┐│ HALF-OPEN     ││ (探测恢复)    │└───────┬───────┘        │ 通过   失败        ▼        ▼     ┌──────┐  ┌─────────┐     │OPEN  │  │ CLOSED  │     └──────┘  └─────────┘
+
+Sentinel 支持三种熔断策略：
+
+基于异常比例：每秒请求中异常比例超过阈值触发熔断
+基于异常数：当每分钟异常数超过阈值触发熔断
+基于响应时间：响应时间超过阈值触发熔断
+
+3.6 @SentinelResource 注解详解// 基本用法：value指定资源名，blockHandler指定被限流后的处理方法@SentinelResource(value = &quot;getProduct&quot;,                  blockHandler = &quot;getProductBlock&quot;,                  fallback = &quot;getProductFallback&quot;)@GetMapping(&quot;/product/&#123;id&#125;&quot;)public Result&lt;Product&gt; getProduct(@PathVariable Long id) &#123;    return productService.getById(id);&#125;// 被限流时的处理方法（注意：方法签名必须与原方法兼容）public Result&lt;Product&gt; getProductBlock(Long id, BlockException ex) &#123;    return Result.fail(&quot;访问过于频繁，请稍后再试&quot;);&#125;// 降级处理方法（fallback用于处理业务异常）public Result&lt;Product&gt; getProductFallback(Long id, Throwable t) &#123;    log.error(&quot;服务异常: &#123;&#125;&quot;, id, t);    return Result.fail(&quot;服务暂时不可用&quot;);&#125;
+
+3.7 Sentinel 规则持久化到 NacosSentinel Dashboard 中修改规则默认是推送到内存的，重启后规则丢失。生产环境推荐将规则存储到 Nacos：
+&lt;!-- 引入 Sentinel 适配 Nacos 的依赖 --&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.csp&lt;/groupId&gt;    &lt;artifactId&gt;sentinel-datasource-nacos&lt;/artifactId&gt;&lt;/dependency&gt;
+
+spring:  cloud:    sentinel:      datasource:        ds:          nacos:            server-addr: 127.0.0.1:8848            dataId: $&#123;spring.application.name&#125;-flow-rules            groupId: SENTINEL_GROUP            rule-type: flow          # flow / degrade / system / param-flow / gateway-flow
+
+
+四、分布式事务 —— Seata4.1 为什么需要分布式事务在微服务架构下，一个业务操作往往需要跨多个数据库或跨多个服务完成：
+订单服务 ──────▶ 库存服务     │               │     ▼               ▼  本地事务         本地事务     │               │     ▼               ▼  订单库           库存库
+
+如果订单创建成功但库存扣减失败，单机事务无法覆盖两个数据库，此时需要分布式事务来保证要么全部成功，要么全部回滚。
+4.2 Seata 是什么Seata（Simple Extensible Autonomous Transaction Architecture）是阿里巴巴开源的易于使用的高性能微服务分布式事务解决方案。它提供了 AT、TCC、Saga、XA 四种事务模式。
+4.3 Seata 的三种事务模式
+
+
+模式
+原理
+优点
+缺点
+适用场景
+
+
+
+AT（推荐）
+基于本地事务 + 全局锁，自动生成回滚 SQL
+对业务零侵入，代码零修改
+需要支持 UNDO_LOG 表
+大多数业务场景
+
+
+TCC
+Try-Confirm-Cancel，预预留资源
+性能高，无锁定
+代码侵入，需实现三个方法
+高性能要求场景
+
+
+Saga
+长事务编排，每个服务正向操作+补偿操作
+支持长事务
+补偿逻辑复杂
+业务流程长、参与者多
+
+
+XA
+强一致性，基于两阶段提交
+数据一致性高
+性能差，锁定资源时间长
+对数据强一致性要求高
+
+
+4.4 AT 模式工作原理AT 模式是 Seata 最推荐的模式，工作流程：
+阶段一（准备阶段）：    TM（事务管理器）向 TC（事务协调器）申请全局事务，生成 XID         │         ▼    各分支事务向 TC 注册，执行业务 SQL，生成 UNDO_LOG 快照         │         ▼阶段二（提交阶段）：    如果所有分支成功 → TC 通知所有分支提交 → 删除 UNDO_LOG    如果有分支失败   → TC 通知所有分支回滚 → 根据 UNDO_LOG 还原数据
+
+关键点：
+
+TC（Transaction Coordinator）：独立的协调服务，维护全局事务状态
+TM（Transaction Manager）：事务发起方，控制全局事务边界
+RM（Resource Manager）：资源管理器，管理分支事务使用的资源
+
+4.5 Seata AT 模式配置# seata-server 配置（registry.conf）registry &#123;  type = &quot;nacos&quot;  nacos &#123;    serverAddr = &quot;127.0.0.1:8848&quot;    namespace = &quot;&quot;    group = &quot;SEATA_GROUP&quot;  &#125;&#125;# 应用配置（application.yml）seata:  enabled: true  tx-service-group: my_tx_group          # 事务分组  registry:    type: nacos    nacos:      server-addr: 127.0.0.1:8848      group: SEATA_GROUP  service:    vgroup-mapping:      my_tx_group: default               # 分组映射
+
+// 使用 @GlobalTransactional 注解开启全局事务@GlobalTransactional(rollbackFor = Exception.class)public void createOrder(OrderDTO orderDTO) &#123;    orderService.create(orderDTO);       // 本地事务    inventoryClient.deduct(orderDTO.getProductId(), orderDTO.getCount()); // 远程扣减&#125;
+
+
+五、服务间通信 —— Dubbo5.1 为什么选择 Dubbo 替代 Feign
+
+
+对比项
+Feign
+Dubbo
+
+
+
+底层协议
+HTTP（基于 RestTemplate）
+TCP（基于 Netty &#x2F; 高性能 RPC）
+
+
+序列化
+JSON（较慢）
+Hessian &#x2F; Protobuf（二进制，高效）
+
+
+性能
+较低
+高（官方测试是 Feign 的 2-3 倍）
+
+
+功能
+轻量，仅 HTTP Client
+服务治理（负载均衡、路由、熔断）
+
+
+生态
+Spring Cloud 生态
+独立生态，但支持 Spring Boot
+
+
+
+💡 在国内高性能场景（如电商、金融），Dubbo 仍然是主流选择。
+
+5.2 Dubbo 与 Spring Cloud Alibaba 的融合Spring Cloud Alibaba 并不是简单替换 Feign，而是让 Dubbo 与 Spring Cloud 生态深度融合：
+&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-dubbo&lt;/artifactId&gt;&lt;/dependency&gt;
+
+dubbo:  registry:    address: nacos://127.0.0.1:8848     # 注册到 Nacos  protocol:    name: dubbo    port: 20880                         # Dubbo 协议默认端口  provider:    loadbalance: roundrobin              # 负载均衡策略  consumer:    check: false                        # 启动时不强制检查依赖服务
+
+// 服务提供者：暴露接口@DubboService(version = &quot;1.0.0&quot;)public class ProductServiceImpl implements ProductService &#123;    @Override    public Product getById(Long id) &#123; ... &#125;&#125;// 服务消费者：注入接口@DubboReference(version = &quot;1.0.0&quot;, loadbalance = &quot;roundrobin&quot;)private ProductService productService;
+
+5.3 Dubbo 的负载均衡策略
+
+
+策略
+说明
+
+
+
+random（加权随机）
+按权重随机选择，默认策略
+
+
+roundrobin（加权轮询）
+按权重轮询，需配合 Nacos 权重路由
+
+
+leastactive（最少活跃）
+选择活跃调用数最少的 provider
+
+
+consistenthash（一致性Hash）
+相同参数的请求打到同一节点
+
+
+
+六、分布式消息 —— RocketMQ6.1 RocketMQ 核心概念
+
+
+概念
+解释
+
+
+
+Producer
+消息生产者，负责发送消息
+
+
+Consumer
+消息消费者，负责消费消息
+
+
+Broker
+消息代理，存储和转发消息
+
+
+Topic
+主题，消息的分类管理单位
+
+
+Tag
+标签，同一 Topic 下的消息二级分类
+
+
+Message
+消息内容
+
+
+Group
+消费组，同一消费组的消费者均分消息
+
+
+6.2 RocketMQ 的消息类型
+普通消息：发送即 forget，不保证可靠性
+事务消息（Transaction Message）：先执行本地事务，根据本地事务结果决定是否提交消息，用于解决分布式事务问题
+
+// 事务消息发送示例TransactionListener transactionListener = new TransactionListener() &#123;    @Override    public LocalTransactionState executeLocalTransaction(Message msg, Object arg) &#123;        // 执行本地事务（如创建订单）        orderService.create((OrderDTO) arg);        return LocalTransactionState.COMMIT_MESSAGE; // 提交消息    &#125;    @Override    public LocalTransactionState checkLocalTransaction(Message msg) &#123;        // 检查本地事务状态，用于回查        return LocalTransactionState.COMMIT_MESSAGE;    &#125;&#125;;TransactionProducer producer = new TransactionProducer(transactionListener);producer.start();Message msg = new Message(&quot;order_topic&quot;, &quot;new_order&quot;, JSON.toJSONString(orderDTO).getBytes());producer.send(msg, orderDTO, 10000);
+
+
+七、Gateway 网关7.1 Spring Cloud Gateway 核心概念Spring Cloud Gateway 是 Spring Cloud 的全新网关，替代了已经进入维护模式的 Zuul。
+核心概念：
+
+Route：路由定义，包含 id、uri、predicates、filters
+Predicate：断言，用于匹配请求条件（如路径、请求方式、Header 等）
+Filter：过滤器，在请求前后执行过滤逻辑
+
+7.2 路由配置示例spring:  cloud:    gateway:      routes:        - id: user-service          uri: lb://user-service           # lb:// 表示从注册中心获取服务          predicates:            - Path=/api/user/**           # 路径匹配            - Method=GET                  # 请求方式匹配          filters:            - StripAuth=0                 # 去除前缀            - name: RequestRateLimiter    # 限流过滤器              args:                redis-rate-limiter.replenishRate: 100                redis-rate-limiter.burstCapacity: 200
+
+7.3 灰度发布（权重路由）基于 Nacos 配置中心，可以实现基于权重的灰度发布：
+spring:  cloud:    gateway:      routes:        - id: weight_high          uri: https://weighthigh.org          predicates:            - Weight=group1, 8           # 80% 流量走 high        - id: weight_low          uri: https://weightlow.org          predicates:            - Weight=group1, 2          # 20% 流量走 low
+
+修改 Nacos 配置后，无需重启服务即可实时生效新的流量配比。
+
+八、微服务架构常见面试问题8.1 Nacos 和 Consul 在服务注册和发现方面有什么不同
+
+
+对比项
+Nacos
+Consul
+
+
+
+一致性协议
+AP&#x2F;CP 可切换
+CP（Consul 使用 Raft）
+
+
+配置中心
+内置
+需额外集成 Consul Template
+
+
+多语言支持
+所有语言（HTTP）
+所有语言（HTTP + DNS）
+
+
+运维成本
+中等
+较高（Consul Agent 部署）
+
+
+中国本地化
+中文文档，社区活跃
+英文为主
+
+
+8.2 如何实现服务限流在 Spring Cloud Alibaba 环境中，实现限流有几种方式：
+
+Sentinel + @SentinelResource（推荐）：
+
+基于 QPS &#x2F; 并发线程数限流
+支持分布式限流（集群流控）
+
+
+Gateway + Redis + RequestRateLimiter：
+spring:  cloud:    gateway:      redis:        rate-limiter:          replenishRate: 100          burstCapacity: 200
+
+Nginx + lua + ngx_http_limit_req_module：
+
+网关层限流，适合入口流量控制
+
+
+
+8.3 如何实现服务降级服务降级的几种常见策略：
+
+Sentinel 降级：当接口响应时间超过阈值，自动触发降级，返回兜底数据
+Feign 降级（Hystrix）：配置 fallback 类，远程调用失败时返回兜底结果
+重试机制：配合 Spring Retry，设置重试次数和退避策略
+服务不可用时直接返回：通过熔断器状态自动实现
+
+
+九、Spring Cloud Alibaba 与 Spring Cloud Netflix 对比总结
+
+
+能力项
+Spring Cloud Netflix
+Spring Cloud Alibaba
+
+
+
+注册中心
+Eureka
+Nacos（更强大）
+
+
+配置中心
+Spring Cloud Config
+Nacos（更易用）
+
+
+服务调用
+Feign
+Dubbo（更高性能）
+
+
+熔断器
+Hystrix
+Sentinel（更完善）
+
+
+分布式事务
+无内置
+Seata（AT&#x2F;TCC&#x2F;Saga&#x2F;XA）
+
+
+消息队列
+RabbitMQ &#x2F; Kafka
+RocketMQ（国产优化）
+
+
+网关
+Zuul
+Gateway（性能更高）
+
+
+文档&#x2F;社区
+英文为主，部分已过时
+中文活跃
+
+
+
+十、版本选择参考（2024-2025）
+
+
+Spring Boot
+Spring Cloud
+Spring Cloud Alibaba
+JDK
+
+
+
+3.2.x
+2023.x
+2023.x.x
+17+
+
+
+2.7.x
+2021.x
+2021.x.x
+8+
+
+
+2.6.x
+2020.x
+2021.x.x
+8+
+
+
+
+📌 推荐在 start.aliyun.com 生成项目脚手架，系统会自动匹配兼容版本。
+
+
+参考资料
+📚 SpringCloud-Learning by dyc87112
+📚 mall-swarm微服务学习教程 by macrozheng
+📚 Spring Cloud Alibaba 官方文档
+📚 Nacos 官方文档
+📚 Sentinel 官方文档
+📚 Seata 官方文档
+📚 传智播客Java面试知识点 2024版
+📚 阿里云开发者社区 Spring Cloud Alibaba 面试题
+
+]]></content>
+      <categories>
+        <category>java</category>
+        <category>SpringCloud</category>
+        <category>微服务</category>
+        <category>SpringCloudAlibaba</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+        <tag>Nacos</tag>
+        <tag>springcloud</tag>
+        <tag>微服务</tag>
+        <tag>Spring Cloud Alibaba</tag>
+        <tag>Sentinel</tag>
+        <tag>Seata</tag>
       </tags>
   </entry>
 </search>
