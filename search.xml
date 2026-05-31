@@ -38483,7 +38483,6 @@ SpringCloud-Learning - 系统的Spring Cloud学习示例代码
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -39042,14 +39041,61 @@ Gateway优势：
 # Gateway限流配置spring:  cloud:    gateway:      routes:        - id: user-service          uri: lb://user-service          predicates:            - Path=/api/user/**          filters:            - name: RequestRateLimiter              args:                redis-rate-limiter.replenishRate: 10                redis-rate-limiter.burstCapacity: 20                key-resolver: &quot;#&#123;@userKeyResolver&#125;&quot;
 
 
-总结 📝Spring Cloud核心组件要点：
+完整请求流程 📊请求全链路追踪以下是一个典型的微服务请求完整流程，从客户端发起请求到获得响应：
+┌─────────────────────────────────────────────────────────────────────────────┐│                        完整请求流程（Spring Cloud Alibaba 2024）              │└─────────────────────────────────────────────────────────────────────────────┘客户端发起请求     │     ▼┌─────────────────────────────────────────────────────────────────────────────┐│  1. Spring Cloud Gateway（API网关）                                       ││     - 接收客户端HTTP请求                                                    ││     - 路由断言匹配（Path, Method, Header等）                                ││     - 前置过滤器处理（认证、日志、限流）                                      ││     - LoadBalancer负载均衡选择目标服务                                      │└─────────────────────────────────────────────────────────────────────────────┘     │     │ HTTP请求（lb://user-service/user/123）     ▼┌─────────────────────────────────────────────────────────────────────────────┐│  2. Spring Cloud LoadBalancer（负载均衡）                                   ││     - 从Nacos获取服务实例列表                                               ││     - 应用负载均衡策略（轮询/随机/加权）                                     ││     - 选择一个健康的服务实例                                                ││     - 返回目标URL：http://192.168.1.10:8081                                │└─────────────────────────────────────────────────────────────────────────────┘     │     │ HTTP请求（转发到选定实例）     ▼┌─────────────────────────────────────────────────────────────────────────────┐│  3. Nacos（服务注册与发现）                                                  ││     - 服务启动时自动注册到Nacos                                             ││     - 定期发送心跳保活（默认5秒）                                           ││     - 提供服务实例列表和健康状态                                             ││     - 客户端缓存服务列表，本地负载均衡                                       │└─────────────────────────────────────────────────────────────────────────────┘     │     │ 调用指定服务实例     ▼┌─────────────────────────────────────────────────────────────────────────────┐│  4. OpenFeign（声明式REST调用）                                              ││     - 通过接口注解定义HTTP请求                                             ││     - 自动集成LoadBalancer进行服务调用                                       ││     - 请求编码器/响应解码器处理序列化                                        ││     - 支持超时配置和重试机制                                                │└─────────────────────────────────────────────────────────────────────────────┘     │     │ HTTP请求     ▼┌─────────────────────────────────────────────────────────────────────────────┐│  5. Sentinel（流量控制与熔断降级）                                           ││     - 限流规则检查（QPS/并发数）                                           ││     - 熔断器状态检测（慢调用/异常比例）                                      ││     - 触发限流返回默认响应                                                  ││     - 触发熔断返回降级响应                                                  ││     - 记录请求指标到Dashboard                                              │└─────────────────────────────────────────────────────────────────────────────┘     │     │ 通过Sentinel检查     ▼┌─────────────────────────────────────────────────────────────────────────────┐│  6. 业务逻辑处理                                                            ││     - Controller接收请求                                                  ││     - 调用Service层处理业务                                                ││     - 操作数据库（每个服务独立数据库）                                        ││     - 返回响应数据                                                         │└─────────────────────────────────────────────────────────────────────────────┘     │     │ 返回响应     ▼┌─────────────────────────────────────────────────────────────────────────────┐│  7. Nacos Config（动态配置）                                                ││     - 配置变更实时推送到客户端                                              ││     - @RefreshScope自动刷新配置                                           ││     - 共享配置多服务复用                                                   ││     - 配置版本管理，支持回滚                                                │└─────────────────────────────────────────────────────────────────────────────┘     │     │ 响应经过各层返回     ▼客户端获得响应
 
-Eureka：服务注册与发现，AP模型，自我保护机制
-Ribbon：客户端负载均衡，多种策略，集成Eureka
-Feign：声明式HTTP客户端，集成Ribbon和Hystrix
-Hystrix：服务熔断与降级，防止服务雪崩
-Gateway：API网关，路由转发，过滤器链
-Config：配置中心，集中管理，动态刷新
+时序图详解┌──────┐     ┌──────┐     ┌──────┐     ┌──────┐     ┌──────┐     ┌──────┐│Client│     │Gateway│     │  LB  │     │Nacos │     │Feign │     │Service│└──┬───┘     └──┬───┘     └──┬───┘     └──┬───┘     └──┬───┘     └──┬───┘   │           │           │           │           │           │   │ 1.请求    │           │           │           │           │   │──────────&gt;│           │           │           │           │   │           │ 2.路由    │           │           │           │   │           │ 匹配      │           │           │           │   │           │           │           │           │           │   │           │ 3.选择    │           │           │           │   │           │ 实例      │           │           │           │   │           │──────────&gt;│           │           │           │   │           │           │ 4.查询   │           │           │   │           │           │ 实例列表  │           │           │   │           │           │──────────&gt;│           │           │   │           │           │           │           │           │   │           │           │ 5.返回   │           │           │   │           │           │ 实例列表  │           │           │   │           │           │&lt;──────────│           │           │   │           │           │           │           │           │   │           │ 6.转发    │           │           │           │   │           │ 请求      │           │           │           │   │           │────────────────────────&gt;│           │           │   │           │           │           │           │           │   │           │           │           │ 7.发送   │           │   │           │           │           │ Feign请求 │           │   │           │           │           │──────────&gt;│           │   │           │           │           │           │           │   │           │           │           │           │ 8.业务   │   │           │           │           │           │ 处理     │   │           │           │           │           │&lt;─────────│   │           │           │           │           │           │   │           │           │           │ 9.返回   │           │   │           │           │           │ 响应      │           │   │           │           │           │&lt;──────────│           │   │           │           │           │           │           │   │ 10.返回   │           │           │           │           │   │ 响应      │           │           │           │           │   │&lt;──────────│           │           │           │           │   │           │           │           │           │           │
+
+各组件职责一览
+
+
+组件
+职责
+关键特性
+
+
+
+Gateway
+统一入口、路由转发、安全认证
+基于WebFlux，高性能
+
+
+LoadBalancer
+客户端负载均衡
+多种策略，本地缓存
+
+
+Nacos
+服务注册与发现、配置管理
+AP&#x2F;CP切换、Web界面
+
+
+OpenFeign
+声明式HTTP调用
+接口定义、自动集成
+
+
+Sentinel
+流量控制、熔断降级
+实时监控、多种策略
+
+
+Nacos Config
+动态配置管理
+热更新、版本管理
+
+
+典型场景示例：用户下单请求1. 用户在App端点击&quot;提交订单&quot;   ↓2. 请求到达Gateway：POST /api/order/create   ↓3. Gateway进行认证和限流检查   ↓4. LoadBalancer从Nacos获取order-service实例列表   ↓5. 选择一个order-service实例，转发请求   ↓6. order-service通过OpenFeign调用user-service查询用户信息   ↓7. order-service调用storage-service扣减库存   ↓8. 如果库存服务响应慢或失败，Sentinel触发熔断降级   ↓9. order-service调用account-service扣减余额   ↓10. 所有操作记录到Sentinel Dashboard    ↓11. 返回订单信息给客户端
+
+
+总结 📝Spring Cloud核心组件要点（2024年最新）：
+
+Nacos：服务注册与发现 + 配置中心，AP&#x2F;CP可切换，推荐替代Eureka
+LoadBalancer：客户端负载均衡，多种策略，推荐替代Ribbon
+OpenFeign：声明式HTTP客户端，集成LoadBalancer
+Sentinel：流量控制、熔断降级，推荐替代Hystrix
+Gateway：API网关，路由转发，过滤器链，推荐替代Zuul
+Nacos Config：配置中心，热更新，推荐替代Spring Cloud Config
 
 面试关键点：
 
@@ -39073,7 +39119,6 @@ SpringCloud面试题 - Spring Cloud核心组件面试题
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -39084,7 +39129,7 @@ SpringCloud面试题 - Spring Cloud核心组件面试题
       </tags>
   </entry>
   <entry>
-    <title>Spring Cloud Alibaba全家桶实战 🚀</title>
+    <title>03-Spring Cloud Alibaba全家桶实战 🚀</title>
     <url>/2026/05/29/java/SpringCloud/03-Spring%20Cloud%20Alibaba%E5%85%A8%E5%AE%B6%E6%A1%B6%E5%AE%9E%E6%88%98/</url>
     <content><![CDATA[03-Spring Cloud Alibaba全家桶实战 🚀
 摘要：本文是微服务学习笔记的第三篇，深入讲解Spring Cloud Alibaba的核心组件，包括Nacos服务发现与配置管理、Sentinel流量控制与熔断降级、Seata分布式事务解决方案。每个组件都包含原理分析、代码示例和面试要点。
@@ -39330,6 +39375,249 @@ Seata分布式事务解决方案4.1 Seata概述 💰Seata（Simple Extensible Au
 4.5 Seata Saga模式示例 💻1. Saga状态机定义：
 &#123;  &quot;Name&quot;: &quot;createOrderSaga&quot;,  &quot;StartState&quot;: &quot;CreateOrder&quot;,  &quot;States&quot;: &#123;    &quot;CreateOrder&quot;: &#123;      &quot;Type&quot;: &quot;ServiceTask&quot;,      &quot;ServiceName&quot;: &quot;orderService&quot;,      &quot;ServiceMethod&quot;: &quot;createOrder&quot;,      &quot;CompensateState&quot;: &quot;CancelOrder&quot;,      &quot;Input&quot;: [        &quot;$.[userId]&quot;,        &quot;$.[productId]&quot;,        &quot;$.[count]&quot;      ],      &quot;Output&quot;: &#123;        &quot;orderId&quot;: &quot;$.[orderId]&quot;      &#125;,      &quot;Status&quot;: &#123;        &quot;# == &#x27;Succeed&#x27;&quot;: &quot;Succeed&quot;,        &quot;# == &#x27;Failed&#x27;&quot;: &quot;Failed&quot;      &#125;,      &quot;Next&quot;: &quot;DeductStorage&quot;    &#125;,    &quot;DeductStorage&quot;: &#123;      &quot;Type&quot;: &quot;ServiceTask&quot;,      &quot;ServiceName&quot;: &quot;storageService&quot;,      &quot;ServiceMethod&quot;: &quot;deduct&quot;,      &quot;CompensateState&quot;: &quot;CancelDeductStorage&quot;,      &quot;Input&quot;: [        &quot;$.[productId]&quot;,        &quot;$.[count]&quot;      ],      &quot;Status&quot;: &#123;        &quot;# == &#x27;Succeed&#x27;&quot;: &quot;Succeed&quot;,        &quot;# == &#x27;Failed&#x27;&quot;: &quot;Failed&quot;      &#125;,      &quot;Next&quot;: &quot;DebitAccount&quot;    &#125;,    &quot;DebitAccount&quot;: &#123;      &quot;Type&quot;: &quot;ServiceTask&quot;,      &quot;ServiceName&quot;: &quot;accountService&quot;,      &quot;ServiceMethod&quot;: &quot;debit&quot;,      &quot;CompensateState&quot;: &quot;CancelDebitAccount&quot;,      &quot;Input&quot;: [        &quot;$.[userId]&quot;,        &quot;$.[totalAmount]&quot;      ],      &quot;Status&quot;: &#123;        &quot;# == &#x27;Succeed&#x27;&quot;: &quot;Succeed&quot;,        &quot;# == &#x27;Failed&#x27;&quot;: &quot;Failed&quot;      &#125;,      &quot;Next&quot;: &quot;Succeed&quot;    &#125;,    &quot;CancelOrder&quot;: &#123;      &quot;Type&quot;: &quot;ServiceTask&quot;,      &quot;ServiceName&quot;: &quot;orderService&quot;,      &quot;ServiceMethod&quot;: &quot;cancelOrder&quot;,      &quot;Input&quot;: [        &quot;$.[orderId]&quot;      ]    &#125;,    &quot;CancelDeductStorage&quot;: &#123;      &quot;Type&quot;: &quot;ServiceTask&quot;,      &quot;ServiceName&quot;: &quot;storageService&quot;,      &quot;ServiceMethod&quot;: &quot;cancelDeduct&quot;,      &quot;Input&quot;: [        &quot;$.[productId]&quot;,        &quot;$.[count]&quot;      ]    &#125;,    &quot;CancelDebitAccount&quot;: &#123;      &quot;Type&quot;: &quot;ServiceTask&quot;,      &quot;ServiceName&quot;: &quot;accountService&quot;,      &quot;ServiceMethod&quot;: &quot;cancelDebit&quot;,      &quot;Input&quot;: [        &quot;$.[userId]&quot;,        &quot;$.[totalAmount]&quot;      ]    &#125;,    &quot;Succeed&quot;: &#123;      &quot;Type&quot;: &quot;Succeed&quot;    &#125;,    &quot;Failed&quot;: &#123;      &quot;Type&quot;: &quot;Fail&quot;,      &quot;ErrorCode&quot;: &quot;ORDER_CREATE_FAILED&quot;,      &quot;Message&quot;: &quot;创建订单失败&quot;    &#125;  &#125;&#125;
 
+
+Nacos深入原理 ⚙️2.7 Nacos的AP和CP模式 📊Nacos支持CPA理论中的两种一致性模式：
+
+
+
+模式
+全称
+特点
+适用场景
+
+
+
+AP模式（默认）
+Availability + Partition tolerance
+优先保证可用性，节点间数据可能短暂不一致
+注册中心（服务发现）
+
+
+CP模式
+Consistency + Partition tolerance
+优先保证一致性，写操作需同步到多数节点
+配置中心（leader选举）
+
+
+// 切换CP模式：调用Nacos Open APIcurl -X PUT &#x27;http://127.0.0.1:8848/nacos/v1/ns/operator/switches?entry=serverMode&amp;value=CP&#x27;
+
+2.8 Nacos的持久化 💾Nacos默认使用嵌入式数据库（Derby）存储配置数据，单机模式下没问题，生产环境推荐使用MySQL持久化**：
+# application.propertiesspring.datasource.platform=mysqldb.num=1db.url.0=jdbc:mysql://127.0.0.1:3306/nacos_config?characterEncoding=utf8&amp;connectTimeout=1000&amp;socketTimeout=3000&amp;autoReconnect=true&amp;useUnicode=true&amp;useSSL=false&amp;serverTimezone=UTCdb.user=rootdb.password=root
+
+2.9 Nacos集群部署 🏗️Nacos集群架构：Nginx（统一入口）→ 多个Nacos节点 → MySQL（共享存储）
+                     ┌──────────────────┐Client ──HTTP────▶ │   Nginx (VIP)     │                     └────────┬─────────┘                              │               ┌─────────────┼─────────────┐               ▼             ▼             ▼         ┌──────────┐ ┌──────────┐ ┌──────────┐         │ Nacos-1  │ │ Nacos-2  │ │ Nacos-3  │         │ :8848    │ │ :8848    │ │ :8848    │         └────┬─────┘ └────┬─────┘ └────┬─────┘               │           │           │               └───────────┴───────────┘                              │                     ┌───────▼───────┐                     │    MySQL      │                     └──────────────┘
+
+
+Sentinel深入原理 ⚙️3.5 Sentinel与Hystrix的核心区别 📊
+
+
+对比项
+Hystrix
+Sentinel
+
+
+
+线程池隔离
+✅ 有，但资源消耗大
+❌ 无，采用信号量隔离
+
+
+熔断策略
+基于异常比例
+基于QPS &#x2F; 异常比例 &#x2F; 响应时间
+
+
+规则配置
+配置在代码中
+运行时动态配置（推模式）
+
+
+规则持久化
+无内置
+支持Nacos、Apollo等多种存储
+
+
+控制台
+Turbine单机聚合
+Sentinel Dashboard可视化控制台
+
+
+实时指标
+仅聚合，无实时性
+基于滑动窗口，实时准确
+
+
+3.6 Sentinel规则持久化到Nacos 💾Sentinel Dashboard中修改规则默认是推送到内存的，重启后规则丢失。生产环境推荐将规则存储到Nacos：
+&lt;!-- 引入Sentinel适配Nacos的依赖 --&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.csp&lt;/groupId&gt;    &lt;artifactId&gt;sentinel-datasource-nacos&lt;/artifactId&gt;&lt;/dependency&gt;
+
+spring:  cloud:    sentinel:      datasource:        ds:          nacos:            server-addr: 127.0.0.1:8848            dataId: $&#123;spring.application.name&#125;-flow-rules            groupId: SENTINEL_GROUP            rule-type: flow          # flow / degrade / system / param-flow
+
+
+Seata深入原理 ⚙️4.6 Seata的三种事务模式对比 📊
+
+
+模式
+原理
+优点
+缺点
+适用场景
+
+
+
+AT（推荐）
+基于本地事务+全局锁，自动生成回滚SQL
+对业务零侵入，代码零修改
+需要支持UNDO_LOG表
+大多数业务场景
+
+
+TCC
+Try-Confirm-Cancel，预留资源
+性能高，无锁定
+代码侵入，需实现三个方法
+高性能要求场景
+
+
+Saga
+长事务编排，每个服务正向操作+补偿操作
+支持长事务
+补偿逻辑复杂
+业务流程长、参与者多
+
+
+XA
+强一致性，基于两阶段提交
+数据一致性高
+性能差，锁定资源时间长
+对数据强一致性要求高
+
+
+4.7 Seata AT模式工作原理 📚AT模式工作流程：
+阶段一（准备阶段）：    TM（事务管理器）向TC（事务协调器）申请全局事务，生成XID         │         ▼    各分支事务向TC注册，执行业务SQL，生成UNDO_LOG快照         │         ▼阶段二（提交阶段）：    如果所有分支成功 → TC通知所有分支提交 → 删除UNDO_LOG    如果有分支失败   → TC通知所有分支回滚 → 根据UNDO_LOG还原数据
+
+关键角色：
+
+TC（Transaction Coordinator）：独立的协调服务，维护全局事务状态
+TM（Transaction Manager）：事务发起方，控制全局事务边界
+RM（Resource Manager）：资源管理器，管理分支事务使用的资源
+
+
+服务间通信——Dubbo 🐯5.1 为什么选择Dubbo替代Feign 📊
+
+
+对比项
+Feign
+Dubbo
+
+
+
+底层协议
+HTTP（基于RestTemplate）
+TCP（基于Netty&#x2F;高性能RPC）
+
+
+序列化
+JSON（较慢）
+Hessian&#x2F;Protobuf（二进制，高效）
+
+
+性能
+较低
+高（官方测试是Feign的2-3倍）
+
+
+功能
+轻量，仅HTTP Client
+服务治理（负载均衡、路由、熔断）
+
+
+生态
+Spring Cloud生态
+独立生态，但支持Spring Boot
+
+
+
+💡 在国内高性能场景（如电商、金融），Dubbo仍然是主流选择。
+
+5.2 Dubbo与Spring Cloud Alibaba的融合 🚀Spring Cloud Alibaba让Dubbo与Spring Cloud生态深度融合：
+&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-dubbo&lt;/artifactId&gt;&lt;/dependency&gt;
+
+dubbo:  registry:    address: nacos://127.0.0.1:8848     # 注册到Nacos  protocol:    name: dubbo    port: 20880                         # Dubbo协议默认端口  provider:    loadbalance: roundrobin              # 负载均衡策略  consumer:    check: false                        # 启动时不强制检查依赖服务
+
+// 服务提供者：暴露接口@DubboService(version = &quot;1.0.0&quot;)public class ProductServiceImpl implements ProductService &#123;    @Override    public Product getById(Long id) &#123; ... &#125;&#125;// 服务消费者：注入接口@DubboReference(version = &quot;1.0.0&quot;, loadbalance = &quot;roundrobin&quot;)private ProductService productService;
+
+5.3 Dubbo的负载均衡策略 🎯
+
+
+策略
+说明
+
+
+
+random（加权随机）
+按权重随机选择，默认策略
+
+
+roundrobin（加权轮询）
+按权重轮询，需配合Nacos权重路由
+
+
+leastactive（最少活跃）
+选择活跃调用数最少的provider
+
+
+consistenthash（一致性Hash）
+相同参数的请求打到同一节点
+
+
+
+分布式消息——RocketMQ 🚀6.1 RocketMQ核心概念 📚
+
+
+概念
+解释
+
+
+
+Producer
+消息生产者，负责发送消息
+
+
+Consumer
+消息消费者，负责消费消息
+
+
+Broker
+消息代理，存储和转发消息
+
+
+Topic
+主题，消息的分类管理单位
+
+
+Tag
+标签，同一Topic下的消息二级分类
+
+
+Message
+消息内容
+
+
+Group
+消费组，同一消费组的消费者均分消息
+
+
+6.2 RocketMQ的消息类型 📦
+普通消息：发送即forget，不保证可靠性
+事务消息（Transaction Message）：先执行本地事务，根据本地事务结果决定是否提交消息，用于解决分布式事务问题
+
+// 事务消息发送示例TransactionListener transactionListener = new TransactionListener() &#123;    @Override    public LocalTransactionState executeLocalTransaction(Message msg, Object arg) &#123;        // 执行本地事务（如创建订单）        orderService.create((OrderDTO) arg);        return LocalTransactionState.COMMIT_MESSAGE; // 提交消息    &#125;    @Override    public LocalTransactionState checkLocalTransaction(Message msg) &#123;        // 检查本地事务状态，用于回查        return LocalTransactionState.COMMIT_MESSAGE;    &#125;&#125;;TransactionProducer producer = new TransactionProducer(transactionListener);producer.start();Message msg = new Message(&quot;order_topic&quot;, &quot;new_order&quot;, JSON.toJSONString(orderDTO).getBytes());producer.send(msg, orderDTO, 10000);
+
+
+灰度发布与权重路由 🎨7.1 基于Nacos的灰度发布 🌟基于Nacos配置中心，可以实现基于权重的灰度发布：
+spring:  cloud:    gateway:      routes:        - id: weight_high          uri: https://weighthigh.org          predicates:            - Weight=group1, 8           # 80%流量走high        - id: weight_low          uri: https://weightlow.org          predicates:            - Weight=group1, 2          # 20%流量走low
+
+修改Nacos配置后，无需重启服务即可实时生效新的流量配比。
 
 Spring Cloud Alibaba集成实践5.1 项目结构 🏗️典型Spring Cloud Alibaba项目结构：
 spring-cloud-alibaba-demo/├── pom.xml                            # 父工程POM├── nacos-server/                      # Nacos服务端│   └── pom.xml├── sentinel-dashboard/                # Sentinel控制台│   └── pom.xml├── seata-server/                      # Seata服务端│   └── pom.xml├── gateway-service/                   # API网关服务│   ├── src/│   └── pom.xml├── user-service/                      # 用户服务│   ├── src/│   └── pom.xml├── order-service/                     # 订单服务│   ├── src/│   └── pom.xml├── product-service/                   # 商品服务│   ├── src/│   └── pom.xml└── common-module/                     # 公共模块    ├── src/    └── pom.xml
@@ -39636,7 +39924,6 @@ SpringCloud面试题 - Spring Cloud面试题
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -39644,6 +39931,9 @@ SpringCloud面试题 - Spring Cloud面试题
         <tag>alibaba</tag>
         <tag>nacos</tag>
         <tag>seata</tag>
+        <tag>sentinel</tag>
+        <tag>dubbo</tag>
+        <tag>rocketmq</tag>
       </tags>
   </entry>
   <entry>
@@ -40101,7 +40391,6 @@ SpringCloud面试题 - Spring Cloud核心组件面试题
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -40621,7 +40910,6 @@ Java-Interview - Java面试题集合
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -41099,7 +41387,6 @@ SpringCloud面试题 - Spring Cloud核心组件面试题
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -41563,7 +41850,6 @@ SpringCloud面试题 - Spring Cloud核心组件面试题
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -42041,7 +42327,6 @@ SpringCloud面试题 - Spring Cloud核心组件面试题
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -42888,7 +43173,6 @@ Java-Interview - Java面试题集合
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -43365,7 +43649,6 @@ SpringCloud面试题 - Spring Cloud核心组件面试题
       <categories>
         <category>java</category>
         <category>SpringCloud</category>
-        <category>微服务</category>
       </categories>
       <tags>
         <tag>java</tag>
@@ -48282,601 +48565,6 @@ Oracle: Virtual Threads Guide
         <tag>虚拟线程</tag>
         <tag>VirtualThread</tag>
         <tag>Java21</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spring Cloud Alibaba 全家桶详尽解析 🚀</title>
-    <url>/2026/05/29/java/SpringCloud/11-SpringCloudAlibaba%E5%85%A8%E9%9D%A2%E8%A7%A3%E6%9E%90/</url>
-    <content><![CDATA[Spring Cloud Alibaba 微服务全面解析
-📚 本笔记综合整理自：传智播客面试知识点、SCA官方文档、GitHub项目(dyc87112&#x2F;SpringCloud-Learning)、macrozheng&#x2F;mall-swarm学习教程、阿里云开发者社区等资料。🔖 适用版本：Spring Cloud Alibaba 2023.x &#x2F; Spring Boot 3.x &#x2F; JDK 17+🎯 适用场景：面试备战 &#x2F; 项目技术选型 &#x2F; 知识体系构建
-
-
-一、Spring Cloud Alibaba 概述1.1 什么是 Spring Cloud AlibabaSpring Cloud Alibaba 是阿里巴巴开源的一套微服务解决方案，为微服务开发提供一站式解决方案。它提供了服务注册与发现、配置管理、服务治理、流量控制、分布式事务等分布式系统所需的核心功能。
-与 Spring Cloud Netflix 那套生态相比，Spring Cloud Alibaba 更贴合国内互联网公司实际需求，组件国产化、社区活跃度高、文档中文友好。
-1.2 Spring Cloud Alibaba 都有哪些组件
-
-
-组件
-作用
-地位
-
-
-
-Nacos
-服务注册与发现 + 配置管理
-替代 Eureka + Config
-
-
-Sentinel
-流量控制、熔断降级、系统保护
-替代 Hystrix
-
-
-Seata
-分布式事务解决方案
-行业标杆
-
-
-Dubbo
-高性能 RPC 框架 + 服务治理
-替代 Feign（RPC 层）
-
-
-RocketMQ
-分布式消息引擎
-替代 RabbitMQ&#x2F;Kafka
-
-
-Alibaba Cloud ACM
-阿里云全局配置中心
-商业化
-
-
-Alibaba Cloud OSS
-对象存储服务
-商业化
-
-
-Alibaba Cloud SchedulerX
-分布式任务调度
-商业化
-
-
-1.3 Spring Cloud Alibaba 与 Spring Boot、Spring Cloud 版本关系Spring Boot 3.x  →  需要 Spring Cloud 2023.x  →  对应 Spring Cloud Alibaba 2023.xSpring Boot 2.x  →  需要 Spring Cloud 2021.x  →  对应 Spring Cloud Alibaba 2021.x
-
-
-⚠️ 版本选择非常关键，版本不匹配会导致依赖冲突。建议在 start.aliyun.com 生成脚手架时选择对应版本。
-
-
-二、服务注册与发现 —— Nacos2.1 Nacos 是什么Nacos（Name as Configuration Service）是一个更易于构建云原生应用的服务发现、配置管理和服务管理平台。它既可以替代传统的 Eureka 作为注册中心，也可以替代 Spring Cloud Config 作为配置中心。
-核心能力：
-
-服务注册与发现（支持 CP&#x2F;AP 两种模式）
-配置管理（配置变更、灰度发布、配置共享）
-服务管理（流量管理、权重路由）
-
-2.2 Nacos 服务注册与发现原理服务注册当服务实例启动时，它会向 Nacos 服务器发送一个注册请求，请求中包含：
-
-服务名（spring.application.name）
-IP 地址 + 端口号
-健康检查信息
-元数据（metadata）
-
-// 引入依赖后，添加如下配置即可完成注册spring:  cloud:    nacos:      discovery:        server-addr: 127.0.0.1:8848   # Nacos 服务地址        namespace: public              # 命名空间（用于环境隔离）        group: DEFAULT_GROUP           # 分组（用于项目隔离）
-
-服务发现Nacos 采用 Distro 协议 进行集群间的数据同步，其工作流程如下：
-服务 Provider 启动        ↓向 Nacos Server 发送注册请求（服务名、IP、Port）        ↓Nacos Server 将服务信息存储到内部数据结构        ↓Nacos Server 向订阅该服务的 Consumer 推送服务变更通知        ↓Consumer 从 Nacos 获取服务列表（心跳续约维持）
-
-
-💡 Distro 协议是阿里巴巴自研的分布式一致性协议，专门为 Nacos 的注册中心场景设计。
-
-2.3 Nacos 的 AP 和 CP 模式Nacos 支持 CPA 理论中的两种一致性模式：
-
-
-
-模式
-全称
-特点
-适用场景
-
-
-
-AP模式（默认）
-Availability + Partition tolerance
-优先保证可用性，节点间数据可能短暂不一致
-注册中心（服务发现）
-
-
-CP模式
-Consistency + Partition tolerance
-优先保证一致性，写操作需同步到多数节点
-配置中心（leader选举）
-
-
-//切换 CP 模式：调用 Nacos Open APIcurl -X PUT &#x27;http://127.0.0.1:8848/nacos/v1/ns/operator/switches?entry=serverMode&amp;value=CP&#x27;
-
-2.4 Nacos 的核心概念
-
-
-概念
-解释
-
-
-
-Namespace
-环境隔离，默认为 public，如 DEV、SIT、UAT、PROD
-
-
-Group
-项目隔离，默认 DEFAULT_GROUP，不同项目可用不同分组
-
-
-Service
-服务名称，唯一标识一个微服务
-
-
-Cluster
-集群隔离，同一服务在不同机房的节点可划为同一集群
-
-
-Instance
-服务实例，即服务Provider的某一个运行进程
-
-
-2.5 Nacos 的配置更新机制服务Provider如何感知Nacos配置变更？
-在需要自动刷新配置的类上添加 @RefreshScope 注解，原理如下：
-配置变更 → Nacos Server 推送变更通知 → Spring Cloud Bus → @RefreshScope 重新创建Bean → 获取最新配置
-
-// application.ymlspring:  cloud:    nacos:      config:        server-addr: 127.0.0.1:8848        file-extension: yaml          # 配置文件格式        namespace: public            # 命名空间        group: DEFAULT_GROUP         # 分组        refresh-enabled: true        # 开启自动刷新        shared-configs:               # 共享配置          - data-id: common.yaml            group: DEFAULT_GROUP            refresh: true
-
-2.6 Nacos 的持久化Nacos 默认使用嵌入式数据库（Derby）存储配置数据，单机模式下没问题，生产环境推荐使用 MySQL 持久化：
-# application.propertiesspring.datasource.platform=mysqldb.num=1db.url.0=jdbc:mysql://127.0.0.1:3306/nacos_config?characterEncoding=utf8&amp;connectTimeout=1000&amp;socketTimeout=3000&amp;autoReconnect=true&amp;useUnicode=true&amp;useSSL=false&amp;serverTimezone=UTCdb.user=rootdb.password=root
-
-2.7 Nacos 集群部署Nacos 集群架构：Nginx（统一入口）→ 多个 Nacos 节点 → MySQL（共享存储）
-                    ┌──────────────────┐Client ──HTTP────▶ │   Nginx (VIP)     │                    └────────┬─────────┘                             │              ┌─────────────┼─────────────┐              ▼             ▼             ▼        ┌──────────┐ ┌──────────┐ ┌──────────┐        │ Nacos-1  │ │ Nacos-2  │ │ Nacos-3  │        │ :8848    │ │ :8848    │ │ :8848    │        └────┬─────┘ └────┬─────┘ └────┬─────┘              │           │           │              └───────────┴───────────┘                             │                    ┌───────▼───────┐                    │    MySQL      │                    └──────────────┘
-
-
-三、流量控制与熔断降级 —— Sentinel3.1 Sentinel 是什么Sentinel（流量防卫兵）是阿里巴巴开源的高性能流量控制组件，以流量为切入点，从流量控制、熔断降级、系统负载保护等多个维度保护服务的稳定性。
-3.2 为什么需要 Sentinel在高并发场景下，如果服务A调用服务B，而服务B因故障导致响应极慢甚至不可用，继续让所有请求打到B上会导致：
-
-级联失败：服务A的资源被耗尽，影响上游服务
-雪崩效应：故障在服务链中蔓延，形成系统级故障
-
-Sentinel 的解决方案：
-
-流量控制：限制单位时间内请求数量
-熔断降级：当失败率&#x2F;响应时间超过阈值时，断开调用链
-系统自适应保护：根据 CPU&#x2F;LOAD&#x2F;响应时间等指标自动调节整体流量
-
-3.3 Sentinel 与 Hystrix 的核心区别
-
-
-对比项
-Hystrix
-Sentinel
-
-
-
-线程池隔离
-✅ 有，但资源消耗大
-❌ 无，采用信号量隔离
-
-
-熔断策略
-基于异常比例
-基于 QPS &#x2F; 异常比例 &#x2F; 响应时间
-
-
-规则配置
-配置在代码中
-运行时动态配置（推模式）
-
-
-规则持久化
-无内置
-支持 Nacos、Apollo 等多种存储
-
-
-控制台
-Turbine 单机聚合
-Sentinel Dashboard 可视化控制台
-
-
-实时指标
-仅聚合，无实时性
-基于滑动窗口，实时准确
-
-
-3.4 流量控制规则（Flow Rule）Sentinel 支持以下几种流控效果：
-
-
-
-效果
-说明
-
-
-
-直接拒绝（Default）
-超出阈值的请求直接拒绝
-
-
-冷启动（Warm Up）
-逐渐预热到阈值，防止冷系统被突发流量击垮
-
-
-排队等待（Queuely Waiting）
-超出的请求排队等候，常用于削峰填谷
-
-
-// 通过代码配置流控规则FlowRule rule = new FlowRule(&quot;orderService&quot;)    .setCount(100)                       // 每秒允许100个请求    .setGrade(RuleConstant.FLOW_GRADE_QPS)  // 基于QPS    .setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_WARM_UP) // 冷启动    .setWarmUpPeriodSec(10);             // 预热时间10秒FlowRuleManager.loadRules(Collections.singletonList(rule));
-
-3.5 熔断降级规则（Degrade Rule）Sentinel 的熔断器状态机：
-     ┌─────────────────────────────────────────────┐     │                                             │     ▼                                             │┌─────────┐    触发熔断条件      ┌───────────────┐ ││ CLOSED  │ ──────────────────▶ │ OPEN (熔断中)  │ ││ (正常)  │ ◀─── 恢复超时        │ (拒绝所有请求) │ │└────┬────┘                     └───────┬───────┘ │     │                                  │         │     │ 探测到半开                        │ 半开    │     │ ◀────────────────────────────────────────┘     ▼┌───────────────┐│ HALF-OPEN     ││ (探测恢复)    │└───────┬───────┘        │ 通过   失败        ▼        ▼     ┌──────┐  ┌─────────┐     │OPEN  │  │ CLOSED  │     └──────┘  └─────────┘
-
-Sentinel 支持三种熔断策略：
-
-基于异常比例：每秒请求中异常比例超过阈值触发熔断
-基于异常数：当每分钟异常数超过阈值触发熔断
-基于响应时间：响应时间超过阈值触发熔断
-
-3.6 @SentinelResource 注解详解// 基本用法：value指定资源名，blockHandler指定被限流后的处理方法@SentinelResource(value = &quot;getProduct&quot;,                  blockHandler = &quot;getProductBlock&quot;,                  fallback = &quot;getProductFallback&quot;)@GetMapping(&quot;/product/&#123;id&#125;&quot;)public Result&lt;Product&gt; getProduct(@PathVariable Long id) &#123;    return productService.getById(id);&#125;// 被限流时的处理方法（注意：方法签名必须与原方法兼容）public Result&lt;Product&gt; getProductBlock(Long id, BlockException ex) &#123;    return Result.fail(&quot;访问过于频繁，请稍后再试&quot;);&#125;// 降级处理方法（fallback用于处理业务异常）public Result&lt;Product&gt; getProductFallback(Long id, Throwable t) &#123;    log.error(&quot;服务异常: &#123;&#125;&quot;, id, t);    return Result.fail(&quot;服务暂时不可用&quot;);&#125;
-
-3.7 Sentinel 规则持久化到 NacosSentinel Dashboard 中修改规则默认是推送到内存的，重启后规则丢失。生产环境推荐将规则存储到 Nacos：
-&lt;!-- 引入 Sentinel 适配 Nacos 的依赖 --&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.csp&lt;/groupId&gt;    &lt;artifactId&gt;sentinel-datasource-nacos&lt;/artifactId&gt;&lt;/dependency&gt;
-
-spring:  cloud:    sentinel:      datasource:        ds:          nacos:            server-addr: 127.0.0.1:8848            dataId: $&#123;spring.application.name&#125;-flow-rules            groupId: SENTINEL_GROUP            rule-type: flow          # flow / degrade / system / param-flow / gateway-flow
-
-
-四、分布式事务 —— Seata4.1 为什么需要分布式事务在微服务架构下，一个业务操作往往需要跨多个数据库或跨多个服务完成：
-订单服务 ──────▶ 库存服务     │               │     ▼               ▼  本地事务         本地事务     │               │     ▼               ▼  订单库           库存库
-
-如果订单创建成功但库存扣减失败，单机事务无法覆盖两个数据库，此时需要分布式事务来保证要么全部成功，要么全部回滚。
-4.2 Seata 是什么Seata（Simple Extensible Autonomous Transaction Architecture）是阿里巴巴开源的易于使用的高性能微服务分布式事务解决方案。它提供了 AT、TCC、Saga、XA 四种事务模式。
-4.3 Seata 的三种事务模式
-
-
-模式
-原理
-优点
-缺点
-适用场景
-
-
-
-AT（推荐）
-基于本地事务 + 全局锁，自动生成回滚 SQL
-对业务零侵入，代码零修改
-需要支持 UNDO_LOG 表
-大多数业务场景
-
-
-TCC
-Try-Confirm-Cancel，预预留资源
-性能高，无锁定
-代码侵入，需实现三个方法
-高性能要求场景
-
-
-Saga
-长事务编排，每个服务正向操作+补偿操作
-支持长事务
-补偿逻辑复杂
-业务流程长、参与者多
-
-
-XA
-强一致性，基于两阶段提交
-数据一致性高
-性能差，锁定资源时间长
-对数据强一致性要求高
-
-
-4.4 AT 模式工作原理AT 模式是 Seata 最推荐的模式，工作流程：
-阶段一（准备阶段）：    TM（事务管理器）向 TC（事务协调器）申请全局事务，生成 XID         │         ▼    各分支事务向 TC 注册，执行业务 SQL，生成 UNDO_LOG 快照         │         ▼阶段二（提交阶段）：    如果所有分支成功 → TC 通知所有分支提交 → 删除 UNDO_LOG    如果有分支失败   → TC 通知所有分支回滚 → 根据 UNDO_LOG 还原数据
-
-关键点：
-
-TC（Transaction Coordinator）：独立的协调服务，维护全局事务状态
-TM（Transaction Manager）：事务发起方，控制全局事务边界
-RM（Resource Manager）：资源管理器，管理分支事务使用的资源
-
-4.5 Seata AT 模式配置# seata-server 配置（registry.conf）registry &#123;  type = &quot;nacos&quot;  nacos &#123;    serverAddr = &quot;127.0.0.1:8848&quot;    namespace = &quot;&quot;    group = &quot;SEATA_GROUP&quot;  &#125;&#125;# 应用配置（application.yml）seata:  enabled: true  tx-service-group: my_tx_group          # 事务分组  registry:    type: nacos    nacos:      server-addr: 127.0.0.1:8848      group: SEATA_GROUP  service:    vgroup-mapping:      my_tx_group: default               # 分组映射
-
-// 使用 @GlobalTransactional 注解开启全局事务@GlobalTransactional(rollbackFor = Exception.class)public void createOrder(OrderDTO orderDTO) &#123;    orderService.create(orderDTO);       // 本地事务    inventoryClient.deduct(orderDTO.getProductId(), orderDTO.getCount()); // 远程扣减&#125;
-
-
-五、服务间通信 —— Dubbo5.1 为什么选择 Dubbo 替代 Feign
-
-
-对比项
-Feign
-Dubbo
-
-
-
-底层协议
-HTTP（基于 RestTemplate）
-TCP（基于 Netty &#x2F; 高性能 RPC）
-
-
-序列化
-JSON（较慢）
-Hessian &#x2F; Protobuf（二进制，高效）
-
-
-性能
-较低
-高（官方测试是 Feign 的 2-3 倍）
-
-
-功能
-轻量，仅 HTTP Client
-服务治理（负载均衡、路由、熔断）
-
-
-生态
-Spring Cloud 生态
-独立生态，但支持 Spring Boot
-
-
-
-💡 在国内高性能场景（如电商、金融），Dubbo 仍然是主流选择。
-
-5.2 Dubbo 与 Spring Cloud Alibaba 的融合Spring Cloud Alibaba 并不是简单替换 Feign，而是让 Dubbo 与 Spring Cloud 生态深度融合：
-&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-dubbo&lt;/artifactId&gt;&lt;/dependency&gt;
-
-dubbo:  registry:    address: nacos://127.0.0.1:8848     # 注册到 Nacos  protocol:    name: dubbo    port: 20880                         # Dubbo 协议默认端口  provider:    loadbalance: roundrobin              # 负载均衡策略  consumer:    check: false                        # 启动时不强制检查依赖服务
-
-// 服务提供者：暴露接口@DubboService(version = &quot;1.0.0&quot;)public class ProductServiceImpl implements ProductService &#123;    @Override    public Product getById(Long id) &#123; ... &#125;&#125;// 服务消费者：注入接口@DubboReference(version = &quot;1.0.0&quot;, loadbalance = &quot;roundrobin&quot;)private ProductService productService;
-
-5.3 Dubbo 的负载均衡策略
-
-
-策略
-说明
-
-
-
-random（加权随机）
-按权重随机选择，默认策略
-
-
-roundrobin（加权轮询）
-按权重轮询，需配合 Nacos 权重路由
-
-
-leastactive（最少活跃）
-选择活跃调用数最少的 provider
-
-
-consistenthash（一致性Hash）
-相同参数的请求打到同一节点
-
-
-
-六、分布式消息 —— RocketMQ6.1 RocketMQ 核心概念
-
-
-概念
-解释
-
-
-
-Producer
-消息生产者，负责发送消息
-
-
-Consumer
-消息消费者，负责消费消息
-
-
-Broker
-消息代理，存储和转发消息
-
-
-Topic
-主题，消息的分类管理单位
-
-
-Tag
-标签，同一 Topic 下的消息二级分类
-
-
-Message
-消息内容
-
-
-Group
-消费组，同一消费组的消费者均分消息
-
-
-6.2 RocketMQ 的消息类型
-普通消息：发送即 forget，不保证可靠性
-事务消息（Transaction Message）：先执行本地事务，根据本地事务结果决定是否提交消息，用于解决分布式事务问题
-
-// 事务消息发送示例TransactionListener transactionListener = new TransactionListener() &#123;    @Override    public LocalTransactionState executeLocalTransaction(Message msg, Object arg) &#123;        // 执行本地事务（如创建订单）        orderService.create((OrderDTO) arg);        return LocalTransactionState.COMMIT_MESSAGE; // 提交消息    &#125;    @Override    public LocalTransactionState checkLocalTransaction(Message msg) &#123;        // 检查本地事务状态，用于回查        return LocalTransactionState.COMMIT_MESSAGE;    &#125;&#125;;TransactionProducer producer = new TransactionProducer(transactionListener);producer.start();Message msg = new Message(&quot;order_topic&quot;, &quot;new_order&quot;, JSON.toJSONString(orderDTO).getBytes());producer.send(msg, orderDTO, 10000);
-
-
-七、Gateway 网关7.1 Spring Cloud Gateway 核心概念Spring Cloud Gateway 是 Spring Cloud 的全新网关，替代了已经进入维护模式的 Zuul。
-核心概念：
-
-Route：路由定义，包含 id、uri、predicates、filters
-Predicate：断言，用于匹配请求条件（如路径、请求方式、Header 等）
-Filter：过滤器，在请求前后执行过滤逻辑
-
-7.2 路由配置示例spring:  cloud:    gateway:      routes:        - id: user-service          uri: lb://user-service           # lb:// 表示从注册中心获取服务          predicates:            - Path=/api/user/**           # 路径匹配            - Method=GET                  # 请求方式匹配          filters:            - StripAuth=0                 # 去除前缀            - name: RequestRateLimiter    # 限流过滤器              args:                redis-rate-limiter.replenishRate: 100                redis-rate-limiter.burstCapacity: 200
-
-7.3 灰度发布（权重路由）基于 Nacos 配置中心，可以实现基于权重的灰度发布：
-spring:  cloud:    gateway:      routes:        - id: weight_high          uri: https://weighthigh.org          predicates:            - Weight=group1, 8           # 80% 流量走 high        - id: weight_low          uri: https://weightlow.org          predicates:            - Weight=group1, 2          # 20% 流量走 low
-
-修改 Nacos 配置后，无需重启服务即可实时生效新的流量配比。
-
-八、微服务架构常见面试问题8.1 Nacos 和 Consul 在服务注册和发现方面有什么不同
-
-
-对比项
-Nacos
-Consul
-
-
-
-一致性协议
-AP&#x2F;CP 可切换
-CP（Consul 使用 Raft）
-
-
-配置中心
-内置
-需额外集成 Consul Template
-
-
-多语言支持
-所有语言（HTTP）
-所有语言（HTTP + DNS）
-
-
-运维成本
-中等
-较高（Consul Agent 部署）
-
-
-中国本地化
-中文文档，社区活跃
-英文为主
-
-
-8.2 如何实现服务限流在 Spring Cloud Alibaba 环境中，实现限流有几种方式：
-
-Sentinel + @SentinelResource（推荐）：
-
-基于 QPS &#x2F; 并发线程数限流
-支持分布式限流（集群流控）
-
-
-Gateway + Redis + RequestRateLimiter：
-spring:  cloud:    gateway:      redis:        rate-limiter:          replenishRate: 100          burstCapacity: 200
-
-Nginx + lua + ngx_http_limit_req_module：
-
-网关层限流，适合入口流量控制
-
-
-
-8.3 如何实现服务降级服务降级的几种常见策略：
-
-Sentinel 降级：当接口响应时间超过阈值，自动触发降级，返回兜底数据
-Feign 降级（Hystrix）：配置 fallback 类，远程调用失败时返回兜底结果
-重试机制：配合 Spring Retry，设置重试次数和退避策略
-服务不可用时直接返回：通过熔断器状态自动实现
-
-
-九、Spring Cloud Alibaba 与 Spring Cloud Netflix 对比总结
-
-
-能力项
-Spring Cloud Netflix
-Spring Cloud Alibaba
-
-
-
-注册中心
-Eureka
-Nacos（更强大）
-
-
-配置中心
-Spring Cloud Config
-Nacos（更易用）
-
-
-服务调用
-Feign
-Dubbo（更高性能）
-
-
-熔断器
-Hystrix
-Sentinel（更完善）
-
-
-分布式事务
-无内置
-Seata（AT&#x2F;TCC&#x2F;Saga&#x2F;XA）
-
-
-消息队列
-RabbitMQ &#x2F; Kafka
-RocketMQ（国产优化）
-
-
-网关
-Zuul
-Gateway（性能更高）
-
-
-文档&#x2F;社区
-英文为主，部分已过时
-中文活跃
-
-
-
-十、版本选择参考（2024-2025）
-
-
-Spring Boot
-Spring Cloud
-Spring Cloud Alibaba
-JDK
-
-
-
-3.2.x
-2023.x
-2023.x.x
-17+
-
-
-2.7.x
-2021.x
-2021.x.x
-8+
-
-
-2.6.x
-2020.x
-2021.x.x
-8+
-
-
-
-📌 推荐在 start.aliyun.com 生成项目脚手架，系统会自动匹配兼容版本。
-
-
-参考资料
-📚 SpringCloud-Learning by dyc87112
-📚 mall-swarm微服务学习教程 by macrozheng
-📚 Spring Cloud Alibaba 官方文档
-📚 Nacos 官方文档
-📚 Sentinel 官方文档
-📚 Seata 官方文档
-📚 传智播客Java面试知识点 2024版
-📚 阿里云开发者社区 Spring Cloud Alibaba 面试题
-
-]]></content>
-      <categories>
-        <category>java</category>
-        <category>SpringCloud</category>
-        <category>微服务</category>
-        <category>SpringCloudAlibaba</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-        <tag>Nacos</tag>
-        <tag>springcloud</tag>
-        <tag>微服务</tag>
-        <tag>Spring Cloud Alibaba</tag>
-        <tag>Sentinel</tag>
-        <tag>Seata</tag>
       </tags>
   </entry>
 </search>

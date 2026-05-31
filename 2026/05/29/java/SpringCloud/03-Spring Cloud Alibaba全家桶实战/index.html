@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>Spring Cloud Alibaba全家桶实战 🚀 | 欢迎来到老江湖的博客</title>
+<title>03-Spring Cloud Alibaba全家桶实战 🚀 | 欢迎来到老江湖的博客</title>
 
 
 
@@ -777,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>  
   <article class="post-wrap">
     <header class="post-header">
-      <h1 class="post-title">Spring Cloud Alibaba全家桶实战 🚀</h1>
+      <h1 class="post-title">03-Spring Cloud Alibaba全家桶实战 🚀</h1>
       
       <div class="post-meta">
          作者:
@@ -796,8 +796,6 @@ document.addEventListener('DOMContentLoaded', function() {
           <a href="/categories/java/">java</a>
           
           <a href="/categories/java/SpringCloud/">SpringCloud</a>
-          
-          <a href="/categories/java/SpringCloud/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a>
           
         </span>
         
@@ -1049,6 +1047,249 @@ document.addEventListener('DOMContentLoaded', function() {
 <h3 id="4-5-Seata-Saga模式示例-💻"><a href="#4-5-Seata-Saga模式示例-💻" class="headerlink" title="4.5 Seata Saga模式示例 💻"></a>4.5 Seata Saga模式示例 💻</h3><p><strong>1. Saga状态机定义</strong>：</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;Name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;createOrderSaga&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;StartState&quot;</span><span class="punctuation">:</span> <span class="string">&quot;CreateOrder&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;States&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;CreateOrder&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ServiceTask&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;orderService&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceMethod&quot;</span><span class="punctuation">:</span> <span class="string">&quot;createOrder&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;CompensateState&quot;</span><span class="punctuation">:</span> <span class="string">&quot;CancelOrder&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="string">&quot;$.[userId]&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;$.[productId]&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;$.[count]&quot;</span></span><br><span class="line">      <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Output&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;orderId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$.[orderId]&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Status&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;# == &#x27;Succeed&#x27;&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Succeed&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;# == &#x27;Failed&#x27;&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Failed&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Next&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DeductStorage&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;DeductStorage&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ServiceTask&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;storageService&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceMethod&quot;</span><span class="punctuation">:</span> <span class="string">&quot;deduct&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;CompensateState&quot;</span><span class="punctuation">:</span> <span class="string">&quot;CancelDeductStorage&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="string">&quot;$.[productId]&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;$.[count]&quot;</span></span><br><span class="line">      <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Status&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;# == &#x27;Succeed&#x27;&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Succeed&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;# == &#x27;Failed&#x27;&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Failed&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Next&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DebitAccount&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;DebitAccount&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ServiceTask&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;accountService&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceMethod&quot;</span><span class="punctuation">:</span> <span class="string">&quot;debit&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;CompensateState&quot;</span><span class="punctuation">:</span> <span class="string">&quot;CancelDebitAccount&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="string">&quot;$.[userId]&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;$.[totalAmount]&quot;</span></span><br><span class="line">      <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Status&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;# == &#x27;Succeed&#x27;&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Succeed&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;# == &#x27;Failed&#x27;&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Failed&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Next&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Succeed&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;CancelOrder&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ServiceTask&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;orderService&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceMethod&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cancelOrder&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="string">&quot;$.[orderId]&quot;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;CancelDeductStorage&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ServiceTask&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;storageService&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceMethod&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cancelDeduct&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="string">&quot;$.[productId]&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;$.[count]&quot;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;CancelDebitAccount&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ServiceTask&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;accountService&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ServiceMethod&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cancelDebit&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="string">&quot;$.[userId]&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="string">&quot;$.[totalAmount]&quot;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Succeed&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Succeed&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Failed&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Fail&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ErrorCode&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ORDER_CREATE_FAILED&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Message&quot;</span><span class="punctuation">:</span> <span class="string">&quot;创建订单失败&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
+<hr>
+<h2 id="Nacos深入原理-⚙️"><a href="#Nacos深入原理-⚙️" class="headerlink" title="Nacos深入原理 ⚙️"></a>Nacos深入原理 ⚙️</h2><h3 id="2-7-Nacos的AP和CP模式-📊"><a href="#2-7-Nacos的AP和CP模式-📊" class="headerlink" title="2.7 Nacos的AP和CP模式 📊"></a>2.7 Nacos的AP和CP模式 📊</h3><p><strong>Nacos支持CPA理论中的两种一致性模式</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">模式</th>
+<th align="left">全称</th>
+<th align="left">特点</th>
+<th align="left">适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>AP模式</strong>（默认）</td>
+<td align="left">Availability + Partition tolerance</td>
+<td align="left">优先保证可用性，节点间数据可能短暂不一致</td>
+<td align="left">注册中心（服务发现）</td>
+</tr>
+<tr>
+<td align="left"><strong>CP模式</strong></td>
+<td align="left">Consistency + Partition tolerance</td>
+<td align="left">优先保证一致性，写操作需同步到多数节点</td>
+<td align="left">配置中心（leader选举）</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 切换CP模式：调用Nacos Open API</span></span><br><span class="line">curl -X PUT <span class="string">&#x27;http://127.0.0.1:8848/nacos/v1/ns/operator/switches?entry=serverMode&amp;value=CP&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-8-Nacos的持久化-💾"><a href="#2-8-Nacos的持久化-💾" class="headerlink" title="2.8 Nacos的持久化 💾"></a>2.8 Nacos的持久化 💾</h3><p><strong>Nacos默认使用嵌入式数据库（Derby）存储配置数据</strong>，单机模式下没问题，生产环境推荐使用MySQL持久化**：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># application.properties</span></span><br><span class="line"><span class="attr">spring.datasource.platform</span>=<span class="string">mysql</span></span><br><span class="line"><span class="attr">db.num</span>=<span class="string">1</span></span><br><span class="line"><span class="attr">db.url.0</span>=<span class="string">jdbc:mysql://127.0.0.1:3306/nacos_config?characterEncoding=utf8&amp;connectTimeout=1000&amp;socketTimeout=3000&amp;autoReconnect=true&amp;useUnicode=true&amp;useSSL=false&amp;serverTimezone=UTC</span></span><br><span class="line"><span class="attr">db.user</span>=<span class="string">root</span></span><br><span class="line"><span class="attr">db.password</span>=<span class="string">root</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-9-Nacos集群部署-🏗️"><a href="#2-9-Nacos集群部署-🏗️" class="headerlink" title="2.9 Nacos集群部署 🏗️"></a>2.9 Nacos集群部署 🏗️</h3><p><strong>Nacos集群架构：Nginx（统一入口）→ 多个Nacos节点 → MySQL（共享存储）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">                     ┌──────────────────┐</span><br><span class="line">Client ──HTTP────▶ │   Nginx (VIP)     │</span><br><span class="line">                     └────────┬─────────┘</span><br><span class="line">                              │</span><br><span class="line">               ┌─────────────┼─────────────┐</span><br><span class="line">               ▼             ▼             ▼</span><br><span class="line">         ┌──────────┐ ┌──────────┐ ┌──────────┐</span><br><span class="line">         │ Nacos-1  │ │ Nacos-2  │ │ Nacos-3  │</span><br><span class="line">         │ :8848    │ │ :8848    │ │ :8848    │</span><br><span class="line">         └────┬─────┘ └────┬─────┘ └────┬─────┘</span><br><span class="line">               │           │           │</span><br><span class="line">               └───────────┴───────────┘</span><br><span class="line">                              │</span><br><span class="line">                     ┌───────▼───────┐</span><br><span class="line">                     │    MySQL      │</span><br><span class="line">                     └──────────────┘</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Sentinel深入原理-⚙️"><a href="#Sentinel深入原理-⚙️" class="headerlink" title="Sentinel深入原理 ⚙️"></a>Sentinel深入原理 ⚙️</h2><h3 id="3-5-Sentinel与Hystrix的核心区别-📊"><a href="#3-5-Sentinel与Hystrix的核心区别-📊" class="headerlink" title="3.5 Sentinel与Hystrix的核心区别 📊"></a>3.5 Sentinel与Hystrix的核心区别 📊</h3><table>
+<thead>
+<tr>
+<th align="left">对比项</th>
+<th align="left">Hystrix</th>
+<th align="left">Sentinel</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">线程池隔离</td>
+<td align="left">✅ 有，但资源消耗大</td>
+<td align="left">❌ 无，采用信号量隔离</td>
+</tr>
+<tr>
+<td align="left">熔断策略</td>
+<td align="left">基于异常比例</td>
+<td align="left">基于QPS &#x2F; 异常比例 &#x2F; 响应时间</td>
+</tr>
+<tr>
+<td align="left">规则配置</td>
+<td align="left">配置在代码中</td>
+<td align="left">运行时动态配置（推模式）</td>
+</tr>
+<tr>
+<td align="left">规则持久化</td>
+<td align="left">无内置</td>
+<td align="left">支持Nacos、Apollo等多种存储</td>
+</tr>
+<tr>
+<td align="left">控制台</td>
+<td align="left">Turbine单机聚合</td>
+<td align="left">Sentinel Dashboard可视化控制台</td>
+</tr>
+<tr>
+<td align="left">实时指标</td>
+<td align="left">仅聚合，无实时性</td>
+<td align="left">基于滑动窗口，实时准确</td>
+</tr>
+</tbody></table>
+<h3 id="3-6-Sentinel规则持久化到Nacos-💾"><a href="#3-6-Sentinel规则持久化到Nacos-💾" class="headerlink" title="3.6 Sentinel规则持久化到Nacos 💾"></a>3.6 Sentinel规则持久化到Nacos 💾</h3><p><strong>Sentinel Dashboard中修改规则默认是推送到内存的，重启后规则丢失。生产环境推荐将规则存储到Nacos</strong>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 引入Sentinel适配Nacos的依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.csp<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sentinel-datasource-nacos<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">sentinel:</span></span><br><span class="line">      <span class="attr">datasource:</span></span><br><span class="line">        <span class="attr">ds:</span></span><br><span class="line">          <span class="attr">nacos:</span></span><br><span class="line">            <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">            <span class="attr">dataId:</span> <span class="string">$&#123;spring.application.name&#125;-flow-rules</span></span><br><span class="line">            <span class="attr">groupId:</span> <span class="string">SENTINEL_GROUP</span></span><br><span class="line">            <span class="attr">rule-type:</span> <span class="string">flow</span>          <span class="comment"># flow / degrade / system / param-flow</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Seata深入原理-⚙️"><a href="#Seata深入原理-⚙️" class="headerlink" title="Seata深入原理 ⚙️"></a>Seata深入原理 ⚙️</h2><h3 id="4-6-Seata的三种事务模式对比-📊"><a href="#4-6-Seata的三种事务模式对比-📊" class="headerlink" title="4.6 Seata的三种事务模式对比 📊"></a>4.6 Seata的三种事务模式对比 📊</h3><table>
+<thead>
+<tr>
+<th align="left">模式</th>
+<th align="left">原理</th>
+<th align="left">优点</th>
+<th align="left">缺点</th>
+<th align="left">适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>AT</strong>（推荐）</td>
+<td align="left">基于本地事务+全局锁，自动生成回滚SQL</td>
+<td align="left">对业务零侵入，代码零修改</td>
+<td align="left">需要支持UNDO_LOG表</td>
+<td align="left">大多数业务场景</td>
+</tr>
+<tr>
+<td align="left"><strong>TCC</strong></td>
+<td align="left">Try-Confirm-Cancel，预留资源</td>
+<td align="left">性能高，无锁定</td>
+<td align="left">代码侵入，需实现三个方法</td>
+<td align="left">高性能要求场景</td>
+</tr>
+<tr>
+<td align="left"><strong>Saga</strong></td>
+<td align="left">长事务编排，每个服务正向操作+补偿操作</td>
+<td align="left">支持长事务</td>
+<td align="left">补偿逻辑复杂</td>
+<td align="left">业务流程长、参与者多</td>
+</tr>
+<tr>
+<td align="left"><strong>XA</strong></td>
+<td align="left">强一致性，基于两阶段提交</td>
+<td align="left">数据一致性高</td>
+<td align="left">性能差，锁定资源时间长</td>
+<td align="left">对数据强一致性要求高</td>
+</tr>
+</tbody></table>
+<h3 id="4-7-Seata-AT模式工作原理-📚"><a href="#4-7-Seata-AT模式工作原理-📚" class="headerlink" title="4.7 Seata AT模式工作原理 📚"></a>4.7 Seata AT模式工作原理 📚</h3><p><strong>AT模式工作流程</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">阶段一（准备阶段）：</span><br><span class="line">    TM（事务管理器）向TC（事务协调器）申请全局事务，生成XID</span><br><span class="line">         │</span><br><span class="line">         ▼</span><br><span class="line">    各分支事务向TC注册，执行业务SQL，生成UNDO_LOG快照</span><br><span class="line">         │</span><br><span class="line">         ▼</span><br><span class="line">阶段二（提交阶段）：</span><br><span class="line">    如果所有分支成功 → TC通知所有分支提交 → 删除UNDO_LOG</span><br><span class="line">    如果有分支失败   → TC通知所有分支回滚 → 根据UNDO_LOG还原数据</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键角色</strong>：</p>
+<ul>
+<li><strong>TC（Transaction Coordinator）</strong>：独立的协调服务，维护全局事务状态</li>
+<li><strong>TM（Transaction Manager）</strong>：事务发起方，控制全局事务边界</li>
+<li><strong>RM（Resource Manager）</strong>：资源管理器，管理分支事务使用的资源</li>
+</ul>
+<hr>
+<h2 id="服务间通信——Dubbo-🐯"><a href="#服务间通信——Dubbo-🐯" class="headerlink" title="服务间通信——Dubbo 🐯"></a>服务间通信——Dubbo 🐯</h2><h3 id="5-1-为什么选择Dubbo替代Feign-📊"><a href="#5-1-为什么选择Dubbo替代Feign-📊" class="headerlink" title="5.1 为什么选择Dubbo替代Feign 📊"></a>5.1 为什么选择Dubbo替代Feign 📊</h3><table>
+<thead>
+<tr>
+<th align="left">对比项</th>
+<th align="left">Feign</th>
+<th align="left">Dubbo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">底层协议</td>
+<td align="left">HTTP（基于RestTemplate）</td>
+<td align="left">TCP（基于Netty&#x2F;高性能RPC）</td>
+</tr>
+<tr>
+<td align="left">序列化</td>
+<td align="left">JSON（较慢）</td>
+<td align="left">Hessian&#x2F;Protobuf（二进制，高效）</td>
+</tr>
+<tr>
+<td align="left">性能</td>
+<td align="left">较低</td>
+<td align="left">高（官方测试是Feign的2-3倍）</td>
+</tr>
+<tr>
+<td align="left">功能</td>
+<td align="left">轻量，仅HTTP Client</td>
+<td align="left">服务治理（负载均衡、路由、熔断）</td>
+</tr>
+<tr>
+<td align="left">生态</td>
+<td align="left">Spring Cloud生态</td>
+<td align="left">独立生态，但支持Spring Boot</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>💡 在国内高性能场景（如电商、金融），Dubbo仍然是主流选择。</p>
+</blockquote>
+<h3 id="5-2-Dubbo与Spring-Cloud-Alibaba的融合-🚀"><a href="#5-2-Dubbo与Spring-Cloud-Alibaba的融合-🚀" class="headerlink" title="5.2 Dubbo与Spring Cloud Alibaba的融合 🚀"></a>5.2 Dubbo与Spring Cloud Alibaba的融合 🚀</h3><p><strong>Spring Cloud Alibaba让Dubbo与Spring Cloud生态深度融合</strong>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-dubbo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">dubbo:</span></span><br><span class="line">  <span class="attr">registry:</span></span><br><span class="line">    <span class="attr">address:</span> <span class="string">nacos://127.0.0.1:8848</span>     <span class="comment"># 注册到Nacos</span></span><br><span class="line">  <span class="attr">protocol:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">dubbo</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">20880</span>                         <span class="comment"># Dubbo协议默认端口</span></span><br><span class="line">  <span class="attr">provider:</span></span><br><span class="line">    <span class="attr">loadbalance:</span> <span class="string">roundrobin</span>              <span class="comment"># 负载均衡策略</span></span><br><span class="line">  <span class="attr">consumer:</span></span><br><span class="line">    <span class="attr">check:</span> <span class="literal">false</span>                        <span class="comment"># 启动时不强制检查依赖服务</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 服务提供者：暴露接口</span></span><br><span class="line"><span class="meta">@DubboService(version = &quot;1.0.0&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProductServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">ProductService</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Product <span class="title function_">getById</span><span class="params">(Long id)</span> &#123; ... &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 服务消费者：注入接口</span></span><br><span class="line"><span class="meta">@DubboReference(version = &quot;1.0.0&quot;, loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line"><span class="keyword">private</span> ProductService productService;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-Dubbo的负载均衡策略-🎯"><a href="#5-3-Dubbo的负载均衡策略-🎯" class="headerlink" title="5.3 Dubbo的负载均衡策略 🎯"></a>5.3 Dubbo的负载均衡策略 🎯</h3><table>
+<thead>
+<tr>
+<th align="left">策略</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>random</strong>（加权随机）</td>
+<td align="left">按权重随机选择，默认策略</td>
+</tr>
+<tr>
+<td align="left"><strong>roundrobin</strong>（加权轮询）</td>
+<td align="left">按权重轮询，需配合Nacos权重路由</td>
+</tr>
+<tr>
+<td align="left"><strong>leastactive</strong>（最少活跃）</td>
+<td align="left">选择活跃调用数最少的provider</td>
+</tr>
+<tr>
+<td align="left"><strong>consistenthash</strong>（一致性Hash）</td>
+<td align="left">相同参数的请求打到同一节点</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="分布式消息——RocketMQ-🚀"><a href="#分布式消息——RocketMQ-🚀" class="headerlink" title="分布式消息——RocketMQ 🚀"></a>分布式消息——RocketMQ 🚀</h2><h3 id="6-1-RocketMQ核心概念-📚"><a href="#6-1-RocketMQ核心概念-📚" class="headerlink" title="6.1 RocketMQ核心概念 📚"></a>6.1 RocketMQ核心概念 📚</h3><table>
+<thead>
+<tr>
+<th align="left">概念</th>
+<th align="left">解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Producer</strong></td>
+<td align="left">消息生产者，负责发送消息</td>
+</tr>
+<tr>
+<td align="left"><strong>Consumer</strong></td>
+<td align="left">消息消费者，负责消费消息</td>
+</tr>
+<tr>
+<td align="left"><strong>Broker</strong></td>
+<td align="left">消息代理，存储和转发消息</td>
+</tr>
+<tr>
+<td align="left"><strong>Topic</strong></td>
+<td align="left">主题，消息的分类管理单位</td>
+</tr>
+<tr>
+<td align="left"><strong>Tag</strong></td>
+<td align="left">标签，同一Topic下的消息二级分类</td>
+</tr>
+<tr>
+<td align="left"><strong>Message</strong></td>
+<td align="left">消息内容</td>
+</tr>
+<tr>
+<td align="left"><strong>Group</strong></td>
+<td align="left">消费组，同一消费组的消费者均分消息</td>
+</tr>
+</tbody></table>
+<h3 id="6-2-RocketMQ的消息类型-📦"><a href="#6-2-RocketMQ的消息类型-📦" class="headerlink" title="6.2 RocketMQ的消息类型 📦"></a>6.2 RocketMQ的消息类型 📦</h3><ol>
+<li><strong>普通消息</strong>：发送即forget，不保证可靠性</li>
+<li><strong>事务消息（Transaction Message）</strong>：先执行本地事务，根据本地事务结果决定是否提交消息，<strong>用于解决分布式事务问题</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 事务消息发送示例</span></span><br><span class="line"><span class="type">TransactionListener</span> <span class="variable">transactionListener</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransactionListener</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> LocalTransactionState <span class="title function_">executeLocalTransaction</span><span class="params">(Message msg, Object arg)</span> &#123;</span><br><span class="line">        <span class="comment">// 执行本地事务（如创建订单）</span></span><br><span class="line">        orderService.create((OrderDTO) arg);</span><br><span class="line">        <span class="keyword">return</span> LocalTransactionState.COMMIT_MESSAGE; <span class="comment">// 提交消息</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> LocalTransactionState <span class="title function_">checkLocalTransaction</span><span class="params">(Message msg)</span> &#123;</span><br><span class="line">        <span class="comment">// 检查本地事务状态，用于回查</span></span><br><span class="line">        <span class="keyword">return</span> LocalTransactionState.COMMIT_MESSAGE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">TransactionProducer</span> <span class="variable">producer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransactionProducer</span>(transactionListener);</span><br><span class="line">producer.start();</span><br><span class="line"><span class="type">Message</span> <span class="variable">msg</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Message</span>(<span class="string">&quot;order_topic&quot;</span>, <span class="string">&quot;new_order&quot;</span>, JSON.toJSONString(orderDTO).getBytes());</span><br><span class="line">producer.send(msg, orderDTO, <span class="number">10000</span>);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="灰度发布与权重路由-🎨"><a href="#灰度发布与权重路由-🎨" class="headerlink" title="灰度发布与权重路由 🎨"></a>灰度发布与权重路由 🎨</h2><h3 id="7-1-基于Nacos的灰度发布-🌟"><a href="#7-1-基于Nacos的灰度发布-🌟" class="headerlink" title="7.1 基于Nacos的灰度发布 🌟"></a>7.1 基于Nacos的灰度发布 🌟</h3><p><strong>基于Nacos配置中心，可以实现基于权重的灰度发布</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">weight_high</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">https://weighthigh.org</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Weight=group1,</span> <span class="number">8</span>           <span class="comment"># 80%流量走high</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">weight_low</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">https://weightlow.org</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Weight=group1,</span> <span class="number">2</span>          <span class="comment"># 20%流量走low</span></span><br></pre></td></tr></table></figure>
+
+<p>修改Nacos配置后，无需重启服务即可实时生效新的流量配比。</p>
 <hr>
 <h2 id="Spring-Cloud-Alibaba集成实践"><a href="#Spring-Cloud-Alibaba集成实践" class="headerlink" title="Spring Cloud Alibaba集成实践"></a>Spring Cloud Alibaba集成实践</h2><h3 id="5-1-项目结构-🏗️"><a href="#5-1-项目结构-🏗️" class="headerlink" title="5.1 项目结构 🏗️"></a>5.1 项目结构 🏗️</h3><p><strong>典型Spring Cloud Alibaba项目结构</strong>：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">spring-cloud-alibaba-demo/</span><br><span class="line">├── pom.xml                            # 父工程POM</span><br><span class="line">├── nacos-server/                      # Nacos服务端</span><br><span class="line">│   └── pom.xml</span><br><span class="line">├── sentinel-dashboard/                # Sentinel控制台</span><br><span class="line">│   └── pom.xml</span><br><span class="line">├── seata-server/                      # Seata服务端</span><br><span class="line">│   └── pom.xml</span><br><span class="line">├── gateway-service/                   # API网关服务</span><br><span class="line">│   ├── src/</span><br><span class="line">│   └── pom.xml</span><br><span class="line">├── user-service/                      # 用户服务</span><br><span class="line">│   ├── src/</span><br><span class="line">│   └── pom.xml</span><br><span class="line">├── order-service/                     # 订单服务</span><br><span class="line">│   ├── src/</span><br><span class="line">│   └── pom.xml</span><br><span class="line">├── product-service/                   # 商品服务</span><br><span class="line">│   ├── src/</span><br><span class="line">│   └── pom.xml</span><br><span class="line">└── common-module/                     # 公共模块</span><br><span class="line">    ├── src/</span><br><span class="line">    └── pom.xml</span><br></pre></td></tr></table></figure>
@@ -1407,6 +1648,12 @@ document.addEventListener('DOMContentLoaded', function() {
           <a href="/tags/nacos/"># nacos</a>
           
           <a href="/tags/seata/"># seata</a>
+          
+          <a href="/tags/sentinel/"># sentinel</a>
+          
+          <a href="/tags/dubbo/"># dubbo</a>
+          
+          <a href="/tags/rocketmq/"># rocketmq</a>
            
         </span>
       </div>
