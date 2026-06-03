@@ -290,7 +290,7 @@ Agent Skill针对上下文爆炸等问题的一个亮点设计是基于文件系
 此外，MCP协议实现了工具的可复用，Agent Skill则尝试实现整个Agent的可复用，让不同团队开发的Agent能够一键copy使用，降低非专业用户的门槛。但由于视频字幕在此处截断，Agent Skill的具体技术细节未能完整呈现。
 ]]></content>
       <categories>
-        <category>AI开发</category>
+        <category>AI</category>
       </categories>
       <tags>
         <tag>AI</tag>
@@ -47399,6 +47399,3218 @@ RabbitMQ 是 Java 工程师的必备技能。学完这份笔记，你应该能�
         <tag>消息队列</tag>
         <tag>RabbitMQ</tag>
         <tag>AMQP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>🐳 Docker 从一脸懵到能面试：大学生速通指南</title>
+    <url>/2026/06/03/docker/docker-complete-guide/</url>
+    <content><![CDATA[
+🎯 目标受众：计算机相关专业在校生，对 Docker 一知半解，只会让 AI 帮忙部署但自己看不懂，希望项目都通过 Docker 部署，找实习能在面试中讲出 Docker 工作场景。
+🛠️ 环境：Windows 11 + WSL2 Ubuntu 24.04（作者同款环境）
+📚 教程融合资料：
+
+prakhar1989&#x2F;docker-curriculum（经典英文教程）
+jaywcjlove&#x2F;docker-tutorial（中文命令速查）
+twtrubiks&#x2F;docker-tutorial（中文 Web 实战）
+codeedu&#x2F;wsl2-docker-quickstart（WSL2 集成）
+furkan&#x2F;dockerlings（动手练习）
+macrozheng&#x2F;mall-learning（Java 电商 Docker 化）
+cnych&#x2F;kubernetes-learning（K8s 进阶）
+DataTalksClub&#x2F;machine-learning-zoomcamp（ML 部署）
+ahmedtariq01&#x2F;Cloud-DevOps-Learning-Resources（DevOps 资源地图）
+docker-archive-public&#x2F;docker.labs（官方实验）
+
+
+
+📑 文章目录
+🎯 学习建议：先按顺序看第 1-9 章建立完整认知；第 10-12 章是实战项目（边敲边学最快）；第 13-14 章找工作前 2 周必看；第 15-16 章是兴趣拓展。
+
+
+🐳 Docker 从一脸懵到能面试：大学生速通指南
+📑 文章目录
+🎬 第一章：为什么要学 Docker
+🧠 第二章：5 分钟搞懂 Docker 核心概念
+⚙️ 第三章：WSL2 + Docker Desktop 安装（手把手）
+🚧 第四章：WSL2 集成 5 大踩坑（必看）
+🖥️ 第五章：Docker Desktop 全中文 UI 指南
+🔧 第六章：必会 Docker 命令速查
+🚀 第七章：5 个开箱即用实战案例
+📦 第八章：Dockerfile 编写（从青铜到王者）
+💾 第九章：数据卷（让数据持久化）
+🌐 第十章：Docker 网络（容器间通信）
+🎼 第十一章：Docker Compose（多容器编排）
+⚡ 第十二章：性能优化 10 条军规
+🔐 第十三章：私有仓库与镜像管理
+🎯 第十四章：30 道高频面试题（带答案）
+🏭 第十五章：5 个真实工作场景
+🚀 第十六章：进阶路线（K8s &#x2F; CI&#x2F;CD &#x2F; 云原生）
+📚 附录 A：常用命令速查表（建议收藏）
+❓ 附录 B：常见问题 FAQ
+🔗 附录 C：参考资源汇总
+
+
+
+
+🎬 第一章：为什么要学 Docker1.1 真实场景：你为什么要学 Docker讲个真实故事：我室友去年找 Java 后端实习，简历上写了”使用 Docker 部署个人项目”。二面面试官问：”你用 Docker 部署时，遇到 max virtual memory areas vm.max_map_count [65530] is too low 这个报错怎么解决的？”
+
+他当场愣住，因为他项目里 Elasticsearch 那个坑是 ChatGPT 帮他修的，自己完全没搞懂原理。最后面试挂了。
+
+这就是典型的”让 AI 部署但自己看不懂”的痛点。Docker 已经不是加分项，而是后端&#x2F;运维&#x2F;算法岗的入门券。
+1.2 学完 Docker 你能搞定这些事
+
+
+场景
+学 Docker 前
+学 Docker 后
+
+
+
+部署开源项目
+“我本地能跑，服务器上跑不起来，环境不一致 😭”
+docker-compose up -d 一键启动 ✅
+
+
+找实习简历
+“熟悉 Java 基础”
+“用 Docker Compose 部署过包含 MySQL&#x2F;Redis&#x2F;Nginx 的完整项目”
+
+
+校招面试
+答不出容器与虚拟机的区别
+聊 namespace&#x2F;cgroups&#x2F;UnionFS，赢麻了
+
+
+工作第一周
+折腾环境三天
+clone 仓库 → docker compose up → 完成环境搭建
+
+
+毕设演示
+“老师我能演示一下吗？需要先装一堆环境”
+“老师您看，浏览器输入 localhost 就行”
+
+
+1.3 大学生 4 周速通路线图
+
+
+周次
+学习内容
+目标产出
+
+
+
+第 1 周
+Docker 概念 + 安装 + 基础命令 + Docker Desktop UI
+能跑通 hello-world、部署 Nginx
+
+
+第 2 周
+Dockerfile 编写 + 数据卷 + 端口映射 + 自定义网络
+能把自己的项目打成镜像并部署
+
+
+第 3 周
+Docker Compose 多容器编排 + 5 个实战模板
+能用 Compose 一键启动 Web 全家桶
+
+
+第 4 周
+性能优化 + 30 道面试题 + 私有仓库
+能在面试中自信聊 Docker 30 分钟
+
+
+
+💡 每日投入：建议每天 1-2 小时，边敲边学比单纯看文章快 3 倍。
+
+
+🧠 第二章：5 分钟搞懂 Docker 核心概念2.1 一句话讲清 Docker
+**Docker 就是一个”应用打包与运行的标准化工具”**——把你的代码、依赖、配置、运行环境一起打包成”镜像”，然后在任何机器上一键启动”容器”运行。
+
+2.2 三个核心概念（用 Git 类比）
+
+
+Docker 概念
+类比 Git
+作用
+命令
+
+
+
+镜像 Image
+代码仓库（只读）
+应用的”快照模板”
+docker images
+
+
+容器 Container
+代码运行实例
+镜像运行起来的进程
+docker ps
+
+
+仓库 Registry
+GitHub
+存放和分发镜像
+Docker Hub &#x2F; 阿里云
+
+
+
+🎯 记忆口诀：镜像是死的，容器是活的，仓库是邮局。
+
+2.3 一次完整的”代码 → 部署”流程# 1. 写 Dockerfile（应用说明书）FROM node:20-alpine              # 选基础镜像WORKDIR /app                     # 设置工作目录COPY package*.json ./            # 复制依赖文件RUN npm install                  # 安装依赖COPY . .                         # 复制代码EXPOSE 3000                      # 声明端口CMD [&quot;node&quot;, &quot;server.js&quot;]        # 启动命令# 2. 构建镜像（拍照）docker build -t my-app:1.0 .# 3. 推送镜像到仓库（备份/分享）docker push username/my-app:1.0# 4. 在任何机器上拉取并运行（恢复）docker run -d -p 3000:3000 my-app:1.0
+
+2.4 Docker vs 虚拟机（一图搞懂）
+
+
+维度
+虚拟机 VM
+Docker 容器
+
+
+
+启动速度
+30-60 秒
+1-3 秒
+
+
+体积
+几 GB
+几十 MB
+
+
+性能损耗
+5-10%
+&lt;1%
+
+
+隔离性
+强（独立内核）
+弱（共享内核）
+
+
+资源占用
+重
+轻
+
+
+本质
+模拟整个硬件
+隔离的进程
+
+
+
+🎯 面试话术：容器本质是宿主机上的普通进程，被 namespace（命名空间）和 cgroups（控制组）”包裹”出隔离的”假象”。
+
+
+⚙️ 第三章：WSL2 + Docker Desktop 安装（手把手）3.1 你的系统配置
+✅ Windows 11（家庭版即可）
+✅ WSL2 Ubuntu 24.04（推荐）
+✅ 内存 ≥ 16GB（8GB 也能跑，建议升级）
+
+3.2 Step 1：启用 WSL2# PowerShell（管理员）执行# 1. 启用 WSL 功能dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestartdism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart# 2. 设置默认 WSL 版本为 2wsl --set-default-version 2# 3. 安装 Ubuntu 24.04（推荐）wsl --install -d Ubuntu-24.04# 4. 重启电脑Restart-Computer# 5. 启动 Ubuntu 并设置用户名密码wsl -d Ubuntu-24.04
+
+
+⚠️ 踩坑提示：如果 wsl --install 报 “0x80370102” 错误，需要在 BIOS 开启虚拟化（任务管理器 → 性能 → CPU → 虚拟化：已启用）。
+
+3.3 Step 2：安装 Docker Desktop（推荐方案）# 1. 下载 Docker Desktop# 官方下载：https://www.docker.com/products/docker-desktop/# 阿里云镜像：https://mirrors.aliyun.com/docker-toolbox/# 2. 双击安装，全部默认（勾选 WSL2 后端）# 3. 启动 Docker Desktop（托盘出现鲸鱼图标）# 4. 配置镜像加速（必做！否则拉镜像慢到哭）
+
+配置国内镜像加速（解决 Docker Hub 拉镜像慢的问题）：
+// Docker Desktop → Settings → Docker Engine&#123;  &quot;registry-mirrors&quot;: [    &quot;https://docker.mirrors.ustc.edu.cn&quot;,    &quot;https://hub-mirror.c.163.com&quot;,    &quot;https://mirror.baidubce.com&quot;,    &quot;https://dockerproxy.com&quot;  ],  &quot;experimental&quot;: false&#125;
+
+点击 “Apply &amp; Restart”。
+3.4 Step 3：WSL 集成配置Docker Desktop → Settings → Resources → WSL Integration✅ Enable integration with my default WSL distro✅ Ubuntu-24.04 勾选启用→ Apply &amp; Restart
+
+3.5 Step 4：验证安装# 在 WSL2 Ubuntu 终端执行docker --version          # 看到版本号 ✅docker compose version    # 看到 Compose 版本 ✅docker run hello-world    # 看到 &quot;Hello from Docker!&quot; ✅
+
+3.6 备选方案：Docker Engine 原生安装（不推荐新手）
+适合 8GB 内存或不想要 Docker Desktop 的同学（节省 1-2GB 内存）。
+
+# 在 WSL2 Ubuntu 内执行# 1. 卸载旧版本sudo apt remove docker docker-engine docker.io containerd runc# 2. 添加 Docker 官方 GPG keysudo apt updatesudo apt install ca-certificates curlsudo install -m 0755 -d /etc/apt/keyringssudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.ascsudo chmod a+r /etc/apt/keyrings/docker.asc# 3. 添加 Docker 源echo \  &quot;deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \  $(. /etc/os-release &amp;&amp; echo &quot;$&#123;UBUNTU_CODENAME:-$VERSION_CODENAME&#125;&quot;) stable&quot; | \  sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/nullsudo apt update# 4. 安装 Dockersudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin# 5. 免 sudo 使用 dockersudo usermod -aG docker $USERnewgrp docker# 6. 配置 Docker 镜像加速sudo mkdir -p /etc/dockersudo tee /etc/docker/daemon.json &lt;&lt;-&#x27;EOF&#x27;&#123;  &quot;registry-mirrors&quot;: [    &quot;https://docker.mirrors.ustc.edu.cn&quot;,    &quot;https://hub-mirror.c.163.com&quot;  ]&#125;EOFsudo systemctl restart docker# 7. 验证docker run hello-world
+
+3.7 VSCode 集成（强烈推荐）# 1. 在 WSL 内安装 VSCode 远程扩展# VSCode → 扩展 → 搜索 &quot;WSL&quot; → 安装 Microsoft 官方 &quot;WSL&quot; 扩展# 2. 在 WSL 项目目录下打开 VSCodecd ~/my-projectcode .# VSCode 会自动连接 WSL，所有终端、调试都在 Linux 环境下# 安装 Docker 扩展可以在 VSCode 内管理容器
+
+
+🚧 第四章：WSL2 集成 5 大踩坑（必看）踩坑 1️⃣：docker: command not found（找不到 docker 命令）症状：在 WSL2 终端输入 docker --version 提示命令未找到。
+原因：Docker Desktop 没有启用 WSL 集成。
+解决：
+Docker Desktop → Settings → Resources → WSL Integration✅ Enable integration with my default WSL distro→ Apply &amp; Restart
+
+踩坑 2️⃣：Cannot connect to the Docker daemon（连不上 Docker 守护进程）症状：
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+
+排查步骤：
+
+
+
+步骤
+命令
+说明
+
+
+
+1
+检查托盘鲸鱼图标
+Docker Desktop 是否在运行
+
+
+2
+wsl -l -v
+确认 WSL2 已安装
+
+
+3
+临时设置 socket
+export DOCKER_HOST=unix:///var/run/docker.sock
+
+
+4
+永久生效
+echo &#39;export DOCKER_HOST=unix:///var/run/docker.sock&#39; &gt;&gt; ~/.bashrc
+
+
+5
+重启 Docker Desktop
+Settings → Troubleshoot → Restart
+
+
+踩坑 3️⃣：项目放在 &#x2F;mnt&#x2F;c 后构建&#x2F;运行极慢症状：docker build 或 npm install 在 /mnt/c/Users/... 路径下要等 10 分钟。
+原因：WSL2 与 Windows 文件系统（NTFS）的跨文件系统 I&#x2F;O 开销巨大。
+解决：
+# ✅ 正确：把项目移到 WSL2 内部文件系统cp -r /mnt/c/Users/22923/Projects/my-app ~/projects/cd ~/projects/my-appcode .  # 在 VSCode 中继续开发# ⚠️ 可以在 Windows 中用 VSCode 打开 ~/projects/ 下的文件# 不会影响性能
+
+性能对比：
+
+
+
+路径
+性能
+推荐
+
+
+
+~/projects/my-app（WSL2 ext4）
+⭐⭐⭐⭐⭐
+✅
+
+
+/mnt/c/Users/...（Windows NTFS）
+⭐
+❌
+
+
+踩坑 4️⃣：Docker Desktop 占用 C 盘空间过大症状：C 盘空间莫名其妙少了几十个 GB。
+原因：ext4.vhdx（WSL2 虚拟磁盘）会不断膨胀。
+解决：
+# 1. 清理不需要的 Docker 资源docker system prune -a --volumes# 2. 压缩 WSL2 虚拟磁盘wsl --shutdowndiskpart# DISKPART&gt; select vdisk file=&quot;C:\Users\22923\AppData\Local\Docker\wsl\data\ext4.vhdx&quot;# DISKPART&gt; compact vdisk# DISKPART&gt; exit# 3. 长期方案：迁移 WSL2 数据到 D 盘wsl --export docker-desktop-data D:\docker\docker-desktop-data.tarwsl --unregister docker-desktop-datawsl --import docker-desktop-data D:\docker\wsl D:\docker\docker-desktop-data.tar
+
+踩坑 5️⃣：WSL2 内存爆满，Docker 卡死症状：开了 Docker 后 Windows 内存占用飙升到 90%+。
+解决：限制 WSL2 内存使用
+# 在 Windows 用户目录下创建 C:\Users\22923\.wslconfig[wsl2]memory=8GB          # 限制 WSL2 最多使用 8GB 内存processors=4        # 限制使用 4 个 CPU 核心[experimental]autoMemoryReclaim=gradual  # 自动回收闲置内存（推荐）
+
+
+💡 提示：保存后执行 wsl --shutdown 重启 WSL 生效。
+
+踩坑速查表
+
+
+症状
+一句话解决
+
+
+
+docker 命令找不到
+启用 WSL Integration
+
+
+Cannot connect to Docker daemon
+重启 Docker Desktop
+
+
+&#x2F;mnt&#x2F;c 慢如蜗牛
+项目移到 ~&#x2F;projects&#x2F;
+
+
+C 盘空间被吃光
+清理 + compact vdisk
+
+
+内存爆满
+编辑 .wslconfig 限制
+
+
+拉镜像超时
+配置国内镜像加速
+
+
+iptables 报错
+sudo update-alternatives --config iptables 选 1
+
+
+VPN 下网络异常
+.wslconfig 添加 networkingMode=mirrored
+
+
+
+🖥️ 第五章：Docker Desktop 全中文 UI 指南
+🎯 本章解决：”全英文 UI 看不懂”的痛点。每个按钮我都会给你中文解释 + 对应的 CLI 命令。
+
+5.1 主界面布局┌────────────────────────────────────────────────────┐│  Docker Desktop                                    │├──────────┬─────────────────────────────────────────┤│          │                                         ││ 左侧导航 │           主内容区                       ││          │                                         ││ 🏠 Home  │   (根据左侧选中显示对应内容)              ││ 📦 Cont..│                                         ││ 🖼️ Images│                                         ││ 💾 Volum.│                                         ││ 🛠️ Dev.. │                                         ││ 🔍 Scout │                                         ││ 🧩 Ext.. │                                         ││          │                                         ││ ⚙️ Settings                                          │└──────────┴─────────────────────────────────────────┘
+
+5.2 左侧导航栏中英对照
+
+
+英文
+中文
+功能
+CLI 命令
+
+
+
+Home
+主页
+快速启动模板、文档、教程
+-
+
+
+Containers
+容器
+管理所有容器（运行&#x2F;停止）
+docker ps -a
+
+
+Images
+镜像
+管理本地镜像
+docker images
+
+
+Volumes
+数据卷
+管理持久化数据
+docker volume ls
+
+
+Dev Environments
+开发环境
+协作开发环境（需登录）
+-
+
+
+Docker Scout
+安全扫描
+镜像漏洞分析
+docker scout
+
+
+Extensions
+扩展
+第三方插件
+-
+
+
+Settings
+设置
+Docker Desktop 配置
+-
+
+
+5.3 Containers 标签页（最重要的页面）
+
+
+UI 元素
+中文
+对应 CLI
+
+
+
+Name
+容器名称
+-
+
+
+Image
+基础镜像
+-
+
+
+Status
+状态（🟢运行中 &#x2F; 🔴已停止 &#x2F; 🟡暂停）
+docker ps
+
+
+Ports
+端口映射
+docker port &lt;容器&gt;
+
+
+Created
+创建时间
+docker ps -a --format
+
+
+▶️ Run&#x2F;Start
+启动容器
+docker start &lt;容器&gt;
+
+
+⏹️ Stop
+停止容器
+docker stop &lt;容器&gt;
+
+
+🗑️ Delete
+删除容器
+docker rm &lt;容器&gt;
+
+
+📝 Logs
+查看日志
+docker logs -f &lt;容器&gt;
+
+
+🔧 Inspect
+检查详情（JSON）
+docker inspect &lt;容器&gt;
+
+
+💻 CLI
+进入容器终端
+docker exec -it &lt;容器&gt; sh
+
+
+📁 Files
+浏览容器文件
+-
+
+
+📋 Copy ID
+复制容器 ID
+-
+
+
+5.4 Images 标签页
+
+
+UI 元素
+中文
+对应 CLI
+
+
+
+Repository
+仓库名（如 nginx）
+-
+
+
+Tag
+版本标签（如 latest）
+-
+
+
+Image ID
+镜像唯一标识
+-
+
+
+Size
+镜像大小
+docker images
+
+
+▶️ Run
+从镜像创建并运行容器
+docker run &lt;镜像&gt;
+
+
+📥 Pull
+拉取新镜像
+docker pull &lt;镜像&gt;
+
+
+🗑️ Delete
+删除镜像
+docker rmi &lt;镜像&gt;
+
+
+🏷️ Tag
+给镜像打标签
+docker tag &lt;源&gt; &lt;目标&gt;
+
+
+📤 Push
+推送到仓库
+docker push &lt;镜像&gt;
+
+
+5.5 Volumes 标签页
+
+
+UI 元素
+中文
+对应 CLI
+
+
+
+Name
+卷名称
+-
+
+
+Driver
+驱动（一般是 local）
+-
+
+
+Mountpoint
+挂载点路径
+docker volume inspect &lt;卷&gt;
+
+
+Created
+创建时间
+-
+
+
+📥 Create
+创建新卷
+docker volume create &lt;名&gt;
+
+
+🗑️ Delete
+删除卷
+docker volume rm &lt;卷&gt;
+
+
+📋 Browse
+浏览卷内容
+-
+
+
+5.6 Settings（设置）详解
+
+
+设置项
+中文
+说明
+
+
+
+General
+通用
+开机启动、默认使用 WSL2
+
+
+Resources → Advanced
+资源 → 高级
+限制 CPU、内存、磁盘
+
+
+Resources → WSL Integration
+WSL 集成
+启用哪些 WSL 发行版
+
+
+Resources → File Sharing
+文件共享
+允许容器访问哪些宿主机路径
+
+
+Docker Engine
+Docker 引擎
+编辑 daemon.json（镜像加速！）
+
+
+Software Updates
+软件更新
+升级 Docker Desktop
+
+
+Troubleshoot
+故障排除
+重启、清理、查看日志
+
+
+Extensions
+扩展市场
+安装第三方工具
+
+
+最常用的配置：在 Docker Engine 中粘贴：
+&#123;  &quot;registry-mirrors&quot;: [    &quot;https://docker.mirrors.ustc.edu.cn&quot;,    &quot;https://hub-mirror.c.163.com&quot;,    &quot;https://mirror.baidubce.com&quot;  ],  &quot;features&quot;: &#123;    &quot;buildkit&quot;: true  &#125;&#125;
+
+5.7 UI ↔ CLI 完整对照表
+
+
+你的操作
+Docker Desktop 怎么点
+等价 CLI
+
+
+
+运行 nginx
+Images → 搜索 nginx → Run ▶️
+docker run -d -p 80:80 nginx
+
+
+查看容器日志
+Containers → 选中容器 → Logs
+docker logs -f &lt;容器&gt;
+
+
+进入容器
+Containers → CLI 按钮
+docker exec -it &lt;容器&gt; sh
+
+
+停止容器
+Containers → Stop 按钮
+docker stop &lt;容器&gt;
+
+
+删除容器
+Containers → Delete 按钮
+docker rm &lt;容器&gt;
+
+
+清理磁盘
+Troubleshoot → Clean &#x2F; Purge data
+docker system prune -a
+
+
+添加镜像源
+Settings → Docker Engine
+编辑 daemon.json
+
+
+启用 WSL
+Settings → Resources → WSL Integration
+修改 %UserProfile%\.wslconfig
+
+
+
+🎯 学习建议：先用 UI 熟悉概念，1 周后过渡到 CLI，效率提升 3 倍。
+
+
+🔧 第六章：必会 Docker 命令速查6.1 镜像管理# === 搜索 / 拉取 / 删除镜像 ===docker search nginx              # 在 Docker Hub 搜索镜像docker pull nginx:latest         # 拉取镜像（latest 是默认 tag）docker pull nginx:1.25-alpine    # 拉取特定版本（推荐带 tag）# === 查看本地镜像 ===docker images                    # 列出所有镜像docker images -a                 # 包含中间层镜像docker images --format &quot;&#123;&#123;.Repository&#125;&#125;:&#123;&#123;.Tag&#125;&#125; &#123;&#123;.Size&#125;&#125;&quot;  # 自定义格式# === 删除镜像 ===docker rmi nginx:latest          # 按名称删除docker rmi $(docker images -q)   # 删除所有镜像（危险！）# === 镜像导入导出（离线场景）===docker save -o nginx.tar nginx:latest    # 导出到文件docker load -i nginx.tar                 # 从文件加载# === 镜像清理 ===docker image prune               # 清理悬空镜像（dangling）docker image prune -a            # 清理所有未使用镜像
+
+6.2 容器管理# === 启动容器 ===docker run -d -p 80:80 --name my-nginx nginx    # 守护模式 + 端口映射 + 命名docker run -it ubuntu bash                      # 交互模式docker run --rm -it alpine sh                   # 退出后自动删除# === 查看容器 ===docker ps                        # 运行中的容器docker ps -a                     # 所有容器（含停止）docker ps -a -q                  # 只显示容器 ID# === 启停容器 ===docker start &lt;容器&gt;              # 启动已停止容器docker stop &lt;容器&gt;               # 优雅停止（发送 SIGTERM）docker kill &lt;容器&gt;               # 强制停止（发送 SIGKILL）docker restart &lt;容器&gt;            # 重启# === 进入容器 ===docker exec -it &lt;容器&gt; sh        # 进入容器（推荐，exec 不影响主进程）docker exec -it &lt;容器&gt; bash      # 如果容器有 bash# === 查看容器信息 ===docker logs -f &lt;容器&gt;            # 实时查看日志docker logs --tail 100 &lt;容器&gt;    # 最近 100 行docker inspect &lt;容器&gt;            # 查看详细信息（JSON）docker stats                     # 实时资源占用docker top &lt;容器&gt;                # 容器内进程# === 文件操作 ===docker cp &lt;容器&gt;:/path/file ./local    # 从容器拷贝出来docker cp ./local &lt;容器&gt;:/path/        # 拷贝进容器# === 删除容器 ===docker rm &lt;容器&gt;                 # 删除已停止容器docker rm -f &lt;容器&gt;              # 强制删除运行中容器docker rm $(docker ps -a -q)     # 删除所有容器（危险！）
+
+6.3 网络管理# === 查看网络 ===docker network ls                # 所有网络docker network inspect bridge    # 查看 bridge 网络详情# === 创建网络 ===docker network create my-net              # 自定义 bridge 网络docker network create --driver bridge my-net# === 容器加入网络 ===docker run -d --network my-net --name app nginxdocker network connect my-net existing-container   # 容器加入已存在网络docker network disconnect my-net container        # 退出网络# === 删除网络 ===docker network rm my-net
+
+6.4 数据卷管理# === 查看数据卷 ===docker volume ls                 # 所有数据卷docker volume inspect my-data    # 详细信息# === 创建数据卷 ===docker volume create my-data     # 创建命名卷（推荐）docker volume create --driver local --opt type=nfs ...  # NFS 卷# === 使用数据卷 ===docker run -d -v my-data:/app/data nginx             # 命名卷docker run -d -v /host/path:/container/path nginx    # bind mount# === 清理数据卷 ===docker volume prune              # 清理未使用卷（危险！先确认无数据）
+
+6.5 系统级命令# === 系统信息 ===docker version                   # Docker 版本信息docker info                      # Docker 系统信息docker system df                 # 查看磁盘占用# === 一键清理 ===docker system prune              # 清理停止的容器 + 悬空镜像 + 未使用网络docker system prune -a --volumes # 彻底清理（包含未使用卷，慎用！）
+
+6.6 常用 -itd 三个参数
+
+
+参数
+含义
+作用
+
+
+
+-i
+interactive（交互）
+保持 STDIN 打开
+
+
+-t
+tty（终端）
+分配伪终端
+
+
+-d
+detached（守护）
+后台运行
+
+
+# 组合用法docker run -itd nginx        # 后台运行 + 可交互（不常用）docker run -it ubuntu bash   # 前台运行 + 交互式（常用调试）docker run -d nginx          # 纯后台（常用部署）
+
+
+🚀 第七章：5 个开箱即用实战案例
+🎯 本节目标：5 分钟内跑通 5 个真实场景，所有命令复制即用。
+
+实战 1️⃣：Hello World（验证安装）# 拉取并运行 hello-world 镜像docker run hello-world# 预期输出：# Hello from Docker!# This message shows that your installation appears to be working correctly.# ...
+
+实战 2️⃣：部署 Nginx 静态网站# 1. 拉取 Nginx 镜像docker pull nginx:alpine# 2. 创建本地网页目录mkdir -p ~/docker-nginx &amp;&amp; cd ~/docker-nginxecho &quot;&lt;h1&gt;Hello from Docker!&lt;/h1&gt;&lt;p&gt;这是我的第一个 Docker 部署 🚀&lt;/p&gt;&quot; &gt; index.html# 3. 启动 Nginx（挂载本地目录）docker run -d \  --name my-nginx \  -p 8080:80 \  -v $(pwd):/usr/share/nginx/html:ro \  nginx:alpine# 4. 浏览器访问# 打开 http://localhost:8080# 5. 修改 index.html 后刷新即可看到效果（卷挂载的优势）# 6. 清理docker stop my-nginx &amp;&amp; docker rm my-nginx
+
+实战 3️⃣：部署 MySQL 数据库# 1. 启动 MySQLdocker run -d \  --name my-mysql \  -p 3306:3306 \  -e MYSQL_ROOT_PASSWORD=your-password \  -e MYSQL_DATABASE=mydb \  -e MYSQL_USER=myuser \  -e MYSQL_PASSWORD=mypass \  -v mysql-data:/var/lib/mysql \  mysql:8.0 \  --character-set-server=utf8mb4 \  --collation-server=utf8mb4_unicode_ci# 2. 查看启动日志docker logs -f my-mysql# 3. 连接 MySQLdocker exec -it my-mysql mysql -uroot -p# 输入密码后即可进入 MySQL CLI# 4. 用 DataGrip / Navicat 等工具连接# 主机：localhost# 端口：3306# 用户：root# 密码：your-password
+
+实战 4️⃣：部署 Redis 缓存# 1. 启动 Redisdocker run -d \  --name my-redis \  -p 6379:6379 \  -v redis-data:/data \  redis:7-alpine \  redis-server --appendonly yes# 2. 测试连接docker exec -it my-redis redis-cli# 在 redis-cli 中输入：# &gt; PING# PONG# &gt; SET name &quot;docker&quot;# OK# &gt; GET name# &quot;docker&quot;# &gt; exit
+
+实战 5️⃣：部署 Portainer（Docker 可视化管理工具）# 1. 创建 Portainer 数据卷docker volume create portainer_data# 2. 启动 Portainerdocker run -d \  -p 9000:9000 \  --name portainer \  --restart=always \  -v /var/run/docker.sock:/var/run/docker.sock \  -v portainer_data:/data \  portainer/portainer-ce:latest# 3. 浏览器访问# 打开 http://localhost:9000# 首次访问需要设置 admin 密码（8 字符以上）# 然后选择 &quot;Get Started&quot; → &quot;local&quot; 环境
+
+
+💡 Portainer 是 Docker Desktop 之外的最强管理工具，特别适合在服务器上远程管理 Docker。
+
+实战 6️⃣：完整 Dev 环境（带管理工具）# 创建项目目录mkdir -p ~/docker-dev-env &amp;&amp; cd ~/docker-dev-env# 创建 docker-compose.yml 文件cat &gt; docker-compose.yml &lt;&lt; &#x27;EOF&#x27;services:  # MySQL 数据库  mysql:    image: mysql:8.0    container_name: dev-mysql    environment:      MYSQL_ROOT_PASSWORD: root123      MYSQL_DATABASE: devdb    ports:      - &quot;3306:3306&quot;    volumes:      - mysql_data:/var/lib/mysql    restart: unless-stopped  # Redis 缓存  redis:    image: redis:7-alpine    container_name: dev-redis    ports:      - &quot;6379:6379&quot;    volumes:      - redis_data:/data    restart: unless-stopped  # phpMyAdmin (MySQL 可视化)  phpmyadmin:    image: phpmyadmin:latest    container_name: dev-phpmyadmin    ports:      - &quot;8080:80&quot;    environment:      PMA_HOST: mysql      PMA_USER: root      PMA_PASSWORD: root123    depends_on:      - mysql    restart: unless-stopped  # Redis Commander (Redis 可视化)  redis-commander:    image: rediscommander/redis-commander:latest    container_name: dev-redis-ui    ports:      - &quot;8081:8081&quot;    environment:      REDIS_HOSTS: local:redis:6379    depends_on:      - redis    restart: unless-stoppedvolumes:  mysql_data:  redis_data:EOF# 启动所有服务docker compose up -d# 查看服务状态docker compose ps# 访问管理界面# phpMyAdmin:  http://localhost:8080  (root/root123)# Redis UI:    http://localhost:8081# MySQL:       localhost:3306# Redis:       localhost:6379# 停止所有服务docker compose down# 停止并删除数据卷（危险！）docker compose down -v
+
+
+📦 第八章：Dockerfile 编写（从青铜到王者）8.1 Dockerfile 核心指令 11 讲
+
+
+指令
+作用
+示例
+
+
+
+FROM
+基础镜像（必须第一条）
+FROM node:20-alpine
+
+
+WORKDIR
+设置工作目录
+WORKDIR /app
+
+
+COPY
+复制文件
+COPY package*.json ./
+
+
+ADD
+复制文件（支持 URL 和自动解压）
+ADD app.tar.gz /app
+
+
+RUN
+执行命令
+RUN apt-get update &amp;&amp; apt-get install -y curl
+
+
+ENV
+设置环境变量
+ENV NODE_ENV=production
+
+
+EXPOSE
+声明容器监听端口（文档作用）
+EXPOSE 3000
+
+
+CMD
+容器启动默认命令（可被覆盖）
+CMD [&quot;node&quot;, &quot;server.js&quot;]
+
+
+ENTRYPOINT
+容器启动入口（不易覆盖）
+ENTRYPOINT [&quot;/entrypoint.sh&quot;]
+
+
+USER
+切换运行用户
+USER appuser
+
+
+HEALTHCHECK
+健康检查
+HEALTHCHECK CMD curl -f http://localhost/ || exit 1
+
+
+VOLUME
+声明数据卷
+VOLUME [&quot;/data&quot;]
+
+
+ARG
+构建参数
+ARG VERSION=latest
+
+
+LABEL
+元数据标签
+LABEL maintainer=&quot;you@example.com&quot;
+
+
+ONBUILD
+触发指令（子镜像构建时执行）
+ONBUILD COPY . /app
+
+
+8.2 多阶段构建（让镜像瘦 80%）
+🎯 多阶段构建是 Dockerfile 必学技能，能让 Java 镜像从 800MB 瘦到 200MB，Node.js 镜像从 1.2GB 瘦到 180MB。
+
+示例 1：Node.js 多阶段构建# ========== 阶段 1: 构建 ==========FROM node:20-alpine AS builderWORKDIR /app# 先复制依赖文件（利用 Docker 缓存）COPY package*.json ./RUN npm ci --only=production# 再复制代码COPY . .# ========== 阶段 2: 运行 ==========FROM node:20-alpine AS runtimeWORKDIR /app# 只从构建阶段复制必要产物COPY --from=builder /app/node_modules ./node_modulesCOPY --from=builder /app/dist ./dist# 创建非 root 用户RUN addgroup -g 1001 -S appgroup &amp;&amp; \    adduser -u 1001 -S appuser -G appgroupUSER appuserEXPOSE 3000CMD [&quot;node&quot;, &quot;dist/index.js&quot;]
+
+示例 2：Java Spring Boot 多阶段构建# ========== 阶段 1: 用 Maven 构建 ==========FROM maven:3.9-eclipse-temurin-17 AS builderWORKDIR /app# 先复制 pom.xml（利用 Maven 依赖缓存）COPY pom.xml .RUN mvn dependency:go-offline# 复制源码并构建COPY src ./srcRUN mvn package -DskipTests# ========== 阶段 2: 用 JRE 运行环境 ==========FROM eclipse-temurin:17-jre-alpineWORKDIR /app# 只复制构建产物（jar 包）COPY --from=builder /app/target/*.jar app.jar# 配置 JVM 内存（容器化最佳实践）ENV JAVA_OPTS=&quot;-Xms256m -Xmx512m&quot;ENTRYPOINT [&quot;sh&quot;, &quot;-c&quot;, &quot;java $JAVA_OPTS -jar app.jar&quot;]
+
+示例 3：Go 多阶段构建（最终镜像可小到 10MB）# ========== 阶段 1: 编译 ==========FROM golang:1.22-alpine AS builderWORKDIR /app# 先复制依赖COPY go.mod go.sum ./RUN go mod download# 再复制代码并编译COPY . .RUN CGO_ENABLED=0 go build -o myapp# ========== 阶段 2: distroless 极简运行 ==========FROM gcr.io/distroless/static-debian12:nonrootCOPY --from=builder /app/myapp /myappUSER nonroot:nonrootEXPOSE 8080ENTRYPOINT [&quot;/myapp&quot;]
+
+
+💡 distroless 是 Google 提供的极简镜像，没有 shell、没有包管理器，安全性极高，但调试不便。
+
+8.3 .dockerignore 必备项# .dockerignore.git.gitignore.env.env.*README.mddocs/node_modules__pycache__*.pyctarget/build/dist/.vscode.idea*.log*.swp.DS_Storetests/coverage/
+
+
+🎯 作用：减少构建上下文大小，提升 docker build 速度 50%+。一个 1000 文件的项目，从 500MB 降到 5MB。
+
+8.4 实战：构建并运行你的第一个自定义镜像# 1. 创建项目目录mkdir -p ~/my-first-docker &amp;&amp; cd ~/my-first-docker# 2. 创建一个简单的 Node.js 应用cat &gt; app.js &lt;&lt; &#x27;EOF&#x27;const http = require(&#x27;http&#x27;);const os = require(&#x27;os&#x27;);const server = http.createServer((req, res) =&gt; &#123;  res.writeHead(200, &#123; &#x27;Content-Type&#x27;: &#x27;text/html; charset=utf-8&#x27; &#125;);  res.end(`&lt;h1&gt;🐳 来自 Docker 容器的问候！&lt;/h1&gt;           &lt;p&gt;主机名: $&#123;os.hostname()&#125;&lt;/p&gt;           &lt;p&gt;当前时间: $&#123;new Date()&#125;&lt;/p&gt;`);&#125;);server.listen(3000, () =&gt; console.log(&#x27;Server running on port 3000&#x27;));EOF# 3. 创建 package.jsoncat &gt; package.json &lt;&lt; &#x27;EOF&#x27;&#123;  &quot;name&quot;: &quot;my-first-docker&quot;,  &quot;version&quot;: &quot;1.0.0&quot;,  &quot;main&quot;: &quot;app.js&quot;,  &quot;scripts&quot;: &#123;    &quot;start&quot;: &quot;node app.js&quot;  &#125;&#125;EOF# 4. 创建 Dockerfilecat &gt; Dockerfile &lt;&lt; &#x27;EOF&#x27;FROM node:20-alpineWORKDIR /appCOPY package*.json ./RUN npm install --omit=devCOPY . .EXPOSE 3000CMD [&quot;node&quot;, &quot;app.js&quot;]EOF# 5. 构建镜像docker build -t my-first-app:1.0 .# 6. 运行容器docker run -d -p 3000:3000 --name my-app my-first-app:1.0# 7. 浏览器访问# 打开 http://localhost:3000# 注意：每次刷新&quot;主机名&quot;会变，因为是容器内主机名# 8. 清理docker stop my-app &amp;&amp; docker rm my-appdocker rmi my-first-app:1.0
+
+8.5 Dockerfile 编写最佳实践
+
+
+实践
+原因
+收益
+
+
+
+使用 alpine 基础镜像
+体积小（5-10MB）
+拉取快、传输快
+
+
+多阶段构建
+分离构建&#x2F;运行环境
+镜像瘦 80%
+
+
+合理利用构建缓存
+把变化少的层放前面
+重新构建快 10x
+
+
+合并 RUN 命令
+每个 RUN 是一层
+层数少、镜像小
+
+
+清理缓存
+rm -rf /var/lib/apt/lists/*
+镜像小 100MB+
+
+
+使用 exec 格式 CMD
+CMD [&quot;node&quot;, &quot;app.js&quot;]
+信号正确传递
+
+
+非 root 用户
+USER appuser
+安全
+
+
+配置时区
+ENV TZ=Asia/Shanghai
+日志时间对
+
+
+HEALTHCHECK
+健康检查
+编排工具能感知健康
+
+
+添加 .dockerignore
+排除无用文件
+构建快、镜像小
+
+
+
+💾 第九章：数据卷（让数据持久化）9.1 为什么需要数据卷
+**容器的本质是”无状态”**——容器被删除，里面的数据就没了。但数据库、用户上传的文件不能丢！
+
+场景演示：
+# 没有数据卷的情况docker run -d --name mysql1 -e MYSQL_ROOT_PASSWORD=123456 mysql:8.0docker exec -it mysql1 mysql -uroot -p123456 -e &quot;CREATE DATABASE test;&quot;docker stop mysql1 &amp;&amp; docker rm mysql1   # 容器删除docker run -d --name mysql2 -e MYSQL_ROOT_PASSWORD=123456 mysql:8.0  # 重新启动docker exec -it mysql2 mysql -uroot -p123456 -e &quot;SHOW DATABASES;&quot;  # test 数据库没了 😭
+
+9.2 Volume vs Bind Mount 决策树需要持久化数据？│├── 是 → 数据会跨容器共享吗？│         ││         ├── 是 → 使用 Named Volume（推荐）⭐│         │         示例：MySQL 数据目录│         ││         └── 否 → 需要在宿主机直接访问文件吗？│                   ││                   ├── 是 → 使用 Bind Mount│                   │         示例：代码实时热重载、配置文件│                   ││                   └── 否 → 使用 tmpfs mount│                             示例：敏感数据、临时缓存│└── 否 → 不需要挂载
+
+9.3 三种挂载方式对比
+
+
+特性
+Named Volume
+Bind Mount
+tmpfs Mount
+
+
+
+存储位置
+Docker 管理（/var/lib/docker/volumes/）
+宿主机任意位置
+内存中
+
+
+数据持久化
+✅ 容器删除后保留
+✅ 容器删除后保留
+❌ 容器删除后丢失
+
+
+跨容器共享
+✅ 多个容器可挂载同一卷
+⚠️ 需要相同路径
+❌ 不可共享
+
+
+宿主机访问
+⚠️ 需要特殊工具
+✅ 直接访问
+❌ 不可访问
+
+
+性能
+⭐⭐⭐⭐
+依赖宿主机文件系统
+⭐⭐⭐⭐⭐
+
+
+备份&#x2F;迁移
+docker run -v 即可
+直接复制目录
+不适用
+
+
+适用场景
+数据库数据、生产数据
+代码热更新、配置文件
+临时缓存、敏感数据
+
+
+9.4 实战：MySQL 数据持久化# 1. 创建命名卷docker volume create mysql-data# 2. 启动 MySQL，挂载卷docker run -d \  --name my-mysql \  -p 3306:3306 \  -e MYSQL_ROOT_PASSWORD=123456 \  -v mysql-data:/var/lib/mysql \  mysql:8.0# 3. 写入测试数据docker exec -it my-mysql mysql -uroot -p123456 \  -e &quot;CREATE DATABASE test; USE test; CREATE TABLE users (id INT, name VARCHAR(50)); INSERT INTO users VALUES (1, &#x27;Alice&#x27;);&quot;# 4. 验证数据docker exec -it my-mysql mysql -uroot -p123456 -e &quot;SELECT * FROM test.users;&quot;# 应该看到 Alice# 5. 模拟&quot;容器被删&quot;（数据卷保留）docker stop my-mysql &amp;&amp; docker rm my-mysql# 6. 重新启动，数据还在！docker run -d \  --name my-mysql \  -p 3306:3306 \  -e MYSQL_ROOT_PASSWORD=123456 \  -v mysql-data:/var/lib/mysql \  mysql:8.0# 7. 再次验证docker exec -it my-mysql mysql -uroot -p123456 -e &quot;SELECT * FROM test.users;&quot;# 🎉 Alice 还在！这就是数据卷的作用# 8. 清理docker stop my-mysql &amp;&amp; docker rm my-mysqldocker volume rm mysql-data
+
+9.5 实战：开发环境代码热更新（Bind Mount）# 启动一个 Node.js 容器，把本地代码目录挂载进去# 修改本地代码 → 容器内自动生效（部分语言需要 nodemon）docker run -d \  --name dev-app \  -p 3000:3000 \  -v $(pwd):/app \  -v /app/node_modules \  node:20-alpine \  sh -c &quot;cd /app &amp;&amp; npm install &amp;&amp; npm run dev&quot;# 注意：第二个 -v /app/node_modules 是匿名卷# 作用：保护容器内的 node_modules 不被宿主机的空目录覆盖
+
+
+🌐 第十章：Docker 网络（容器间通信）10.1 四种网络模式对比
+
+
+模式
+命令
+网络隔离
+适用场景
+
+
+
+bridge
+--net=bridge（默认）
+独立命名空间
+容器间通信（最常用）⭐
+
+
+host
+--net=host
+共享宿主机
+高性能网络、占满所有端口
+
+
+none
+--net=none
+完全没有网络
+完全隔离、批处理任务
+
+
+container
+--net=container:ID
+与指定容器共享
+Sidecar 模式（日志收集）
+
+
+10.2 默认 bridge vs 自定义 bridge
+
+
+特性
+默认 bridge
+自定义 bridge
+
+
+
+DNS 解析
+❌ 只能通过 IP 通信
+✅ 容器名即域名
+
+
+自动服务发现
+❌
+✅
+
+
+网络隔离
+所有容器共享
+可按项目隔离
+
+
+容器加入&#x2F;离开
+需要手动重启
+自动配置
+
+
+自定义网络是最佳实践：
+# 创建自定义网络docker network create my-net# 启动两个容器，加入同一网络docker run -d --name app --network my-net myappdocker run -d --name db --network my-net mysql:8.0# 在 app 容器内，db 即可解析为 IPdocker exec app ping db# 🎉 不需要记 IP，容器名就是域名
+
+10.3 实战：Web + DB 多容器通信# 1. 创建自定义网络docker network create web-db-net# 2. 启动 MySQL（加入网络）docker run -d \  --name mysql \  --network web-db-net \  -e MYSQL_ROOT_PASSWORD=123456 \  -e MYSQL_DATABASE=myapp \  mysql:8.0# 3. 启动 Web 应用（加入同一网络）docker run -d \  --name webapp \  --network web-db-net \  -p 3000:3000 \  -e DB_HOST=mysql \  -e DB_PORT=3306 \  -e DB_USER=root \  -e DB_PASSWORD=123456 \  my-webapp:1.0# 4. 验证网络docker exec webapp ping mysql  # 应该能 ping 通docker exec webapp nslookup mysql  # 解析 DNS
+
+10.4 网络相关故障排查# 查看容器的网络配置docker inspect &lt;容器&gt; | grep -A 20 &quot;Networks&quot;# 查看网络的详细信息docker network inspect web-db-net# 手动测试网络连接docker run -it --rm --network web-db-net alpine sh# 在 alpine 内执行：# &gt; ping mysql# &gt; ping webapp# &gt; nslookup mysql# &gt; wget http://webapp:3000
+
+
+🎼 第十一章：Docker Compose（多容器编排）
+🎯 **Compose 是 Docker 学习的”分水岭”**——掌握它，你就能”一键部署”任何项目；不掌握它，你只能一个一个 docker run 折腾。
+
+11.1 为什么需要 Compose没有 Compose 时：
+# 启动一个完整 Web 项目需要 N 条命令docker run -d --name mysql -e MYSQL_ROOT_PASSWORD=123456 mysql:8.0docker run -d --name redis redis:7-alpinedocker run -d --name app -p 3000:3000 --link mysql --link redis myapp# 启动顺序、参数管理、依赖关系...全靠记忆和命令历史
+
+有 Compose 时：
+# 一行命令启动所有服务docker compose up -d# 启动顺序、参数、依赖关系全部在 yaml 文件里
+
+11.2 docker-compose.yml 核心结构# docker-compose.ymlversion: &#x27;3.8&#x27;    # Compose 文件版本services:          # 服务列表  webapp:    build: ./app   # 构建上下文    image: myapp:1.0    container_name: my-webapp    ports:      - &quot;3000:3000&quot;   # 端口映射 宿主机:容器    environment:      - DB_HOST=db      - DB_PORT=3306    volumes:      - ./app:/app    # bind mount      - app-data:/app/data  # 命名卷    depends_on:       # 启动顺序      - db      - redis    networks:      - backend    restart: unless-stopped    healthcheck:      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:3000/health&quot;]      interval: 30s      timeout: 10s      retries: 3  db:    image: mysql:8.0    environment:      MYSQL_ROOT_PASSWORD: 123456      MYSQL_DATABASE: myapp    volumes:      - db-data:/var/lib/mysql    networks:      - backend    restart: unless-stopped  redis:    image: redis:7-alpine    networks:      - backend    restart: unless-stoppedvolumes:            # 命名卷  app-data:  db-data:networks:           # 自定义网络  backend:    driver: bridge
+
+11.3 Compose 核心命令# === 启动 / 停止 ===docker compose up -d              # 后台启动所有服务docker compose up                 # 前台启动（看日志）docker compose down               # 停止并删除容器、网络docker compose down -v            # 同时删除数据卷（危险！）docker compose stop               # 停止服务（不删除）docker compose start              # 启动已停止的服务docker compose restart            # 重启# === 查看状态 ===docker compose ps                 # 服务状态docker compose logs -f            # 查看日志（所有服务）docker compose logs -f webapp     # 查看指定服务日志docker compose top                # 服务进程# === 单服务操作 ===docker compose exec webapp sh     # 进入服务容器docker compose run --rm webapp command  # 运行一次性命令# === 构建与拉取 ===docker compose build              # 构建镜像docker compose pull               # 拉取镜像# === 校验与配置 ===docker compose config             # 校验配置 + 显示实际配置docker compose config --services  # 只列出服务名# === 扩缩容（仅 Compose V2 + Swarm） ===docker compose up -d --scale webapp=3   # 启动 3 个 webapp 实例
+
+11.4 实战模板 1️⃣：LNMP 全家桶（PHP + Nginx + MySQL）# docker-compose.ymlservices:  php:    build: ./php    container_name: lnmp-php    ports:      - &quot;9000:9000&quot;    volumes:      - ./www:/var/www/html    depends_on:      mysql:        condition: service_healthy    networks:      - lnmp-net    restart: unless-stopped  nginx:    image: nginx:alpine    container_name: lnmp-nginx    ports:      - &quot;80:80&quot;    volumes:      - ./www:/var/www/html      - ./nginx/conf.d:/etc/nginx/conf.d:ro    depends_on:      - php    networks:      - lnmp-net    restart: unless-stopped  mysql:    image: mysql:8.0    container_name: lnmp-mysql    environment:      MYSQL_ROOT_PASSWORD: root123      MYSQL_DATABASE: laravel    ports:      - &quot;3306:3306&quot;    volumes:      - mysql_data:/var/lib/mysql    networks:      - lnmp-net    healthcheck:      test: [&quot;CMD&quot;, &quot;mysqladmin&quot;, &quot;ping&quot;, &quot;-h&quot;, &quot;localhost&quot;]      interval: 10s      timeout: 5s      retries: 5    restart: unless-stoppednetworks:  lnmp-net:    driver: bridgevolumes:  mysql_data:
+
+11.5 实战模板 2️⃣：Spring Boot + MySQL + Redisservices:  app:    build: ./springboot    container_name: springboot-app    ports:      - &quot;8080:8080&quot;    environment:      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/demo_db?useSSL=false&amp;serverTimezone=UTC      SPRING_DATASOURCE_USERNAME: root      SPRING_DATASOURCE_PASSWORD: root123      SPRING_REDIS_HOST: redis      SPRING_REDIS_PORT: 6379    depends_on:      mysql:        condition: service_healthy      redis:        condition: service_healthy    networks:      - spring-net    restart: unless-stopped    healthcheck:      test: [&quot;CMD&quot;, &quot;wget&quot;, &quot;--spider&quot;, &quot;-q&quot;, &quot;http://localhost:8080/actuator/health&quot;]      interval: 30s      timeout: 10s      retries: 3  mysql:    image: mysql:8.0    container_name: spring-mysql    environment:      MYSQL_ROOT_PASSWORD: root123      MYSQL_DATABASE: demo_db    ports:      - &quot;3306:3306&quot;    volumes:      - mysql_data:/var/lib/mysql    networks:      - spring-net    healthcheck:      test: [&quot;CMD&quot;, &quot;mysqladmin&quot;, &quot;ping&quot;, &quot;-h&quot;, &quot;localhost&quot;]      interval: 10s      timeout: 5s      retries: 5    restart: unless-stopped  redis:    image: redis:7-alpine    container_name: spring-redis    command: redis-server --appendonly yes    ports:      - &quot;6379:6379&quot;    volumes:      - redis_data:/data    networks:      - spring-net    healthcheck:      test: [&quot;CMD&quot;, &quot;redis-cli&quot;, &quot;ping&quot;]      interval: 10s      timeout: 5s      retries: 5    restart: unless-stoppednetworks:  spring-net:    driver: bridgevolumes:  mysql_data:  redis_data:
+
+11.6 实战模板 3️⃣：Python Django + PostgreSQL + Celery + Redisservices:  web:    build: ./pythonapp    container_name: django-web    ports:      - &quot;8000:8000&quot;    volumes:      - ./app:/code      - static_volume:/code/staticfiles    environment:      DATABASE_URL: postgresql://dbuser:dbpass@db:5432/mydb      REDIS_URL: redis://redis:6379/0      PYTHONUNBUFFERED: 1    depends_on:      db:        condition: service_healthy      redis:        condition: service_healthy    networks:      - python-net    restart: unless-stopped  celery:    build: ./pythonapp    container_name: django-celery    command: celery -A myproject worker -l info    volumes:      - ./app:/code    environment:      DATABASE_URL: postgresql://dbuser:dbpass@db:5432/mydb      REDIS_URL: redis://redis:6379/0    depends_on:      - db      - redis    networks:      - python-net    restart: unless-stopped  db:    image: postgres:15-alpine    container_name: django-db    environment:      POSTGRES_USER: dbuser      POSTGRES_PASSWORD: dbpass      POSTGRES_DB: mydb    ports:      - &quot;5432:5432&quot;    volumes:      - pg_data:/var/lib/postgresql/data    networks:      - python-net    healthcheck:      test: [&quot;CMD-SHELL&quot;, &quot;pg_isready -U dbuser -d mydb&quot;]      interval: 10s      timeout: 5s      retries: 5    restart: unless-stopped  redis:    image: redis:7-alpine    container_name: django-redis    ports:      - &quot;6379:6379&quot;    volumes:      - redis_data:/data    networks:      - python-net    healthcheck:      test: [&quot;CMD&quot;, &quot;redis-cli&quot;, &quot;ping&quot;]    restart: unless-stoppednetworks:  python-net:    driver: bridgevolumes:  pg_data:  redis_data:  static_volume:
+
+11.7 实战模板 4️⃣：Node.js + MongoDB + Nginxservices:  api:    build: ./nodeapp    container_name: node-api    ports:      - &quot;3000:3000&quot;    environment:      NODE_ENV: production      MONGODB_URI: mongodb://mongo:27017/myapp      JWT_SECRET: $&#123;JWT_SECRET:-change-me-in-production&#125;    volumes:      - ./uploads:/app/uploads    depends_on:      mongo:        condition: service_healthy    networks:      - node-net    restart: unless-stopped    healthcheck:      test: [&quot;CMD&quot;, &quot;wget&quot;, &quot;--quiet&quot;, &quot;--tries=1&quot;, &quot;--spider&quot;, &quot;http://localhost:3000/health&quot;]      interval: 30s      timeout: 10s      retries: 3  mongo:    image: mongo:7    container_name: node-mongo    ports:      - &quot;27017:27017&quot;    volumes:      - mongo_data:/data/db    environment:      MONGO_INITDB_ROOT_USERNAME: admin      MONGO_INITDB_ROOT_PASSWORD: mongopass123    networks:      - node-net    healthcheck:      test: [&quot;CMD&quot;, &quot;mongosh&quot;, &quot;--eval&quot;, &quot;db.adminCommand(&#x27;ping&#x27;)&quot;]      interval: 10s      timeout: 5s      retries: 5    restart: unless-stopped  nginx:    image: nginx:alpine    container_name: node-nginx    ports:      - &quot;80:80&quot;    volumes:      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro      - ./nginx/conf.d:/etc/nginx/conf.d:ro    depends_on:      - api    networks:      - node-net    restart: unless-stoppednetworks:  node-net:    driver: bridgevolumes:  mongo_data:
+
+11.8 实战模板 5️⃣：完整 Dev 环境（带管理工具，按需启动）# .env 文件定义变量# MYSQL_ROOT_PASSWORD=root123# MONGO_PASSWORD=mongopassservices:  # === 核心服务（默认启动）===  app:    build: .    container_name: dev-app    ports:      - &quot;3000:3000&quot;    volumes:      - .:/workspace      - /workspace/node_modules    depends_on:      - mysql      - redis    networks:      - dev-net  mysql:    image: mysql:8.0    container_name: dev-mysql    environment:      MYSQL_ROOT_PASSWORD: $&#123;MYSQL_ROOT_PASSWORD:-root123&#125;      MYSQL_DATABASE: devdb    ports:      - &quot;3306:3306&quot;    volumes:      - mysql_dev_data:/var/lib/mysql    networks:      - dev-net  redis:    image: redis:7-alpine    container_name: dev-redis    ports:      - &quot;6379:6379&quot;    volumes:      - redis_dev_data:/data    networks:      - dev-net  # === 管理工具（只在 --profile tools 时启动）===  phpmyadmin:    image: phpmyadmin:latest    container_name: dev-phpmyadmin    ports:      - &quot;8080:80&quot;    environment:      PMA_HOST: mysql      PMA_USER: root      PMA_PASSWORD: $&#123;MYSQL_ROOT_PASSWORD:-root123&#125;    depends_on:      - mysql    networks:      - dev-net    profiles:      - tools  redis-commander:    image: rediscommander/redis-commander:latest    container_name: dev-redis-ui    ports:      - &quot;8081:8081&quot;    environment:      REDIS_HOSTS: local:redis:6379    depends_on:      - redis    networks:      - dev-net    profiles:      - tools  portainer:    image: portainer/portainer-ce:latest    container_name: dev-portainer    ports:      - &quot;9000:9000&quot;    volumes:      - /var/run/docker.sock:/var/run/docker.sock      - portainer_data:/data    networks:      - dev-net    profiles:      - toolsnetworks:  dev-net:    driver: bridgevolumes:  mysql_dev_data:  redis_dev_data:  portainer_data:
+
+启动方式：
+# 只启动核心服务docker compose up -d# 启动包含管理工具的完整环境docker compose --profile tools up -d# 关闭管理工具docker compose --profile tools down
+
+11.9 Compose 高级特性特性 1：多文件合并# 默认会合并 docker-compose.yml + docker-compose.override.yml# override 文件通常放本地开发配置（bind mount、暴露端口）# 生产环境用额外文件docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+特性 2：环境变量文件（.env）# .envTAG=1.0.0DB_PASSWORD=secret123
+
+# docker-compose.yml 中引用services:  app:    image: myapp:$&#123;TAG&#125;    environment:      - DB_PASSWORD=$&#123;DB_PASSWORD&#125;
+
+特性 3：健康检查 + depends_onservices:  db:    image: mysql:8.0    healthcheck:      test: [&quot;CMD&quot;, &quot;mysqladmin&quot;, &quot;ping&quot;, &quot;-h&quot;, &quot;localhost&quot;]      interval: 10s      timeout: 5s      retries: 5  app:    depends_on:      db:        condition: service_healthy   # 等待 DB 健康后再启动 ✅
+
+特性 4：使用变量插值services:  app:    image: myapp:$&#123;TAG:-latest&#125;        # 默认值    ports:      - &quot;$&#123;HOST_PORT:-8080&#125;:80&quot;        # 环境变量
+
+
+⚡ 第十二章：性能优化 10 条军规军规 1️⃣：镜像层缓存优化核心原则：把变化少的层放前面，变化多的层放后面。
+# ❌ 错误：每次代码改变都会导致依赖重新安装FROM node:20-alpineCOPY . .                      # 变化多RUN npm install               # 依赖安装放最后# ✅ 正确：利用 Docker 缓存FROM node:20-alpineWORKDIR /appCOPY package*.json ./         # 变化少，先复制RUN npm ci --only=production  # 安装依赖（这一步会缓存）COPY . .                      # 源码变化多，放最后
+
+进阶技巧：使用 BuildKit 的 --mount=type=cache 加速 npm&#x2F;pip&#x2F;maven 缓存：
+# syntax=docker/dockerfile:1FROM node:20-alpineRUN --mount=type=cache,target=/root/.npm \    npm ci --only=production
+
+军规 2️⃣：多阶段构建（最重要！）
+让 Java 镜像从 800MB → 200MB，Node.js 镜像从 1.2GB → 180MB。
+
+详见 8.2 节。
+军规 3️⃣：.dockerignore 必备项详见 8.3 节。
+效果：一个 1000 文件、500MB 的项目，构建上下文从 500MB 降到 5MB，构建速度快 10x。
+军规 4️⃣：基础镜像选型
+
+
+镜像
+体积
+包管理
+C 库
+适用场景
+
+
+
+alpine
+~5MB
+apk
+musl
+简单服务、Go、Node.js
+
+
+debian-slim
+~30MB
+apt
+glibc
+需要兼容性的 Python、Java
+
+
+distroless
+~2MB
+无
+glibc
+生产安全要求高、Go 静态编译
+
+
+选择决策树：
+你的应用是？├── 静态编译（Go/Rust）→ distroless ⭐├── Node.js/PHP → alpine ⭐├── Java/Spring Boot → eclipse-temurin-jre-alpine ⭐├── Python → debian-slim（兼容性更好）└── C/C++ → alpine 或 debian-slim
+
+军规 5️⃣：镜像分析工具 Dive# 安装wget https://github.com/wagoodman/dive/releases/download/v0.13.0/dive_0.13.0_linux_amd64.debsudo apt install ./dive_0.13.0_linux_amd64.deb# 分析镜像dive my-app:1.0# 快捷键# ↑↓ - 选择层# ←→ - 浏览文件# Space - 展开/折叠# Ctrl+U - 显示层变更
+
+dive 报告会指出哪些层有”浪费空间”的文件（如 apt 缓存、临时文件）。
+军规 6️⃣：启动速度优化services:  app:    healthcheck:      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8080/health&quot;]      interval: 30s      timeout: 10s      retries: 3      start_period: 40s  # 容器启动后等待时间    deploy:      resources:        limits:          cpus: &#x27;1.0&#x27;          memory: 512M
+
+优雅关闭（处理 SIGTERM 信号）：
+# Alpine 镜像中安装 tini 作为 PID 1RUN apk add --no-cache tiniENTRYPOINT [&quot;/sbin/tini&quot;, &quot;--&quot;]
+
+军规 7️⃣：日志管理services:  app:    logging:      driver: &quot;json-file&quot;      options:        max-size: &quot;10m&quot;       # 单个日志文件最大 10MB        max-file: &quot;3&quot;         # 最多保留 3 个文件        compress: &quot;true&quot;      # 压缩历史日志
+
+应用层：
+# Python：输出到 stdoutimport logging, syslogging.basicConfig(stream=sys.stdout)
+
+军规 8️⃣：时区配置# 方案 1：环境变量services:  app:    environment:      - TZ=Asia/Shanghai
+
+# 方案 2：DockerfileFROM node:20-alpineRUN apk add --no-cache tzdataENV TZ=Asia/Shanghai
+
+军规 9️⃣：非 root 用户FROM node:20-alpineRUN addgroup -g 1001 -S appgroup &amp;&amp; \    adduser -u 1001 -S appuser -G appgroupUSER appuser
+
+
+🎯 重要性：容器逃逸攻击中，root 容器会让攻击者获得宿主机 root 权限；非 root 容器能极大限制破坏力。
+
+军规 🔟：HEALTHCHECK 健康检查# DockerfileHEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \    CMD curl -f http://localhost:8080/health || exit 1
+
+各服务健康检查命令：
+
+
+
+服务
+检查命令
+
+
+
+MySQL
+mysqladmin ping -h localhost
+
+
+PostgreSQL
+pg_isready -U user -d dbname
+
+
+Redis
+redis-cli ping
+
+
+MongoDB
+mongosh --eval &quot;db.adminCommand(&#39;ping&#39;)&quot;
+
+
+Nginx
+curl -f http://localhost/health
+
+
+自定义 API
+wget --spider http://localhost:3000/health
+
+
+
+🔐 第十三章：私有仓库与镜像管理13.1 Docker Hub 入门# 1. 注册 Docker Hub 账号# https://hub.docker.com/# 2. 登录docker login# 输入用户名、密码# 3. 给镜像打 tag（必须用你的用户名作为前缀）docker tag my-app:1.0 yourusername/my-app:1.0# 4. 推送docker push yourusername/my-app:1.0# 5. 在任何机器上拉取docker pull yourusername/my-app:1.0# 6. 登出docker logout
+
+13.2 私有仓库 Registry 搭建# 1. 启动 registrydocker run -d \  --name my-registry \  -p 5000:5000 \  -v registry-data:/var/lib/registry \  --restart=always \  registry:2# 2. 推送镜像到私有仓库# 给镜像打 tagdocker tag my-app:1.0 localhost:5000/my-app:1.0# 推送docker push localhost:5000/my-app:1.0# 3. 拉取docker pull localhost:5000/my-app:1.0
+
+13.3 国内云镜像仓库（推荐）
+
+
+服务商
+地址
+免费额度
+推荐场景
+
+
+
+阿里云容器镜像服务
+cr.console.aliyun.com
+个人版免费
+国内首选
+
+
+腾讯云容器服务
+console.cloud.tencent.com&#x2F;tke2
+个人版免费
+腾讯云用户
+
+
+华为云容器镜像
+console.huaweicloud.com&#x2F;swr
+个人版免费
+华为云用户
+
+
+GitHub Container Registry
+ghcr.io
+公开免费
+开源项目
+
+
+阿里云镜像仓库使用流程：
+1. 访问 cr.console.aliyun.com2. 创建个人实例3. 创建命名空间（如 my-namespace）4. 创建镜像仓库（如 my-app）5. 在仓库详情页获取登录命令6. docker login registry.cn-hangzhou.aliyuncs.com7. docker tag / push
+
+13.4 镜像导入导出（离线场景）# 导出镜像到本地文件docker save -o my-app.tar my-app:1.0# 从文件加载镜像docker load -i my-app.tar# 导出容器文件系统为 tardocker export &lt;容器ID&gt; &gt; container.tar# 从 tar 导入为镜像docker import container.tar my-image:latest
+
+
+🎯 第十四章：30 道高频面试题（带答案）
+🎯 本章节专门为找实习准备。所有题目均来自 2024-2026 年大厂面试题库。
+
+模块一：Dockerfile &amp; 镜像优化（6题）Q1. 什么是多阶段构建？为什么是最佳实践？英文：What is a multi-stage build and why is it a best practice?
+答案：多阶段构建在单个 Dockerfile 中使用多个 FROM 指令，每阶段可选择性地复制产物到下一阶段。典型用法：第一阶段用完整构建环境（JDK&#x2F;Node）编译，第二阶段仅将编译产物复制到 minimal 镜像（如 alpine&#x2F;distroless）。优势：镜像体积减少 80%+、移除构建工具提升安全性、避免依赖泄漏。生产级 Node.js 镜像从 ~1.2GB 降至 ~150MB 是常见案例。
+追问：多阶段构建中如何传递编译产物？COPY --from=0 的语法细节？
+Q2. Docker 构建缓存如何工作？如何策略性地打破缓存？英文：How does Docker build cache work, and how to strategically bust the cache?
+答案：Docker 逐条执行 Dockerfile 指令，每条指令检查是否有可复用缓存层。若指令及依赖文件未变，则复用。策略：将变化频率低的指令放前面（依赖安装），频率高的放后面（源码复制）。示例：先 COPY package*.json + RUN npm ci，再 COPY .。修改 package.json 才重建依赖层，源码变动不影响依赖缓存。
+Q3. COPY 和 ADD 指令的区别？何时用哪个？英文：Difference between COPY and ADD in Dockerfile?
+答案：
+
+COPY 是纯本地文件复制
+ADD 多了两个特性：1) 可从远程 URL 复制文件；2) 自动解压 .tar.gz
+
+最佳实践：优先用 COPY，除非确实需要 tar 自动解压。ADD 用于远程 URL 会增加镜像不可预测性。
+Q4. 什么是 Distroless 镜像？安全收益是什么？英文：What are distroless images and their security benefits?
+答案：Distroless 是 Google 提供的极简基础镜像，仅含应用及其运行时依赖，不含 shell、package manager 或其他 OS 工具。安全收益：极大缩小攻击面——即使攻击者拿到容器 shell，也无任何命令可用（如 curl&#x2F;wget&#x2F;ls）。典型镜像 gcr.io/distroless/static-debian12。
+追问：Distroless 和 Alpine 的区别？如何选型？
+Q5. 如何减少 Docker 镜像的层数？答案：每条 RUN/COPY/ADD 都产生新层。优化方式：用 &amp;&amp; 合并相关命令。
+# ❌ 错误：3 层RUN apt-get updateRUN apt-get install -y curlRUN rm -rf /var/lib/apt/lists/*# ✅ 正确：1 层RUN apt-get update &amp;&amp; apt-get install -y curl &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+Q6. ONBUILD 指令的使用场景？答案：ONBUILD 为镜像添加”触发指令”，在该镜像作为其他构建的基础镜像时执行。典型场景：创建通用基础镜像，自动复制源码而无需在每个子 Dockerfile 重复 COPY。
+模块二：容器核心原理（6题）Q7. Docker 如何利用 Linux namespace 和 cgroups 实现容器隔离？答案：
+
+Namespace（命名空间）：提供隔离的”虚拟化视图”——pid 隔离进程ID、net 隔离网络栈、mnt 隔离文件系统挂载点、user 隔离用户ID等
+Cgroups（控制组）：限制资源使用——管理 CPU、内存、I&#x2F;O 上限，防止单一容器耗尽宿主机资源
+
+容器本质是宿主机上的普通进程，被多层隔离和资源限制”包裹”。
+Q8. docker exec 和 docker attach 的区别？答案：
+
+docker attach：将终端 STDIO 连接到容器主进程（PID 1），类似”恢复”主进程。退出可能导致主进程停止，容器终止
+docker exec：在已运行容器内新建进程，用于调试&#x2F;检查，不影响主进程
+
+docker exec -it my-container /bin/bash  # 进入容器 bash（推荐）docker attach my-container             # 附加到主进程（慎用）
+
+Q9. Docker 镜像分层和 UnionFS 工作原理？答案：Docker 镜像由多层只读层堆叠组成，每条 Dockerfile 指令产生新层。创建容器时，Docker 在只读层堆栈上添加一层薄薄的可写层。UnionFS（如 OverlayFS）将多层合并为统一视图。写操作触发”写时复制”（Copy-on-Write）：修改下层文件时，先将该文件复制到可写层再修改。优势：容器创建极快，无需复制整个文件系统。
+Q10. Docker daemon 的角色是什么？答案：Docker daemon 是持久运行的后台进程，管理所有 Docker 对象。它监听 Docker API 请求（来自 CLI 等客户端），负责构建、运行、分发容器。底层任务包括：创建网络、管理存储卷、与内核交互创建隔离容器环境。dockerd 启动时会启动 containerd 子进程。
+Q11. Docker 镜像和容器的区别？答案：
+
+镜像：只读、静止的模板，含应用及其所有依赖，是创建容器的蓝图，由多层只读层构成
+容器：镜像的可运行实例，是活着的进程，拥有自己的隔离文件系统、网络、进程空间。同一个镜像可运行多个容器
+
+Q12. docker prune 命令的作用？答案：清理未使用的 Docker 资源。默认删除：所有已停止容器、不被任何容器使用的网络、悬空镜像（无 tag 且未被引用）。常用 flag：-a 删除所有未使用镜像，--volumes 删除未使用卷。用于回收磁盘空间。
+docker system prune          # 清理默认资源docker system prune -a       # 清理所有未使用镜像docker volume prune          # 清理悬空卷
+
+模块三：网络（4题）Q13. 解释 Docker 网络驱动：bridge&#x2F;host&#x2F;overlay 的区别？答案：
+
+bridge（默认）：创建私有内部网络，容器间可通过名字 DNS 通信。需用 -p 映射端口到宿主机
+host：移除网络隔离，容器共享宿主机网络栈，容器内端口直接暴露在宿主机端口上
+overlay：分布式网络，跨多台 Docker 主机通信，用于 Docker Swarm 多主机编排
+
+Q14. 暴露端口（EXPOSE）和发布端口（-p）的区别？答案：
+
+EXPOSE（Dockerfile）：文档性元数据，仅声明容器监听端口，不实际开放或映射
+-p（docker run）：实际创建防火墙规则，将宿主机端口映射到容器端口，使外部可访问
+
+EXPOSE 8080  # 文档声明
+docker run -p 8080:8080 my-app  # 实际映射
+
+Q15. Docker 内嵌 DNS 在用户自定义网桥网络中的工作原理？答案：Docker 在网桥网络运行内嵌 DNS 服务器。容器按名字访问另一容器时（如 ping database），DNS 服务器拦截请求，在内部注册表中查找该名字，解析为正确的内部 IP。需注意：默认 bridge 网络不支持容器间 DNS 按名字解析，必须使用用户自定义网络。
+Q16. 什么是 macvlan 网络？适用场景？答案：macvlan 允许为容器分配 MAC 地址，使其直接出现在物理网络上。容器从局域网 DHCP 服务器获取独立 IP。适用场景：遗留应用期望直接连接物理网络、监控工具需低层级网络流量嗅探。
+模块四：存储与卷（4题）Q17. Docker volumes vs bind mounts？如何选择？答案：
+
+Volumes：Docker 完全管理，存储在 /var/lib/docker/volumes/，与宿主机解耦。可移植、可通过 CLI 管理，是生产数据持久化的推荐方式
+Bind Mounts：将宿主机文件&#x2F;目录直接映射进容器，路径任意。适合：共享配置文件、本地开发源码热更新
+
+# Volume（生产推荐）docker run -v my-data:/app/data my-app# Bind Mount（开发/配置）docker run -v /host/path:/container/path my-app
+
+Q18. 什么是 tmpfs mount？何时使用？答案：tmpfs 是存储在宿主机内存中的临时文件系统，不写入磁盘。容器停止时自动移除。适用场景：存储临时非持久状态、敏感数据（不希望落盘）、需要高性能但不必持久化的数据。
+Q19. 什么是孤儿卷（orphaned volumes）？如何清理？答案：孤儿卷是已解除与任何容器关联的 Docker 卷。随着容器创建销毁累积，占用磁盘空间。可通过 docker volume prune 清理。
+Q20. 数据库运行在 Docker 中需要注意什么？答案：数据库有大量顺序写入和 fsync 操作。OverlayFS 等存储驱动为每次写入增加写时复制和 fsync 开销，显著增加延迟。最佳实践：
+
+使用命名卷映射到高速存储路径
+或直接使用托管数据库服务（RDS&#x2F;Cloud SQL）而非常驻容器
+始终设置 --memory 和 restart: unless-stopped
+
+模块五：Docker Compose（3题）Q21. depends_on 和 healthcheck 控制启动顺序的区别？答案：depends_on 仅控制启动顺序，不等待依赖”就绪”。可能 API 容器在 DB 还未接受连接时就启动，导致启动失败。healthcheck 更健壮：定义检查命令验证服务真实健康状态。
+services:  db:    healthcheck:      test: [&quot;CMD-SHELL&quot;, &quot;pg_isready -U postgres&quot;]  api:    depends_on:      db:        condition: service_healthy   # 等待健康
+
+Q22. 多 Compose 文件间如何共享通用配置？答案：使用多文件合并。Compose 自动读取 docker-compose.override.yml 合并到主文件。典型模式：
+
+docker-compose.yml：核心服务定义
+docker-compose.override.yml：本地开发配置
+docker-compose.prod.yml：生产环境配置
+
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+Q23. Docker Compose 中 .env 文件的作用？答案：.env 定义环境变量，Compose 自动读取并注入到 docker-compose.yml 中替换变量。用于管理环境相关配置（镜像 tag、外部端口等），避免硬编码。
+模块六：安全（5题）Q24. 什么是 rootless mode？解决什么安全问题？答案：Rootless mode 让 Docker daemon 和容器以非 root 用户运行。标准模式下 daemon 以 root 运行，容器逃逸攻击者可能获得宿主机 root 权限。Rootless 模式下逃逸只能获得运行 daemon 的非特权用户权限，极大限制破坏力。实现依赖 user namespace remapping。
+Q25. 如何限制容器的 Linux capabilities？答案：Linux capabilities 将 root 权限拆分为细粒度权限。最佳实践：先丢弃所有，再用 --cap-add 仅添加必需权限。
+docker run --cap-drop=ALL --cap-add=NET_RAW my-net-tool
+
+Q26. 如何扫描 Docker 镜像中的已知漏洞？答案：常用工具：Trivy（开源、轻量）、Snyk（企业级）、Docker Scout（Docker 原生）。
+trivy image myapp:1.0docker scout cves myapp:1.0
+
+建议：扫描时机 &#x3D; 构建时 + 推送前 + 定时扫描运行中镜像。
+Q27. Docker 中管理 secrets 的最佳实践？答案：禁止：将 secrets 放入 Dockerfile 或纯环境变量。推荐：
+
+Docker Swarm：docker secret，加密存储
+Kubernetes：K8s Secrets
+生产环境：集成 HashiCorp Vault &#x2F; AWS Secrets Manager
+
+Q28. Dockerfile 中 USER 指令的作用？为什么重要？答案：USER 设置运行镜像的用户（UID）。关键安全实践：创建非 root 用户并用 USER 切换。容器内以非 root 用户运行限制了应用被攻陷后的破坏范围。
+模块七：运行时底层（6题）Q29. Docker、containerd、runc 的关系？为什么 K8s 弃用 dockershim？答案：
+
+runc：OCI 参考实现，低级容器运行时，与内核交互创建&#x2F;运行容器
+containerd：高级运行时，管理容器生命周期、镜像传输、存储网络
+Docker：完整生态封装，自身内部使用 containerd
+dockershim：K8s 早期内置桥接，因 Docker 比 K8s 更早出现未实现 CRI，K8s 1.24+ 移除
+
+用户请求 → docker CLI → dockerd → containerd → containerd-shim → runc → 容器
+
+Q30. CMD 和 ENTRYPOINT 的区别？最佳实践用法？答案：
+
+ENTRYPOINT：配置容器为可执行文件，不易被覆盖
+CMD：为 ENTRYPOINT 提供默认参数，可被 docker run 参数覆盖
+
+最佳实践：组合使用——ENTRYPOINT 指定可执行文件，CMD 提供默认参数
+ENTRYPOINT [&quot;/usr/bin/my-app&quot;]CMD [&quot;--help&quot;]  # 可被 docker run my-app --version 覆盖
+
+
+🏭 第十五章：5 个真实工作场景场景 1️⃣：镜像臃肿导致 CI 构建超时真实痛点：某中型团队 Node.js 微服务镜像从 350MB 膨胀到 1.2GB，每次 CI 构建 Pull 镜像耗时 4 分钟，拖累部署效率。
+推荐解决方案：
+
+实施多阶段构建
+切换至 Alpine&#x2F;slim 基础镜像
+积极使用 .dockerignore
+优化依赖安装
+
+关键 Dockerfile：
+# 多阶段构建FROM node:18-alpine AS builderWORKDIR /appCOPY package*.json ./RUN npm ci --only=production &amp;&amp; npm cache clean --forceCOPY . .RUN npm run buildFROM node:18-alpine AS runtimeWORKDIR /appCOPY --from=builder /app/dist ./distCOPY --from=builder /app/node_modules ./node_modulesUSER nodeCMD [&quot;node&quot;, &quot;dist/index.js&quot;]
+
+效果：镜像从 1.2GB → 180MB，CI 构建时间缩短 70%。
+场景 2️⃣：生产环境 Secret 泄露真实痛点：某初创公司把数据库密码写进环境变量，Dockerfile 也提交到 GitHub，密码随之公开。攻击者通过 docker inspect 获取环境变量，访问了生产数据库。
+推荐解决方案：
+
+永远不使用环境变量存储 secrets
+使用 Docker Swarm Secrets 或 K8s Secrets
+集成外部 secrets manager（Vault&#x2F;AWS Secrets Manager）
+
+禁止模式：
+# ❌ 绝对禁止ENV DB_PASSWORD=secret123# ❌ 同样禁止ADD https://example.com/secrets/db.txt /tmp/db.txt
+
+推荐模式：
+# docker-compose.prod.yml (Swarm Secrets)services:  api:    secrets:      - source: db_password        target: DB_PASSWORD        mode: 0400secrets:  db_password:    file: ./secrets/db_password.txt
+
+场景 3️⃣：数据库 OOM 性能雪崩真实痛点：某团队将 PostgreSQL 跑在 Docker 中，未设置内存限制。某次查询触发 OOM，宿主机上其他服务也受影响，数据库容器无重启策略，数据丢失了 12 小时。
+推荐解决方案：
+services:  postgres:    image: postgres:15-alpine    deploy:      resources:        limits:          memory: 512M      # 硬上限        reservations:          memory: 256M      # 软限制    volumes:      - pgdata:/var/lib/postgresql/data    # 命名卷！    restart: unless-stopped               # 自动重启    healthcheck:      test: [&quot;CMD-SHELL&quot;, &quot;pg_isready -U postgres&quot;]      interval: 10s      timeout: 5s      retries: 5    secrets:      - db_pass
+
+场景 4️⃣：多容器启动顺序引发的连接失败真实痛点：某实习生写的 docker-compose 启动顺序是 API 先于 MySQL 启动，导致 API 初始化时连不上 DB，反复重启。排查 2 小时发现是 depends_on 只管启动顺序不管”就绪”。
+推荐解决方案：
+services:  postgres:    image: postgres:15    healthcheck:      test: [&quot;CMD-SHELL&quot;, &quot;pg_isready -U postgres&quot;]      interval: 5s      timeout: 3s      retries: 5      start_period: 10s  api:    depends_on:      postgres:        condition: service_healthy   # 关键！等待健康
+
+应用层最坏保底：
+# Python: 数据库连接重试import timeimport psycopg2for i in range(10):    try:        conn = psycopg2.connect(...)        break    except Exception:        time.sleep((i + 1) * 0.1)
+
+场景 5️⃣：零宕机部署——滚动更新失败回滚真实痛点：某电商团队用 docker compose up -d --force-recreate 部署新版本，导致服务中断 30 秒，用户请求失败。新版本有 bug 但无法快速回滚。
+推荐解决方案（Swarm 模式）：
+services:  api:    image: myapp:1.4.0    deploy:      replicas: 6      update_config:        parallelism: 2        # 同时更新 2 个        order: start-first    # 先启动新容器再停旧的（零宕机）        failure_action: rollback        delay: 10s      rollback_config:        parallelism: 2        order: start-first      healthcheck:        test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8080/healthz&quot;]        interval: 10s        timeout: 3s        retries: 3
+
+手动回滚：
+docker service rollback myapp_api
+
+
+🚀 第十六章：进阶路线（K8s &#x2F; CI&#x2F;CD &#x2F; 云原生）16.1 学完 Docker 后学什么？Docker 基础    ↓├── Docker Compose（多容器编排）← 本教程已覆盖    ↓├── Kubernetes（生产级容器编排）⭐ 必学    ↓├── CI/CD（Jenkins / GitHub Actions / GitLab CI）    ↓└── 云原生生态（Service Mesh / Serverless / Observability）
+
+16.2 本地 K8s 工具选择
+
+
+工具
+定位
+资源占用
+适用场景
+推荐度
+
+
+
+Docker Desktop K8s
+桌面 IDE 集成
+中
+Mac&#x2F;Win 入门首选
+⭐⭐⭐⭐⭐
+
+
+minikube
+单节点本地集群
+中
+入门的第一个 K8s
+⭐⭐⭐⭐
+
+
+kind
+多节点测试集群
+低
+本地 CI&#x2F;CD 测试
+⭐⭐⭐
+
+
+k3s
+轻量级生产级
+极低
+边缘计算、IoT
+⭐⭐⭐
+
+
+k3d
+k3s + Docker
+低
+笔记本学习
+⭐⭐⭐⭐
+
+
+16.3 第一个 K8s YAML 范例（WordPress）apiVersion: apps/v1kind: Deploymentmetadata:  name: wordpress  namespace: blogspec:  selector:    matchLabels:      app: wordpress  template:    metadata:      labels:        app: wordpress    spec:      initContainers:      - name: init-db        image: busybox        command: [&#x27;sh&#x27;, &#x27;-c&#x27;, &#x27;until nslookup mysql;do echo waiting; sleep 2; done;&#x27;]      containers:      - name: wordpress        image: wordpress        ports:        - containerPort: 80        env:        - name: WORDPRESS_DB_HOST          value: mysql:3306---apiVersion: v1kind: Servicemetadata:  name: wordpress  namespace: blogspec:  selector:    app: wordpress  type: NodePort  ports:  - port: 80    targetPort: 80
+
+16.4 学习资源推荐Docker 进阶
+📖 《Docker 实战》（Ian Miell 著）
+📖 《Kubernetes 权威指南》（龚正 等著）
+🌐 Docker 官方文档
+
+DevOps 资源
+📦 ahmedtariq01&#x2F;Cloud-DevOps-Learning-Resources（PDF 合集）
+🎓 cnych&#x2F;kubernetes-learning（中文 K8s 教程）
+
+Java 电商项目（找 Java 实习必看）
+🛒 macrozheng&#x2F;mall-learning（13.4k stars）
+📖 mall 部署文档
+
+AI&#x2F;ML 场景（找 AI 实习）
+🤖 DataTalksClub&#x2F;machine-learning-zoomcamp
+📦 Module 5：Model Deployment（用 Docker 部署 ML 模型）
+📦 Module 10：K8s + TensorFlow Serving
+
+动手练习
+🎮 furkan&#x2F;dockerlings（类似 Rustlings 的 TUI 练习）
+
+16.5 K8s 速通路线（学完 Docker 4 周后）
+
+
+周次
+学习内容
+
+
+
+第 5 周
+K8s 概念（Pod&#x2F;Deployment&#x2F;Service）+ Docker Desktop K8s 启动
+
+
+第 6 周
+kubectl 命令 + 第一个 YAML + Minikube 实践
+
+
+第 7 周
+ConfigMap&#x2F;Secret&#x2F;PV&#x2F;PVC + 多容器应用部署
+
+
+第 8 周
+Ingress + Service Mesh 入门 + mall 项目 K8s 化
+
+
+
+📚 附录 A：常用命令速查表（建议收藏）镜像管理
+
+
+命令
+作用
+
+
+
+docker pull &lt;image&gt;:&lt;tag&gt;
+拉取镜像
+
+
+docker images
+查看本地镜像
+
+
+docker rmi &lt;image&gt;
+删除镜像
+
+
+docker tag &lt;src&gt; &lt;dst&gt;
+打标签
+
+
+docker build -t &lt;name&gt; .
+构建镜像
+
+
+docker save -o file.tar &lt;image&gt;
+导出镜像
+
+
+docker load -i file.tar
+导入镜像
+
+
+docker image prune -a
+清理未用镜像
+
+
+容器管理
+
+
+命令
+作用
+
+
+
+docker run -d -p 80:80 --name &lt;c&gt; &lt;i&gt;
+后台启动容器
+
+
+docker run -it &lt;i&gt; sh
+交互启动
+
+
+docker ps -a
+查看所有容器
+
+
+docker start/stop/restart &lt;c&gt;
+启停容器
+
+
+docker rm -f &lt;c&gt;
+删除容器
+
+
+docker exec -it &lt;c&gt; sh
+进入容器
+
+
+docker logs -f &lt;c&gt;
+查看日志
+
+
+docker inspect &lt;c&gt;
+查看详情
+
+
+docker stats
+资源占用
+
+
+网络管理
+
+
+命令
+作用
+
+
+
+docker network ls
+查看网络
+
+
+docker network create &lt;n&gt;
+创建网络
+
+
+docker network connect &lt;n&gt; &lt;c&gt;
+容器加入网络
+
+
+docker network rm &lt;n&gt;
+删除网络
+
+
+卷管理
+
+
+命令
+作用
+
+
+
+docker volume ls
+查看卷
+
+
+docker volume create &lt;v&gt;
+创建卷
+
+
+docker volume rm &lt;v&gt;
+删除卷
+
+
+docker volume prune
+清理未用卷
+
+
+Compose
+
+
+命令
+作用
+
+
+
+docker compose up -d
+启动所有服务
+
+
+docker compose down
+停止并删除
+
+
+docker compose ps
+服务状态
+
+
+docker compose logs -f
+查看日志
+
+
+docker compose exec &lt;s&gt; sh
+进入服务容器
+
+
+docker compose build
+构建镜像
+
+
+系统
+
+
+命令
+作用
+
+
+
+docker system df
+磁盘占用
+
+
+docker system prune -a
+清理未用资源
+
+
+docker version
+版本信息
+
+
+docker info
+系统信息
+
+
+
+❓ 附录 B：常见问题 FAQQ1. 容器和镜像到底什么关系？A：镜像是”死”的模板，容器是”活”的实例。一个镜像可以创建多个容器，容器删除不影响镜像。
+Q2. 为什么 docker run 后容器立刻退出？A：容器需要前台运行的进程。如果 CMD 指定的命令很快就执行完（如 echo hello），容器会立即退出。解决：加 -d 后台运行，或确保主进程是长驻的（如 nginx、node server.js）。
+Q3. 容器内时间和宿主机不一致？A：设置时区环境变量：
+docker run -e TZ=Asia/Shanghai ...
+
+Q4. 容器内中文乱码？A：添加 LANG 环境变量：
+docker run -e LANG=C.UTF-8 ...
+
+Q5. 如何查看容器占用的资源？A：docker stats 命令实时查看所有容器的 CPU、内存、网络、磁盘 I&#x2F;O。
+Q6. 容器和宿主机之间如何传输文件？A：
+# 从容器到宿主机docker cp &lt;容器&gt;:/path/in/container /path/on/host# 从宿主机到容器docker cp /path/on/host &lt;容器&gt;:/path/in/container
+
+Q7. 如何备份 MySQL 容器数据？A：
+# 方法 1：mysqldumpdocker exec my-mysql sh -c &#x27;mysqldump -uroot -p&quot;$MYSQL_ROOT_PASSWORD&quot; mydb&#x27; &gt; backup.sql# 方法 2：备份整个数据卷docker run --rm -v mysql-data:/source -v $(pwd):/backup alpine tar czf /backup/mysql-data.tar.gz -C /source .
+
+Q8. WSL2 中 Docker 性能比 Linux 慢很多吗？A：日常开发几乎无差别。注意：项目不要放 /mnt/c/，要放 ~/projects/（WSL2 ext4 文件系统）。
+Q9. Docker Desktop 占用 C 盘空间过大怎么办？A：
+# 1. 清理无用资源docker system prune -a --volumes# 2. 压缩虚拟磁盘wsl --shutdowndiskpart  # 然后 compact vdisk# 3. 迁移到 D 盘（长期方案）wsl --export docker-desktop-data D:\docker\data.tarwsl --unregister docker-desktop-datawsl --import docker-desktop-data D:\docker\wsl D:\docker\data.tar
+
+Q10. 找不到适合的镜像怎么办？A：
+
+Docker Hub 搜索：https://hub.docker.com/search
+看官方镜像 vs 用户镜像
+看 GitHub 项目的 Dockerfile（参考构建思路）
+自己写 Dockerfile（最稳妥）
+
+
+🔗 附录 C：参考资源汇总📚 教程仓库（本文已整合）
+
+
+仓库
+Stars
+定位
+链接
+
+
+
+docker-curriculum
+7k+
+经典英文教程
+GitHub
+
+
+docker-tutorial (jaywcjlove)
+1.8k
+中文命令速查
+GitHub
+
+
+docker-tutorial (twtrubiks)
+1.9k
+中文 Web 实战
+GitHub
+
+
+wsl2-docker-quickstart
+-
+WSL2 集成
+GitHub
+
+
+dockerlings
+-
+动手练习
+GitHub
+
+
+kubernetes-learning
+7k+
+K8s 进阶
+GitHub
+
+
+mall-learning
+13.4k
+Java 电商 Docker 化
+GitHub
+
+
+machine-learning-zoomcamp
+11k+
+ML Docker 部署
+GitHub
+
+
+Cloud-DevOps-Learning-Resources
+1.7k
+DevOps 资源汇总
+GitHub
+
+
+docker.labs
+-
+官方实验
+GitHub
+
+
+🌐 在线文档
+📖 Docker 官方文档 - 英文，最权威
+📖 Docker Compose 文档 - Compose 文件参考
+📖 Docker Hub - 镜像市场
+📖 mall 部署文档 - Java 实战
+📖 ML Zoomcamp Module 5 - ML 部署
+
+🇨🇳 国内镜像加速
+
+
+服务商
+镜像地址
+
+
+
+中科大
+https://docker.mirrors.ustc.edu.cn
+
+
+网易
+https://hub-mirror.c.163.com
+
+
+百度云
+https://mirror.baidubce.com
+
+
+阿里云
+https://&lt;你的ID&gt;.mirror.aliyuncs.com
+
+
+dockerproxy
+https://dockerproxy.com
+
+
+🛠️ 推荐工具
+
+
+工具
+用途
+链接
+
+
+
+Dive
+镜像层分析
+github.com&#x2F;wagoodman&#x2F;dive
+
+
+Portainer
+Docker 可视化管理
+portainer.io
+
+
+LazyDocker
+终端 UI
+github.com&#x2F;jesseduffield&#x2F;lazydocker
+
+
+VSCode Docker 扩展
+VSCode 内管理容器
+marketplace
+
+
+Trivy
+镜像安全扫描
+github.com&#x2F;aquasecurity&#x2F;trivy
+
+
+Watchtower
+自动更新容器
+github.com&#x2F;containrrr&#x2F;watchtower
+
+
+
+🎉 写在最后恭喜你看完了这篇长达上万字的 Docker 速通指南！🎊
+回顾一下你学到的：
+
+✅ Docker 核心概念（镜像&#x2F;容器&#x2F;仓库）
+✅ WSL2 + Docker Desktop 安装（5 大踩坑）
+✅ Docker Desktop UI 全中文对照
+✅ 必会命令 + 5 个实战案例
+✅ Dockerfile 编写（多阶段构建）
+✅ 数据卷 + Docker 网络
+✅ Docker Compose 5 个真实项目模板
+✅ 性能优化 10 条军规
+✅ 私有仓库 + 镜像管理
+✅ 30 道高频面试题
+✅ 5 个真实工作场景
+✅ K8s 进阶路线
+
+下一步建议：
+
+🎮 动手练习：用 dockerlings 做 5 道练习题
+🛒 真实项目：clone mall-learning 用 docker compose up 跑起来
+📝 简历改造：在”项目经历”加上”用 Docker Compose 部署 xxx” 一行
+🎯 面试准备：背熟第 14 章 30 道面试题
+
+记住：Docker 不是”会用命令”就够了，更重要的是理解”为什么这样做”。面试官不在乎你背了多少命令，在乎的是你解决过什么问题。
+
+💬 如果这篇文章对你有帮助，欢迎在评论区分享你的学习成果！如果有错别字或错误，欢迎指出，我会及时更新。祝大家都能找到心仪的实习！🚀
+
+
+
+  📅 更新时间：2026-06-03
+  👤 作者：Sisyphus
+  🌟 教程融合 10+ 优质开源仓库 + 2024-2026 面试题库
+
+]]></content>
+      <categories>
+        <category>容器技术</category>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+        <tag>WSL2</tag>
+        <tag>容器</tag>
+        <tag>Docker Desktop</tag>
+        <tag>Docker Compose</tag>
+        <tag>实习面试</tag>
+        <tag>工具教程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>近年来的AI技术栈</title>
+    <url>/2026/06/03/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E9%80%9F%E9%80%9A/</url>
+    <content><![CDATA[大模型原理详解：从输入层到输出层第一部分：训练数据的准备1.1 自回归模型的核心思想大模型的核心任务只有一个：预测下一个词。
+训练阶段：每次向模型输入一批数据，告诉模型准确答案是什么。每个预测词都会计算一个损失值，所有词的平均损失用于反向传播更新参数。
+推理阶段（自回归）：输入一句话后，模型生成同样长度的词，将最后一个词作为本次预测结果，拼接到输入文本末尾，让模型继续预测下一个词。重复这个动作，模型就不断生成新词，直到输出特殊结束标志（EOS）。
+1.2 数据准备完整流程第一步：分词与构建词典
+
+对海量文本进行分词，每个词就是一个 token（中文叫词元）
+对所有词元去重，得到庞大的词典
+对词元编号，得到词元→ID 映射表
+将映射关系对调，得到ID→词元 映射表
+
+第二步：添加结束标志
+在每句话末尾添加一个特殊标志（如 EOS），表示句子结束。这个标志也是学习目标之一——模型在海量数据中学习该在什么时候输出这个标志，也就相当于学会了什么时候结束发言。
+第三步：采样训练数据
+每个训练数据由输入-目标数据对组成。
+以 context_length&#x3D;3、stride&#x3D;2（移动步长）为例：
+
+
+
+输入
+目标
+
+
+
+词1 词2 词3
+词2 词3 词4
+
+
+词3 词4 词5
+词4 词5 词6
+
+
+…
+…
+
+
+
+训练时，模型根据三个输入 token 输出三个 token，前两个是给预测阶段用的，最后一个才是真正的预测结果。
+
+关键参数说明：
+
+
+
+参数
+含义
+说明
+
+
+
+context_length
+上下文长度
+决定模型能处理多长的上下文，GPT-2 是 1024，主流模型已有 128K
+
+
+stride
+移动步长
+设置小→重复多；设置大→重复少，数据量足够时建议设大避免过拟合
+
+
+batch_size
+批次大小
+每次输入模型的样本数，越大训练越快但显存需求越高
+
+
+1.3 BPE 分词法传统分词法以完整词为单位，但无法覆盖所有词汇（未登录词问题）。
+BPE（Byte Pair Encoding）将单词进一步拆分为更细粒度的子元素（词根、字母），遇到未登录词时继续拆分，最小拆成单个字母。这些子元素通常携带丰富语义信息（如 “impossible” 中的 “im” 表示否定）。
+优势：可以处理任何未见过的词汇。
+
+第二部分：嵌入层2.1 词嵌入（Word Embedding）文本无法直接进行数学计算，需要转化为向量。嵌入层完成这个转换。
+词汇表矩阵：行数 &#x3D; 词表大小（如 50257），列数 &#x3D; 嵌入维度
+词汇表矩阵（随机初始化）┌─────────────────────────┐│ 词元0的向量             ││ 词元1的向量             ││ ...                     ││ 词元50257的向量         │  ← 50257行└─────────────────────────┘     ↑ 768列（GPT-2）
+
+嵌入维度（Embedding Dimension）：768（GPT-2）。维度越大，涵盖信息量越多，但计算量也越大。
+2.2 位置向量（Positional Encoding）词嵌入只表示词语本身的含义，但位置信息对语义至关重要：
+
+“屡败屡战”不失为一个英雄，”屡战屡败”却是一个十足的狗熊。
+
+位置向量的两种表示方法：
+方法一：训练得到（GPT-2 采用）
+
+设定一个位置向量矩阵，行数 &#x3D; context_length，列数 &#x3D; 嵌入维度
+每个位置对应一个随机初始化的向量
+训练过程中作为参数一起更新
+
+方法二：公式计算（Transformer 原论文）
+$$PE(pos, 2i) &#x3D; \sin(pos &#x2F; 10000^{2i&#x2F;d_{model}})$$$$PE(pos, 2i+1) &#x3D; \cos(pos &#x2F; 10000^{2i&#x2F;d_{model}})$$
+
+pos：位置序号（从 0 开始）
+i：维度索引
+d_model：嵌入维度
+
+2.3 绝对位置 vs 相对位置
+
+
+类型
+说明
+
+
+
+绝对位置
+“我”在第 2 个位置，位置编号是 1
+
+
+相对位置
+“我”相对于”冬瓜”的位置是 -1
+
+
+相对位置编码更常用，因为对语义理解来说，词语之间的距离比词语在哪个位置更重要。
+2.4 嵌入向量如何通过反向传播更新？问题：直接用 key-value 方式查表是不可导的，无法传播梯度。
+解决方案：用矩阵乘法实现查表操作。
+
+将词元 ID 转为 one-hot 向量（长度 &#x3D; 词表大小，只有该 ID 位置是 1）
+用 one-hot 向量乘以词元向量矩阵
+
+one-hot向量 × 词元向量矩阵 = 该词元的向量
+
+由于 one-hot 向量只有目标位置是 1，其他位置都是 0，因此矩阵相乘的结果恰好等价于从词元向量矩阵中取出对应位置的向量。这个操作是可导的，梯度可以通过矩阵乘法反向传播到词元向量矩阵中。
+最终嵌入向量 &#x3D; 词元向量 + 位置向量
+
+第三部分：Transformer 核心——注意力机制3.1 注意力机制的本质目标：让每个 token 能够捕捉到其他 token 的注意力信息。
+核心思想：新向量 &#x3D; 旧向量的加权求和，权重就是注意力得分。
+示例：对于”小猫在沙发上玩耍”这句话中的”玩耍”：- 注意力镜头 1：重点捕捉”小猫”，确定动作主体- 注意力镜头 2：聚焦”沙发”，明确发生位置- 注意力镜头 3：扫描整句，感受整体氛围
+3.2 注意力得分计算以 token2 为例：
+
+点积计算：token2 与所有 token 进行向量点积attention_score = X2 · Xj (j = 1, 2, 3)
+Softmax 归一化：将得分转为概率分布（所有权重和为 1）weight = softmax(attention_scores)
+加权求和：用归一化后的权重对所有向量加权求和，得到新的 token2
+
+3.3 掩码机制（Masking）问题：如果让 token2 在计算注意力时就”看见”了 token3，就相当于训练时把答案泄露给模型，模型会”偷看”答案而不真正学习。
+解决方案：掩码机制——在计算注意力时，隐藏当前 token 之后的所有 token。
+实现方法：- 计算点积后、Softmax 前，把当前 token 之后的注意力得分全部改为 -∞- 由于 $e^{-\infty} \approx 0$，Softmax 后这些位置的权重就是 0
+效果：注意力矩阵的上三角被遮住，模型无法提前”看到”答案。
+
+何时可以不用掩码？ 做”完形填空”题目时。
+
+3.4 QKV 机制问题：一个向量同时做三件事（查询、被查询、被加权），容易”精神分裂”，导致语义冲突。
+解决方案：引入三个参数矩阵，将角色拆分，各司其职。
+
+
+
+矩阵
+角色
+含义
+
+
+
+W_Q
+查询（Query）
+“我想要什么”
+
+
+W_K
+键（Key）
+“我能提供什么”
+
+
+W_V
+值（Value）
+“我的实际内容是什么”
+
+
+计算流程：
+X → X·W_Q = Q  （作为查询者）X → X·W_K = K  （作为被查询者）X → X·W_V = V  （作为被加权对象）attention_scores = Q · K^T  （点积）attention_weights = softmax(attention_scores)output = attention_weights · V  （加权求和）
+
+3.5 矩阵视角下的注意力计算“远交近攻”口诀：- 近攻：两个矩阵相乘的前提是”靠得近”的维度要相等- 远交：结果矩阵的形状 &#x3D; “离得远”的两个维度
+注意力计算的矩阵运算：
+输入矩阵 X: (3, d_model)  3行768列W_Q, W_K, W_V: (d_model, d_k)  768行d_k列Q = X · W_Q  → (3, d_k)K = X · W_K  → (3, d_k)V = X · W_V  → (3, d_model)Q · K^T:  (3, d_k) · (d_k, 3) → (3, 3) 注意力矩阵softmax(结果) 按列（维度1）归一化output = attention_weights · V → (3, d_model)
+
+d_k 缩放（除以 √d_k）的原因：
+
+
+
+现象
+原因
+解决方案
+
+
+
+QK相乘后数值波动大
+点积后标准差变成 √d_k
+除以 √d_k 使标准差恢复到 1
+
+
+直接 Softmax 后很多权重变成 0
+数值差异过大
+缩放后 Softmax 分布更均匀
+
+
+3.6 多头注意力（Multi-Head Attention）动机：一句话中可能存在多种需要捕捉的注意力关系，单一头注意力无法全面覆盖。
+实现方式：
+
+将输入矩阵兵分多路
+每路独立计算注意力，有各自的 W_Q、W_K、W_V
+将所有注意力头的输出拼接（Concat）
+
+维度设计：
+每个注意力头的输出维度 = 总输出维度 / 头数例如：总维度 = 768，头数 = 12，则每头 = 64
+
+这样设计的好处是：既捕捉多维度注意力，又不增加输出维度。
+3.7 FFN（前馈神经网络）多头注意力输出后，进入 FFN 层：
+FFN: Linear(d_model, d_ff) → Activation → Linear(d_ff, d_model)
+
+
+第一层：将向量投影到更高维空间（d_ff 通常是 d_model 的 4 倍）
+激活函数：引入非线性表达能力
+第二层：投影回原始维度
+
+
+为什么这样设计？ 通过升维→降维的操作，将输入向量投影到更高维的特征空间，学习更复杂的特征表示。虽然形状不变，但向量”到更广阔的天地遨游了一番”。
+
+3.8 多层 Transformer整个 Transformer 模块的输入输出维度必须一致，因此可以堆叠多层。
+逐层提取特征：
+
+
+
+层级
+图像模型
+语言模型
+
+
+
+浅层
+提取线条、纹理
+识别单词基础语义
+
+
+中层
+组成局部特征（鼻子、眼睛）
+学习相连词的关系
+
+
+深层
+拼装整体画面（猫&#x2F;狗）
+理解句子完整含义
+
+
+预训练与微调的基础：多层结构使模型可以作为特征提取器，方便预训练和后续微调。
+
+第四部分：训练中的工程技巧4.1 梯度消失与梯度爆炸问题 1：训练不稳定
+随着层数加深，前向传播的数据分布会逐渐偏离，反向传播的梯度也会剧烈变化。80 层收到的数据可能比 7-9 层大了一万倍，导致参数更新失控。
+解决方案：归一化（Layer Normalization）
+# 对每一层的输出矩阵# 1. 计算每行的均值和标准差# 2. 每个数值 = (数值 - 均值) / 标准差
+
+归一化后，数据被压缩为均值为 0、方差为 1的分布，梯度更可控。
+
+注意：归一化改变了绝对值，但相对大小不变，原信息依然保留。
+
+
+问题 2：梯度消失
+反向传播时，梯度需要从最后一层一层层传回前面的层，每层都”漏一点”，传到第 10 层时可能几乎为 0 了。
+解决方案：残差连接（Residual Connection）
+在 Transformer 中添加”直通车”：将前一层的输入与输出相加后再传入下一层。
+output = LayerNorm(x + SubLayer(x))
+
+即使梯度很小，起码有”1”兜底。相当于把最后一层的梯度直接传到第 10 层，解决了梯度消失问题。
+
+4.2 过拟合与 Dropout问题：大模型太强了，容易”背答案”，训练损失低但测试效果差。
+解决方案：Dropout
+每次训练时随机丢弃一部分神经元（如 20%）：
+
+随机挑选若干神经元，将输出设为 0
+这些神经元不参与本次前向传播
+反向传播时，这些神经元的梯度也为 0
+
+效果：- 避免某个神经元”一家独大”主导决策- 所有神经元能力得到平衡- 增强模型的泛化能力
+细节：- 丢弃比例是需要设置的参数（如 20%）- Dropout 只发生在训练阶段，推理时所有神经元都参与- 训练时丢弃了 20%，输出要放大 1&#x2F;(1-0.2)&#x3D;1.25 倍，维持原本的输出期望
+
+第五部分：输出层5.1 损失函数计算（训练阶段）数据准备：训练阶段，每个输入 token 都有对应的目标 token 和损失值。
+计算过程：
+1. Transformer 输出向量2. 与输出参数矩阵相乘 → logits（未归一化的分数）3. 对每个 token 的 logits 进行 Softmax → 概率分布4. 根据 ID→词元映射表，找到目标词的概率5. 计算损失 = -log(目标词概率)6. 所有位置的损失求均值 → 本次 batch 的损失
+
+损失函数本质：交叉熵损失。损失值越低，说明模型对目标词的预测概率越高。
+5.2 采样策略（推理阶段）问题：不能简单选概率最高的词（贪心策略），会导致：
+
+相同输入永远输出相同结果
+局部最优不一定带来全局最优
+
+解决方案：按概率抽样
+所有词都有机会被选中，概率高的词选中机会更大。
+Top-K 采样：只保留概率最高的 K 个词，在这 K 个词中按概率抽样。
+Top-P 采样：按照概率从大到小取，累积概率达到 P%（如 90%）的词入选，灵活动态。
+Temperature（温度参数）：
+# 对 logits 除以 temperature 后再 Softmaxprobabilities = softmax(logits / temperature)
+
+
+
+
+temperature 值
+效果
+
+
+
+&gt; 1
+分布更均匀，输出更多样
+
+
+&lt; 1
+分布更集中，输出更确定
+
+
+组合使用：一般官方文档都有推荐参数，照着抄作业即可。
+
+总结：大模型架构全景图┌─────────────────────────────────────────────────────┐│                     输入文本                          │└─────────────────────────────────────────────────────┘                          ↓┌─────────────────────────────────────────────────────┐│                     嵌入层                            ││  ┌───────────────┐   ┌───────────────┐              ││  │   词元向量     │ + │   位置向量     │ = 嵌入向量    ││  └───────────────┘   └───────────────┘              │└─────────────────────────────────────────────────────┘                          ↓┌─────────────────────────────────────────────────────┐│                多层 Transformer                       ││                                                     ││  ┌─────────────────────────────────────────────┐    ││  │            单个 Transformer Block            │    ││  │                                              │    ││  │   残差连接 → 多头注意力 → 残差连接 → FFN     │    ││  │                         ↓                    │    ││  │                    归一化                     │    ││  └─────────────────────────────────────────────┘    ││                                                     ││  × N 层（GPT-2: 12层）                              │└─────────────────────────────────────────────────────┘                          ↓┌─────────────────────────────────────────────────────┐│                     输出层                           ││  全连接 → Softmax → 概率分布 → 采样 → 下一个 token    │└─────────────────────────────────────────────────────┘
+
+参数分布（GPT-2 为例）：- 词嵌入层：约 4000 万参数- 注意力层：多头注意力的 QKV 参数- FFN 层：最大的参数来源（约 4 倍嵌入维度）- 层数越多，参数总量越大
+关键影响因素：层数（Layer Number）和 FFN 中间层维度是决定模型参数量最关键的因素。
+]]></content>
+      <categories>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+        <tag>Agent</tag>
+        <tag>Skill</tag>
+        <tag>OpenClaw</tag>
+        <tag>Harness</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LangChain4j + Spring Boot Agent 开发完全入门指南 🚀</title>
+    <url>/2026/06/03/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/langchain4j-SpringBoot-Agent%E5%BC%80%E5%8F%91%E5%AE%8C%E5%85%A8%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/</url>
+    <content><![CDATA[📘 LangChain4j + Spring Boot Agent 开发完全入门指南
+🎯 本文目标：让 Java 初级开发者在 1~2 小时内快速上手 LangChain4j 框架，理解其架构设计，掌握 Spring Boot 集成下的常用工具与功能，能够独立完成基于 Agent 的应用开发，并具备使用 AI 辅助（Vibecoding）高效编码的能力。
+📅 调研日期：2026 年 6 月 3 日 · 基于 LangChain4j 1.15.1（最新稳定版）
+
+
+目录 🗂️
+为什么选择 LangChain4j
+框架架构速览
+5 分钟快速开始
+核心概念与抽象
+AI Services 声明式编程
+工具调用（Function Calling）
+RAG（检索增强生成）
+ChatMemory（对话记忆）
+流式响应（SSE）
+结构化输出（POJO）
+Agentic AI（多智能体工作流）
+MCP 集成（模型上下文协议）
+Guardrails（安全护栏）
+可观测性（日志&#x2F;指标&#x2F;追踪）
+国内模型接入实战
+生态对比与选型
+Vibecoding 实战建议
+常见坑与排错
+学习路径推荐
+参考资料
+
+
+1. 为什么选择 LangChain4j 🤔1.1 三个核心痛点作为 Java 开发者，当你尝试在项目中集成 LLM（大语言模型）时，通常会面对这些难题：
+
+
+
+痛点
+描述
+
+
+
+API 碎片化
+OpenAI、Anthropic、Google、DeepSeek、Qwen 各自一套 API，每个都要单独学习
+
+
+概念散落
+RAG、Agent、Memory、Tools 这些概念在不同框架里有不同实现，缺少统一抽象
+
+
+生态不成熟
+相比 Python 生态的 LangChain、LlamaIndex，Java 生态此前一直缺少成熟方案
+
+
+1.2 LangChain4j 的解决方案LangChain4j 致力于统一 LLM 集成、沉淀最佳实践、降低使用门槛。它于 2023 年初 ChatGPT 热潮中诞生，2025 年 5 月 发布 1.0.0 正式版，目前最新稳定版为 1.15.1（2026-05-28 发布），GitHub 已有 12k+ Star。
+
+💡 官方原话：*”Despite the name, LangChain4j is not a Java port of LangChain (Python) — it is built for Java, not ported to it. It is an idiomatic Java library designed from the ground up around Java conventions: type safety, POJOs, annotations, interfaces, dependency injection, fluent APIs.”*
+
+也就是说，它不是 Python LangChain 的翻译版，而是为 Java 量身打造的库。它融合了 LangChain、Haystack、LlamaIndex 以及更广泛社区的理念，但保持 Java 原生风格。
+1.3 三大核心价值🎯 统一 API       → 同一个调用方式对接 20+ LLM 提供商🛠️ 工具箱完整     → 文档加载、向量化、RAG、Agent、Memory 开箱即用📚 文档与示例丰富 → GitHub 提供 1.7k Star 的示例仓库
+
+1.4 两层抽象
+
+
+抽象层次
+特点
+适合场景
+入口
+
+
+
+低层（Low-level）
+直接控制 ChatModel、UserMessage、EmbeddingStore 等组件
+需要细粒度控制、性能调优
+OpenAiChatModel.builder().build()
+
+
+高层（High-level）
+声明式接口 @AiService，自动注入工具、记忆、检索
+业务开发、快速原型
+AiServices.create(Assistant.class, model)
+
+
+
+🎓 建议：作为初学者，先掌握高层 API，80% 的场景用不上低层。
+
+
+2. 框架架构速览 🏗️2.1 包结构LangChain4j 的根包名为 dev.langchain4j，主要子包组织如下：
+dev.langchain4j/├── model/            # LLM 模型接口（ChatModel、EmbeddingModel、ImageModel…）├── data/             # 数据模型（Message、TextSegment、Document…）├── memory/           # ChatMemory 聊天记忆├── store/            # 存储接口（EmbeddingStore…）├── rag/              # RAG 相关（Query、RetrievalAugmentor、ContentRetriever…）├── agent/            # Agent 与 Tool（@Tool、@P…）├── service/          # AI Services 高层 API（@AiService、@SystemMessage…）├── guardrail/        # 安全护栏├── mcp/              # Model Context Protocol 集成└── agentic/          # Agentic AI 多智能体工作流
+
+2.2 核心接口继承关系Model (基础接口) ├── ChatModel              ← 主流入口 │    └── StreamingChatModel ← 流式响应 ├── EmbeddingModel         ← 向量化 ├── ImageModel             ← 图像生成 ├── ScoringModel           ← 重排序 └── ModerationModel        ← 内容审核ChatMemory (容器接口) ├── MessageWindowChatMemory  (按消息条数滑动窗口) └── TokenWindowChatMemory    (按 token 数滑动窗口)EmbeddingStore (向量存储) ├── InMemoryEmbeddingStore    (内置) ├── PineconeEmbeddingStore    (云) ├── Milvus/Qdrant/Weaviate…   (自托管) └── …36+ 实现ContentRetriever (RAG 检索) └── EmbeddingStoreContentRetriever (向量相似度检索) └── WebSearchContentRetriever     (联网搜索) └── …自定义实现ToolProvider (动态工具集) └── DefaultToolProvider └── McpToolProvider              (MCP 服务器)
+
+2.3 模块清单（Maven 坐标）2.3.1 核心模块
+
+
+模块
+坐标
+作用
+
+
+
+langchain4j-core
+dev.langchain4j:langchain4j-core
+基础接口与抽象
+
+
+langchain4j
+dev.langchain4j:langchain4j
+高层 API、文档加载器、记忆
+
+
+langchain4j-agentic
+dev.langchain4j:langchain4j-agentic
+Agentic AI 工作流
+
+
+langchain4j-mcp
+dev.langchain4j:langchain4j-mcp
+MCP 集成
+
+
+langchain4j-reactor
+dev.langchain4j:langchain4j-reactor
+Reactor 流式支持
+
+
+langchain4j-easy-rag
+dev.langchain4j:langchain4j-easy-rag
+一行代码 RAG
+
+
+langchain4j-test
+dev.langchain4j:langchain4j-test
+测试工具
+
+
+2.3.2 LLM 提供商模块（部分）
+
+
+Provider
+坐标
+备注
+
+
+
+OpenAI
+langchain4j-open-ai
+同时兼容 DeepSeek、Qwen 等
+
+
+Azure OpenAI
+langchain4j-azure-open-ai
+企业版
+
+
+Anthropic Claude
+langchain4j-anthropic
+Claude 3.5&#x2F;4
+
+
+Google Gemini
+langchain4j-google-ai-gemini
+多模态
+
+
+Ollama
+langchain4j-ollama
+本地模型
+
+
+DashScope
+langchain4j-community-dashscope
+阿里通义千问
+
+
+智谱 AI
+langchain4j-community-zhipu-ai
+GLM-4
+
+
+Mistral
+langchain4j-mistral-ai
+Mistral Large
+
+
+2.3.3 框架集成 Starter
+
+
+框架
+Starter 坐标
+
+
+
+Spring Boot 3
+dev.langchain4j:langchain4j-spring-boot-starter
+
+
+Spring Boot 4
+dev.langchain4j:langchain4j-spring-boot4-starter
+
+
+Quarkus
+io.quarkiverse.langchain4j:quarkus-langchain4j
+
+
+Helidon
+dev.langchain4j:langchain4j-helidon
+
+
+Micronaut
+dev.langchain4j:langchain4j-micronaut
+
+
+2.3.4 BOM 统一版本管理（强烈推荐）&lt;dependencyManagement&gt;    &lt;dependencies&gt;        &lt;dependency&gt;            &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;            &lt;artifactId&gt;langchain4j-bom&lt;/artifactId&gt;            &lt;version&gt;1.15.1&lt;/version&gt;            &lt;type&gt;pom&lt;/type&gt;            &lt;scope&gt;import&lt;/scope&gt;        &lt;/dependency&gt;    &lt;/dependencies&gt;&lt;/dependencyManagement&gt;
+
+
+⚠️ 版本小贴士：BOM 版本是 1.15.1，但部分集成模块实际版本可能是 1.15.1-beta25。生产环境建议锁定具体模块版本。
+
+
+3. 5 分钟快速开始 ⚡3.1 环境要求
+
+
+组件
+最低版本
+
+
+
+JDK
+17+（2024-10-13 之后强制）
+
+
+Spring Boot
+3.5+
+
+
+Maven
+3.6+ 或 Gradle 7+
+
+
+IDE
+IntelliJ IDEA（推荐） &#x2F; Eclipse &#x2F; VSCode
+
+
+3.2 创建 Spring Boot 项目用 start.spring.io 或 IDE 初始化一个 Spring Boot 3.x 项目，加入以下依赖：
+&lt;properties&gt;    &lt;java.version&gt;17&lt;/java.version&gt;    &lt;langchain4j.version&gt;1.15.1&lt;/langchain4j.version&gt;&lt;/properties&gt;&lt;dependencyManagement&gt;    &lt;dependencies&gt;        &lt;!-- 统一版本管理 BOM --&gt;        &lt;dependency&gt;            &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;            &lt;artifactId&gt;langchain4j-bom&lt;/artifactId&gt;            &lt;version&gt;$&#123;langchain4j.version&#125;&lt;/version&gt;            &lt;type&gt;pom&lt;/type&gt;            &lt;scope&gt;import&lt;/scope&gt;        &lt;/dependency&gt;    &lt;/dependencies&gt;&lt;/dependencyManagement&gt;&lt;dependencies&gt;    &lt;!-- Spring Web --&gt;    &lt;dependency&gt;        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;    &lt;/dependency&gt;    &lt;!-- LangChain4j 核心 Starter (含 @AiService 处理器) --&gt;    &lt;dependency&gt;        &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;        &lt;artifactId&gt;langchain4j-spring-boot-starter&lt;/artifactId&gt;    &lt;/dependency&gt;    &lt;!-- OpenAI 集成 Starter --&gt;    &lt;dependency&gt;        &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;        &lt;artifactId&gt;langchain4j-open-ai-spring-boot-starter&lt;/artifactId&gt;    &lt;/dependency&gt;&lt;/dependencies&gt;
+
+3.3 配置文件application.yml：
+langchain4j:  open-ai:    chat-model:      api-key: $&#123;OPENAI_API_KEY&#125;        # 环境变量      model-name: gpt-4o-mini      temperature: 0.7      log-requests: true      log-responses: true
+
+
+🔑 环境变量设置（Linux&#x2F;macOS）：
+export OPENAI_API_KEY=sk-xxxxxxxxxxxx
+Windows PowerShell：
+$env:OPENAI_API_KEY=&quot;sk-xxxxxxxxxxxx&quot;
+
+3.4 第一个 AI Servicepackage com.example.demo.ai;import dev.langchain4j.service.SystemMessage;import dev.langchain4j.service.spring.AiService;/** * 第一个 AI 服务：友好的助手 * 仅需定义接口，LangChain4j 自动生成实现类并注册为 Spring Bean */@AiServicepublic interface Assistant &#123;    /**     * 基础对话：AI 会按照 @SystemMessage 设定的人设回答     * @param userMessage 用户消息     * @return AI 回复     */    @SystemMessage(&quot;你是一个友好的 AI 助手，名字叫小通。请用简洁、清晰的方式回答问题。&quot;)    String chat(String userMessage);&#125;
+
+3.5 Controller 调用package com.example.demo.controller;import com.example.demo.ai.Assistant;import org.springframework.web.bind.annotation.GetMapping;import org.springframework.web.bind.annotation.RequestParam;import org.springframework.web.bind.annotation.RestController;/** * 聊天接口控制器 * 直接注入 Assistant 接口（LangChain4j 自动生成的实现类） */@RestControllerpublic class ChatController &#123;    private final Assistant assistant;    /** 构造器注入，符合 Spring 推荐风格 */    public ChatController(Assistant assistant) &#123;        this.assistant = assistant;    &#125;    /**     * 简单聊天接口     * @param message 用户消息     * @return AI 回复     */    @GetMapping(&quot;/chat&quot;)    public String chat(@RequestParam(defaultValue = &quot;你好&quot;) String message) &#123;        return assistant.chat(message);    &#125;&#125;
+
+3.6 启动并测试mvn spring-boot:run
+
+浏览器或 curl 测试：
+curl &quot;http://localhost:8080/chat?message=你是谁&quot;# 输出示例：你好！我叫小通，是一个友好的人工智能助手...
+
+🎉 到这里你已经完成了第一个 LangChain4j 程序！ 是不是比想象中简单？
+
+4. 核心概念与抽象 🎓4.1 消息类型
+
+
+类型
+类名
+说明
+
+
+
+系统消息
+SystemMessage
+设定 AI 角色、行为规范，每次对话第一条
+
+
+用户消息
+UserMessage
+用户输入，可包含文本、图像、音频等
+
+
+AI 消息
+AiMessage
+LLM 输出，可能包含 toolExecutionRequests()
+
+
+工具执行结果
+ToolExecutionResultMessage
+工具调用后的返回结果
+
+
+自定义消息
+CustomMessage
+Ollama 等支持的扩展类型
+
+
+// 直接使用 ChatModel（低层 API）import dev.langchain4j.model.chat.ChatModel;import dev.langchain4j.data.message.UserMessage;import dev.langchain4j.data.message.AiMessage;import dev.langchain4j.model.openai.OpenAiChatModel;public class LowLevelExample &#123;    public static void main(String[] args) &#123;        // 1. 创建 ChatModel 实例        ChatModel model = OpenAiChatModel.builder()            .apiKey(System.getenv(&quot;OPENAI_API_KEY&quot;))            .modelName(&quot;gpt-4o-mini&quot;)            .build();        // 2. 构造消息列表（多轮对话）        List&lt;ChatMessage&gt; messages = List.of(            SystemMessage.from(&quot;你是一个翻译助手&quot;),            UserMessage.from(&quot;把 &#x27;Hello World&#x27; 翻译成中文&quot;)        );        // 3. 调用 LLM        AiMessage aiMessage = model.chat(messages).aiMessage();        System.out.println(aiMessage.text());    &#125;&#125;
+
+4.2 模型类型对比
+
+
+接口
+用途
+返回
+
+
+
+ChatModel
+主流 LLM 调用
+ChatResponse
+
+
+StreamingChatModel
+流式 token 输出
+void chat(..., StreamingChatResponseHandler)
+
+
+EmbeddingModel
+文本转向量
+Embedding (float[])
+
+
+ImageModel
+文生图&#x2F;图编辑
+Image
+
+
+ScoringModel
+重排序
+Double 分数
+
+
+ModerationModel
+内容审核
+boolean 是否违规
+
+
+4.3 Embedding 与 EmbeddingStoreEmbedding：将文本转换为高维向量（如 384、1024、1536 维），用来表征语义：
+import dev.langchain4j.model.embedding.EmbeddingModel;import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2QuantizedEmbeddingModel;import dev.langchain4j.data.embedding.Embedding;public class EmbeddingExample &#123;    public static void main(String[] args) &#123;        // 使用本地 ONNX 模型（无需 API Key）        EmbeddingModel model = new AllMiniLmL6V2QuantizedEmbeddingModel();        Embedding emb1 = model.embed(&quot;Java 是一种面向对象的语言&quot;).content();        Embedding emb2 = model.embed(&quot;Python 是一种动态类型语言&quot;).content();        System.out.println(&quot;向量维度: &quot; + emb1.dimension());        // 384        System.out.println(&quot;余弦相似度: &quot; + EmbeddingMath.cosineSimilarity(emb1, emb2));    &#125;&#125;
+
+EmbeddingStore：存储 Embedding 并支持高效相似度搜索：
+// 内存版（开发/测试用）import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;import dev.langchain4j.data.segment.TextSegment;InMemoryEmbeddingStore&lt;TextSegment&gt; store = new InMemoryEmbeddingStore&lt;&gt;();String id = store.add(emb1, TextSegment.from(&quot;Java 是一种面向对象的语言&quot;));// 检索 Top 3List&lt;EmbeddingMatch&lt;TextSegment&gt;&gt; matches =    store.search(EmbeddingSearchRequest.builder()        .queryEmbedding(emb2)        .maxResults(3)        .build()).matches();matches.forEach(m -&gt; System.out.println(&quot;score=&quot; + m.score() + &quot;, text=&quot; + m.embedded().text()));
+
+4.4 两种内存策略
+
+
+类
+策略
+适用
+
+
+
+MessageWindowChatMemory
+保留最近 N 条消息
+简单对话
+
+
+TokenWindowChatMemory
+保留最近 N 个 token
+精确控制上下文长度
+
+
+
+5. AI Services 声明式编程 🎯
+🚀 重点章节：这是 LangChain4j 的”杀手级”特性，类似 Spring Data JPA 之于 JPA，让你只写接口不写实现。
+
+5.1 基础结构@AiServicepublic interface Assistant &#123;    String chat(String userMessage);    // 接口方法，LangChain4j 自动生成实现&#125;
+
+构建方式（手动 &#x2F; Spring 自动）：
+// 手动构建Assistant assistant = AiServices.create(Assistant.class, chatModel);// Spring Boot 中：只要类路径里有 langchain4j-spring-boot-starter，接口上有 @AiService 注解// 就会被自动注册为 Bean，可以直接 @Autowired 注入
+
+5.2 三大核心注解@SystemMessage设定 AI 角色、行为规范（相当于 Prompt Engineering 中的 system prompt）：
+@AiServicepublic interface CustomerServiceAssistant &#123;    @SystemMessage(&quot;&quot;&quot;        你是&quot;里程微笑&quot;租车公司的客服，名字叫 Roger。        你的职责是回答预订相关问题。回答时必须遵循以下原则：        1. 友好、礼貌、简洁        2. 在提供预订详情前，必须先确认预订号、客户姓名、姓氏        3. 如果无法回答，诚实说明，不要编造        今天是 &#123;&#123;current_date&#125;&#125;。        &quot;&quot;&quot;)    String answer(String userMessage);&#125;
+
+@UserMessage自定义用户消息模板，默认会自动以方法参数作为消息内容：
+@AiServicepublic interface TranslatorAssistant &#123;    // 方式一：直接参数    @UserMessage(&quot;请将以下文本翻译成中文：&#123;&#123;text&#125;&#125;&quot;)    String translate(@V(&quot;text&quot;) String text);    // 方式二：使用 &#123;&#123;it&#125;&#125; 指代第一个 String 参数    @UserMessage(&quot;用一句话总结：&#123;&#123;it&#125;&#125;&quot;)    String summarize(String content);&#125;
+
+@MemoryId为多用户&#x2F;多会话场景提供会话隔离标识：
+@AiServicepublic interface Assistant &#123;    @SystemMessage(&quot;你是一个友好助手&quot;)    String chat(@MemoryId String sessionId, @UserMessage String message);&#125;// 使用：每个 sessionId 有独立记忆assistant.chat(&quot;user-001&quot;, &quot;我叫小明&quot;);    // 记住&quot;小明&quot;assistant.chat(&quot;user-002&quot;, &quot;我叫什么&quot;);    // 不会记混
+
+5.3 返回类型
+
+
+返回类型
+说明
+
+
+
+String
+直接返回 LLM 输出文本
+
+
+POJO &#x2F; Record
+结构化输出，自动反序列化为对象
+
+
+Enum &#x2F; boolean
+自动转换为枚举值或布尔
+
+
+List&lt;T&gt;
+列表类型
+
+
+Result&lt;T&gt;
+包含元数据（Token 使用、来源、工具执行等）
+
+
+TokenStream
+流式响应（Flux&lt;String&gt; 在 Spring 中）
+
+
+POJO 返回示例：
+@AiServicepublic interface AnalyzerAssistant &#123;    @UserMessage(&quot;分析这段文本的情感倾向：&#123;&#123;it&#125;&#125;&quot;)    Sentiment analyze(String text);&#125;enum Sentiment &#123; POSITIVE, NEUTRAL, NEGATIVE &#125;// 调用Sentiment s = analyzer.analyze(&quot;今天天气真好！&quot;);// s == Sentiment.POSITIVE
+
+复杂 POJO 示例：
+public record Person(String firstName, String lastName, LocalDate birthDate) &#123;&#125;@AiServicepublic interface PersonExtractor &#123;    Person extractPersonFrom(String text);&#125;// 调用String text = &quot;张三出生于 1990 年 5 月 1 日&quot;;Person p = personExtractor.extractPersonFrom(text);// p.firstName() == &quot;张三&quot;, p.birthDate() == 1990-05-01
+
+5.4 显式 Wiring（多模型场景）当有多个 ChatModel 时，必须明确指定使用哪个：
+@AiService(wiringMode = EXPLICIT, chatModel = &quot;openAiChatModel&quot;)public interface OpenAiAssistant &#123;    @SystemMessage(&quot;You are an English assistant.&quot;)    String chat(String userMessage);&#125;@AiService(wiringMode = EXPLICIT, chatModel = &quot;deepseekChatModel&quot;)public interface DeepseekAssistant &#123;    @SystemMessage(&quot;你是一个中文编程助手。&quot;)    String chat(String userMessage);&#125;
+
+
+6. 工具调用（Function Calling） 🔧
+🎓 这是 Agent 能力的核心 —— 让 LLM 不只是聊天，还能”做事”。
+
+6.1 基础工具类package com.example.demo.tools;import dev.langchain4j.agent.tool.P;import dev.langchain4j.agent.tool.Tool;import org.springframework.stereotype.Component;/** * 天气查询工具 * 任何 @Component 类中带 @Tool 注解的方法，会被 LangChain4j 自动发现 */@Componentpublic class WeatherTools &#123;    /**     * 查询指定城市的当前天气     * @param city 城市名称，如 &quot;北京&quot;     * @param unit 温度单位     * @return 天气信息     */    @Tool(&quot;查询指定城市的当前天气&quot;)    public String getWeather(            @P(&quot;城市名称，如 北京、上海&quot;) String city,            @P(value = &quot;温度单位&quot;, required = false) String unit) &#123;        // 实际项目调用天气 API        return city + &quot; 天气晴，气温 25 度&quot;;    &#125;    /**     * 查询未来 N 天的天气预报     * @param city 城市名称     * @param days 预报天数     * @return 天气预报列表     */    @Tool(&quot;查询未来几天的天气预报&quot;)    public List&lt;String&gt; getForecast(            @P(&quot;城市名称&quot;) String city,            @P(&quot;预报天数，1-7&quot;) int days) &#123;        return List.of(&quot;第1天: 晴&quot;, &quot;第2天: 多云&quot;, &quot;第3天: 雨&quot;);    &#125;&#125;
+
+6.2 在 AI Service 中使用工具@AiService(tools = &quot;weatherTools&quot;)   // 显式指定工具 Bean 名称public interface WeatherAssistant &#123;    @SystemMessage(&quot;你是一个专业的气象助手，根据用户问题提供天气信息&quot;)    String chat(String userMessage);&#125;
+
+
+💡 自动发现机制：如果上下文里只有一个 ChatModel，任何带 @Tool 的 Bean 都会自动注入，无需显式指定。
+
+6.3 AI Service 中混合指定工具 + 记忆@AiServicepublic interface CustomerSupportAgent &#123;    @SystemMessage(&quot;&quot;&quot;        你是&quot;里程微笑&quot;租车公司的客服 Roger。        在提供订单详情前，必须先查询订单号、姓名、姓氏。        &quot;&quot;&quot;)    Result&lt;String&gt; answer(@MemoryId String memoryId, @UserMessage String userMessage);&#125;
+
+6.4 高级：动态工具根据用户消息动态决定提供哪些工具：
+ToolProvider toolProvider = toolProviderRequest -&gt; &#123;    String text = toolProviderRequest.userMessage().singleText();    if (text.contains(&quot;天气&quot;)) &#123;        return ToolProviderResult.builder()            .add(weatherToolSpec, weatherExecutor)            .build();    &#125;    return null;&#125;;Assistant assistant = AiServices.builder(Assistant.class)    .chatModel(model)    .toolProvider(toolProvider)    .build();
+
+6.5 并行执行工具当 LLM 决定调用多个独立工具时，可以并行执行加速：
+Assistant assistant = AiServices.builder(Assistant.class)    .chatModel(model)    .tools(new SearchTools(), new DatabaseTools())    .executeToolsConcurrently(true)   // 启用并行    .build();
+
+
+7. RAG（检索增强生成） 📚
+🎓 RAG（Retrieval-Augmented Generation）&#x3D; 让 LLM 回答你指定的资料中的问题，是企业知识库问答的核心方案。
+
+7.1 RAG 流程📄 文档加载 → ✂️ 分割 → 🔢 Embedding → 💾 存储向量库                                              ↓❓ 用户问题 → 🔢 Embedding → 🔍 相似度搜索 → 📑 检索内容                                              ↓                                🤖 注入 Prompt → 💬 生成答案
+
+7.2 Easy RAG（一行配置版）适合快速验证、生产环境的简单场景：
+import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;import dev.langchain4j.data.document.parser.TextDocumentParser;import dev.langchain4j.data.document.Document;import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2QuantizedEmbeddingModel;import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;import dev.langchain4j.store.embedding.EmbeddingStore;import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;import dev.langchain4j.data.segment.TextSegment;import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;public class EasyRagExample &#123;    public static void main(String[] args) &#123;        // 1. 加载文档        List&lt;Document&gt; documents = FileSystemDocumentLoader.loadDocuments(            &quot;/path/to/docs&quot;,            new TextDocumentParser()        );        // 2. 创建 Embedding 模型（本地 ONNX，无需 API Key）        var embeddingModel = new AllMiniLmL6V2QuantizedEmbeddingModel();        // 3. 创建向量库（内存版）        EmbeddingStore&lt;TextSegment&gt; embeddingStore = new InMemoryEmbeddingStore&lt;&gt;();        // 4. 一行 ingest：分割 + Embedding + 存储全自动        EmbeddingStoreIngestor.ingest(documents, embeddingStore);        // 5. 创建带 RAG 的 AI Service        Assistant assistant = AiServices.builder(Assistant.class)            .chatModel(chatModel)            .contentRetriever(EmbeddingStoreContentRetriever.from(embeddingStore))            .build();        // 6. 测试        String answer = assistant.chat(&quot;如何在 Spring Boot 中配置数据源？&quot;);        System.out.println(answer);    &#125;&#125;
+
+7.3 Naive RAG（标准版，可配置）ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()    .embeddingStore(embeddingStore)    .embeddingModel(embeddingModel)    .maxResults(5)          // 返回 Top 5 片段    .minScore(0.6)          // 最低相似度阈值    .build();Assistant assistant = AiServices.builder(Assistant.class)    .chatModel(chatModel)    .contentRetriever(contentRetriever)    .build();
+
+7.4 Advanced RAG（生产级，模块化）把 RAG 拆成可配置组件，按需替换：
+import dev.langchain4j.rag.DefaultRetrievalAugmentor;import dev.langchain4j.rag.query.transformer.CompressingQueryTransformer;import dev.langchain4j.rag.query.router.LanguageModelQueryRouter;import dev.langchain4j.rag.content.aggregator.ReRankingContentAggregator;RetrievalAugmentor retrievalAugmentor = DefaultRetrievalAugmentor.builder()    // 查询压缩：把多轮对话压缩成独立问题    .queryTransformer(new CompressingQueryTransformer(chatModel))    // 多路路由：根据问题选择不同的向量库    .queryRouter(new LanguageModelQueryRouter(chatModel))    // Re-Ranking：用更强的模型对检索结果重排序    .contentAggregator(new ReRankingContentAggregator(scoringModel))    .build();Assistant assistant = AiServices.builder(Assistant.class)    .chatModel(chatModel)    .retrievalAugmentor(retrievalAugmentor)    .build();
+
+7.5 文档加载器
+
+
+来源
+类
+依赖
+
+
+
+文件系统
+FileSystemDocumentLoader
+langchain4j
+
+
+ClassPath
+ClassPathDocumentLoader
+langchain4j
+
+
+URL
+UrlDocumentLoader
+langchain4j
+
+
+Amazon S3
+AmazonS3DocumentLoader
+langchain4j-document-loader-amazon-s3
+
+
+Azure Blob
+AzureBlobStorageDocumentLoader
+langchain4j-document-loader-azure-storage-blob
+
+
+GitHub
+GitHubDocumentLoader
+langchain4j-document-loader-github
+
+
+文档解析器：
+
+
+
+格式
+类
+依赖
+
+
+
+纯文本
+TextDocumentParser
+langchain4j
+
+
+PDF
+ApachePdfBoxDocumentParser
+langchain4j-document-parser-apache-pdfbox
+
+
+Word&#x2F;Excel&#x2F;PPT
+ApachePoiDocumentParser
+langchain4j-document-parser-apache-poi
+
+
+自动检测
+ApacheTikaDocumentParser
+langchain4j-document-parser-apache-tika
+
+
+7.6 Spring Boot 中配置 RAGpackage com.example.demo.config;import dev.langchain4j.data.document.Document;import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;import dev.langchain4j.data.document.parser.TextDocumentParser;import dev.langchain4j.data.segment.TextSegment;import dev.langchain4j.model.embedding.EmbeddingModel;import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2QuantizedEmbeddingModel;import dev.langchain4j.rag.content.retriever.ContentRetriever;import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;import dev.langchain4j.store.embedding.EmbeddingStore;import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;import org.springframework.context.annotation.Bean;import org.springframework.context.annotation.Configuration;import java.nio.file.Path;import java.nio.file.Paths;import java.util.List;/** * RAG 完整配置：模型 + 向量库 + 检索器 */@Configurationpublic class RagConfig &#123;    /** 进程内 ONNX Embedding 模型（无需 API Key，开箱即用） */    @Bean    public EmbeddingModel embeddingModel() &#123;        return new AllMiniLmL6V2QuantizedEmbeddingModel();    &#125;    /** 内存版向量库（生产环境建议用 PgVector / Milvus / Qdrant） */    @Bean    public EmbeddingStore&lt;TextSegment&gt; embeddingStore() &#123;        return new InMemoryEmbeddingStore&lt;&gt;();    &#125;    /** 启动时自动加载文档、分割、Embedding、入库 */    @Bean    public EmbeddingStoreIngestor embeddingStoreIngestor(            EmbeddingStore&lt;TextSegment&gt; embeddingStore,            EmbeddingModel embeddingModel) &#123;        // 1. 加载 classpath:documents 下的所有 .txt        Path docsPath = Paths.get(&quot;src/main/resources/documents&quot;);        List&lt;Document&gt; documents = FileSystemDocumentLoader.loadDocuments(            docsPath, new TextDocumentParser()        );        // 2. 构建 ingestor：每 300 token 一段，重叠 30 token        EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()            .documentSplitter(DocumentSplitters.recursive(300, 30))            .embeddingModel(embeddingModel)            .embeddingStore(embeddingStore)            .build();        // 3. 执行入库        ingestor.ingest(documents);        System.out.println(&quot;✅ 已入库文档数: &quot; + documents.size());        return ingestor;    &#125;    /** 内容检索器 */    @Bean    public ContentRetriever contentRetriever(            EmbeddingStore&lt;TextSegment&gt; embeddingStore,            EmbeddingModel embeddingModel) &#123;        return EmbeddingStoreContentRetriever.builder()            .embeddingStore(embeddingStore)            .embeddingModel(embeddingModel)            .maxResults(3)            .minScore(0.6)            .build();    &#125;&#125;
+
+7.7 向量数据库选型
+
+
+场景
+推荐
+
+
+
+本地开发&#x2F;测试
+InMemoryEmbeddingStore（内置）
+
+
+已有 PostgreSQL
+langchain4j-pgvector
+
+
+生产云服务
+langchain4j-pinecone（最成熟）
+
+
+自托管 + 高性能
+langchain4j-milvus &#x2F; langchain4j-qdrant
+
+
+混合搜索
+langchain4j-elasticsearch &#x2F; langchain4j-weaviate
+
+
+
+8. ChatMemory（对话记忆） 💾8.1 为什么需要记忆？LLM 本身是无状态的，每次调用都是独立的。ChatMemory 用来在多次调用间维护上下文。
+8.2 两种内置实现import dev.langchain4j.memory.chat.MessageWindowChatMemory;import dev.langchain4j.memory.chat.TokenWindowChatMemory;import dev.langchain4j.model.openai.OpenAiTokenCountEstimator;// 按消息条数：保留最近 10 条消息（简单场景）ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);// 按 token 数：保留最近 3000 token（精确控制成本）ChatMemory memory = TokenWindowChatMemory.builder()    .maxTokens(3000)    .tokenCountEstimator(new OpenAiTokenCountEstimator(&quot;gpt-4o-mini&quot;))    .build();
+
+8.3 在 AI Service 中使用@AiServicepublic interface Assistant &#123;    @SystemMessage(&quot;你是友好助手&quot;)    String chat(@MemoryId String memoryId, @UserMessage String userMessage);&#125;// 配置：每个 memoryId 独立创建 ChatMemory@Beanpublic ChatMemoryProvider chatMemoryProvider() &#123;    return memoryId -&gt; MessageWindowChatMemory.withMaxMessages(20);&#125;
+
+8.4 持久化记忆实现 ChatMemoryStore 接口，把记忆存到 Redis &#x2F; MySQL：
+public interface ChatMemoryStore &#123;    List&lt;ChatMessage&gt; getMessages(Object memoryId);    void updateMessages(Object memoryId, List&lt;ChatMessage&gt; messages);    void deleteMessages(Object memoryId);&#125;// Redis 版示例public class RedisChatMemoryStore implements ChatMemoryStore &#123;    private final RedisTemplate&lt;String, List&lt;ChatMessage&gt;&gt; redisTemplate;    @Override    public List&lt;ChatMessage&gt; getMessages(Object memoryId) &#123;        return redisTemplate.opsForValue().get(&quot;chat:&quot; + memoryId);    &#125;    @Override    public void updateMessages(Object memoryId, List&lt;ChatMessage&gt; messages) &#123;        redisTemplate.opsForValue().set(&quot;chat:&quot; + memoryId, messages,            Duration.ofDays(7));    &#125;    // ...&#125;
+
+
+9. 流式响应（SSE） ⚡
+🎓 SSE（Server-Sent Events）&#x3D; 让用户看到 AI 边思考边打字的效果，而不是干等几十秒。
+
+9.1 添加依赖&lt;dependency&gt;    &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;    &lt;artifactId&gt;langchain4j-reactor&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;    &lt;artifactId&gt;spring-boot-starter-webflux&lt;/artifactId&gt;&lt;/dependency&gt;
+
+9.2 流式 AI Service@AiServicepublic interface StreamingAssistant &#123;    @SystemMessage(&quot;你是一个友好助手&quot;)    Flux&lt;String&gt; chat(String userMessage);&#125;
+
+9.3 SSE Controllerpackage com.example.demo.controller;import com.example.demo.ai.StreamingAssistant;import org.springframework.http.MediaType;import org.springframework.web.bind.annotation.GetMapping;import org.springframework.web.bind.annotation.RequestParam;import org.springframework.web.bind.annotation.RestController;import reactor.core.publisher.Flux;/** * SSE 流式聊天接口 * 浏览器可用 EventSource 直接订阅 */@RestControllerpublic class StreamingController &#123;    private final StreamingAssistant streamingAssistant;    public StreamingController(StreamingAssistant streamingAssistant) &#123;        this.streamingAssistant = streamingAssistant;    &#125;    /**     * 流式聊天（SSE）     * @param message 用户消息     * @return Flux&lt;String&gt; 每段字符串是一个 token     */    @GetMapping(value = &quot;/stream&quot;, produces = MediaType.TEXT_EVENT_STREAM_VALUE)    public Flux&lt;String&gt; stream(@RequestParam String message) &#123;        return streamingAssistant.chat(message);    &#125;&#125;
+
+9.4 前端测试&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;body&gt;    &lt;div id=&quot;output&quot;&gt;&lt;/div&gt;    &lt;script&gt;        const eventSource = new EventSource(&#x27;/stream?message=讲个笑话&#x27;);        eventSource.onmessage = (event) =&gt; &#123;            document.getElementById(&#x27;output&#x27;).innerText += event.data;        &#125;;    &lt;/script&gt;&lt;/body&gt;&lt;/html&gt;
+
+
+10. 结构化输出（POJO） 📦
+🎓 让 LLM 直接返回强类型 Java 对象，省掉手动 JSON 解析。
+
+10.1 简单示例public record Person(String firstName, String lastName, LocalDate birthDate, String email) &#123;&#125;@AiServicepublic interface PersonExtractor &#123;    @UserMessage(&quot;从以下文本中提取人物信息：&#123;&#123;it&#125;&#125;&quot;)    Person extract(String text);&#125;// 调用String text = &quot;张三，男，1990年5月1日出生，邮箱 zhangsan@example.com&quot;;Person p = personExtractor.extract(text);// p.firstName() = &quot;张三&quot;, p.birthDate() = 1990-05-01
+
+10.2 嵌套对象 + 列表public record Cv(    String name,    String email,    List&lt;String&gt; skills,    List&lt;Experience&gt; experiences,    Address address) &#123;    public record Experience(String company, String title, int years) &#123;&#125;    public record Address(String city, String country) &#123;&#125;&#125;@AiServicepublic interface CvGenerator &#123;    @UserMessage(&quot;根据以下信息生成简历：&#123;&#123;it&#125;&#125;&quot;)    Cv generateCv(String lifeStory);&#125;
+
+10.3 配合 OpenAI JSON Schema 模式langchain4j:  open-ai:    chat-model:      model-name: gpt-4o-mini      response-format: json      strict-json-schema: true
+
+
+11. Agentic AI（多智能体工作流） 🤖
+🎓 单一 AI Service 只能做”一件事”，Agentic AI 把多个 AI Service 编排成工作流，处理复杂多步任务。
+
+11.1 基本 Agentpublic interface CreativeWriter &#123;    @UserMessage(&quot;写一个关于 &#123;&#123;topic&#125;&#125; 的短篇故事&quot;)    @Agent(&quot;根据给定主题生成故事&quot;)    String generateStory(@V(&quot;topic&quot;) String topic);&#125;// 创建CreativeWriter writer = AgenticServices    .agentBuilder(CreativeWriter.class)    .chatModel(myChatModel)    .outputName(&quot;story&quot;)        // 输出存入 AgenticScope 的 &quot;story&quot; 字段    .build();String story = writer.generateStory(&quot;火星探险&quot;);
+
+11.2 顺序工作流（Sequential）UntypedAgent novelCreator = AgenticServices    .sequenceBuilder()    .subAgents(creativeWriter, audienceEditor, styleEditor)    .outputName(&quot;story&quot;)    .build();String novel = (String) novelCreator.invoke(initialRequest).get(&quot;story&quot;);// creativeWriter 生成初稿 → audienceEditor 调整适合读者 → styleEditor 优化风格
+
+11.3 循环工作流（Loop）UntypedAgent styleReviewLoop = AgenticServices    .loopBuilder()    .subAgents(styleScorer, styleEditor)    .maxIterations(5)            // 最多 5 轮    .exitCondition(scope -&gt;        scope.readState(&quot;score&quot;, 0.0) &gt;= 0.8    // 分数≥0.8 退出    )    .build();
+
+11.4 并行工作流（Parallel）EveningPlannerAgent planner = AgenticServices    .parallelBuilder(EveningPlannerAgent.class)    .subAgents(foodExpert, movieExpert)   // 两个专家同时干活    .outputName(&quot;plans&quot;)    .build();
+
+11.5 条件工作流（Conditional）UntypedAgent expertsAgent = AgenticServices    .conditionalBuilder()    .subAgents(        scope -&gt; category == RequestCategory.MEDICAL, medicalExpert,        scope -&gt; category == RequestCategory.LEGAL, legalExpert,        scope -&gt; category == RequestCategory.TECHNICAL, technicalExpert    )    .build();// 根据 category 自动选择调用哪个专家
+
+11.6 监督代理（Supervisor）LLM 自主决定调用哪些子 Agent：
+SupervisorAgent bankSupervisor = AgenticServices    .supervisorBuilder()    .chatModel(PLANNER_MODEL)         // 用更强的模型做规划    .subAgents(withdrawAgent, creditAgent, exchangeAgent)    .responseStrategy(SupervisorResponseStrategy.SUMMARY)    .build();
+
+11.7 AI Service vs Agent
+
+
+维度
+AI Service
+Agent
+
+
+
+复杂度
+简单，声明式
+复杂，可编排
+
+
+适用场景
+单轮&#x2F;多轮对话、RAG
+多步骤工作流、复杂任务分解
+
+
+工具调用
+支持
+更强的自主决策能力
+
+
+状态管理
+ChatMemory
+独立的状态&#x2F;计划
+
+
+性能
+快
+多次 LLM 调用，慢
+
+
+
+12. MCP 集成（模型上下文协议） 🔗
+🎓 MCP（Model Context Protocol）&#x3D; Anthropic 主导的开放标准，让 LLM 调用外部工具服务器（如文件系统、数据库、IDE 操作）。
+
+12.1 添加依赖&lt;dependency&gt;    &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;    &lt;artifactId&gt;langchain4j-mcp&lt;/artifactId&gt;&lt;/dependency&gt;
+
+12.2 客户端代码import dev.langchain4j.mcp.McpToolProvider;import dev.langchain4j.mcp.client.DefaultMcpClient;import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;import dev.langchain4j.mcp.client.transport.http.StreamableHttpMcpTransport;import java.util.List;// 方式一：stdio（启动一个本地进程作为 MCP 服务器）McpTransport stdioTransport = new StdioMcpTransport.Builder()    .command(List.of(&quot;npm&quot;, &quot;exec&quot;, &quot;-y&quot;, &quot;@modelcontextprotocol/server-everything&quot;))    .build();// 方式二：HTTP（连接远程 MCP 服务器）McpTransport httpTransport = new StreamableHttpMcpTransport.Builder()    .url(&quot;http://localhost:3001/mcp&quot;)    .build();McpClient mcpClient = new DefaultMcpClient.Builder()    .transport(httpTransport)    .build();McpToolProvider toolProvider = McpToolProvider.builder()    .mcpClients(mcpClient)    .build();Bot bot = AiServices.builder(Bot.class)    .chatModel(chatModel)    .toolProvider(toolProvider)    .build();
+
+12.3 应用场景MCP 让你能为 AI 接入”无限工具“：
+
+📁 文件系统读写
+🗄️ 数据库查询
+🌐 浏览器操作（Playwright MCP）
+💻 IDE 操作
+🐙 GitHub API、Slack 通知、地图服务……
+
+
+13. Guardrails（安全护栏） 🛡️
+🎓 防止 Prompt Injection、有害输出、超时等异常情况。
+
+13.1 输入护栏import dev.langchain4j.guardrail.InputGuardrail;import dev.langchain4j.guardrail.InputGuardrailRequest;import dev.langchain4j.guardrail.InputGuardrailResult;/** * 自定义输入护栏：检测并拦截可能的 Prompt Injection */public class PromptInjectionGuardrail implements InputGuardrail &#123;    private static final List&lt;String&gt; SUSPICIOUS_PATTERNS = List.of(        &quot;ignore previous instructions&quot;,        &quot;忽略以上指令&quot;,        &quot;forget everything&quot;,        &quot;system prompt&quot;    );    @Override    public InputGuardrailResult validate(InputGuardrailRequest request) &#123;        String userText = request.userMessage().singleText().toLowerCase();        for (String pattern : SUSPICIOUS_PATTERNS) &#123;            if (userText.contains(pattern)) &#123;                return InputGuardrailResult.failure(&quot;检测到可疑的注入尝试&quot;, List.of());            &#125;        &#125;        return InputGuardrailResult.success();    &#125;&#125;
+
+13.2 输出护栏public class JsonOutputGuardrail implements OutputGuardrail &#123;    @Override    public OutputGuardrailResult validate(AiMessage response) &#123;        try &#123;            objectMapper.readValue(response.text(), MyClass.class);            return InputGuardrailResult.success();        &#125; catch (Exception e) &#123;            return OutputGuardrailResult.retry(&quot;输出不是合法 JSON，请重新生成&quot;);        &#125;    &#125;&#125;
+
+13.3 应用 GuardrailAssistant assistant = AiServices.builder(Assistant.class)    .chatModel(chatModel)    .inputGuardrails(new PromptInjectionGuardrail())    .outputGuardrails(new JsonOutputGuardrail(), new LengthLimitGuardrail())    .build();
+
+
+14. 可观测性（日志&#x2F;指标&#x2F;追踪） 📊14.1 日志请求&#x2F;响应langchain4j:  open-ai:    chat-model:      log-requests: true      log-responses: true
+
+14.2 ChatModelListener@Beanpublic ChatModelListener chatModelListener() &#123;    return new ChatModelListener() &#123;        @Override        public void onRequest(ChatRequestContext ctx) &#123;            log.info(&quot;请求: &#123;&#125;&quot;, ctx.chatRequest().messages());        &#125;        @Override        public void onResponse(ChatResponseContext ctx) &#123;            log.info(&quot;响应: &#123;&#125;, Token: &#123;&#125;&quot;,                ctx.chatResponse().aiMessage().text(),                ctx.chatResponse().tokenUsage());        &#125;        @Override        public void onError(ChatModelErrorContext ctx) &#123;            log.error(&quot;错误: &#123;&#125;&quot;, ctx.error().getMessage());        &#125;    &#125;;&#125;
+
+14.3 集成 Micrometer + OpenTelemetry添加依赖：
+&lt;dependency&gt;    &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;    &lt;artifactId&gt;langchain4j-observation&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;io.micrometer&lt;/groupId&gt;    &lt;artifactId&gt;micrometer-tracing-bridge-otel&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;io.opentelemetry&lt;/groupId&gt;    &lt;artifactId&gt;opentelemetry-exporter-zipkin&lt;/artifactId&gt;&lt;/dependency&gt;
+
+这样 LangChain4j 的每次 LLM 调用都会自动产生 OpenTelemetry Span，可以直接在 Zipkin &#x2F; Grafana Tempo 中追踪。
+
+15. 国内模型接入实战 🇨🇳15.1 DeepSeek（推荐 - 国内直连、价格低）
+💡 坑提醒：deepseek-reasoner（R1 推理模型）不支持 Tool Calling，必须用 deepseek-chat！
+
+langchain4j:  open-ai:    chat-model:      api-key: $&#123;DEEPSEEK_API_KEY&#125;      base-url: https://api.deepseek.com/v1      model-name: deepseek-chat      temperature: 1.3       # DeepSeek 推荐 &gt; 1.0      log-requests: true
+
+15.2 通义千问（阿里百炼 DashScope）
+⚠️ 从 1.0.0-alpha1 起，DashScope 迁移到 langchain4j-community 组织。
+
+添加依赖：
+&lt;dependency&gt;    &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;    &lt;artifactId&gt;langchain4j-community-dashscope-spring-boot-starter&lt;/artifactId&gt;&lt;/dependency&gt;
+
+配置：
+langchain4j:  community:    dashscope:      chat-model:        api-key: $&#123;DASHSCOPE_API_KEY&#125;        model-name: qwen-plus        # 可选: qwen-turbo / qwen-max / qwen-coder / qwen-vl
+
+15.3 智谱 AI（GLM-4）&lt;dependency&gt;    &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;    &lt;artifactId&gt;langchain4j-community-zhipu-ai-spring-boot-starter&lt;/artifactId&gt;&lt;/dependency&gt;
+
+langchain4j:  community:    zhipu-ai:      chat-model:        api-key: $&#123;ZHIPU_API_KEY&#125;        model-name: glm-4-plus
+
+15.4 Ollama（本地大模型）
+🎓 适合数据敏感场景（金融、医疗、政企）或离线开发。
+
+# 安装 Ollama（macOS/Linux）curl -fsSL https://ollama.com/install.sh | shollama pull qwen2.5:7b           # 下载模型ollama serve                       # 启动服务（默认端口 11434）
+
+&lt;dependency&gt;    &lt;groupId&gt;dev.langchain4j&lt;/groupId&gt;    &lt;artifactId&gt;langchain4j-ollama-spring-boot-starter&lt;/artifactId&gt;&lt;/dependency&gt;
+
+langchain4j:  ollama:    chat-model:      base-url: http://localhost:11434      model-name: qwen2.5:7b      temperature: 0.7    embedding-model:      base-url: http://localhost:11434      model-name: nomic-embed-text
+
+15.5 网络代理（访问 OpenAI 必须）
+🇨🇳 中国大陆访问 OpenAI API 必须配置 HTTP 代理。
+
+import java.net.ProxySelector;import java.net.InetSocketAddress;import java.net.http.HttpClient;import dev.langchain4j.http.client.jdk.JdkHttpClient;import dev.langchain4j.http.client.HttpClientBuilder;import dev.langchain4j.model.openai.OpenAiChatModel;// 创建带代理的 HttpClientHttpClient proxyHttpClient = HttpClient.newBuilder()    .proxy(ProxySelector.of(new InetSocketAddress(&quot;127.0.0.1&quot;, 7890)))    .build();OpenAiChatModel model = OpenAiChatModel.builder()    .httpClientBuilder(JdkHttpClient.builder()        .httpClientBuilder(() -&gt; proxyHttpClient))    .apiKey(System.getenv(&quot;OPENAI_API_KEY&quot;))    .modelName(&quot;gpt-4o-mini&quot;)    .build();
+
+
+16. 生态对比与选型 🆚16.1 LangChain4j vs Spring AI vs LangChain
+
+
+维度
+LangChain4j
+Spring AI
+LangChain (Python)
+
+
+
+语言
+Java
+Java
+Python
+
+
+框架依赖
+❌ 无（可选 Spring&#x2F;Quarkus）
+✅ 强依赖 Spring Boot
+❌ 无
+
+
+LLM Provider
+20+
+20+
+最多
+
+
+向量库
+36+
+15+
+最多
+
+
+MCP 支持
+✅
+✅
+✅
+
+
+Agent 能力
+✅ 成熟
+发展中
+最成熟
+
+
+可观测性
+OTel&#x2F;Micrometer
+Micrometer 原生
+取决于集成
+
+
+学习曲线
+中等
+较低
+最低
+
+
+生态成熟度
+12k ⭐
+快速增长
+50k+ ⭐
+
+
+性能
+与 Spring AI 持平（差距&lt;10%）
+同左
+-
+
+
+16.2 选型决策树你的项目用 Spring Boot 吗？│├─ 否 → ✅ 选择 LangChain4j│        ├── Quarkus/Micronaut → LangChain4j ✅│        └── 纯 Java → LangChain4j ✅│└─ 是 → 需要深度 Actuator 监控？         │         ├─ 是 → ✅ Spring AI         │         └─ 否 → 需要高级 Agent/多模型切换？                  │                  ├─ 是 → ✅ LangChain4j                  └─ 否 → 两者皆可，看团队熟悉度
+
+16.3 一句话总结
+🎯 LangChain4j 适合”Java 老兵 + 多场景“，Spring AI 适合”Spring 全家桶 + 快速集成“。
+
+
+17. Vibecoding 实战建议 🤙
+💡 Vibecoding &#x3D; 用 AI 辅助编程，跟着”感觉”走，享受过程。本节专门给用 Cursor &#x2F; Copilot &#x2F; Claude Code &#x2F; Trae 等 AI 编辑器写 LangChain4j 项目的同学。
+
+17.1 黄金 4 步 Vibecoding 流程步骤 1：让 AI 先理解项目把整个项目结构、关键文件、依赖关系一次性喂给 AI：
+# 在 Cursor / Claude Code 中@codebase 请用中文总结这个 Spring Boot 项目的结构，特别关注所有 LangChain4j 相关的 Bean、AI Service、工具类（@Tool 标注）、配置类。
+
+
+🎯 为什么：LangChain4j 是注解驱动 + 约定优于配置，AI 必须看到完整上下文才能给出准确建议。
+
+步骤 2：用自然语言描述需求，让 AI 生成骨架Prompt 模板（可直接复用）：
+我想在已有的 Spring Boot 3.4 项目里加入一个&quot;智能客服&quot;功能。技术栈：LangChain4j 1.15.1 + Spring Boot 3.4 + Java 17需求：1. 用户在 Web 端提问，AI 自动从知识库检索答案2. AI 要礼貌、简洁，不知道时说&quot;我不确定&quot;3. 支持多轮对话（按 sessionId 隔离）4. 提供&quot;查询订单&quot;工具（订单号 + 客户姓名）请帮我生成：- Assistant 接口（含 @SystemMessage）- 工具类（含 @Tool）- RAG 配置类- application.yml 配置- Controller
+
+步骤 3：跑通 + 调试（AI 辅助）
+把报错日志整段贴给 AI（包括 StackTrace）
+让 AI 解释 @AiService(wiringMode = EXPLICIT, chatModel = &quot;xxx&quot;) 的实际作用
+让 AI 帮你加 @Tool 注解的描述（AI 通常能写出比手写更精准的描述）
+
+步骤 4：Code Review + 优化# 在 Claude Code 中/review 请检查 src/main/java/com/example/assistant/Assistant.java- 是否符合 LangChain4j 最佳实践- @SystemMessage 是否有 Prompt Injection 风险- @Tool 方法的 @P 注解是否完整
+
+17.2 工具搭配建议
+
+
+AI 工具
+适合 LangChain4j 的理由
+
+
+
+Cursor
+多文件上下文 + Composer 模式（适合一次性生成完整 AI Service + Tools + Config）
+
+
+Claude Code
+强类型 + Spring 上下文理解深（适合复杂 @Tool 参数、复杂 RAG 流程）
+
+
+GitHub Copilot
+配置文件自动补全（application.yml 中 langchain4j.* 提示很全）
+
+
+Trae &#x2F; CodeBuddy
+国内工具，无障碍访问（适合中国大陆开发者）
+
+
+17.3 Vibecoding 注意事项⚠️ 别让 AI 自己改 pom.xml：
+
+AI 经常会把 langchain4j 的版本改错（写成 0.x 或不存在的版本）
+建议：自己维护 pom，AI 只生成 Java 代码
+
+⚠️ API Key 永远不要给 AI：
+
+用 $&#123;ENV_VAR&#125; 占位符
+AI 生成的代码里要检查有没有硬编码 Key
+
+⚠️ 测试是必须的：
+
+让 AI 帮你生成 @SpringBootTest 测试用例
+LLM 的输出具有随机性，关键场景需要断言内容包含关键信息
+
+
+18. 常见坑与排错 🚨坑 1：网络超时java.net.ConnectException: Connection timed out
+
+✅ 解决方案：参考 15.5 网络代理
+坑 2：API Key 401HTTP 401 Unauthorized
+
+✅ 检查清单：
+
+环境变量是否设置（echo $OPENAI_API_KEY）
+Key 格式是否正确（OpenAI 是 sk-...，DashScope 也是 sk-...，但长度不同）
+application.yml 中没有硬编码 Key
+
+坑 3：Spring Boot 版本不兼容BeanPostProcessor cannot cast to BeanFactoryPostProcessor
+
+✅ 解决方案：Spring Boot 必须在 3.2+
+坑 4：DeepSeek 推理模型不支持 Tool Calling✅ 必须用 deepseek-chat，不能用 deepseek-reasoner
+坑 5：Demo Key 必须显式 BaseUrlRuntimeException: If you wish to continue using the &#x27;demo&#x27; key, please specify the base URL explicitly
+
+✅ 解决方案：参考 官方 ProxyExample
+坑 6：版本冲突mvn dependency:tree -Dverbose
+
+✅ 用 BOM 统一管理，锁定具体模块版本。
+坑 7：Maven 下载慢✅ 配置阿里云镜像：
+&lt;mirror&gt;    &lt;id&gt;aliyun&lt;/id&gt;    &lt;name&gt;Aliyun Maven Mirror&lt;/name&gt;    &lt;url&gt;https://maven.aliyun.com/repository/public&lt;/url&gt;    &lt;mirrorOf&gt;central&lt;/mirrorOf&gt;&lt;/mirror&gt;
+
+
+19. 学习路径推荐 🗺️阶段 1：入门（1-2 天）
+ 跑通本文 第 3 章 的 Hello World
+ 理解 核心概念
+ 掌握 AI Services 声明式编程
+
+阶段 2：进阶（3-5 天）
+ 学习 工具调用，做一个能查天气的机器人
+ 学习 RAG，接入本地文档
+ 学习 ChatMemory，实现多轮对话
+
+阶段 3：实战（1-2 周）
+ 学习 流式响应（SSE）
+ 学习 结构化输出
+ 用 可观测性 给项目加上监控
+
+阶段 4：高级（1 个月+）
+ Agentic AI 多智能体
+ MCP 集成 接入外部工具
+ Guardrails 安全加固
+ 集成 Micrometer + OpenTelemetry 上生产
+
+必读资源
+
+
+资源
+链接
+
+
+
+官方中文文档
+https://langchain4j.cn/
+
+
+官方英文文档
+https://docs.langchain4j.dev/
+
+
+GitHub 主仓库
+https://github.com/langchain4j/langchain4j
+
+
+示例仓库
+https://github.com/langchain4j/langchain4j-examples
+
+
+Discord 社区
+https://discord.gg/JzTFvyjG6R
+
+
+Spring Boot Example
+https://github.com/langchain4j/langchain4j-examples/tree/main/spring-boot-example
+
+
+Agentic Tutorial
+https://github.com/langchain4j/langchain4j-examples/tree/main/agentic-tutorial
+
+
+MCP Example
+https://github.com/langchain4j/langchain4j-examples/tree/main/mcp-example
+
+
+
+20. 参考资料 📚官方资源
+LangChain4j 中文文档
+LangChain4j 英文文档
+LangChain4j GitHub
+LangChain4j Examples
+LangChain4j Spring Boot 集成
+LangChain4j RAG 教程
+LangChain4j AI Services 教程
+LangChain4j Tools 教程
+LangChain4j ChatMemory 教程
+LangChain4j Agentic 教程
+LangChain4j MCP 教程
+LangChain4j Guardrails 教程
+
+对比与选型
+Spring AI 官方
+LangChain4j vs Spring AI 横向对比
+Java AI 框架 2026 选型
+
+国内实战文章
+CSDN: LangChain4j 入门到精通
+CSDN: 接入阿里百炼
+博客园: Spring Boot 整合
+SegmentFault: DeepSeek 接入指南
+
+进阶资料
+Testing GenAI Applications in Java (Docker Blog)
+Implementing RAG with LangChain4j Easy RAG
+Build Local LLM with Spring Boot + LangChain4j + Ollama
+
+
+🎉 写在最后LangChain4j 是 Java 生态中最成熟、最活跃的 LLM 框架之一。它统一了 20+ LLM 提供商、36+ 向量库、4 大 Java 框架（Spring&#x2F;Quarkus&#x2F;Helidon&#x2F;Micronaut）的集成，并且完整支持 Agentic AI 模式（多智能体、并行&#x2F;循环&#x2F;条件工作流、MCP、Guardrails）。
+作为 Java 开发者，你的 AI 应用开发之旅可以从一行 @AiService 接口开始，然后按需添加 Tools、RAG、Memory、Agent，最后用 Vibecoding 的方式让 AI 帮你写测试、调优、上监控。
+
+🌟 记住一句话：LangChain4j 不是 Python LangChain 的翻译，它是 Java 写法的 AI 框架。拥抱它的设计哲学（注解 + Builder + 强类型 + Spring 生态），你会发现 LLM 开发比写 CRUD 还简单。
+
+Happy Coding, Happy Vibecoding! 🚀
+
+
+📝 文档信息
+
+作者博客：ljh2923
+调研日期：2026-06-03
+LangChain4j 版本：1.15.1（最新稳定版）
+Spring Boot 版本：3.4.2
+适用 JDK：17+
+字数：约 15,000 字
+预计阅读时长：50 分钟
+
+
+]]></content>
+      <categories>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Agent</tag>
+        <tag>Spring Boot</tag>
+        <tag>LLM</tag>
+        <tag>LangChain4j</tag>
+        <tag>AI 应用开发</tag>
       </tags>
   </entry>
 </search>
