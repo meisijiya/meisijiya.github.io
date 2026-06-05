@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>欢迎来到老江湖的博客</title>
+<title>分类: Redis | 欢迎来到老江湖的博客</title>
 
 
 
@@ -644,207 +644,49 @@ document.addEventListener('DOMContentLoaded', function() {
 </style>
 
             <div class="main">
-                <div class="container">
-    
-  <article class="post-wrap">
-    <header class="post-header">
-      <h1 class="post-title"></h1>
-      
-      <div class="post-meta">
-         作者:
-        <a itemprop="author" rel="author" href="/">老江湖</a>
-         
-        <span class="post-time">
-          <br />日期:
-          <a href="#"
-            >五月 11, 2026&nbsp;&nbsp;21:01:10</a
-          >
-        </span>
-         
-      </div>
-      
-    </header>
+                
 
-    <div class="post-content"><p>谈到Agent，不得不先聊聊LLM（大语言模型）。</p>
-<p><strong>大语言模型（LLM）的本质是概率预测：</strong> 根据已有的文本（上下文），预测下一个 token 出现的概率。Token 是模型处理文本的最小单位（英文词约 1 token，汉字约 1-2 token）。模型逐字生成输出，把新生成的 token 拼回输入，不断重复，形成完整回复。</p>
-<blockquote>
-<p><strong>关键参数：</strong></p>
-<ul>
-<li>温度（temperature）：控制随机程度。0 为确定性最高（适合编程），调高则更有创意但不可控。</li>
-<li><strong>上下文窗口（Context Window）</strong>：模型能看到的文本总量，当前主流是 128K-1M token。超出窗口的内容会造成模型的“失忆”。</li>
-</ul>
-</blockquote>
-<p>其中，LLM有两个关键变体，分别是：</p>
-<ul>
-<li>Base 模型：只做文本补全，你输入半句它续写。</li>
-<li>Instruct 模型：经过微调（SFT+RLHF），能够理解指令、回答问题。我们日常用的 ChatGPT、Claude 等全是 Instruct 模型。</li>
-</ul>
-<p>既然大语言模型（LLM）的本质是概率预测，那么如何保证预测的答案能尽可能提高准确率呢</p>
-<p>众所周知，普通 LLM 是<strong>纯自回归概率生成器</strong></p>
-<p>而 <u><strong>CoT&#x2F;ToT 和推理模型</strong></u>（如 o1、DeepSeek R1、Claude extended thinking）通过<strong>将 “一步跳向答案” 的低概率事件，转化为 “多步逐步逼近” 的高概率链式事件</strong>，利用前序步骤对后序步骤的条件约束，大幅提高了最终得到正确答案的概率。</p>
-<blockquote>
-<ul>
-<li><p><strong>CoT</strong>（Chain of Thought，思维链）&#x2F;<strong>ToT</strong>（Tree of Thoughts，思维树）：</p>
-<p> CoT 理解成「一条路走到底」，ToT 理解成「走到岔路口先看看几条路，选最好的那条再往前」</p>
-</li>
-</ul>
-<p>行业趋势：从对话模型+推理模型的二分法，走向“单一模型 + 思考强度参数”的混合范式（如 reasoning_effort 参数），一套代码就能控制模型思考深度。</p>
-</blockquote>
-<hr>
-<p>那么，话说回来，Agent到底是啥呢，跟大模型（LLM）是个什么关系呢？</p>
-<p>AI Agent作为AI智能体，那就要像人一样智能，人会干嘛？人能够感知环境、规划、行动、使用工具、记忆等，所以如果单纯认为Agent就是能够调用工具的大模型，那就太狭隘了。</p>
-<p>众所周知，普通大模型（LLM）本质上是一个只会一问一答的“大脑”，而且知识有截止时间（固定的知识库），最重要的是，这位“大脑”不会帮亲自帮我们做任何事，并且如果你不亲自将之前的对话一并告诉它，那么它根本不知道之前和你说了些啥。</p>
-<p>Agent的出现，就是为了解决这些问题。Agent的基本架构的核心组件构成，可以归纳成一个公式，<strong>Agent &#x3D; LLM (大脑) + Planning (规划) + Tool use (执行) + Memory (记忆)。</strong>展开讲如下：</p>
-<ul>
-<li><strong>LLM (大脑)：</strong> 作为核心推理机，负责理解意图、生成文本和进行逻辑判断。</li>
-<li><strong>Planning (规划)：</strong> 。</li>
-<li><strong>Memory (记忆)：</strong>短期记忆（上下文窗口内的对话历史）和长期记忆（通过RAG引入的外部知识库）。</li>
-<li><strong>Tool Use (工具使用)：</strong> 能够根据需求去查谷歌搜索、读数据库、甚至跑 Python 代码。</li>
-</ul>
-<p>特别说明，规划模块中两种主流模式（通常结合使用）：</p>
-<ul>
-<li><strong>Plan-and-Execute 模式</strong>：先规划后执行；好处是整体结构清晰，你能在执行前就看到完整计划，方便人工审核；缺点是如果中间某一步的结果和预期不一样，原来的计划可能就不合适了，需要重新调整。</li>
-<li><strong>ReAct 模式</strong>：边执行边规划；好处是灵活性极高，能根据实际情况随时调整；缺点是容易「走偏」，因为每一步都是局部最优决策，有时候会忽略整体目标。</li>
-</ul>
-</div>
 
-    <div id="highlight-nav" class="highlight-nav">
-      <span class="count">0/0</span>
-      <button onclick="scrollToHighlight(currentHighlightIndex - 1)">↑</button>
-      <button onclick="scrollToHighlight(currentHighlightIndex + 1)">↓</button>
-    </div>
+
+
 
     
-    <section class="post-copyright">
-      
-      <p class="copyright-item">
-        <span>作者:</span>
-        <span>老江湖</span>
-      </p>
+
+
+
+
+
+<div class="container">
+    <div class="post-wrap categories categories-list">
+        <h2 class="post-title">-&nbsp;分类&nbsp;·&nbsp;java-中间件-Redis-</h2>
+
         
-      <p class="copyright-item">
-        <span>许可证:</span>
-        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
-      </p>
-       
-      <p class="copyright-item">
-        <span>口号:</span>
-        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
-      </p>
-       
-        <p class="copyright-item">
-        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
-      </p>
-      
-             
-        <p class="copyright-item">
-        <span>如有侵权请告知删除🙏</span>
-      </p>
-             
-        <p class="copyright-item">
-        <span>如果你有很好的想法💡，请务必联系我。 </span>
-        <br>
-         <span>2292360909@qq.com</span>
-      </p>
-    </section>
-    
-    <section class="post-tags">
-      <div>
-        <span>标签:</span>
-        <span class="tag">
-          
-        </span>
-      </div>
-      <div>
-        <a href="javascript:window.history.back();">返回</a>
-        <span>· </span>
-        <a href="/">首页</a>
-      </div>
-    </section>
-    <section class="post-nav">
-      
-      <a class="prev" rel="prev" href="/2026/05/12/%E7%AE%97%E6%B3%95/java%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8AAPI/"
-        >Java常用数据结构及API</a
-      >
-       
-      <a class="next" rel="next" href="/2026/05/09/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/MySQL+Linux+docker+py+AI/pyWeb/"
-        >PythonWeb快速入门</a
-      >
-      
-    </section>
 
-    <!-- Giscus 评论区挂载点 -->
-<div id="giscus-container" style="margin-top: 2.5rem"></div>
-
-<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
-<script>
-  function createGiscus(theme) {
-    const giscusContainer = document.getElementById("giscus-container");
-    if (!giscusContainer) return;
-
-    // 清除旧的评论 iframe
-    giscusContainer.innerHTML = "";
-
-    const script = document.createElement("script");
-    script.src = "https://giscus.app/client.js";
-
-    // 替换为你的 GitHub 仓库信息（格式：username/repo）
-    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
-
-    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
-    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
-    script.setAttribute("data-category", "Announcements");
-    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
-
-    // 其他常规推荐设置
-    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
-    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
-    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
-    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
-    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
-    script.setAttribute("data-theme", theme);
-    script.setAttribute("data-lang", "zh-CN"); // 中文界面
-    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
-    script.async = true;
-
-    giscusContainer.appendChild(script);
-  }
-
-  function getCurrentTheme() {
-    return document.body.classList.contains("dark-theme") ? "dark" : "light";
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    // 页面首次加载，根据当前主题挂载评论
-    createGiscus(getCurrentTheme());
-
-    // 监听按钮点击切换主题 → 重载评论区
-    const buttons = [
-      document.querySelector(".toggleBtn"),
-      document.getElementById("mobile-toggle-theme"),
-    ];
-    buttons.forEach((btn) => {
-      if (!btn) return;
-      btn.addEventListener("click", () => {
-        setTimeout(() => {
-          createGiscus(getCurrentTheme());
-        }, 400); // 稍作延迟，确保 class 切换完毕
-      });
-    });
-
-    // 监听 body class 改变（保险方案）
-    const observer = new MutationObserver(() => {
-      createGiscus(getCurrentTheme());
-    });
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-  });
-</script>
-
-  </article>
+        <div class="archive">
+            
+            
+            
+                
+                    
+                    
+                        <h3>2026</h3>
+                    
+                    <article class="archive-item">
+                        <a class="archive-item-link" href="/2026/06/05/java/Redisson%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Redisson学习笔记</a>
+                        <span class="archive-item-date">六月 5, 2026</span>
+                    </article>
+                
+            
+            
+            
+        </div>
+    </div>
 </div>
+
+
+
+
+
 
             </div>
             <footer id="footer" class="footer">

@@ -18834,7 +18834,7 @@ Redis SortedSet 的核心作用：
   <entry>
     <title></title>
     <url>/2026/05/11/%E5%85%AB%E8%82%A1/Agent/Agent%E5%BF%85%E7%9F%A5%E5%BF%85%E4%BC%9A/</url>
-    <content><![CDATA[谈到Agent，不得不先聊聊LLM（大语音模型）。
+    <content><![CDATA[谈到Agent，不得不先聊聊LLM（大语言模型）。
 大语言模型（LLM）的本质是概率预测： 根据已有的文本（上下文），预测下一个 token 出现的概率。Token 是模型处理文本的最小单位（英文词约 1 token，汉字约 1-2 token）。模型逐字生成输出，把新生成的 token 拼回输入，不断重复，形成完整回复。
 
 关键参数：
@@ -50607,6 +50607,2093 @@ Spring Boot 版本：3.4.2
         <tag>LLM</tag>
         <tag>LangChain4j</tag>
         <tag>AI 应用开发</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redisson 完全指南：从入门到精通（适配 Spring Boot 3.5+）</title>
+    <url>/2026/06/05/java/Redisson%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97-SpringBoot35/</url>
+    <content><![CDATA[🚀 Redisson 完全指南：从入门到精通（适配 Spring Boot 3.5+）
+🎯 目标读者：了解 Redis 基础，但对 Redisson 完全陌生的 Java 初级开发者 &#x2F; 大学生📚 读完收获：能在 Spring Boot 3.5+ 项目中游刃有余地使用 Redisson；面试中被问 “Redisson 看门狗原理” 也能侃侃而谈⚙️ 适配版本：Spring Boot 3.5.x + Redisson 3.52.x（3.x 末班车，稳定可靠）
+
+一、为什么需要 Redisson？1.1 一个真实的痛点：秒杀库存超卖假设你刚学完 Redis，写了下面这段”分布式锁”代码：
+// ❌ 错误示范：自己用 SETNX 实现的&quot;分布式锁&quot;public void deductStock() &#123;    String lockKey = &quot;product:stock:&quot; + productId;    // 第一步：尝试加锁    Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, &quot;1&quot;);    if (Boolean.TRUE.equals(locked)) &#123;        try &#123;            // 第二步：执行业务            int stock = Integer.parseInt(redisTemplate.opsForValue().get(&quot;stock:&quot; + productId));            if (stock &gt; 0) &#123;                redisTemplate.opsForValue().set(&quot;stock:&quot; + productId, String.valueOf(stock - 1));            &#125;        &#125; finally &#123;            // 第三步：释放锁            redisTemplate.delete(lockKey);        &#125;    &#125;&#125;
+
+
+🚨 这段代码有 N 个致命缺陷：
+
+业务执行时间 &gt; 30 秒 → 锁自动过期 → 别人也抢到锁 → 超卖
+客户端崩溃 → 锁永远不释放 → 死锁
+锁过期后，另一个线程拿到锁，原线程 finally 里又 DEL → 误删别人的锁
+没有可重入机制 → 同一个方法递归调用会死锁
+等待锁的线程疯狂自旋 → CPU 拉满
+主从架构下，主节点宕机锁丢失 → 双写问题
+
+
+这就是为什么你需要一个工业级的分布式锁实现——而 Redisson 就是 Java 生态的事实标准。
+1.2 Redisson 帮你解决了什么？
+
+
+你自己实现要解决的问题
+Redisson 的解决方案
+
+
+
+锁原子性
+Lua 脚本
+
+
+锁自动过期
+看门狗（WatchDog）
+
+
+客户端崩溃死锁
+锁有过期时间
+
+
+误删别人的锁
+Lua 中校验 UUID+threadId
+
+
+可重入
+Hash 结构的重入计数器
+
+
+阻塞等待
+Redis Pub&#x2F;Sub 唤醒
+
+
+集群适配
+内置哨兵&#x2F;集群&#x2F;主从
+
+
+限流、队列、集合
+内置 60+ 分布式对象
+
+
+一句话总结：Redisson 把 Redis 包装成了 Java 集合库 + 分布式工具箱，让你能用面向对象的方式写分布式程序。
+
+二、Redisson 是什么？2.1 官方定义
+Redisson is the Java Client and Real-Time Data Platform for Valkey and Redis. Redisson greatly extends the capabilities of Valkey and Redis by providing additional services and data structures not natively available in either platform.——Redisson 官方文档
+
+翻译成大白话：
+
+Redisson 是基于 Netty 的 Java Redis 客户端，提供了 60+ 个分布式对象和服务，其中 30+ 是 Redisson 独有（Valkey&#x2F;Redis 原生没有）。
+
+2.2 关键数字
+
+
+维度
+数据
+来源
+
+
+
+⭐ GitHub Stars
+24.4k
+GitHub 仓库
+
+
+🍴 Forks
+5.5k
+同上
+
+
+📦 总 Releases
+180+ 个
+Releases
+
+
+🧪 单元测试
+2000+
+官方数据
+
+
+🔌 序列化器
+17+
+Kryo &#x2F; Jackson &#x2F; Protobuf &#x2F; MsgPack 等
+
+
+🎁 分布式对象
+60+
+锁、集合、队列、服务、限流、布隆…
+
+
+🏗️ 部署模式
+8 种
+Single&#x2F;Cluster&#x2F;Sentinel&#x2F;Master-Slave&#x2F;Proxy&#x2F;Multi-Cluster&#x2F;Multi-Sentinel&#x2F;Replicated
+
+
+🎭 API 模型
+4 种
+同步&#x2F;异步&#x2F;Reactive&#x2F;RxJava3
+
+
+2.3 跨厂商兼容Redisson 兼容几乎所有 Redis 商业产品：
+
+AWS：ElastiCache &#x2F; MemoryDB
+Azure：Redis Cache &#x2F; 各种 Active-Active
+Google Cloud：Memorystore
+Redis Labs：Redis Enterprise &#x2F; Redis Cloud
+Aiven &#x2F; SAP &#x2F; IBM Cloud
+
+也就是说，从本地 Redis 到云托管，从单机到集群，从开源到商业版，Redisson 都能无缝切换。
+
+三、Redisson vs Jedis vs Lettuce
+
+
+客户端
+定位
+线程安全
+高并发 QPS
+分布式对象
+适用场景
+
+
+
+Jedis
+阻塞式同步客户端
+❌（需连接池）
+~32K
+❌
+简单脚本、工具
+
+
+Lettuce
+Netty 异步响应式
+✅
+~46K
+❌
+高并发 CRUD
+
+
+Redisson
+分布式服务框架
+✅
+~35K
+✅ 60+
+分布式锁&#x2F;限流&#x2F;队列&#x2F;集合
+
+
+怎么选？
+
+简单 KV 缓存 → Lettuce（Spring Boot 默认）
+需要分布式能力 → Redisson
+老项目&#x2F;特殊场景 → Jedis
+
+实战建议：Spring Boot 项目中两者可以共存（Lettuce 跑 RedisTemplate，Redisson 跑分布式锁），但建议统一使用 Redisson 以减少依赖。
+
+四、Spring Boot 3.5+ 集成（两种姿势）4.1 姿势一：自动配置（最简但有坑）适用场景：快速原型、demo
+4.1.1 引入依赖&lt;properties&gt;    &lt;redisson.version&gt;3.36.0&lt;/redisson.version&gt;&lt;/properties&gt;&lt;dependencies&gt;    &lt;!-- Redisson Spring Boot Starter --&gt;    &lt;dependency&gt;        &lt;groupId&gt;org.redisson&lt;/groupId&gt;        &lt;artifactId&gt;redisson-spring-boot-starter&lt;/artifactId&gt;        &lt;version&gt;$&#123;redisson.version&#125;&lt;/version&gt;    &lt;/dependency&gt;&lt;/dependencies&gt;
+
+4.1.2 application.ymlspring:  data:    redis:      host: 127.0.0.1      port: 6379      password: your_password      database: 0      timeout: 3000
+
+4.1.3 直接注入使用@Servicepublic class OrderService &#123;    @Autowired    private RedissonClient redissonClient;  // 自动注入    public void createOrder(Long orderId) &#123;        RLock lock = redissonClient.getLock(&quot;order:lock:&quot; + orderId);        // ... 业务逻辑    &#125;&#125;
+
+4.2 姿势二：手动配置（生产推荐 ⭐）适用场景：生产环境、需要精细控制
+4.2.1 引入依赖&lt;dependencies&gt;    &lt;dependency&gt;        &lt;groupId&gt;org.redisson&lt;/groupId&gt;        &lt;artifactId&gt;redisson-spring-boot-starter&lt;/artifactId&gt;        &lt;version&gt;3.36.0&lt;/version&gt;        &lt;!-- 仅使用其依赖，不使用自动配置 --&gt;    &lt;/dependency&gt;&lt;/dependencies&gt;
+
+4.2.2 创建 redisson.yml在 src/main/resources/ 下创建 redisson.yml：
+singleServerConfig:  # ⚠️ 必须带 redis:// 协议前缀  address: redis://127.0.0.1:6379  password: your_password  database: 0    # 连接池配置  connectionPoolSize: 64                # 连接池最大  connectionMinimumIdleSize: 16         # 最小空闲连接    # 超时配置  connectTimeout: 10000                 # 连接超时 10s  timeout: 3000                          # 命令超时 3s  idleConnectionTimeout: 60000           # 空闲连接超时 60s    # 重试配置  retryAttempts: 3  retryInterval: 1500# 全局配置threads: 16                              # 业务线程nettyThreads: 32                        # Netty IO 线程lockWatchdogTimeout: 30000               # 看门狗超时 30scodec: !&lt;org.redisson.codec.Kryo5Codec&gt; &#123;&#125;
+
+4.2.3 创建配置类package com.example.demo.config;import org.redisson.Redisson;import org.redisson.api.RedissonClient;import org.redisson.config.Config;import org.redisson.spring.cache.RedissonSpringCacheManager;import org.springframework.cache.CacheManager;import org.springframework.cache.annotation.EnableCaching;import org.springframework.context.annotation.Bean;import org.springframework.context.annotation.Configuration;import org.springframework.core.io.ClassPathResource;import java.io.IOException;/** * Redisson 配置类 * &lt;p&gt;采用手动配置方式，避免 Spring Boot 自动装配带来的配置不可控问题&lt;/p&gt; * * @author ljh2923 * @since 2026-06-05 */@Configuration@EnableCaching  // 启用 Spring Cachepublic class RedissonConfig &#123;    /**     * 创建 RedissonClient 单例 Bean     * &lt;p&gt;从 classpath:redisson.yml 读取配置，Spring 容器关闭时自动调用 shutdown()&lt;/p&gt;     *     * @return RedissonClient 实例     * @throws IOException 当配置文件读取失败时抛出     */    @Bean(destroyMethod = &quot;shutdown&quot;)    public RedissonClient redissonClient() throws IOException &#123;        // 1. 加载 YAML 配置文件        Config config = Config.fromYAML(            new ClassPathResource(&quot;redisson.yml&quot;).getInputStream()        );        // 2. 创建 Redisson 客户端（线程安全的单例）        return Redisson.create(config);    &#125;    /**     * 注册 Spring Cache 缓存管理器     * &lt;p&gt;使 @Cacheable、@CachePut、@CacheEvict 等注解支持 Redisson 作为后端&lt;/p&gt;     *     * @param redissonClient Redisson 客户端实例     * @return CacheManager 缓存管理器     */    @Bean    public CacheManager cacheManager(RedissonClient redissonClient) &#123;        return new RedissonSpringCacheManager(redissonClient);    &#125;&#125;
+
+4.2.4 application.yml
+⚠️ 关键：使用手动配置时，**不要再配置 spring.data.redis**，否则会冲突！
+
+# application.yml 中只需要业务配置，不要再写 spring.data.redisserver:  port: 8080
+
+4.3 集群&#x2F;Sentinel 模式// ===== 集群模式 =====@Bean(destroyMethod = &quot;shutdown&quot;)public RedissonClient clusterClient() &#123;    Config config = new Config();    config.useClusterServers()            .addNodeAddress(&quot;redis://10.0.0.1:7000&quot;)            .addNodeAddress(&quot;redis://10.0.0.2:7001&quot;)            .addNodeAddress(&quot;redis://10.0.0.3:7002&quot;)            .setPassword(&quot;your_password&quot;)            .setScanInterval(2000)              // 拓扑扫描间隔            .setMasterConnectionPoolSize(64)            .setSlaveConnectionPoolSize(64);    return Redisson.create(config);&#125;// ===== 哨兵模式 =====@Bean(destroyMethod = &quot;shutdown&quot;)public RedissonClient sentinelClient() &#123;    Config config = new Config();    config.useSentinelServers()            .setMasterName(&quot;mymaster&quot;)            .addSentinelAddress(&quot;redis://10.0.0.1:26379&quot;)            .addSentinelAddress(&quot;redis://10.0.0.2:26379&quot;)            .addSentinelAddress(&quot;redis://10.0.0.3:26379&quot;)            .setPassword(&quot;your_password&quot;)            .setDatabase(0);    return Redisson.create(config);&#125;
+
+
+五、Redisson 核心 API 全景图Redisson 提供了 60+ 分布式对象，按功能可分为 7 大类：
+
+
+
+分类
+数量
+核心 API
+适用场景
+
+
+
+分布式锁与同步器
+12+
+RLock &#x2F; RFairLock &#x2F; RReadWriteLock &#x2F; RSemaphore &#x2F; RCountDownLatch &#x2F; RPermitExpirableSemaphore
+秒杀、限流、读写分离、跨任务协调
+
+
+分布式对象
+10+
+RBucket &#x2F; RAtomicLong &#x2F; RBitSet &#x2F; RBloomFilter &#x2F; RRateLimiter
+通用 K-V、计数器、布隆、限流
+
+
+分布式集合
+12+
+RMap &#x2F; RList &#x2F; RSet &#x2F; RScoredSortedSet &#x2F; RMultimap
+排行榜、用户标签、共同好友
+
+
+分布式队列
+8+
+RQueue &#x2F; RBlockingQueue &#x2F; RBlockingDeque &#x2F; RPriorityQueue &#x2F; RStream
+任务队列、延迟队列、消息流
+
+
+分布式发布订阅
+3
+RTopic &#x2F; RPatternTopic &#x2F; RShardedTopic
+实时通知、广播、聊天室
+
+
+分布式服务
+5+
+RRemoteService &#x2F; RLiveObjectService &#x2F; RExecutorService &#x2F; RScheduledExecutorService
+RPC、跨 JVM 对象、分布式调度
+
+
+辅助
+-
+RKeys &#x2F; RBuckets
+全局 key 操作
+
+
+5.1 API 获取方式一览// 所有分布式对象都通过 redisson.getXxx() 获取RedissonClient redisson = ...;RLock                 lock       = redisson.getLock(&quot;lock&quot;);RMap&lt;String, User&gt;    map        = redisson.getMap(&quot;map&quot;);RList&lt;String&gt;         list       = redisson.getList(&quot;list&quot;);RSet&lt;String&gt;          set        = redisson.getSet(&quot;set&quot;);RQueue&lt;String&gt;        queue      = redisson.getQueue(&quot;queue&quot;);RBlockingQueue&lt;String&gt; bqueue    = redisson.getBlockingQueue(&quot;bqueue&quot;);RBucket&lt;User&gt;         bucket     = redisson.getBucket(&quot;bucket&quot;);RAtomicLong           atomicLong = redisson.getAtomicLong(&quot;counter&quot;);RBitSet               bitSet     = redisson.getBitSet(&quot;bitset&quot;);RBloomFilter&lt;String&gt;  bloom      = redisson.getBloomFilter(&quot;bloom&quot;);RTopic                topic      = redisson.getTopic(&quot;topic&quot;);
+
+记忆技巧：R 前缀 &#x3D; Redisson，getXxx(&quot;key&quot;) &#x3D; 拿到一个分布式对象。
+5.2 四种 API 模型每个分布式对象都对应 4 种 API：
+
+
+
+模型
+获取方式
+返回值
+
+
+
+同步（最常用）
+redisson.getXxx()
+直接返回结果
+
+
+异步
+redisson.getXxx()
+RFuture&lt;T&gt;（扩展 CompletionStage）
+
+
+Reactive
+redisson.reactive().getXxx()
+Mono&lt;T&gt; &#x2F; Flux&lt;T&gt;
+
+
+RxJava 3
+redisson.rxJava().getXxx()
+Single&lt;T&gt; &#x2F; Completable &#x2F; Maybe
+
+
+
+📌 初学者建议：先掌握同步 API，理解后再看异步&#x2F;Reactive。
+
+
+六、分布式锁深度实战（重头戏）
+⭐ 重点章节：分布式锁是 Redisson 最核心的功能，也是面试必考内容。
+
+6.1 秒杀场景：标准锁模板package com.example.demo.service;import com.example.demo.exception.BusinessException;import lombok.RequiredArgsConstructor;import lombok.extern.slf4j.Slf4j;import org.redisson.api.RLock;import org.redisson.api.RedissonClient;import org.springframework.stereotype.Service;import java.util.concurrent.TimeUnit;/** * 订单服务 - 演示分布式锁的标准使用 * * @author ljh2923 */@Slf4j@Service@RequiredArgsConstructorpublic class OrderService &#123;    private final RedissonClient redissonClient;    /**     * 创建订单（带分布式锁）     *     * @param userId    用户 ID     * @param productId 商品 ID     */    public void createOrder(Long userId, Long productId) &#123;        // 1. 构造锁 key，命名空间化便于排查        String lockKey = &quot;order:lock:user:&quot; + userId + &quot;:product:&quot; + productId;        RLock lock = redissonClient.getLock(lockKey);        boolean lockAcquired = false;        try &#123;            // 2. 尝试获取锁            //    参数 1: waitTime  - 最多等待 3 秒            //    参数 2: leaseTime - 锁自动过期时间，-1 表示启用看门狗            lockAcquired = lock.tryLock(3, -1, TimeUnit.SECONDS);                        if (!lockAcquired) &#123;                log.warn(&quot;用户 &#123;&#125; 抢购商品 &#123;&#125; 失败，锁等待超时&quot;, userId, productId);                throw new BusinessException(&quot;系统繁忙，请稍后重试&quot;);            &#125;            // 3. 执行业务逻辑（此时已获锁）            log.info(&quot;用户 &#123;&#125; 成功抢到锁，开始执行业务&quot;, userId);            doBusinessLogic(userId, productId);                    &#125; catch (InterruptedException e) &#123;            // 4. 处理中断异常            Thread.currentThread().interrupt();            log.error(&quot;获取分布式锁被中断&quot;, e);            throw new BusinessException(&quot;系统异常&quot;);        &#125; finally &#123;            // 5. 释放锁（必须在 finally 中执行）            if (lockAcquired) &#123;                try &#123;                    lock.unlock();                    log.debug(&quot;锁释放成功: &#123;&#125;&quot;, lockKey);                &#125; catch (IllegalMonitorStateException e) &#123;                    // 锁已被自动释放（看门狗超时或业务超时），幂等处理                    log.warn(&quot;锁已被自动释放，无需重复 unlock&quot;, e);                &#125;            &#125;        &#125;    &#125;    /**     * 实际业务逻辑     */    private void doBusinessLogic(Long userId, Long productId) &#123;        // 扣库存、写订单、发消息...    &#125;&#125;
+
+🔑 关键 API 解释：
+
+
+
+方法
+行为
+是否有看门狗
+
+
+
+lock.lock()
+阻塞获取，无限等待
+✅ 有
+
+
+lock.lock(10, SECONDS)
+阻塞获取，10s 后强制释放
+❌ 无
+
+
+lock.tryLock()
+立即尝试，不等待
+✅ 有
+
+
+lock.tryLock(3, -1, SECONDS)
+最多等 3s，启用看门狗
+✅ 有
+
+
+lock.tryLock(3, 30, SECONDS)
+最多等 3s，30s 后自动释放
+❌ 无
+
+
+lock.unlock()
+释放锁
+-
+
+
+
+📌 黄金组合：tryLock(waitTime, -1, unit) — 既支持有限等待又走看门狗，是生产环境首选。
+
+6.2 公平锁：按 FIFO 顺序排队// 公平锁：先来先得，适合抢票/排队场景RLock fairLock = redissonClient.getFairLock(&quot;ticket:lock&quot;);fairLock.lock();try &#123;    // 业务&#125; finally &#123;    fairLock.unlock();&#125;
+
+和普通锁的区别：
+
+
+
+锁类型
+排队方式
+吞吐量
+公平性
+
+
+
+getLock (RLock)
+不保证 FIFO（插队）
+高
+不公平
+
+
+getFairLock
+严格 FIFO
+较低
+公平
+
+
+
+⚠️ 注意：公平锁没有看门狗机制，不能使用 tryLock(0, -1, unit) 启用看门狗。
+
+6.3 读写锁：读多写少场景/** * 商品详情缓存 - 读写锁示例 * 场景：100 个读请求可并发，1 个写请求需独占 */@Service@RequiredArgsConstructorpublic class ProductService &#123;    private final RedissonClient redissonClient;        /**     * 查询商品 - 加读锁     */    public Product getProduct(Long productId) &#123;        RReadWriteLock rwLock = redissonClient.getReadWriteLock(&quot;product:lock:&quot; + productId);        RLock readLock = rwLock.readLock();                readLock.lock();        try &#123;            // 多线程可同时持有读锁（共享）            return loadFromDb(productId);        &#125; finally &#123;            readLock.unlock();        &#125;    &#125;    /**     * 更新商品 - 加写锁     */    public void updateProduct(Product product) &#123;        RReadWriteLock rwLock = redissonClient.getReadWriteLock(&quot;product:lock:&quot; + productId(product));        RLock writeLock = rwLock.writeLock();                writeLock.lock();        try &#123;            // 写锁独占：阻塞所有读和其他写            saveToDb(product);            // 失效缓存            redisTemplate.delete(&quot;product:cache:&quot; + product.getId());        &#125; finally &#123;            writeLock.unlock();        &#125;    &#125;&#125;
+
+6.4 信号量：限流&#x2F;资源池/** * 分布式限流示例 * 场景：停车场有 10 个车位，模拟车辆进出 */@Service@RequiredArgsConstructorpublic class ParkingService &#123;    private final RedissonClient redissonClient;    /**     * 车辆进入     */    public boolean enter() &#123;        RSemaphore semaphore = redissonClient.getSemaphore(&quot;parking:spaces&quot;);        // ⚠️ 必须先设置总许可数        semaphore.trySetPermits(10);                // 尝试获取 1 个许可，非阻塞        if (semaphore.tryAcquire()) &#123;            return true;  // 车位充足，进入成功        &#125; else &#123;            return false; // 车位已满，请等待        &#125;    &#125;    /**     * 车辆离开     */    public void leave() &#123;        RSemaphore semaphore = redissonClient.getSemaphore(&quot;parking:spaces&quot;);        semaphore.release();  // 释放 1 个许可    &#125;&#125;
+
+6.5 闭锁：多任务汇总/** * 分布式 CountDownLatch 示例 * 场景：等所有数据加载完成再返回结果 */@Service@RequiredArgsConstructorpublic class DataLoaderService &#123;    private final RedissonClient redissonClient;    /**     * 等待所有数据加载完成     */    public void loadDataParallel() throws InterruptedException &#123;        RCountDownLatch latch = redissonClient.getCountDownLatch(&quot;data:latch&quot;);        latch.trySetCount(3);  // 等待 3 个任务        // 异步执行 3 个任务        CompletableFuture.runAsync(() -&gt; loadOrder());        CompletableFuture.runAsync(() -&gt; loadUser());        CompletableFuture.runAsync(() -&gt; loadProduct());        // 阻塞等待所有任务完成        latch.await();        log.info(&quot;所有数据加载完成！&quot;);    &#125;    private void loadOrder() &#123;        // 加载订单...        redissonClient.getCountDownLatch(&quot;data:latch&quot;).countDown();    &#125;    // loadUser / loadProduct 类似&#125;
+
+6.6 MultiLock 联锁：多资源锁定/** * 联锁示例 * 场景：转账业务需要同时锁定 A 账户和 B 账户 */public void transfer(Long fromUserId, Long toUserId, BigDecimal amount) &#123;    RLock lockA = redisson.getLock(&quot;account:lock:&quot; + fromUserId);    RLock lockB = redisson.getLock(&quot;account:lock:&quot; + toUserId);    // 创建联锁    RLock multiLock = redisson.getMultiLock(lockA, lockB);        multiLock.lock();    try &#123;        // A 账户扣款        // B 账户加款    &#125; finally &#123;        multiLock.unlock();  // 会自动释放 lockA 和 lockB    &#125;&#125;
+
+
+七、分布式集合全家桶7.1 RMap：分布式 HashMap/** * 分布式 Map 示例 * 场景：用户 Session、配置中心 */@Service@RequiredArgsConstructorpublic class UserSessionService &#123;    private final RedissonClient redissonClient;    public void saveSession(String token, Long userId) &#123;        RMap&lt;String, Long&gt; sessionMap = redissonClient.getMap(&quot;user:session&quot;);        sessionMap.put(token, userId);    &#125;    public Long getUserIdByToken(String token) &#123;        RMap&lt;String, Long&gt; sessionMap = redissonClient.getMap(&quot;user:session&quot;);        return sessionMap.get(token);    &#125;    public void deleteSession(String token) &#123;        RMap&lt;String, Long&gt; sessionMap = redissonClient.getMap(&quot;user:session&quot;);        sessionMap.remove(token);    &#125;        // 原子操作    public void addCoins(Long userId, int amount) &#123;        RMap&lt;String, Integer&gt; coinMap = redissonClient.getMap(&quot;user:coins&quot;);        coinMap.addAndGet(String.valueOf(userId), amount);  // 原子自增    &#125;&#125;
+
+带 TTL 的 MapCache：
+RMapCache&lt;String, User&gt; userMapCache = redissonClient.getMapCache(&quot;user:cache&quot;);// key 10 分钟过期，最多空闲 5 分钟userMapCache.put(&quot;user:1&quot;, user, 10, TimeUnit.MINUTES, 5, TimeUnit.MINUTES);
+
+7.2 RList：分布式 List/** * 分布式 List 示例 * 场景：消息流、排行榜（按时间序） */@Service@RequiredArgsConstructorpublic class TimelineService &#123;    private final RedissonClient redissonClient;    public void publishPost(Long userId, String content) &#123;        RList&lt;Post&gt; timeline = redissonClient.getList(&quot;timeline:user:&quot; + userId);        timeline.add(0, new Post(content, System.currentTimeMillis()));  // 头部插入        // 只保留最近 100 条        if (timeline.size() &gt; 100) &#123;            timeline.remove(100, timeline.size() - 1);        &#125;    &#125;    public List&lt;Post&gt; getTimeline(Long userId) &#123;        RList&lt;Post&gt; timeline = redissonClient.getList(&quot;timeline:user:&quot; + userId);        return timeline.range(0, 99);  // 返回前 100 条    &#125;&#125;
+
+7.3 RQueue &#x2F; RBlockingQueue：分布式队列/** * 分布式队列示例 * 场景：异步任务、消息传递 */@Service@RequiredArgsConstructorpublic class TaskQueueService &#123;    private final RedissonClient redissonClient;    /**     * 生产者：投递任务     */    public void submitTask(String task) &#123;        RBlockingQueue&lt;String&gt; queue = redissonClient.getBlockingQueue(&quot;task:queue&quot;);        try &#123;            queue.put(task);        &#125; catch (InterruptedException e) &#123;            Thread.currentThread().interrupt();        &#125;    &#125;    /**     * 消费者：消费任务     */    @PostConstruct    public void consume() &#123;        new Thread(() -&gt; &#123;            RBlockingQueue&lt;String&gt; queue = redissonClient.getBlockingQueue(&quot;task:queue&quot;);            while (true) &#123;                try &#123;                    // 阻塞等待任务                    String task = queue.take();                    processTask(task);                &#125; catch (InterruptedException e) &#123;                    Thread.currentThread().interrupt();                    break;                &#125;            &#125;        &#125;, &quot;task-consumer&quot;).start();    &#125;        private void processTask(String task) &#123;        // 处理业务    &#125;&#125;
+
+7.4 RScoredSortedSet：分布式 ZSet/** * 分布式 ZSet 示例 * 场景：排行榜（按分数排序）、延迟队列 */@Service@RequiredArgsConstructorpublic class LeaderboardService &#123;    private final RedissonClient redissonClient;    /**     * 增加用户积分     */    public void addScore(Long userId, double score) &#123;        RScoredSortedSet&lt;String&gt; leaderboard = redissonClient.getScoredSortedSet(&quot;game:leaderboard&quot;);        leaderboard.addScore(String.valueOf(userId), score);  // 加分    &#125;    /**     * 获取 Top 10 排行榜     */    public List&lt;String&gt; getTop10() &#123;        RScoredSortedSet&lt;String&gt; leaderboard = redissonClient.getScoredSortedSet(&quot;game:leaderboard&quot;);        return new ArrayList&lt;&gt;(leaderboard.entryRangeReversed(0, 9));    &#125;&#125;
+
+
+八、分布式对象 API8.1 RBucket：通用 K-V 桶/** * 通用对象桶示例 * 场景：验证码、Token、热点数据缓存 */@Service@RequiredArgsConstructorpublic class VerificationCodeService &#123;    private final RedissonClient redissonClient;    /**     * 保存验证码，5 分钟过期     */    public void saveCode(String phone, String code) &#123;        RBucket&lt;String&gt; bucket = redissonClient.getBucket(&quot;verify:code:&quot; + phone);        bucket.set(code, 5, TimeUnit.MINUTES);    &#125;    /**     * 验证并消费验证码（原子操作）     */    public boolean verify(String phone, String inputCode) &#123;        RBucket&lt;String&gt; bucket = redissonClient.getBucket(&quot;verify:code:&quot; + phone);        String storedCode = bucket.get();        if (storedCode != null &amp;&amp; storedCode.equals(inputCode)) &#123;            bucket.delete();  // 一次性使用，验证后立即删除            return true;        &#125;        return false;    &#125;&#125;
+
+8.2 RAtomicLong：分布式计数器/** * 分布式计数器示例 * 场景：点赞数、访问量、分布式 ID */@Service@RequiredArgsConstructorpublic class StatisticsService &#123;    private final RedissonClient redissonClient;    public long incrementPv(String page) &#123;        RAtomicLong pv = redissonClient.getAtomicLong(&quot;page:pv:&quot; + page);        return pv.incrementAndGet();  // 自增并返回新值    &#125;&#125;
+
+8.3 RBloomFilter：布隆过滤器/** * 布隆过滤器示例 * 场景：缓存穿透防护、垃圾 URL 去重 */@Service@RequiredArgsConstructorpublic class CacheService &#123;    private final RedissonClient redissonClient;    /**     * 查询商品前先过布隆过滤器     */    public Product getProduct(Long productId) &#123;        RBloomFilter&lt;Long&gt; bloomFilter = redissonClient.getBloomFilter(&quot;product:bloom&quot;);        // ⚠️ 必须先初始化（预估元素数、误判率）        bloomFilter.tryInit(1_000_000L, 0.01);                if (!bloomFilter.contains(productId)) &#123;            // 一定不存在            return null;        &#125;        // 可能存在，查缓存/数据库        return loadFromCache(productId);    &#125;&#125;
+
+8.4 RRateLimiter：分布式限流器/** * 分布式限流器示例 * 场景：API 限流、防刷 */@Service@RequiredArgsConstructorpublic class RateLimitService &#123;    private final RedissonClient redissonClient;    public boolean tryAcquire(Long userId) &#123;        RRateLimiter limiter = redissonClient.getRateLimiter(&quot;api:limit:&quot; + userId);        // 每秒最多 10 个请求        limiter.trySetRate(RateType.OVERALL, 10, 1, RateIntervalUnit.SECONDS);                return limiter.tryAcquire(1);  // 非阻塞获取 1 个许可    &#125;&#125;
+
+
+九、队列与消息9.1 普通队列 vs 阻塞队列
+
+
+类型
+API
+行为
+
+
+
+普通队列
+RQueue&lt;V&gt;
+add() &#x2F; poll() 非阻塞
+
+
+阻塞队列
+RBlockingQueue&lt;V&gt;
+put() &#x2F; take() 阻塞等待
+
+
+阻塞双端队列
+RBlockingDeque&lt;V&gt;
+putFirst() &#x2F; takeLast() 等
+
+
+9.2 延迟队列（面试常问 ⭐）/** * 延迟队列示例 * 场景：30 分钟未支付自动取消订单 */@Service@RequiredArgsConstructorpublic class OrderDelayService &#123;    private final RedissonClient redissonClient;    /**     * 下单后 30 分钟检测支付状态，未支付则取消     */    public void scheduleOrderCheck(Long orderId) &#123;        // 1. 获取阻塞队列（消费者监听这个）        RBlockingQueue&lt;Long&gt; blockingQueue = redissonClient.getBlockingQueue(&quot;order:cancel&quot;);        // 2. 基于 blockingQueue 创建延迟队列        RDelayedQueue&lt;Long&gt; delayedQueue = redissonClient.getDelayedQueue(blockingQueue);                // 3. 投递延迟任务（30 分钟后才会进入 blockingQueue）        delayedQueue.offer(orderId, 30, TimeUnit.MINUTES);    &#125;    /**     * 消费者     */    @PostConstruct    public void startConsumer() &#123;        new Thread(() -&gt; &#123;            RBlockingQueue&lt;Long&gt; queue = redissonClient.getBlockingQueue(&quot;order:cancel&quot;);            while (true) &#123;                try &#123;                    Long orderId = queue.take();                    // 检查订单支付状态，未支付则取消                    cancelOrderIfNotPaid(orderId);                &#125; catch (InterruptedException e) &#123;                    Thread.currentThread().interrupt();                    break;                &#125;            &#125;        &#125;, &quot;order-cancel-consumer&quot;).start();    &#125;&#125;
+
+
+⚠️ 注意：RDelayedQueue 在 Redisson 4.x 已被标记为 deprecated，推荐使用 RReliableQueue（需 PRO 版）。
+
+
+十、发布订阅与限流10.1 RTopic：发布订阅/** * 发布订阅示例 * 场景：实时通知、消息广播 */@Service@RequiredArgsConstructorpublic class NotificationService &#123;    private final RedissonClient redissonClient;    /**     * 订阅者     */    @PostConstruct    public void subscribe() &#123;        RTopic topic = redissonClient.getTopic(&quot;user:notify&quot;);        topic.addListener(String.class, (channel, msg) -&gt; &#123;            log.info(&quot;收到通知: &#123;&#125;&quot;, msg);            // 推送给前端 WebSocket / SSE        &#125;);    &#125;    /**     * 发布者     */    public void publish(Long userId, String message) &#123;        RTopic topic = redissonClient.getTopic(&quot;user:notify&quot;);        long receivers = topic.publish(message);        log.info(&quot;消息已发布，&#123;&#125; 个订阅者收到&quot;, receivers);    &#125;&#125;
+
+10.2 模式订阅（RPatternTopic）// 订阅所有以 &quot;order:&quot; 开头的频道RPatternTopic patternTopic = redissonClient.getPatternTopic(&quot;order:*&quot;);patternTopic.addListener(String.class, (pattern, channel, msg) -&gt; &#123;    log.info(&quot;pattern=&#123;&#125;, channel=&#123;&#125;, msg=&#123;&#125;&quot;, pattern, channel, msg);&#125;);
+
+
+十一、原理解析（看门狗 + Lua + 可重入）
+⭐⭐⭐ 本节是面试必考内容，请务必理解。
+
+11.1 WatchDog 看门狗机制11.1.1 为什么需要看门狗？传统 SETNX 锁有 3 大致命缺陷：
+┌──────────────────────────────────────────────────────┐│   传统 SETNX 分布式锁的&quot;死亡三连&quot;                       │├──────────────────────────────────────────────────────┤│ 1. 业务执行时间 &gt; 锁过期时间 → 锁提前过期 → 别人也抢到    ││ 2. 客户端崩溃 → 锁永远不释放 → 死锁                     ││ 3. 时钟漂移 / GC 暂停 → 锁时间计算错误                 │└──────────────────────────────────────────────────────┘
+
+看门狗就是为了**解决”业务时间不可预期”**这个问题而生的。
+11.1.2 看门狗的 3 个核心数字
+
+
+维度
+数值
+含义
+
+
+
+默认过期时间 lockWatchdogTimeout
+30 秒
+锁的初始 TTL
+
+
+续期间隔
+30s / 3 = 10s
+每 10 秒续期一次
+
+
+续期操作
+PEXPIRE key 30000
+把 TTL 重新设为 30s
+
+
+
+📐 1&#x2F;3 原则：续期间隔 &#x3D; 过期时间的 1&#x2F;3，确保至少能续期 2 次，避免网络抖动导致续期失败。
+
+11.1.3 看门狗时序图时间轴 →      0s        10s        20s        30s        40s        50s              │          │          │          │          │          │              │          │          │          │          │          │加锁 SET 30s  │          │          │          │          │          │              │          │          │          │          │          │              │ 续期     │ 续期     │ 续期     │ 续期     │ 续期              │ PEXPIRE  │ PEXPIRE  │ PEXPIRE  │ PEXPIRE  │ PEXPIRE              │ → 30s    │ → 30s    │ → 30s    │ → 30s    │ → 30s              │          │          │          │          │          │              ↓          ↓          ↓          ↓          ↓          ↓业务执行 ──────────────────────────────────────────────────────────→ unlock
+
+11.1.4 看门狗的启用条件// ✅ 启用看门狗（默认 30s 过期，自动续期）lock.lock();lock.tryLock(3, -1, TimeUnit.SECONDS);// ❌ 不启用看门狗（指定 leaseTime 后不续期）lock.lock(10, TimeUnit.SECONDS);lock.tryLock(3, 10, TimeUnit.SECONDS);  // 10s 后强制过期
+
+
+⚠️ 面试坑点：指定 leaseTime 后看门狗会关闭！如果业务慢于 leaseTime，锁会提前释放！
+
+11.1.5 源码解读（权威）续期任务核心代码（来自 RedissonLock.java @ 2026-06-04 master 分支）：
+// 续期任务：每 1/3 过期时间执行一次public void schedule() &#123;    if (!running.get()) &#123;        return;    &#125;    long internalLockLeaseTime = executor.getServiceManager()                                  .getCfg().getLockWatchdogTimeout();    // 关键：续期间隔 = 过期时间 / 3    executor.getServiceManager()            .newTimeout(this, internalLockLeaseTime / 3, TimeUnit.MILLISECONDS);&#125;
+
+11.2 Lua 脚本与原子性Redisson 大量使用 Lua 脚本保证原子性。最核心的加锁 Lua：
+-- KEYS[1] = 锁名-- ARGV[1] = 锁过期时间（毫秒）-- ARGV[2] = 线程唯一标识 (UUID:threadId)if ((redis.call(&#x27;exists&#x27;, KEYS[1]) == 0)    or (redis.call(&#x27;hexists&#x27;, KEYS[1], ARGV[2]) == 1)) then    -- 场景 1：锁不存在 OR 当前线程已持锁 → 加锁/重入    redis.call(&#x27;hincrby&#x27;, KEYS[1], ARGV[2], 1);   -- 重入次数 +1    redis.call(&#x27;pexpire&#x27;, KEYS[1], ARGV[1]);       -- 重置过期时间    return nil;                                      -- nil = 加锁成功end;-- 场景 2：锁被其他线程持有 → 返回锁的剩余 TTL（让客户端等待）return redis.call(&#x27;pttl&#x27;, KEYS[1]);
+
+为什么必须用 Lua？
+┌────────────────────────────────────────────────────┐│              Redis 服务端（单线程执行）               ││  ┌──────────────────────────────────────────┐    ││  │         Lua 脚本（原子执行）                │    ││  │   1. EXISTS lock_key    ─┐                │    ││  │   2. HSET lock_key ...   │ 这 3 步       │    ││  │   3. PEXPIRE lock_key   ─┘ 不可分割       │    ││  └──────────────────────────────────────────┘    ││                                                    ││   脚本执行期间，其他客户端命令会排队等待              │└────────────────────────────────────────────────────┘
+
+11.3 可重入锁的实现可重入 &#x3D; Hash 结构 + 计数器：
+KEY:     myLock                                (Hash)FIELD:   &quot;UUID-1234:threadId-1&quot;               (锁持有者标识)VALUE:   1, 2, 3...                           (重入次数)EXPIRE:  30000 ms
+
+重入计数变化过程：
+第 1 次 lock()  →  HINCRBY field 1   →  value = 1第 2 次 lock()  →  HINCRBY field 1   →  value = 2  (重入)第 3 次 lock()  →  HINCRBY field 1   →  value = 3  (重入)第 1 次 unlock() →  HINCRBY field -1  →  value = 2第 2 次 unlock() →  HINCRBY field -1  →  value = 1第 3 次 unlock() →  HINCRBY field -1  →  value = 0 → DEL key
+
+
+⚠️ 加锁 N 次就必须 unlock N 次，否则锁会永远残留。
+
+11.4 主从架构下的”幽灵锁”问题1. 客户端 A 在 Master 加锁成功2. Master 还没同步给 Slave3. Master 宕机4. Slave 被提升为新 Master（但没锁信息）5. 客户端 B 在新 Master 加锁成功→ A 和 B 同时持锁 💥
+
+RedLock 解决方案（已 deprecated，见下文）：向 5 个完全独立的 Redis Master 申请锁，半数以上成功才算获取成功。
+⚠️ 重大更新：Redisson 官方已在 4.x 标记 RedissonRedLock 为 deprecated，改用 RFencedLock（配合 fencing token 抗 GC 失效）。
+
+📌 多数生产场景下用 RLock 配合 Redis Sentinel&#x2F;Cluster 即可。
+
+
+十二、面试宝典（20+ 高频题）⭐ Q1：Redisson 是什么？和 Jedis、Lettuce 区别？答：Redisson 是基于 Netty 的 Redis Java 客户端，提供 60+ 分布式对象和服务。Jedis&#x2F;Lettuce 是”Redis 命令的封装”，Redisson 是”分布式对象的抽象“。
+⭐ Q2：Redisson 分布式锁如何实现”可重入”？答：用 Redis Hash 结构，field 是 UUID:threadId，value 是重入计数器。HINCRBY 实现原子自增&#x2F;自减。
+⭐ Q3：看门狗（WatchDog）是什么？默认多长时间？续期频率？答：后台线程自动续期。默认 30s 过期，每 30s/3=10s 续期一次（续期间隔 &#x3D; 过期时间的 1&#x2F;3）。
+⭐ Q4：lock()、tryLock()、tryLock(waitTime, leaseTime) 区别？答：
+
+
+
+API
+阻塞
+看门狗
+
+
+
+lock()
+永久阻塞
+✅
+
+
+lock(10, s)
+永久阻塞
+❌（指定了 leaseTime）
+
+
+tryLock()
+不阻塞
+✅
+
+
+tryLock(3, -1, s)
+最多等 3s
+✅
+
+
+tryLock(3, 10, s)
+最多等 3s
+❌
+
+
+黄金组合：tryLock(waitTime, -1, unit)。
+⭐ Q5：看门狗什么情况下会失效？答：
+
+指定了 leaseTime → 看门狗不启动
+GC 暂停 &#x2F; 时钟跳跃 → 续期可能不及时
+客户端进程崩溃 → 续期线程消失，30s 后锁自动过期（这是兜底机制）
+
+⭐ Q6：主从架构下分布式锁有什么问题？RedLock 怎么解决？答：主从异步复制可能导致”幽灵锁”（A 持锁后 Master 宕机，B 在新 Master 也加锁成功）。RedLock 需向 N（≥3）个独立 Master 申请锁，半数以上成功才算获取。但 Redisson 4.x 已弃用 RedLock，改用 RFencedLock。
+⭐ Q7：可重入、阻塞、可重入公平锁的 API 区别？答：
+
+
+
+锁类型
+API
+备注
+
+
+
+可重入非公平
+getLock
+默认，性能最佳
+
+
+可重入公平
+getFairLock
+FIFO 队列
+
+
+不可重入（4.x）
+getNonReentrantLock
+防递归误用
+
+
+读写锁
+getReadWriteLock
+读共享、写独占
+
+
+联锁
+getMultiLock
+多个资源一次性锁
+
+
+红锁（已弃用）
+getRedLock
+4.x deprecated
+
+
+围栏锁（4.x）
+getFencedLock
+抗 GC 失效
+
+
+信号量
+getSemaphore
+限流&#x2F;资源池
+
+
+闭锁
+getCountDownLatch
+多任务协调
+
+
+Q8：锁释放时其他线程拿到锁会怎样？答：抛 IllegalMonitorStateException。应捕获该异常做幂等处理。
+Q9：阻塞锁、非阻塞锁、可重入锁 API 区别？答：阻塞 vs 非阻塞 &#x3D; 是否无限等待。可重入 &#x3D; 同一线程可多次加锁。三个维度可组合。
+Q10：Redisson 锁比 SETNX 强在哪？答：10 大能力：互斥、原子性、可重入、自动续期、阻塞唤醒、公平性、集群适配、读模式、写模式、释放校验。
+Q11：Redisson 用什么网络框架？答：Netty 4，基于 NIO 事件循环。
+Q12：RRateLimiter 限流原理？答：基于 Redis 滑动窗口（不是令牌桶）。&#123;name&#125;:permits 是 ZSet，存所有历史授权记录。
+Q13：集群模式下锁的 key 如何路由？答：用 CRC16(key) % 16384 计算 slot。MultiLock 必须用 Hash Tag（如 &#123;order:userId&#125;Lock）保证落到同一 slot。
+Q14：如何与 Spring Boot 3.5+ 集成？答：引入 redisson-spring-boot-starter，配置 spring.data.redis 自动注入 RedissonClient。或手动配置 Config + @Bean。
+Q15：生产环境常见事故有哪些？
+
+
+事故
+原因
+避免方法
+
+
+
+死锁
+finally 中 isHeldByCurrentThread() 抛异常，unlock 未执行
+移除前置判断，直接 try-catch unlock
+
+
+锁失效
+指定 leaseTime 太短
+不要指定 leaseTime
+
+
+看门狗不工作
+连接池耗尽
+调整 connectionPoolSize
+
+
+主从切换丢锁
+异步复制
+用 RFencedLock 或换 CP 系统
+
+
+Q16：为什么 if (lock.isHeldByCurrentThread()) 是”画蛇添足”？答：unlock 的 Lua 脚本已做越权保护。前置判断会额外执行 2 个 Redis 命令，网络抖动时可能抛异常导致 unlock 不执行，反而引发看门狗死锁。
+Q17：性能调优关键参数？答：connectionPoolSize: 64、connectionMinimumIdleSize: 16、timeout: 3000、retryAttempts: 3、threads: 32、nettyThreads: 64。
+Q18：为什么用 destroyMethod = &quot;shutdown&quot;？答：Redisson 内部有 Netty EventLoopGroup、连接池线程、HashedWheelTimer 线程等。Spring 关闭时需显式关闭，否则进程无法正常退出。
+Q19：EXPIRATION_RENEWAL_MAP 是什么？答：全局静态 Map，记录所有正在被看门狗续期的锁。unlock 时必须清理，否则会泄漏 TimerTask。
+Q20：Redisson 4.x 的 RFencedLock 是什么？答：通过 Fencing Token（递增版本号）解决 GC 暂停导致的”客户端自以为持锁但实际锁已过期”问题。每次 lock() 成功返回 token，写入资源时必须带 token，存储系统拒绝旧 token。
+21+ 加分题
+集群下 MultiLock 为什么必须用 Hash Tag？
+Redisson 的 Reactive API 如何使用？
+如何用 Redisson 实现分布式限流？
+Redisson 如何集成 Spring Cache？
+
+
+十三、生产最佳实践✅ 必做（DO）
+锁 key 命名空间化：业务:模块:资源ID，如 order:lock:1001
+tryLock 必传 waitTime：避免无限等待
+finally 中 unlock + 捕获 IllegalMonitorStateException
+锁粒度尽量细：锁单个订单而非整个订单系统
+监控锁等待时间和持有时间：用 Micrometer 上报 Prometheus
+生产环境使用 destroyMethod = &quot;shutdown&quot;
+统一使用 Redisson 客户端：避免与 RedisTemplate 混用
+
+❌ 必避（DON’T）
+❌ 在循环中重复创建 RLock 对象
+❌ Redis password 留空字符串 &quot;&quot;（用 null）
+❌ 同时引入 redisson-spring-boot-starter + 手动 RedissonConfig（冲突）
+❌ 跨线程调用 unlock()（抛 IllegalMonitorStateException）
+❌ 在事务方法上加分布式锁（事务回滚但锁已释放）
+❌ 业务里加 Thread.sleep() 模拟业务
+❌ lock.lock(10, SECONDS) 指定太短的 leaseTime
+
+标准生产代码模板/** * 分布式锁标准模板（生产环境直接复用） */public void executeWithLock(String lockKey, Runnable business) &#123;    RLock lock = redissonClient.getLock(lockKey);    boolean locked = false;    try &#123;        // 黄金组合：3 秒等待 + 启用看门狗        locked = lock.tryLock(3, -1, TimeUnit.SECONDS);        if (!locked) &#123;            throw new BusinessException(&quot;系统繁忙，请稍后重试&quot;);        &#125;        business.run();    &#125; catch (InterruptedException e) &#123;        Thread.currentThread().interrupt();        throw new BusinessException(&quot;系统异常&quot;);    &#125; finally &#123;        if (locked) &#123;            try &#123;                lock.unlock();            &#125; catch (IllegalMonitorStateException e) &#123;                log.warn(&quot;锁已自动释放&quot;, e);            &#125;        &#125;    &#125;&#125;
+
+
+十四、常见问题排查14.1 启动报错 Unable to connect to Redis原因：自动配置默认连 localhost:6379，但你的 Redis 不在那里。
+解决：使用手动配置或在 yml 中显式指定 spring.data.redis.host/port。
+14.2 YAML 配置的引号问题# ❌ 错误address: &quot;redis://127.0.0.1:6379&quot;password: &quot;your_password&quot;# ✅ 正确（不写引号）address: redis://127.0.0.1:6379password: your_password
+
+14.3 与 Spring Data Redis 冲突解决：移除 spring-boot-starter-data-redis 依赖，或分开 Bean 名称避免连接池冲突。
+14.4 Spring 容器关闭时进程不退出原因：Redisson 的 Netty 线程未关闭。
+解决：使用 @Bean(destroyMethod = &quot;shutdown&quot;)。
+14.5 看门狗不工作排查步骤：
+
+检查是否指定了 leaseTime（指定后看门狗不工作）
+检查连接池是否耗尽
+升级到 3.17+ 修复 NPE bug
+检查 GC 日志，确认无长时间 STW
+
+14.6 大量 IllegalMonitorStateException原因：锁过期被别人拿走，原线程 unlock 时报错。
+解决：
+
+升级到 3.36+
+业务耗时做好监控
+finally 中 try-catch 异常
+
+
+十五、总结 &amp; 资料汇总15.1 速记卡（面试前 5 分钟扫一眼）
+✅ **Redisson 4.x 已弃用 RedLock**，改用 RFencedLock
+✅ 看门狗默认 30s，续期间隔 &#x3D; 30s&#x2F;3 &#x3D; 10s
+✅ 可重入本质 &#x3D; Hash 结构的 value 计数器
+✅ 解锁 Lua 会 publish 到 PubSub channel，实现精确唤醒
+✅ unlock 抛 IllegalMonitorStateException 的根因：锁已过期被释放
+✅ 生产事故经典案例：if (lock.isLocked()) 前置检查 + 网络抖动 → 看门狗死锁
+✅ 集群下的 Hash Tag：&#123;order:userId&#125;Lock 保证 MultiLock 落到同一 slot
+✅ RRateLimiter 是滑动窗口（不是令牌桶）
+✅ 跨线程 unlock 必抛异常
+✅ 黄金组合：tryLock(waitTime, -1, unit)
+
+15.2 推荐学习路径
+入门：本文 + Redisson 官方文档（redisson.pro）
+进阶：redisson-examples 仓库 41 个示例
+原理：阅读 RedissonLock 源码
+生产：研究 Spring Boot 3 集成 + Spring Cache 集成
+
+15.3 推荐版本
+
+
+场景
+Spring Boot
+Redisson
+备注
+
+
+
+生产稳定（保守）
+3.4.x
+3.23.2+
+gxy03 验证版本
+
+
+生产稳定（推荐）
+3.5.x
+3.36.0+
+主流稳定
+
+
+尝鲜 4.x 新特性
+4.0.x
+4.0.0+
+需注意 API 变化
+
+
+15.4 参考资料📚 官方权威
+Redisson 官方文档
+GitHub 仓库
+Releases
+Spring Boot 集成
+Locks and synchronizers
+Wiki（中文）
+
+🔬 源码（2026-06-04 master 分支）
+RedissonLock.java#L213-L223 — 加锁 Lua 脚本
+RedissonLock.java#L339-L363 — 解锁 Lua 脚本
+RenewalTask.java#L62-L69 — 看门狗续期
+Config.java#L81 — 默认 30s 过期
+
+📖 优质博客
+A_art_xiang 上篇 — 官方文档+注释
+A_art_xiang 中篇 — 分布式锁深度
+A_art_xiang 下篇 — Spring Boot 集成
+gxy03 整合指南 — SB 3.4 实战
+腾讯云：看门狗死锁复盘
+HeapDump 社区：看门狗 BUG
+阿里云：Redisson 分布式锁深度解析
+Martin Kleppmann：How to do distributed locking
+
+🎓 示例代码
+redisson-examples 仓库（41 个 Java 示例）
+
+
+🎉 写在最后恭喜你读完了这篇 1.5 万字的 Redisson 学习笔记！
+现在你应该能：
+
+✅ 在 Spring Boot 3.5+ 项目中集成 Redisson
+✅ 使用 60+ 分布式对象解决实际问题
+✅ 写标准化的分布式锁代码
+✅ 解释看门狗、Lua、可重入的原理
+✅ 回答 20+ 高频面试题
+✅ 避开生产环境的常见事故
+
+下一步建议：
+
+跟着 redisson-examples 把每个示例都跑一遍
+在自己的项目中挑 1-2 个场景用 Redisson 重构
+阅读 RedissonLock 源码，理解其精妙设计
+关注 Redisson 4.x 新特性，特别是 RFencedLock 的 fencing token 设计
+
+祝愿各位同学：阅读完这篇文章后，项目开发更顺，面试更稳，好运连连！🎊
+
+
+📅 写作时间：2026-06-05✍️ 作者：ljh2923🏷️ 标签：Redisson、Spring Boot 3.5+、分布式锁、WatchDog、Lua 脚本📜 许可：CC BY-SA 4.0（欢迎转载，注明出处）💬 有问题欢迎评论区讨论，看到必回！
+
+]]></content>
+      <categories>
+        <category>Java</category>
+        <category>中间件</category>
+        <category>R</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>分布式锁</tag>
+        <tag>Spring Boot</tag>
+        <tag>Redis</tag>
+        <tag>Redisson</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redisson学习笔记</title>
+    <url>/2026/06/05/java/Redisson%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[🚀 Redisson 学习笔记（Spring Boot 3.5 实战版）
+面向读者：了解 Redis 基础、想用 Redisson 解决分布式场景问题、准备面试的 Java 开发者
+
+📌 版本基线（本文全程统一使用）
+
+
+组件
+版本
+备注
+
+
+
+JDK
+17 &#x2F; 21
+JDK 17 是当前 LTS 最低门槛，21 是最新 LTS
+
+
+Spring Boot
+3.5.x
+当前主流稳定版
+
+
+Redisson
+3.52.x
+3.x 最后一个稳定分支，生产首选
+
+
+Spring Data Redis 适配模块
+redisson-spring-data-35
+3.5.x 配套
+
+
+Redis 服务端
+Redis 6.2+ 或 Valkey 7+
+集群功能需 6.0+
+
+
+
+⚠️ 为什么选 3.52.x 而不是 4.x？
+
+3.52.x 是 3.x 长期维护分支，生态最稳定
+4.x 需要 JDK 11+、Spring Boot 4.0+、Netty 4.2+，生态仍在迁移
+生产 90% 场景 3.52.x 完全够用（详细对比见 §16）
+本笔记所有代码示例均可在 3.52.x 直接运行
+
+
+
+一句话理解 Redisson：把 Redis 命令封装成 50+ 分布式 Java 对象（RMap&#x2F;RLock&#x2F;RBucket&#x2F;RBloomFilter&#x2F;RScoredSortedSet 等），让你像用本地 HashMap 一样用 Redis。
+
+
+📑 目录
+Redisson 是什么
+和 Jedis、Lettuce 的区别
+快速开始：Spring Boot 3.5 整合
+配置详解：5 种连接模式
+分布式数据结构速查
+分布式锁专题（重点）
+看门狗（WatchDog）原理
+RedLock 算法争议与 Redisson 官方态度
+分布式服务（Executor&#x2F;Scheduler&#x2F;Topic）
+布隆过滤器与限流器
+排行榜与延迟队列
+Spring Cache &#x2F; Session &#x2F; Transaction 整合
+3 个完整实战项目
+生产避坑清单（12 条）
+面试题精讲（10 道）
+版本演进与未来展望
+参考资料
+
+
+1. Redisson 是什么 🤔Redisson（Redis + isson）是架设在 Redis&#x2F;Valkey 之上的 Java 驻内存数据网格（In-Memory Data Grid，IMDG），由俄罗斯开发者 Nikita Koksharov 主导，目前在 GitHub 上 ⭐ 24.4k+ Star（github.com&#x2F;redisson&#x2F;redisson）。
+它能做什么：
+
+
+
+能力
+对应 Redisson 对象
+底层 Redis 结构
+
+
+
+通用 K&#x2F;V
+RBucket
+String
+
+
+分布式 Map
+RMap &#x2F; RMapCache
+Hash
+
+
+分布式 List
+RList
+List
+
+
+分布式 Set
+RSet
+Set
+
+
+分布式 Queue
+RQueue &#x2F; RBlockingQueue
+List
+
+
+分布式栈
+RDeque
+List
+
+
+分布式锁
+RLock &#x2F; RFairLock
+Hash + Lua
+
+
+分布式原子数
+RAtomicLong
+String + INCR
+
+
+分布式发布订阅
+RTopic &#x2F; RReliableTopic
+Pub&#x2F;Sub + Stream
+
+
+分布式限流
+RRateLimiter
+ZSet + Lua
+
+
+分布式布隆过滤器
+RBloomFilter
+Bitmap
+
+
+分布式排行榜
+RScoredSortedSet
+ZSet
+
+
+分布式延迟队列
+RDelayedQueue
+ZSet + List
+
+
+分布式定时任务
+RScheduledExecutorService
+ZSet
+
+
+分布式集合分片
+RClusteredMap
+多 Key Hash
+
+
+分布式远程服务
+RRemoteService
+Pub&#x2F;Sub
+
+
+本地缓存 Map
+RLocalCachedMap
+Hash + Caffeine
+
+
+一句话总结：Redisson &#x3D; Redis 命令的”Java 分布式对象”封装层，让 Java 程序员用面向对象的方式操作 Redis，而不用关心底层的 Lua 脚本和并发问题。
+
+2. 和 Jedis、Lettuce 的区别 ⚖️
+
+
+维度
+Jedis
+Lettuce
+Redisson
+
+
+
+定位
+阻塞同步客户端
+Netty 异步 &#x2F; 响应式
+分布式对象网格
+
+
+线程安全
+❌ 需配合连接池
+✅
+✅
+
+
+分布式锁
+❌ 自己写 Lua
+❌ 自己写 Lua
+✅ 内置 RLock + 看门狗
+
+
+分布式数据结构
+❌ 只有 K&#x2F;V
+❌ 只有 K&#x2F;V
+✅ 50+ 分布式对象
+
+
+看门狗续期
+❌
+❌
+✅ 默认 30s 锁 + 10s 续期
+
+
+Pub&#x2F;Sub 唤醒
+❌
+❌
+✅ 锁释放时通过 Channel 唤醒等待线程
+
+
+Spring Cache
+需自己适配
+需自己适配
+✅ 一行依赖即整合
+
+
+Spring Session
+需自己适配
+需自己适配
+✅ 提供 RedissonConnectionFactory
+
+
+异步 &#x2F; 响应式
+❌
+✅
+✅（RFuture &#x2F; RedissonReactiveClient）
+
+
+性能
+同步阻塞
+异步高性能
+异步高性能（基于 Netty）
+
+
+学习成本
+⭐
+⭐⭐
+⭐⭐⭐（API 多）
+
+
+适合场景
+简单 K&#x2F;V 场景
+高并发响应式
+需要分布式原语的复杂业务
+
+
+
+💡 经验之谈：如果项目只需要 set/get/incr，用 Lettuce 就够了；如果需要分布式锁、分布式集合、限流、布隆过滤器等”分布式原语”，直接用 Redisson，别重复造轮子。
+
+
+3. 快速开始：Spring Boot 3.5 整合 🚀3.1 Spring Boot 与 Redisson 版本对应表（重要）
+选定 Spring Boot 3.5.x + Redisson 3.52.x + JDK 17 作为本文基线。
+
+
+
+
+Spring Boot
+推荐 Redisson
+Spring Data 适配模块
+最低 JDK
+
+
+
+3.3.x
+3.45 ~ 3.52.x
+redisson-spring-data-33
+17
+
+
+3.4.x
+3.47 ~ 3.52.x
+redisson-spring-data-34
+17
+
+
+3.5.x ⭐
+3.50 ~ 3.52.x（本文基线）
+redisson-spring-data-35
+17
+
+
+3.6.x（未来）
+3.52.x
+redisson-spring-data-36
+17
+
+
+
+🔗 官方说明：Redisson Integration with Spring 写道：”Downgrade redisson-spring-data module if necessary to support previous Spring Boot versions”。
+
+3.2 方式一：redisson-spring-boot-starter 自动配置（适合 Demo）① pom.xml&lt;parent&gt;    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;    &lt;version&gt;3.5.0&lt;/version&gt;&lt;/parent&gt;&lt;properties&gt;    &lt;java.version&gt;17&lt;/java.version&gt;    &lt;redisson.version&gt;3.52.0&lt;/redisson.version&gt;&lt;/properties&gt;&lt;dependencies&gt;    &lt;!-- Spring Boot Web --&gt;    &lt;dependency&gt;        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;    &lt;/dependency&gt;    &lt;!-- ⭐ Redisson Spring Boot Starter（自动装配） --&gt;    &lt;dependency&gt;        &lt;groupId&gt;org.redisson&lt;/groupId&gt;        &lt;artifactId&gt;redisson-spring-boot-starter&lt;/artifactId&gt;        &lt;version&gt;$&#123;redisson.version&#125;&lt;/version&gt;    &lt;/dependency&gt;&lt;/dependencies&gt;
+
+② application.ymlspring:  application:    name: redisson-demo  data:    redis:      host: 127.0.0.1      port: 6379      password:               # 无密码留空      database: 0      timeout: 5s      connect-timeout: 5s
+
+③ 直接注入使用/** * Redisson 基础操作 Controller * 自动配置下 RedissonClient 由 Spring 容器提供 */@RestController@RequestMapping(&quot;/api/redis&quot;)public class RedisController &#123;    private final RedissonClient redissonClient;    // ⭐ 构造器注入 RedissonClient    public RedisController(RedissonClient redissonClient) &#123;        this.redissonClient = redissonClient;    &#125;    /**     * 写入并读取一个 K/V     */    @GetMapping(&quot;/set&quot;)    public String set(@RequestParam String key, @RequestParam String value) &#123;        // ⭐ RBucket = 通用 K/V 桶（底层 String 类型）        RBucket&lt;String&gt; bucket = redissonClient.getBucket(key);        // 30 秒后自动过期        bucket.set(value, 30, TimeUnit.SECONDS);        return &quot;OK, value=&quot; + bucket.get();    &#125;    /**     * 分布式锁示例     */    @GetMapping(&quot;/lock&quot;)    public String lock() throws InterruptedException &#123;        // ⭐ RLock = 可重入分布式锁（看门狗自动续期）        RLock lock = redissonClient.getLock(&quot;myLock&quot;);        // 尝试 3s，拿到后锁自动续期；30s 是租约的最大值（看门狗只会在不设 leaseTime 时生效）        boolean ok = lock.tryLock(3, 30, TimeUnit.SECONDS);        if (ok) &#123;            try &#123;                Thread.sleep(1000);                return &quot;Got lock!&quot;;            &#125; finally &#123;                // ⭐ 必须在 finally 释放锁，且要在持有锁的线程释放                lock.unlock();            &#125;        &#125;        return &quot;Lock failed&quot;;    &#125;&#125;
+
+
+⚠️ 小坑：Starter 自动配置的 application.yml 内联配置块（spring.redis.redisson.config: |）在某些版本下不识别，建议改用独立 redisson.yaml 文件或改用手动 Java Config。
+
+3.3 方式二：手动 Java Config（推荐生产） ✅
+📌 为什么生产推荐手动 Config？
+
+多 Redis 实例时自动配置只能有一个 RedissonClient
+与 spring-data-redis 共存时不会循环依赖
+自定义 codec &#x2F; transportMode 更灵活
+启动失败堆栈更清晰
+
+
+① pom.xml（只引入 redisson 核心，不引入 starter）&lt;dependencies&gt;    &lt;dependency&gt;        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;    &lt;/dependency&gt;    &lt;!-- ⭐ 关键：只引入 redisson 核心，避免自动配置 --&gt;    &lt;dependency&gt;        &lt;groupId&gt;org.redisson&lt;/groupId&gt;        &lt;artifactId&gt;redisson&lt;/artifactId&gt;        &lt;version&gt;$&#123;redisson.version&#125;&lt;/version&gt;    &lt;/dependency&gt;&lt;/dependencies&gt;
+
+② 独立配置文件 src/main/resources/redisson.yaml# ⭐ Redisson 单机模式配置singleServerConfig:  address: &quot;redis://127.0.0.1:6379&quot;  password: null                # ⭐ 无密码必须写 null，不是 &quot;&quot;  database: 0  # 连接空闲超时（毫秒）  idleConnectionTimeout: 10000  # 连接超时  connectTimeout: 10000  # 命令等待超时  timeout: 3000  # 命令失败重试次数  retryAttempts: 3  # 重试间隔  retryInterval: 1500  # 单连接最大订阅数  subscriptionsPerConnection: 5  clientName: null  # 负载均衡（轮询）  loadBalancer: !&lt;org.redisson.connection.balancer.RoundRobinLoadBalancer&gt; &#123;&#125;  # 主节点连接池  connectionMinimumIdleSize: 8  connectionPoolSize: 32  # PING 检测间隔  pingConnectionInterval: 30000  # TCP 保持连接  tcpKeepAlive: true  tcpNoDelay: true# Netty 线程数（0 = CPU 核数 * 2）threads: 16nettyThreads: 32# ⭐ 序列化方式（推荐 Kryo5Codec 性能高；初学者先用 JsonJacksonCodec）codec: !&lt;org.redisson.codec.JsonJacksonCodec&gt; &#123;&#125;# NIO / EPOLL / KQUEUEtransportMode: &quot;NIO&quot;
+
+③ Java 配置类 RedissonConfig.javapackage com.example.redisson.config;import org.redisson.Redisson;import org.redisson.api.RedissonClient;import org.redisson.config.Config;import org.springframework.beans.factory.annotation.Value;import org.springframework.context.annotation.Bean;import org.springframework.context.annotation.Configuration;import org.springframework.core.io.Resource;import java.io.IOException;/** * ⭐ Redisson 手动 Java Config * 推荐用于生产环境：完全控制、与 spring-data-redis 共存无冲突 */@Configurationpublic class RedissonConfig &#123;    /** 从 classpath 加载 redisson.yaml */    @Value(&quot;classpath:redisson.yaml&quot;)    private Resource redissonYaml;    /**     * 创建并注册 RedissonClient Bean     * destroyMethod = &quot;shutdown&quot; 会在容器关闭时优雅释放连接     *     * @return RedissonClient 实例     * @throws IOException 读取 yaml 失败时抛出     */    @Bean(destroyMethod = &quot;shutdown&quot;)    public RedissonClient redissonClient() throws IOException &#123;        // 从 yaml 加载配置        Config config = Config.fromYAML(redissonYaml.getInputStream());        return Redisson.create(config);    &#125;&#125;
+
+④ 编程式配置（不依赖 yaml）/** * ⭐ 编程式配置 - 代码里写死配置项 * 适合配置简单的项目 */@Configurationpublic class RedissonProgrammaticConfig &#123;    @Bean(destroyMethod = &quot;shutdown&quot;)    public RedissonClient redissonClient() &#123;        Config config = new Config();        // ⭐ 单机模式 - 地址必须带 redis:// 前缀        config.useSingleServer()              .setAddress(&quot;redis://127.0.0.1:6379&quot;)              // ⭐ 无密码必须传 null              .setPassword(null)              .setDatabase(0)              .setConnectionPoolSize(32)              .setConnectionMinimumIdleSize(8)              .setTimeout(3000);        // ⭐ 替换序列化器（默认 Kryo5Codec）        config.setCodec(new JsonJacksonCodec());        return Redisson.create(config);    &#125;&#125;
+
+
+4. 配置详解：5 种连接模式 🔧4.1 单机模式（Single Mode） 🖥️singleServerConfig:  address: &quot;redis://127.0.0.1:6379&quot;  password: null  database: 0  connectionPoolSize: 32  connectionMinimumIdleSize: 8  timeout: 3000
+
+4.2 主从模式（Master-Slave Mode） 👥masterSlaveServersConfig:  # ⭐ Master 地址（带 redis:// 前缀）  masterAddress: &quot;redis://127.0.0.1:6379&quot;  # ⭐ Slave 列表（可多个）  slaveAddresses:    - &quot;redis://127.0.0.1:6380&quot;    - &quot;redis://127.0.0.1:6381&quot;  password: null  database: 0  # ⭐ 读模式：SLAVE / MASTER / MASTER_SLAVE  readMode: &quot;SLAVE&quot;  # 连接池  masterConnectionPoolSize: 64  masterConnectionMinimumIdleSize: 24  slaveConnectionPoolSize: 64  slaveConnectionMinimumIdleSize: 24  # 重试  retryAttempts: 3  retryInterval: 1500  timeout: 3000
+
+4.3 哨兵模式（Sentinel Mode） 🚦sentinelServersConfig:  masterName: &quot;mymaster&quot;  # ⭐ Sentinel 地址（不是 Redis 主从地址！）  sentinelAddresses:    - &quot;redis://127.0.0.1:26379&quot;    - &quot;redis://127.0.0.1:26380&quot;    - &quot;redis://127.0.0.1:26381&quot;  password: null  database: 0  # ⭐ 是否检查 Sentinel 列表（生产建议 false 避免重连风暴）  checkSentinelsList: false  readMode: &quot;SLAVE&quot;  subscriptionMode: &quot;SLAVE&quot;  masterConnectionPoolSize: 64  slaveConnectionPoolSize: 64  timeout: 3000  retryAttempts: 3
+
+4.4 集群模式（Cluster Mode） 🧩clusterServersConfig:  # ⭐ 至少 3 主 3 从  nodeAddresses:    - &quot;redis://127.0.0.1:7000&quot;    - &quot;redis://127.0.0.1:7001&quot;    - &quot;redis://127.0.0.1:7002&quot;    - &quot;redis://127.0.0.1:7003&quot;    - &quot;redis://127.0.0.1:7004&quot;    - &quot;redis://127.0.0.1:7005&quot;  password: null  # ⭐ 读模式  readMode: &quot;SLAVE&quot;  subscriptionMode: &quot;SLAVE&quot;  # ⭐ 集群状态扫描间隔  scanInterval: 2000  # 连接池  masterConnectionPoolSize: 64  masterConnectionMinimumIdleSize: 24  slaveConnectionPoolSize: 64  slaveConnectionMinimumIdleSize: 24  subscriptionConnectionPoolSize: 50  subscriptionConnectionMinimumIdleSize: 1  retryAttempts: 3  retryInterval: 1500  timeout: 3000
+
+
+⚠️ 踩坑：3.5+ 版本所有 Redis 地址必须带 redis:// 前缀，否则 IllegalArgumentException: Redis url should start with redis:// or rediss://。
+
+4.5 云托管（AWS &#x2F; Azure &#x2F; GCP） ☁️# AWS ElastiCacheawsElastiCacheServersConfig:  # ⭐ 每行一个主机:端口  - &quot;redis://my-cluster.xxx.use1.cache.amazonaws.com:6379&quot;# Azure Redis CacheazureCacheServersConfig:  - &quot;redis://mycache.redis.cache.windows.net:6380&quot;  password: &quot;yourAccessKey=&quot;# Google MemorystoregcpRedisServersConfig:  - &quot;redis://10.0.0.1:6379&quot;
+
+
+5. 分布式数据结构速查 📚Redisson 提供了 50+ 分布式对象，下面是常用速查表（按使用频率排序）：
+5.1 通用对象（5 个）
+
+
+对象
+底层
+典型场景
+关键 API
+
+
+
+RBucket&lt;T&gt;
+String
+缓存、配置中心
+set, get, getAndDelete
+
+
+RAtomicLong
+String+INCR
+分布式计数器
+incrementAndGet, addAndGet, compareAndSet
+
+
+RAtomicDouble
+String+INCRBYFLOAT
+分布式浮点计数
+getAndAdd, set
+
+
+RBitset
+String+GETBIT&#x2F;SETBIT
+用户标签、权限位
+set/get/testAndSet/Or/And
+
+
+RBinaryStream
+String
+分布式文件存储
+getOutputStream, getInputStream
+
+
+5.2 分布式集合（10 个）
+
+
+对象
+底层
+典型场景
+
+
+
+RMap&lt;K,V&gt;
+Hash
+通用 Map，最常用
+
+
+RMapCache&lt;K,V&gt;
+Hash + 单 key TTL
+带过期时间的 Map
+
+
+RLocalCachedMap&lt;K,V&gt;
+Hash + Caffeine
+高频读取，近缓存（最高 45x 提速）
+
+
+RClusteredMap&lt;K,V&gt;
+多 Key Hash
+集群下数据分片 Map
+
+
+RList&lt;T&gt;
+List
+队列、栈
+
+
+RQueue&lt;T&gt;
+List
+阻塞队列
+
+
+RBlockingQueue&lt;T&gt;
+List+BLPOP
+阻塞消费
+
+
+RDeque&lt;T&gt;
+List
+双端队列
+
+
+RSet&lt;T&gt;
+Set
+标签、去重
+
+
+RSortedSet&lt;T&gt;
+ZSet
+按分数排序
+
+
+RScoredSortedSet&lt;T&gt;
+ZSet
+排行榜
+
+
+RGeo&lt;T&gt;
+ZSet
+地理位置
+
+
+5.3 分布式锁与同步器（10 个）
+
+
+对象
+特性
+
+
+
+RLock
+可重入锁 + 看门狗
+
+
+RFairLock
+公平锁（FIFO）
+
+
+RReadWriteLock
+读写锁
+
+
+RMultiLock
+联锁（N 把锁全成功）
+
+
+RedissonRedLock
+⚠️ 已废弃，参见 §8
+
+
+RPermitExpirableSemaphore
+信号量（带过期）
+
+
+RSemaphore
+信号量
+
+
+RCountDownLatch
+倒计数器
+
+
+RBarrier
+屏障
+
+
+RFencedLock
+⭐ 带单调递增 token（替代 RedLock）
+
+
+5.4 高级服务（10+ 个）
+
+
+对象
+用途
+
+
+
+RRateLimiter
+令牌桶限流
+
+
+RBloomFilter
+布隆过滤器（防穿透）
+
+
+RCuckooFilter
+布谷鸟过滤器（支持删除）
+
+
+RHyperLogLog
+基数统计（UV）
+
+
+RTopic
+发布订阅
+
+
+RReliableTopic
+可靠发布订阅（持久化）
+
+
+RPatternTopic
+通配符订阅
+
+
+RDelayedQueue
+延迟队列
+
+
+RScheduledExecutorService
+分布式定时任务
+
+
+RRemoteService
+远程服务调用（Java RMI 风格）
+
+
+RTransaction
+Redis 事务
+
+
+RBucket(Binary Stream)
+分布式文件存储
+
+
+5.5 用法示例/** * 分布式数据结构综合示例 */@Servicepublic class RedissonDataStructures &#123;    @Autowired    private RedissonClient redisson;    /**     * RBucket：通用 K/V     */    public void bucketDemo() &#123;        RBucket&lt;User&gt; bucket = redisson.getBucket(&quot;user:1&quot;);        // set(对象, 过期时间, 单位)        bucket.set(new User(1L, &quot;Alice&quot;), 30, TimeUnit.MINUTES);        // 10 秒后过期        bucket.set(new User(1L, &quot;Bob&quot;), 10, TimeUnit.SECONDS);        // getOrSet        User user = bucket.get();        boolean existed = bucket.setIfAbsent(new User(1L, &quot;Charlie&quot;));    &#125;    /**     * RMap：分布式 Map     */    public void mapDemo() &#123;        RMap&lt;Long, User&gt; map = redisson.getMap(&quot;user:profile&quot;);        map.put(1L, new User(1L, &quot;Alice&quot;));        map.putIfAbsent(2L, new User(2L, &quot;Bob&quot;));        // ⭐ 分布式 Map 的 put 是原子的（基于 Lua）        // 不存在才放        map.computeIfAbsent(3L, id -&gt; new User(id, &quot;Charlie-&quot; + id));        // 遍历        map.entrySet().forEach(e -&gt; System.out.println(e.getKey() + &quot;=&quot; + e.getValue()));    &#125;    /**     * RMapCache：带 TTL 的 Map     */    public void mapCacheDemo() &#123;        RMapCache&lt;Long, User&gt; mapCache = redisson.getMapCache(&quot;user:profile:cache&quot;);        // put(键, 值, 过期时间, 单位) - 单 key 级别 TTL        mapCache.put(1L, new User(1L, &quot;Alice&quot;), 10, TimeUnit.MINUTES);        mapCache.put(2L, new User(2L, &quot;Bob&quot;), 5, TimeUnit.MINUTES);        // maxSize 限制        mapCache.putIfAbsent(3L, new User(3L, &quot;Charlie&quot;), 30, TimeUnit.SECONDS);    &#125;    /**     * RList / RQueue / RDeque     */    public void listDemo() &#123;        RList&lt;String&gt; list = redisson.getList(&quot;mylist&quot;);        list.add(&quot;a&quot;);        list.add(0, &quot;b&quot;);  // 头部插入        // ⭐ RList 也支持原子的 addIfAbsent / remove 等    &#125;    /**     * RAtomicLong：分布式原子计数     */    public void atomicLongDemo() &#123;        RAtomicLong counter = redisson.getAtomicLong(&quot;counter&quot;);        // ⭐ 经典 compareAndSet 用法        long oldValue;        do &#123;            oldValue = counter.get();        &#125; while (!counter.compareAndSet(oldValue, oldValue + 1));    &#125;&#125;
+
+
+6. 分布式锁专题（重点）🔐分布式锁是 Redisson 最常用、也最复杂的功能，本节详细剖析。
+6.1 锁的类型
+
+
+类型
+类
+特性
+适用场景
+
+
+
+可重入锁
+RLock
+默认类型，看门狗续期
+99% 场景
+
+
+公平锁
+RFairLock
+FIFO 队列
+强顺序要求
+
+
+读写锁
+RReadWriteLock
+读共享、写互斥
+读多写少
+
+
+联锁
+RMultiLock
+N 把锁全成功
+多资源保护
+
+
+围栏锁
+RFencedLock
+单调递增 token
+⚠️ 资金&#x2F;库存
+
+
+红锁
+RedissonRedLock
+⚠️ 已废弃
+❌ 新项目别用
+
+
+6.2 RLock 基础用法/** * RLock 三种典型用法 */@Service@Slf4jpublic class LockDemo &#123;    @Autowired    private RedissonClient redisson;    /**     * ⭐ 方式 1：lock() 无参（看门狗自动续期 30s）     * 适用：执行时间不可控的业务     */    public void method1() &#123;        RLock lock = redisson.getLock(&quot;order:lock:&quot; + 1001);        lock.lock();  // 默认 30s 租约，看门狗每 10s 续期        try &#123;            log.info(&quot;获取锁成功，执行业务&quot;);            // 业务逻辑（可能 1s，可能 1 小时都行）        &#125; finally &#123;            if (lock.isHeldByCurrentThread()) &#123;                lock.unlock();            &#125;        &#125;    &#125;    /**     * ⭐ 方式 2：tryLock(等待时间, 租约时间, 单位)     * 适用：需要&quot;限时抢锁&quot;的场景     */    public boolean method2() &#123;        RLock lock = redisson.getLock(&quot;order:lock:&quot; + 1001);        try &#123;            // 等待 3s，拿到后锁 10s 后自动过期（不会续期）            boolean ok = lock.tryLock(3, 10, TimeUnit.SECONDS);            if (!ok) &#123;                return false;            &#125;            // 业务            return true;        &#125; catch (InterruptedException e) &#123;            Thread.currentThread().interrupt();            return false;        &#125; finally &#123;            if (lock.isHeldByCurrentThread()) &#123;                lock.unlock();            &#125;        &#125;    &#125;    /**     * ⭐ 方式 3：tryLock() 立即返回（不等待）     * 适用：抢不到锁就立刻返回失败给用户     */    public boolean method3() &#123;        RLock lock = redisson.getLock(&quot;order:lock:&quot; + 1001);        try &#123;            // 不等待，立刻返回结果            boolean ok = lock.tryLock();            if (!ok) &#123;                return false;            &#125;            // 业务            return true;        &#125; finally &#123;            if (lock.isHeldByCurrentThread()) &#123;                lock.unlock();            &#125;        &#125;    &#125;&#125;
+
+6.3 锁的底层数据结构（Hash + Lua） 🔬Redisson 的 RLock 用 Redis Hash 存储，而非 String：
+# 锁的 keyHSET myLock &quot;UUID:threadId&quot; 1
+
+
+key &#x3D; 锁名（如 myLock）
+field &#x3D; &quot;UUID:threadId&quot;（UUID 防多实例冲突）
+value &#x3D; 重入计数（同线程多次加锁计数 +1）
+
+加锁 Lua 脚本（RedissonLock.java#L213-L223）if ((redis.call(&#x27;exists&#x27;, KEYS[1]) == 0)     or (redis.call(&#x27;hexists&#x27;, KEYS[1], ARGV[2]) == 1)) then    redis.call(&#x27;hincrby&#x27;, KEYS[1], ARGV[2], 1);  -- 重入 +1    redis.call(&#x27;pexpire&#x27;, KEYS[1], ARGV[1]);     -- 设置/续期    return nil;                                   -- 加锁成功end;return redis.call(&#x27;pttl&#x27;, KEYS[1]);               -- 返回剩余 TTL
+
+解锁 Lua 脚本（RedissonLock.java#L339-L363）-- 1. 不是自己的锁 → 拒绝（防误删）if (redis.call(&#x27;hexists&#x27;, KEYS[1], ARGV[3]) == 0) then    return nil;end;-- 2. 重入 -1local counter = redis.call(&#x27;hincrby&#x27;, KEYS[1], ARGV[3], -1);if (counter &gt; 0) then    redis.call(&#x27;pexpire&#x27;, KEYS[1], ARGV[2]);  -- 还有重入,续期    return 0;else    redis.call(&#x27;del&#x27;, KEYS[1]);               -- 真释放    redis.call(&#x27;publish&#x27;, KEYS[2], ARGV[1]);  -- Pub/Sub 通知等待者    return 1;end;
+
+6.4 可重入锁的妙用/** * 业务方法 A 调用业务方法 B，B 也需要同一把锁 * 传统 synchronized/ReentrantLock 天然支持可重入 * Redisson 用 Hash 计数模拟&quot;线程持锁计数&quot; */@Servicepublic class OrderService &#123;    @Autowired    private RedissonClient redisson;    public void createOrder(Long orderId) &#123;        RLock lock = redisson.getLock(&quot;order:&quot; + orderId);        lock.lock();        try &#123;            // ⭐ 同线程递归调用 checkStock，无需重新加锁            checkStock(orderId);            // 业务逻辑        &#125; finally &#123;            lock.unlock();        &#125;    &#125;    public void checkStock(Long orderId) &#123;        RLock lock = redisson.getLock(&quot;order:&quot; + orderId);        // ⭐ 因为是同一线程, hexists=1 命中，计数 +1        lock.lock();        try &#123;            // 校验库存...        &#125; finally &#123;            lock.unlock();  // 计数 -1，不真正释放        &#125;    &#125;&#125;
+
+6.5 读写锁/** * RReadWriteLock 适合&quot;读多写少&quot;场景 * - 多个线程可同时读 * - 写时所有读和写都阻塞 */@Servicepublic class CacheService &#123;    @Autowired    private RedissonClient redisson;    public Object read(String key) &#123;        RReadWriteLock rwLock = redisson.getReadWriteLock(&quot;cache:&quot; + key);        RLock readLock = rwLock.readLock();        readLock.lock();        try &#123;            // 读 Redis            return redisson.getBucket(key).get();        &#125; finally &#123;            readLock.unlock();        &#125;    &#125;    public void write(String key, Object value) &#123;        RReadWriteLock rwLock = redisson.getReadWriteLock(&quot;cache:&quot; + key);        RLock writeLock = rwLock.writeLock();        writeLock.lock();        try &#123;            redisson.getBucket(key).set(value);        &#125; finally &#123;            writeLock.unlock();        &#125;    &#125;&#125;
+
+6.6 联锁（MultiLock）/** * ⭐ 同时锁住多个资源 * 场景：转账时同时锁&quot;转出账户&quot;和&quot;转入账户&quot; */public void transfer(Long from, Long to, BigDecimal amount) &#123;    RLock lock1 = redisson.getLock(&quot;account:&quot; + from);    RLock lock2 = redisson.getLock(&quot;account:&quot; + to);    // ⭐ 两把锁都加上才算成功    RLock multiLock = redisson.getMultiLock(lock1, lock2);    multiLock.lock();    try &#123;        // 转账逻辑    &#125; finally &#123;        multiLock.unlock();    &#125;&#125;
+
+6.7 信号量（Semaphore）/** * ⭐ 限流场景：停车场只 100 个车位 */@Servicepublic class ParkingService &#123;    @Autowired    private RedissonClient redisson;    public boolean enter() &#123;        RSemaphore semaphore = redisson.getSemaphore(&quot;parking:100&quot;);        // ⭐ acquire() 阻塞等待, tryAcquire() 立刻返回        return semaphore.tryAcquire();    &#125;    public void leave() &#123;        RSemaphore semaphore = redisson.getSemaphore(&quot;parking:100&quot;);        semaphore.release();  // 释放一个许可证    &#125;&#125;
+
+6.8 倒计数器（CountDownLatch）/** * ⭐ 协调多线程：等所有子任务完成 */public void awaitTasks(List&lt;String&gt; taskIds) &#123;    RCountDownLatch latch = redisson.getCountDownLatch(&quot;task:latch:&quot; + System.currentTimeMillis());    latch.trySetCount(taskIds.size());    // 启动子线程    for (String taskId : taskIds) &#123;        new Thread(() -&gt; &#123;            doTask(taskId);            latch.countDown();  // 减 1        &#125;).start();    &#125;    try &#123;        latch.await(30, TimeUnit.SECONDS);  // 主线程等所有子任务完成    &#125; catch (InterruptedException e) &#123;        Thread.currentThread().interrupt();    &#125;&#125;
+
+6.9 围栏锁（RFencedLock）⭐ 重要/** * ⭐ RFencedLock：带单调递增 token 的锁（替代 RedLock） * 场景：资金/库存等&quot;正确性&quot;场景 *  * 原理：拿锁同时获取一个单调递增的 token， *      业务侧写存储时把 token 一起带上， *      存储拒绝 token 旧于当前最大的写入 */@Servicepublic class PaymentService &#123;    @Autowired    private RedissonClient redisson;    public void pay(Long userId, BigDecimal amount) &#123;        RFencedLock lock = redisson.getFencedLock(&quot;pay:lock&quot;);        // ⭐ 加锁并获取单调递增 token        Long token = lock.lockAndGetToken();        try &#123;            // 把 token 传给下游服务（数据库、库存系统等）            // 下游服务要拒绝 token 旧于已记录最大 token 的写入            paymentDb.charge(userId, amount, token);        &#125; finally &#123;            lock.unlock();        &#125;    &#125;&#125;
+
+
+7. 看门狗（WatchDog）原理 ⏱️看门狗是 Redisson 分布式锁的灵魂特性，解决了”锁过期 vs 业务执行时间”的经典难题。
+7.1 问题来源如果手动设置锁过期时间为 10 秒，但业务执行了 15 秒：
+
+T&#x3D;0s：加锁成功，TTL &#x3D; 10s
+T&#x3D;10s：锁自动过期
+T&#x3D;10.001s：另一个线程加锁成功（双重执行）
+T&#x3D;15s：原业务执行完，调 unlock() 释放了别人的锁 ❌
+
+7.2 Redisson 的解法加锁成功后启动一个守护线程，每隔 lockWatchdogTimeout / 3 毫秒执行一段 Lua 脚本，把锁的 pexpire 重置为 lockWatchdogTimeout。
+
+**默认 lockWatchdogTimeout = 30 秒**（Config.java#L81）
+续期间隔 &#x3D; 30s &#x2F; 3 &#x3D; 10 秒
+
+时序图：
+T=0s     lock.lock() → 加锁成功, leaseTime=30s → 启动看门狗T=10s    看门狗续期 → pexpire 30sT=20s    看门狗续期 → pexpire 30sT=30s    看门狗续期 → pexpire 30sT=...    业务执行完 → lock.unlock() → 取消看门狗T=40s    [无续期] → 锁自然过期
+
+7.3 源码解析默认配置（Config.java#L81）：
+private long lockWatchdogTimeout = 30 * 1000;  // 30 秒
+
+续期间隔（RenewalTask.java#L62-L69）：
+public void schedule() &#123;    if (!running.get()) &#123;        return;    &#125;    long internalLockLeaseTime = executor.getServiceManager().getCfg().getLockWatchdogTimeout();    executor.getServiceManager().newTimeout(this, internalLockLeaseTime / 3, TimeUnit.MILLISECONDS);    //                                          ↑ 关键：30s / 3 = 每 10 秒续期一次&#125;
+
+续期 Lua 脚本（LockTask.java#L82-L95）：
+local result = &#123;&#125;for i = 1, #KEYS, 1 do    if (redis.call(&#x27;hexists&#x27;, KEYS[i], ARGV[i + 1]) == 1) then        redis.call(&#x27;pexpire&#x27;, KEYS[i], ARGV[1]);  -- 续期到 30s        table.insert(result, 1);    else        table.insert(result, 0);  -- 锁已被释放,停止续期    end;end;return result;
+
+7.4 触发看门狗的关键条件只有当 leaseTime == -1 时才会启动看门狗（即不传 leaseTime）：
+// ✅ 启动看门狗（不传 leaseTime）lock.lock();lock.tryLock(3, TimeUnit.SECONDS);  // 不传 leaseTime// ❌ 不启动看门狗（传了 leaseTime）lock.lock(10, TimeUnit.SECONDS);lock.tryLock(3, 10, TimeUnit.SECONDS);
+
+
+⚠️ 常见误区：很多新手为了”图安全”手动设置 leaseTime，结果反而把看门狗废了，业务执行超时就丢锁。
+
+7.5 修改看门狗默认值Config config = new Config();config.setLockWatchdogTimeout(15000);  // 改为 15 秒，续期 5 秒
+
+或 yaml：
+lockWatchdogTimeout: 15000
+
+7.6 看门狗的危险边界
+GC pause &gt; 续期间隔（10s）：锁可能丢失，必须靠业务幂等兜底
+Redis 失联 &gt; 重试超时：续期失败，锁丢失
+客户端崩溃：看门狗线程销毁，锁自然过期（30s 内）
+
+
+8. RedLock 算法争议与 Redisson 官方态度 ⚔️这是 Redisson 面试的”高级考点”，也是 2024 年后分布式系统领域的重要话题。
+8.1 什么是 RedLock2014 年，Redis 作者 Antirez 在《A proposal for more reliable locks using Redis》中提出 RedLock 算法，用 5 个完全独立的 Redis 实例 多数派加锁（N&#x2F;2+1）来提高锁的可靠性。
+五步法：
+Step 1: 客户端记录时间 T1Step 2: 依次向 5 个 Redis 实例 SET key val NX PX 30000Step 3: 记录时间 T2,计算 elapsed = T2 - T1Step 4: 成功条件: ≥3 个加锁成功 + elapsed &lt; TTLStep 5: 实际有效期 = TTL - elapsed - clock_drift
+
+8.2 Martin Kleppmann 的批评（2016 年）2016 年，分布式系统大神 Martin Kleppmann 发表《How to do distributed locking》，从时序假设角度批评 RedLock 的安全性。
+核心论据：
+
+
+
+维度
+Antirez
+Kleppmann
+
+
+
+进程暂停
+GC 停顿可控
+GC 暂停可达数十秒，远超 TTL
+
+
+网络延迟
+稳定内网 &lt; 几 ms
+GitHub 实际发生过 90s 包延迟
+
+
+时钟漂移
+可控
+任何”时序上界”假设都脆弱
+
+
+fencing token
+不必要
+缺少单调递增 token，存储无法拒绝旧写
+
+
+
+📌 Kleppmann 原文核心句：*”the Redlock algorithm… does not have any facility for generating fencing tokens… if the algorithm were otherwise perfect, it would not be safe to use”*
+
+8.3 Antirez 的反驳Antirez 在《Is Redlock safe?》中承认应使用 monotonic clock，但坚持 RedLock 在合理假设下是安全的。
+8.4 Redisson 官方的态度（2024 年起）重磅：Redisson 官方已将 RedissonRedLock **标记为 @Deprecated**，推荐使用 RLock + RFencedLock 替代。
+📌 官方文档原文（redisson.pro&#x2F;docs）：
+
+RedLockThis object is deprecated. Refer to this article for more details. Superseded by RLock and RFencedLock objects.
+
+源码印证（RedissonRedLock.java#L31）：
+@Deprecatedpublic class RedissonRedLock extends RedissonMultiLock &#123;    // ...&#125;
+
+8.5 RFencedLock：Redisson 的”新答案”/** * ⭐ RFencedLock 实现 Kleppmann 提出的 fencing token 思想 * 用 INCR 全局计数器生成单调递增的 token */RFencedLock lock = redisson.getFencedLock(&quot;pay:lock&quot;);Long token = lock.lockAndGetToken();try &#123;    // token 传给下游服务    // 下游服务拒绝 token &lt; 已记录最大 token 的写入    paymentService.charge(userId, amount, token);&#125; finally &#123;    lock.unlock();&#125;
+
+8.6 业界最终共识
+
+
+方案
+适用场景
+
+
+
+单 Redis + 业务幂等
+“效率型锁”：防重复发短信、防重复跑批
+
+
+RFencedLock
+“正确性锁”：库存扣减、资金结算（实验性）
+
+
+ZooKeeper &#x2F; etcd
+强一致场景（性能较差）
+
+
+❌ RedLock
+新项目别用
+
+
+
+💡 最佳实践：业务幂等 + Redis 锁 双保险是 90% 场景的黄金组合。
+
+
+9. 分布式服务（Executor&#x2F;Scheduler&#x2F;Topic） 🌐9.1 分布式定时任务/** * ⭐ RScheduledExecutorService * 替代 Spring @Scheduled，但支持多机&quot;只执行一次&quot; */@Configurationpublic class RedissonTaskConfig &#123;    @Bean(destroyMethod = &quot;shutdown&quot;)    public ThreadPoolExecutor redissonTaskThreadPool() &#123;        return new ThreadPoolExecutor(                4, 8,                60, TimeUnit.SECONDS,                new LinkedBlockingQueue&lt;&gt;(1000),                r -&gt; &#123;                    Thread t = new Thread(r, &quot;redisson-task-&quot; + System.currentTimeMillis());                    t.setDaemon(true);                    return t;                &#125;        );    &#125;    @Bean(destroyMethod = &quot;&quot;)    public RScheduledExecutorService rScheduledExecutorService(            RedissonClient redissonClient,            ThreadPoolExecutor redissonTaskThreadPool) &#123;        RScheduledExecutorService executor =                redissonClient.getExecutorService(&quot;myTaskScheduler&quot;);        WorkerOptions workerOptions = WorkerOptions.defaults()                .workers(2)                .taskTimeout(60, TimeUnit.SECONDS)                .retryAttempts(3)                .executorService(redissonTaskThreadPool);        executor.registerWorkers(workerOptions);        return executor;    &#125;&#125;/** * 定时任务必须实现 Serializable */@Slf4jpublic class DailyStatisticsTask implements Runnable, Serializable &#123;    private static final long serialVersionUID = 1L;    @Override    public void run() &#123;        log.info(&quot;执行每日统计任务&quot;);        // 业务逻辑    &#125;&#125;/** * 注册定时任务 */@Componentpublic class TaskLauncher implements CommandLineRunner &#123;    @Autowired    private RScheduledExecutorService executor;    @Override    public void run(String... args) throws Exception &#123;        // 方式 1：CRON 表达式（每日 0 点）        RScheduledFuture&lt;?&gt; daily = executor.schedule(                new DailyStatisticsTask(),                CronSchedule.of(&quot;0 0 0 * * ?&quot;)        );        // 方式 2：固定频率（每 30 分钟）        RScheduledFuture&lt;?&gt; heartbeat = executor.scheduleAtFixedRate(                new HeartbeatTask(), 1, 30, TimeUnit.MINUTES        );        // 方式 3：固定延迟（任务结束后再等 5 分钟）        executor.scheduleWithFixedDelay(                new DataCleanupTask(), 5, 5, TimeUnit.MINUTES        );    &#125;&#125;
+
+9.2 分布式发布订阅/** * RTopic：普通发布订阅（不持久化） */@Servicepublic class TopicService &#123;    @Autowired    private RedissonClient redisson;    public void publishMessage() &#123;        RTopic topic = redisson.getTopic(&quot;order:status&quot;);        // ⭐ 同步发布，返回订阅者数量        long receivers = topic.publish(&quot;ORDER_PAID&quot;);        System.out.println(&quot;通知了 &quot; + receivers + &quot; 个订阅者&quot;);    &#125;    @EventListener(ApplicationReadyEvent.class)    public void subscribe() &#123;        RTopic topic = redisson.getTopic(&quot;order:status&quot;);        // ⭐ 订阅消息        topic.addListener(String.class, (channel, msg) -&gt; &#123;            log.info(&quot;收到消息: &#123;&#125;&quot;, msg);        &#125;);    &#125;&#125;/** * RReliableTopic：可靠发布订阅（持久化，消息可重发） */@Servicepublic class ReliableTopicService &#123;    public void reliableDemo() &#123;        // ⭐ 可靠 Topic，消息存 ZSet，未 ack 会重发        RReliableTopic topic = redisson.getReliableTopic(&quot;order:critical&quot;);        topic.publish(new OrderEvent(&quot;ORDER_PAID&quot;, 1001L));    &#125;&#125;
+
+9.3 远程服务调用（RRemoteService）/** * ⭐ RRemoteService：Java RMI 风格分布式调用 * 适合&quot;内部服务间&quot;的高频小数据量调用 */// 服务端：注册远程服务@Beanpublic RRemoteService remoteService(RedissonClient redisson) throws Exception &#123;    RRemoteService rs = redisson.getRemoteService(&quot;userService&quot;);    rs.register(UserService.class, new UserServiceImpl());    return rs;&#125;// 客户端：调用远程服务@Beanpublic UserService userServiceClient(RedissonClient redisson) &#123;    return redisson.getRemoteService(&quot;userService&quot;).get(UserService.class);&#125;
+
+
+10. 布隆过滤器与限流器 🚦10.1 布隆过滤器（防缓存穿透）/** * ⭐ RBloomFilter：判断&quot;一定不存在&quot;（O(K)，极省空间） * 场景：缓存穿透防护、用户名去重 */@Servicepublic class BloomFilterService &#123;    @Autowired    private RedissonClient redisson;    /**     * 系统启动时把数据库中所有 ID 灌入布隆过滤器     */    @PostConstruct    public void init() &#123;        RBloomFilter&lt;Long&gt; filter = redisson.getBloomFilter(&quot;userIdBloomFilter&quot;);        // ⭐ tryInit(预计元素数, 误判率)        filter.tryInit(100_000_000L, 0.001);  // 1亿容量, 0.1% 误判        // 灌入数据        List&lt;Long&gt; allIds = userDao.findAllIds();        filter.add(allIds);    &#125;    /**     * 查询前先过布隆过滤器     * @return true=可能存在(要去查DB), false=一定不存在(直接返回)     */    public boolean mightExist(Long userId) &#123;        RBloomFilter&lt;Long&gt; filter = redisson.getBloomFilter(&quot;userIdBloomFilter&quot;);        return filter.contains(userId);    &#125;&#125;/** * Service 层使用示例 */@Servicepublic class UserService &#123;    @Autowired    private BloomFilterService bloomFilter;    public User getUser(Long id) &#123;        // ⭐ 第一关：布隆过滤器（挡住 99% 的不存在的 key）        if (!bloomFilter.mightExist(id)) &#123;            return null;  // 一定不存在,直接返回        &#125;        // 第二关：查 Redis        // 第三关：查 DB        return userDao.findById(id);    &#125;&#125;
+
+布隆过滤器原理：
+
+用 K 个哈希函数 把元素映射到位数组的 K 个位置，全部置 1
+查询时 K 个位置都是 1 → “可能存在“（有误判）
+任一位置 0 → “一定不存在“
+✅ 插入&#x2F;查询 O(K)，空间极省
+❌ 不能删除（强行删除会破坏其他元素的哈希位）
+⚠️ 有误判率（可用 m = -n·lnp / (ln2)² 算位数组大小）
+
+10.2 限流器（令牌桶）/** * ⭐ RRateLimiter：令牌桶限流 * 场景：API 防刷、秒杀削峰 */@Servicepublic class RateLimitService &#123;    @Autowired    private RedissonClient redisson;    /**     * 全局限流：每秒 100 个请求，允许突发 200 个令牌     */    public boolean checkGlobalLimit() &#123;        RRateLimiter limiter = redisson.getRateLimiter(&quot;api:global:limit&quot;);        // ⭐ 初始化：rate=100 令牌/秒, interval=1秒, burst=200        limiter.trySetRate(RateType.OVERALL, 100, 1, RateIntervalUnit.SECONDS, 200);        // 非阻塞获取        return limiter.tryAcquire(1);    &#125;    /**     * 单用户限流：每个用户每分钟 60 个请求     */    public boolean checkUserLimit(Long userId) &#123;        RRateLimiter limiter = redisson.getRateLimiter(&quot;api:user:limit:&quot; + userId);        // ⭐ 60 个/分钟        limiter.trySetRate(RateType.PER_CLIENT, 60, 1, RateIntervalUnit.MINUTES);        return limiter.tryAcquire(1);    &#125;&#125;/** * Controller 配合 AOP 使用 */@RestControllerpublic class ApiController &#123;    @Autowired    private RateLimitService rateLimit;    @GetMapping(&quot;/api/expensive&quot;)    public String expensive() &#123;        if (!rateLimit.checkGlobalLimit()) &#123;            return &quot;429 Too Many Requests&quot;;        &#125;        return &quot;OK&quot;;    &#125;&#125;
+
+令牌桶 vs 漏桶：
+
+
+
+算法
+原理
+特点
+适用场景
+
+
+
+漏桶
+任意速率进水，固定速率漏水
+强制匀速，流量整形
+保护下游（如 DB）
+
+
+令牌桶
+固定速率放令牌，拿令牌才能通过
+允许突发流量（攒的令牌可一次性消耗）
+API 限流（Redisson 用这个）
+
+
+
+⚠️ 大坑预警：高 QPS（10w+）下纯 RRateLimiter 会成为瓶颈，生产方案是”本地限流 + Redis 限流”双层。
+
+
+11. 排行榜与延迟队列 🏆⏰11.1 实时排行榜（RScoredSortedSet）/** * ⭐ RScoredSortedSet：实时排行榜（底层 ZSet） * 场景：游戏积分榜、热搜榜 */@Servicepublic class LeaderboardService &#123;    @Autowired    private RedissonClient redisson;    private static final String BOARD_KEY = &quot;game:leaderboard&quot;;    /**     * ⭐ 提交玩家分数     */    public Long submitScore(Long playerId, double score) &#123;        RScoredSortedSet&lt;Long&gt; board = redisson.getScoredSortedSet(BOARD_KEY, LongCodec.INSTANCE);        board.addScore(playerId, score);        // 查自己排名（降序，从 0 开始）        Integer rank = board.reverseRank(playerId);        return rank == null ? null : (long) (rank + 1);    &#125;    /**     * ⭐ 获取 Top N     */    public List&lt;RankInfo&gt; getTopN(int n) &#123;        RScoredSortedSet&lt;Long&gt; board = redisson.getScoredSortedSet(BOARD_KEY, LongCodec.INSTANCE);        // ⭐ entryRangeReversed(0, n-1) = 降序前 N 名        Collection&lt;ScoredEntry&lt;Long&gt;&gt; top = board.entryRangeReversed(0, n - 1);        List&lt;RankInfo&gt; result = new ArrayList&lt;&gt;();        int rank = 1;        for (ScoredEntry&lt;Long&gt; entry : top) &#123;            result.add(new RankInfo(rank++, entry.getValue(), entry.getScore()));        &#125;        return result;    &#125;    /**     * ⭐ 获取玩家周围排名（自己 + 前后 M 名）     */    public List&lt;RankInfo&gt; getAroundPlayer(Long playerId, int m) &#123;        RScoredSortedSet&lt;Long&gt; board = redisson.getScoredSortedSet(BOARD_KEY, LongCodec.INSTANCE);        Integer myRank = board.reverseRank(playerId);        if (myRank == null) return Collections.emptyList();        long start = Math.max(0, myRank - m);        long end = myRank + m;        Collection&lt;ScoredEntry&lt;Long&gt;&gt; entries = board.entryRangeReversed(start, end);        return entries.stream().map(e -&gt; new RankInfo(                board.reverseRank(e.getValue()) + 1, e.getValue(), e.getScore()        )).collect(Collectors.toList());    &#125;&#125;@Data@AllArgsConstructorclass RankInfo &#123;    private Integer rank;    private Long playerId;    private Double score;&#125;
+
+11.2 延迟队列（RDelayedQueue）/** * ⭐ RDelayedQueue：延迟队列（底层 ZSet + List） * 场景：订单 30 分钟未支付自动关闭 */@Service@Slf4jpublic class OrderTimeoutService &#123;    @Autowired    private RedissonClient redisson;    private static final String QUEUE_NAME = &quot;order:pay:timeout&quot;;    private RBlockingQueue&lt;Long&gt; blockingQueue;    private RDelayedQueue&lt;Long&gt; delayedQueue;    /**     * 启动消费者线程     */    @PostConstruct    public void start() &#123;        this.blockingQueue = redisson.getBlockingQueue(QUEUE_NAME);        this.delayedQueue = redisson.getDelayedQueue(blockingQueue);        // ⭐ 后台线程阻塞监听        new Thread(() -&gt; &#123;            blockingQueue.subscribeOnElements(orderId -&gt; &#123;                log.info(&quot;订单 &#123;&#125; 到期,处理超时关闭&quot;, orderId);                handleOrderTimeout(orderId);            &#125;);        &#125;, &quot;order-timeout-consumer&quot;).start();    &#125;    /**     * ⭐ 投递延迟任务（下单成功后调用）     */    public void scheduleTimeout(Long orderId) &#123;        // 30 分钟后到期        delayedQueue.offer(orderId, 30, TimeUnit.MINUTES);    &#125;    /**     * 取消延迟任务（用户主动支付时调用）     */    public void cancelTimeout(Long orderId) &#123;        delayedQueue.remove(orderId);    &#125;    private void handleOrderTimeout(Long orderId) &#123;        // 关闭订单 + 恢复库存    &#125;&#125;
+
+底层原理（摘自 RedissonDelayedQueue.java#L54-L71）：
+-- 扫描到期元素local expiredValues = redis.call(&#x27;zrangebyscore&#x27;, KEYS[2], 0, ARGV[1], &#x27;limit&#x27;, 0, ARGV[2]);if #expiredValues &gt; 0 then    for i, v in ipairs(expiredValues) do        redis.call(&#x27;rpush&#x27;, KEYS[1], value);  -- 到期元素移到 List        redis.call(&#x27;lrem&#x27;, KEYS[3], 1, v);    -- 从 ZSet 移除    end;end;
+
+
+⚠️ 数据不持久化：Redis 崩溃后延迟队列数据丢失，金融场景请用 RabbitMQ 延迟插件。
+
+
+12. Spring Cache &#x2F; Session &#x2F; Transaction 整合 🌱12.1 Spring Cache 整合&lt;!-- ⭐ 引入 Spring Cache 支持 --&gt;&lt;dependency&gt;    &lt;groupId&gt;org.redisson&lt;/groupId&gt;    &lt;artifactId&gt;redisson-spring-cache&lt;/artifactId&gt;    &lt;version&gt;$&#123;redisson.version&#125;&lt;/version&gt;&lt;/dependency&gt;
+
+/** * ⭐ CacheManager 配置 */@Configuration@EnableCaching   // 启用注解支持public class CacheConfig &#123;    @Bean    public RedissonSpringCacheManager cacheManager(RedissonClient redissonClient) &#123;        Map&lt;String, CacheConfig&gt; config = new HashMap&lt;&gt;();        // 1️⃣ 普通缓存：30 分钟过期        config.put(&quot;userCache&quot;, new CacheConfig(30 * 60 * 1000L, 10 * 60 * 1000L));        // 2️⃣ 高频访问缓存（带本地缓存，性能提升 45x）        LocalCachedMapOptions localOptions = LocalCachedMapOptions.defaults()                .evictionPolicy(EvictionPolicy.LFU)                .cacheSize(1000)                .timeToLive(10, TimeUnit.MINUTES)                .maxIdle(5, TimeUnit.MINUTES);        LocalCachedCacheConfig localCfg =                new LocalCachedCacheConfig(30 * 60 * 1000L, 10 * 60 * 1000L, localOptions);        localCfg.setMaxSize(2000);        config.put(&quot;hotUserCache&quot;, localCfg);        return new RedissonSpringCacheManager(redissonClient, config);    &#125;&#125;/** * ⭐ Service 用标准 @Cacheable 注解 */@Servicepublic class UserService &#123;    @Cacheable(value = &quot;userCache&quot;, key = &quot;#id&quot;, unless = &quot;#result == null&quot;)    public User getUser(Long id) &#123;        // 查 DB        return userDao.findById(id);    &#125;    @CacheEvict(value = &quot;userCache&quot;, key = &quot;#user.id&quot;)    public User updateUser(User user) &#123;        return userDao.update(user);    &#125;&#125;
+
+12.2 Spring Session 整合&lt;dependency&gt;    &lt;groupId&gt;org.springframework.session&lt;/groupId&gt;    &lt;artifactId&gt;spring-session-data-redis&lt;/artifactId&gt;&lt;/dependency&gt;&lt;dependency&gt;    &lt;groupId&gt;org.redisson&lt;/groupId&gt;    &lt;artifactId&gt;redisson-spring-data-34&lt;/artifactId&gt;    &lt;version&gt;$&#123;redisson.version&#125;&lt;/version&gt;&lt;/dependency&gt;
+
+# ⭐ Redis 服务端必须开启 keyspace 通知redis-cli config set notify-keyspace-events Exg
+
+/** * ⭐ Spring Session + Redisson 整合 */@Configuration@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800)  // 30 分钟过期public class SpringSessionConfig &#123;    @Bean    public RedissonConnectionFactory redissonConnectionFactory(RedissonClient redisson) &#123;        return new RedissonConnectionFactory(redisson);    &#125;&#125;@RestController@RequestMapping(&quot;/session&quot;)public class SessionController &#123;    @GetMapping(&quot;/set&quot;)    public String set(HttpSession session) &#123;        session.setAttribute(&quot;userId&quot;, &quot;1001&quot;);        return &quot;sessionId=&quot; + session.getId();    &#125;&#125;
+
+12.3 Spring Transaction 整合（Redis 层事务）/** * ⭐ RedissonTransactionManager - 实现 Spring 的 PlatformTransactionManager * ⚠️ 注意：Redisson 事务是 Redis 层的 MULTI/EXEC，不是 XA 强一致事务 */@Configuration@EnableTransactionManagementpublic class TransactionConfig &#123;    @Bean    public RedissonTransactionManager transactionManager(RedissonClient redisson) &#123;        return new RedissonTransactionManager(redisson);    &#125;&#125;@Servicepublic class OrderService &#123;    @Autowired    private RedissonTransactionManager txManager;    /**     * ⭐ 用 @Transactional + Redisson 事务     */    @Transactional    public void placeOrder(String orderId, String sku, int qty) &#123;        // 获取当前事务        RTransaction tx = txManager.getCurrentTransaction();        RMap&lt;String, String&gt; orders = tx.getMap(&quot;orders&quot;);        RMap&lt;String, Integer&gt; stock = tx.getMap(&quot;stock&quot;);        orders.put(orderId, sku);        int remain = stock.getOrDefault(sku, 0);        if (remain &lt; qty) &#123;            throw new RuntimeException(&quot;库存不足！&quot;);  // 触发回滚        &#125;        stock.put(sku, remain - qty);        // 方法结束自动 commit    &#125;&#125;
+
+
+13. 3 个完整实战项目 🏗️项目一：电商秒杀系统
+场景：1 万件 iPhone 15 Pro 在 1 秒内被 100 万人抢，要保证”不超卖”+”不重复”+”体验好”。
+
+核心策略：
+
+令牌桶限流 → 拦截 90% 流量
+分布式锁 → 保证库存扣减原子性
+库存预扣（RAtomicLong）→ 避免每请求都查 DB
+结果广播（RTopic）→ 通知用户秒杀结果
+
+/** * ⭐ 秒杀核心服务 */@Service@RequiredArgsConstructor@Slf4jpublic class SeckillService &#123;    private final RedissonClient redissonClient;    // 限流器: 每秒 1w 个令牌    @PostConstruct    public void init() &#123;        RRateLimiter limiter = redissonClient.getRateLimiter(&quot;seckill:rate&quot;);        limiter.trySetRate(RateType.OVERALL, 10_000, 1, RateIntervalUnit.SECONDS);    &#125;    /**     * 秒杀主流程     */    public Long seckill(Long userId, Long itemId) &#123;        // ===== 第 1 关：限流 =====        RRateLimiter limiter = redissonClient.getRateLimiter(&quot;seckill:rate&quot;);        if (!limiter.tryAcquire()) &#123;            throw new BusinessException(429, &quot;系统繁忙,请稍后再试&quot;);        &#125;        // ===== 第 2 关：分布式锁 + Lua 原子扣库存 =====        String lockKey = &quot;seckill:lock:&quot; + itemId + &quot;:&quot; + userId;        RLock lock = redissonClient.getLock(lockKey);        try &#123;            if (!lock.tryLock(100, 30_000, TimeUnit.MILLISECONDS)) &#123;                throw new BusinessException(409, &quot;请求处理中,请勿重复提交&quot;);            &#125;            // ⭐ 用 Lua 脚本原子扣库存（避免 TOCTOU 漏洞）            String lua = &quot;local stock = tonumber(redis.call(&#x27;get&#x27;, KEYS[1])) &quot; +                         &quot;if stock == nil or stock &lt;= 0 then return -1 end &quot; +                         &quot;redis.call(&#x27;decr&#x27;, KEYS[1]) &quot; +                         &quot;return stock - 1&quot;;            RScript script = redissonClient.getScript(StringCodec.INSTANCE);            Long remaining = script.eval(                    RScript.Mode.READ_WRITE, lua,                    RScript.ReturnType.INTEGER,                    Collections.singletonList(&quot;seckill:stock:&quot; + itemId)            );            if (remaining == null || remaining &lt; 0) &#123;                throw new BusinessException(500, &quot;已售罄&quot;);            &#125;            // ===== 第 3 关：写订单（DB 唯一索引兜底防一人多单） =====            Long orderId = createOrder(userId, itemId);            // ===== 第 4 关：通知用户 =====            RTopic topic = redissonClient.getTopic(&quot;seckill:result&quot;);            topic.publish(new SeckillMessage(userId, itemId, remaining));            return orderId;        &#125; catch (InterruptedException e) &#123;            Thread.currentThread().interrupt();            throw new BusinessException(500, &quot;系统异常&quot;);        &#125; finally &#123;            if (lock.isHeldByCurrentThread()) &#123;                lock.unlock();            &#125;        &#125;    &#125;&#125;
+
+项目二：分布式排行榜见 §11.1，完整代码展示了 Top N 查询、个人排名、周围排名 三种用法。
+项目三：分布式 Session + 限流 + 延迟队列组合/** * ⭐ 组合实战：用户登录 → 加积分 → 投递 30 天不活跃召回任务 */@Servicepublic class UserBonusService &#123;    @Autowired    private RedissonClient redisson;    /**     * 用户首次登录：加 10 积分 + 投递 30 天召回任务     */    public void onFirstLogin(Long userId) &#123;        // 1. 加积分（排行榜分数）        RScoredSortedSet&lt;Long&gt; rank = redisson.getScoredSortedSet(&quot;user:rank:daily&quot;);        rank.addScore(userId, 10.0);        // 2. 投递延迟任务：30 天未登录则发短信召回        RBlockingQueue&lt;Long&gt; blockingQueue = redisson.getBlockingQueue(&quot;user:recall:queue&quot;);        RDelayedQueue&lt;Long&gt; delayedQueue = redisson.getDelayedQueue(blockingQueue);        delayedQueue.offer(userId, 30, TimeUnit.DAYS);        // 3. 限流：每用户每分钟最多登录 1 次（防刷）        RRateLimiter limiter = redisson.getRateLimiter(&quot;user:login:limit:&quot; + userId);        limiter.trySetRate(RateType.PER_CLIENT, 1, 1, RateIntervalUnit.MINUTES);    &#125;&#125;
+
+
+14. 生产避坑清单（12 条） ⚠️❌ 坑 1：启动时默认连接 127.0.0.1:6379 失败症状：
+org.redisson.client.RedisConnectionException: Unable to connect to 127.0.0.1:6379
+
+解决：补 application.yml 配置或用独立 redisson.yaml。
+❌ 坑 2：地址忘了加 redis:// 前缀症状：IllegalArgumentException: Redis url should start with redis:// or rediss://
+解决：所有地址必须带协议前缀。
+❌ 坑 3：无密码时 setPassword(&quot;&quot;) 导致 AUTH 失败症状：WRONGPASS invalid username-password pair
+解决：**无密码必须传 null**，不能传空字符串。
+.setPassword(StringUtils.hasText(password) ? password : null)
+
+❌ 坑 4：循环依赖（Starter + 手写 Config + spring-data-redis 共存）症状：BeanCurrentlyInCreationException
+解决：
+
+方案 A：方法参数注入 @Bean public RedisTemplate t(RedissonConnectionFactory f)
+方案 B：@EnableAutoConfiguration(exclude = &#123;RedisAutoConfiguration.class&#125;)
+方案 C：移除 spring-boot-starter-data-redis，统一用 Redisson
+
+❌ 坑 5：手动设了 leaseTime 导致看门狗失效症状：业务执行 &gt; 10s，锁过期丢锁
+解决：
+// ❌ 错lock.lock(10, TimeUnit.SECONDS);// ✅ 对（不传 leaseTime）lock.lock();
+
+❌ 坑 6：Starter 与手动 Config 双重定义症状：BeanDefinitionOverrideException: Invalid bean definition with name &#39;redisson&#39;
+解决：二选一，不要混用。
+❌ 坑 7：Spring Boot 2.7 用 spring.redis，3.x 用 spring.data.redis症状：Could not resolve placeholder &#39;spring.redis.host&#39;
+解决：3.0+ 改用 spring.data.redis.host。
+❌ 坑 8：Docker 部署用 localhost 访问不到 Redis解决：用 docker-compose 服务名 + redis-server --bind 0.0.0.0。
+❌ 坑 9：Spring Session 没生效，SessionId 每次都变根因：notify-keyspace-events 不含 Exg
+解决：redis-cli config set notify-keyspace-events Exg
+❌ 坑 10：内联 YAML 配置块不识别症状：Failed to bind properties under &#39;spring.redis.redisson.config&#39;
+解决：用独立 redisson.yaml 文件。
+❌ 坑 11：Netty 版本与 Spring Boot 冲突症状：NoSuchMethodError: io.netty.buffer.PooledByteBufAllocator...
+解决：
+&lt;properties&gt;    &lt;netty.version&gt;4.2.9.Final&lt;/netty.version&gt;&lt;/properties&gt;
+
+❌ 坑 12：跨线程释放锁症状：IllegalMonitorStateException
+解决：加锁和解锁必须在同一线程。
+
+15. 面试题精讲（10 道） 🎤Q1：Redisson 是什么？和 Jedis、Lettuce 有什么区别？答案：Redisson 是基于 Redis 的 Java 驻内存数据网格（IMDG），把 Redis 命令封装成 50+ 分布式 Java 对象。Jedis 是阻塞同步客户端，Lettuce 是 Netty 异步客户端，而 Redisson 是”高级 API 库”，解决”分布式场景下需要哪些数据结构和并发原语”的问题。
+Q2：Redisson 的看门狗机制是什么？答案：
+
+触发条件：leaseTime == -1（不传 leaseTime）
+默认 TTL：30 秒
+续期间隔：lockWatchdogTimeout / 3 &#x3D; 10 秒
+实现：定时器执行 Lua 脚本 pexpire 刷新
+
+Q3：Redisson 的分布式锁怎么实现可重入？答案：用 Hash 结构 存锁，key &#x3D; 锁名，field &#x3D; &quot;UUID:threadId&quot;，value &#x3D; 重入计数。加锁脚本用 hexists 判断重入，hincrby 自增计数。
+Q4：什么是 RedLock？有什么问题？答案：
+
+RedLock：Antirez 提出的多 Redis 节点多数派加锁算法（5 节点加 3 个成功）
+问题：
+缺乏 fencing token（Kleppmann 批评）
+时序假设脆弱（GC pause、时钟漂移、网络延迟）
+Redisson 4.x 已标记 @Deprecated，推荐 RLock + RFencedLock
+
+
+
+Q5：SETNX + Lua 脚本和 Redisson 锁的区别？
+
+
+维度
+SETNX + Lua
+Redisson RLock
+
+
+
+可重入
+❌ 自己模拟
+✅
+
+
+阻塞 + 唤醒
+❌ 自己写自旋
+✅ Pub&#x2F;Sub
+
+
+锁过期续期
+❌
+✅ 看门狗
+
+
+集群兼容
+❌
+✅
+
+
+公平&#x2F;读写锁
+❌
+✅
+
+
+Q6：RMap 和 Redis Hash 是什么关系？RMap 的本地缓存怎么实现？答案：
+
+RMap &#x3D; Java 接口，底层 &#x3D; Redis Hash
+RMapCache &#x3D; Hash + 单 key TTL
+RLocalCachedMap &#x3D; Hash + JVM 堆内 Caffeine，通过 Pub&#x2F;Sub 失效多节点本地缓存
+
+Q7：布隆过滤器的原理？Redisson 的布隆过滤器怎么用？答案：
+
+原理：K 个哈希函数 → 位数组 K 个位置
+特点：插入&#x2F;查询 O(K)，空间极省，不能删除，有误判率
+Redisson 特别：用 128-bit Highway 哈希，误判率更低
+使用场景：防缓存穿透
+
+Q8：限流器的令牌桶和漏桶原理？RRateLimiter 是哪种？答案：
+
+令牌桶：固定速率放令牌，允许突发流量（攒的令牌可一次用完）
+漏桶：强制匀速（流量整形）
+RRateLimiter &#x3D; 令牌桶
+
+Q9：分布式延迟队列怎么实现？有什么应用场景？答案：
+
+底层：ZSet（存到期时间戳） + RBlockingQueue（到期后转移）
+应用：订单超时关闭、红包 24h 未领退回、定时提醒
+注意：Redis 崩溃数据丢失，金融场景用 RabbitMQ 延迟插件
+
+Q10：看门狗的默认 30s 能不能改？答案：
+Config config = new Config();config.setLockWatchdogTimeout(15000);  // 改为 15 秒
+
+续期间隔 &#x3D; 15s &#x2F; 3 &#x3D; 5 秒。
+
+⚠️ 生产经验：调小会让续期频率变高（5w+ 锁时可能打爆 Redis），建议保持默认或适度调大。
+
+附加高频题（精选 3 道）Q11：分布式锁的锁过期了，业务还没执行完怎么办？
+
+
+场景
+解决方案
+
+
+
+用 lock() 不传 leaseTime
+✅ 看门狗自动续期
+
+
+手动设了 leaseTime
+❌ 必须改回不设
+
+
+RedLock 5 节点
+⚠️ 业务执行前再”续租”
+
+
+GC pause &gt; 续期间隔
+⚠️ 必须靠业务幂等兜底
+
+
+任何场景
+✅ 业务唯一索引、状态机、消息去重表
+
+
+Q12：主从架构下锁丢失怎么办？方案对比：
+
+
+
+方案
+原理
+缺陷
+
+
+
+WAIT 命令
+强制 N 个从库同步
+Redis 7+ 才稳定
+
+
+RedLock
+5 个独立 master 多数派
+已被 Redisson 废弃
+
+
+RFencedLock
+单调递增 token
+业务侧需改造
+
+
+ZooKeeper
+ZAB 强一致 + zxid
+性能差一个数量级
+
+
+业务幂等
+DB 唯一索引
+真正兜底
+
+
+Q13：Redisson 锁的”非可重入”和”可重入”区别？
+可重入（RedissonLock）：第二次进入 → hincrby 计数 +1，可递归调用
+非可重入（RedissonNonReentrantLock）：第二次进入 → Lua 抛错 IllegalMonitorStateException，防止代码意外重入
+
+
+16. 版本演进与未来展望 🚀
+本节以本文基线（Redisson 3.52.x + Spring Boot 3.5 + JDK 17）为锚，简要介绍 Redisson 的版本演进路线，帮助你判断何时升级、如何升级。
+
+16.1 3.52.x 之前的重要版本（演进脉络）
+
+
+时间
+版本
+关键节点
+
+
+
+2024-05
+3.27.2
+Spring Boot 3.3 集成稳定版
+
+
+2024-11
+3.32.0
+Spring Boot 3.4 集成
+
+
+2025-05
+3.45.0
+Spring Boot 3.5 适配（本文基线起点）
+
+
+2025-12
+3.50.x
+3.x 末期小版本，修复若干 Netty 兼容性问题
+
+
+2026-03
+3.52.x
+当前推荐生产版本（3.x 最终稳定分支）
+
+
+
+💡 演进规律：Redisson 3.x 走”小步快跑”路线，每 1-3 个月发一个版本，本文基线 3.52.x 是 3.x 末班车，生态最稳定。
+
+16.2 未来版本展望（4.x）
+⚠️ 4.x 已发布但生态仍在迁移，生产项目不建议立即跟进。
+
+
+
+
+维度
+3.52.x（本文基线）
+4.x（未来）
+
+
+
+JDK 最低要求
+8+
+11+
+
+
+Netty 版本
+4.1.x
+4.2+
+
+
+Spring Boot 支持
+3.3 ~ 3.6
+4.0+（需要重新适配 spring-data-redis）
+
+
+主体 API
+50+ 分布式对象
+相同，完全兼容 3.x 用法
+
+
+破坏性变更
+—
+较少，主要是依赖升级和模块拆分
+
+
+新增特性
+—
+VectorSet（AI 向量）、TimeSeries（时序）、JSON Store、ReliableQueue
+
+
+社区资料
+⭐⭐⭐⭐⭐ 丰富
+⭐⭐ 仍在积累
+
+
+
+📌 关键结论：本文所有 API（RLock &#x2F; RMap &#x2F; RBucket &#x2F; RBloomFilter &#x2F; RRateLimiter &#x2F; RScoredSortedSet &#x2F; RDelayedQueue &#x2F; RScheduledExecutorService &#x2F; RFencedLock 等）在 3.52.x 和未来 4.x 中完全一致，今天学的代码到 4.x 仍能直接使用。
+
+16.3 何时升级 4.x？
+
+
+场景
+建议
+
+
+
+在用 3.52.x + Spring Boot 3.5 + JDK 17
+✅ 保持现状，无需升级
+
+
+计划升级到 Spring Boot 4.0
+再考虑 4.x
+
+
+需要 VectorSet &#x2F; TimeSeries（AI &#x2F; 监控）
+评估 4.x
+
+
+新项目启动
+仍推荐 3.52.x（生态最稳），除非有 4.x 专属需求
+
+
+16.4 Community 版 vs PRO 版（与版本无关）
+
+
+能力
+Community
+PRO（付费）
+
+
+
+基础数据结构（RMap &#x2F; RLock &#x2F; RQueue 等）
+✅
+✅
+
+
+看门狗、Pub&#x2F;Sub、FencedLock
+✅
+✅
+
+
+Spring Cache 基础版
+✅
+✅
+
+
+Spring Cache LocalCache（Caffeine 加速）
+❌
+✅
+
+
+Spring Cache 数据分片
+❌
+✅
+
+
+RedissonClusteredMap（集群分片 Map）
+❌
+✅
+
+
+Valkey &#x2F; Redis 企业版
+❌
+✅
+
+
+商业技术支持
+❌
+✅
+
+
+
+📌 90% 业务场景 Community 版完全够用，PRO 版主要解决”本地缓存+集群分片”的极致性能。
+
+16.5 一句话总结
+🎯 学 3.52.x 就对了——3.x 的 API 体系是 Redisson 10 年沉淀的精华，未来 4.x 也不会颠覆。本文所有代码示例（RLock &#x2F; RMap &#x2F; RBloomFilter &#x2F; RFencedLock 等）在 3.52.x 直接可用，向 4.x 升级时零代码迁移成本。
+
+
+17. 参考资料 📖官方文档
+Redisson 官方站：https://redisson.org
+完整文档：https://redisson.org/docs
+Spring 集成：https://redisson.org/docs/integration-with-spring/
+配置详解：https://redisson.org/docs/configuration/
+数据结构：https://redisson.org/docs/data-and-services/objects/
+锁与同步器：https://redisson.org/docs/data-and-services/locks-and-synchronizers/
+
+学术原文
+Antirez RedLock 提案：http://antirez.com/news/77
+Antirez 反驳：http://antirez.com/news/101
+Martin Kleppmann 批评：https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html
+Redis 分布式锁规范：https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/
+
+GitHub 仓库
+Redisson 源码：https://github.com/redisson/redisson（⭐ 24.4k+）
+Redisson 示例：https://github.com/redisson/redisson-examples
+源码核心类（commit 627e51d1）：
+RedissonLock.java
+RedissonBaseLock.java
+RedissonFencedLock.java
+RedissonRedLock.java
+RenewalTask.java
+Config.java
+
+
+
+中文实战
+阿里云开发者社区：Spring Boot 集成 Redisson 详细介绍
+CSDN A_art_xiang 三篇：
+上篇：项目介绍 + 配置方法
+中篇：分布式锁&#x2F;同步器&#x2F;服务
+下篇：独立节点&#x2F;工具&#x2F;第三方整合
+
+
+CSDN gxy03：Spring Boot 3.4 + Redisson 3.23.2 整合
+JavaGuide：分布式锁实现方式
+博客园 ljbguanli：Redisson 与 Spring Boot 3.4 整合
+腾讯云：Redisson 看门狗
+
+Spring 生态
+Spring Boot 3.5 发布：https://spring.io/blog/2025/05/22/spring-boot-3-5-0-available-now
+Spring Session 文档：https://docs.spring.io/spring-session/reference/
+Spring Data Redis：https://docs.spring.io/spring-data/redis/reference/
+
+
+🎓 写在最后学完这篇笔记，你应该：
+
+✅ 知道 Redisson 是什么、为什么用它、与 Jedis&#x2F;Lettuce 的区别
+✅ 能在 Spring Boot 3.5 项目中 5 分钟整合 Redisson
+✅ 熟练使用 50+ 分布式对象（Map&#x2F;Lock&#x2F;Queue&#x2F;BloomFilter&#x2F;…）
+✅ 深入理解 RLock 的看门狗机制
+✅ 知道 RedLock 算法的争议和 Redisson 官方态度
+✅ 能用 Redisson 实现秒杀、排行榜、限流、延迟任务
+✅ 了解 12 个常见坑
+✅ 准备 10+ 道高频面试题
+
+给 Java 初级开发者的忠告：
+
+🚀 学习路径建议：
+
+先用 RBucket &#x2F; RMap &#x2F; RLock 三个最常用 API
+再学分布式限流（RRateLimiter）和布隆过滤器（RBloomFilter）
+接着学 Spring Cache &#x2F; Session 整合
+最后深入看门狗原理和 RedLock 争议
+
+🔧 实战建议：
+
+起步用 redisson-spring-boot-starter + application.yml
+生产改用手动 Java Config + 独立 redisson.yaml
+锁场景**不传 leaseTime**，让看门狗自动续期
+关键业务（资金&#x2F;库存）业务幂等 + 锁双保险
+
+💼 面试建议：
+
+重点讲清”看门狗原理”+”RedLock 争议”
+能给出 Lua 脚本的伪代码
+区分”效率型锁” vs “正确性锁”
+知道”业务幂等是底线”
+
+工程是权衡的艺术，不是非黑即白的选择。 ✨
+
+]]></content>
+      <categories>
+        <category>java</category>
+        <category>中间件</category>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+        <tag>Redisson</tag>
+        <tag>分布式</tag>
+        <tag>SpringBoot</tag>
       </tags>
   </entry>
 </search>
