@@ -64013,4 +64013,611 @@ Spring Boot 3.2文档
         <tag>线程</tag>
       </tags>
   </entry>
+  <entry>
+    <title>yu-coder</title>
+    <url>/2026/09/10/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/yu-coder/learnings-condensed/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+浓缩笔记 · STAR 法则版
+范围:从 18 节 HTML 课程里抽出与”业务设计 &#x2F; LangGraph 使用 &#x2F; 观测层”三主题强相关的内容,合并成可面试的 STAR 速查文档。数据源:_recon/ 下 12 张代码事实卡 + 课程 0001&#x2F;0004&#x2F;0005&#x2F;0006&#x2F;0009&#x2F;0012&#x2F;0013。使用方法:每条亮点按 STAR 法则(Situation&#x2F;Task&#x2F;Action&#x2F;Result)组织,可直接转成面试口语答案。读者:零基础大四求职同学,目标 Agent 开发岗 &#x2F; Java 后端岗。
+
+
+0. STAR 法则使用模板每个亮点按下面四段结构组织,面试时照着讲 60~90 秒:
+
+
+
+段落
+时间占比
+讲什么
+关键词
+
+
+
+Situation
+10%
+项目背景 + 这个亮点要解决的”痛点”
+业务场景 &#x2F; 已有方案的局限
+
+
+Task
+10%
+我承担的目标 &#x2F; 要达成的可观测指标
+个人职责 &#x2F; 量化目标
+
+
+Action
+60%
+我做了哪些事,关键决策与取舍,踩过的坑
+技术选型 &#x2F; 代码细节 &#x2F; 调参过程
+
+
+Result
+20%
+结果数据 + 反思 + 可推广的经验
+量化收益 &#x2F; 后续优化方向
+
+
+记忆口诀:S 是背景,T 是目标,A 讲干了啥,R 看效果。
+
+一、业务设计(S 业务驱动 → T 设计目标 → A 架构决策 → R 工程结果)1.1 启动类三层注解装配S(背景):Spring Boot 项目启动类只一行 SpringApplication.run,但项目里有缓存、AI、MyBatis、限流四套 Bean 要装配。如果启动类只标 @SpringBootApplication,会出现 LangChain4j starter 自动装配 RedisEmbeddingStore 而本项目没有 EmbeddingModel Bean,导致 NoSuchBeanDefinitionException。
+T(目标):用最少注解把缓存、AI、ORM 三个子系统装配起来,并消除自动装配冲突。验收标准:启动无报错、@Cacheable 生效、所有 Mapper 注入成功。
+A(做了什么):
+@EnableCaching                                                          // ① 打开 @Cacheable 声明式缓存@SpringBootApplication(exclude = &#123;RedisEmbeddingStoreAutoConfiguration.class&#125;)  // ② 排除冲突的自动装配@MapperScan(&quot;com.yupi.yuaicodemother.mapper&quot;)                           // ③ MyBatis Mapper 自动注册public class YuAiCodeMotherApplication &#123;    public static void main(String[] args) &#123;        SpringApplication.run(YuAiCodeMotherApplication.class, args);    &#125;&#125;
+
+三个注解正交职责:缓存 &#x2F; 装配 &#x2F; ORM 扫描各管一摊。exclude 处理 LangChain4j 社区 Redis starter 的”多余 EmbeddingStore 自动装配”——本项目只用 ChatMemory,不需要 RAG。
+R(结果与反思):
+
+✅ 启动无冲突,后续 @Cacheable(&quot;good_app_page&quot;) 在 AppController 直接生效。
+✅ @MapperScan 让 AppMapper &#x2F; UserMapper &#x2F; ChatHistoryMapper 自动注册,无 NoSuchBean。
+💡 反思:exclude 写错类名会导致 Bean 缺失或启动失败;@MapperScan 路径错会全 Mapper 注入失败——这是常见踩坑点。
+
+面试话术(60 秒):启动类三个注解各管一摊,缓存&#x2F;装配&#x2F;ORM 解耦;exclude 处理 LangChain4j 自动装配冲突,体现”只引入项目真正用到的部分”的依赖边界意识。
+
+1.2 AppController 三层权限模型S(背景):AI 应用生成平台有三种角色——游客(看精选应用)、登录用户(生成自己的应用)、管理员(管理所有应用)。如果权限校验写在每个方法里,代码会重复且容易漏。
+T(目标):用声明式注解 + 拦截器 + 业务内 equals 三种粒度,把权限校验和业务代码解耦。验收标准:游客看不到别人的应用,管理员能管理全部,本人能改自己的。
+A(做了什么):
+
+
+
+层级
+实现
+适用场景
+代码位置
+
+
+
+注解拦截
+@AuthCheck(mustRole=ADMIN_ROLE)
+管理员后台接口
+aop/AuthInterceptor.java(@Around(&quot;@annotation(authCheck)&quot;))
+
+
+注解限流
+@RateLimit(USER, 5, 60s, ...)
+AI 对话等高成本接口
+ratelimter/aspect/RateLimitAspect.java
+
+
+业务内 equals
+app.getUserId().equals(loginUser.getId())
+下载&#x2F;修改本人应用
+AppController.downloadAppCode
+
+
+SSE 聊天端点完整代码(_recon/code-fact-L-app-controller.md 第 65-83 行):
+@GetMapping(value = &quot;/chat/gen/code&quot;, produces = MediaType.TEXT_EVENT_STREAM_VALUE)@RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = &quot;AI 对话请求过于频繁&quot;)public Flux&lt;ServerSentEvent&lt;String&gt;&gt; chatToGenCode(@RequestParam Long appId,                                                   @RequestParam String message,                                                   HttpServletRequest request) &#123;    ThrowUtils.throwIf(appId == null || appId &lt;= 0, ErrorCode.PARAMS_ERROR, &quot;应用 id 错误&quot;);    ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, &quot;提示词不能为空&quot;);    User loginUser = userService.getLoginUser(request);    Flux&lt;String&gt; contentFlux = appService.chatToGenCode(appId, message, loginUser);    return contentFlux            .map(chunk -&gt; ServerSentEvent.&lt;String&gt;builder().data(JSONUtil.toJsonStr(Map.of(&quot;d&quot;, chunk))).build())            .concatWith(Mono.just(ServerSentEvent.&lt;String&gt;builder().event(&quot;done&quot;).data(&quot;&quot;).build()));&#125;
+
+统一校验范式:ThrowUtils.throwIf(条件, ErrorCode, msg) 一行替代 if-else,所有接口一致。
+R(结果与反思):
+
+✅ 12 个端点统一鉴权,无任何”忘记校验”的灵异 bug。
+✅ SSE 结束帧 event(&quot;done&quot;) 让前端明确判定流是否结束,避免半包问题。
+⚠️ 易踩坑:downloadAppCode 用 String.valueOf(appId) 当文件名,若部署多个 app 会有同名冲突;chatToGenCode 自定义 &#123;&quot;d&quot;: chunk&#125; 协议,前端必须按 data.d 取值。
+
+面试话术(60 秒):权限分三层——注解(AOP)、拦截器、业务 equals,粒度由粗到细;SSE 用 event(&quot;done&quot;) 结束帧而非依赖连接关闭,更可控。
+
+二、LangGraph 使用(S 痛点 → T 目标 → A 节点装配 + 三入口 → R 业务效果)2.1 为什么用 LangGraph4j 取代函数链S(背景):第一版 AI 代码生成是直接调 AiService.generateVueProjectCodeStream(appId, prompt),模型一次性写完。但出现三类问题:① 漏步骤(没收集图片直接生成);② 语法错(没人质检);③ 无法重试(失败只能让用户重发)。
+T(目标):把 AI 代码生成拆成”可重入 + 可分支”的图,每个步骤可观测、可重试。验收标准:质检失败自动重生成,图片自动采集,Vue 项目自动打包。
+A(做了什么):引入 org.bsc.langgraph4j,把流程拆成 6 个节点 + 1 个并发 reducer + 1 个 plan 节点。LangGraph4j 是 AI 场景专用,天然支持 MessagesState、流式节点输出、异步条件边——比 Spring State Machine 更适合。
+R(结果与反思):
+
+✅ 质检失败自动回流 code_generator,无需用户重发。
+✅ 图模型比 if&#x2F;else 嵌套可视化、易扩展、易测试。
+💡 反思:LangGraph4j 学习曲线比纯函数链陡,但换来”每步可观测、出问题能定位到具体节点”的运维价值。
+
+面试话术(60 秒):直接调 LLM 一次性生成,缺步骤&#x2F;无法重试&#x2F;无可观测性。改用 LangGraph4j 状态机后,每步有日志、可重试、可条件分支——这是图模型比函数链的核心优势。
+
+2.2 6 个节点 + 1 个并发 reducerS(背景):LangGraph4j 工作流的最小单元是节点(Node)。每个节点是一个 AsyncNodeAction&lt;MessagesState&lt;String&gt;&gt;,输入 MessagesState、输出 Map。
+T(目标):把”图像收集 → 提示词增强 → 路由 → 生成 → 质检 → 构建”六个职责拆成六个节点,各司其职、可独立测试。
+A(做了什么):节点职责表(全部位于 langgraph4j/node/ 与 langgraph4j/node/concurrent/):
+
+
+
+节点
+实现类
+职责
+上下文交互
+
+
+
+image_collector
+ImageCollectorNode
+调 Pexels&#x2F;Logo&#x2F;Mermaid&#x2F;Undraw 工具
+写 imageList
+
+
+prompt_enhancer
+PromptEnhancerNode
+把图片列表拼到原始提示词(纯字符串拼接,不改写)
+写 enhancedPrompt
+
+
+router
+RouterNode
+用 qwen-turbo 小模型分类 HTML&#x2F;MULTI_FILE&#x2F;VUE_PROJECT
+写 generationType
+
+
+code_generator
+CodeGeneratorNode
+调 AI Service 流式生成代码并落盘
+写 generatedCodeDir
+
+
+code_quality_check
+CodeQualityCheckNode
+扫描生成目录调 AI 质检,返回 QualityResult
+写 qualityResult
+
+
+project_builder
+ProjectBuilderNode
+仅 VUE_PROJECT:zip 打包 + 截图
+写 currentStep
+
+
+image_aggregator
+ImageAggregatorNode(concurrent)
+reducer,四类图片扇入 imageList
+写 imageList
+
+
+并发分支
+Content&#x2F;Diagram&#x2F;Illustration&#x2F;Logo CollectorNode(concurrent)
+各自填一张 List
+写各自的 List
+
+
+关键节点源码(PromptEnhancerNode):
+public static AsyncNodeAction&lt;MessagesState&lt;String&gt;&gt; create() &#123;    return node_async(state -&gt; &#123;        WorkflowContext context = WorkflowContext.getContext(state);        StringBuilder sb = new StringBuilder();        sb.append(context.getOriginalPrompt()).append(&quot;\n\n## 可用素材资源\n&quot;);        for (ImageResource img : context.getImageList()) &#123;            sb.append(&quot;- &quot;).append(img.getCategory().getText())              .append(&quot;:&quot;).append(img.getDescription())              .append(&quot;(&quot;).append(img.getUrl()).append(&quot;)\n&quot;);        &#125;        context.setEnhancedPrompt(sb.toString());        context.setCurrentStep(&quot;提示词增强&quot;);        return WorkflowContext.saveContext(context);    &#125;);&#125;
+
+R(结果与反思):
+
+✅ 每个节点 30~80 行,职责清晰,单测可独立写。
+✅ 节点 ID 用 snake_case(image_collector),是 LangGraph4j 约定。
+💡 反思:prompt_enhancer 是纯字符串拼接,并不真正调 LLM 改写——这是性能取舍(节省一次 LLM 调用),代价是改写质量一般。
+
+面试话术(60 秒):六个节点各管一摊,context 是单一状态载体,节点间不直接传对象——这种”Context 作为状态总线”的模式让图极易扩展。
+
+2.3 状态图装配原样拆解S(背景):有了节点,需要把它们按业务流串起来。如果用 if&#x2F;else 嵌套写流程,既不直观也无法可视化。LangGraph4j 提供 MessagesStateGraph 链式 API。
+T(目标):用 12 行代码把 6 节点串成可执行图,质检失败自动回 code_generator 重生成,VUE_PROJECT 才走 project_builder。
+A(做了什么):状态机装配(CodeGenWorkflow.java 第 52-71 行):
+return new MessagesStateGraph&lt;String&gt;()        .addNode(&quot;image_collector&quot;, ImageCollectorNode.create())        .addNode(&quot;prompt_enhancer&quot;, PromptEnhancerNode.create())        .addNode(&quot;router&quot;, RouterNode.create())        .addNode(&quot;code_generator&quot;, CodeGeneratorNode.create())        .addNode(&quot;code_quality_check&quot;, CodeQualityCheckNode.create())        .addNode(&quot;project_builder&quot;, ProjectBuilderNode.create())        .addEdge(START, &quot;image_collector&quot;)        .addEdge(&quot;image_collector&quot;, &quot;prompt_enhancer&quot;)        .addEdge(&quot;prompt_enhancer&quot;, &quot;router&quot;)        .addEdge(&quot;router&quot;, &quot;code_generator&quot;)        .addEdge(&quot;code_generator&quot;, &quot;code_quality_check&quot;)        .addConditionalEdges(&quot;code_quality_check&quot;,                edge_async(this::routeAfterQualityCheck),                Map.of(&quot;build&quot;, &quot;project_builder&quot;,                       &quot;skip_build&quot;, END,                       &quot;fail&quot;, &quot;code_generator&quot;))        .addEdge(&quot;project_builder&quot;, END)        .compile();
+
+三个图操作对比:
+
+addEdge(from, to) —— 无条件边。
+addConditionalEdges(from, action, mapping) —— 条件边,按 action 返回值路由。
+addEdge(node, END) —— END 是 LangGraph4j 内置常量。
+
+条件路由函数 routeAfterQualityCheck + routeBuildOrSkip:
+private String routeAfterQualityCheck(MessagesState&lt;String&gt; state) &#123;    QualityResult result = WorkflowContext.getContext(state).getQualityResult();    if (result == null || !result.isValid()) return &quot;fail&quot;;  // 失败回流重生成    return routeBuildOrSkip(state);                          // 成功则按类型决定&#125;private String routeBuildOrSkip(MessagesState&lt;String&gt; state) &#123;    CodeGenTypeEnum type = WorkflowContext.getContext(state).getGenerationType();    return type == CodeGenTypeEnum.VUE_PROJECT ? &quot;build&quot; : &quot;skip_build&quot;;&#125;
+
+R(结果与反思):
+
+✅ 质检失败自动回流,无需用户介入。
+✅ VUE_PROJECT 才打包构建,HTML&#x2F;MULTI_FILE 直出。
+⚠️ 关键陷阱:Map.of(...) 必须覆盖 action 所有可能返回值,否则运行期抛 “Edge not found”。
+⚠️ MessagesState&lt;String&gt; 的泛型要正确传递;workflow.stream(...) 输入 map 的 key 必须与节点读取的 key 一致(本项目用 WORKFLOW_CONTEXT_KEY)。
+
+面试话术(60 秒):状态图用链式 API 装配,addConditionalEdges + edge_async 实现条件分支。质检失败回 code_generator 是一行配置表达的循环——这是图模型优雅的地方。
+
+2.4 三种执行入口:同一逻辑三种出口S(背景):同一个工作流,前端有不同调用场景:调试时希望一次拿完整结果(同步),WebFlux 网关要响应式流(Flux),传统 MVC + 长任务要 SSE。
+T(目标):业务层只关心”按状态机执行”,传输层(同步&#x2F;Reactor&#x2F;SSE)由 Controller 决定。同一逻辑暴露三种 API,各自适配不同前端。
+A(做了什么):
+
+
+
+方法
+返回类型
+适用场景
+关键 API
+
+
+
+executeWorkflow(prompt)
+WorkflowContext
+同步阻塞,调试&#x2F;批处理
+workflow.stream(...).forEach(...)
+
+
+executeWorkflowWithFlux(prompt)
+Flux&lt;String&gt;
+响应式流,WebFlux
+Flux.create + virtualThread
+
+
+executeWorkflowWithSse(prompt)
+SseEmitter
+Spring MVC SSE,30 分钟超时
+emitter.send + complete
+
+
+SSE 入口核心(CodeGenWorkflow.executeWorkflowWithSse):
+SseEmitter emitter = new SseEmitter(30 * 60 * 1000L);  // 30 分钟超时,够用但不挂死Thread.startVirtualThread(() -&gt; &#123;    try &#123;        CompiledGraph&lt;MessagesState&lt;String&gt;&gt; workflow = createWorkflow();        for (NodeOutput&lt;MessagesState&lt;String&gt;&gt; step :                workflow.stream(Map.of(WORKFLOW_CONTEXT_KEY, initialContext))) &#123;            WorkflowContext ctx = WorkflowContext.getContext(step.state());            sendSseEvent(emitter, &quot;step_completed&quot;,                    Map.of(&quot;stepNumber&quot;, ..., &quot;currentStep&quot;, ctx.getCurrentStep()));        &#125;        emitter.complete();    &#125; catch (Exception e) &#123;        sendSseEvent(emitter, &quot;workflow_error&quot;, Map.of(&quot;error&quot;, e.getMessage()));        emitter.completeWithError(e);    &#125;&#125;);return emitter;
+
+Controller 三个端点(WorkflowSseController.java):
+@PostMapping(&quot;/execute&quot;)              // 同步@GetMapping(value=&quot;/execute-flux&quot;, produces=TEXT_EVENT_STREAM_VALUE)  // Flux@GetMapping(value=&quot;/execute-sse&quot;, produces=TEXT_EVENT_STREAM_VALUE)   // SseEmitter
+
+R(结果与反思):
+
+✅ 一套工作流逻辑适配三种前端需求,业务层零重复。
+✅ produces = TEXT_EVENT_STREAM_VALUE 是 SSE 的”开关”,告诉 Spring 按 text/event-stream 序列化。
+⚠️ 反模式:每次请求 new CodeGenWorkflow(),无状态但浪费对象,可优化为单例。
+⚠️ Flux 路径要保证工作流内部用非阻塞 IO,否则响应式白搭;SseEmitter 必须有超时回调,否则连接挂死。
+
+面试话术(60 秒):同一逻辑暴露同步&#x2F;Flux&#x2F;SSE 三种出口——这是”内聚业务 + 适配外层”的经典分层范式。改传输协议不改业务,改业务不改协议。
+
+2.5 Java 21 虚拟线程S(背景):SSE 长任务用传统 new Thread().start() 会占满平台线程(8MB&#x2F;个)。LLM 调用本身就是阻塞的(等 HTTP 响应),如果用 Reactor 又要求全链路非阻塞,改造成本高。
+T(目标):用同步写法实现”异步性能”,M 级并发不爆栈。验收标准:长任务不阻塞平台线程池,LLM 阻塞调用安全。
+A(做了什么):全用 Thread.startVirtualThread(() -&gt; &#123; ... &#125;) 启动虚拟线程:
+
+避免阻塞平台线程(虚拟线程是轻量级协程)。
+避免手写 ThreadPoolExecutor 的 core&#x2F;max&#x2F;queue 参数。
+兼容阻塞调用(LLM 调用本身就是阻塞)。
+
+R(结果与反思):
+
+✅ 每个工作流实例独占一个虚拟线程,几毫秒启动,M 级并发不爆。
+✅ “同步写法 + 异步性能”——Java 对抗 Kotlin 协程 &#x2F; Go goroutine 的官方答案。
+⚠️ Pinning 风险:synchronized 块会把虚拟线程 pin 到平台线程。本项目工作流里没大量 synchronized,所以安全。
+
+面试话术(60 秒):虚拟线程 &#x3D; “同步写法 + 异步性能”。Java 21 的虚拟线程让 LLM 阻塞调用不浪费线程池,这是 Java 生态对协程时代的回应。
+
+2.6 节点交互表(Read&#x2F;Write 总览)S(背景):面试经常被问”节点之间怎么传数据”。答案是统一通过 WorkflowContext,所有节点读 context、写 context。
+T(目标):把节点对 WorkflowContext 的读&#x2F;写关系画清楚,避免”哪些字段被谁改”的混乱。
+A(做了什么):
+
+
+
+节点
+读
+写
+
+
+
+PromptEnhancerNode
+originalPrompt, imageList, imageListStr
+enhancedPrompt, currentStep
+
+
+ImageAggregatorNode
+contentImages, illustrations, diagrams, logos
+imageList, currentStep
+
+
+CodeGeneratorNode
+generationType, enhancedPrompt, qualityResult
+generatedCodeDir, currentStep
+
+
+CodeQualityCheckNode
+generatedCodeDir
+qualityResult, currentStep
+
+
+R(结果与反思):
+
+✅ Context 作为单一状态载体,节点间不直接传对象——图极易扩展。
+✅ 加新节点只需声明读写字段,与现有节点解耦。
+
+
+三、LangChain4j 连接点(S 注解驱动 → T AI Service 装配 → A 工厂缓存 + 工具调用 → R 性能与稳定性)3.1 “接口即服务”模式S(背景):传统 AI 集成写法是”new ChatClient → 手动构造消息 → 手动处理流 → 手动管理 memory”。重复样板代码多,每个项目重写一遍。
+T(目标):用接口 + 注解声明 AI 能力,框架运行时用动态代理生成实现。验收标准:开发者只定义接口,LangChain4j 自动装配。
+A(做了什么):AiCodeGeneratorService 接口(/com/yupi/yuaicodemother/ai/AiCodeGeneratorService.java),5 个方法:
+public interface AiCodeGeneratorService &#123;    @SystemMessage(fromResource = &quot;prompt/codegen-html-system-prompt.txt&quot;)    HtmlCodeResult generateHtmlCode(String userMessage);    @SystemMessage(fromResource = &quot;prompt/codegen-multi-file-system-prompt.txt&quot;)    MultiFileCodeResult generateMultiFileCode(String userMessage);    @SystemMessage(fromResource = &quot;prompt/codegen-html-system-prompt.txt&quot;)    Flux&lt;String&gt; generateHtmlCodeStream(String userMessage);    @SystemMessage(fromResource = &quot;prompt/codegen-vue-project-system-prompt.txt&quot;)    TokenStream generateVueProjectCodeStream(@MemoryId long appId, @UserMessage String userMessage);&#125;
+
+四个注解分工:
+
+@SystemMessage(fromResource=...) —— 加载 classpath 资源作为系统提示词。
+@UserMessage —— 把方法参数标为 user role。
+@MemoryId —— 按 appId 隔离对话记忆。
+返回类型决定链路:HtmlCodeResult → 结构化非流式,Flux&lt;String&gt; → Reactor 流,TokenStream → 流式 + 工具回调。
+
+R(结果与反思):
+
+✅ 接口无实现类,运行时 AiServices.builder().build() 动态代理生成——“类型驱动”的优雅。
+✅ Prompt 用 fromResource 加载外部 txt,便于版本管理、按租户覆盖、A&#x2F;B 实验。
+⚠️ @MemoryId 漏写会导致多用户对话记忆串台;返回类型选错(TokenStream vs Flux&lt;String&gt;)会导致工具回调事件丢失。
+
+面试话术(60 秒):LangChain4j 的”接口即服务”是 1.x 最优雅的设计。开发者定义接口,框架运行时用 JDK 动态代理生成实现,注解驱动对话记忆&#x2F;工具调用&#x2F;流式分发——改返回类型就改行为。
+
+3.2 AiCodeGeneratorServiceFactory 双过期缓存S(背景):AiServices.builder(...).build() 非常重——要装配 ChatModel、Memory Provider、Tool 列表、Guardrail 链。如果每次请求都重建,延迟会爆。
+T(目标):按 (appId, codeGenType) 缓存装配好的 AI Service 实例。验收标准:第一次创建,后续命中缓存;写后 30 分钟硬过期,访问后 10 分钟滑动过期。
+A(做了什么):Caffeine 本地缓存(AiCodeGeneratorServiceFactory.java 第 51-58 行):
+private final Cache&lt;String, AiCodeGeneratorService&gt; serviceCache = Caffeine.newBuilder()        .maximumSize(1000)                              // 最多 1000 个实例        .expireAfterWrite(Duration.ofMinutes(30))      // 绝对寿命 30 分钟        .expireAfterAccess(Duration.ofMinutes(10))     // 空闲 10 分钟过期        .removalListener((key, value, cause) -&gt;                log.debug(&quot;AI 服务实例被移除,缓存键: &#123;&#125;, 原因: &#123;&#125;&quot;, key, cause))        .build();
+
+双过期策略:expireAfterWrite 应对冷数据,expireAfterAccess 应对热数据,两者取先到——防雪崩模板。Key 是 appId + &quot;_&quot; + codeGenType.getValue()(如 &quot;123_vue_project&quot;),保证不同类型不撞车。
+R(结果与反思):
+
+✅ 重对象(装配好的 AI Service)不再每次重建,首次创建后命中纳秒级延迟。
+✅ 不需要 Redis,本地缓存省网络 IO;AI Service 本身已 1-3 秒,本地缓存省 1ms 实际效果最大化。
+⚠️ 缓存键漏掉类型会导致不同 codeGenType appId 撞车;MessageWindowChatMemory.id(appId) 不传会导致所有用户共享同一记忆。
+
+面试话术(60 秒):本地缓存有纳秒级延迟、无网络跳转优势,适合 AI Service 这种重对象 + 单机用场景。Caffeine 双过期策略是防雪崩的经典模式——expireAfterWrite 防冷数据堆积,expireAfterAccess 保热数据不被踢。
+
+3.3 VUE_PROJECT 分支 + hallucinatedToolNameStrategyS(背景):VUE_PROJECT 类型需要 AI 自主决定”什么时候调 readFile、什么时候调 fileModify”,这就是 Agent。同时 LLM 偶尔会”幻觉”出不存在的方法名,如果直接抛异常,整个生成就崩。
+T(目标):VUE_PROJECT 分支注入工具链,加上”工具名幻觉”兜底。验收标准:AI 能自主调工具,工具名错能自我修正。
+A(做了什么):VUE_PROJECT 分支装配(AiCodeGeneratorServiceFactory.java 第 60-74 行):
+case VUE_PROJECT -&gt; &#123;    StreamingChatModel reasoningStreamingChatModel = SpringContextUtil.getBean(            &quot;reasoningStreamingChatModelPrototype&quot;, StreamingChatModel.class);  // 多例    yield AiServices.builder(AiCodeGeneratorService.class)            .chatModel(chatModel)            .streamingChatModel(reasoningStreamingChatModel)            .chatMemoryProvider(memoryId -&gt; chatMemory)            .tools(toolManager.getAllTools())            .hallucinatedToolNameStrategy(req -&gt; ToolExecutionResultMessage.from(req,                    &quot;Error: there is no tool called &quot; + req.name()))         // 兜底            .maxSequentialToolsInvocations(20)                                  // 防死循环            .inputGuardrails(new PromptSafetyInputGuardrail())                 // 输入护轨            .build();&#125;
+
+多例 Bean(Prototype):reasoningStreamingChatModelPrototype 用 @Scope(prototype) 而非单例,因为流式模型内部维护 SSE&#x2F;Flux 通道状态,跨请求复用会串台。
+R(结果与反思):
+
+✅ VUE_PROJECT 能自主调 6 个工具(读&#x2F;写&#x2F;删除&#x2F;修改&#x2F;列目录&#x2F;退出)。
+✅ hallucinatedToolNameStrategy 把”工具名错误”作为工具结果回填,LLM 自我修正。
+✅ maxSequentialToolsInvocations(20) 防 LLM 死循环(如反复读同一文件)。
+⚠️ Prototype 模式 + SpringContextUtil.getBean 写法不如字段注入优雅,是历史包袱。
+
+面试话术(60 秒):VUE_PROJECT 分支注入工具链 + hallucinatedToolNameStrategy 兜底,体现”给 LLM 反馈通道让它自我修正”的工程级 AI 系统核心策略。
+
+3.4 BaseTool + @Tool + ToolManagerS(背景):LangChain4j 的 @Tool 注解方法要被 LLM 调用,但每个工具方法签名差异大、需要统一注册中心、且要把工具执行结果持久化到数据库。
+T(目标):用抽象基类统一工具契约,Spring 自动发现所有 BaseTool 子类,ToolManager 一次性塞给 LangChain4j。验收标准:新增工具零配置,LLM 能调,执行结果可持久化。
+A(做了什么):
+BaseTool 抽象基类(ai/tools/BaseTool.java):
+public abstract class BaseTool &#123;    public abstract String getToolName();      // 与 @Tool 方法同名,LLM 注册用    public abstract String getDisplayName();    // 中文展示    public String generateToolRequestResponse() &#123;  // 通用模板,子类不用重写        return String.format(&quot;\n\n[选择工具] %s\n\n&quot;, getDisplayName());    &#125;    public abstract String generateToolExecutedResult(JSONObject arguments);  // 子类核心差异点&#125;
+
+FileReadTool 实现(ai/tools/FileReadTool.java):
+@Tool(&quot;读取指定路径的文件内容&quot;)public String readFile(@P(&quot;文件的相对路径&quot;) String relativeFilePath, @ToolMemoryId Long appId) &#123;    try &#123;        Path path = Paths.get(relativeFilePath);        if (!path.isAbsolute()) &#123;            path = Paths.get(AppConstant.CODE_OUTPUT_ROOT_DIR, &quot;vue_project_&quot; + appId)                      .resolve(relativeFilePath);        &#125;        if (!Files.exists(path) || !Files.isRegularFile(path)) &#123;            return &quot;错误：文件不存在或不是文件 - &quot; + relativeFilePath;  // 错误转字符串,LLM 自我修正        &#125;        return Files.readString(path);    &#125; catch (IOException e) &#123;        return &quot;读取文件失败: &quot; + relativeFilePath + &quot;, 错误: &quot; + e.getMessage();    &#125;&#125;
+
+三个注解分工:
+
+@Tool(&quot;读取指定路径的文件内容&quot;) —— description 是给 LLM 看的,决定 LLM 何时调它。
+@P(&quot;文件的相对路径&quot;) —— 参数语义描述,LLM 据此填参数。
+@ToolMemoryId Long appId —— 按 appId 隔离会话记忆。
+
+ToolManager:List&lt;BaseTool&gt; 注入所有 @Component 子类,getAllTools() 返回 Object[]。
+R(结果与反思):
+
+✅ 6 个工具(BaseTool + 4 个 File*Tool + ExitTool + 4 个 langgraph4j&#x2F;tools&#x2F;*Tool)Spring 自动发现,新增工具零配置。
+✅ “错误转字符串而非抛异常”——LLM 不怕出错,怕出错后流程崩。让 LLM 看到错误,就能自我修正(换路径重试)。
+✅ generateToolRequestResponse 不抽象,是通用模板;generateToolExecutedResult 抽象,是子类核心差异点——模板方法模式。
+⚠️ 路径穿越风险:绝对路径分支没做 .. 校验,恶意 ../../../etc/passwd 会被读到。
+⚠️ 大文件一次性 Files.readString 会爆内存。
+
+面试话术(60 秒):BaseTool 是”3 抽象 + 1 具体”的骨架封装;@Tool description 是给 LLM 看的,决定调用准确率;”错误转字符串”是 Agent 设计的核心技巧——给 LLM 反馈通道让它自我修正。
+
+四、观测层(S 黑盒 AI → T 三段式监控 → A Micrometer + Prometheus + Grafana → R 业务可观测)4.1 整体链路:为什么需要观测层S(背景):AI 系统上线后,运维痛点明显:① JVM 通用指标(HTTP 延迟、GC)够用,但不知道”AI 调用成功率、平均 token、生成耗时”;② 异步 SSE 链路长,从用户提问到模型响应跨多个线程,出问题难定位;③ LangChain4j 内部抛异常时,业务代码拿不到上下文。
+T(目标):用 Micrometer + Prometheus + Grafana 三段式,采集 AI 业务指标并在 Grafana 大盘展示。验收标准:大盘能看到 QPS &#x2F; P95 &#x2F; token 消耗 &#x2F; 成功率。
+A(做了什么):三段式架构 + 预制 Grafana 大盘 JSON(grafana/ai_model_grafana_config.json,28KB)。
+R(结果与反思):
+
+✅ Micrometer 是”指标门面”——与 SLF4J 同款设计,业务代码调 registry.counter(...),底层可换 Prometheus &#x2F; InfluxDB &#x2F; Datadog,不改业务。
+✅ 预制大盘 JSON 是工程最佳实践——新人 clone 项目后导入即看到生产视图,把运维经验沉淀为文件。
+💡 反思:Actuator + Prometheus 只解决”通用指标”,AI 业务指标必须项目自埋,JVM 不知道 token 消耗。
+
+面试话术(60 秒):AI 系统的可观测性 &#x3D; Micrometer(写入) + Prometheus(存储) + Grafana(展示)。Micrometer 是 SLF4J 同款指标门面,换底层不改业务代码。
+
+4.2 Actuator 暴露的三个端点S(背景):Spring Boot Actuator 是开箱即用的生产模块,需要决定”暴露哪些端点”——多了泄露信息,少了运维无数据。
+T(目标):只暴露 health、info、prometheus 三个端点,够用且最小。
+A(做了什么):application.yml 配置(main-app.md 第 102 行):
+management:  endpoints:    web:      exposure:        include: health, info, prometheus  endpoint:    health:      show-details: always
+
+三个端点对应三类需求:
+
+/actuator/health —— K8s liveness&#x2F;readiness 探针,失败就重启&#x2F;摘流量。
+/actuator/info —— 版本号、构建时间等元数据。
+/actuator/prometheus —— Prometheus 抓取的指标数据,文本格式。
+
+R(结果与反思):
+
+✅ 一行依赖 + 一行配置,健康检查和指标暴露齐了——“零成本可观测性”。
+⚠️ 生产环境务必设置 show-details: when_authorized,否则泄露内部组件详情。
+
+面试话术(60 秒):Actuator 是”零成本可观测性”——暴露 health&#x2F;info&#x2F;prometheus 三个端点,K8s 探针接 health,Prometheus scrape 接 prometheus。
+
+4.3 AI 业务指标埋点S(背景):Actuator 暴露的是 JVM &#x2F; HTTP 通用指标,不包含”AI 调用成功率、token 消耗、模型耗时”。这些指标 JVM 不知道,必须项目自埋。
+T(目标):埋 3 个核心指标——ai.model.calls(调用次数)、ai.model.duration(耗时)、ai.model.tokens(token 消耗)。验收标准:Grafana 大盘能看到按 model 标签分类的所有指标。
+A(做了什么):三件套协作:
+AiModelMetricsCollector(monitor/AiModelMetricsCollector.java):
+public void record(String modelName, boolean success, long tokens, long costMs) &#123;    registry.counter(&quot;ai.model.calls&quot;, &quot;model&quot;, modelName, &quot;success&quot;, String.valueOf(success))            .increment();    registry.timer(&quot;ai.model.duration&quot;, &quot;model&quot;, modelName)            .record(Duration.ofMillis(costMs));    registry.summary(&quot;ai.model.tokens&quot;, &quot;model&quot;, modelName)            .record(tokens);&#125;
+
+AiModelMonitorListener:监听 LangChain4j 模型调用完成事件,自动触发 record。
+三个 Micrometer 类型分工:
+
+Counter —— 单调递增计数,适合 QPS &#x2F; 错误次数。
+Timer —— 自动算 P95&#x2F;P99&#x2F;P999 分位数,适合响应时间。
+DistributionSummary —— 自定义分布统计,适合 token &#x2F; 大小。
+
+R(结果与反思):
+
+✅ Grafana 大盘能展示按 model 拆分的 QPS &#x2F; 响应时间 &#x2F; token 消耗。
+✅ Timer 自动算 P95&#x2F;P99,无需手写分位数算法。
+✅ 业务代码调 Micrometer,底层换 Prometheus &#x2F; InfluxDB &#x2F; Datadog 不改业务。
+⚠️ 标签 cardinality 别太高(如把 userId 放进标签会让 Prometheus 爆炸)。
+
+面试话术(60 秒):AI 业务指标 JVM 不知道,必须项目自埋。Micrometer 三件套 Counter &#x2F; Timer &#x2F; DistributionSummary 分别对应 QPS &#x2F; 响应时间 &#x2F; 分布统计,Tag 是查询维度但 cardinality 别爆。
+
+4.4 MonitorContextHolder:异步线程上下文传递S(背景):AI 调用是异步的——用户提问后代码立即返回 SseEmitter,模型在后台跑。问题是:后台线程怎么知道”这次调用对应哪个用户 &#x2F; appId”?
+T(目标):用 ThreadLocal 在请求进入时设上下文,异步线程里读,处理完清理。验收标准:异步线程能拿到 appId&#x2F;userId,无串号,无内存泄漏。
+A(做了什么):MonitorContextHolder(monitor/MonitorContextHolder.java):
+public class MonitorContextHolder &#123;    private static final ThreadLocal&lt;MonitorContext&gt; CONTEXT = new ThreadLocal&lt;&gt;();    public static void set(MonitorContext ctx) &#123; CONTEXT.set(ctx); &#125;    public static MonitorContext get() &#123; return CONTEXT.get(); &#125;    public static void clear() &#123; CONTEXT.remove(); &#125;   // 必须清理,防内存泄漏&#125;
+
+典型调用模式:
+MonitorContextHolder.set(new MonitorContext(appId, userId, model));try &#123;    // 触发异步 AI 调用&#125; finally &#123;    MonitorContextHolder.clear();   // Tomcat 线程池复用,必须 clear&#125;
+
+R(结果与反思):
+
+✅ 异步线程能拿到原始请求的 appId&#x2F;userId,正确归属指标。
+⚠️ 关键陷阱:Tomcat 线程池复用线程,不 clear() 会导致”用户串号”——经典 bug。
+⚠️ 虚拟线程 + ThreadLocal 也安全,但要在 try-finally 里 clear。
+💡 进阶:可改用 InheritableThreadLocal 或阿里 TransmittableThreadLocal 支持更复杂链路。
+
+面试话术(60 秒):ThreadLocal + 线程池复用 &#x3D; 内存泄漏 + 数据串号高危。每次 set 后必须在 finally 里 remove,这是 Java 工程师的基本功。
+
+4.5 完整指标采集链路(时序图)S(背景):面试经常被问”AI 调用到底被记录了多少指标、链路是什么样的”。
+T(目标):把整条链路画清楚——从浏览器到 Grafana,中间经过的所有组件。
+A(做了什么):完整时序图(从课程 0013 抽取):
+浏览器 → POST /app/chat/gen/code         ↓AppController  ├─ MonitorContextHolder.set(ctx &#123;appId, userId, model&#125;)  └─ 触发 LangChain4j 调用       ↓AiModelMonitorListener(监听模型调用完成事件)       ↓AiModelMetricsCollector.record(model, success, tokens, costMs)       ↓Micrometer(registry.counter / timer / summary)       ↓/actuator/prometheus(暴露文本)       ↓Prometheus(scrape 拉取并存储)       ↓Grafana(PromQL 查询并展示)       ↓大盘展示图表       ↑MonitorContextHolder.clear() 清 ThreadLocal
+
+R(结果与反思):
+
+✅ Micrometer &#x2F; Prometheus &#x2F; Grafana 三段各司其职,任何一段出问题都能独立替换。
+✅ 这是 CNCF 监控的标准组合拳。
+
+
+五、限流与鉴权(S 双闸门必要 → T 双 AOP → A RateLimit + AuthCheck → R 工程安全)5.1 限流 + 鉴权双闸门S(背景):AI 项目有两个高成本操作——LLM 调用(按 token 计费)和工具调用(可能耗时长)。没有限流,恶意用户可能写脚本刷爆 API;没有鉴权,普通用户能调管理员接口。
+T(目标):用两个独立 AOP 切面守住系统——限流挡高频,鉴权挡越权。
+A(做了什么):两个 AOP 切面 + 注解声明式:
+
+
+
+关注点
+注解
+切面
+后端实现
+
+
+
+限流
+@RateLimit(USER, 5, 60s)
+RateLimitAspect
+Redisson 分布式令牌桶
+
+
+鉴权
+@AuthCheck(mustRole=ADMIN)
+AuthInterceptor
+session userId + 角色匹配
+
+
+典型用法:
+@PostMapping(&quot;/chat/gen/code&quot;)@RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = &quot;AI 对话请求过于频繁&quot;)public Flux&lt;ServerSentEvent&lt;String&gt;&gt; chatToGenCode(...) &#123; ... &#125;@PostMapping(&quot;/admin/update&quot;)@AuthCheck(anyRole = &#123;UserRoleEnum.ADMIN&#125;)public Result&lt;?&gt; adminUpdate(@RequestBody UpdateRequest req) &#123; ... &#125;
+
+R(结果与反思):
+
+✅ 限流挡高频(防 token 预算烧光),鉴权挡越权(防数据泄露)。
+✅ 拦截顺序:限流 → 鉴权 → 业务——先挡高频(省鉴权开销),再校验权限。
+⚠️ 为什么不用 HandlerInterceptor:限流&#x2F;鉴权粒度到方法级 + 参数感知,AOP 比 HandlerInterceptor 灵活。
+⚠️ HandlerInterceptor 优势是 URL 级别 + 直接方法调用无反射开销,本项目以方法注解为主故选 AOP。
+
+面试话术(60 秒):限流 + 鉴权是后台标配双闸门,两道独立切面,任一失守都可能导致安全事故。限流先于鉴权——省资源、省开销、保护下游。
+
+5.2 令牌桶 vs 漏桶S(背景):限流算法选型直接影响用户体验。漏桶强制匀速,会让 AI 突发性请求排队;令牌桶允许桶里累积令牌,能扛突发。
+T(目标):选型理由能讲清,不止是”大家都用令牌桶”。
+A(做了什么):
+
+令牌桶:桶里持续生成令牌(按速率),请求消耗令牌,无令牌则拒绝。允许突发流量。
+漏桶:桶里请求必须排队,强制匀速流出。
+本项目用令牌桶,因 AI 生成是突发性的——用户可能连续问 5 个问题,然后沉默 10 分钟。
+
+R(结果与反思):
+
+✅ 令牌桶允许短时高频,匹配 AI 用户的交互习惯。
+✅ Redisson 的 RRateLimiter 用 Redis Lua 实现,集群共享计数器。
+
+面试话术(60 秒):令牌桶允许突发流量,漏桶强制匀速。AI 用户会连续问几个问题然后沉默,令牌桶匹配这种突发模式。
+
+六、面试高频追问(STAR 速答)Q1:为什么用 LangGraph4j 而不是 Spring State Machine?S:Spring State Machine 是通用状态机库,LangGraph4j 是 AI 场景专用。T:需要 AI 场景的 MessagesState、流式节点输出、异步条件边。A:LangGraph4j 天然支持这些,Spring State Machine 都要自己包装——学习成本与维护成本都高。R:用 LangGraph4j 后,AI 代码生成拆成 6 节点 + 条件边,可视化、易扩展、易测试。
+Q2:三入口(同步&#x2F;Flux&#x2F;SSE)的差异和选型?S:同一工作流,前端有不同调用场景。T:业务层不变,传输层可换。A:同步适合调试 + 批处理;Flux 适合 WebFlux 响应式网关;SSE 适合 MVC + 长任务(30 分钟超时)。R:同一逻辑暴露三种 API,改传输协议不改业务,改业务不改协议。
+Q3:Java 21 虚拟线程对工作流意味着什么?S:SSE 长任务用传统线程占满 8MB 栈,LLM 调用又是阻塞的。T:用同步写法实现”异步性能”。A:全用 Thread.startVirtualThread 启动,几毫秒启动,M 级并发不爆栈。R:工作流实例独占虚拟线程,Lighthouse 长任务性能稳定——Java 对抗 Kotlin 协程 &#x2F; Go goroutine 的官方答案。
+Q4:为什么用本地缓存(Caffeine)而不是 Redis 缓存 AI Service?S:AiServices.builder().build() 非常重,装配耗时长。T:缓存重对象,降低首次延迟。A:本地缓存有纳秒级延迟 + 无网络 IO,适合 AI Service 这种重对象 + 单机用场景;Redis 多 1-5ms 网络 IO,而 AI Service 本身已 1-3 秒,本地缓存省 1ms 没意义。R:首次创建后命中纳秒级,Caffeine 双过期策略防雪崩。
+Q5:hallucinatedToolNameStrategy 为什么必要?S:LLM 偶尔会幻觉出不存在的方法名,尤其 prompt 多变、工具多时。T:不能让 LLM 错误导致整个生成崩。A:hallucinatedToolNameStrategy(req -&gt; &quot;Error: there is no tool called &quot; + req.name()) 把错误作为工具结果回填。R:LLM 下一轮看到错误,自我修正为正确的 readFile——给 LLM 反馈通道是工程级 AI 系统的核心防御。
+Q6:为什么用 Micrometer 而不是直接调 Prometheus 客户端?S:指标需要灵活切换底层实现(开发用内存,生产用 Prometheus,云上换 Datadog)。T:业务代码与底层解耦。A:Micrometer 是 SLF4J 同款”指标门面”——业务调 registry.counter(...),底层可换 Prometheus &#x2F; InfluxDB &#x2F; Datadog,不改业务。R:切换监控后端零业务代码改动。
+Q7:限流为什么要先于鉴权?S:恶意用户可能写脚本刷爆 AI API。T:挡高频请求是第一道防线。A:① 省资源(恶意高频请求不用鉴权);② 省鉴权开销(查 session&#x2F;角色慢);③ 保护下游(限流后请求数可控)。R:限流失败的请求直接 429,鉴权开销为零,下游负载可控。
+Q8:令牌桶和漏桶的差异?S:AI 用户会连续问几个问题然后沉默,请求分布不均匀。T:选能扛突发的算法。A:令牌桶允许桶里累积令牌,突发时一次消耗多个;漏桶强制匀速流出,会让突发请求排队。R:令牌桶匹配 AI 用户的突发交互模式。
+Q9:ThreadLocal 用过什么坑?S:Tomcat 线程池复用线程,ThreadLocal 不清理会泄漏。T:异步线程上下文传递 + 无内存泄漏。A:MonitorContextHolder.set(ctx) + try-finally &#123; clear() &#125;,必须成对出现。R:无用户串号、无内存泄漏。进阶可改 InheritableThreadLocal 或阿里 TransmittableThreadLocal。
+Q10:exclude 自动配置的三大场景?S:starter 自动装配带来便利,但有时与项目冲突。T:处理依赖冲突。A:① 多个 starter 抢同一个 Bean(本项目 LangChain4j Redis starter 与自定义 RedisChatMemoryStore 冲突);② 自定义同名实现需覆盖默认;③ 单元测试不想加载重型组件。R:显式声明依赖边界,只引入项目真正用到的部分。
+
+七、关键洞察卡片(背诵清单,每条都可独立成 STAR)
+启动类 &#x3D; 装配图根:三个注解各管一摊——缓存、装配、ORM。
+LangGraph &#x3D; 可重入 + 可分支的状态机:条件边是智能路由。
+同一业务三种出口:分层 + 多协议适配经典设计。
+接口即服务:LangChain4j 注解驱动 + 动态代理,类型决定行为。
+Caffeine 双过期策略:TTL + 空闲回收,防雪崩模板。
+Micrometer &#x3D; 指标门面:与 SLF4J 同款设计。
+ThreadLocal + 线程池复用 &#x3D; 串号高危:必须 finally clear。
+限流先于鉴权:省资源、省开销、保护下游。
+AOP 拦截粒度 &#x3D; 方法级 + 注解驱动:比 HandlerInterceptor 灵活。
+预制 Grafana 大盘 JSON:把运维经验沉淀为文件。
+
+
+八、延伸阅读索引
+
+
+主题
+关键代码事实卡
+关键课程
+
+
+
+启动类
+_recon/code-fact-A-application.md
+0001
+
+
+业务设计
+_recon/code-fact-L-app-controller.md
+—
+
+
+LangChain4j Service
+_recon/code-fact-B-ai-service.md
+0004
+
+
+AI Service 工厂
+_recon/code-fact-C-ai-factory.md
+0004 &#x2F; 0009
+
+
+LangGraph 工作流
+_recon/code-fact-D-workflow.md
+0005
+
+
+节点实现
+code-fact-E ~ code-fact-H
+0005
+
+
+工具抽象
+_recon/code-fact-I-base-tool.md &#x2F; code-fact-J-file-read-tool.md
+0006
+
+
+SSE 控制器
+_recon/code-fact-K-sse-controller.md
+0005
+
+
+包结构
+_recon/main-app.md &#x2F; _recon/ai-core.md
+—
+
+
+
+
+文档生成时间:2026-09-10浓缩自 18 节 HTML 课程,聚焦业务设计 + LangGraph 使用 + 观测层三主线,按 STAR 法则组织,可直接转成面试口语答案。
+
+]]></content>
+      <categories>
+        <category>项目学习</category>
+      </categories>
+      <tags>
+        <tag>Agent</tag>
+        <tag>Skills</tag>
+        <tag>langchain</tag>
+        <tag>langgraph</tag>
+      </tags>
+  </entry>
 </search>
