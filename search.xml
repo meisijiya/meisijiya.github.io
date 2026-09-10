@@ -65092,4 +65092,404 @@ HTML 课程：scratch/learning-phase-2/lessons/（11 课详细教学）
         <tag>langgraph</tag>
       </tags>
   </entry>
+  <entry>
+    <title>SuperBizAgent STAR 学习手册</title>
+    <url>/2026/09/10/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/%E6%99%BA%E8%83%BDOnCall%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/star_study/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+SuperBizAgent STAR 学习手册
+适用人群：项目作者本人（复习 + 面试讲项目用）文档定位：基于真实源码（D:/26code/简历项目/SuperBizAgent/Java-SuperBizAgent）梳理 STAR 全景、业务设计要点、AI 知识图谱和面试问答。阅读建议：先把第 1、2 章通读，再按 3 章对照源码细节复盘，第 4、5 章可直接用于面试复习。
+
+
+1. 项目概述SuperBizAgent 是一套基于 Spring Boot 3.2.0 + Spring AI Alibaba 1.1.0.0-RC2 的企业级智能业务代理系统，定位「云维 Copilot（AIOps 助手）」。它解决的核心痛点是 SRE&#x2F;运维工程师手工翻 Grafana、Prometheus、Runbook 与 CLS 日志的低效排查路径——目标用户在收到 Prometheus 告警后，只要触发一次 /api/ai_ops，系统就会自动完成「拉告警 → 拆解任务 → 检索内部 Runbook → 拉日志 → 生成结构化告警分析报告」的闭环。同一服务也提供 /api/chat_stream 普通 RAG 问答能力（基于 Milvus 向量库 + DashScope qwen3-max + text-embedding-v4），覆盖两类使用场景：面向业务的智能问答 与 面向运维的告警自愈辅助。
+
+2. STAR 法则全景拆解S（Situation）— 背景与痛点
+企业 SRE 日常痛点：当 Prometheus 触发 HighCPUUsage &#x2F; HighMemoryUsage &#x2F; ServiceUnavailable &#x2F; SlowResponse 等告警后，工程师需要手动打开 Grafana 看指标、切到 CLS 检索 ERROR 日志、再去知识库翻 Runbook，整个过程 5–15 分钟，且容易遗漏关键证据。
+AI Ops 替代路径的空白：传统 ChatBI 只做自然语言查询，不能主动驱动排查；纯 Agent 框架又缺乏与公司向量知识库、Prometheus、CLS 等真实数据源的对接。
+技术诉求：把「LLM + RAG + Agent 工具调用 + 流式服务化」拼成一条可线上演示的多 Agent 链路。
+
+T（Task）— 项目目标
+搭一套 AIOps 助手：自动接收告警 → 调用工具拉取真实数据 → 检索 Runbook → 输出 Markdown 格式告警分析报告。
+RAG 知识库全链路：把 5 份 Runbook（aiops-docs/*.md）向量化入库并提供问答检索。
+可演示、可降级：在没有真实外网（Prometheus&#x2F;CLS&#x2F;MCP）时能切换 Mock，避免外网抖动拖垮演示。
+服务化 + 流式：会话隔离、SSE 流式输出、Spring AI ToolCallbackProvider 自动装配工具。
+
+A（Action）— 实施动作2.A.1 RAG 知识库搭建（DocumentChunkService + VectorEmbeddingService + VectorIndexService + VectorSearchService）
+DocumentChunkService 先按 Markdown 标题（#、##、###）切章节（splitByHeadings），章节内按段落切（splitByParagraphs 按 \n\n+），超过 max-size=800 字符再切，最后 overlap=100 字符做滑动窗口重叠，且尝试在 。？！ 句子边界截断。
+VectorEmbeddingService 调 DashScope text-embedding-v4 输出 1024 维 Float 向量（Constants.apiKey 全局生效 + init() 防呆）。
+VectorIndexService 把 chunk + vector + metadata（含 _source 标识文件路径、_file_name、chunkIndex、title）插入 Milvus；重复上传同文件会先按 metadata[&quot;_source&quot;] == &quot;...&quot; 删除旧数据再插。
+VectorSearchService top-k=3 检索，IVF_FLAT + L2 距离（见源码 VectorSearchService.java:56、MilvusClientFactory.java:167），nprobe&#x3D;10。
+
+2.A.2 工具集成（@Tool 注解 + OkHttp + MCP SSE + Mock 开关）
+4 个 @Tool 工具全部落在 org.example.agent.tool 包：DateTimeTools、InternalDocsTools、QueryMetricsTools、QueryLogsTools。
+QueryMetricsTools 用 OkHttp 调 Prometheus /api/v1/alerts，10s 超时（prometheus.timeout=10），按 alertname 去重，Mock 时返回 3 个内置告警。
+InternalDocsTools 注入 VectorSearchService，复用 RAG top-k&#x3D;3 检索，返回 SearchResult JSON。
+QueryLogsTools 提供 2 个 @Tool（queryLogs + getAvailableLogTopics），支持 ap-guangzhou 等区域枚举；真实模式预留 MCP SSE 接入（spring.ai.mcp.client）。
+cls.mock-enabled &#x2F; prometheus.mock-enabled 控制 buildMethodToolsArray() 动态挂载工具，参见 ChatService.java:123 与 AiOpsService.java:131。
+
+2.A.3 多 Agent 协作（Planner &#x2F; Executor &#x2F; Supervisor）
+AiOpsService.buildPlannerAgent() → planner_agent：拿到告警后规划分析步骤（确认时间窗、查询指标、检索 Runbook、查日志）。
+AiOpsService.buildExecutorAgent() → executor_agent：每步调对应工具，把结果回写到 executor_feedback。
+SupervisorAgent（spring-ai-alibaba Graph 包提供）调度 Planner&#x2F;Executor，决策 PLAN | EXECUTE | FINISH，最终把 planner_plan 写到 outputKey。
+工具列表用 buildMethodToolsArray() 动态拼装，根据 cls.mock-enabled &#x2F; prometheus.mock-enabled 决定是否挂载真实工具。
+
+2.A.4 流式服务化（SseEmitter + 会话隔离 + 历史回写）
+ChatController 用 ConcurrentHashMap&lt;String, SessionInfo&gt; 存 sessionId → List&lt;Message&gt;，每会话独立历史，MAX_WINDOW_SIZE=6（即 6 对 user&#x2F;assistant）。
+/api/chat_stream 用 SseEmitter(300000L)（5 分钟）推流，每帧一个 token。
+/api/chat 一次性返回；/api/ai_ops 用 SseEmitter(600000L)（10 分钟）。
+工具调用结果会在 ChatService 里把 ToolMessage 回写到 history，让 Agent 下轮能看见。
+
+R（Result）— 工程产出（可量化）
+以下数字均来自 src/main/resources/application.yml、源码常量与配置文件，未编造业务指标。
+
+
+
+
+维度
+具体参数 &#x2F; 设计
+来源
+
+
+
+文档分片
+chunk max-size=800 字符、overlap=100 字符，句子边界截断
+application.yml:62-63、DocumentChunkConfig.java、DocumentChunkService.splitByHeadings
+
+
+Embedding
+DashScope text-embedding-v4 → 1024 维 Float 向量
+MilvusConstants.VECTOR_DIM=1024、application.yml
+
+
+向量索引
+Milvus IVF_FLAT，nlist&#x3D;128，nprobe&#x3D;10，metric&#x3D;L2
+MilvusClientFactory.java:166-168、VectorSearchService.java:56-58
+
+
+检索
+top-k=3，按 _source 元数据去重
+RagService.java:39、VectorIndexService.deleteExistingData
+
+
+模型
+DashScope qwen3-max（RAG）&#x2F; qwen3-30b-a3b-thinking-2507（RagService 默认）&#x2F; DashScopeChatModel.DEFAULT_MODEL_NAME（controller）
+application.yml:68、RagService.java:42
+
+
+工具数
+4 个 @Tool 类（含 5 个方法：getCurrentDateTime、queryPrometheusAlerts、queryInternalDocs、queryLogs、getAvailableLogTopics）
+agent/tool/*.java
+
+
+Agent 数
+3 个 ReactAgent（Planner &#x2F; Executor &#x2F; Supervisor）
+AiOpsService.java:55-65
+
+
+流式接口
+SseEmitter，chat_stream=300_000ms（5 分钟）、ai_ops=600_000ms（10 分钟）
+ChatController.java:145,286
+
+
+重试 &amp; 超时
+DashScope max-attempts=3，指数退避 2s → 10s（multiplier&#x3D;2），chat timeout=180_000ms（180 秒），Prometheus 10s，Milvus 10000ms
+application.yml、DashScopeConfig.java
+
+
+会话
+ConcurrentHashMap，窗口 6 对，ReentrantLock 保护
+ChatController.SessionInfo
+
+
+文档
+aiops-docs/ 下 5 份 Markdown（cpu&#x2F;disk&#x2F;memory&#x2F;service_unavailable&#x2F;slow_response）
+aiops-docs/*.md
+
+
+
+3. 关键业务设计深挖3.1 文档分片策略：为什么先按标题切 + 段落切 + 滑动 overlap源码 DocumentChunkService.chunkDocument() 的执行顺序：
+
+按 Markdown 标题切章节（splitByHeadings，正则 ^(#&#123;1,6&#125;)\s+(.+)$ + MULTILINE）—— Runbook 本来就是结构化的，先按章节切能保证 Runbook 的「症状&#x2F;根因&#x2F;处理步骤」不会被拦腰截断。
+章节内按段落切（splitByParagraphs，按 \n\n+）—— 即使单章节超过 800 字符，优先在段落边界分割，不会把一整段说明切到两个 chunk 里。
+超过 max-size 再切 —— 800 字符上限既能保证 Embedding 模型不超 token，又能让检索时一段语义完整。
+滑动窗口 overlap&#x3D;100 字符 —— getOverlapText 从 chunk 末尾取 100 字符，再尝试在 。？！ 句子边界截断，避免「上一 chunk 最后一句和下一 chunk 第一句语义断裂」导致召回漏。
+
+
+这一套组合拳的好处：对结构化文档友好（Runbook&#x2F;技术文档标题分块天然语义对齐）+ 对长章节鲁棒（滑动 overlap 兜底）+ 对中文友好（句子边界按中文标点判断）。
+
+3.2 Embedding 模型选型：text-embedding-v4，1024 维源码 VectorEmbeddingService：
+@Value(&quot;$&#123;dashscope.embedding.model&#125;&quot;) private String model;  // text-embedding-v4@PostConstruct  // 初始化 Constants.apiKey + TextEmbedding 实例
+
+
+为什么选 v4：阿里云 DashScope 的文本向量化模型，输出维度 1024，中英双语友好，与项目 Runbook 全中文场景匹配。
+为什么是 1024 维：源码 MilvusConstants.VECTOR_DIM=1024，对应 FloatVector.withDimension(1024)，在 Milvus schema 里写死。
+距离度量注意：源码实际创建索引时用的是 MetricType.L2（MilvusClientFactory.createIndexes），检索也用 MetricType.L2（VectorSearchService）。VectorEmbeddingService 里另外提供了 calculateCosineSimilarity 工具方法，可在外部做相似度计算，但当前链路并没有让 Milvus 用 COSINE 索引——这是和简历上描述不一致的地方，请按源码为准（详见文末「待用户补充」清单）。
+
+3.3 Milvus 索引：IVF_FLAT nlist&#x3D;128，metadata._source 用于去重源码 MilvusClientFactory.createIndexes：
+CreateIndexParam vectorIndexParam = CreateIndexParam.newBuilder()    .withCollectionName(MilvusConstants.MILVUS_COLLECTION_NAME) // &quot;biz&quot;    .withFieldName(&quot;vector&quot;)    .withIndexType(IndexType.IVF_FLAT)    .withMetricType(MetricType.L2)    .withExtraParam(&quot;&#123;\&quot;nlist\&quot;:128&#125;&quot;)    ...
+
+
+为什么 IVF_FLAT：向量规模在万到十万级别，IVF_FLAT 训练成本低、召回精度高，比 HNSW 更省内存，比 FLAT 检索更快。
+为什么 nlist&#x3D;128：经验值约为 sqrt(N) 到 4*sqrt(N)，项目 Runbook 5 份 × 平均 20 chunk ≈ 100 条记录，nlist&#x3D;128 完全足够。
+检索参数 nprobe&#x3D;10（VectorSearchService.java:58）：召回精度与速度的折中。
+metadata[&quot;_source&quot;] 用于去重：每次重新索引文件前，按 metadata[&quot;_source&quot;] == &quot;xxx&quot; 表达式删除旧 chunk（VectorIndexService.deleteExistingData），避免同文档重复入库膨胀。
+
+3.4 Prompt 三件套（Planner &#x2F; Executor &#x2F; Supervisor）的设计哲学与防幻觉约束三个 Prompt 都写在 AiOpsService 里，核心约束是 「基于工具真实返回，禁止编造」：
+
+
+
+Agent
+职责
+关键约束
+
+
+
+Planner
+拆任务、定步骤
+1. 输出 JSON &#96;decision(PLAN
+
+
+Executor
+只执行 Planner 第一步
+1. 调工具 → 收集证据 → 写 JSON executor_feedback；2. region 沿用 Planner 指定或默认值；3. 严禁编造未实际查询到的内容。
+
+
+Supervisor
+在 planner_agent &#x2F; executor_agent &#x2F; FINISH 间做路由
+1. 收到 decision=EXECUTE 才路由 Executor；2. 反复调用直至 decision=FINISH；3. 同方向 3 次失败即终止，输出「任务无法完成」报告。
+
+
+防幻觉 5 种手法（本项目实际用了 4 种，详见第 4 章）：
+
+强制基于工具真实返回（严格禁止编造数据）—— Planner prompt 第 5 条。
+同工具失败 3 次兜底（连续 3 次调用同一工具仍失败需停止该方向）—— Planner &#x2F; Supervisor 都写了。
+region&#x2F;参数硬约束（必须使用连字符格式 ap-guangzhou）—— 防 LLM 编参数。
+报告模板固定（Planner FINISH 时按 Markdown 模板输出）—— 输出格式可被校验。
+
+3.5 Mock 开关设计：cls.mock-enabled &#x2F; prometheus.mock-enabled源码 AiOpsService.buildMethodToolsArray() 和 ChatService.buildMethodToolsArray() 同一套逻辑：
+@Autowired(required = false)  // Mock 模式下才注册private QueryLogsTools queryLogsTools;private Object[] buildMethodToolsArray() &#123;    if (queryLogsTools != null) &#123;        // Mock 模式：包含 QueryLogsTools        return new Object[]&#123;dateTimeTools, internalDocsTools, queryMetricsTools, queryLogsTools&#125;;    &#125; else &#123;        // 真实模式：不包含 QueryLogsTools（由 MCP 提供日志查询功能）        return new Object[]&#123;dateTimeTools, internalDocsTools, queryMetricsTools&#125;;    &#125;&#125;
+
+
+为什么需要：当真实 Prometheus&#x2F;CLS&#x2F;MCP 不可达时（演示环境、CI、内网），Agent 工具调用会失败导致整个 Graph 卡住。Mock 开关让 Agent 在离线环境也能完成完整闭环演示。
+生效机制：
+@Autowired(required = false) —— 当 Spring 容器里 QueryLogsTools Bean 不存在（CLS MCP 接管）时不抛异常。
+prometheus.mock-enabled 在 QueryMetricsTools.queryPrometheusAlerts() 内分支（返回内置 3 条告警：HighCPUUsage、HighMemoryUsage、SlowResponse）。
+cls.mock-enabled 在 QueryLogsTools.queryLogs() 内分支（按 region&#x2F;logTopic 返回 Mock 日志）。
+
+
+
+3.6 流式响应 + 工具回写：SseEmitter 实现，ToolMessage 写回 history 的目的源码 ChatController.chatStream()：
+SseEmitter emitter = new SseEmitter(300000L); // 5分钟超时executor.execute(() -&gt; &#123;    ReactAgent agent = chatService.createReactAgent(chatModel, systemPrompt);    Flux&lt;NodeOutput&gt; stream = agent.stream(request.getQuestion());    stream.subscribe(output -&gt; &#123;        if (output instanceof StreamingOutput so) &#123;            if (so.getOutputType() == OutputType.AGENT_MODEL_STREAMING) &#123;                emitter.send(SseEmitter.event().name(&quot;message&quot;).data(SseMessage.content(chunk)));            &#125;            // AGENT_TOOL_FINISHED / AGENT_HOOK_FINISHED 也单独 log        &#125;    &#125;, error -&gt; emitter.completeWithError(error),       () -&gt; &#123;           session.addMessage(request.getQuestion(), fullAnswerBuilder.toString()); // 历史回写           emitter.send(SseMessage.done());           emitter.complete();       &#125;);&#125;);
+
+
+SseEmitter 原理：Spring MVC 基于 Servlet 3.0 异步 + text/event-stream 协议，每帧一个 data: ...\n\n，前端用 EventSource 监听。
+与 WebSocket 取舍：SSE 是单向（服务器→客户端）+ HTTP 长连接，复用现有 9900 端口与代理；WebSocket 是双向全双工，需要独立协议升级。对「单轮问答 + 流式 token」场景 SSE 更轻。
+历史回写的目的：session.addMessage() 把当前 user&#x2F;assistant 对写入 messageHistory，下次再发同 sessionId 请求时，ChatService.buildSystemPrompt() 会把历史拼到 system prompt 里——这是 多轮对话 的实现机制，也是「工具调用结果让下轮 Agent 看见」的关键。
+
+
+4. AI 相关知识图谱（面试复习）4.1 RAG 原理回顾：检索 → 增强 → 生成三段式
+检索（Retrieval）：用户问题 → VectorEmbeddingService.generateQueryVector() → Milvus top-k&#x3D;3 召回。
+增强（Augmentation）：RagService.buildContext() 把 SearchResult 拼成 【参考资料 N】 段落；buildPrompt() 套上「你是一个专业的AI助手」+「请根据参考资料回答」模板。
+生成（Generation）：generation.streamCall() 流式调 qwen3-max，incrementalOutput=true，每个增量块通过 StreamCallback.onContentChunk 推到前端。
+本项目特点：检索粒度是 chunk 级（不是文档级），召回后再用 Prompt 模板做 context 注入；没用 reranker，是简化版的 Naive RAG。
+
+4.2 Agent &#x2F; Tool Use：Function Calling 本质 + Spring AI @Tool 注解原理 + ToolCallback
+Function Calling 本质：LLM 在输出 token 时输出结构化「工具调用指令」（JSON Schema），宿主程序根据指令本地执行后再把结果以 ToolMessage 形式塞回对话。这是 OpenAI &#x2F; DashScope 通用的协议。
+Spring AI @Tool 原理：@Tool(description=&quot;...&quot;) 注解的方法会被 Spring AI 扫描到 ToolCallback 列表里，方法签名自动生成 JSON Schema，description 直接作为 LLM 看到的工具描述（prompt 里给模型「工具能力说明」）。
+ToolCallback 怎么挂到 ChatModel：本项目用 ToolCallbackProvider tools（自动注入的 Spring AI Bean）拿到所有工具 → ChatService.getToolCallbacks() 拿到 ToolCallback[] → ReactAgent.builder().tools(toolCallbacks).methodTools(buildMethodToolsArray()) 一次性挂上去。
+本项目 4 个 @Tool 类 + 1 个 MCP SSE：DateTimeTools（时间锚定）、InternalDocsTools（RAG 检索）、QueryMetricsTools（Prometheus 拉告警）、QueryLogsTools（CLS Mock），加上 spring.ai.mcp.client.sse.connections.tencent-cls 注入的 MCP 日志工具。
+
+4.3 Plan-and-Execute vs ReAct：项目实际是 ReactAgent + Graph 的 Supervisor 协作
+ReAct：单 Agent 内循环 Reason → Act → Observe，适合通用推理。
+Plan-and-Execute：先一次性规划所有步骤，再串行执行；适合步骤明确的任务。
+本项目实际形态：Planner 输出 decision=PLAN|EXECUTE|FINISH 的多轮迭代，Supervisor 调度，本质属于 「Plan-and-Execute 的多轮循环变体」（介于 ReAct 与 Plan-and-Execute 之间），落地在 spring-ai-alibaba SupervisorAgent 框架上。
+为什么这么设计：AIOps 任务需要「规划一次，执行一步，根据证据决定是否重规划」的闭环，单一 ReAct 容易在多工具调用中走偏。
+
+4.4 Embedding 模型与距离度量
+维度含义：1024 维是把文本映射到 1024 维欧氏空间的一个点，相似语义的文本距离近。
+L2 vs COSINE：
+L2（欧氏距离）：对向量长度敏感，适合归一化后的 embedding。
+COSINE（余弦相似度）：只看方向不看长度，对短文本&#x2F;长文本差异更鲁棒。
+本项目 Milvus 索引实际配的是 L2（MilvusClientFactory.java:167），但 VectorEmbeddingService.calculateCosineSimilarity() 方法单独提供余弦计算能力（用于非 Milvus 场景，如离线评测）。
+
+
+
+4.5 向量数据库基础：IVF_FLAT 倒排、nlist 选择经验值
+IVF_FLAT：Inverted File + Flat。训练阶段把向量空间划成 nlist 个聚类桶，查询时只搜最近的 nprobe 个桶。
+nlist 选择经验值：nlist ≈ 4 * sqrt(N)，其中 N 是向量总数。本项目 5 份 Runbook ≈ 100 条向量，nlist&#x3D;128 完全够用，过大反而拖慢训练。
+nprobe 经验值：默认 10，占 nlist 的 ~8%，精度与速度折中。
+为什么不用 HNSW：HNSW 内存占用更高（要建图），本项目量级不需要。
+
+4.6 提示词工程：四要素 + 防幻觉 5 种手法四要素（Planner&#x2F;Executor&#x2F;Supervisor 都遵循）：
+
+角色设定：你是 Planner Agent，同时承担 Replanner 角色 &#x2F; 你是 Executor Agent &#x2F; 你是 AI Ops Supervisor。
+任务分解：明确列出 1.&#x2F;2.&#x2F;3. 步骤。
+约束条件：region 格式、失败重试次数、禁止编造。
+输出格式：decision(PLAN|EXECUTE|FINISH) + JSON 或 Markdown 模板。
+
+防幻觉 5 种典型手法 vs 本项目实际使用：
+
+
+
+手法
+解释
+本项目是否用
+
+
+
+1. 强制基于检索&#x2F;工具真实返回
+Prompt 写明「禁止编造」
+✅ Planner &#x2F; Executor &#x2F; Supervisor 都有
+
+
+2. 同工具失败 N 次兜底
+N&#x3D;3 时强制停止
+✅ Planner 第 5 条 + Supervisor 第 6 条
+
+
+3. 参数硬约束
+region 必须连字符
+✅ Planner 第 4 条 + Supervisor 第 5 条
+
+
+4. 输出结构&#x2F;模板固定
+FINISH 时按 Markdown 模板输出
+✅ Planner 「## 最终报告输出要求」
+
+
+5. 输出后置校验 &#x2F; Re-rank
+答案生成后再做事实性检查
+❌ 项目未做
+
+
+→ 本项目实际用了 4 种（1&#x2F;2&#x2F;3&#x2F;4），未做第 5 种。
+4.7 SSE 流式：SseEmitter 原理、与 WebSocket 的取舍
+SseEmitter 原理：Spring MVC 对 Servlet 3.0 Async 的封装，Content-Type: text/event-stream，每帧 data: ...\n\n，HTTP keep-alive。
+与 WebSocket 区别：
+
+
+
+
+维度
+SSE
+WebSocket
+
+
+
+协议
+HTTP
+ws:&#x2F;&#x2F; &#x2F; wss:&#x2F;&#x2F;
+
+
+方向
+单向（服务端→客户端）
+双向
+
+
+复杂度
+低，复用 HTTP 基础设施
+高，需要协议升级
+
+
+适用
+单向推送（流式 token、进度）
+双向实时（聊天、协作）
+
+
+→ 本项目 RAG 问答是「一问一答 + 流式 token」，SSE 足够；如要做双向协同（多 Agent 实时交互）才需要 WebSocket。
+
+5. 面试可能被问的问题 + 参考回答Q1. 请你介绍一下这个项目的整体架构？回答要点：项目分两层 —— RAG 问答层（DocumentChunkService → VectorEmbeddingService → VectorIndexService 入 Milvus，RagService 检索 + 注入 + DashScope 流式生成）和 AIOps 多 Agent 层（AiOpsService 用 spring-ai-alibaba 的 SupervisorAgent 调度 Planner + Executor 两个 ReactAgent，工具通过 @Tool 注解 + ToolCallbackProvider 注入）。前端走 SseEmitter 流式。
+Q2. 为什么选 Milvus 而不是 Elasticsearch &#x2F; pgvector？回答要点：纯向量场景 Milvus 性能更好（IVF_FLAT&#x2F;HNSW 索引），schema 简单（id + vector + content + metadata），metadata JSON 字段灵活。ES 全文检索强但向量检索是后加的；pgvector 部署简单但量级一大性能下降。本项目 Runbook 文档量小（5 份），Milvus 单机版足够，扩展时可平滑切到分布式。
+Q3. DocumentChunkService 为什么先按标题再按段落切？回答要点：Runbook 是 Markdown 结构化文档，标题天然划清了「症状&#x2F;根因&#x2F;处理步骤」语义边界；如果直接按字符切会把同一章节切到两个 chunk 里破坏语义。先按标题保证结构，再按段落保证段落完整，最后 overlap=100 字符滑动窗口兜底，避免边缘截断导致召回缺失。
+Q4. Embedding 模型为什么选 text-embedding-v4？回答要点：阿里云 DashScope 自家模型，中英双语友好；输出 1024 维刚好对应 Milvus FloatVector.withDimension(1024)；通过 Constants.apiKey 全局初始化保证 Spring Bean 启动时 Key 一定就绪。
+Q5. 你们的 RAG 检索为什么 top-k&#x3D;3？回答要点：项目 Runbook 单文件长度小、5 份总量在 100 chunk 量级，top-k&#x3D;3 已经能覆盖大部分召回需求；如果 top-k 过大反而会引入噪声（参考 §4.1）。如果未来文档膨胀到万级，可以再加 reranker。
+Q6. Planner &#x2F; Executor &#x2F; Supervisor 三个 Agent 是怎么协作的？回答要点：Supervisor 是顶层调度器（spring-ai-alibaba SupervisorAgent），根据 Executor 的反馈在「Planner → Executor → FINISH」间路由。Planner 拿到告警后输出 decision(PLAN|EXECUTE|FINISH) + JSON，Supervisor 看到 EXECUTE 就调 Executor 执行一步，Executor 调 @Tool 拿真实数据回写到 executor_feedback，Planner 再决定下一步。这种「规划一次执行一步 + 多轮迭代」是介于 ReAct 与 Plan-and-Execute 之间的变体。
+Q7. 你们如何防止 LLM 编造数据？回答要点：项目用了 4 种手法 —— ① Prompt 强制「禁止编造，只能引用工具真实返回」；② 同一工具连续 3 次失败就强制停止并报告「无法完成」；③ region 等参数硬约束（连字符 ap-guangzhou）；④ FINISH 时按固定 Markdown 模板输出，方便后处理校验。第 5 种「输出后事实性校验&#x2F;rerank」项目暂时没做。
+Q8. Mock 开关是怎么设计的？回答要点：两条线 —— prometheus.mock-enabled 在 QueryMetricsTools.queryPrometheusAlerts() 内分支（返回 3 条内置告警），cls.mock-enabled 在 QueryLogsTools.queryLogs() 内分支（返回 Mock 日志）。再配合 ChatService.buildMethodToolsArray() &#x2F; AiOpsService.buildMethodToolsArray() 用 @Autowired(required=false) 决定是否把 QueryLogsTools 注入工具列表。这样离线演示、CI、内网环境都能跑通。
+Q9. 流式响应怎么实现的？SSE 和 WebSocket 怎么选？回答要点：用 Spring MVC 的 SseEmitter(300_000ms)，每帧一个 data: ...\n\n 推 text/event-stream。前端 EventSource 监听。SSE 是单向 HTTP 长连接，复用 9900 端口 + Nginx 代理；WebSocket 是双向全双工要协议升级。对「一问一答 + 流式 token」场景 SSE 足够轻。
+Q10. 会话历史怎么管理？为什么要做回写？回答要点：ChatController.sessions 是 ConcurrentHashMap&lt;String, SessionInfo&gt;，SessionInfo.messageHistory 用 ReentrantLock 保护，最多保留 MAX_WINDOW_SIZE=6 对（user+assistant）。session.addMessage() 在每轮对话完成后回写，下次同 sessionId 请求时 ChatService.buildSystemPrompt() 把历史拼到 system prompt 里 —— 这是多轮对话的关键，工具调用结果也靠这个机制让 Agent 下轮看见。
+Q11. Spring AI Alibaba Graph 的 SupervisorAgent 内部是怎么实现的？回答要点：本项目没有深入翻 spring-ai-alibaba 源码，但能讲清楚使用层面：通过 subAgents(List.of(plannerAgent, executorAgent)) 把子 Agent 注册进来，SupervisorAgent.invoke(taskPrompt) 返回 Optional&lt;OverAllState&gt;，从 state 里按 outputKey 提取最终结果。如果面试追问实现，建议说「Graph 框架封装了状态机式的子 Agent 调度，本项目主要用其 API 而未自研 Graph 节点」。
+Q12. Milvus 索引的 IVF_FLAT 为什么选 nlist&#x3D;128？回答要点：经验值 nlist ≈ 4 * sqrt(N)，本项目向量规模 ~100，nlist&#x3D;128 完全足够。检索时用 nprobe&#x3D;10，召回精度与速度折中。如果未来扩到 10 万级，需要重新训练索引并调整 nlist。
+Q13. 你们的稳定性策略有哪些？回答要点：① DashScope 调用配指数退避重试（max-attempts=3，2s → 10s 倍数）；② Chat 超时 180 秒；③ Prometheus&#x2F;Milvus 超时 10 秒；④ Mock 开关兜底；⑤ SseEmitter 在 5&#x2F;10 分钟超时后自动断开。综合起来：网络层（超时 + 重试）+ 应用层（Mock 开关）+ 协议层（Emitter 超时）三层防护。
+Q14. 你这个项目和直接用 LangChain &#x2F; LangGraph 有什么不同？回答要点：本项目用 Spring AI Alibaba + spring-ai-alibaba Graph，与 Spring Boot 生态深度集成（@Tool 注解、ToolCallbackProvider 自动注入、@ConfigurationProperties 配置绑定）；LangChain 是 Python 生态，与 Java 后端集成需要额外的胶水代码。但 Graph 抽象能力上 LangGraph 更成熟，spring-ai-alibaba Graph 还在演进。
+Q15. 你在项目里踩过哪些坑？回答要点：① Milvus 删除操作前必须 loadCollection（状态码 65535 表示已加载，不算错误，源码里专门判了这个）；② 路径分隔符在 Windows&#x2F;Linux 不一致，统一替换为 / 后再写 metadata[&quot;_source&quot;]；③ Chunk overlap 不能简单截字符，要按 。？！ 中文标点判断句子边界；④ MCP SSE 连接要配置 request-timeout=60s 否则默认 10 秒会断开；⑤ DashScope API Key 既要写到 spring.ai.dashscope.api-key 也要写 dashscope.api.key，前者给 Spring AI，后者给自定义 Embedding&#x2F;Generation 调用。
+
+6. 待用户补充清单以下信息需要你（项目作者）自己确认后回填到文档里，我无法替你做决定：
+
+
+
+#
+待确认项
+影响章节
+我的推测（仅供参考，请自行核对）
+
+
+
+1
+Milvus 实际距离度量是 L2 还是 COSINE
+§2.A.1、§3.2、§4.4
+源码写的是 MetricType.L2（MilvusClientFactory.java:167），但 docs/resume_project.md 写的是「IVF_FLAT + COSINE」—— 以源码为准是 L2，请确认要不要把简历文案也改过来
+
+
+2
+qwen3-max vs qwen3-30b-a3b-thinking-2507 哪个是主用模型
+§2.A.3
+application.yml 写 rag.model: qwen3-max，但 RagService.java:42 默认 qwen3-30b-a3b-thinking-2507；两者谁主用、谁回退需要你确认
+
+
+3
+ChatService.buildSystemPrompt() 动态工具清单
+§2.A.3 第 4 条
+你提到「动态拼所有 @Tool 名 + 一句话功能」，但我看 ChatService.buildSystemPrompt 里只是硬编码了 4 个工具描述，没有动态扫描 @Tool 注解 —— 请确认是否漏看了某段反射代码，或者这条特性尚未实现
+
+
+4
+业务数字（告警量、报告量、QPS 等）
+§2.R
+项目是 demo&#x2F;演示级，没有真实业务数字，简历上别编造
+
+
+5
+@Tool 总数到底是 4 个类还是 5 个方法
+§2.R
+agent/tool/ 下确实 4 个类，但 QueryLogsTools 暴露了 queryLogs + getAvailableLogTopics 两个方法。简历建议写「4 个工具类 &#x2F; 5 个方法」更准确
+
+
+6
+dropCollection 工具类
+§2.A.2
+tool/DropCollection.java 存在但未在 Agent 链路里引用，是否对外暴露请确认
+
+
+7
+Mock 模式默认行为
+§3.5
+当前 cls.mock-enabled: false + prometheus.mock-enabled: false，真实模式默认走 MCP SSE，但项目里 MCP SSE 真实接入代码我没看到完整实现，请确认是否真的能联通腾讯云 CLS
+
+
+8
+「180s 超时 + 3 次指数退避」
+§2.R
+application.yml 配的是 max-attempts=3、initial-interval=2000ms、multiplier=2、max-interval=10000ms、timeout=180000ms，所以重试序列实际是 0s → 2s → 4s → 8s（最多 10s 上限），与「指数退避 2s&#x2F;4s&#x2F;8s」表述更准
+
+
+9
+IVF_FLAT + nlist&#x3D;128 是否经过基准测试
+§3.3
+我是从代码里读出来的，没有 benchmark 数据，请确认
+
+
+10
+「告警 ID&#x2F;服务名&#x2F;时间窗」
+§2.A.2 QueryLogsTools
+QueryLogsTools 参数化是 region + logTopic + query + limit，没有「告警 ID」专用字段，请确认是不是 query 里传 alertname
+
+
+
+文档版本：v1.0 · 基于源码 commit-time 2026-09-10维护建议：项目重构后（特别是 AiOpsService Prompt 与 VectorIndexService 索引策略变更），请同步更新本文件第 2、3 章。
+]]></content>
+      <categories>
+        <category>项目学习</category>
+        <category>智能OnCall项目</category>
+      </categories>
+  </entry>
 </search>
