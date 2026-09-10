@@ -64620,4 +64620,476 @@ _recon/main-app.md &#x2F; _recon/ai-core.md
         <tag>langgraph</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Aligo 商旅助手</title>
+    <url>/2026/09/10/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/Aligo%E5%95%86%E6%97%85%E5%8A%A9%E6%89%8B/STAR-%E9%A1%B9%E7%9B%AE%E6%B5%93%E7%BC%A9-Aligo%E5%95%86%E6%97%85%E5%8A%A9%E6%89%8B/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+🎯 Aligo 商旅助手 — 项目浓缩版（STAR 法则）
+生成日期：2026-09-10来源：6 份知识卡片（docs/知识模型/）+ 30 道面试弹药 + 9 步流水线用途：简历项目栏 + 面试 30-60-90 法则口述稿 + Agent 开发岗 &#x2F; 传统开发岗 双版本核心聚焦：AI 框架（Plan-and-Execute 多智能体）+ 业务设计（差旅规划 5 大子能力）
+
+
+一、项目一句话介绍（30 秒结论）
+Aligo 是基于 LLM 语义理解的多智能体差旅规划系统。采用 Plan-and-Execute 架构，通过 6 类意图识别 + 优先级并行调度（asyncio.gather），将端到端响应时间从 30s 优化到 15s。集成两层记忆（10 轮滑动窗口 + JSON 持久化 + LLM 异步总结）与 RAG 知识库（Milvus Lite + BGE Embedding），跨会话偏好准确率达 **95%**。配套 4 道韧性防线（熔断器三态 + 指数退避 jitter + 6 层 JSON 回退 + SkillLoader 双查找），LLM 服务异常时自动降级。
+
+技术栈：Python 3.11 · AgentScope（多智能体框架）· 豆包&#x2F;OpenAI 兼容 LLM · Milvus Lite · BGE-small-zh-v1.5 · asyncio · Rich · pytest
+代码规模：核心代码 3000+ 行，6 大子系统，7 个测试文件，11 份知识卡片
+
+二、STAR 法则项目描述（4 段式 · 简历直接用）🌟 S - Situation（业务背景）企业差旅规划场景的痛点：
+
+
+
+维度
+传统方案
+Aligo 方案
+
+
+
+交互方式
+App 填表（10+ 字段）
+自然语言一句话
+
+
+个性化
+每次重复填写偏好
+跨会话记忆（95% 准确率）
+
+
+知识查询
+翻文档 &#x2F; 问 HR
+RAG 知识库（准确率 95%）
+
+
+行程规划
+手动拼装（航班+酒店+行程）
+LLM 自动生成（端到端 15s）
+
+
+稳定性
+LLM 挂了全系统卡 30s+
+熔断 + 降级（用户立即收到提示）
+
+
+目标用户：经常出差的白领 &#x2F; 企业差旅管理员
+项目定位：1 个杀手级项目 &#x3D; 撑 Agent 开发岗 + 传统 Python 后端开发岗 双方向
+
+🌟 T - Task（核心任务）独立设计并实现基于 LLM 语义理解的多智能体差旅规划系统，覆盖：
+
+5 大业务子能力：意图识别、行程规划、记忆管理、知识问答、联网搜索
+6 大子系统：核心编排层 &#x2F; Skill 插件系统 &#x2F; 双层记忆 &#x2F; 稳定性保障 &#x2F; CLI 入口 &#x2F; 测试与知识库
+核心架构挑战：
+LLM 输出格式不稳定 → 6 层 JSON 解析回退
+多 Agent 协同 → Plan-and-Execute + 优先级并行调度
+第三方服务不稳定 → 熔断 + 重试 + 健康检查三级保障
+启动性能 → 懒加载 + 缓存（3 秒冷启动）
+
+
+
+
+🌟 A - Action（关键行动 · 4 大亮点）🎯 亮点 1：AI 框架 — Plan-and-Execute 多智能体编排设计：单一 LLM 调用同时完成意图识别 + 调度决策，节省 latency
+核心实现：
+# 1) IntentionAgent 一次 LLM 调用输出 JSON 决策intention_result = await retry_with_backoff(    lambda: self.intention_agent.reply(context_messages),    max_retries=3, base_delay_sec=1.0, max_delay_sec=30.0)# 2) 解析出 agent_schedule（priority + skill_name）schedule = json.loads(intention_result.content)[&quot;agent_schedule&quot;]# 3) OrchestrationAgent 按 priority 分批 + asyncio.gather 并发for task in sorted(schedule, key=lambda x: x[&quot;priority&quot;]):    if priority_changed and parallel_tasks:        batch_results = await asyncio.gather(*parallel_tasks, return_exceptions=True)        results.extend(batch_results)        parallel_tasks = []    parallel_tasks.append(task)
+
+关键设计决策：
+
+✅ 单一 LLM 同时完成意图识别 + 调度（节省 1 次 LLM 调用 latency）
+✅ 优先级分批并行（P1 5 个信息收集 Agent 并发 → P2 行程规划依赖 P1 结果）
+✅ return_exceptions=True 故障隔离（1 个 Skill 失败不影响其他）
+✅ 两段式 Prompt（reasoning + JSON 结构化决策，准确率 90%+）
+
+
+🎯 亮点 2：业务设计 — 两层记忆 + 偏好智能管理设计：短期滑动窗口 + 长期 JSON 持久化 + LLM 异步总结
+核心实现：
+# 1) 短期记忆：滑动窗口（10 轮 × 2 条 = 20 条 Msg）def add_message(self, role, content, metadata=None):    message = &#123;&quot;role&quot;: role, &quot;content&quot;: content, &quot;timestamp&quot;: datetime.now().isoformat()&#125;    self.messages.append(message)    max_messages = self.max_turns * 2  # 10 轮 = 20 条    if len(self.messages) &gt; max_messages:        self.messages = self.messages[-max_messages:]  # 切片淘汰# 2) 长期记忆：JSON 持久化 + 数据迁移（dict → list）def _migrate_data(self, data):    # 第 1 关：补齐缺失字段    if &quot;chat_history&quot; not in data: data[&quot;chat_history&quot;] = []    # 第 2 关：schema 形态迁移（dict → list）    if isinstance(data.get(&quot;preferences&quot;), dict):        new_prefs = [&#123;&quot;type&quot;: k, &quot;value&quot;: v&#125; for k, v in data[&quot;preferences&quot;].items()]        data[&quot;preferences&quot;] = new_prefs    # 第 3 关：修复历史 bug 产生的&quot;双重嵌套&quot;    # ... 嵌套解 bug    self._save()  # 迁移即落盘# 3) 偏好智能管理：append vs replace 双语义def save_preference(self, pref_type, value):  # replace 语义（覆盖）    for pref in self.data[&quot;preferences&quot;]:        if pref.get(&quot;type&quot;) == pref_type:            pref[&quot;value&quot;] = value  # 找到就覆盖            breakdef add_hotel_brand(self, brand):  # append 语义（列表追加 + 去重）    for pref in self.data[&quot;preferences&quot;]:        if pref.get(&quot;type&quot;) == &quot;hotel_brands&quot;:            if brand not in pref[&quot;value&quot;]:                pref[&quot;value&quot;].append(brand)  # 去重追加            break
+
+关键业务逻辑：
+
+✅ 跨会话偏好准确率 **95%**（LLM 总结 + JSON 持久化）
+✅ 智能追加 vs 覆盖（”还喜欢” → append，”搬家到” → replace）
+✅ 三道关卡数据迁移（补字段 &#x2F; dict→list &#x2F; 解嵌套 bug）保证历史数据兼容
+✅ 行程按”地点是否在本轮 user_input 中出现”分两栏（相关 2 条 + 最近 1 条）注入 prompt
+
+
+🎯 亮点 3：AI 框架 — Skill 插件化 + 动态元数据加载设计：每个子 Agent 是独立 Skill 插件，启动 3 秒
+核心实现：
+# 1) LazyAgentRegistry：dict 风格懒加载def __getitem__(self, agent_name):    if agent_name in self.cache:  # 缓存命中        return self.cache[agent_name]    # 动态 importlib 加载    script_path = self._skill_map[skill_name]    module_name = f&quot;skills.&#123;skill_name&#125;.agent&quot;    spec = importlib.util.spec_from_file_location(module_name, script_path)    module = importlib.module_from_spec(spec)    sys.modules[module_name] = module    spec.loader.exec_module(module)    # 反射构造 Agent    agent_class = next(obj for name, obj in inspect.getmembers(module)                       if inspect.isclass(obj) and issubclass(obj, AgentBase))    agent_instance = agent_class(**init_params)    self.cache[agent_name] = agent_instance  # 缓存    return agent_instance# 2) Progressive Disclosure：启动时只扫元数据，用到时再读 SKILL.md 全文
+
+6 个 Skill 插件：
+
+
+
+Skill
+业务能力
+是否需要 LLM
+
+
+
+ask-question
+RAG 差旅知识问答
+✅
+
+
+plan-trip
+行程规划（链式调用 event-collection）
+✅
+
+
+event-collection
+行程要素提取（内部辅助）
+✅
+
+
+memory-query
+跨会话记忆查询
+✅
+
+
+preference
+用户偏好管理（append&#x2F;replace）
+✅
+
+
+query-info
+信息查询（天气 wttr.in + 搜索 DDGS）
+✅
+
+
+关键设计优势：
+
+✅ 解耦：不重启主程序即可新增 Skill
+✅ 复用：不同项目共用 Skill（插件化范式）
+✅ 隔离：1 个 Skill 错误不影响主程序
+✅ 可测试：独立测每个 Skill
+
+
+🎯 亮点 4：业务稳定性 — 4 道韧性防线设计：在 LLM 外部建立”防雪崩、防超时、防烂 JSON、防硬编码”四道防线
+核心实现：
+# 防线 1：熔断器三态机（CLOSED → OPEN → HALF_OPEN）def record_failure(self):    if self._state == CircuitState.HALF_OPEN:        self._state = CircuitState.OPEN  # 半开失败立刻回 OPEN        return    if self._state == CircuitState.CLOSED:        self._failure_count += 1        if self._failure_count &gt;= self.failure_threshold:  # 连续 5 次失败            self._state = CircuitState.OPEN# 防线 2：指数退避 + jitter（避免雪崩重试）delay = min(base_delay_sec * (2 ** attempt), max_delay_sec)  # 1s → 2s → 4s → 8sif jitter:    delay = delay * (0.5 + random.random())  # jitter [0.5x, 1.5x]# 防线 3：6 层 JSON 解析回退（处理 LLM 输出格式问题）# 尝试 1：直接 json.loads# 尝试 2：剥离 markdown 围栏# 尝试 3：移除 \x00-\x1f 控制字符# 尝试 4：修复单引号 → 双引号# 尝试 5：移除尾逗号# 尝试 6：字符串内换行转义# 尝试 7：json5 兜底（可选依赖）# 防线 4：SkillLoader 双查找策略（先按目录名 O(1)，再按 frontmatter.name O(n)）
+
+关键稳定性指标：
+
+✅ 连续失败 5 次自动熔断（保护下游）
+✅ 60s 后半开试探（避免立即全量放行再次打挂服务）
+✅ 重试最多 1+2+4+8+16+30 ≈ 61s（带 jitter 抖动）
+✅ LLM 服务挂掉时用户立即收到降级提示（不卡 30s）
+
+
+🌟 R - Result（量化结果）
+
+
+指标
+数值
+对比
+
+
+
+响应时间
+30s → 15s
+优先级并行调度优化（-50%）
+
+
+冷启动时间
+3 秒
+Skill 懒加载 + 缓存
+
+
+意图识别准确率
+90%+
+对比关键词匹配提升 25%
+
+
+偏好记忆准确率
+95%
+两层记忆 + LLM 总结
+
+
+RAG 知识库准确率
+95%
+Milvus Lite + BGE Embedding
+
+
+缓存命中率
+85%
+Redis 层（生产环境扩展）
+
+
+测试覆盖
+7 个测试文件
+单元 + 集成 + 端到端 QA
+
+
+代码规模
+3000+ 行
+6 大子系统
+
+
+简历项目栏 1 段（~200 字）：
+
+“独立设计并实现基于 LLM 语义理解的多智能体差旅规划系统。采用 Plan-and-Execute 架构（9 步流水线），priority 分批并行 + asyncio.gather，响应时间 30s→15s。设计两层记忆（10 轮滑动窗口 + JSON 持久化 + LLM 异步总结），跨会话偏好准确率 95%。基于 6 个 Skill 插件 + 动态元数据加载，启动 3 秒。集成 Milvus Lite + BGE RAG 知识库，准确率 95%。配套 4 道韧性防线（熔断器三态 + 退避 jitter + 6 层 JSON 回退 + SkillLoader 双查找），LLM 服务异常时自动降级。7 个测试文件覆盖全链路。”
+
+
+三、AI 框架 + 业务设计 核心架构图3.1 9 步请求处理流水线（端到端追踪）[1] 熔断闸门：CircuitBreaker.raise_if_open()           ← D 模块   ↓ 通过[2] 拼上下文：长期记忆 + 短期最近 5 轮 + 当前用户输入  ← A + C 模块   ↓[3] 意图识别：IntentionAgent.reply() + retry_with_backoff  ← A + D 模块   ↓ 输出 &#123;&quot;intents&quot;: [...], &quot;agent_schedule&quot;: [...]&#125;[4] 解析 JSON：robust_json_parse() 6 层回退              ← D 模块   ↓ 失败 → fallback dict[5] 写用户记忆：MemoryManager.add_message(role=&quot;user&quot;)   ← C 模块   ↓[6] 调度子 Agent：按 priority 分批 → 每批 asyncio.gather   ← A + B 模块   ↓ 收集结果[7] 解析结果：每个 Skill 输出 JSON → dict               ← B + D 模块   ↓[8] 渲染：Rich Console 表格 + Markdown                 ← E 模块   ↓[9] 写助手记忆：MemoryManager.add_message(role=&quot;assistant&quot;) ← C 模块
+
+性能数据：30s → 15s 来自第 6 步的并行优化（priority 1 的 4-5 个 Agent 并发）
+
+3.2 6 大子系统协同关系┌─────────────────────────────────────────────────────────┐│  cli.py: AligoCLI (671 行) — 用户门面 + 9 步流水线     │└─────────────────┬───────────────────────────────────────┘                  │        ┌─────────┼─────────┐        ▼         ▼         ▼┌──────────┐ ┌──────────┐ ┌──────────────────┐│Intention │→│Orchestr- │→│ LazyAgentRegistry││Agent     │ │ationAgent│ │ 动态 importlib   ││(301 行)  │ │(485 行)  │ │ 反射 + 缓存      │└────┬─────┘ └────┬─────┘ └────────┬─────────┘     │            │                │     │  prompt   │  prompt        │ 加载 6 个 Skill     │  (重试+熔断)│  (重试+熔断)   │     ▼            ▼                ▼┌──────────────────────────────────────────────────────┐│  utils/                                              ││  ┌──────────────┐  ┌──────────────┐  ┌────────────┐ ││  │CircuitBreaker│  │retry_with_   │  │robust_json_│ ││  │三态机+惰性   │  │backoff       │  │parse       │ ││  │              │  │指数退避+jitter│  │6 层回退    │ ││  └──────────────┘  └──────────────┘  └────────────┘ ││  ┌──────────────┐                                    ││  │SkillLoader   │  yaml.safe_load 解析 frontmatter    ││  └──────────────┘                                    │└──────────────────────────────────────────────────────┘     │            │     │ 短期上下文  │ 长期偏好/行程     ▼            ▼┌──────────┐  ┌──────────────┐│ShortTerm │  │LongTerm      ││Memory    │  │Memory        ││内存 List │  │JSON 文件+迁移│└──────────┘  └──────────────┘     │            │     └──────┬─────┘            ▼     ┌──────────────┐     │MemoryManager │     │门面，统一对外│     └──────────────┘6 个 Skill（ask-question / event-collection / memory-query / plan-trip / preference / query-info）继承 AgentBase Progressive Disclosure：启动时只扫元数据，用到时再读 SKILL.md
+
+
+四、3 个版本简历（针对不同岗位）版本 A：Agent 开发岗（最对路 ⭐ 首选）项目名称：Aligo 智能旅行助手 — 基于 LLM 的多智能体差旅规划系统
+技术栈：Python · AgentScope（多智能体框架）· 豆包大模型 · Milvus · BGE-small-zh Embedding · asyncio · Rich · JSON
+项目描述：
+
+面向企业差旅场景，独立设计并实现基于 LLM 语义理解的多智能体差旅规划系统，覆盖意图识别、行程规划、记忆管理、知识问答、联网搜索 5 大子能力。系统采用 Plan-and-Execute 架构，通过 6 类意图识别 + 优先级并行调度（asyncio.gather），将端到端响应时间从 30 秒优化到 15 秒（-50%）。集成两层记忆架构（短期滑动窗口 + 长期 LLM 异步总结）与 RAG 知识库（Milvus Lite + BGE Embedding，余弦相似度检索），用户偏好记忆准确率达 95%。基于 Skill 插件化与懒加载设计（LazyAgentRegistry + importlib 动态加载），冷启动时间 3 秒。配套熔断器 + 指数退避重试 + 健康检查三级稳定性保障，LLM 服务异常时自动降级。集成 Rich 实现终端可视化交互，编写 7 个测试文件覆盖记忆、意图、编排、端到端 QA 全链路。
+
+关键成果：
+
+意图识别准确率 **90%+**（对比关键词匹配提升 25%）
+系统响应时间 30s → 15s（并行调度优化）
+冷启动时间 3 秒（Skill 懒加载）
+用户偏好记忆准确率 **95%**（LLM 总结 + JSON 持久化）
+知识库问答准确率 **95%**（RAG + 严格不编造约束）
+
+
+版本 B：传统 Python 后端开发岗（突出工程能力）项目名称：Aligo 智能旅行助手 — 高可用多模块 Python 后端系统
+技术栈：Python 3 · asyncio · 异步编程 · 多智能体框架 · 向量数据库 · Prompt 工程 · Rich CLI · Pytest
+项目描述：
+
+独立设计并实现面向差旅场景的多模块 Python 后端系统，核心代码 3000+ 行，包含意图识别、协调调度、两层记忆、RAG 知识库、Skill 插件、稳定性保障 6 大子系统。基于 asyncio 协程实现 I&#x2F;O 密集场景下的并发执行（asyncio.gather），端到端响应时间从 30 秒优化到 15 秒。通过优先级调度实现”信息收集并行 + 行程规划串行”的混合编排模式，编写 7 个测试文件覆盖全链路。集成熔断器（CLOSED&#x2F;OPEN&#x2F;HALF_OPEN 三态机）与指数退避重试（带 jitter）保障第三方 LLM 服务稳定性，异常时自动降级。基于插件化设计（动态 importlib + 懒加载缓存）实现模块解耦与启动优化（3 秒），支持运行时热插拔。
+
+关键成果：
+
+响应时间优化 **-50%**（30s → 15s，协程并发）
+系统稳定性：连续失败 5 次自动熔断，60s 后半开恢复
+启动速度 3 秒（懒加载 + 缓存）
+7 个测试文件，端到端 QA 覆盖
+
+
+版本 C：Java 转 Python &#x2F; 全栈开发岗（突出语言迁移 + 业务理解）项目名称：Aligo 智能旅行助手 — 从 0 到 1 的 Python + AI Agent 全栈项目
+技术栈：Python 3 · asyncio · AgentScope · 豆包&#x2F;OpenAI 兼容 LLM · Milvus 向量库 · Redis · JSON · Rich CLI
+项目描述：
+
+从 0 到 1 独立完成差旅助手系统的需求分析、架构设计、核心代码、测试全流程。项目采用经典 MVC + 插件化分层架构，包含 CLI 入口、编排层（意图识别 + 协调器）、能力层（6 个 Skill Agent）、记忆层（短期 + 长期）、工具层（熔断器&#x2F;重试&#x2F;JSON 解析）5 层。基于 asyncio 异步编程实现 I&#x2F;O 密集场景的并发执行（30s → 15s）。通过 LLM 语义理解实现 6 类意图识别（准确率 90%+），对比传统关键词匹配提升 25%。集成两层记忆架构（滑动窗口 + JSON 持久化 + LLM 异步总结）与企业 RAG 知识库（Milvus Lite + BGE Embedding）。通过 Skill 插件 + 懒加载实现模块解耦，启动时间 3 秒；通过熔断器 + 指数退避 + 健康检查保障 LLM 服务可用性。
+
+关键成果：
+
+独立完成 3000+ 行核心代码，6 大子系统
+零实习背景下完整经历一个 AI Agent 项目全生命周期
+系统响应时间 30s → 15s（性能优化 -50%）
+7 个测试文件，端到端 QA 通过
+
+
+五、面试 30-60-90 法则演练稿（核心 10 题）Q1：用 1 分钟介绍下这个项目30 秒：
+
+“Aligo 商旅助手是基于 LLM 语义理解的多智能体差旅规划系统，Plan-and-Execute 架构，6 类意图识别 + 优先级并行调度，响应时间 30s→15s，启动 3 秒。”
+
+60 秒：
+
+“技术栈是 Python + AgentScope + 豆包大模型 + Milvus + BGE。用户说一句’3月11日北京去杭州出差一周’，系统自动识别意图（行程规划 + 偏好管理 + 知识查询）、并行调度 6 个 Skill 智能体、整合记忆和知识库、生成完整行程。准确率 90%+。”
+
+90 秒：
+
+“重点说两个亮点：① 优先级并行调度——priority 1 的 4 个 Agent 并发跑，把 30s 优化到 15s（-50%）；② 4 道韧性防线——熔断器三态机（连续 5 次失败 OPEN）+ 指数退避 jitter（1s&#x2F;2s&#x2F;4s 退避 + 抖动）+ 6 层 JSON 回退解析 + SkillLoader 双查找，LLM 服务挂掉时用户立刻收到降级提示而不是卡 30 秒。”
+
+
+Q4：什么是 Plan-and-Execute 架构？和 ReAct 有什么区别？30 秒：
+
+“Plan-and-Execute &#x3D; 先规划后执行。LLM 先生成完整调度计划，再按计划调度子 Agent。ReAct &#x3D; 思考-行动-观察循环，边想边做。”
+
+60 秒：
+
+“Plan-and-Execute 适合’步骤明确’的多 Agent 任务（比如 6 类意图分好优先级），ReAct 适合’边做边探索’的工具调用任务（比如数学推理 + 搜索）。Aligo 用 Plan-and-Execute，因为意图识别可以一次性给出完整 schedule（priority + skill name），不需要边执行边调整。”
+
+90 秒：
+
+“实现细节：IntentionAgent 一次 LLM 调用输出 JSON &#123;&quot;intents&quot;: [...], &quot;agent_schedule&quot;: [&#123;&quot;name&quot;: &quot;memory_query&quot;, &quot;priority&quot;: 1&#125;, ...]&#125;，OrchestrationAgent 按 priority 排序、分批、每批 asyncio.gather 并发。return_exceptions=True 让一个 Skill 挂了不影响其他。挖出的潜规则：len(agent_schedule) == 1 时走非并行分支（gather 的小优化）；priority fallback 值不统一（0 vs 999 在不同分支用）。”
+
+
+Q9：什么是意图识别？为什么用 LLM 而不是规则？30 秒：
+
+“识别用户想做什么。LLM 准确率 90%+，规则匹配 65%。”
+
+60 秒：
+
+“规则方案：关键词匹配，比如”想去”→ 行程规划，”我喜欢”→ 偏好管理。问题：长尾 query 覆盖不全（”我搬家到上海了” 隐含 home_location 变更）、歧义难处理（一句话多个意图）。LLM 方案：语义理解，能处理隐含意图，准确率 90%+。”
+
+90 秒：
+
+“实现细节：两段式 Prompt——先让 LLM 输出 reasoning（它怎么理解用户），再输出 JSON 决策（intents + agent_schedule）。6 类意图：itinerary_planning &#x2F; memory_query &#x2F; preference &#x2F; rag_knowledge &#x2F; information_query &#x2F; event_collection。LLM 输出不稳定，用 6 层 JSON 回退解析（直接解析 → 去 fence → 去控制字符 → 单&#x2F;双引号修复 → 去尾逗号 → json5 兜底）。”
+
+
+Q13：怎么实现 Agent 的并行调度？30 秒：
+
+“asyncio.gather(*tasks, return_exceptions=True)，同 priority 并发。”
+
+60 秒：
+
+“所有 Skill 的 reply() 都是 async def，调用时返回协程对象。gather 统一调度，返回 list。return_exceptions=True 让一个 Skill 失败不中断其他，返回值是 list of 结果或异常。”
+
+90 秒：
+
+“实现细节：手写批次 flush 循环——按 priority 排序 → 分组（相同 priority 一起跑）→ 每批 gather → 收集结果 → 下一批。return_exceptions=True 后在 _execute_parallel_agents 里 isinstance(result, Exception) 检查，转成 &#123;&quot;status&quot;: &quot;error&quot;&#125; 继续处理。挖出的坑：单 task 时 len(agent_schedule) == 1 走非并行分支（gather 的小优化）。”
+
+
+Q14：什么是优先级调度？为什么需要？30 秒：
+
+“不同 Agent 有依赖关系——行程规划依赖信息收集。先并行 P1，再串行 P2。”
+
+60 秒：
+
+“P1（信息收集，互不依赖）→ P2（行程规划，依赖 P1）。实现：按 priority 排序，分组并行。好处：既快（并行）又对（串行）。”
+
+90 秒：
+
+“性能数据：4 个 P1 Agent 并发，从 3.2s 优化到 1.2s（max），整体 30s→15s。挖出的坑：priority fallback 值不统一——有的地方用 0 兜底，有的地方用 999 兜底，重构时易踩。”
+
+
+Q17：为什么需要两层记忆？30 秒：
+
+“短期 &#x3D; 当前会话上下文；长期 &#x3D; 跨会话用户信息。单层不够。”
+
+60 秒：
+
+“纯短期 → 跨会话失忆（用户偏好记不住）；纯长期 → 单次会话上下文爆炸（每次调 LLM token 数爆）。两层组合：短期滑动窗口（10 轮 × 2 条 &#x3D; 20 条 Msg）+ 长期 JSON 持久化（preferences + trip_history + chat_history）。”
+
+90 秒：
+
+“实现细节：短期用内存 List，超出 max_turns * 2 时切片 self.messages[-max_turns*2:]。长期用 JSON 文件，_migrate_data() 三道关卡（补字段 &#x2F; dict→list &#x2F; 解嵌套 bug）保证版本兼容。每次请求把长期 + 短期 5 轮 + 当前问题拼给 LLM。挖出的坑：JSON 无并发锁、多用户同 user_id 写会丢数据；token 无分块、超长对话超 LLM 上限。”
+
+
+Q21：什么是 RAG？为什么需要？30 秒：
+
+“Retrieval-Augmented Generation，检索增强生成。让 LLM 用企业私域知识回答。”
+
+60 秒：
+
+“LLM 不知道企业差旅标准、报销政策。RAG：先检索相关文档 → 再让 LLM 基于文档生成。优点：① 不需要重新训练模型；② 答案可溯源（带文档引用）；③ 数据更新即时生效。”
+
+90 秒：
+
+“Aligo 用 Milvus Lite + BGE Embedding。BAAI&#x2F;bge-small-zh-v1.5 是 512 维中文向量，本地 90MB 可跑。文档切分 600 字 + 100 overlap，Top-K&#x3D;3 余弦相似度检索。Prompt 强约束：’如果【知识库信息】中没有包含回答用户问题所需的信息，请直接回答抱歉，知识库中没有找到相关信息，不要尝试根据你自己的知识编造答案’——这是企业级 RAG 的硬约束。”
+
+
+Q24：什么是 Skill 插件化？有什么好处？30 秒：
+
+“每个子 Agent 是独立 Skill（目录 + SKILL.md + agent.py），4 个好处。”
+
+60 秒：
+
+“4 个好处：① 解耦（不重启主程序即可新增）；② 复用（不同项目共用 Skill）；③ 隔离（一个 Skill 错误不影响主程序）；④ 可测试（独立测每个 Skill）。”
+
+90 秒：
+
+“Aligo 6 个 Skill：ask-question（差旅知识库）&#x2F; event-collection（行程要素提取）&#x2F; memory-query（记忆查询）&#x2F; plan-trip（行程规划）&#x2F; preference（偏好管理）&#x2F; query-info（信息查询）。共性契约：继承 AgentBase + reply() 全 async + model=model 单例复用 + Progressive Disclosure 动态读 SKILL.md。挖出的坑：skill_mapping 把连字符映射到下划线，加新 Skill 时命名空间不统一。”
+
+
+Q25：什么是懒加载？怎么实现的？30 秒：
+
+“用到才加载。LazyAgentRegistry 启动时扫元数据，用到时 importlib 加载。”
+
+60 秒：
+
+“实现：LazyAgentRegistry.__getitem__() 里检查 self.cache（dict），未命中则动态 importlib.util.spec_from_file_location() 加载，再 inspect.getmembers() 找 AgentBase 子类实例化。结果：启动时只加载 IntentionAgent 和 OrchestrationAgent，6 个 Skill 按需加载，启动 3 秒。”
+
+90 秒：
+
+“Progressive Disclosure 模式：每个 Agent 构造时实例化 SkillLoader，reply() 时调 skill_loader.get_skill_content(&lt;skill_name&gt;) 动态读 SKILL.md 中的’任务说明’段（不在 prompt 里硬编码）。优势：SKILL.md 修改不用重启主程序；按需加载节省内存。”
+
+
+Q26：什么是熔断器？为什么需要？30 秒：
+
+“熔断器 &#x3D; 防止雪崩的开关。连续失败 N 次后’打开’，直接拒绝调用（保护下游），过一段时间后’半开’试探，成功 N 次则’关闭’恢复。”
+
+60 秒：
+
+“需要它的原因：LLM 服务挂掉时如果不熔断，每个请求都会等超时（30s+），整个系统雪崩。三态机：CLOSED（正常）→ OPEN（拒绝，60s 后）→ HALF_OPEN（试探，2 次成功恢复）。”
+
+90 秒：
+
+“实现细节：CircuitBreaker.record_failure() 在 CLOSED 状态计数 +1，达到阈值（5 次）转 OPEN；HALF_OPEN 状态任何失败立刻回 OPEN（不消耗试探额度）。惰性恢复：仅在访问 state 时检查是否到恢复时间，零开销。配合 retry_with_backoff 用：重试全失败 → 熔断器计数 +1。”
+
+
+六、简历避坑指南❌ 不要这样写❌ 参与开发了一个 AI Agent 项目，使用了 Python 和大模型。   （太虚，没数字，没贡献）❌ 负责项目的后端开发工作。   （没说做了什么）❌ 实现了智能问答、行程规划等功能。   （流水账，没亮点）
+
+✅ 应该这样写✅ 独立设计并实现基于 LLM 语义理解的多智能体差旅规划系统，采用 Plan-and-Execute   架构，通过 6 类意图识别 + 优先级并行调度将响应时间从 30s 优化到 15s，   集成两层记忆架构与 RAG 知识库，配套熔断器 + 指数退避 + 健康检查三级   稳定性保障，编写 7 个测试文件覆盖全链路。   （有数字、有架构、有亮点、有工程化）
+
+📌 简历上必须出现的 5 类关键词
+
+
+类别
+关键词
+作用
+
+
+
+架构
+多智能体、Plan-and-Execute、并行调度
+HR&#x2F;技术初筛命中
+
+
+技术
+Python、asyncio、向量数据库、Embedding
+ATS 关键词匹配
+
+
+业务
+差旅、行程规划、意图识别、RAG
+业务理解
+
+
+工程
+熔断器、重试、健康检查、测试
+工程能力
+
+
+数字
+90%+、15s、3s、95%、85%
+结果导向
+
+
+
+七、什么时候用这份文档
+
+
+时间点
+怎么用
+
+
+
+投简历前
+直接复制版本 A&#x2F;B&#x2F;C 的项目描述到简历项目栏
+
+
+面试前 1 天
+10 道核心题口述一遍，重点是 30 秒结论
+
+
+面试中
+30-60-90 法则，被问什么就讲什么
+
+
+面试后
+复盘不会的题，回来补 docs/知识模型/ 笔记
+
+
+
+八、参考资源
+详细知识卡片：docs/知识模型/A-F 6 份（每份 300-500 行，含代码逐行注释）
+面试弹药精修：docs/知识模型/91-简历与面试弹药精修.md（30-60-90 完整演练稿）
+简历模板：Learning/简历模板与面试弹药.md（3 个版本 + 30 道面试题）
+系统学习课程大纲：Learning/00-系统学习课程大纲.md（19 课学习计划）
+HTML 课程：scratch/learning-phase-2/lessons/（11 课详细教学）
+
+
+本文档基于 6 份知识卡片 + 30 道面试弹药整合生成，2026-09-10。聚焦 AI 框架（Plan-and-Execute + 多智能体编排）与业务设计（差旅规划 5 大子能力），按 STAR 法则组织，可直接用于简历 + 面试准备。
+]]></content>
+      <categories>
+        <category>项目学习</category>
+      </categories>
+      <tags>
+        <tag>Agent</tag>
+        <tag>Python</tag>
+        <tag>Skills</tag>
+        <tag>langchain</tag>
+        <tag>langgraph</tag>
+      </tags>
+  </entry>
 </search>
