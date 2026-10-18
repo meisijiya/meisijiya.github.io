@@ -1,0 +1,3931 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>操作系统--面试 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container">
+          <a href="javascript:;" onclick="toggleSearchInput()">🔍</a>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div class="search-container mobile-container">
+          <a class="menu-item" href="javascript:;" onclick="toggleSearchInput()"
+            >🔍</a
+          >
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" ontouchend="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script>
+  var mobileBtn = function f() {
+    var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+    var mobileMenu = document.getElementById("mobile-menu");
+    if (toggleMenu.classList.contains("active")) {
+      toggleMenu.classList.remove("active");
+      mobileMenu.classList.remove("active");
+    } else {
+      toggleMenu.classList.add("active");
+      mobileMenu.classList.add("active");
+    }
+  };
+
+  function toggleSearchInput() {
+    const inputs = document.querySelectorAll(".nav-search-input");
+    const results = document.querySelectorAll(".nav-search-result");
+    inputs.forEach((input) => {
+      input.classList.toggle("active");
+      if (input.classList.contains("active")) input.focus();
+    });
+    results.forEach((r) => (r.style.display = "none"));
+  }
+
+  // 点击外部区域隐藏搜索框和结果容器的函数
+  function handleClickOutsideSearch(event) {
+    const searchContainers = document.querySelectorAll(".search-container");
+    searchContainers.forEach((container) => {
+      const searchInput = container.querySelector(".nav-search-input");
+      const searchIcon = container.querySelector("a");
+
+      // 如果点击的元素不是搜索输入框或搜索图标，则隐藏搜索框和结果容器
+      if (
+        !searchInput.contains(event.target) &&
+        !searchIcon.contains(event.target)
+      ) {
+        searchInput.classList.remove("active");
+        // 根据输入框ID确定对应的结果容器
+        let resultContainer;
+        if (searchInput.id === "nav-search-input-mobile") {
+          // 移动端结果容器
+          resultContainer = document.querySelector(
+            ".navbar-mobile .nav-search-result"
+          );
+        } else {
+          // 桌面端结果容器
+          resultContainer = document.getElementById(
+            "nav-search-result-desktop"
+          );
+        }
+
+        if (resultContainer) {
+          resultContainer.style.display = "none";
+          // 保留搜索结果和输入内容，仅隐藏下拉框
+        }
+      }
+    });
+  }
+
+  // 添加全局点击事件监听器
+  document.addEventListener("click", function (event) {
+    handleClickOutsideSearch(event);
+  });
+
+  // 新增：搜索功能实现
+  let searchData = []; // 全局变量存储搜索数据
+  let currentSearchKeyword = ''; // 追踪当前搜索关键字
+
+  // 页面加载完成后获取搜索数据
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/search.xml")
+      .then((res) => res.text())
+      .then((xmlText) => {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+        const entries = xml.getElementsByTagName("entry");
+        for (let entry of entries) {
+          searchData.push({
+            title: entry.getElementsByTagName("title")[0]?.textContent || "",
+            content:
+              entry.getElementsByTagName("content")[0]?.textContent || "",
+            url: entry.getElementsByTagName("url")[0]?.textContent || "",
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load search data:", err);
+      });
+  });
+
+  // 新增：导航搜索方法
+  function navSearch(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    // 查找对应的搜索结果容器
+    let resultContainer;
+
+    if (inputElement.id === "nav-search-input-desktop") {
+      // 桌面端
+      resultContainer = document.getElementById("nav-search-result-desktop");
+    } else if (inputElement.id === "nav-search-input-mobile") {
+      // 移动端
+      resultContainer =
+        inputElement.parentNode.querySelector(".nav-search-result");
+    }
+
+    if (!resultContainer) return;
+
+    resultContainer.innerHTML = "";
+
+    if (!keyword) {
+      resultContainer.style.display = "none";
+      return;
+    }
+
+    // 显示结果容器
+    resultContainer.style.display = "block";
+
+    // 过滤搜索数据
+    const results = searchData.filter(
+      (data) =>
+        (data.title && data.title.toLowerCase().includes(keyword)) ||
+        (data.content && data.content.toLowerCase().includes(keyword))
+    );
+
+    if (results.length === 0) {
+      resultContainer.innerHTML =
+        '<p class="no-result">没有结果哟，换个关键词试试吧</p>';
+      return;
+    }
+
+    // 限制显示结果数量
+    const maxResults = 10;
+    const limitedResults = results.slice(0, maxResults);
+
+    // 构建结果HTML
+    const html = limitedResults
+      .map((item) => {
+        // 提取包含关键字的内容片段
+        let contentSnippet = "";
+        if (item.content) {
+          // 找到包含关键字的内容片段
+          const contentLower = item.content.toLowerCase();
+          const keywordIndex = contentLower.indexOf(keyword);
+
+          // 提取关键字前后的内容
+          const start = Math.max(0, keywordIndex - 3 * keyword.length);
+          const end = Math.min(
+            item.content.length,
+            keywordIndex + 3 * keyword.length
+          );
+          contentSnippet = item.content.substring(start, end);
+        // 高亮关键字
+      const keywordRegex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      contentSnippet = contentSnippet.replace(
+        keywordRegex,
+        "<mark>$1</mark>"
+      );
+        }
+
+        return `<div class="search-result-item">
+  <a href="${item.url}">
+    <div>标题：${item.title}</div>
+    <div>内容：${contentSnippet}</div>
+  </a>
+</div>`;
+      })
+      .join("");
+    resultContainer.innerHTML = html;
+  }
+
+  // 文章内容关键字高亮功能
+  let currentHighlightIndex = -1;
+  let highlightCount = 0;
+
+  function highlightPostContent(keyword) {
+    const content = document.querySelector('.post-content');
+    if (!content) return false;
+
+    content.innerHTML = content.innerHTML.replace(/<\/?mark>/g, '');
+
+    if (!keyword) return false;
+
+    const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    const escaped = keyword.replace(/[.*+?^${}|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+
+    textNodes.forEach(node => {
+      if (!regex.test(node.nodeValue)) return;
+      regex.lastIndex = 0;
+      const fragment = document.createDocumentFragment();
+      node.nodeValue.split(regex).forEach((text, i) => {
+        if (i % 2 === 1) {
+          const mark = document.createElement('mark');
+          mark.textContent = text;
+          fragment.appendChild(mark);
+        } else {
+          fragment.appendChild(document.createTextNode(text));
+        }
+      });
+      node.parentNode.replaceChild(fragment, node);
+    });
+
+    return true;
+  }
+
+  function getHighlights() {
+    const content = document.querySelector('.post-content');
+    return content ? content.querySelectorAll('mark') : [];
+  }
+
+  function scrollToHighlight(index, smooth = true) {
+    const highlights = getHighlights();
+    if (highlights.length === 0) return;
+
+    if (index < 0) index = highlights.length - 1;
+    if (index >= highlights.length) index = 0;
+
+    currentHighlightIndex = index;
+    highlights[index].scrollIntoView({
+      behavior: smooth ? 'smooth' : 'auto',
+      block: 'center'
+    });
+
+    updateHighlightCount();
+  }
+
+  function updateHighlightCount() {
+    const highlights = getHighlights();
+    highlightCount = highlights.length;
+    const nav = document.getElementById('highlight-nav');
+    if (nav) {
+      nav.querySelector('.count').textContent = `${currentHighlightIndex + 1}/${highlightCount}`;
+      nav.style.display = highlightCount > 0 ? 'flex' : 'none';
+    }
+  }
+
+  // 修改 navSearch 函数，集成文章内高亮
+  const originalNavSearch = navSearch;
+  navSearch = function(inputElement) {
+    const keyword = inputElement.value.trim().toLowerCase();
+    currentSearchKeyword = keyword;
+    const resultContainer = inputElement.id === 'nav-search-input-desktop'
+      ? document.getElementById('nav-search-result-desktop')
+      : inputElement.parentNode.querySelector('.nav-search-result');
+
+    if (!keyword) {
+      if (resultContainer) {
+        resultContainer.innerHTML = '';
+        resultContainer.style.display = 'none';
+      }
+      highlightPostContent('');
+      updateHighlightCount();
+      return;
+    }
+
+    // 先执行原有搜索逻辑
+    originalNavSearch(inputElement);
+
+    // 仅在文章页执行内容高亮
+    if (highlightPostContent(keyword)) {
+      updateHighlightCount();
+    }
+  };
+
+  // 清除搜索的函数
+  function clearSearch(btn) {
+    const input = btn.parentNode.querySelector('.nav-search-input');
+    input.value = '';
+    navSearch(input);
+    input.focus();
+  }
+</script>
+<style>
+  /* 手机端使用flexbox布局搜索容器 */
+  .mobile-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    flex-grow: 1;
+    max-width: calc(100% - 40px);
+  }
+
+  .search-container {
+    position: relative;
+  }
+
+
+  .search-result-item {
+  border: 1px solid #ddd; /* 边框 */
+  margin: 4px 0; /* 外层间距 */
+  padding: 0; /* 无内边距 */
+  background: #fff; /* 背景色 */
+}
+
+.search-result-item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-result-item div {
+  padding: 3px 8px; /* 紧凑的内边距 */
+  margin: 0; /* 无外边距 */
+  line-height: 1.3; /* 紧凑的行高 */
+  word-wrap: break-word; /* 允许长单词换行 */
+  white-space: normal; /* 允许正常换行 */
+}
+
+.search-result-item div:first-child {
+  border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */
+}
+
+.dark-theme .search-result-item {
+  background: #2d2d2d;
+  border: 1px solid #444;
+}
+.dark-theme .search-result-item a {
+  color: #e0e0e0;
+}
+.dark-theme .search-result-item div:first-child {
+  border-bottom-color: #444;
+}
+
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(0, 0, 0, 0.2);
+  color: #666;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.clear-search:hover {
+  background: rgba(0, 0, 0, 0.3);
+  color: #333;
+}
+.nav-search-input:focus + .clear-search,
+.nav-search-input.active:not(:placeholder-shown) + .clear-search {
+  display: flex;
+}
+.dark-theme .clear-search {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ccc;
+}
+.dark-theme .clear-search:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.highlight-nav {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 99;
+}
+.highlight-nav .count {
+  font-size: 14px;
+  color: #333;
+  min-width: 50px;
+  text-align: center;
+}
+.highlight-nav button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+.highlight-nav button:hover {
+  background: #e0e0e0;
+}
+.dark-theme .highlight-nav {
+  background: rgba(40, 40, 40, 0.95);
+}
+.dark-theme .highlight-nav .count {
+  color: #eee;
+}
+.dark-theme .highlight-nav button {
+  background: #444;
+  color: #fff;
+}
+.dark-theme .highlight-nav button:hover {
+  background: #555;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .highlight-nav {
+    gap: 16px;
+    padding: 12px 20px;
+  }
+  .highlight-nav .count {
+    font-size: 16px;
+    min-width: 60px;
+  }
+  .highlight-nav button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
+</style>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <div class="toc-mobile-fab" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon">☰</span>
+</div>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">操作系统--面试</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 17, 2026&nbsp;&nbsp;20:30:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AF%87/">操作系统篇</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<hr>
+<p>操作系统是后端面试里<strong>最能拉开档次</strong>的一块。</p>
+<p>别人讲 JVM 讲源码、讲 GC 参数，你能把手搓到 <code>task_struct</code>、VMA、epoll 红黑树那一层——面试官的评估就从”背过”跳到了”真跑过”。</p>
+<p>但这块的坑在于：<strong>它不是靠背，是靠被追问</strong>。</p>
+<p>面试官不会问”进程有哪几种状态”，他会问”你刚才说 D 状态 <code>kill -9</code> 杀不掉，那它到底卡在哪儿”。所以这篇不给你第二十三份知识点罗列，而是把 24 道高频题<strong>还原成真实的面试现场</strong>——每道题都是「面试官怎么问 → 你第一反应会怎么翻车 → 正确答法 → 追问怎么接」。</p>
+<blockquote>
+<p><strong>怎么用这篇</strong>：不要背”要点”，要背**”现场反应”**。左边那栏是面试官的问题，右边是你脑子里应该立刻蹦出来的东西。考前一小时扫”⚠️ 翻车点”那一行，性价比最高。</p>
+<p><strong>关于题号</strong>：标题里的数字<strong>不是阅读顺序</strong>。为了让知识连贯，我按主题重排了位置——所以第 22 题排在第 8 题后面、第 23 题排在第 21 题后面，都是有意的。</p>
+</blockquote>
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#%E4%B8%80%E3%80%81%E5%BC%80%E5%9C%BA%E4%B8%89%E8%BF%9E%EF%BC%9A%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B">一、开场三连：进程与线程</a></li>
+<li><a href="#%E4%BA%8C%E3%80%81%E8%B0%83%E5%BA%A6%E3%80%81%E4%B8%AD%E6%96%AD%E4%B8%8E-cpu-%E6%8C%87%E6%A0%87">二、调度、中断与 CPU 指标</a></li>
+<li><a href="#%E4%B8%89%E3%80%81%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E4%B8%8E%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4">三、内存管理与地址空间</a></li>
+<li><a href="#%E5%9B%9B%E3%80%81%E7%BA%BF%E4%B8%8A%E6%8E%92%E9%9A%9C%EF%BC%9Alinux-%E5%91%BD%E4%BB%A4%E5%AE%9E%E6%93%8D">四、线上排障：Linux 命令实操</a></li>
+<li><a href="#%E4%BA%94%E3%80%81io-%E6%A8%A1%E5%9E%8B%E5%85%A8%E5%AE%B6%E6%A1%B6">五、I&#x2F;O 模型全家桶</a></li>
+<li><a href="#%E5%85%AD%E3%80%81%E6%AD%BB%E9%94%81%EF%BC%9A%E6%9C%80%E5%90%8E%E4%B8%80%E9%81%93%E9%80%81%E5%91%BD%E9%A2%98">六、死锁：最后一道送命题</a></li>
+<li><a href="#%E4%B8%83%E3%80%81%E9%9D%A2%E8%AF%95%E5%89%8D-10-%E5%88%86%E9%92%9F%E9%80%9F%E6%9F%A5">七、面试前 10 分钟速查</a></li>
+</ul>
+<hr>
+<h2 id="一、开场三连：进程与线程"><a href="#一、开场三连：进程与线程" class="headerlink" title="一、开场三连：进程与线程"></a>一、开场三连：进程与线程</h2><p>面试开场永远从最”基础”的地方切，因为<strong>这里最能看出你是不是只会背</strong>。</p>
+<h3 id="1-操作系统中的进程有哪几种状态？"><a href="#1-操作系统中的进程有哪几种状态？" class="headerlink" title="1. 操作系统中的进程有哪几种状态？"></a>1. 操作系统中的进程有哪几种状态？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（推了推眼镜）：进程有哪几种状态？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：张口就答”就绪、运行、阻塞”。这答案不算错，但会让面试官觉得你在背书——因为他要问的一定是这个。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>先给完整的五状态模型，再补两个扩展态：</p>
+<ul>
+<li><p>基础五态：<strong>新建 → 就绪 → 运行 → 阻塞 → 终止</strong></p>
+<ul>
+<li>就绪：已具备运行条件，在就绪队列排队等 CPU</li>
+<li>运行：正在 CPU 上执行</li>
+<li>阻塞：等待某个事件（如磁盘 I&#x2F;O），主动让出 CPU</li>
+<li>内存紧张时派生：<strong>就绪挂起</strong>（数据已换出磁盘，具备换入条件）和<strong>阻塞挂起</strong>（连换入条件都不具备）</li>
+</ul>
+</li>
+<li><p>Linux <code>ps aux</code> 的 STAT 列就是这套模型的实战映射：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>R</code></td>
+<td>Running，运行中或就绪</td>
+</tr>
+<tr>
+<td><code>S</code></td>
+<td>可中断睡眠，等的是”能被信号打断”的事件</td>
+</tr>
+<tr>
+<td><code>D</code></td>
+<td>不可中断睡眠，等的是磁盘 I&#x2F;O 这类<strong>打不断</strong>的事件</td>
+</tr>
+<tr>
+<td><code>Z</code></td>
+<td>僵尸，子进程已死、父进程未 <code>wait</code></td>
+</tr>
+<tr>
+<td><code>T</code></td>
+<td>停止，被信号挂起</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>Linux 调度由 <strong>CFS</strong> 完成，按虚拟运行时间 <code>vruntime</code> 排序，规则只有一句：<strong>谁欠的时间多谁先跑</strong></p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>为什么僵尸进程不吃 CPU 还要处理？</td>
+<td>它不占 CPU 不占内存，但 <strong>PID 和 PCB 还在</strong>。PID 有上限，几千个僵尸就能让系统 <code>fork</code> 失败。父进程正确处理 SIGCHLD 即可回收</td>
+</tr>
+<tr>
+<td>什么是孤儿进程？</td>
+<td>父进程先退出，内核把它托管给 PID 为 1 的 init 自动清理，<strong>本身无害</strong></td>
+</tr>
+<tr>
+<td>阻塞态能直接跳回运行态吗？</td>
+<td><strong>不能</strong>，必须先回就绪态排队。状态机里没有这条边</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“阻塞态被唤醒后直接变成运行态”——必须过就绪态</li>
+<li>“<code>kill -9</code> 能杀掉 D 状态进程”——它是不可中断睡眠，信号 pend 着，等 I&#x2F;O 完成才会处理</li>
+<li>“孤儿进程是异常”——内核会自动收尸</li>
+</ul>
+<hr>
+<h3 id="2-线程和进程有什么区别？"><a href="#2-线程和进程有什么区别？" class="headerlink" title="2. 线程和进程有什么区别？"></a>2. 线程和进程有什么区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：进程和进程的区别？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：背出”进程是资源分配单位、线程是调度单位”就停下了。这是 20 年前的标准答案，现在只值一半分——因为它<strong>没回答 Linux 上到底怎么实现的</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>先给经典定义，然后<strong>立刻下沉到内核实现</strong>，这是分水岭：</p>
+<ul>
+<li><p>经典定义：进程是<strong>资源分配</strong>的基本单位，线程是<strong>调度执行</strong>的基本单位</p>
+</li>
+<li><p>Linux 的真相：<strong>内核对线程没有任何特殊处理</strong></p>
+<ul>
+<li>二者统一由 <code>task_struct</code>（<code>include/linux/sched.h</code>）描述</li>
+<li><code>pid</code> 是线程 ID，<code>tgid</code> 是所属进程 ID；<code>getpid()</code> 返回的是 <strong>tgid</strong></li>
+<li>创建进程 <code>fork</code> 只传 <code>SIGCHLD</code>，地址空间 <code>mm_struct</code>、文件系统信息 <code>fs_struct</code>、文件表 <code>files_struct</code> <strong>全部独立申请</strong></li>
+<li>创建线程 <code>pthread_create</code> → glibc <code>create_thread</code> → <code>clone</code>，传入 <code>CLONE_VM | CLONE_FS | CLONE_FILES</code> 三件套，与父进程<strong>共享</strong>这三者，内核就不再单独申请了</li>
+<li>底层殊途同归：<code>kernel_clone</code> → <code>copy_process</code> → <code>wake_up_new_task</code></li>
+</ul>
+</li>
+<li><p>判断一个 task 到底是进程还是线程，<strong>只看一件事：有没有独立地址空间</strong></p>
+</li>
+<li><p>优先级字段：<code>static_prio</code> 100<del>139（<code>nice</code> 调它）、<code>rt_priority</code> 0</del>99、<code>prio</code>&#x2F;<code>normal_prio</code> 由调度策略推导</p>
+</li>
+<li><p>内核线程的 <code>mm_struct</code> 为 NULL，所以准确叫法是”内核线程”而非”内核进程”</p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：那 coroutine 呢？</p>
+</blockquote>
+<p>Go 的 goroutine 更轻，是因为它<strong>连内核都进不去</strong>——切换只是换栈指针和寄存器，栈初始才 2KB。快的原因有三：栈小、无系统调用、调度器用 work stealing + 本地队列免锁。只答”用户态不用系统调用”是不完整的。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“Linux 为线程设计了一套轻量级进程机制”——没有，就是共享资源的 <code>task_struct</code></li>
+<li>“进程和线程是完全不同的东西”——Linux 上<strong>相同点远大于不同点</strong></li>
+<li><code>CLONE_VM</code>&#x2F;<code>CLONE_FS</code>&#x2F;<code>CLONE_FILES</code> 三个 flag 的含义记反</li>
+</ul>
+<hr>
+<h3 id="3-什么是用户态和内核态？"><a href="#3-什么是用户态和内核态？" class="headerlink" title="3. 什么是用户态和内核态？"></a>3. 什么是用户态和内核态？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：用户态和内核态的区别？为什么需要区分？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：”用户态不能访问硬件”——这句话一说出口就减分，因为存在一堆合法例外。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><p>本质是 <strong>CPU 的特权级划分</strong>：x86 通过 CS 寄存器低两位的 CPL 判断，内核态 CPL&#x3D;0，用户态 CPL&#x3D;3</p>
+</li>
+<li><p>触发态切换的三种情况：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>例子</th>
+<th>同步性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>系统调用</td>
+<td><code>read</code>&#x2F;<code>write</code>&#x2F;<code>fork</code>&#x2F;<code>open</code></td>
+<td>同步</td>
+</tr>
+<tr>
+<td>异常</td>
+<td>除零、缺页、非法指令</td>
+<td>同步</td>
+</tr>
+<tr>
+<td>硬件中断</td>
+<td>时钟、键盘、网卡</td>
+<td>异步</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>x86-64 系统调用流程：调用号放 <code>rax</code>、参数放 <code>rdi</code>&#x2F;<code>rsi</code>&#x2F;<code>rdx</code> → 执行 <code>syscall</code> → 内核查系统调用表 → 结果回 <code>rax</code> → <code>sysret</code> 切回</p>
+</li>
+<li><p><strong>为什么要分</strong>：宏内核（Linux、FreeBSD）性能高但驱动 bug 可能搞崩全系统；微内核（Minix、QNX、seL4）内核态代码量小、稳定性高，代价是 IPC 切换开销大</p>
+</li>
+<li><p>一次系统调用几百到几千个 CPU 周期，慢在三处：上下文切换、权限检查、<strong>缓存与 TLB 失效</strong>（有时后者代价更大）</p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：用户态就真的碰不到硬件？</p>
+</blockquote>
+<p>有三条合法路径：</p>
+<ol>
+<li><code>iopl()</code> &#x2F; <code>ioperm()</code> 开放特定 IO 端口</li>
+<li><code>mmap()</code> 直接映射设备内存，如显卡的 DRI</li>
+<li>DPDK 直接映射网卡内存，绕过内核协议栈</li>
+</ol>
+<p>还有个细节能显水平：**<code>System.currentTimeMillis()</code> 在现代 Linux 上走 vDSO，在用户态直接读时钟，通常根本不产生系统调用**。</p>
+<p>另外，内核态出 bug 不一定蓝屏——轻微 Oops 只杀当前进程，只有数据结构破坏、死锁、栈溢出才是 Kernel Panic。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“用户态绝对无法访问硬件”——有 iopl、mmap 设备内存、DPDK</li>
+<li>“系统调用就是函数调用”——它涉及特权级切换和寄存器上下文保存</li>
+</ul>
+<hr>
+<h3 id="4-进程之间的通信方式有哪些？"><a href="#4-进程之间的通信方式有哪些？" class="headerlink" title="4. 进程之间的通信方式有哪些？"></a>4. 进程之间的通信方式有哪些？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：进程间通信有哪几种？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：报菜名式列一遍就停。面试官要的是<strong>每种方式的适用边界</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>给一张选型表，比口头罗列有效得多：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>边界&#x2F;消息语义</th>
+<th>数据量</th>
+<th>关键特性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>管道</td>
+<td>字节流，<strong>无边界</strong></td>
+<td>内核环形缓冲默认 64KB</td>
+<td>匿名管道仅限亲缘进程；<code>mkfifo</code> 命名管道可跨无关进程</td>
+</tr>
+<tr>
+<td>消息队列</td>
+<td><strong>有边界</strong>，支持按类型取</td>
+<td>单条默认上限 8KB</td>
+<td>System V <code>msgget/msgsnd/msgrcv</code>，现代推荐 POSIX</td>
+</tr>
+<tr>
+<td>共享内存</td>
+<td>无语义</td>
+<td><strong>零拷贝</strong>，几 MB 可比管道快 10 倍以上</td>
+<td><code>shm_open</code> → <code>ftruncate</code> → <code>mmap</code>；<strong>内核不提供任何同步</strong></td>
+</tr>
+<tr>
+<td>信号量</td>
+<td>无</td>
+<td>无数据</td>
+<td>本质是计数器，P 减一&#x2F;V 加一，减到 0 阻塞</td>
+</tr>
+<tr>
+<td>信号</td>
+<td>无</td>
+<td>不能带数据</td>
+<td>纯异步通知，只传信号编号</td>
+</tr>
+<tr>
+<td>Unix 域套接字</td>
+<td>有边界</td>
+<td>大</td>
+<td>不走网络协议栈，且<strong>能传递文件描述符</strong></td>
+</tr>
+</tbody></table>
+<ul>
+<li>共享内存是<strong>唯一零拷贝</strong>的：多进程页表指向同一块物理内存</li>
+<li>共享内存也是<strong>最危险</strong>的：必须自己配信号量&#x2F;互斥锁，否则并发写直接乱套</li>
+<li>Unix 域套接字的实战：<code>/var/run/mysqld/mysqld.sock</code>、<code>/var/run/docker.sock</code></li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：管道和消息队列的核心区别？</p>
+</blockquote>
+<p>管道是字节流，<strong>一次 write 100 字节可能被对方分 3 次读完</strong>，需要应用自己定义分隔符；消息队列有消息边界，要么整条读完要么不读。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把”信号”和”信号量”混为一谈——一个是异步通知，一个是同步计数原语</li>
+<li>说共享内存”又快又安全”——它同时最快也最危险</li>
+</ul>
+<hr>
+<h3 id="5-什么是-CPU-缓存一致性协议-MESI？"><a href="#5-什么是-CPU-缓存一致性协议-MESI？" class="headerlink" title="5. 什么是 CPU 缓存一致性协议 MESI？"></a>5. 什么是 CPU 缓存一致性协议 MESI？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（Java 背景，通常从这里切进 JMM）：MESI 讲讲？为什么需要它？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：把 MESI 讲成”硬件层的东西，和 Java 无关”。这句话直接断掉你和后面 volatile 的联系。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>核心就一句话：<strong>多核各自缓存一份数据，靠给缓存行打标签来协商谁是正版</strong>。</p>
+<ul>
+<li><p>四种状态：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+<th>记忆法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>M</code> Modified</td>
+<td>独占且已改，<strong>是脏数据</strong>，未写回主存</td>
+<td>改过的，脏</td>
+</tr>
+<tr>
+<td><code>E</code> Exclusive</td>
+<td>独占未改，与主存一致</td>
+<td>我一个人有，没人改</td>
+</tr>
+<tr>
+<td><code>S</code> Shared</td>
+<td>多核共享且一致</td>
+<td>大家都有，都没改</td>
+</tr>
+<tr>
+<td><code>I</code> Invalid</td>
+<td>本地失效，需重新拉取</td>
+<td>作废了</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><code>E</code> 状态存在的意义是<strong>省一次总线广播</strong>：只有自己持有时，<code>E → M</code> 无需通知其他核</p>
+</li>
+<li><p>协作靠<strong>嗅探</strong>：Core A 发 Invalidate，Core B 嗅探到后把自己置 <code>I</code> 并回确认，A 收到确认才真正修改。核数多了总线带宽不够，服务器 CPU 改用<strong>目录协议</strong>避免广播风暴</p>
+</li>
+<li><p><strong>Store Buffer</strong> 是关键：让 A 不必等确认就能继续执行，于是产生了”本核认为改了、别的核还没变”的可见性问题——<strong>这正是 Java <code>volatile</code> 和内存屏障要解决的硬件根源</strong></p>
+</li>
+<li><p>变种：MOESI（AMD，加 Owner 态支持脏数据直共享）、MESIF（Intel，加 Forward 态只让一个 S 核响应读请求）</p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p>伪共享是这块的高频深挖题：</p>
+<ul>
+<li>缓存行通常 <strong>64 字节</strong>，两个<strong>毫不相关</strong>的变量落进同一行，会互相触发失效</li>
+<li>Java 8 用 <code>@Contended</code> 解决（需加 <code>-XX:-RestrictContended</code>），JDK 内部的 <code>LongAdder</code>、<code>Striped64</code> 都用了</li>
+</ul>
+<blockquote>
+<p><strong>面试官</strong>：<code>volatile</code> 能保证原子性吗？</p>
+</blockquote>
+<p>不能。它只保证<strong>可见性 + 禁止重排</strong>，<code>i++</code> 这种读改写依然不原子。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“volatile 保证原子性”——M&#x2F;V 级别的经典错误</li>
+<li>把伪共享说成”两个线程竞争同一变量”——伪共享是<strong>不相关</strong>的变量互相拖累</li>
+</ul>
+<hr>
+<h2 id="二、调度、中断与-CPU-指标"><a href="#二、调度、中断与-CPU-指标" class="headerlink" title="二、调度、中断与 CPU 指标"></a>二、调度、中断与 CPU 指标</h2><p>进程状态讲完，面试官通常顺势切到”那谁决定哪个进程跑”，然后一路问到你答不出来为止。</p>
+<h3 id="6-进程的调度算法你知道吗？"><a href="#6-进程的调度算法你知道吗？" class="headerlink" title="6. 进程的调度算法你知道吗？"></a>6. 进程的调度算法你知道吗？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：进程调度算法有哪些？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：只背 FCFS&#x2F;SJF&#x2F;RR 三个。真正拉开差距的是 <strong>MLFQ、HRRN，以及 Linux 实际用的 CFS</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>按”调度思想演进”来讲，逻辑会非常顺：</p>
+<ul>
+<li><strong>FCFS 先来先服务</strong>：简单，但队头一个大任务能让后面一堆 10ms 小任务全干等</li>
+<li><strong>SJF 最短作业优先</strong>：平均等待时间最优，但需要预知执行时间（现实中不可得），抢占版是 SRTF</li>
+<li><strong>优先级调度</strong>：坑在<strong>饥饿</strong>——低优先级任务永远排不上队</li>
+<li><strong>RR 时间片轮转</strong>：固定时间片（如 10ms）保证响应性</li>
+<li><strong>MLFQ 多级反馈队列</strong>：3~5 个队列，典型配置 Q0&#x2F;8ms（交互式、新进程）、Q1&#x2F;16ms（普通计算）、Q2&#x2F;32ms（CPU 密集后台）。新进程进 Q0，用完时间片没跑完降一级，并定期提回 Q0 防饿死</li>
+<li><strong>HRRN 高响应比优先</strong>：响应比 <code>R =（等待时间 + 服务时间）/ 服务时间</code>，等待越久响应比越高，短任务先跑、长任务最终也会被调度，适合批处理</li>
+<li><strong>CFS（Linux 2.6.23 至今）</strong>：<strong>不用固定时间片</strong>，按最小 <code>vruntime</code> 选取，红黑树组织，取出 O(1)、插入 O(log n)；<code>nice</code> 值 -20~19，差 5 时 CPU 时间比例约差 3 倍</li>
+<li><strong>实时调度</strong>：<code>SCHED_FIFO</code> 和 <code>SCHED_RR</code>，实时进程不参与 CFS，只要实时队列非空就一直跑，设多了会把普通进程饿死</li>
+<li>新内核默认调度周期延迟 24ms、最小调度粒度 3ms，可运行进程超 8 个时周期变 <code>3ms × 进程数</code>；交互式系统 10~20ms 较合适</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p><strong>优先级反转</strong>几乎必问：</p>
+<blockquote>
+<p>低优先级进程持有锁，高优先级进程等锁时，<strong>被中等优先级进程抢占</strong>了，高优先级进程就间接被中等优先级卡住。</p>
+</blockquote>
+<p>火星探路者号就是因为没做优先级继承出过事故。解决方案是<strong>优先级继承</strong>：让持锁的低优先级进程临时提升到等锁的高优先级进程同级别。</p>
+<p>MLFQ 防 gaming 的细节也常追问：不能只看单次时间片有没有用完，现代实现（BSD、Solaris）按各队列<strong>累计运行时间</strong>超阈值才降级。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“Linux 用时间片轮转”——Linux 用的是 <strong>CFS 的 vruntime 抢占</strong>，没有固定时间片</li>
+<li>“SJF 最好所以都用 SJF”——需要预知执行时间，现实中不可用</li>
+</ul>
+<hr>
+<h3 id="7-操作系统在进行线程切换时需要进行哪些动作？"><a href="#7-操作系统在进行线程切换时需要进行哪些动作？" class="headerlink" title="7. 操作系统在进行线程切换时需要进行哪些动作？"></a>7. 操作系统在进行线程切换时需要进行哪些动作？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：线程切换要做哪些动作？开销大吗？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>四步，标准答案：</p>
+<ol>
+<li>保存当前线程上下文到 TCB</li>
+<li>修改线程状态（Running → Ready，Ready → Running）</li>
+<li>调度器选出下一个线程</li>
+<li>恢复目标线程上下文</li>
+</ol>
+<p><strong>线程上下文</strong>包含三块：</p>
+<ul>
+<li><strong>CPU 寄存器状态</strong>：PC、SP、x86-64 下 16 个通用寄存器 + 浮点&#x2F;向量寄存器</li>
+<li><strong>程序状态字 PSW</strong>：中断开关、特权级、条件码</li>
+<li><strong>线程栈</strong>：用户栈 + 内核栈（<strong>两个都要保存</strong>，否则调用链断裂）</li>
+</ul>
+<p>TCB 即 <code>struct task_struct</code>，关键字段：线程状态、PC、寄存器内容、SP、优先级、Thread ID、调度信息（策略 + 时间片）。</p>
+<p><strong>开销的答案要说到根因上</strong>：线程切换比进程切换快的根本原因是<strong>内存映射不动</strong>。</p>
+<ul>
+<li>进程切换要改 CR3 换页表，<strong>TLB 全部失效</strong>，一次 TLB miss 代价是几十到几百个 CPU 周期</li>
+<li>线程切换共享地址空间，TLB 映射可继续用</li>
+<li>实测同进程线程切换比跨进程快 <strong>5~10 倍</strong>，Linux 上典型耗时 1~10 微秒</li>
+<li>goroutine 更轻：约几百纳秒</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跨进程的线程切换也快吗？</td>
+<td><strong>不快</strong>，本质就是进程切换，地址空间变了页表和 TLB 都得换</td>
+</tr>
+<tr>
+<td>怎么排查切换开销？</td>
+<td><code>vmstat</code> 看 <code>cs</code> 列，<code>pidstat -w</code> 看单进程；每秒几万次正常，几十万次通常意味着<strong>锁竞争激烈或线程过多</strong></td>
+</tr>
+<tr>
+<td>怎么优化？</td>
+<td>短临界区用自旋锁避免切换、CPU 亲和性绑定（DPDK）减少跨核缓存失效、批量处理（Netty EventLoop）降低切换频率</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“自旋锁是万能优化”——临界区长会白烧 CPU，单核上持锁线程根本没机会跑</li>
+</ul>
+<hr>
+<h3 id="8-什么是软中断、什么是硬中断？"><a href="#8-什么是软中断、什么是硬中断？" class="headerlink" title="8. 什么是软中断、什么是硬中断？"></a>8. 什么是软中断、什么是硬中断？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：软中断和硬中断有什么区别？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：答成”硬中断是硬件触发的，软中断是软件触发的”。这是最常见的错答——<strong>触发方和实现方是两回事</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>先讲中断的价值：<strong>化主动为被动</strong>。没有中断，CPU 只能轮询判断条件是否成立；有了中断，CPU 可以先干别的，条件成立再来唤醒。</p>
+<p>然后纠正那个常见误解：</p>
+<ul>
+<li><strong>按触发方式</strong>分类：中断（外部设备，异步）、异常（CPU 执行指令时检测到的反常条件，同步）、INT 指令（软件主动指定中断号，如 <code>INT 0x80</code> 就是 Linux 系统调用入口）</li>
+<li><strong>按实现机制</strong>分类：上面<strong>三者全是硬中断</strong>——硬&#x2F;软看的是<strong>谁来检测和分发</strong>，不是谁触发</li>
+</ul>
+<p>所以正确定义是：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>硬中断</th>
+<th>软中断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>检测方</td>
+<td><strong>CPU 硬件</strong></td>
+<td><strong>Linux 软件</strong>（ksoftirqd 守护进程）</td>
+</tr>
+<tr>
+<td>发现时机</td>
+<td>每个指令周期最后一个周期采样中断向量表</td>
+<td>轮询软中断标记位数组，某位为 1 就取对应处理函数</td>
+</tr>
+<tr>
+<td>top 中</td>
+<td><code>hi</code> 列</td>
+<td><code>si</code> 列</td>
+</tr>
+</tbody></table>
+<p><strong>软中断存在的意义</strong>是硬中断处理程序不能做太久：它可能临时关中断，不及时返回会导致其他中断（鼠标键盘）响应延迟甚至丢失。</p>
+<p>网卡收包因此拆成<strong>上下半部</strong>：</p>
+<ul>
+<li>上半部：硬中断处理程序快速跑完，<strong>置软中断标记位</strong>（注意是置标志位，不是给 CPU 发中断信号）</li>
+<li>下半部：软中断处理程序按协议栈逐层解析后交给应用</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：异常为什么也是硬中断？</p>
+</blockquote>
+<p>因为异常是 <strong>CPU 自己给自己中断号</strong>，不存在外部设备参与，但检测和分发仍然由硬件完成。容易被误归到软件侧。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“软中断是软件触发的中断”——那是 INT 指令；软中断的触发源仍是硬件事件，只是<strong>处理环节被软件化延迟执行</strong></li>
+</ul>
+<hr>
+<h3 id="11-CPU-使用率和-CPU-负载指的是什么？"><a href="#11-CPU-使用率和-CPU-负载指的是什么？" class="headerlink" title="11. CPU 使用率和 CPU 负载指的是什么？"></a>11. CPU 使用率和 CPU 负载指的是什么？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（可能结合运维场景）：CPU 使用率和 CPU 负载有什么区别？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：把 load average 当成”排队任务数”直接背。它是<strong>指数衰减平滑</strong>的结果，不是瞬时快照。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>先给定义，再给数据来源：</p>
+<ul>
+<li><p><strong>CPU 使用率</strong>：某时间窗口内 CPU 真正干活的时间占比</p>
+<ul>
+<li>原始数据在 <code>/proc/stat</code>，字段从左到右：user、nice、system、idle、iowait、irq、softirq、steal、guest、guest_nice</li>
+<li>计算方式：采样两个时间点做差，<code>cpuUsage = 100.0 * (totalDiff - idleDiff) / totalDiff</code></li>
+<li>top&#x2F;htop 只是每隔几秒采样一次算差值</li>
+</ul>
+</li>
+<li><p><strong>CPU 负载</strong>：等待 CPU 的任务数量（含运行中 + 排队中），分 1&#x2F;5&#x2F;15 分钟三个指数滑动平均</p>
+<ul>
+<li><code>load = load * exp(-5/60) + active_tasks * (1 - exp(-5/60))</code></li>
+<li>三个时间窗口对应 <code>exp(-5/60)</code>、<code>exp(-5/300)</code>、<code>exp(-5/900)</code>，作用是平滑掉瞬时尖峰、反映趋势</li>
+</ul>
+</li>
+</ul>
+<p><strong>四种组合要给面试官一张判定表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>使用率</th>
+<th>负载</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>高</td>
+<td>高</td>
+<td>计算能力瓶颈</td>
+</tr>
+<tr>
+<td>低</td>
+<td><strong>高</strong></td>
+<td><strong>大量 I&#x2F;O 密集任务或锁竞争</strong></td>
+</tr>
+<tr>
+<td>高</td>
+<td>低</td>
+<td>调度良好，无积压</td>
+</tr>
+<tr>
+<td>低</td>
+<td>低</td>
+<td>资源未充分利用</td>
+</tr>
+</tbody></table>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p>两个细节最能显水平：</p>
+<ol>
+<li><strong>负载统计包含 I&#x2F;O 等待的任务</strong>——这就是”低使用率 + 高负载”的成因</li>
+<li><strong>多核要除以核心数解读</strong>：8 核机器负载 8.0 表示每核刚好一个任务，16.0 表示每核还排着一个</li>
+</ol>
+<p>完整排查链路：</p>
+<ol>
+<li>告警负载高但 CPU 才 30% → <code>vmstat 1 5</code> 看 <code>b</code> 列（等待 I&#x2F;O 的进程数）和 <code>wa</code> 列（I&#x2F;O 等待占 CPU 百分比）</li>
+<li><code>b=15、wa=65%</code> 就是典型磁盘瓶颈</li>
+<li>再用 <code>iostat -x 1</code> 看 <code>await</code>（正常个位数毫秒）和 <code>%util</code>（接近 100% 说明磁盘打满）</li>
+<li><code>iotop</code> 定位具体进程</li>
+</ol>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“使用率高就是负载高”——线上 4 核机器使用率 20%、平均负载 8 的情况大量存在，此时系统已经出现瓶颈</li>
+<li>把 15 分钟负载当瞬时值——<strong>趋势比绝对值重要</strong>：15 分钟高于 1 分钟说明系统正在恶化</li>
+</ul>
+<hr>
+<h3 id="22-听说过-CFS-吗？"><a href="#22-听说过-CFS-吗？" class="headerlink" title="22. 听说过 CFS 吗？"></a>22. 听说过 CFS 吗？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（顺着调度深挖）：CFS 讲讲？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><p><strong>定义</strong>：CFS（Completely Fair Scheduler，Linux 2.6.23 起替代 O(1)）用 <code>vruntime</code> 虚拟运行时间衡量”欠多少 CPU”，把可运行进程放进按 <code>vruntime</code> 排序的<strong>红黑树</strong>，每次取<strong>最左节点</strong>运行</p>
+</li>
+<li><p><strong>调度循环</strong>：取最左 → 运行使 <code>vruntime</code> 增长 → 时间片用完或主动让出 → 更新 <code>vruntime</code> 重插入 → 再次取最左；插入&#x2F;删除均 O(log N)</p>
+</li>
+<li><p><strong>计算公式</strong>：<code>vruntime 增量 = 实际运行时间 × (NICE_0_WEIGHT / 进程权重)</code>，其中 <code>NICE_0_WEIGHT = 1024</code></p>
+<table>
+<thead>
+<tr>
+<th>nice</th>
+<th>权重</th>
+<th>相对 CPU</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-20</td>
+<td>88761</td>
+<td>≈ 87 倍</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1024</td>
+<td>基准</td>
+</tr>
+<tr>
+<td>19</td>
+<td>15</td>
+<td>≈ 1&#x2F;68</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>为什么替代 O(1) 调度器</strong>：O(1) 把进程分进 140 个优先级队列，交互式进程识别粗糙，常把”正在等输入”的进程误判为 CPU 密集型而降优先级，桌面用起来卡顿。CFS <strong>不猜类型</strong>——睡眠期间 <code>vruntime</code> 不增长，醒来天然靠左</p>
+</li>
+<li><p><strong>长睡进程的特殊处理</strong>：睡很久醒来时 <code>vruntime</code> 会被重置为”当前队列最小 <code>vruntime</code> − <code>sched_latency</code>“，避免一觉醒来霸占 CPU</p>
+</li>
+<li><p><strong>多核</strong>：每 CPU 一棵红黑树，由 <code>load_balance</code> 评估负载差异，超阈值才迁移，避免频繁迁移丢失缓存</p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：CFS 的最新进展？</p>
+</blockquote>
+<p>Linux 6.6（2023-10）引入 <strong>EEVDF</strong>（最早虚拟截止时间优先）替代 CFS，为请求时间片小的任务算 deadline，改善延迟敏感场景的体验。容器大规模场景下红黑树变深、O(log N) 开销明显，这正是 EEVDF 要解决的问题之一。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“CFS 保证低延迟”——它目标是<strong>公平</strong>而非低延迟，硬实时得用 <code>SCHED_FIFO</code>&#x2F;<code>SCHED_RR</code></li>
+<li>“死循环进程会卡死全系统”——时间片有上限，多核下还能分散到其他核</li>
+</ul>
+<hr>
+<h2 id="三、内存管理与地址空间"><a href="#三、内存管理与地址空间" class="headerlink" title="三、内存管理与地址空间"></a>三、内存管理与地址空间</h2><p>调度讲完，面试官通常会问一句”那进程是怎么拿到内存的”，顺势进入这块。这部分最能区分”看过源码”和”只背过书”。</p>
+<h3 id="9-为什么要有虚拟内存？"><a href="#9-为什么要有虚拟内存？" class="headerlink" title="9. 为什么要有虚拟内存？"></a>9. 为什么要有虚拟内存？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：为什么要引入虚拟内存？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：答”为了隔离进程和扩大可用内存”。太表面，答不到 VMA 这一层。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>从数据结构讲起，这是加分点：</p>
+<ul>
+<li>每个进程的 <code>task_struct</code> 挂一个 <code>mm_struct</code>，表示虚拟地址空间</li>
+<li>已分配的每段地址范围由 <code>vm_area_struct</code>（<strong>VMA</strong>）表示，<code>vm_start</code>&#x2F;<code>vm_end</code> 界定区间，多个 VMA 互不交叉，加起来就是占用情况</li>
+<li><strong>物理页是按需分配的</strong>：进程加载时只拿地址空间范围，物理页等实际访问触发缺页中断时才向伙伴系统申请</li>
+</ul>
+<p><strong>VMA 管理器的演进值得主动讲</strong>，说明你真读过内核：</p>
+<ul>
+<li><strong>6.1 之前</strong>：红黑树 + 双向链表。红黑树（<code>mm_rb</code>）保证查询&#x2F;插入&#x2F;删除 O(log n)，双向链表（<code>mmap</code>）加速遍历。缺点是红黑树平衡操作牵连多节点且修改要同步链表，必须加锁（<code>mmap_sem</code>），多线程下锁争抢严重</li>
+<li><strong>6.1 起</strong>：替换为 <strong>maple tree</strong>（<code>mm_mt</code>，<code>ma_root</code> 为 <code>__rcu *</code>），从设计上就基于 RCU 无锁读，减少锁开销</li>
+</ul>
+<p><strong>缺页处理链路</strong>（面试官爱顺着代码问）：</p>
+<ol>
+<li><code>do_user_addr_fault</code>（<code>arch/x86/mm/fault.c</code>）先 <code>find_vma(mm, address)</code> 找到所属 VMA<ul>
+<li>6.1 前遍历双向链表并配合缓存；6.1 后用 <code>MA_STATE</code> 宏构造查找状态 + <code>mas_walk</code> 在 maple tree 中查询</li>
+</ul>
+</li>
+<li><code>handle_mm_fault</code> → <code>__handle_mm_fault</code>，把 vma、address 及各级页表项统一收进参数对象 <code>struct vm_fault</code>（长参数列表整合成参数对象是 6.1 内核常见重构手法）</li>
+<li>Linux 用四级页表 pgd &#x2F; pud &#x2F; pmd &#x2F; pte，逐级检查或申请</li>
+<li>落到 <code>handle_pte_fault</code> 分流：文件映射缺页、swap 缺页、写时复制缺页、匿名映射缺页……普通变量走 <code>do_anonymous_page</code> → <code>alloc_zeroed_user_highpage_movable</code> → 伙伴系统 <code>alloc_pages</code></li>
+</ol>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：堆和栈的物理内存什么时候分配？</p>
+</blockquote>
+<p>进程加载时只分配地址空间范围（VMA），<strong>物理页等实际访问触发缺页中断时才申请</strong>。所以申请了大数组但没写入，不会立刻占物理内存。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>以为 <code>malloc</code>&#x2F;申请内存时就分配了物理内存——实际只拿到一个 VMA 地址区间</li>
+<li>忽略 <code>find_vma</code> 这一步——缺了它就无法判断地址是否合法、是否属于当前进程</li>
+</ul>
+<hr>
+<h3 id="10-什么是分段、什么是分页？"><a href="#10-什么是分段、什么是分页？" class="headerlink" title="10. 什么是分段、什么是分页？"></a>10. 什么是分段、什么是分页？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：分段和分页有什么区别？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>先给本质差异，再讲历史演进：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>分段</th>
+<th>分页</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>划分依据</td>
+<td><strong>程序的逻辑结构</strong>（代码&#x2F;数据&#x2F;堆栈）</td>
+<td><strong>固定大小物理单位</strong></td>
+</tr>
+<tr>
+<td>段&#x2F;页大小</td>
+<td>不固定</td>
+<td>固定 4KB</td>
+</tr>
+<tr>
+<td>碎片类型</td>
+<td>外部碎片</td>
+<td>内部碎片</td>
+</tr>
+<tr>
+<td>用户可见性</td>
+<td>对程序员可见（需指定段）</td>
+<td>透明</td>
+</tr>
+</tbody></table>
+<p><strong>历史脉络</strong>讲出来会显得很扎实：</p>
+<ul>
+<li><strong>分段来自 8086</strong>：16 位寄存器 + 20 位地址总线，用「段基址左移 4 位（即乘 16）+ 段内偏移」访问 20 位空间。因一段仅 64KB，必须不断换段基址才能访问全空间</li>
+<li><strong>80286 引入保护模式与 GDT</strong>：段寄存器改存”选择子”（段描述符索引 + TI + RPL），通过 RPL 与目标 DPL 比较判断访问权限，实现进程间地址隔离；实模式无权限校验</li>
+<li><strong>80386 起</strong>通用寄存器和地址总线都是 32 位，分段失去意义，但为向前兼容保留，段基址全设 0 即<strong>平坦模式</strong>——这是 Linux 的做法</li>
+</ul>
+<p><strong>分页的动机就是碎片</strong>：200MB 内存跑 LOL&#x2F;Chrome&#x2F;微信后剩 30MB 连续空闲都装不下新程序，只能把 Chrome 换出到磁盘再重新装入。按 4KB 分页后只需换入用到的页。</p>
+<p><strong>多级页表解决页表自身浪费</strong>：32 位 4GB 空间按 4KB 分页超百万页，每页表项 4 字节，单进程页表就要 4MB，100 个进程即 400MB。改用多级页表后只有用到的页表项才分配内存——32 位一般两级，64 位四级甚至五级。</p>
+<p><strong>TLB</strong> 缓存最近使用的页表项，命中率一般 99% 以上；未命中才走内存页表。<strong>进程切换必须刷新 TLB</strong>，因为各进程页表不同——这正是频繁切换进程开销大的原因。</p>
+<p><strong>页面置换</strong>：FIFO 最简单但会把热点页换出；LRU 效果好但记录访问时间开销大；Linux 用<strong>近似 LRU</strong>，维护 active&#x2F;inactive 两条链表，inactive 链表末尾优先换出。</p>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<ul>
+<li>缺页中断与普通中断不同：<strong>普通中断处理完返回下一条指令，缺页中断处理完要重新执行触发它的那条指令</strong></li>
+<li>大页（Linux 支持 2MB&#x2F;1GB）减少页表项、降低 TLB miss，但内部碎片变大——只需 5KB 数据也占满一个大页。数据库、虚拟机才用</li>
+</ul>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“Linux 是段页式系统”——分段在 Linux 上是兼容遗留，实际按平坦模式运行，<strong>真正干活的是分页</strong></li>
+</ul>
+<hr>
+<h3 id="21-什么是物理地址，什么是逻辑地址？"><a href="#21-什么是物理地址，什么是逻辑地址？" class="headerlink" title="21. 什么是物理地址，什么是逻辑地址？"></a>21. 什么是物理地址，什么是逻辑地址？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：物理地址和逻辑地址的区别？地址转换是怎么做的？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><strong>物理地址</strong>是内存芯片上的真实位置；<strong>逻辑地址</strong>是程序看到的地址</li>
+<li><strong>MMU 依据页表翻译</strong>，对程序透明，因此进程间天然隔离</li>
+</ul>
+<p>转换流程要给具体例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">程序访问 0x000A1234</span><br><span class="line">  → MMU 查页表得页框号</span><br><span class="line">  → 拼页内偏移</span><br><span class="line">  → 物理地址 0x1F2B5678</span><br></pre></td></tr></table></figure>
+
+<p>进程切换时，OS 把新进程的页表基址写入 CPU 的 <strong>CR3 寄存器</strong>。</p>
+<p><strong>逻辑地址的三大好处</strong>：</p>
+<ol>
+<li><strong>位置无关加载</strong>——同一个二进制可以加载到不同物理位置</li>
+<li><strong>进程隔离</strong>——野指针最多触发一次缺页异常，不会读到别的进程</li>
+<li><strong>虚拟内存</strong>——32 位程序可以”看到” 4GB 空间</li>
+</ol>
+<p><strong>TLB</strong> 是 CPU 内部的页表项缓存，命中直接出物理地址，命中率可达 99%+；否则一次逻辑访问变成两次内存访问。多级页表在 32 位下能让页表占用节省 90%+，64 位用四级页表。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“用户态程序可以访问物理地址”——Linux 的 <code>/dev/mem</code> 需要 root，生产环境一般禁用</li>
+<li>把”分段”当成 x86-64 的实际内存管理机制——分段已被架空</li>
+</ul>
+<hr>
+<h3 id="23-负数的二进制如何表示？"><a href="#23-负数的二进制如何表示？" class="headerlink" title="23. 负数的二进制如何表示？"></a>23. 负数的二进制如何表示？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（可能从 Java 类型转换切入）：负数的二进制怎么表示？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>用<strong>补码</strong>：正数按位取反再加 1；正数的补码就是它本身，最高位即符号位（0 正 1 负）</li>
+<li><strong>8 位示例</strong>：<code>5 = 00000101</code> → 取反 <code>11111010</code> → 加 1 得 <code>11111011 = -5</code><ul>
+<li>验证：<code>11111011 + 00000101 = 100000000</code>，丢弃溢出位正好为 0</li>
+</ul>
+</li>
+<li><strong>补码让减法变加法</strong>：<code>5 - 3</code> 实际算 <code>5 + 11111101(-3) = 100000010</code>，丢掉最高位得 <code>00000010 = 2</code>，<strong>硬件只需一个加法器</strong></li>
+<li>数学本质是<strong>模运算</strong>：8 位相当于模 256，<code>-3 ≡ 253 ≡ 11111101</code></li>
+</ul>
+<p><strong>表示范围不对称</strong>是 Java 高频细节：</p>
+<ul>
+<li>8 位有符号：<code>-128 ~ 127</code>；int：<code>-2147483648 ~ 2147483647</code></li>
+<li><code>byte b = -128; (byte)(-b)</code> 仍输出 <strong>-128</strong>，<code>Integer.MIN_VALUE</code> 取负还是自己</li>
+</ul>
+<p><strong>符号扩展</strong>：byte→int 正数补 0、负数补 1。<code>byte b = -1; int i = b;</code> 仍是 -1；想要无符号值用 <code>b &amp; 0xFF</code> 得 255。</p>
+<p><strong>位运算</strong>：</p>
+<ul>
+<li><code>&gt;&gt;</code> 算术右移<strong>保留符号位</strong>：<code>-8 &gt;&gt; 2 = -2</code></li>
+<li><code>&gt;&gt;&gt;</code> 逻辑右移<strong>补 0</strong>：<code>-8 &gt;&gt;&gt; 2 = 1073741822</code></li>
+<li>C 没有 <code>&gt;&gt;&gt;</code>，有符号右移行为依编译器</li>
+</ul>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>认为浮点数用补码——浮点走 IEEE 754，负数只是把符号位置 1，其余位不变</li>
+<li>解释负数为什么比正数多一个是因为”补码更聪明”——实际是 0 合并省下的编码落到了最小值上</li>
+</ul>
+<hr>
+<h2 id="四、线上排障：Linux-命令实操"><a href="#四、线上排障：Linux-命令实操" class="headerlink" title="四、线上排障：Linux 命令实操"></a>四、线上排障：Linux 命令实操</h2><p>这道题几乎必问，而且<strong>最容易靠平时积累当场露怯</strong>。它的评分逻辑不是”你知道多少命令”，而是”你能不能说清每个参数为什么这么用”。</p>
+<h3 id="12-说下你常用的-Linux-命令？"><a href="#12-说下你常用的-Linux-命令？" class="headerlink" title="12. 说下你常用的 Linux 命令？"></a>12. 说下你常用的 Linux 命令？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：说下你常用的 Linux 命令？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：一口气报 30 个命令名。面试官会觉得你在背 man 手册，而不是在用系统。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>按场景组织，每类给”最该记住的细节”：</p>
+<p><strong>① 文件与目录</strong></p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ls -l/-a/-lh</code></td>
+<td><code>-l</code> 详细信息、<code>-a</code> 含隐藏、<code>-lh</code> 可读大小（K&#x2F;M&#x2F;B）</td>
+</tr>
+<tr>
+<td><code>cat &gt; file</code> vs <code>cat &gt;&gt; file</code></td>
+<td><strong>覆盖 vs 追加</strong>，误用直接丢数据</td>
+</tr>
+<tr>
+<td><code>cat f1 f2 &gt; f3</code></td>
+<td>合并文件</td>
+</tr>
+<tr>
+<td><code>head -n 20</code> &#x2F; <code>tail -n 20</code></td>
+<td><code>tail -f</code> 可实时跟踪日志</td>
+</tr>
+<tr>
+<td><code>find /var/log -size +50M</code></td>
+<td>按条件全盘遍历</td>
+</tr>
+<tr>
+<td><code>tree -L 2</code> &#x2F; <code>-d</code> &#x2F; <code>-a</code></td>
+<td>限层数 &#x2F; 只看目录 &#x2F; 含隐藏</td>
+</tr>
+</tbody></table>
+<p>权限这块要说清数字模式：<code>chmod 755</code> &#x3D; 所有者 rwx、其他 rx；<code>chmod 644</code> &#x3D; 所有者 rw、其他 r（r&#x3D;4、w&#x3D;2、x&#x3D;1）。用户分三类：所有者 u、同组 g、其他 o。</p>
+<p><strong>② 查找与网络</strong></p>
+<ul>
+<li><code>whereis</code> 在预定义路径找程序（比 <code>find</code> 快，不遍历文件系统）</li>
+<li><code>which</code> 在 <code>PATH</code> 中找命令</li>
+<li><code>netstat -antp</code> 全 TCP + 端口 + 进程名；<code>netstat -anp | grep 8080</code> 查端口占用</li>
+<li><code>ps -ef | grep java</code> 找进程</li>
+<li><code>nohup java -jar app.jar &gt; output.log 2&gt;&amp;1 &amp;</code> 后台启动</li>
+</ul>
+<p><strong>③ top 的读法</strong>——这是最高频的追问：</p>
+<ul>
+<li><p><strong>第一行</strong>：<code>load average</code> 是 1&#x2F;5&#x2F;15 分钟平均负载，一般不超过总核数</p>
+</li>
+<li><p><strong>第二行</strong> Tasks：running 越多压力越大，zombie 是僵尸进程数</p>
+</li>
+<li><p><strong>第三行</strong> CPU：</p>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>含义</th>
+<th>关注点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>us</code></td>
+<td>用户态</td>
+<td>主要消耗来源</td>
+</tr>
+<tr>
+<td><code>sy</code></td>
+<td>内核态</td>
+<td><strong>大量 IO 会推高</strong></td>
+</tr>
+<tr>
+<td><code>ni</code></td>
+<td>调整过 nice 值进程的占用</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td>空闲</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>wa</code></td>
+<td>I&#x2F;O 等待</td>
+<td><strong>判断瓶颈是否 IO 的关键</strong></td>
+</tr>
+<tr>
+<td><code>hi</code> &#x2F; <code>si</code></td>
+<td>硬中断 &#x2F; 软中断</td>
+<td>见第 8 题</td>
+</tr>
+<tr>
+<td><code>st</code></td>
+<td>steal time</td>
+<td>虚拟机被宿主机抢走的时间</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>第四、五行</strong>：内存与 Swap。<strong>free 少不必紧张</strong>，Linux 把空闲内存拿去做 buff&#x2F;cache，重点看 <strong>Swap 的 used</strong></p>
+</li>
+</ul>
+<p><strong>进程列表各列含义</strong>（要能报出来）：</p>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PR &#x2F; NI</td>
+<td>优先级 &#x2F; nice 值（负值高优先级）</td>
+</tr>
+<tr>
+<td>VIRT</td>
+<td>虚拟内存总量，VIRT &#x3D; SWAP + RES</td>
+</tr>
+<tr>
+<td>RES</td>
+<td>未被换出的物理内存，RES &#x3D; CODE + DATA</td>
+</tr>
+<tr>
+<td>S</td>
+<td>状态：D 不可中断睡眠、R 运行、S 睡眠、T 停止、Z 僵尸</td>
+</tr>
+<tr>
+<td>TIME+</td>
+<td>累计 CPU 时间（单位 1&#x2F;100 秒）</td>
+</tr>
+</tbody></table>
+<p>top 交互键：<code>f</code> 编辑显示列、<code>s</code> 设排序列、空格显隐列、<code>q</code> 退出。常用参数 <code>-d 1</code>（1 秒刷新）、<code>-p PID</code>（只看某进程）、<code>-c</code>（显示完整命令行）、<code>-i</code>（不显示闲置&#x2F;僵死进程）、<code>-s</code>（安全模式）。</p>
+<p><strong>④ 系统性能与磁盘</strong></p>
+<p><code>uname -a/-r/-m</code>、<code>free -h/-m</code>、<code>vmstat 1 10</code>、<code>uptime</code>、<code>iostat</code>、<code>sar -u 1 10</code>（CPU）&#x2F; <code>sar -d 1 10</code>（磁盘）、<code>df -h</code>、<code>du -sh 目录</code>、<code>du -sk * | sort -rn</code>（按大小倒序）、<code>fdisk -l</code>。</p>
+<p><strong>⑤ 服务管理与包管理</strong></p>
+<ul>
+<li><code>service</code> 对应传统 SysVinit（脚本在 <code>/etc/init.d/</code>）</li>
+<li><code>systemctl</code> 属于 systemd，通过 unit 文件管理服务&#x2F;挂载点&#x2F;设备，配置在 <code>/etc/systemd/system/</code> 与 <code>/usr/lib/systemd/system/</code></li>
+<li>CentOS&#x2F;Fedora 用 <code>yum</code>，Debian&#x2F;Ubuntu 用 <code>apt</code>——<code>apt update</code> 必须<strong>在 <code>install</code> 之前</strong>执行</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：机器内存还有 2G，为什么 free 显示只剩 800M？</p>
+</blockquote>
+<p>因为 Linux 拿空闲内存做 buff&#x2F;cache 来加速文件访问，这是<strong>好事</strong>。判断内存紧张要看 <strong>Swap 的 used</strong> 和 <code>vmstat</code> 的 si&#x2F;so（换入换出）列。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把 <code>free</code> 低当成内存不足</li>
+<li>认为 <code>whereis</code>、<code>which</code>、<code>find</code> 是一回事——whereis 只搜预定义路径且更快，which 只搜 PATH，find 全盘遍历并支持复杂条件</li>
+</ul>
+<hr>
+<h2 id="五、I-O-模型全家桶"><a href="#五、I-O-模型全家桶" class="headerlink" title="五、I&#x2F;O 模型全家桶"></a>五、I&#x2F;O 模型全家桶</h2><p>这是<strong>互联网后端岗位权重最高的一块</strong>，因为高并发服务器绕不开。面试官往往会从这一章切入，然后一路问到 Reactor 和 epoll。</p>
+<h3 id="13-I-O-是什么？"><a href="#13-I-O-是什么？" class="headerlink" title="13. I&#x2F;O 是什么？"></a>13. I&#x2F;O 是什么？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：讲讲你对 I&#x2F;O 的理解？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><strong>I&#x2F;O 是数据在计算机与外部世界之间的搬运</strong>：Input 进来、Output 出去</li>
+<li>路径：外设产生数据 → <strong>I&#x2F;O 控制器</strong>搬到内存 → CPU 从内存取；输出反向</li>
+<li>按设备特性分两类：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>设备</th>
+<th>访问方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>块设备</td>
+<td>硬盘、SSD</td>
+<td>按固定块读写（512B 或 4KB），<strong>支持随机访问</strong></td>
+</tr>
+<tr>
+<td>字符设备</td>
+<td>键盘、串口</td>
+<td>只能顺序字节流，<strong>读完即逝</strong></td>
+</tr>
+</tbody></table>
+<p><strong>速度鸿沟是理解一切性能问题的起点</strong>，这组数字务必背下来：</p>
+<table>
+<thead>
+<tr>
+<th>介质</th>
+<th>延迟</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CPU 时钟周期</td>
+<td>~0.3 ns</td>
+</tr>
+<tr>
+<td>L1 缓存</td>
+<td>~1 ns</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>~100 ns</td>
+</tr>
+<tr>
+<td>SSD 随机读</td>
+<td>~150 µs</td>
+</tr>
+<tr>
+<td>机械盘随机读</td>
+<td>~10 ms</td>
+</tr>
+</tbody></table>
+<p><strong>相当于 CPU 跑一秒 &#x3D; 等机械硬盘一年。</strong> 所以一切 I&#x2F;O 优化都在削这段鸿沟。</p>
+<p><strong>四种缓冲策略</strong>：</p>
+<ul>
+<li><strong>缓冲 I&#x2F;O</strong>：走 <strong>Page Cache</strong>——读命中直接返回，写批量刷盘</li>
+<li><strong>直接 I&#x2F;O（<code>O_DIRECT</code>）</strong>：绕过 Page Cache。MySQL InnoDB 默认开启，因为它要自己掌控刷盘时机。<strong>代价是内存地址和长度必须按块对齐</strong></li>
+<li><strong>I&#x2F;O 调度器</strong>：重排请求减少寻道。CFQ（公平）、Deadline（防饿死）、Noop（适合 SSD）；现代默认 mq-deadline &#x2F; bfq，SSD&#x2F;NVMe 常用 none 或 mq-deadline<ul>
+<li>查看修改：<code>cat /sys/block/sda/queue/scheduler</code>、<code>echo mq-deadline &gt; /sys/block/sda/queue/scheduler</code></li>
+</ul>
+</li>
+<li><strong>零拷贝三件套</strong>：<code>mmap</code>（映射免一次拷贝）、<code>sendfile</code>（内核缓冲区直发 socket）、<code>splice</code>（fd 间直搬）</li>
+</ul>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>误以为”非阻塞 &#x3D; 异步”——非阻塞只解决”数据没准备好”，<strong>拷贝阶段仍要用户线程等</strong></li>
+<li>以为所有 I&#x2F;O 都必须经 Page Cache——数据库恰恰要绕开它</li>
+</ul>
+<hr>
+<h3 id="14-为什么网络-I-O-会被阻塞？"><a href="#14-为什么网络-I-O-会被阻塞？" class="headerlink" title="14. 为什么网络 I&#x2F;O 会被阻塞？"></a>14. 为什么网络 I&#x2F;O 会被阻塞？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：为什么网络 I&#x2F;O 会阻塞？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>本质是<strong>等待</strong>——等数据到、等缓冲区腾位置、等连接建立。OS 把进程挂起让出 CPU，条件满足后再唤醒，因此<strong>一次阻塞+唤醒要付两次上下文切换</strong>。</p>
+<p><strong>三类阻塞</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>触发条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读阻塞</td>
+<td>接收缓冲区为空</td>
+</tr>
+<tr>
+<td>写阻塞</td>
+<td>发送缓冲区已满</td>
+</tr>
+<tr>
+<td>连接阻塞</td>
+<td>connect 等三次握手、accept 等已完成队列</td>
+</tr>
+</tbody></table>
+<p><strong>服务端流程</strong> <code>socket → bind → listen → accept</code>：</p>
+<ul>
+<li><code>socket</code> 返回 fd</li>
+<li><code>listen</code> 的 backlog 在 <strong>Linux 只指已完成连接队列大小</strong>（BSD 派生系统是单队列，Linux 是双队列）</li>
+<li><code>accept</code> 取出三次握手完成的连接，返回<strong>新的 fd</strong></li>
+</ul>
+<p><strong>客户端不需要 bind</strong>（默认选源 IP + 随机端口），connect 后进入 SYN_SEND，收到 SYN+ACK 后转 ESTABLISHED。</p>
+<p><strong>write 为什么会阻塞</strong>：TCP 有发送缓冲区和对端的流量控制，发太快对端会通过窗口告知”别发了”，缓冲区满就只能等。</p>
+<p>解除阻塞靠 <code>fcntl(fd, F_SETFL, flags | O_NONBLOCK)</code> 设为非阻塞，读写不满足条件立刻返回 <code>EAGAIN</code>&#x2F;<code>EWOULDBLOCK</code>。</p>
+<p><strong>队列溢出后果不同</strong>，这点能区分深度：</p>
+<ul>
+<li><strong>半连接队列满</strong> → 新 SYN 被丢弃、客户端超时重传（SYN Flood 的攻击面）</li>
+<li><strong>已完成队列满</strong> → 服务端回 RST 迫使客户端重连</li>
+<li>用 <code>netstat -s</code> 看 overflow 统计</li>
+</ul>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把 backlog 说成”等待建立连接的请求总数”——Linux 下它仅算已完成队列</li>
+</ul>
+<hr>
+<h3 id="15-I-O-模型有哪些？"><a href="#15-I-O-模型有哪些？" class="headerlink" title="15. I&#x2F;O 模型有哪些？"></a>15. I&#x2F;O 模型有哪些？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：I&#x2F;O 模型有哪几种？区别在哪？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：报出五种名字就停。<strong>核心差异是「等数据」和「拷贝数据」这两个阶段分别由谁完成</strong>——这句话是本题的得分锚点。</p>
+<p><strong>📝 现场作答</strong></p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>阶段① 等数据</th>
+<th>阶段② 拷贝数据</th>
+<th>代表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>阻塞 I&#x2F;O</td>
+<td>用户线程等</td>
+<td>用户线程等</td>
+<td>最基础</td>
+</tr>
+<tr>
+<td>非阻塞 I&#x2F;O</td>
+<td>立刻返回 <code>EWOULDBLOCK</code></td>
+<td><strong>用户线程等</strong></td>
+<td>轮询</td>
+</tr>
+<tr>
+<td>I&#x2F;O 多路复用</td>
+<td><code>select</code>&#x2F;<code>epoll</code> 统一等</td>
+<td><strong>用户线程等</strong></td>
+<td>Nginx、Redis、Netty</td>
+</tr>
+<tr>
+<td>信号驱动</td>
+<td>内核发 SIGIO</td>
+<td><strong>用户线程等</strong>（处理函数里 recvfrom 仍阻塞）</td>
+<td>较少用</td>
+</tr>
+<tr>
+<td>异步 I&#x2F;O</td>
+<td>内核等</td>
+<td><strong>内核拷贝，完成后通知</strong></td>
+<td>Windows IOCP</td>
+</tr>
+</tbody></table>
+<p>逐个补要点：</p>
+<ul>
+<li><strong>阻塞</strong>：<code>recvfrom</code> 一直挂起到数据准备好且内核→用户拷贝完成。实现简单，适合单线程串行</li>
+<li><strong>非阻塞</strong>：数据没准备好立即返回，进程反复轮询 <code>recvfrom</code>；<code>accept</code> 同理返回 -1 并置 errno。纯轮询浪费 CPU，<strong>必须配合多路复用</strong></li>
+<li><strong>多路复用</strong>：<code>select</code>&#x2F;<code>poll</code>&#x2F;<code>epoll</code> 一次监控多个 fd，任一就绪即返回，再由程序发起真实读写；一个线程管上千连接，省掉海量线程</li>
+<li><strong>信号驱动</strong>：<code>sigaction</code> 注册 SIGIO 处理函数。<strong>信号可能丢失、处理耗时长，不适合高速 I&#x2F;O</strong></li>
+<li><strong>异步</strong>：<code>aio_read</code> 立即返回，内核后台完成内核→用户拷贝，完成后按调用指定的方式发信号通知</li>
+</ul>
+<p>注意一个细节：<strong>多路复用与信号驱动都在 <code>recvfrom</code> 处仍会阻塞</strong>，只有阻塞 I&#x2F;O 和异步 I&#x2F;O 是两端。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把”非阻塞 I&#x2F;O”和”异步 I&#x2F;O”混为一谈——前者需要两次系统调用（问状态 + 读数据），后者一次请求内核全包</li>
+<li>以为信号驱动 I&#x2F;O 全程无阻塞——处理函数里的 <code>recvfrom</code> 照样阻塞</li>
+</ul>
+<hr>
+<h3 id="16-同步和异步的区别？"><a href="#16-同步和异步的区别？" class="headerlink" title="16. 同步和异步的区别？"></a>16. 同步和异步的区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：同步和异步有什么区别？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>一句话定义：**同步&#x2F;异步描述的是”谁等结果”**。同步必须等当前步骤做完才能继续；异步提交后立即返回，由回调&#x2F;事件通知结果。</p>
+<p><strong>Java 落地</strong>（这才是面试官想听的）：</p>
+<ul>
+<li>经典写法是把任务与回调绑定：<code>Callable&lt;String&gt;</code>（有返回值任务）+ <code>Consumer&lt;String&gt;</code>（回调），异步线程执行 <code>task.call()</code> 后再 <code>callback.accept(result)</code></li>
+<li>Spring 事件中心就是观察者&#x2F;发布订阅模式：事件中心是 <code>ApplicationContext</code>（实现 <code>ApplicationEventPublisher</code>），发布用 <code>publisher.publishEvent(new MyCustomEvent(data))</code>，监听只需在 Bean 方法上加 <code>@EventListener</code></li>
+</ul>
+<p><strong><code>CompletableFuture</code> 的线程流转是高频误区</strong>：</p>
+<ul>
+<li><code>supplyAsync</code> 把任务 1 扔进 ForkJoinPool 并返回<strong>空壳 future</strong></li>
+<li><code>thenApply</code> 发现任务未完成，只把回调<strong>注册</strong>到 future 内部链表，主线程立刻往下走，<strong>不会被叫回来</strong></li>
+<li>任务 1 完成后，由刚做完它的<strong>同一个工作线程 A</strong> 直接接着执行 <code>thenApply</code>（”送佛送到西”）</li>
+<li>用 <code>thenApplyAsync</code> 则第二步作为新任务重新入池，由另一个工作线程 B 执行。两种写法<strong>主线程都不参与</strong></li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong><code>@EventListener</code> 默认是异步的吗？</strong></p>
+</blockquote>
+<p><strong>不是，默认是同步的</strong>——发布线程会阻塞到所有监听器执行完。要真正异步必须再加 <code>@Async</code>。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>以为 <code>thenApply</code> 会等主线程回来执行——它由完成上游任务的工作线程顺带执行</li>
+<li>认为 <code>@EventListener</code> 默认异步——发布方会被监听方拖住</li>
+</ul>
+<hr>
+<h3 id="17-阻塞和非阻塞的区别？"><a href="#17-阻塞和非阻塞的区别？" class="headerlink" title="17. 阻塞和非阻塞的区别？"></a>17. 阻塞和非阻塞的区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：阻塞和非阻塞的区别？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><strong>阻塞时</strong>：OS 把线程从运行态切到等待态并移出就绪队列，不消耗时间片但<strong>内存（含栈）仍占着</strong>；数据到达后重新入队。一次阻塞+唤醒共<strong>两次上下文切换</strong></li>
+<li><strong>非阻塞时</strong>：立刻返回状态码（<code>EAGAIN</code>），线程可先去干别的</li>
+</ul>
+<p>维度对比：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>阻塞</th>
+<th>非阻塞</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>编程复杂度</td>
+<td>低</td>
+<td>高（要处理返回状态）</td>
+</tr>
+<tr>
+<td>线程与连接关系</td>
+<td>1 线程 : 1 连接</td>
+<td>少量线程 : 海量连接</td>
+</tr>
+<tr>
+<td>CPU 利用率</td>
+<td>低</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<p><strong>纯非阻塞的代价是轮询</strong>：间隔太短 CPU 空转，太长响应延迟高，所以极少单独使用，基本都配 I&#x2F;O 多路复用。</p>
+<p><strong>Java 落地</strong>：</p>
+<ul>
+<li>传统 <code>InputStream.read()</code> 是阻塞</li>
+<li>NIO 用 <code>serverChannel.configureBlocking(false)</code> 设非阻塞，<code>accept()</code> 无连接时返回 <code>null</code> 而非阻塞</li>
+<li>配 <code>Selector</code> 即 I&#x2F;O 多路复用——<strong>这是 Netty 的底层原理</strong></li>
+<li>模型对应：BIO &#x3D; 同步阻塞；NIO &#x3D; 同步非阻塞（底层 epoll）；AIO &#x3D; 异步 I&#x2F;O（立即返回 + 回调）</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p><strong>阻塞 ≠ 挂起</strong>，这个区分很能显水平：</p>
+<ul>
+<li><strong>阻塞</strong>：线程主动发起、自愿等待</li>
+<li><strong>挂起</strong>：OS 强制，如内存不足把进程换出到磁盘，<strong>进程自己都不知情</strong></li>
+</ul>
+<p><strong>高并发下阻塞为什么致命</strong>：10 万连接 &#x3D; 10 万线程，按默认 1MB 栈就要 <strong>100GB 内存</strong>，直接 OOM；上下文切换也会压垮 CPU。而 1~2 个线程 + epoll 就能监控 10 万连接。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把阻塞和挂起混为一谈</li>
+<li>认为 NIO 是异步的——它是”非阻塞 + 同步”</li>
+</ul>
+<hr>
+<h3 id="18-同步、异步、阻塞、非阻塞的-I-O-的区别？"><a href="#18-同步、异步、阻塞、非阻塞的-I-O-的区别？" class="headerlink" title="18. 同步、异步、阻塞、非阻塞的 I&#x2F;O 的区别？"></a>18. 同步、异步、阻塞、非阻塞的 I&#x2F;O 的区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：把这四个词的关系理清楚。</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：逐个解释四个词定义。这是最没效率的答法——面试官要的是<strong>它们分组后的关系图</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p><strong>先给分组，这句话是本题的核心</strong>：</p>
+<blockquote>
+<p>阻塞&#x2F;非阻塞讲<strong>第一阶段（等数据准备）用户线程的状态</strong>；<br>同步&#x2F;异步讲<strong>第二阶段（内核→用户空间拷贝）由谁来等</strong>。</p>
+</blockquote>
+<p>一次完整 I&#x2F;O 分两阶段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">阶段① 等待数据准备好（网卡收包 / 磁盘读完）</span><br><span class="line">       ↓  阻塞 = 用户线程睡过去 | 非阻塞 = 立刻返回 EAGAIN</span><br><span class="line">阶段② 内核缓冲区 → 用户空间拷贝</span><br><span class="line">       ↓  同步 = 用户线程自己等 | 异步 = 内核拷完再通知</span><br></pre></td></tr></table></figure>
+
+<p>四种组合：</p>
+<table>
+<thead>
+<tr>
+<th>组合</th>
+<th>模型</th>
+<th>典型代表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>同步 + 阻塞</td>
+<td>BIO</td>
+<td>1000 连接开 1000 线程</td>
+</tr>
+<tr>
+<td>同步 + 非阻塞</td>
+<td>轮询</td>
+<td>实际很少单独用</td>
+</tr>
+<tr>
+<td>同步 + 多路复用</td>
+<td><strong>本质仍是同步 I&#x2F;O</strong></td>
+<td>select&#x2F;poll&#x2F;epoll，Java NIO、Netty、Nginx、Redis</td>
+</tr>
+<tr>
+<td>异步</td>
+<td>AIO</td>
+<td>Linux AIO、Windows IOCP</td>
+</tr>
+</tbody></table>
+<p><strong>多路复用最主流的原因</strong>：Linux 原生 AIO 较鸡肋——只支持 Direct I&#x2F;O（绕开 Page Cache）、对普通文件不友好、编程模型复杂回调满天飞；而 epoll 一个线程能撑几十万连接。</p>
+<p><strong>Netty 的封装</strong>：Boss 线程负责 accept 连接，Worker 线程组负责读写。由此引出两个模式：</p>
+<ul>
+<li><strong>Reactor</strong> &#x3D; 事件就绪通知你、读写自己做（<strong>同步</strong>）</li>
+<li><strong>Proactor</strong> &#x3D; 内核做完读写再通知（<strong>异步</strong>）</li>
+</ul>
+<p>Windows IOCP 天然是 Proactor，Linux 下 Boost.Asio 的 Proactor 也是 Reactor 模拟的。</p>
+<p><strong>记忆比喻</strong>：非阻塞 &#x3D; 自己反复去驿站取快递，到了也得自己扛回家；异步 &#x3D; 快递员送到门口敲门。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>认为 Java NIO 是异步 I&#x2F;O——它是”非阻塞 + 同步”的组合：<code>select()</code> 本身阻塞直到事件就绪，<code>Channel.read</code> 的拷贝阶段仍是同步等待</li>
+<li>以为 Linux 上 glibc 的 POSIX AIO 是真异步——它用线程池模拟，本质仍是同步阻塞。真要用异步得上 <code>io_uring</code> 或换 Windows IOCP</li>
+</ul>
+<hr>
+<h3 id="19-到底什么是-Reactor？"><a href="#19-到底什么是-Reactor？" class="headerlink" title="19. 到底什么是 Reactor？"></a>19. 到底什么是 Reactor？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：讲讲 Reactor 模式。</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>定义：<strong>一个 Reactor 线程用多路复用器同时盯住大量连接，某个连接有事件就唤醒它，再按事件类型分发给对应 Handler 执行</strong>——本质是”少量线程服务海量连接”。</p>
+<p><strong>三个特点</strong>：事件驱动（非阻塞 I&#x2F;O）、少量线程处理大量 I&#x2F;O、分发与处理解耦。基础事件只有<strong>连接、读、写</strong>三种。</p>
+<p><strong>关键区分</strong>：Reactor 是<strong>同步非阻塞</strong>——只通知”数据来了”，读取写入由应用自己完成；Proactor 是<strong>异步非阻塞</strong>——OS&#x2F;IO 库读好后回调应用，如 Windows IOCP。</p>
+<p><strong>三种模型</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>结构</th>
+<th>案例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单 Reactor 单线程</td>
+<td>一个线程全干</td>
+<td>Redis 6.0 前，单线程 10 万+ QPS</td>
+</tr>
+<tr>
+<td>单 Reactor 多线程</td>
+<td>主线程监听 + 工作线程池</td>
+<td>—</td>
+</tr>
+<tr>
+<td>多 Reactor 多线程</td>
+<td>Boss Group 接连接 + Worker Group 读写</td>
+<td><strong>Netty 默认</strong></td>
+</tr>
+</tbody></table>
+<p>Netty 常用配置是 <strong>1 个 Boss + CPU 核数 × 2 个 Worker</strong>。</p>
+<p><strong>EventLoop</strong> 就是 Reactor 线程的实现：一个 EventLoop 绑一个线程，内部跑一个 Selector 循环，监听注册其上的所有 Channel。</p>
+<p><strong>实战要点</strong>：耗时业务必须丢到独立业务线程池，否则阻塞整个事件循环——Netty 中可给 Handler 指定 EventExecutorGroup 换线程执行。</p>
+<p>Nginx 用 epoll 单机扛 10 万+ 并发连接，Node.js 事件循环同理。Demux&#x2F;Dispatcher&#x2F;Handler 这套名词只是流程产物，<strong>不是定义的一部分</strong>。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把 Reactor 和 Proactor 说反——Reactor 同步非阻塞，Proactor 异步非阻塞</li>
+<li>把耗时业务写在 Reactor 线程里</li>
+<li>Boss 线程堆到很多个——一般只需 1 个，调优重点在 Worker 数</li>
+</ul>
+<hr>
+<h3 id="20-Select、Poll、Epoll-之间有什么区别？"><a href="#20-Select、Poll、Epoll-之间有什么区别？" class="headerlink" title="20. Select、Poll、Epoll 之间有什么区别？"></a>20. Select、Poll、Epoll 之间有什么区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：select、poll、epoll 有什么区别？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p><strong>核心差异一句话</strong>：select 位图限 1024、poll 动态数组无数量限制，但<strong>都要每次拷贝并线性扫描</strong>；epoll 用红黑树 + 就绪链表，<strong>只注册一次、只返回就绪 fd</strong>。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>select</th>
+<th>poll</th>
+<th>epoll</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据结构</td>
+<td><code>fd_set</code> 位图</td>
+<td><code>struct pollfd</code> 数组</td>
+<td>红黑树 + 就绪链表</td>
+</tr>
+<tr>
+<td>数量限制</td>
+<td><strong>FD_SETSIZE &#x3D; 1024</strong></td>
+<td>无（受内存限制）</td>
+<td>无</td>
+</tr>
+<tr>
+<td>每次调用</td>
+<td><strong>全量拷贝 + 全量扫描</strong></td>
+<td><strong>全量拷贝 + 全量扫描</strong></td>
+<td>只遍历就绪链表，空则挂起</td>
+</tr>
+<tr>
+<td>注册时机</td>
+<td>每次调用都要重传</td>
+<td>每次调用都要重传</td>
+<td><strong>只注册一次</strong></td>
+</tr>
+<tr>
+<td>复杂度</td>
+<td>O(总数)</td>
+<td>O(总数)</td>
+<td><strong>O(就绪数)</strong></td>
+</tr>
+</tbody></table>
+<p>细节：</p>
+<ul>
+<li><strong>select</strong>：<code>readfds</code>&#x2F;<code>writefds</code>&#x2F;<code>exceptfds</code> 三个集合，<code>nfds</code> 是最大值 +1，<code>timeout</code> 为 NULL 无限等、0 立即返回</li>
+<li><strong>poll</strong>：<code>events</code> 填 POLLIN&#x2F;POLLOUT&#x2F;POLLERR&#x2F;POLLHUP&#x2F;POLLPRI，<code>revents</code> 由内核回填；<code>timeout</code> 以<strong>毫秒</strong>计，-1 无限等、0 非阻塞</li>
+<li><strong>epoll</strong>：<code>epoll_create</code> 建实例 → <code>epoll_ctl</code> 用 <code>EPOLL_CTL_ADD</code>&#x2F;<code>MOD</code>&#x2F;<code>DEL</code> 管红黑树（O(log N)）→ <code>epoll_wait</code> 只遍历就绪双向链表。性能与<strong>就绪数</strong>相关而非注册总数，还支持 mmap 减少拷贝</li>
+</ul>
+<p><strong>两种触发模式</strong>：</p>
+<ul>
+<li><strong>LT 水平触发（默认）</strong>：未读完每次都返回</li>
+<li><strong>ET 边缘触发</strong>：只在状态变化时通知一次</li>
+</ul>
+<p><strong>量化对比</strong>：10 万连接仅 100 活跃时，select 是 O(10 万) 且每次拷贝，epoll 是 O(100) 且只注册一次，实测快 10 倍以上。</p>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ET 怎么用？</td>
+<td><strong>必须配非阻塞 I&#x2F;O</strong>，循环 read 直到返回 <code>EAGAIN</code>；用阻塞 I&#x2F;O 会在最后一次 read 卡死整个线程</td>
+</tr>
+<tr>
+<td>epoll 一定比 select 快吗？</td>
+<td><strong>对短连接反而没优势</strong>——每连接都要注册+删除，红黑树开销大</td>
+</tr>
+<tr>
+<td>Nginx 怎么处理惊群？</td>
+<td>用 <strong>accept_mutex</strong>，避免多个线程同时 accept 到同一个连接</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“select 只能监控 1024 个 fd”——准确说是 <code>FD_SETSIZE</code> 限制，可调系统参数但有上限</li>
+<li>说 epoll 在所有场景都碾压 select——短连接场景反而退化</li>
+</ul>
+<hr>
+<h2 id="六、死锁：最后一道送命题"><a href="#六、死锁：最后一道送命题" class="headerlink" title="六、死锁：最后一道送命题"></a>六、死锁：最后一道送命题</h2><p>前面所有内容都在铺垫——共享内存、锁、线程切换，最后往往都收敛到这一题。</p>
+<h3 id="24-死锁是什么？如何预防和避免死锁？"><a href="#24-死锁是什么？如何预防和避免死锁？" class="headerlink" title="24. 死锁是什么？如何预防和避免死锁？"></a>24. 死锁是什么？如何预防和避免死锁？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：说下死锁，以及怎么处理。</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p><strong>定义</strong>：两个及以上进程因争夺资源互相等待、无外力则都无法推进。</p>
+<p><strong>四个必要条件必须同时成立</strong>——这个”必须”和后面的”破坏任一即可”是本题的关键：</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>互斥</strong></td>
+<td>资源同一时刻只能被一个进程占用</td>
+</tr>
+<tr>
+<td><strong>请求与保持</strong></td>
+<td>持有 A 的同时等 B，且<strong>不放 A</strong></td>
+</tr>
+<tr>
+<td><strong>不剥夺</strong></td>
+<td>资源用完前不能被强行抢走</td>
+</tr>
+<tr>
+<td><strong>循环等待</strong></td>
+<td>A 等 B、B 等 C、C 等 A</td>
+</tr>
+</tbody></table>
+<p>经典例子：<strong>双锁交叉获取</strong>；银行场景下 A→B 与 B→A 同时转账。</p>
+<p><strong>四种应对手法，按破坏的条件分类</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>破坏的条件</th>
+<th>方法</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>互斥</td>
+<td>只读文件共享、打印机虚拟化成打印队列、数据库用 MVCC</td>
+<td>适用面窄</td>
+</tr>
+<tr>
+<td>请求与保持</td>
+<td>一次性申请所有资源，全拿或全不拿（<code>acquire_all_locks</code>）</td>
+<td>资源利用率低、易饥饿</td>
+</tr>
+<tr>
+<td>不剥夺</td>
+<td>带超时获取 <code>lock.acquire(timeout=1)</code></td>
+<td>可能误杀正常业务</td>
+</tr>
+<tr>
+<td><strong>循环等待</strong></td>
+<td><strong>全局锁顺序表</strong>（account&#x3D;1、order&#x3D;2、inventory&#x3D;3、payment&#x3D;4）<strong>按序加锁、逆序释放</strong></td>
+<td>需要人工维护约定</td>
+</tr>
+</tbody></table>
+<p><strong>银行家算法</strong>（避免死锁的经典代表）：</p>
+<ul>
+<li>维护 Available &#x2F; Max &#x2F; Allocation 三个矩阵，<code>need = Max − Allocation</code></li>
+<li>请求前先判断是否超过 need、是否超过 available</li>
+<li><strong>试分配</strong>后检测是否存在安全序列，<strong>不安全就回滚</strong></li>
+</ul>
+<p><strong>检测与恢复</strong>：构建等待图用 DFS 判断环；恢复手段是终止进程或剥夺资源。</p>
+<p>数据库侧可用 <code>SHOW ENGINE INNODB STATUS</code>、<code>information_schema.INNODB_LOCK_WAITS</code>、<code>innodb_lock_wait_timeout=50</code>。</p>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p>问”实践中最有效的手段是什么”，答这个优先级链，比罗列理论有用得多：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">减少锁的使用（无锁结构、ThreadLocal、不可变对象）</span><br><span class="line">  &gt; 缩小锁粒度（读写锁、分段锁如 ConcurrentHashMap）</span><br><span class="line">  &gt; 固定加锁顺序</span><br><span class="line">  &gt; 缩短持锁时间</span><br><span class="line">  &gt; 超时机制</span><br><span class="line">  &gt; 监控检测</span><br></pre></td></tr></table></figure>
+
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>认为”死锁只能避免、预防没用”——<strong>破坏四个必要条件中任一即可预防</strong></li>
+<li>讲银行家算法时漏掉”试分配 + 回滚”，只说安全序列定义会被追问</li>
+<li><strong>把 <code>with from_account.lock</code> 再 <code>with to_account.lock</code> 当成正确示例背</strong>——这段代码本身就是死锁代码</li>
+</ul>
+<hr>
+<h2 id="七、面试前-10-分钟速查"><a href="#七、面试前-10-分钟速查" class="headerlink" title="七、面试前 10 分钟速查"></a>七、面试前 10 分钟速查</h2><p>如果只剩十分钟，扫这一页。</p>
+<p><strong>必须张口就来的定义</strong></p>
+<ul>
+<li>进程五态：新建 &#x2F; 就绪 &#x2F; 运行 &#x2F; 阻塞 &#x2F; 终止；阻塞唤醒<strong>必须经过就绪态</strong></li>
+<li>Linux 进程 &#x3D; <code>task_struct</code>；<code>pid</code> 是线程 ID，<code>tgid</code> 是进程 ID</li>
+<li>CFS 按 <code>vruntime</code> 最小者运行，红黑树，O(log N)</li>
+<li>硬中断由 CPU 检测，软中断由 ksoftirqd 轮询</li>
+<li>负载是<strong>指数衰减平滑</strong>，且<strong>包含 I&#x2F;O 等待任务</strong></li>
+<li>物理页<strong>按需分配</strong>，缺页时才向伙伴系统申请</li>
+<li>MESI：M 脏独占、E 独占、S 共享、I 失效</li>
+<li>负数用补码，范围不对称（-128~127）</li>
+</ul>
+<p><strong>最该记住的易错点</strong></p>
+<ol>
+<li>D 状态进程 <code>kill -9</code> 杀不掉</li>
+<li>跨进程的线程切换 &#x3D; 进程切换，不快</li>
+<li>Linux 不是段页式，分段已被架空</li>
+<li>Java NIO 是”非阻塞 + 同步”，<strong>不是异步</strong></li>
+<li>glibc 的 POSIX AIO 是线程池模拟的，不是真异步</li>
+<li><code>free</code> 低≠内存不足，看 Swap</li>
+<li><code>select</code>&#x2F;<code>poll</code> 每次全量拷贝扫描，epoll 只注册一次</li>
+</ol>
+<p><strong>五个数字</strong></p>
+<table>
+<thead>
+<tr>
+<th>数字</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>64 字节</td>
+<td>缓存行大小，伪共享的根源</td>
+</tr>
+<tr>
+<td>512 B ~ 150 µs</td>
+<td>L1 到 SSD 的延迟量级差</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>select 的 <code>FD_SETSIZE</code></td>
+</tr>
+<tr>
+<td>4 KB</td>
+<td>默认页大小</td>
+</tr>
+<tr>
+<td>-20 ~ 19</td>
+<td>nice 值范围</td>
+</tr>
+</tbody></table>
+<p><strong>最后一句提醒</strong>：回答时先给定义，再给机制，最后给边界条件。面试官真正在听的是第三层——<strong>你知道这个机制在什么情况下会失效</strong>。</p>
+<hr>
+<p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<hr>
+<p>操作系统是后端面试里<strong>最能拉开档次</strong>的一块。</p>
+<p>别人讲 JVM 讲源码、讲 GC 参数，你能把手搓到 <code>task_struct</code>、VMA、epoll 红黑树那一层——面试官的评估就从”背过”跳到了”真跑过”。</p>
+<p>但这块的坑在于：<strong>它不是靠背，是靠被追问</strong>。</p>
+<p>面试官不会问”进程有哪几种状态”，他会问”你刚才说 D 状态 <code>kill -9</code> 杀不掉，那它到底卡在哪儿”。所以这篇不给你第二十三份知识点罗列，而是把 24 道高频题<strong>还原成真实的面试现场</strong>——每道题都是「面试官怎么问 → 你第一反应会怎么翻车 → 正确答法 → 追问怎么接」。</p>
+<blockquote>
+<p><strong>怎么用这篇</strong>：不要背”要点”，要背**”现场反应”**。左边那栏是面试官的问题，右边是你脑子里应该立刻蹦出来的东西。考前一小时扫”⚠️ 翻车点”那一行，性价比最高。</p>
+<p><strong>关于题号</strong>：标题里的数字<strong>不是阅读顺序</strong>。为了让知识连贯，我按主题重排了位置——所以第 22 题排在第 8 题后面、第 23 题排在第 21 题后面，都是有意的。</p>
+</blockquote>
+<h3 id="目录-1"><a href="#目录-1" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#%E4%B8%80%E3%80%81%E5%BC%80%E5%9C%BA%E4%B8%89%E8%BF%9E%EF%BC%9A%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B">一、开场三连：进程与线程</a></li>
+<li><a href="#%E4%BA%8C%E3%80%81%E8%B0%83%E5%BA%A6%E3%80%81%E4%B8%AD%E6%96%AD%E4%B8%8E-cpu-%E6%8C%87%E6%A0%87">二、调度、中断与 CPU 指标</a></li>
+<li><a href="#%E4%B8%89%E3%80%81%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E4%B8%8E%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4">三、内存管理与地址空间</a></li>
+<li><a href="#%E5%9B%9B%E3%80%81%E7%BA%BF%E4%B8%8A%E6%8E%92%E9%9A%9C%EF%BC%9Alinux-%E5%91%BD%E4%BB%A4%E5%AE%9E%E6%93%8D">四、线上排障：Linux 命令实操</a></li>
+<li><a href="#%E4%BA%94%E3%80%81io-%E6%A8%A1%E5%9E%8B%E5%85%A8%E5%AE%B6%E6%A1%B6">五、I&#x2F;O 模型全家桶</a></li>
+<li><a href="#%E5%85%AD%E3%80%81%E6%AD%BB%E9%94%81%EF%BC%9A%E6%9C%80%E5%90%8E%E4%B8%80%E9%81%93%E9%80%81%E5%91%BD%E9%A2%98">六、死锁：最后一道送命题</a></li>
+<li><a href="#%E4%B8%83%E3%80%81%E9%9D%A2%E8%AF%95%E5%89%8D-10-%E5%88%86%E9%92%9F%E9%80%9F%E6%9F%A5">七、面试前 10 分钟速查</a></li>
+</ul>
+<hr>
+<h2 id="一、开场三连：进程与线程-1"><a href="#一、开场三连：进程与线程-1" class="headerlink" title="一、开场三连：进程与线程"></a>一、开场三连：进程与线程</h2><p>面试开场永远从最”基础”的地方切，因为<strong>这里最能看出你是不是只会背</strong>。</p>
+<h3 id="1-操作系统中的进程有哪几种状态？-1"><a href="#1-操作系统中的进程有哪几种状态？-1" class="headerlink" title="1. 操作系统中的进程有哪几种状态？"></a>1. 操作系统中的进程有哪几种状态？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（推了推眼镜）：进程有哪几种状态？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：张口就答”就绪、运行、阻塞”。这答案不算错，但会让面试官觉得你在背书——因为他要问的一定是这个。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>先给完整的五状态模型，再补两个扩展态：</p>
+<ul>
+<li><p>基础五态：<strong>新建 → 就绪 → 运行 → 阻塞 → 终止</strong></p>
+<ul>
+<li>就绪：已具备运行条件，在就绪队列排队等 CPU</li>
+<li>运行：正在 CPU 上执行</li>
+<li>阻塞：等待某个事件（如磁盘 I&#x2F;O），主动让出 CPU</li>
+<li>内存紧张时派生：<strong>就绪挂起</strong>（数据已换出磁盘，具备换入条件）和<strong>阻塞挂起</strong>（连换入条件都不具备）</li>
+</ul>
+</li>
+<li><p>Linux <code>ps aux</code> 的 STAT 列就是这套模型的实战映射：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>R</code></td>
+<td>Running，运行中或就绪</td>
+</tr>
+<tr>
+<td><code>S</code></td>
+<td>可中断睡眠，等的是”能被信号打断”的事件</td>
+</tr>
+<tr>
+<td><code>D</code></td>
+<td>不可中断睡眠，等的是磁盘 I&#x2F;O 这类<strong>打不断</strong>的事件</td>
+</tr>
+<tr>
+<td><code>Z</code></td>
+<td>僵尸，子进程已死、父进程未 <code>wait</code></td>
+</tr>
+<tr>
+<td><code>T</code></td>
+<td>停止，被信号挂起</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>Linux 调度由 <strong>CFS</strong> 完成，按虚拟运行时间 <code>vruntime</code> 排序，规则只有一句：<strong>谁欠的时间多谁先跑</strong></p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>为什么僵尸进程不吃 CPU 还要处理？</td>
+<td>它不占 CPU 不占内存，但 <strong>PID 和 PCB 还在</strong>。PID 有上限，几千个僵尸就能让系统 <code>fork</code> 失败。父进程正确处理 SIGCHLD 即可回收</td>
+</tr>
+<tr>
+<td>什么是孤儿进程？</td>
+<td>父进程先退出，内核把它托管给 PID 为 1 的 init 自动清理，<strong>本身无害</strong></td>
+</tr>
+<tr>
+<td>阻塞态能直接跳回运行态吗？</td>
+<td><strong>不能</strong>，必须先回就绪态排队。状态机里没有这条边</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“阻塞态被唤醒后直接变成运行态”——必须过就绪态</li>
+<li>“<code>kill -9</code> 能杀掉 D 状态进程”——它是不可中断睡眠，信号 pend 着，等 I&#x2F;O 完成才会处理</li>
+<li>“孤儿进程是异常”——内核会自动收尸</li>
+</ul>
+<hr>
+<h3 id="2-线程和进程有什么区别？-1"><a href="#2-线程和进程有什么区别？-1" class="headerlink" title="2. 线程和进程有什么区别？"></a>2. 线程和进程有什么区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：进程和进程的区别？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：背出”进程是资源分配单位、线程是调度单位”就停下了。这是 20 年前的标准答案，现在只值一半分——因为它<strong>没回答 Linux 上到底怎么实现的</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>先给经典定义，然后<strong>立刻下沉到内核实现</strong>，这是分水岭：</p>
+<ul>
+<li><p>经典定义：进程是<strong>资源分配</strong>的基本单位，线程是<strong>调度执行</strong>的基本单位</p>
+</li>
+<li><p>Linux 的真相：<strong>内核对线程没有任何特殊处理</strong></p>
+<ul>
+<li>二者统一由 <code>task_struct</code>（<code>include/linux/sched.h</code>）描述</li>
+<li><code>pid</code> 是线程 ID，<code>tgid</code> 是所属进程 ID；<code>getpid()</code> 返回的是 <strong>tgid</strong></li>
+<li>创建进程 <code>fork</code> 只传 <code>SIGCHLD</code>，地址空间 <code>mm_struct</code>、文件系统信息 <code>fs_struct</code>、文件表 <code>files_struct</code> <strong>全部独立申请</strong></li>
+<li>创建线程 <code>pthread_create</code> → glibc <code>create_thread</code> → <code>clone</code>，传入 <code>CLONE_VM | CLONE_FS | CLONE_FILES</code> 三件套，与父进程<strong>共享</strong>这三者，内核就不再单独申请了</li>
+<li>底层殊途同归：<code>kernel_clone</code> → <code>copy_process</code> → <code>wake_up_new_task</code></li>
+</ul>
+</li>
+<li><p>判断一个 task 到底是进程还是线程，<strong>只看一件事：有没有独立地址空间</strong></p>
+</li>
+<li><p>优先级字段：<code>static_prio</code> 100<del>139（<code>nice</code> 调它）、<code>rt_priority</code> 0</del>99、<code>prio</code>&#x2F;<code>normal_prio</code> 由调度策略推导</p>
+</li>
+<li><p>内核线程的 <code>mm_struct</code> 为 NULL，所以准确叫法是”内核线程”而非”内核进程”</p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：那 coroutine 呢？</p>
+</blockquote>
+<p>Go 的 goroutine 更轻，是因为它<strong>连内核都进不去</strong>——切换只是换栈指针和寄存器，栈初始才 2KB。快的原因有三：栈小、无系统调用、调度器用 work stealing + 本地队列免锁。只答”用户态不用系统调用”是不完整的。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“Linux 为线程设计了一套轻量级进程机制”——没有，就是共享资源的 <code>task_struct</code></li>
+<li>“进程和线程是完全不同的东西”——Linux 上<strong>相同点远大于不同点</strong></li>
+<li><code>CLONE_VM</code>&#x2F;<code>CLONE_FS</code>&#x2F;<code>CLONE_FILES</code> 三个 flag 的含义记反</li>
+</ul>
+<hr>
+<h3 id="3-什么是用户态和内核态？-1"><a href="#3-什么是用户态和内核态？-1" class="headerlink" title="3. 什么是用户态和内核态？"></a>3. 什么是用户态和内核态？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：用户态和内核态的区别？为什么需要区分？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：”用户态不能访问硬件”——这句话一说出口就减分，因为存在一堆合法例外。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><p>本质是 <strong>CPU 的特权级划分</strong>：x86 通过 CS 寄存器低两位的 CPL 判断，内核态 CPL&#x3D;0，用户态 CPL&#x3D;3</p>
+</li>
+<li><p>触发态切换的三种情况：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>例子</th>
+<th>同步性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>系统调用</td>
+<td><code>read</code>&#x2F;<code>write</code>&#x2F;<code>fork</code>&#x2F;<code>open</code></td>
+<td>同步</td>
+</tr>
+<tr>
+<td>异常</td>
+<td>除零、缺页、非法指令</td>
+<td>同步</td>
+</tr>
+<tr>
+<td>硬件中断</td>
+<td>时钟、键盘、网卡</td>
+<td>异步</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>x86-64 系统调用流程：调用号放 <code>rax</code>、参数放 <code>rdi</code>&#x2F;<code>rsi</code>&#x2F;<code>rdx</code> → 执行 <code>syscall</code> → 内核查系统调用表 → 结果回 <code>rax</code> → <code>sysret</code> 切回</p>
+</li>
+<li><p><strong>为什么要分</strong>：宏内核（Linux、FreeBSD）性能高但驱动 bug 可能搞崩全系统；微内核（Minix、QNX、seL4）内核态代码量小、稳定性高，代价是 IPC 切换开销大</p>
+</li>
+<li><p>一次系统调用几百到几千个 CPU 周期，慢在三处：上下文切换、权限检查、<strong>缓存与 TLB 失效</strong>（有时后者代价更大）</p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：用户态就真的碰不到硬件？</p>
+</blockquote>
+<p>有三条合法路径：</p>
+<ol>
+<li><code>iopl()</code> &#x2F; <code>ioperm()</code> 开放特定 IO 端口</li>
+<li><code>mmap()</code> 直接映射设备内存，如显卡的 DRI</li>
+<li>DPDK 直接映射网卡内存，绕过内核协议栈</li>
+</ol>
+<p>还有个细节能显水平：**<code>System.currentTimeMillis()</code> 在现代 Linux 上走 vDSO，在用户态直接读时钟，通常根本不产生系统调用**。</p>
+<p>另外，内核态出 bug 不一定蓝屏——轻微 Oops 只杀当前进程，只有数据结构破坏、死锁、栈溢出才是 Kernel Panic。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“用户态绝对无法访问硬件”——有 iopl、mmap 设备内存、DPDK</li>
+<li>“系统调用就是函数调用”——它涉及特权级切换和寄存器上下文保存</li>
+</ul>
+<hr>
+<h3 id="4-进程之间的通信方式有哪些？-1"><a href="#4-进程之间的通信方式有哪些？-1" class="headerlink" title="4. 进程之间的通信方式有哪些？"></a>4. 进程之间的通信方式有哪些？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：进程间通信有哪几种？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：报菜名式列一遍就停。面试官要的是<strong>每种方式的适用边界</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>给一张选型表，比口头罗列有效得多：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>边界&#x2F;消息语义</th>
+<th>数据量</th>
+<th>关键特性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>管道</td>
+<td>字节流，<strong>无边界</strong></td>
+<td>内核环形缓冲默认 64KB</td>
+<td>匿名管道仅限亲缘进程；<code>mkfifo</code> 命名管道可跨无关进程</td>
+</tr>
+<tr>
+<td>消息队列</td>
+<td><strong>有边界</strong>，支持按类型取</td>
+<td>单条默认上限 8KB</td>
+<td>System V <code>msgget/msgsnd/msgrcv</code>，现代推荐 POSIX</td>
+</tr>
+<tr>
+<td>共享内存</td>
+<td>无语义</td>
+<td><strong>零拷贝</strong>，几 MB 可比管道快 10 倍以上</td>
+<td><code>shm_open</code> → <code>ftruncate</code> → <code>mmap</code>；<strong>内核不提供任何同步</strong></td>
+</tr>
+<tr>
+<td>信号量</td>
+<td>无</td>
+<td>无数据</td>
+<td>本质是计数器，P 减一&#x2F;V 加一，减到 0 阻塞</td>
+</tr>
+<tr>
+<td>信号</td>
+<td>无</td>
+<td>不能带数据</td>
+<td>纯异步通知，只传信号编号</td>
+</tr>
+<tr>
+<td>Unix 域套接字</td>
+<td>有边界</td>
+<td>大</td>
+<td>不走网络协议栈，且<strong>能传递文件描述符</strong></td>
+</tr>
+</tbody></table>
+<ul>
+<li>共享内存是<strong>唯一零拷贝</strong>的：多进程页表指向同一块物理内存</li>
+<li>共享内存也是<strong>最危险</strong>的：必须自己配信号量&#x2F;互斥锁，否则并发写直接乱套</li>
+<li>Unix 域套接字的实战：<code>/var/run/mysqld/mysqld.sock</code>、<code>/var/run/docker.sock</code></li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：管道和消息队列的核心区别？</p>
+</blockquote>
+<p>管道是字节流，<strong>一次 write 100 字节可能被对方分 3 次读完</strong>，需要应用自己定义分隔符；消息队列有消息边界，要么整条读完要么不读。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把”信号”和”信号量”混为一谈——一个是异步通知，一个是同步计数原语</li>
+<li>说共享内存”又快又安全”——它同时最快也最危险</li>
+</ul>
+<hr>
+<h3 id="5-什么是-CPU-缓存一致性协议-MESI？-1"><a href="#5-什么是-CPU-缓存一致性协议-MESI？-1" class="headerlink" title="5. 什么是 CPU 缓存一致性协议 MESI？"></a>5. 什么是 CPU 缓存一致性协议 MESI？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（Java 背景，通常从这里切进 JMM）：MESI 讲讲？为什么需要它？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：把 MESI 讲成”硬件层的东西，和 Java 无关”。这句话直接断掉你和后面 volatile 的联系。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>核心就一句话：<strong>多核各自缓存一份数据，靠给缓存行打标签来协商谁是正版</strong>。</p>
+<ul>
+<li><p>四种状态：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+<th>记忆法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>M</code> Modified</td>
+<td>独占且已改，<strong>是脏数据</strong>，未写回主存</td>
+<td>改过的，脏</td>
+</tr>
+<tr>
+<td><code>E</code> Exclusive</td>
+<td>独占未改，与主存一致</td>
+<td>我一个人有，没人改</td>
+</tr>
+<tr>
+<td><code>S</code> Shared</td>
+<td>多核共享且一致</td>
+<td>大家都有，都没改</td>
+</tr>
+<tr>
+<td><code>I</code> Invalid</td>
+<td>本地失效，需重新拉取</td>
+<td>作废了</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><code>E</code> 状态存在的意义是<strong>省一次总线广播</strong>：只有自己持有时，<code>E → M</code> 无需通知其他核</p>
+</li>
+<li><p>协作靠<strong>嗅探</strong>：Core A 发 Invalidate，Core B 嗅探到后把自己置 <code>I</code> 并回确认，A 收到确认才真正修改。核数多了总线带宽不够，服务器 CPU 改用<strong>目录协议</strong>避免广播风暴</p>
+</li>
+<li><p><strong>Store Buffer</strong> 是关键：让 A 不必等确认就能继续执行，于是产生了”本核认为改了、别的核还没变”的可见性问题——<strong>这正是 Java <code>volatile</code> 和内存屏障要解决的硬件根源</strong></p>
+</li>
+<li><p>变种：MOESI（AMD，加 Owner 态支持脏数据直共享）、MESIF（Intel，加 Forward 态只让一个 S 核响应读请求）</p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p>伪共享是这块的高频深挖题：</p>
+<ul>
+<li>缓存行通常 <strong>64 字节</strong>，两个<strong>毫不相关</strong>的变量落进同一行，会互相触发失效</li>
+<li>Java 8 用 <code>@Contended</code> 解决（需加 <code>-XX:-RestrictContended</code>），JDK 内部的 <code>LongAdder</code>、<code>Striped64</code> 都用了</li>
+</ul>
+<blockquote>
+<p><strong>面试官</strong>：<code>volatile</code> 能保证原子性吗？</p>
+</blockquote>
+<p>不能。它只保证<strong>可见性 + 禁止重排</strong>，<code>i++</code> 这种读改写依然不原子。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“volatile 保证原子性”——M&#x2F;V 级别的经典错误</li>
+<li>把伪共享说成”两个线程竞争同一变量”——伪共享是<strong>不相关</strong>的变量互相拖累</li>
+</ul>
+<hr>
+<h2 id="二、调度、中断与-CPU-指标-1"><a href="#二、调度、中断与-CPU-指标-1" class="headerlink" title="二、调度、中断与 CPU 指标"></a>二、调度、中断与 CPU 指标</h2><p>进程状态讲完，面试官通常顺势切到”那谁决定哪个进程跑”，然后一路问到你答不出来为止。</p>
+<h3 id="6-进程的调度算法你知道吗？-1"><a href="#6-进程的调度算法你知道吗？-1" class="headerlink" title="6. 进程的调度算法你知道吗？"></a>6. 进程的调度算法你知道吗？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：进程调度算法有哪些？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：只背 FCFS&#x2F;SJF&#x2F;RR 三个。真正拉开差距的是 <strong>MLFQ、HRRN，以及 Linux 实际用的 CFS</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>按”调度思想演进”来讲，逻辑会非常顺：</p>
+<ul>
+<li><strong>FCFS 先来先服务</strong>：简单，但队头一个大任务能让后面一堆 10ms 小任务全干等</li>
+<li><strong>SJF 最短作业优先</strong>：平均等待时间最优，但需要预知执行时间（现实中不可得），抢占版是 SRTF</li>
+<li><strong>优先级调度</strong>：坑在<strong>饥饿</strong>——低优先级任务永远排不上队</li>
+<li><strong>RR 时间片轮转</strong>：固定时间片（如 10ms）保证响应性</li>
+<li><strong>MLFQ 多级反馈队列</strong>：3~5 个队列，典型配置 Q0&#x2F;8ms（交互式、新进程）、Q1&#x2F;16ms（普通计算）、Q2&#x2F;32ms（CPU 密集后台）。新进程进 Q0，用完时间片没跑完降一级，并定期提回 Q0 防饿死</li>
+<li><strong>HRRN 高响应比优先</strong>：响应比 <code>R =（等待时间 + 服务时间）/ 服务时间</code>，等待越久响应比越高，短任务先跑、长任务最终也会被调度，适合批处理</li>
+<li><strong>CFS（Linux 2.6.23 至今）</strong>：<strong>不用固定时间片</strong>，按最小 <code>vruntime</code> 选取，红黑树组织，取出 O(1)、插入 O(log n)；<code>nice</code> 值 -20~19，差 5 时 CPU 时间比例约差 3 倍</li>
+<li><strong>实时调度</strong>：<code>SCHED_FIFO</code> 和 <code>SCHED_RR</code>，实时进程不参与 CFS，只要实时队列非空就一直跑，设多了会把普通进程饿死</li>
+<li>新内核默认调度周期延迟 24ms、最小调度粒度 3ms，可运行进程超 8 个时周期变 <code>3ms × 进程数</code>；交互式系统 10~20ms 较合适</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p><strong>优先级反转</strong>几乎必问：</p>
+<blockquote>
+<p>低优先级进程持有锁，高优先级进程等锁时，<strong>被中等优先级进程抢占</strong>了，高优先级进程就间接被中等优先级卡住。</p>
+</blockquote>
+<p>火星探路者号就是因为没做优先级继承出过事故。解决方案是<strong>优先级继承</strong>：让持锁的低优先级进程临时提升到等锁的高优先级进程同级别。</p>
+<p>MLFQ 防 gaming 的细节也常追问：不能只看单次时间片有没有用完，现代实现（BSD、Solaris）按各队列<strong>累计运行时间</strong>超阈值才降级。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“Linux 用时间片轮转”——Linux 用的是 <strong>CFS 的 vruntime 抢占</strong>，没有固定时间片</li>
+<li>“SJF 最好所以都用 SJF”——需要预知执行时间，现实中不可用</li>
+</ul>
+<hr>
+<h3 id="7-操作系统在进行线程切换时需要进行哪些动作？-1"><a href="#7-操作系统在进行线程切换时需要进行哪些动作？-1" class="headerlink" title="7. 操作系统在进行线程切换时需要进行哪些动作？"></a>7. 操作系统在进行线程切换时需要进行哪些动作？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：线程切换要做哪些动作？开销大吗？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>四步，标准答案：</p>
+<ol>
+<li>保存当前线程上下文到 TCB</li>
+<li>修改线程状态（Running → Ready，Ready → Running）</li>
+<li>调度器选出下一个线程</li>
+<li>恢复目标线程上下文</li>
+</ol>
+<p><strong>线程上下文</strong>包含三块：</p>
+<ul>
+<li><strong>CPU 寄存器状态</strong>：PC、SP、x86-64 下 16 个通用寄存器 + 浮点&#x2F;向量寄存器</li>
+<li><strong>程序状态字 PSW</strong>：中断开关、特权级、条件码</li>
+<li><strong>线程栈</strong>：用户栈 + 内核栈（<strong>两个都要保存</strong>，否则调用链断裂）</li>
+</ul>
+<p>TCB 即 <code>struct task_struct</code>，关键字段：线程状态、PC、寄存器内容、SP、优先级、Thread ID、调度信息（策略 + 时间片）。</p>
+<p><strong>开销的答案要说到根因上</strong>：线程切换比进程切换快的根本原因是<strong>内存映射不动</strong>。</p>
+<ul>
+<li>进程切换要改 CR3 换页表，<strong>TLB 全部失效</strong>，一次 TLB miss 代价是几十到几百个 CPU 周期</li>
+<li>线程切换共享地址空间，TLB 映射可继续用</li>
+<li>实测同进程线程切换比跨进程快 <strong>5~10 倍</strong>，Linux 上典型耗时 1~10 微秒</li>
+<li>goroutine 更轻：约几百纳秒</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跨进程的线程切换也快吗？</td>
+<td><strong>不快</strong>，本质就是进程切换，地址空间变了页表和 TLB 都得换</td>
+</tr>
+<tr>
+<td>怎么排查切换开销？</td>
+<td><code>vmstat</code> 看 <code>cs</code> 列，<code>pidstat -w</code> 看单进程；每秒几万次正常，几十万次通常意味着<strong>锁竞争激烈或线程过多</strong></td>
+</tr>
+<tr>
+<td>怎么优化？</td>
+<td>短临界区用自旋锁避免切换、CPU 亲和性绑定（DPDK）减少跨核缓存失效、批量处理（Netty EventLoop）降低切换频率</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“自旋锁是万能优化”——临界区长会白烧 CPU，单核上持锁线程根本没机会跑</li>
+</ul>
+<hr>
+<h3 id="8-什么是软中断、什么是硬中断？-1"><a href="#8-什么是软中断、什么是硬中断？-1" class="headerlink" title="8. 什么是软中断、什么是硬中断？"></a>8. 什么是软中断、什么是硬中断？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：软中断和硬中断有什么区别？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：答成”硬中断是硬件触发的，软中断是软件触发的”。这是最常见的错答——<strong>触发方和实现方是两回事</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>先讲中断的价值：<strong>化主动为被动</strong>。没有中断，CPU 只能轮询判断条件是否成立；有了中断，CPU 可以先干别的，条件成立再来唤醒。</p>
+<p>然后纠正那个常见误解：</p>
+<ul>
+<li><strong>按触发方式</strong>分类：中断（外部设备，异步）、异常（CPU 执行指令时检测到的反常条件，同步）、INT 指令（软件主动指定中断号，如 <code>INT 0x80</code> 就是 Linux 系统调用入口）</li>
+<li><strong>按实现机制</strong>分类：上面<strong>三者全是硬中断</strong>——硬&#x2F;软看的是<strong>谁来检测和分发</strong>，不是谁触发</li>
+</ul>
+<p>所以正确定义是：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>硬中断</th>
+<th>软中断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>检测方</td>
+<td><strong>CPU 硬件</strong></td>
+<td><strong>Linux 软件</strong>（ksoftirqd 守护进程）</td>
+</tr>
+<tr>
+<td>发现时机</td>
+<td>每个指令周期最后一个周期采样中断向量表</td>
+<td>轮询软中断标记位数组，某位为 1 就取对应处理函数</td>
+</tr>
+<tr>
+<td>top 中</td>
+<td><code>hi</code> 列</td>
+<td><code>si</code> 列</td>
+</tr>
+</tbody></table>
+<p><strong>软中断存在的意义</strong>是硬中断处理程序不能做太久：它可能临时关中断，不及时返回会导致其他中断（鼠标键盘）响应延迟甚至丢失。</p>
+<p>网卡收包因此拆成<strong>上下半部</strong>：</p>
+<ul>
+<li>上半部：硬中断处理程序快速跑完，<strong>置软中断标记位</strong>（注意是置标志位，不是给 CPU 发中断信号）</li>
+<li>下半部：软中断处理程序按协议栈逐层解析后交给应用</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：异常为什么也是硬中断？</p>
+</blockquote>
+<p>因为异常是 <strong>CPU 自己给自己中断号</strong>，不存在外部设备参与，但检测和分发仍然由硬件完成。容易被误归到软件侧。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“软中断是软件触发的中断”——那是 INT 指令；软中断的触发源仍是硬件事件，只是<strong>处理环节被软件化延迟执行</strong></li>
+</ul>
+<hr>
+<h3 id="11-CPU-使用率和-CPU-负载指的是什么？-1"><a href="#11-CPU-使用率和-CPU-负载指的是什么？-1" class="headerlink" title="11. CPU 使用率和 CPU 负载指的是什么？"></a>11. CPU 使用率和 CPU 负载指的是什么？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（可能结合运维场景）：CPU 使用率和 CPU 负载有什么区别？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：把 load average 当成”排队任务数”直接背。它是<strong>指数衰减平滑</strong>的结果，不是瞬时快照。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>先给定义，再给数据来源：</p>
+<ul>
+<li><p><strong>CPU 使用率</strong>：某时间窗口内 CPU 真正干活的时间占比</p>
+<ul>
+<li>原始数据在 <code>/proc/stat</code>，字段从左到右：user、nice、system、idle、iowait、irq、softirq、steal、guest、guest_nice</li>
+<li>计算方式：采样两个时间点做差，<code>cpuUsage = 100.0 * (totalDiff - idleDiff) / totalDiff</code></li>
+<li>top&#x2F;htop 只是每隔几秒采样一次算差值</li>
+</ul>
+</li>
+<li><p><strong>CPU 负载</strong>：等待 CPU 的任务数量（含运行中 + 排队中），分 1&#x2F;5&#x2F;15 分钟三个指数滑动平均</p>
+<ul>
+<li><code>load = load * exp(-5/60) + active_tasks * (1 - exp(-5/60))</code></li>
+<li>三个时间窗口对应 <code>exp(-5/60)</code>、<code>exp(-5/300)</code>、<code>exp(-5/900)</code>，作用是平滑掉瞬时尖峰、反映趋势</li>
+</ul>
+</li>
+</ul>
+<p><strong>四种组合要给面试官一张判定表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>使用率</th>
+<th>负载</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>高</td>
+<td>高</td>
+<td>计算能力瓶颈</td>
+</tr>
+<tr>
+<td>低</td>
+<td><strong>高</strong></td>
+<td><strong>大量 I&#x2F;O 密集任务或锁竞争</strong></td>
+</tr>
+<tr>
+<td>高</td>
+<td>低</td>
+<td>调度良好，无积压</td>
+</tr>
+<tr>
+<td>低</td>
+<td>低</td>
+<td>资源未充分利用</td>
+</tr>
+</tbody></table>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p>两个细节最能显水平：</p>
+<ol>
+<li><strong>负载统计包含 I&#x2F;O 等待的任务</strong>——这就是”低使用率 + 高负载”的成因</li>
+<li><strong>多核要除以核心数解读</strong>：8 核机器负载 8.0 表示每核刚好一个任务，16.0 表示每核还排着一个</li>
+</ol>
+<p>完整排查链路：</p>
+<ol>
+<li>告警负载高但 CPU 才 30% → <code>vmstat 1 5</code> 看 <code>b</code> 列（等待 I&#x2F;O 的进程数）和 <code>wa</code> 列（I&#x2F;O 等待占 CPU 百分比）</li>
+<li><code>b=15、wa=65%</code> 就是典型磁盘瓶颈</li>
+<li>再用 <code>iostat -x 1</code> 看 <code>await</code>（正常个位数毫秒）和 <code>%util</code>（接近 100% 说明磁盘打满）</li>
+<li><code>iotop</code> 定位具体进程</li>
+</ol>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“使用率高就是负载高”——线上 4 核机器使用率 20%、平均负载 8 的情况大量存在，此时系统已经出现瓶颈</li>
+<li>把 15 分钟负载当瞬时值——<strong>趋势比绝对值重要</strong>：15 分钟高于 1 分钟说明系统正在恶化</li>
+</ul>
+<hr>
+<h3 id="22-听说过-CFS-吗？-1"><a href="#22-听说过-CFS-吗？-1" class="headerlink" title="22. 听说过 CFS 吗？"></a>22. 听说过 CFS 吗？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（顺着调度深挖）：CFS 讲讲？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><p><strong>定义</strong>：CFS（Completely Fair Scheduler，Linux 2.6.23 起替代 O(1)）用 <code>vruntime</code> 虚拟运行时间衡量”欠多少 CPU”，把可运行进程放进按 <code>vruntime</code> 排序的<strong>红黑树</strong>，每次取<strong>最左节点</strong>运行</p>
+</li>
+<li><p><strong>调度循环</strong>：取最左 → 运行使 <code>vruntime</code> 增长 → 时间片用完或主动让出 → 更新 <code>vruntime</code> 重插入 → 再次取最左；插入&#x2F;删除均 O(log N)</p>
+</li>
+<li><p><strong>计算公式</strong>：<code>vruntime 增量 = 实际运行时间 × (NICE_0_WEIGHT / 进程权重)</code>，其中 <code>NICE_0_WEIGHT = 1024</code></p>
+<table>
+<thead>
+<tr>
+<th>nice</th>
+<th>权重</th>
+<th>相对 CPU</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-20</td>
+<td>88761</td>
+<td>≈ 87 倍</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1024</td>
+<td>基准</td>
+</tr>
+<tr>
+<td>19</td>
+<td>15</td>
+<td>≈ 1&#x2F;68</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>为什么替代 O(1) 调度器</strong>：O(1) 把进程分进 140 个优先级队列，交互式进程识别粗糙，常把”正在等输入”的进程误判为 CPU 密集型而降优先级，桌面用起来卡顿。CFS <strong>不猜类型</strong>——睡眠期间 <code>vruntime</code> 不增长，醒来天然靠左</p>
+</li>
+<li><p><strong>长睡进程的特殊处理</strong>：睡很久醒来时 <code>vruntime</code> 会被重置为”当前队列最小 <code>vruntime</code> − <code>sched_latency</code>“，避免一觉醒来霸占 CPU</p>
+</li>
+<li><p><strong>多核</strong>：每 CPU 一棵红黑树，由 <code>load_balance</code> 评估负载差异，超阈值才迁移，避免频繁迁移丢失缓存</p>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：CFS 的最新进展？</p>
+</blockquote>
+<p>Linux 6.6（2023-10）引入 <strong>EEVDF</strong>（最早虚拟截止时间优先）替代 CFS，为请求时间片小的任务算 deadline，改善延迟敏感场景的体验。容器大规模场景下红黑树变深、O(log N) 开销明显，这正是 EEVDF 要解决的问题之一。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“CFS 保证低延迟”——它目标是<strong>公平</strong>而非低延迟，硬实时得用 <code>SCHED_FIFO</code>&#x2F;<code>SCHED_RR</code></li>
+<li>“死循环进程会卡死全系统”——时间片有上限，多核下还能分散到其他核</li>
+</ul>
+<hr>
+<h2 id="三、内存管理与地址空间-1"><a href="#三、内存管理与地址空间-1" class="headerlink" title="三、内存管理与地址空间"></a>三、内存管理与地址空间</h2><p>调度讲完，面试官通常会问一句”那进程是怎么拿到内存的”，顺势进入这块。这部分最能区分”看过源码”和”只背过书”。</p>
+<h3 id="9-为什么要有虚拟内存？-1"><a href="#9-为什么要有虚拟内存？-1" class="headerlink" title="9. 为什么要有虚拟内存？"></a>9. 为什么要有虚拟内存？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：为什么要引入虚拟内存？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：答”为了隔离进程和扩大可用内存”。太表面，答不到 VMA 这一层。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>从数据结构讲起，这是加分点：</p>
+<ul>
+<li>每个进程的 <code>task_struct</code> 挂一个 <code>mm_struct</code>，表示虚拟地址空间</li>
+<li>已分配的每段地址范围由 <code>vm_area_struct</code>（<strong>VMA</strong>）表示，<code>vm_start</code>&#x2F;<code>vm_end</code> 界定区间，多个 VMA 互不交叉，加起来就是占用情况</li>
+<li><strong>物理页是按需分配的</strong>：进程加载时只拿地址空间范围，物理页等实际访问触发缺页中断时才向伙伴系统申请</li>
+</ul>
+<p><strong>VMA 管理器的演进值得主动讲</strong>，说明你真读过内核：</p>
+<ul>
+<li><strong>6.1 之前</strong>：红黑树 + 双向链表。红黑树（<code>mm_rb</code>）保证查询&#x2F;插入&#x2F;删除 O(log n)，双向链表（<code>mmap</code>）加速遍历。缺点是红黑树平衡操作牵连多节点且修改要同步链表，必须加锁（<code>mmap_sem</code>），多线程下锁争抢严重</li>
+<li><strong>6.1 起</strong>：替换为 <strong>maple tree</strong>（<code>mm_mt</code>，<code>ma_root</code> 为 <code>__rcu *</code>），从设计上就基于 RCU 无锁读，减少锁开销</li>
+</ul>
+<p><strong>缺页处理链路</strong>（面试官爱顺着代码问）：</p>
+<ol>
+<li><code>do_user_addr_fault</code>（<code>arch/x86/mm/fault.c</code>）先 <code>find_vma(mm, address)</code> 找到所属 VMA<ul>
+<li>6.1 前遍历双向链表并配合缓存；6.1 后用 <code>MA_STATE</code> 宏构造查找状态 + <code>mas_walk</code> 在 maple tree 中查询</li>
+</ul>
+</li>
+<li><code>handle_mm_fault</code> → <code>__handle_mm_fault</code>，把 vma、address 及各级页表项统一收进参数对象 <code>struct vm_fault</code>（长参数列表整合成参数对象是 6.1 内核常见重构手法）</li>
+<li>Linux 用四级页表 pgd &#x2F; pud &#x2F; pmd &#x2F; pte，逐级检查或申请</li>
+<li>落到 <code>handle_pte_fault</code> 分流：文件映射缺页、swap 缺页、写时复制缺页、匿名映射缺页……普通变量走 <code>do_anonymous_page</code> → <code>alloc_zeroed_user_highpage_movable</code> → 伙伴系统 <code>alloc_pages</code></li>
+</ol>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：堆和栈的物理内存什么时候分配？</p>
+</blockquote>
+<p>进程加载时只分配地址空间范围（VMA），<strong>物理页等实际访问触发缺页中断时才申请</strong>。所以申请了大数组但没写入，不会立刻占物理内存。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>以为 <code>malloc</code>&#x2F;申请内存时就分配了物理内存——实际只拿到一个 VMA 地址区间</li>
+<li>忽略 <code>find_vma</code> 这一步——缺了它就无法判断地址是否合法、是否属于当前进程</li>
+</ul>
+<hr>
+<h3 id="10-什么是分段、什么是分页？-1"><a href="#10-什么是分段、什么是分页？-1" class="headerlink" title="10. 什么是分段、什么是分页？"></a>10. 什么是分段、什么是分页？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：分段和分页有什么区别？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>先给本质差异，再讲历史演进：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>分段</th>
+<th>分页</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>划分依据</td>
+<td><strong>程序的逻辑结构</strong>（代码&#x2F;数据&#x2F;堆栈）</td>
+<td><strong>固定大小物理单位</strong></td>
+</tr>
+<tr>
+<td>段&#x2F;页大小</td>
+<td>不固定</td>
+<td>固定 4KB</td>
+</tr>
+<tr>
+<td>碎片类型</td>
+<td>外部碎片</td>
+<td>内部碎片</td>
+</tr>
+<tr>
+<td>用户可见性</td>
+<td>对程序员可见（需指定段）</td>
+<td>透明</td>
+</tr>
+</tbody></table>
+<p><strong>历史脉络</strong>讲出来会显得很扎实：</p>
+<ul>
+<li><strong>分段来自 8086</strong>：16 位寄存器 + 20 位地址总线，用「段基址左移 4 位（即乘 16）+ 段内偏移」访问 20 位空间。因一段仅 64KB，必须不断换段基址才能访问全空间</li>
+<li><strong>80286 引入保护模式与 GDT</strong>：段寄存器改存”选择子”（段描述符索引 + TI + RPL），通过 RPL 与目标 DPL 比较判断访问权限，实现进程间地址隔离；实模式无权限校验</li>
+<li><strong>80386 起</strong>通用寄存器和地址总线都是 32 位，分段失去意义，但为向前兼容保留，段基址全设 0 即<strong>平坦模式</strong>——这是 Linux 的做法</li>
+</ul>
+<p><strong>分页的动机就是碎片</strong>：200MB 内存跑 LOL&#x2F;Chrome&#x2F;微信后剩 30MB 连续空闲都装不下新程序，只能把 Chrome 换出到磁盘再重新装入。按 4KB 分页后只需换入用到的页。</p>
+<p><strong>多级页表解决页表自身浪费</strong>：32 位 4GB 空间按 4KB 分页超百万页，每页表项 4 字节，单进程页表就要 4MB，100 个进程即 400MB。改用多级页表后只有用到的页表项才分配内存——32 位一般两级，64 位四级甚至五级。</p>
+<p><strong>TLB</strong> 缓存最近使用的页表项，命中率一般 99% 以上；未命中才走内存页表。<strong>进程切换必须刷新 TLB</strong>，因为各进程页表不同——这正是频繁切换进程开销大的原因。</p>
+<p><strong>页面置换</strong>：FIFO 最简单但会把热点页换出；LRU 效果好但记录访问时间开销大；Linux 用<strong>近似 LRU</strong>，维护 active&#x2F;inactive 两条链表，inactive 链表末尾优先换出。</p>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<ul>
+<li>缺页中断与普通中断不同：<strong>普通中断处理完返回下一条指令，缺页中断处理完要重新执行触发它的那条指令</strong></li>
+<li>大页（Linux 支持 2MB&#x2F;1GB）减少页表项、降低 TLB miss，但内部碎片变大——只需 5KB 数据也占满一个大页。数据库、虚拟机才用</li>
+</ul>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“Linux 是段页式系统”——分段在 Linux 上是兼容遗留，实际按平坦模式运行，<strong>真正干活的是分页</strong></li>
+</ul>
+<hr>
+<h3 id="21-什么是物理地址，什么是逻辑地址？-1"><a href="#21-什么是物理地址，什么是逻辑地址？-1" class="headerlink" title="21. 什么是物理地址，什么是逻辑地址？"></a>21. 什么是物理地址，什么是逻辑地址？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：物理地址和逻辑地址的区别？地址转换是怎么做的？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><strong>物理地址</strong>是内存芯片上的真实位置；<strong>逻辑地址</strong>是程序看到的地址</li>
+<li><strong>MMU 依据页表翻译</strong>，对程序透明，因此进程间天然隔离</li>
+</ul>
+<p>转换流程要给具体例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">程序访问 0x000A1234</span><br><span class="line">  → MMU 查页表得页框号</span><br><span class="line">  → 拼页内偏移</span><br><span class="line">  → 物理地址 0x1F2B5678</span><br></pre></td></tr></table></figure>
+
+<p>进程切换时，OS 把新进程的页表基址写入 CPU 的 <strong>CR3 寄存器</strong>。</p>
+<p><strong>逻辑地址的三大好处</strong>：</p>
+<ol>
+<li><strong>位置无关加载</strong>——同一个二进制可以加载到不同物理位置</li>
+<li><strong>进程隔离</strong>——野指针最多触发一次缺页异常，不会读到别的进程</li>
+<li><strong>虚拟内存</strong>——32 位程序可以”看到” 4GB 空间</li>
+</ol>
+<p><strong>TLB</strong> 是 CPU 内部的页表项缓存，命中直接出物理地址，命中率可达 99%+；否则一次逻辑访问变成两次内存访问。多级页表在 32 位下能让页表占用节省 90%+，64 位用四级页表。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“用户态程序可以访问物理地址”——Linux 的 <code>/dev/mem</code> 需要 root，生产环境一般禁用</li>
+<li>把”分段”当成 x86-64 的实际内存管理机制——分段已被架空</li>
+</ul>
+<hr>
+<h3 id="23-负数的二进制如何表示？-1"><a href="#23-负数的二进制如何表示？-1" class="headerlink" title="23. 负数的二进制如何表示？"></a>23. 负数的二进制如何表示？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（可能从 Java 类型转换切入）：负数的二进制怎么表示？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>用<strong>补码</strong>：正数按位取反再加 1；正数的补码就是它本身，最高位即符号位（0 正 1 负）</li>
+<li><strong>8 位示例</strong>：<code>5 = 00000101</code> → 取反 <code>11111010</code> → 加 1 得 <code>11111011 = -5</code><ul>
+<li>验证：<code>11111011 + 00000101 = 100000000</code>，丢弃溢出位正好为 0</li>
+</ul>
+</li>
+<li><strong>补码让减法变加法</strong>：<code>5 - 3</code> 实际算 <code>5 + 11111101(-3) = 100000010</code>，丢掉最高位得 <code>00000010 = 2</code>，<strong>硬件只需一个加法器</strong></li>
+<li>数学本质是<strong>模运算</strong>：8 位相当于模 256，<code>-3 ≡ 253 ≡ 11111101</code></li>
+</ul>
+<p><strong>表示范围不对称</strong>是 Java 高频细节：</p>
+<ul>
+<li>8 位有符号：<code>-128 ~ 127</code>；int：<code>-2147483648 ~ 2147483647</code></li>
+<li><code>byte b = -128; (byte)(-b)</code> 仍输出 <strong>-128</strong>，<code>Integer.MIN_VALUE</code> 取负还是自己</li>
+</ul>
+<p><strong>符号扩展</strong>：byte→int 正数补 0、负数补 1。<code>byte b = -1; int i = b;</code> 仍是 -1；想要无符号值用 <code>b &amp; 0xFF</code> 得 255。</p>
+<p><strong>位运算</strong>：</p>
+<ul>
+<li><code>&gt;&gt;</code> 算术右移<strong>保留符号位</strong>：<code>-8 &gt;&gt; 2 = -2</code></li>
+<li><code>&gt;&gt;&gt;</code> 逻辑右移<strong>补 0</strong>：<code>-8 &gt;&gt;&gt; 2 = 1073741822</code></li>
+<li>C 没有 <code>&gt;&gt;&gt;</code>，有符号右移行为依编译器</li>
+</ul>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>认为浮点数用补码——浮点走 IEEE 754，负数只是把符号位置 1，其余位不变</li>
+<li>解释负数为什么比正数多一个是因为”补码更聪明”——实际是 0 合并省下的编码落到了最小值上</li>
+</ul>
+<hr>
+<h2 id="四、线上排障：Linux-命令实操-1"><a href="#四、线上排障：Linux-命令实操-1" class="headerlink" title="四、线上排障：Linux 命令实操"></a>四、线上排障：Linux 命令实操</h2><p>这道题几乎必问，而且<strong>最容易靠平时积累当场露怯</strong>。它的评分逻辑不是”你知道多少命令”，而是”你能不能说清每个参数为什么这么用”。</p>
+<h3 id="12-说下你常用的-Linux-命令？-1"><a href="#12-说下你常用的-Linux-命令？-1" class="headerlink" title="12. 说下你常用的 Linux 命令？"></a>12. 说下你常用的 Linux 命令？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：说下你常用的 Linux 命令？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：一口气报 30 个命令名。面试官会觉得你在背 man 手册，而不是在用系统。</p>
+<p><strong>📝 现场作答</strong></p>
+<p>按场景组织，每类给”最该记住的细节”：</p>
+<p><strong>① 文件与目录</strong></p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ls -l/-a/-lh</code></td>
+<td><code>-l</code> 详细信息、<code>-a</code> 含隐藏、<code>-lh</code> 可读大小（K&#x2F;M&#x2F;B）</td>
+</tr>
+<tr>
+<td><code>cat &gt; file</code> vs <code>cat &gt;&gt; file</code></td>
+<td><strong>覆盖 vs 追加</strong>，误用直接丢数据</td>
+</tr>
+<tr>
+<td><code>cat f1 f2 &gt; f3</code></td>
+<td>合并文件</td>
+</tr>
+<tr>
+<td><code>head -n 20</code> &#x2F; <code>tail -n 20</code></td>
+<td><code>tail -f</code> 可实时跟踪日志</td>
+</tr>
+<tr>
+<td><code>find /var/log -size +50M</code></td>
+<td>按条件全盘遍历</td>
+</tr>
+<tr>
+<td><code>tree -L 2</code> &#x2F; <code>-d</code> &#x2F; <code>-a</code></td>
+<td>限层数 &#x2F; 只看目录 &#x2F; 含隐藏</td>
+</tr>
+</tbody></table>
+<p>权限这块要说清数字模式：<code>chmod 755</code> &#x3D; 所有者 rwx、其他 rx；<code>chmod 644</code> &#x3D; 所有者 rw、其他 r（r&#x3D;4、w&#x3D;2、x&#x3D;1）。用户分三类：所有者 u、同组 g、其他 o。</p>
+<p><strong>② 查找与网络</strong></p>
+<ul>
+<li><code>whereis</code> 在预定义路径找程序（比 <code>find</code> 快，不遍历文件系统）</li>
+<li><code>which</code> 在 <code>PATH</code> 中找命令</li>
+<li><code>netstat -antp</code> 全 TCP + 端口 + 进程名；<code>netstat -anp | grep 8080</code> 查端口占用</li>
+<li><code>ps -ef | grep java</code> 找进程</li>
+<li><code>nohup java -jar app.jar &gt; output.log 2&gt;&amp;1 &amp;</code> 后台启动</li>
+</ul>
+<p><strong>③ top 的读法</strong>——这是最高频的追问：</p>
+<ul>
+<li><p><strong>第一行</strong>：<code>load average</code> 是 1&#x2F;5&#x2F;15 分钟平均负载，一般不超过总核数</p>
+</li>
+<li><p><strong>第二行</strong> Tasks：running 越多压力越大，zombie 是僵尸进程数</p>
+</li>
+<li><p><strong>第三行</strong> CPU：</p>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>含义</th>
+<th>关注点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>us</code></td>
+<td>用户态</td>
+<td>主要消耗来源</td>
+</tr>
+<tr>
+<td><code>sy</code></td>
+<td>内核态</td>
+<td><strong>大量 IO 会推高</strong></td>
+</tr>
+<tr>
+<td><code>ni</code></td>
+<td>调整过 nice 值进程的占用</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td>空闲</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>wa</code></td>
+<td>I&#x2F;O 等待</td>
+<td><strong>判断瓶颈是否 IO 的关键</strong></td>
+</tr>
+<tr>
+<td><code>hi</code> &#x2F; <code>si</code></td>
+<td>硬中断 &#x2F; 软中断</td>
+<td>见第 8 题</td>
+</tr>
+<tr>
+<td><code>st</code></td>
+<td>steal time</td>
+<td>虚拟机被宿主机抢走的时间</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>第四、五行</strong>：内存与 Swap。<strong>free 少不必紧张</strong>，Linux 把空闲内存拿去做 buff&#x2F;cache，重点看 <strong>Swap 的 used</strong></p>
+</li>
+</ul>
+<p><strong>进程列表各列含义</strong>（要能报出来）：</p>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PR &#x2F; NI</td>
+<td>优先级 &#x2F; nice 值（负值高优先级）</td>
+</tr>
+<tr>
+<td>VIRT</td>
+<td>虚拟内存总量，VIRT &#x3D; SWAP + RES</td>
+</tr>
+<tr>
+<td>RES</td>
+<td>未被换出的物理内存，RES &#x3D; CODE + DATA</td>
+</tr>
+<tr>
+<td>S</td>
+<td>状态：D 不可中断睡眠、R 运行、S 睡眠、T 停止、Z 僵尸</td>
+</tr>
+<tr>
+<td>TIME+</td>
+<td>累计 CPU 时间（单位 1&#x2F;100 秒）</td>
+</tr>
+</tbody></table>
+<p>top 交互键：<code>f</code> 编辑显示列、<code>s</code> 设排序列、空格显隐列、<code>q</code> 退出。常用参数 <code>-d 1</code>（1 秒刷新）、<code>-p PID</code>（只看某进程）、<code>-c</code>（显示完整命令行）、<code>-i</code>（不显示闲置&#x2F;僵死进程）、<code>-s</code>（安全模式）。</p>
+<p><strong>④ 系统性能与磁盘</strong></p>
+<p><code>uname -a/-r/-m</code>、<code>free -h/-m</code>、<code>vmstat 1 10</code>、<code>uptime</code>、<code>iostat</code>、<code>sar -u 1 10</code>（CPU）&#x2F; <code>sar -d 1 10</code>（磁盘）、<code>df -h</code>、<code>du -sh 目录</code>、<code>du -sk * | sort -rn</code>（按大小倒序）、<code>fdisk -l</code>。</p>
+<p><strong>⑤ 服务管理与包管理</strong></p>
+<ul>
+<li><code>service</code> 对应传统 SysVinit（脚本在 <code>/etc/init.d/</code>）</li>
+<li><code>systemctl</code> 属于 systemd，通过 unit 文件管理服务&#x2F;挂载点&#x2F;设备，配置在 <code>/etc/systemd/system/</code> 与 <code>/usr/lib/systemd/system/</code></li>
+<li>CentOS&#x2F;Fedora 用 <code>yum</code>，Debian&#x2F;Ubuntu 用 <code>apt</code>——<code>apt update</code> 必须<strong>在 <code>install</code> 之前</strong>执行</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong>面试官</strong>：机器内存还有 2G，为什么 free 显示只剩 800M？</p>
+</blockquote>
+<p>因为 Linux 拿空闲内存做 buff&#x2F;cache 来加速文件访问，这是<strong>好事</strong>。判断内存紧张要看 <strong>Swap 的 used</strong> 和 <code>vmstat</code> 的 si&#x2F;so（换入换出）列。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把 <code>free</code> 低当成内存不足</li>
+<li>认为 <code>whereis</code>、<code>which</code>、<code>find</code> 是一回事——whereis 只搜预定义路径且更快，which 只搜 PATH，find 全盘遍历并支持复杂条件</li>
+</ul>
+<hr>
+<h2 id="五、I-O-模型全家桶-1"><a href="#五、I-O-模型全家桶-1" class="headerlink" title="五、I&#x2F;O 模型全家桶"></a>五、I&#x2F;O 模型全家桶</h2><p>这是<strong>互联网后端岗位权重最高的一块</strong>，因为高并发服务器绕不开。面试官往往会从这一章切入，然后一路问到 Reactor 和 epoll。</p>
+<h3 id="13-I-O-是什么？-1"><a href="#13-I-O-是什么？-1" class="headerlink" title="13. I&#x2F;O 是什么？"></a>13. I&#x2F;O 是什么？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：讲讲你对 I&#x2F;O 的理解？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><strong>I&#x2F;O 是数据在计算机与外部世界之间的搬运</strong>：Input 进来、Output 出去</li>
+<li>路径：外设产生数据 → <strong>I&#x2F;O 控制器</strong>搬到内存 → CPU 从内存取；输出反向</li>
+<li>按设备特性分两类：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>设备</th>
+<th>访问方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>块设备</td>
+<td>硬盘、SSD</td>
+<td>按固定块读写（512B 或 4KB），<strong>支持随机访问</strong></td>
+</tr>
+<tr>
+<td>字符设备</td>
+<td>键盘、串口</td>
+<td>只能顺序字节流，<strong>读完即逝</strong></td>
+</tr>
+</tbody></table>
+<p><strong>速度鸿沟是理解一切性能问题的起点</strong>，这组数字务必背下来：</p>
+<table>
+<thead>
+<tr>
+<th>介质</th>
+<th>延迟</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CPU 时钟周期</td>
+<td>~0.3 ns</td>
+</tr>
+<tr>
+<td>L1 缓存</td>
+<td>~1 ns</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>~100 ns</td>
+</tr>
+<tr>
+<td>SSD 随机读</td>
+<td>~150 µs</td>
+</tr>
+<tr>
+<td>机械盘随机读</td>
+<td>~10 ms</td>
+</tr>
+</tbody></table>
+<p><strong>相当于 CPU 跑一秒 &#x3D; 等机械硬盘一年。</strong> 所以一切 I&#x2F;O 优化都在削这段鸿沟。</p>
+<p><strong>四种缓冲策略</strong>：</p>
+<ul>
+<li><strong>缓冲 I&#x2F;O</strong>：走 <strong>Page Cache</strong>——读命中直接返回，写批量刷盘</li>
+<li><strong>直接 I&#x2F;O（<code>O_DIRECT</code>）</strong>：绕过 Page Cache。MySQL InnoDB 默认开启，因为它要自己掌控刷盘时机。<strong>代价是内存地址和长度必须按块对齐</strong></li>
+<li><strong>I&#x2F;O 调度器</strong>：重排请求减少寻道。CFQ（公平）、Deadline（防饿死）、Noop（适合 SSD）；现代默认 mq-deadline &#x2F; bfq，SSD&#x2F;NVMe 常用 none 或 mq-deadline<ul>
+<li>查看修改：<code>cat /sys/block/sda/queue/scheduler</code>、<code>echo mq-deadline &gt; /sys/block/sda/queue/scheduler</code></li>
+</ul>
+</li>
+<li><strong>零拷贝三件套</strong>：<code>mmap</code>（映射免一次拷贝）、<code>sendfile</code>（内核缓冲区直发 socket）、<code>splice</code>（fd 间直搬）</li>
+</ul>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>误以为”非阻塞 &#x3D; 异步”——非阻塞只解决”数据没准备好”，<strong>拷贝阶段仍要用户线程等</strong></li>
+<li>以为所有 I&#x2F;O 都必须经 Page Cache——数据库恰恰要绕开它</li>
+</ul>
+<hr>
+<h3 id="14-为什么网络-I-O-会被阻塞？-1"><a href="#14-为什么网络-I-O-会被阻塞？-1" class="headerlink" title="14. 为什么网络 I&#x2F;O 会被阻塞？"></a>14. 为什么网络 I&#x2F;O 会被阻塞？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：为什么网络 I&#x2F;O 会阻塞？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>本质是<strong>等待</strong>——等数据到、等缓冲区腾位置、等连接建立。OS 把进程挂起让出 CPU，条件满足后再唤醒，因此<strong>一次阻塞+唤醒要付两次上下文切换</strong>。</p>
+<p><strong>三类阻塞</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>触发条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读阻塞</td>
+<td>接收缓冲区为空</td>
+</tr>
+<tr>
+<td>写阻塞</td>
+<td>发送缓冲区已满</td>
+</tr>
+<tr>
+<td>连接阻塞</td>
+<td>connect 等三次握手、accept 等已完成队列</td>
+</tr>
+</tbody></table>
+<p><strong>服务端流程</strong> <code>socket → bind → listen → accept</code>：</p>
+<ul>
+<li><code>socket</code> 返回 fd</li>
+<li><code>listen</code> 的 backlog 在 <strong>Linux 只指已完成连接队列大小</strong>（BSD 派生系统是单队列，Linux 是双队列）</li>
+<li><code>accept</code> 取出三次握手完成的连接，返回<strong>新的 fd</strong></li>
+</ul>
+<p><strong>客户端不需要 bind</strong>（默认选源 IP + 随机端口），connect 后进入 SYN_SEND，收到 SYN+ACK 后转 ESTABLISHED。</p>
+<p><strong>write 为什么会阻塞</strong>：TCP 有发送缓冲区和对端的流量控制，发太快对端会通过窗口告知”别发了”，缓冲区满就只能等。</p>
+<p>解除阻塞靠 <code>fcntl(fd, F_SETFL, flags | O_NONBLOCK)</code> 设为非阻塞，读写不满足条件立刻返回 <code>EAGAIN</code>&#x2F;<code>EWOULDBLOCK</code>。</p>
+<p><strong>队列溢出后果不同</strong>，这点能区分深度：</p>
+<ul>
+<li><strong>半连接队列满</strong> → 新 SYN 被丢弃、客户端超时重传（SYN Flood 的攻击面）</li>
+<li><strong>已完成队列满</strong> → 服务端回 RST 迫使客户端重连</li>
+<li>用 <code>netstat -s</code> 看 overflow 统计</li>
+</ul>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把 backlog 说成”等待建立连接的请求总数”——Linux 下它仅算已完成队列</li>
+</ul>
+<hr>
+<h3 id="15-I-O-模型有哪些？-1"><a href="#15-I-O-模型有哪些？-1" class="headerlink" title="15. I&#x2F;O 模型有哪些？"></a>15. I&#x2F;O 模型有哪些？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：I&#x2F;O 模型有哪几种？区别在哪？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：报出五种名字就停。<strong>核心差异是「等数据」和「拷贝数据」这两个阶段分别由谁完成</strong>——这句话是本题的得分锚点。</p>
+<p><strong>📝 现场作答</strong></p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>阶段① 等数据</th>
+<th>阶段② 拷贝数据</th>
+<th>代表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>阻塞 I&#x2F;O</td>
+<td>用户线程等</td>
+<td>用户线程等</td>
+<td>最基础</td>
+</tr>
+<tr>
+<td>非阻塞 I&#x2F;O</td>
+<td>立刻返回 <code>EWOULDBLOCK</code></td>
+<td><strong>用户线程等</strong></td>
+<td>轮询</td>
+</tr>
+<tr>
+<td>I&#x2F;O 多路复用</td>
+<td><code>select</code>&#x2F;<code>epoll</code> 统一等</td>
+<td><strong>用户线程等</strong></td>
+<td>Nginx、Redis、Netty</td>
+</tr>
+<tr>
+<td>信号驱动</td>
+<td>内核发 SIGIO</td>
+<td><strong>用户线程等</strong>（处理函数里 recvfrom 仍阻塞）</td>
+<td>较少用</td>
+</tr>
+<tr>
+<td>异步 I&#x2F;O</td>
+<td>内核等</td>
+<td><strong>内核拷贝，完成后通知</strong></td>
+<td>Windows IOCP</td>
+</tr>
+</tbody></table>
+<p>逐个补要点：</p>
+<ul>
+<li><strong>阻塞</strong>：<code>recvfrom</code> 一直挂起到数据准备好且内核→用户拷贝完成。实现简单，适合单线程串行</li>
+<li><strong>非阻塞</strong>：数据没准备好立即返回，进程反复轮询 <code>recvfrom</code>；<code>accept</code> 同理返回 -1 并置 errno。纯轮询浪费 CPU，<strong>必须配合多路复用</strong></li>
+<li><strong>多路复用</strong>：<code>select</code>&#x2F;<code>poll</code>&#x2F;<code>epoll</code> 一次监控多个 fd，任一就绪即返回，再由程序发起真实读写；一个线程管上千连接，省掉海量线程</li>
+<li><strong>信号驱动</strong>：<code>sigaction</code> 注册 SIGIO 处理函数。<strong>信号可能丢失、处理耗时长，不适合高速 I&#x2F;O</strong></li>
+<li><strong>异步</strong>：<code>aio_read</code> 立即返回，内核后台完成内核→用户拷贝，完成后按调用指定的方式发信号通知</li>
+</ul>
+<p>注意一个细节：<strong>多路复用与信号驱动都在 <code>recvfrom</code> 处仍会阻塞</strong>，只有阻塞 I&#x2F;O 和异步 I&#x2F;O 是两端。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把”非阻塞 I&#x2F;O”和”异步 I&#x2F;O”混为一谈——前者需要两次系统调用（问状态 + 读数据），后者一次请求内核全包</li>
+<li>以为信号驱动 I&#x2F;O 全程无阻塞——处理函数里的 <code>recvfrom</code> 照样阻塞</li>
+</ul>
+<hr>
+<h3 id="16-同步和异步的区别？-1"><a href="#16-同步和异步的区别？-1" class="headerlink" title="16. 同步和异步的区别？"></a>16. 同步和异步的区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：同步和异步有什么区别？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>一句话定义：**同步&#x2F;异步描述的是”谁等结果”**。同步必须等当前步骤做完才能继续；异步提交后立即返回，由回调&#x2F;事件通知结果。</p>
+<p><strong>Java 落地</strong>（这才是面试官想听的）：</p>
+<ul>
+<li>经典写法是把任务与回调绑定：<code>Callable&lt;String&gt;</code>（有返回值任务）+ <code>Consumer&lt;String&gt;</code>（回调），异步线程执行 <code>task.call()</code> 后再 <code>callback.accept(result)</code></li>
+<li>Spring 事件中心就是观察者&#x2F;发布订阅模式：事件中心是 <code>ApplicationContext</code>（实现 <code>ApplicationEventPublisher</code>），发布用 <code>publisher.publishEvent(new MyCustomEvent(data))</code>，监听只需在 Bean 方法上加 <code>@EventListener</code></li>
+</ul>
+<p><strong><code>CompletableFuture</code> 的线程流转是高频误区</strong>：</p>
+<ul>
+<li><code>supplyAsync</code> 把任务 1 扔进 ForkJoinPool 并返回<strong>空壳 future</strong></li>
+<li><code>thenApply</code> 发现任务未完成，只把回调<strong>注册</strong>到 future 内部链表，主线程立刻往下走，<strong>不会被叫回来</strong></li>
+<li>任务 1 完成后，由刚做完它的<strong>同一个工作线程 A</strong> 直接接着执行 <code>thenApply</code>（”送佛送到西”）</li>
+<li>用 <code>thenApplyAsync</code> 则第二步作为新任务重新入池，由另一个工作线程 B 执行。两种写法<strong>主线程都不参与</strong></li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<blockquote>
+<p><strong><code>@EventListener</code> 默认是异步的吗？</strong></p>
+</blockquote>
+<p><strong>不是，默认是同步的</strong>——发布线程会阻塞到所有监听器执行完。要真正异步必须再加 <code>@Async</code>。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>以为 <code>thenApply</code> 会等主线程回来执行——它由完成上游任务的工作线程顺带执行</li>
+<li>认为 <code>@EventListener</code> 默认异步——发布方会被监听方拖住</li>
+</ul>
+<hr>
+<h3 id="17-阻塞和非阻塞的区别？-1"><a href="#17-阻塞和非阻塞的区别？-1" class="headerlink" title="17. 阻塞和非阻塞的区别？"></a>17. 阻塞和非阻塞的区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：阻塞和非阻塞的区别？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li><strong>阻塞时</strong>：OS 把线程从运行态切到等待态并移出就绪队列，不消耗时间片但<strong>内存（含栈）仍占着</strong>；数据到达后重新入队。一次阻塞+唤醒共<strong>两次上下文切换</strong></li>
+<li><strong>非阻塞时</strong>：立刻返回状态码（<code>EAGAIN</code>），线程可先去干别的</li>
+</ul>
+<p>维度对比：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>阻塞</th>
+<th>非阻塞</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>编程复杂度</td>
+<td>低</td>
+<td>高（要处理返回状态）</td>
+</tr>
+<tr>
+<td>线程与连接关系</td>
+<td>1 线程 : 1 连接</td>
+<td>少量线程 : 海量连接</td>
+</tr>
+<tr>
+<td>CPU 利用率</td>
+<td>低</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<p><strong>纯非阻塞的代价是轮询</strong>：间隔太短 CPU 空转，太长响应延迟高，所以极少单独使用，基本都配 I&#x2F;O 多路复用。</p>
+<p><strong>Java 落地</strong>：</p>
+<ul>
+<li>传统 <code>InputStream.read()</code> 是阻塞</li>
+<li>NIO 用 <code>serverChannel.configureBlocking(false)</code> 设非阻塞，<code>accept()</code> 无连接时返回 <code>null</code> 而非阻塞</li>
+<li>配 <code>Selector</code> 即 I&#x2F;O 多路复用——<strong>这是 Netty 的底层原理</strong></li>
+<li>模型对应：BIO &#x3D; 同步阻塞；NIO &#x3D; 同步非阻塞（底层 epoll）；AIO &#x3D; 异步 I&#x2F;O（立即返回 + 回调）</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p><strong>阻塞 ≠ 挂起</strong>，这个区分很能显水平：</p>
+<ul>
+<li><strong>阻塞</strong>：线程主动发起、自愿等待</li>
+<li><strong>挂起</strong>：OS 强制，如内存不足把进程换出到磁盘，<strong>进程自己都不知情</strong></li>
+</ul>
+<p><strong>高并发下阻塞为什么致命</strong>：10 万连接 &#x3D; 10 万线程，按默认 1MB 栈就要 <strong>100GB 内存</strong>，直接 OOM；上下文切换也会压垮 CPU。而 1~2 个线程 + epoll 就能监控 10 万连接。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把阻塞和挂起混为一谈</li>
+<li>认为 NIO 是异步的——它是”非阻塞 + 同步”</li>
+</ul>
+<hr>
+<h3 id="18-同步、异步、阻塞、非阻塞的-I-O-的区别？-1"><a href="#18-同步、异步、阻塞、非阻塞的-I-O-的区别？-1" class="headerlink" title="18. 同步、异步、阻塞、非阻塞的 I&#x2F;O 的区别？"></a>18. 同步、异步、阻塞、非阻塞的 I&#x2F;O 的区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：把这四个词的关系理清楚。</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong>：逐个解释四个词定义。这是最没效率的答法——面试官要的是<strong>它们分组后的关系图</strong>。</p>
+<p><strong>📝 现场作答</strong></p>
+<p><strong>先给分组，这句话是本题的核心</strong>：</p>
+<blockquote>
+<p>阻塞&#x2F;非阻塞讲<strong>第一阶段（等数据准备）用户线程的状态</strong>；<br>同步&#x2F;异步讲<strong>第二阶段（内核→用户空间拷贝）由谁来等</strong>。</p>
+</blockquote>
+<p>一次完整 I&#x2F;O 分两阶段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">阶段① 等待数据准备好（网卡收包 / 磁盘读完）</span><br><span class="line">       ↓  阻塞 = 用户线程睡过去 | 非阻塞 = 立刻返回 EAGAIN</span><br><span class="line">阶段② 内核缓冲区 → 用户空间拷贝</span><br><span class="line">       ↓  同步 = 用户线程自己等 | 异步 = 内核拷完再通知</span><br></pre></td></tr></table></figure>
+
+<p>四种组合：</p>
+<table>
+<thead>
+<tr>
+<th>组合</th>
+<th>模型</th>
+<th>典型代表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>同步 + 阻塞</td>
+<td>BIO</td>
+<td>1000 连接开 1000 线程</td>
+</tr>
+<tr>
+<td>同步 + 非阻塞</td>
+<td>轮询</td>
+<td>实际很少单独用</td>
+</tr>
+<tr>
+<td>同步 + 多路复用</td>
+<td><strong>本质仍是同步 I&#x2F;O</strong></td>
+<td>select&#x2F;poll&#x2F;epoll，Java NIO、Netty、Nginx、Redis</td>
+</tr>
+<tr>
+<td>异步</td>
+<td>AIO</td>
+<td>Linux AIO、Windows IOCP</td>
+</tr>
+</tbody></table>
+<p><strong>多路复用最主流的原因</strong>：Linux 原生 AIO 较鸡肋——只支持 Direct I&#x2F;O（绕开 Page Cache）、对普通文件不友好、编程模型复杂回调满天飞；而 epoll 一个线程能撑几十万连接。</p>
+<p><strong>Netty 的封装</strong>：Boss 线程负责 accept 连接，Worker 线程组负责读写。由此引出两个模式：</p>
+<ul>
+<li><strong>Reactor</strong> &#x3D; 事件就绪通知你、读写自己做（<strong>同步</strong>）</li>
+<li><strong>Proactor</strong> &#x3D; 内核做完读写再通知（<strong>异步</strong>）</li>
+</ul>
+<p>Windows IOCP 天然是 Proactor，Linux 下 Boost.Asio 的 Proactor 也是 Reactor 模拟的。</p>
+<p><strong>记忆比喻</strong>：非阻塞 &#x3D; 自己反复去驿站取快递，到了也得自己扛回家；异步 &#x3D; 快递员送到门口敲门。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>认为 Java NIO 是异步 I&#x2F;O——它是”非阻塞 + 同步”的组合：<code>select()</code> 本身阻塞直到事件就绪，<code>Channel.read</code> 的拷贝阶段仍是同步等待</li>
+<li>以为 Linux 上 glibc 的 POSIX AIO 是真异步——它用线程池模拟，本质仍是同步阻塞。真要用异步得上 <code>io_uring</code> 或换 Windows IOCP</li>
+</ul>
+<hr>
+<h3 id="19-到底什么是-Reactor？-1"><a href="#19-到底什么是-Reactor？-1" class="headerlink" title="19. 到底什么是 Reactor？"></a>19. 到底什么是 Reactor？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：讲讲 Reactor 模式。</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p>定义：<strong>一个 Reactor 线程用多路复用器同时盯住大量连接，某个连接有事件就唤醒它，再按事件类型分发给对应 Handler 执行</strong>——本质是”少量线程服务海量连接”。</p>
+<p><strong>三个特点</strong>：事件驱动（非阻塞 I&#x2F;O）、少量线程处理大量 I&#x2F;O、分发与处理解耦。基础事件只有<strong>连接、读、写</strong>三种。</p>
+<p><strong>关键区分</strong>：Reactor 是<strong>同步非阻塞</strong>——只通知”数据来了”，读取写入由应用自己完成；Proactor 是<strong>异步非阻塞</strong>——OS&#x2F;IO 库读好后回调应用，如 Windows IOCP。</p>
+<p><strong>三种模型</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>结构</th>
+<th>案例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单 Reactor 单线程</td>
+<td>一个线程全干</td>
+<td>Redis 6.0 前，单线程 10 万+ QPS</td>
+</tr>
+<tr>
+<td>单 Reactor 多线程</td>
+<td>主线程监听 + 工作线程池</td>
+<td>—</td>
+</tr>
+<tr>
+<td>多 Reactor 多线程</td>
+<td>Boss Group 接连接 + Worker Group 读写</td>
+<td><strong>Netty 默认</strong></td>
+</tr>
+</tbody></table>
+<p>Netty 常用配置是 <strong>1 个 Boss + CPU 核数 × 2 个 Worker</strong>。</p>
+<p><strong>EventLoop</strong> 就是 Reactor 线程的实现：一个 EventLoop 绑一个线程，内部跑一个 Selector 循环，监听注册其上的所有 Channel。</p>
+<p><strong>实战要点</strong>：耗时业务必须丢到独立业务线程池，否则阻塞整个事件循环——Netty 中可给 Handler 指定 EventExecutorGroup 换线程执行。</p>
+<p>Nginx 用 epoll 单机扛 10 万+ 并发连接，Node.js 事件循环同理。Demux&#x2F;Dispatcher&#x2F;Handler 这套名词只是流程产物，<strong>不是定义的一部分</strong>。</p>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>把 Reactor 和 Proactor 说反——Reactor 同步非阻塞，Proactor 异步非阻塞</li>
+<li>把耗时业务写在 Reactor 线程里</li>
+<li>Boss 线程堆到很多个——一般只需 1 个，调优重点在 Worker 数</li>
+</ul>
+<hr>
+<h3 id="20-Select、Poll、Epoll-之间有什么区别？-1"><a href="#20-Select、Poll、Epoll-之间有什么区别？-1" class="headerlink" title="20. Select、Poll、Epoll 之间有什么区别？"></a>20. Select、Poll、Epoll 之间有什么区别？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：select、poll、epoll 有什么区别？</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p><strong>核心差异一句话</strong>：select 位图限 1024、poll 动态数组无数量限制，但<strong>都要每次拷贝并线性扫描</strong>；epoll 用红黑树 + 就绪链表，<strong>只注册一次、只返回就绪 fd</strong>。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>select</th>
+<th>poll</th>
+<th>epoll</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据结构</td>
+<td><code>fd_set</code> 位图</td>
+<td><code>struct pollfd</code> 数组</td>
+<td>红黑树 + 就绪链表</td>
+</tr>
+<tr>
+<td>数量限制</td>
+<td><strong>FD_SETSIZE &#x3D; 1024</strong></td>
+<td>无（受内存限制）</td>
+<td>无</td>
+</tr>
+<tr>
+<td>每次调用</td>
+<td><strong>全量拷贝 + 全量扫描</strong></td>
+<td><strong>全量拷贝 + 全量扫描</strong></td>
+<td>只遍历就绪链表，空则挂起</td>
+</tr>
+<tr>
+<td>注册时机</td>
+<td>每次调用都要重传</td>
+<td>每次调用都要重传</td>
+<td><strong>只注册一次</strong></td>
+</tr>
+<tr>
+<td>复杂度</td>
+<td>O(总数)</td>
+<td>O(总数)</td>
+<td><strong>O(就绪数)</strong></td>
+</tr>
+</tbody></table>
+<p>细节：</p>
+<ul>
+<li><strong>select</strong>：<code>readfds</code>&#x2F;<code>writefds</code>&#x2F;<code>exceptfds</code> 三个集合，<code>nfds</code> 是最大值 +1，<code>timeout</code> 为 NULL 无限等、0 立即返回</li>
+<li><strong>poll</strong>：<code>events</code> 填 POLLIN&#x2F;POLLOUT&#x2F;POLLERR&#x2F;POLLHUP&#x2F;POLLPRI，<code>revents</code> 由内核回填；<code>timeout</code> 以<strong>毫秒</strong>计，-1 无限等、0 非阻塞</li>
+<li><strong>epoll</strong>：<code>epoll_create</code> 建实例 → <code>epoll_ctl</code> 用 <code>EPOLL_CTL_ADD</code>&#x2F;<code>MOD</code>&#x2F;<code>DEL</code> 管红黑树（O(log N)）→ <code>epoll_wait</code> 只遍历就绪双向链表。性能与<strong>就绪数</strong>相关而非注册总数，还支持 mmap 减少拷贝</li>
+</ul>
+<p><strong>两种触发模式</strong>：</p>
+<ul>
+<li><strong>LT 水平触发（默认）</strong>：未读完每次都返回</li>
+<li><strong>ET 边缘触发</strong>：只在状态变化时通知一次</li>
+</ul>
+<p><strong>量化对比</strong>：10 万连接仅 100 活跃时，select 是 O(10 万) 且每次拷贝，epoll 是 O(100) 且只注册一次，实测快 10 倍以上。</p>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ET 怎么用？</td>
+<td><strong>必须配非阻塞 I&#x2F;O</strong>，循环 read 直到返回 <code>EAGAIN</code>；用阻塞 I&#x2F;O 会在最后一次 read 卡死整个线程</td>
+</tr>
+<tr>
+<td>epoll 一定比 select 快吗？</td>
+<td><strong>对短连接反而没优势</strong>——每连接都要注册+删除，红黑树开销大</td>
+</tr>
+<tr>
+<td>Nginx 怎么处理惊群？</td>
+<td>用 <strong>accept_mutex</strong>，避免多个线程同时 accept 到同一个连接</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“select 只能监控 1024 个 fd”——准确说是 <code>FD_SETSIZE</code> 限制，可调系统参数但有上限</li>
+<li>说 epoll 在所有场景都碾压 select——短连接场景反而退化</li>
+</ul>
+<hr>
+<h2 id="六、死锁：最后一道送命题-1"><a href="#六、死锁：最后一道送命题-1" class="headerlink" title="六、死锁：最后一道送命题"></a>六、死锁：最后一道送命题</h2><p>前面所有内容都在铺垫——共享内存、锁、线程切换，最后往往都收敛到这一题。</p>
+<h3 id="24-死锁是什么？如何预防和避免死锁？-1"><a href="#24-死锁是什么？如何预防和避免死锁？-1" class="headerlink" title="24. 死锁是什么？如何预防和避免死锁？"></a>24. 死锁是什么？如何预防和避免死锁？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官：说下死锁，以及怎么处理。</p>
+</blockquote>
+<p><strong>📝 现场作答</strong></p>
+<p><strong>定义</strong>：两个及以上进程因争夺资源互相等待、无外力则都无法推进。</p>
+<p><strong>四个必要条件必须同时成立</strong>——这个”必须”和后面的”破坏任一即可”是本题的关键：</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>互斥</strong></td>
+<td>资源同一时刻只能被一个进程占用</td>
+</tr>
+<tr>
+<td><strong>请求与保持</strong></td>
+<td>持有 A 的同时等 B，且<strong>不放 A</strong></td>
+</tr>
+<tr>
+<td><strong>不剥夺</strong></td>
+<td>资源用完前不能被强行抢走</td>
+</tr>
+<tr>
+<td><strong>循环等待</strong></td>
+<td>A 等 B、B 等 C、C 等 A</td>
+</tr>
+</tbody></table>
+<p>经典例子：<strong>双锁交叉获取</strong>；银行场景下 A→B 与 B→A 同时转账。</p>
+<p><strong>四种应对手法，按破坏的条件分类</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>破坏的条件</th>
+<th>方法</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>互斥</td>
+<td>只读文件共享、打印机虚拟化成打印队列、数据库用 MVCC</td>
+<td>适用面窄</td>
+</tr>
+<tr>
+<td>请求与保持</td>
+<td>一次性申请所有资源，全拿或全不拿（<code>acquire_all_locks</code>）</td>
+<td>资源利用率低、易饥饿</td>
+</tr>
+<tr>
+<td>不剥夺</td>
+<td>带超时获取 <code>lock.acquire(timeout=1)</code></td>
+<td>可能误杀正常业务</td>
+</tr>
+<tr>
+<td><strong>循环等待</strong></td>
+<td><strong>全局锁顺序表</strong>（account&#x3D;1、order&#x3D;2、inventory&#x3D;3、payment&#x3D;4）<strong>按序加锁、逆序释放</strong></td>
+<td>需要人工维护约定</td>
+</tr>
+</tbody></table>
+<p><strong>银行家算法</strong>（避免死锁的经典代表）：</p>
+<ul>
+<li>维护 Available &#x2F; Max &#x2F; Allocation 三个矩阵，<code>need = Max − Allocation</code></li>
+<li>请求前先判断是否超过 need、是否超过 available</li>
+<li><strong>试分配</strong>后检测是否存在安全序列，<strong>不安全就回滚</strong></li>
+</ul>
+<p><strong>检测与恢复</strong>：构建等待图用 DFS 判断环；恢复手段是终止进程或剥夺资源。</p>
+<p>数据库侧可用 <code>SHOW ENGINE INNODB STATUS</code>、<code>information_schema.INNODB_LOCK_WAITS</code>、<code>innodb_lock_wait_timeout=50</code>。</p>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<p>问”实践中最有效的手段是什么”，答这个优先级链，比罗列理论有用得多：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">减少锁的使用（无锁结构、ThreadLocal、不可变对象）</span><br><span class="line">  &gt; 缩小锁粒度（读写锁、分段锁如 ConcurrentHashMap）</span><br><span class="line">  &gt; 固定加锁顺序</span><br><span class="line">  &gt; 缩短持锁时间</span><br><span class="line">  &gt; 超时机制</span><br><span class="line">  &gt; 监控检测</span><br></pre></td></tr></table></figure>
+
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>认为”死锁只能避免、预防没用”——<strong>破坏四个必要条件中任一即可预防</strong></li>
+<li>讲银行家算法时漏掉”试分配 + 回滚”，只说安全序列定义会被追问</li>
+<li><strong>把 <code>with from_account.lock</code> 再 <code>with to_account.lock</code> 当成正确示例背</strong>——这段代码本身就是死锁代码</li>
+</ul>
+<hr>
+<h2 id="七、面试前-10-分钟速查-1"><a href="#七、面试前-10-分钟速查-1" class="headerlink" title="七、面试前 10 分钟速查"></a>七、面试前 10 分钟速查</h2><p>如果只剩十分钟，扫这一页。</p>
+<p><strong>必须张口就来的定义</strong></p>
+<ul>
+<li>进程五态：新建 &#x2F; 就绪 &#x2F; 运行 &#x2F; 阻塞 &#x2F; 终止；阻塞唤醒<strong>必须经过就绪态</strong></li>
+<li>Linux 进程 &#x3D; <code>task_struct</code>；<code>pid</code> 是线程 ID，<code>tgid</code> 是进程 ID</li>
+<li>CFS 按 <code>vruntime</code> 最小者运行，红黑树，O(log N)</li>
+<li>硬中断由 CPU 检测，软中断由 ksoftirqd 轮询</li>
+<li>负载是<strong>指数衰减平滑</strong>，且<strong>包含 I&#x2F;O 等待任务</strong></li>
+<li>物理页<strong>按需分配</strong>，缺页时才向伙伴系统申请</li>
+<li>MESI：M 脏独占、E 独占、S 共享、I 失效</li>
+<li>负数用补码，范围不对称（-128~127）</li>
+</ul>
+<p><strong>最该记住的易错点</strong></p>
+<ol>
+<li>D 状态进程 <code>kill -9</code> 杀不掉</li>
+<li>跨进程的线程切换 &#x3D; 进程切换，不快</li>
+<li>Linux 不是段页式，分段已被架空</li>
+<li>Java NIO 是”非阻塞 + 同步”，<strong>不是异步</strong></li>
+<li>glibc 的 POSIX AIO 是线程池模拟的，不是真异步</li>
+<li><code>free</code> 低≠内存不足，看 Swap</li>
+<li><code>select</code>&#x2F;<code>poll</code> 每次全量拷贝扫描，epoll 只注册一次</li>
+</ol>
+<p><strong>五个数字</strong></p>
+<table>
+<thead>
+<tr>
+<th>数字</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>64 字节</td>
+<td>缓存行大小，伪共享的根源</td>
+</tr>
+<tr>
+<td>512 B ~ 150 µs</td>
+<td>L1 到 SSD 的延迟量级差</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>select 的 <code>FD_SETSIZE</code></td>
+</tr>
+<tr>
+<td>4 KB</td>
+<td>默认页大小</td>
+</tr>
+<tr>
+<td>-20 ~ 19</td>
+<td>nice 值范围</td>
+</tr>
+</tbody></table>
+<p><strong>最后一句提醒</strong>：回答时先给定义，再给机制，最后给边界条件。面试官真正在听的是第三层——<strong>你知道这个机制在什么情况下会失效</strong>。</p>
+<hr>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count">0/0</span>
+      <button onclick="scrollToHighlight(currentHighlightIndex - 1)">↑</button>
+      <button onclick="scrollToHighlight(currentHighlightIndex + 1)">↓</button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+          
+          <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"># 内存管理</a>
+          
+          <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"># 操作系统</a>
+          
+          <a href="/tags/%E8%BF%9B%E7%A8%8B/"># 进程</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/17/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AF%87/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C--%E9%9D%A2%E8%AF%95/"
+        >计算机网络--面试</a
+      >
+       
+      <a class="next" rel="next" href="/2026/09/09/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E4%B8%AD%E9%97%B4%E4%BB%B6/Redis%E5%A4%A7%E5%85%A8%EF%BC%88%E6%80%9D%E8%80%83%EF%BC%89/"
+        >协程、平台线程、进程、虚拟线程</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    createGiscus(getCurrentTheme());
+
+    // 监听按钮点击切换主题 → 重载评论区
+    const buttons = [
+      document.querySelector(".toggleBtn"),
+      document.getElementById("mobile-toggle-theme"),
+    ];
+    buttons.forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        setTimeout(() => {
+          createGiscus(getCurrentTheme());
+        }, 400); // 稍作延迟，确保 class 切换完毕
+      });
+    });
+
+    // 监听 body class 改变（保险方案）
+    const observer = new MutationObserver(() => {
+      createGiscus(getCurrentTheme());
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+<script src="/js/code-copy.js"></script>
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>
