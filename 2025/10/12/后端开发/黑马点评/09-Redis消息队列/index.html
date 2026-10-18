@@ -984,195 +984,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <li><code>PubSub</code>适合<strong>实时广播、无持久化要求</strong>的场景；</li>
 <li><code>Stream</code>是<strong>生产级消息队列的首选</strong>，尤其在秒杀、订单异步处理等对 “可靠性、可追溯、多消费者协同” 有要求的场景中，能有效解耦系统并保证消息一致性。</li>
 </ul>
-<h1 id="Redis-消息队列核心知识点总结-1"><a href="#Redis-消息队列核心知识点总结-1" class="headerlink" title="Redis 消息队列核心知识点总结"></a>Redis 消息队列核心知识点总结</h1><h2 id="一、消息队列的基础价值-1"><a href="#一、消息队列的基础价值-1" class="headerlink" title="一、消息队列的基础价值"></a>一、消息队列的基础价值</h2><p>消息队列（Message Queue）包含 <strong>生产者</strong>（发送消息）、<strong>消息队列</strong>（存储与管理消息）、<strong>消费者</strong>（获取并处理消息）三个核心角色，核心作用是 <strong>解耦</strong>（生产者与消费者通过队列间接通信，避免一方等待另一方，典型场景如秒杀：生产者校验下单资格后发消息，消费者异步处理下单，大幅提升响应速度）。</p>
-<h2 id="二、Redis-实现消息队列的三种方式-1"><a href="#二、Redis-实现消息队列的三种方式-1" class="headerlink" title="二、Redis 实现消息队列的三种方式"></a>二、Redis 实现消息队列的三种方式</h2><h3 id="1-基于List的消息队列-1"><a href="#1-基于List的消息队列-1" class="headerlink" title="1. 基于List的消息队列"></a>1. 基于<code>List</code>的消息队列</h3><ul>
-<li><strong>原理</strong>：利用 Redis <code>List</code>（双向链表）的 <code>LPUSH</code>（左端添加消息） + <code>BRPOP</code>（右端<strong>阻塞</strong>获取消息，队列空时持续等待），模拟 “先进先出” 的队列逻辑。</li>
-<li>核心命令：<ul>
-<li>生产者：<code>LPUSH queue:xxx &quot;msg&quot;</code>（向队列 <code>queue:xxx</code> 左侧推送消息）。</li>
-<li>消费者：<code>BRPOP queue:xxx 0</code>（从队列右侧阻塞获取消息，<code>0</code> 表示 “永久阻塞”，直到有消息）。</li>
-</ul>
-</li>
-<li>优缺点：<ul>
-<li>优点：<ul>
-<li>存储依赖 Redis，不受 JVM 内存容量限制；</li>
-<li>借助 Redis 持久化（RDB&#x2F;AOF），数据安全性有基础保障；</li>
-<li>天然支持 <strong>消息有序性</strong>（List 是有序链表，消息按入队顺序消费）。</li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>无 “消费确认” 机制，消息丢失风险高（如消费者处理失败未重试）；</li>
-<li>仅支持 <strong>单消费者</strong>（同一条消息只能被一个消费者获取，无法多消费组共享）。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="2-基于PubSub（发布-订阅）的消息队列-1"><a href="#2-基于PubSub（发布-订阅）的消息队列-1" class="headerlink" title="2. 基于PubSub（发布 - 订阅）的消息队列"></a>2. 基于<code>PubSub</code>（发布 - 订阅）的消息队列</h3><ul>
-<li><strong>原理</strong>：采用 “发布 - 订阅” 模型，生产者向**频道（Channel）**发布消息，消费者订阅频道后可实时接收消息，支持**多生产者、多消费者**。</li>
-<li>核心命令：<ul>
-<li>生产者：<code>PUBLISH channel:xxx &quot;msg&quot;</code>（向频道 <code>channel:xxx</code> 发布消息）。</li>
-<li>消费者：<code>SUBSCRIBE channel:xxx</code>（订阅指定频道，实时接收消息）；或 <code>PSUBSCRIBE channel:*</code>（通配符订阅，匹配所有 <code>channel:*</code> 格式的频道）。</li>
-</ul>
-</li>
-<li>优缺点：<ul>
-<li>优点：<ul>
-<li>支持 <strong>多生产者、多消费者</strong>（多个生产者可发同一频道，多个消费者可订阅同一频道）；</li>
-<li>订阅关系灵活（<code>PSUBSCRIBE</code> 支持通配符，批量订阅匹配频道）。</li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li><strong>不支持数据持久化</strong>（Redis 重启后，订阅关系和未消费的消息会直接丢失）；</li>
-<li><strong>无消息确认机制</strong>，消息丢失无法避免；</li>
-<li><strong>消息堆积有上限</strong>（依赖 Redis 内存，堆积过多会导致消息丢失）。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="3-基于Stream的消息队列（Redis-5-0-，企业级首选）-1"><a href="#3-基于Stream的消息队列（Redis-5-0-，企业级首选）-1" class="headerlink" title="3. 基于Stream的消息队列（Redis 5.0+，企业级首选）"></a>3. 基于<code>Stream</code>的消息队列（Redis 5.0+，企业级首选）</h3><p><code>Stream</code>是 Redis 专为消息队列设计的类型，支持 <strong>持久化、消费组、消息确认、消息回溯</strong> 等企业级特性，是生产环境的首选方案。</p>
-<h6 id="（1）基础生产与消费-1"><a href="#（1）基础生产与消费-1" class="headerlink" title="（1）基础生产与消费"></a>（1）基础生产与消费</h6><ul>
-<li><p>生产消息：<code>XADD key * field1 value1 field2 value2 ...</code>（<code>*</code>表示 Redis 自动生成消息 ID，格式为 “<strong>时间戳 - 递增数</strong>”，消息以<code>key-value</code>键值对形式存储）。</p>
-<ul>
-<li>示例：<code>XADD users * name jack age 21</code>（向<code>users</code>队列发送消息，内容为 <code>&#123;name: &quot;jack&quot;, age: 21&#125;</code>）。</li>
-</ul>
-</li>
-<li><p>消费消息：</p>
-<p><code>XREAD COUNT n BLOCK millis STREAMS key ID</code>（<code>COUNT</code> 限制单次读取数量；<code>BLOCK</code>配置阻塞时长（毫秒）；<code>ID</code>为起始消息 ID，<code>0</code>表示从第一条消息开始读，<code>$</code>表示从最新消息开始读）。</p>
-<ul>
-<li>示例：<code>XREAD COUNT 1 STREAMS users 0</code>（从<code>users</code>队列的第一条消息开始，读取 1 条消息）；</li>
-<li>阻塞消费示例：<code>XREAD COUNT 1 BLOCK 1000 STREAMS users $</code>（阻塞 1 秒，读取<code>users</code>队列的最新消息）。</li>
-</ul>
-</li>
-</ul>
-<h6 id="（2）消费组（Consumer-Group）：核心企业级特性-1"><a href="#（2）消费组（Consumer-Group）：核心企业级特性-1" class="headerlink" title="（2）消费组（Consumer Group）：核心企业级特性"></a>（2）消费组（Consumer Group）：核心企业级特性</h6><p>消费组将多个消费者划分到一个组中，共同监听同一个队列，具备 <strong>消息分流、进度标记、消息确认</strong> 三大核心能力：</p>
-<ul>
-<li><strong>创建消费组</strong>：<code>XGROUP CREATE key groupName ID [MKSTREAM]</code>（<code>ID</code> 为起始消息 ID，<code>$</code> 表示从最新消息开始，<code>0</code> 表示从第一条消息开始；<code>MKSTREAM</code> 表示队列不存在时自动创建）。</li>
-<li><strong>从消费组消费</strong>：<code>XREADGROUP GROUP group consumer COUNT n BLOCK millis STREAMS key &gt;</code>（<code>group</code> 为消费组名称；<code>consumer</code> 为消费者名称（自动创建）；<code>&gt;</code> 表示从 “未被消费的消息” 开始读取）。</li>
-<li><strong>消息确认</strong>：<code>XACK key groupName msgId</code>（消费者处理完消息后，需手动确认消息，确认后消息会从 <code>pending-list</code>（未确认消息列表）中移除，保证 “消息至少被消费一次”）。</li>
-</ul>
-<h6 id="（3）优缺点-1"><a href="#（3）优缺点-1" class="headerlink" title="（3）优缺点"></a>（3）优缺点</h6><ul>
-<li>优点：<ul>
-<li><strong>支持持久化</strong>（消息存储在 Redis 中，依赖 Redis 自身的持久化机制（RDB&#x2F;AOF）保障数据安全）；</li>
-<li><strong>支持阻塞读取</strong>（<code>XREAD/XREADGROUP</code> 均支持 <code>BLOCK</code> 参数，实现消费者阻塞等待消息）；</li>
-<li><strong>消息分流</strong>（消费组内多个消费者可分摊消息，提升整体处理速度）；</li>
-<li><strong>消息确认（ACK）</strong>：通过<code>XACK</code>保证消息 “至少被消费一次”，避免丢失；</li>
-<li><strong>消息回溯</strong>：可通过指定<code>ID</code>重新消费历史消息（如处理失败后重试）。</li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>依赖 Redis 集群的稳定性（需保证 Redis 部署高可用，否则队列服务会受影响）；</li>
-<li>复杂场景下（如大量消费组、高消息堆积）需关注 Redis 性能。</li>
-</ul>
-</li>
-</ul>
-<h2 id="三、三种实现方式的对比与适用场景-1"><a href="#三、三种实现方式的对比与适用场景-1" class="headerlink" title="三、三种实现方式的对比与适用场景"></a>三、三种实现方式的对比与适用场景</h2><table>
-<thead>
-<tr>
-<th>实现方式</th>
-<th>消息持久化</th>
-<th>阻塞读取</th>
-<th>消息确认</th>
-<th>多消费者共享</th>
-<th>适用场景</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>List</td>
-<td>支持</td>
-<td>支持</td>
-<td>不支持</td>
-<td>不支持</td>
-<td>单消费者、对有序性要求高的轻量场景</td>
-</tr>
-<tr>
-<td>PubSub</td>
-<td>不支持</td>
-<td>支持</td>
-<td>不支持</td>
-<td>支持</td>
-<td>实时广播（如通知）、无持久化要求的场景</td>
-</tr>
-<tr>
-<td>Stream</td>
-<td>支持</td>
-<td>支持</td>
-<td>支持</td>
-<td>支持</td>
-<td>企业级消息队列（秒杀、订单异步处理等强可靠性场景）</td>
-</tr>
-</tbody></table>
-<h2 id="四、Stream在-“异步秒杀下单”-中的实战应用-1"><a href="#四、Stream在-“异步秒杀下单”-中的实战应用-1" class="headerlink" title="四、Stream在 “异步秒杀下单” 中的实战应用"></a>四、<code>Stream</code>在 “异步秒杀下单” 中的实战应用</h2><p>秒杀场景中，通过<code>Stream</code>实现 “Redis 前置校验 + 异步下单” 的核心流程：</p>
-<ol>
-<li><strong>生产者（秒杀接口）</strong>：通过 Lua 脚本原子性校验 “库存是否充足”“是否一人一单”，校验通过后，用<code>XADD</code>向<code>stream.orders</code>队列发送消息（包含<code>voucherId</code>、<code>userId</code>、<code>orderId</code>等关键信息）。</li>
-<li>消费者（后台线程）：项目启动时，创建消费组（如<code>XGROUP CREATE stream.orders g1 0 MKSTREAM</code>），并启动线程循环执行：<ul>
-<li>通过<code>XREADGROUP</code>阻塞消费<code>stream.orders</code>的消息；</li>
-<li>拿到消息后，执行 “扣减数据库库存、创建订单” 的业务逻辑；</li>
-<li>业务完成后，通过<code>XACK</code>确认消息，避免重复消费。</li>
-</ul>
-</li>
-<li><strong>异常处理</strong>：若消息处理失败，会暂存于<code>pending-list</code>（未确认消息列表），消费者需通过重试逻辑（如定时读取<code>pending-list</code>）处理失败消息，保证 “至少消费一次”。</li>
-</ol>
-<h4 id="基于-Redis-Stream-实现异步秒杀下单的核心逻辑总结-1"><a href="#基于-Redis-Stream-实现异步秒杀下单的核心逻辑总结-1" class="headerlink" title="基于 Redis Stream 实现异步秒杀下单的核心逻辑总结"></a>基于 Redis Stream 实现异步秒杀下单的核心逻辑总结</h4><h5 id="一、需求与核心思路-1"><a href="#一、需求与核心思路-1" class="headerlink" title="一、需求与核心思路"></a>一、需求与核心思路</h5><p>通过 <strong>Redis Stream</strong> 作为消息队列，将 “秒杀资格校验” 与 “订单创建（扣库存、写订单）” 解耦：</p>
-<ul>
-<li>秒杀接口（生产者）：校验通过后，向 Stream 发送 “待下单” 消息；</li>
-<li>后台线程（消费者）：持续从 Stream 读取消息，异步执行下单逻辑；</li>
-<li>利用 Stream 的<strong>消费组、消息确认、Pending-List</strong> 保证消息可靠消费。</li>
-</ul>
-<h5 id="二、关键步骤与代码解析-1"><a href="#二、关键步骤与代码解析-1" class="headerlink" title="二、关键步骤与代码解析"></a>二、关键步骤与代码解析</h5><h6 id="1-Lua-脚本：校验通过后发送消息到-Stream-1"><a href="#1-Lua-脚本：校验通过后发送消息到-Stream-1" class="headerlink" title="1.Lua 脚本：校验通过后发送消息到 Stream"></a>1.Lua 脚本：校验通过后发送消息到 Stream</h6><p>在原秒杀校验 Lua 脚本中，新增 “发送消息到 Stream” 的逻辑：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 3.6 发送消息到Stream队列（stream.orders）</span></span><br><span class="line">redis.call(<span class="string">&#x27;xadd&#x27;</span>, <span class="string">&#x27;stream.orders&#x27;</span>, <span class="string">&#x27;*&#x27;</span>, <span class="string">&#x27;userId&#x27;</span>, userId, <span class="string">&#x27;voucherId&#x27;</span>, voucherId, <span class="string">&#x27;id&#x27;</span>, orderId)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><code>xadd stream.orders * ...</code>：向<code>stream.orders</code>添加消息，<code>*</code> 表示由 Redis 自动生成<strong>唯一消息 ID</strong>（格式：<code>时间戳-递增序号</code>）；</li>
-<li>消息内容包含 <code>userId</code>（用户 ID）、<code>voucherId</code>（优惠券 ID）、<code>orderId</code>（订单 ID），为后续下单提供参数。</li>
-</ul>
-<h6 id="2-消费者线程：持续读取并处理-Stream-消息-1"><a href="#2-消费者线程：持续读取并处理-Stream-消息-1" class="headerlink" title="2. 消费者线程：持续读取并处理 Stream 消息"></a>2. 消费者线程：持续读取并处理 Stream 消息</h6><p>通过内部类 <code>VoucherOrderHandler</code> 实现<code>Runnable</code>，后台线程循环消费 Stream 消息：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">class</span> <span class="title class_">VoucherOrderHandler</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 1.获取消息队列中的订单信息 XREADGROUP GROUP g1 c1 COUNT 1 BLOCK 2000 STREAMS s1 &gt;</span></span><br><span class="line">                List&lt;MapRecord&lt;String, Object, Object&gt;&gt; list = stringRedisTemplate.opsForStream().read(</span><br><span class="line">                    Consumer.from(<span class="string">&quot;g1&quot;</span>, <span class="string">&quot;c1&quot;</span>),</span><br><span class="line">                    StreamReadOptions.empty().count(<span class="number">1</span>).block(Duration.ofSeconds(<span class="number">2</span>)),</span><br><span class="line">                    StreamOffset.create(<span class="string">&quot;stream.orders&quot;</span>, ReadOffset.lastConsumed())</span><br><span class="line">                );</span><br><span class="line">                <span class="comment">// 2.判断订单信息是否为空</span></span><br><span class="line">                <span class="keyword">if</span> (list == <span class="literal">null</span> || list.isEmpty()) &#123;</span><br><span class="line">                    <span class="comment">// 如果为null，说明没有消息，继续下一次循环</span></span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 解析数据</span></span><br><span class="line">                MapRecord&lt;String, Object, Object&gt; record = list.get(<span class="number">0</span>);</span><br><span class="line">                Map&lt;Object, Object&gt; value = record.getValue();</span><br><span class="line">                <span class="type">VoucherOrder</span> <span class="variable">voucherOrder</span> <span class="operator">=</span> BeanUtil.fillBeanWithMap(value, <span class="keyword">new</span> <span class="title class_">VoucherOrder</span>(), <span class="literal">true</span>);</span><br><span class="line">                <span class="comment">// 3.创建订单</span></span><br><span class="line">                createVoucherOrder(voucherOrder);</span><br><span class="line">                <span class="comment">// 4.确认消息 XACK</span></span><br><span class="line">                stringRedisTemplate.opsForStream().acknowledge(<span class="string">&quot;s1&quot;</span>, <span class="string">&quot;g1&quot;</span>, record.getId());</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                log.error(<span class="string">&quot;处理订单异常&quot;</span>, e);</span><br><span class="line">                <span class="comment">//处理异常消息</span></span><br><span class="line">                handlePendingList();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">handlePendingList</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 1.获取pending-list中的订单信息 XREADGROUP GROUP g1 c1 COUNT 1 BLOCK 2000 STREAMS s1 0</span></span><br><span class="line">                List&lt;MapRecord&lt;String, Object, Object&gt;&gt; list = stringRedisTemplate.opsForStream().read(</span><br><span class="line">                    Consumer.from(<span class="string">&quot;g1&quot;</span>, <span class="string">&quot;c1&quot;</span>),</span><br><span class="line">                    StreamReadOptions.empty().count(<span class="number">1</span>),</span><br><span class="line">                    StreamOffset.create(<span class="string">&quot;stream.orders&quot;</span>, ReadOffset.from(<span class="string">&quot;0&quot;</span>))</span><br><span class="line">                );</span><br><span class="line">                <span class="comment">// 2.判断订单信息是否为空</span></span><br><span class="line">                <span class="keyword">if</span> (list == <span class="literal">null</span> || list.isEmpty()) &#123;</span><br><span class="line">                    <span class="comment">// 如果为null，说明没有异常消息，结束循环</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 解析数据</span></span><br><span class="line">                MapRecord&lt;String, Object, Object&gt; record = list.get(<span class="number">0</span>);</span><br><span class="line">                Map&lt;Object, Object&gt; value = record.getValue();</span><br><span class="line">                <span class="type">VoucherOrder</span> <span class="variable">voucherOrder</span> <span class="operator">=</span> BeanUtil.fillBeanWithMap(value, <span class="keyword">new</span> <span class="title class_">VoucherOrder</span>(), <span class="literal">true</span>);</span><br><span class="line">                <span class="comment">// 3.创建订单</span></span><br><span class="line">                createVoucherOrder(voucherOrder);</span><br><span class="line">                <span class="comment">// 4.确认消息 XACK</span></span><br><span class="line">                stringRedisTemplate.opsForStream().acknowledge(<span class="string">&quot;s1&quot;</span>, <span class="string">&quot;g1&quot;</span>, record.getId());</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                log.error(<span class="string">&quot;处理pendding订单异常&quot;</span>, e);</span><br><span class="line">                <span class="keyword">try</span>&#123;</span><br><span class="line">                    Thread.sleep(<span class="number">20</span>);</span><br><span class="line">                &#125;<span class="keyword">catch</span>(Exception e)&#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><strong>关键细节</strong>：</p>
-<ul>
-<li><strong>消费组（Consumer Group）</strong>：<code>Consumer.from(&quot;g1&quot;, &quot;c1&quot;)</code> 表示 “消费组 g1 中的消费者 c1”，多个消费者可加入同一组，分摊消息处理压力；</li>
-<li><strong>阻塞读取</strong>：<code>block(Duration.ofSeconds(2))</code> 避免无消息时的 “空轮询”，降低资源消耗；</li>
-<li><strong>消息位置</strong>：<code>ReadOffset.lastConsumed()</code> 表示 “从上次消费的最后位置继续读”，保证消息不重复、不遗漏；</li>
-<li><strong>消息确认（ACK）</strong>：<code>acknowledge(...)</code> 通知 Redis “消息已处理完成”，否则消息会留在<strong>Pending-List</strong>（未确认消息列表）中，供后续重试。</li>
-</ul>
-<h6 id="3-异常处理：Pending-List-重试机制-1"><a href="#3-异常处理：Pending-List-重试机制-1" class="headerlink" title="3. 异常处理：Pending-List 重试机制"></a>3. 异常处理：Pending-List 重试机制</h6><p>当消息处理过程中报错（如服务宕机、数据库异常），消息会暂存于<code>Pending-List</code>，需通过重试保证 “至少消费一次”：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">handlePendingList</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 1. 从Pending-List读取未确认消息（从ID=0开始，读取所有未确认消息）</span></span><br><span class="line">            List&lt;MapRecord&lt;String, Object, Object&gt;&gt; list = stringRedisTemplate.opsForStream().read(</span><br><span class="line">                Consumer.from(<span class="string">&quot;g1&quot;</span>, <span class="string">&quot;c1&quot;</span>),</span><br><span class="line">                StreamReadOptions.empty().count(<span class="number">1</span>),</span><br><span class="line">                StreamOffset.create(<span class="string">&quot;stream.orders&quot;</span>, ReadOffset.from(<span class="string">&quot;0&quot;</span>))</span><br><span class="line">            );</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 2. 无异常消息则退出循环</span></span><br><span class="line">            <span class="keyword">if</span> (list == <span class="literal">null</span> || list.isEmpty()) <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 3. 解析并重新处理消息（同正常消费逻辑）</span></span><br><span class="line">            MapRecord&lt;String, Object, Object&gt; record = list.get(<span class="number">0</span>);</span><br><span class="line">            Map&lt;Object, Object&gt; value = record.getValue();</span><br><span class="line">            <span class="type">VoucherOrder</span> <span class="variable">voucherOrder</span> <span class="operator">=</span> BeanUtil.fillBeanWithMap(value, <span class="keyword">new</span> <span class="title class_">VoucherOrder</span>(), <span class="literal">true</span>);</span><br><span class="line">            <span class="comment">//创建订单</span></span><br><span class="line">            createVoucherOrder(voucherOrder);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 4. 确认消息 XACK（从Pending-List移除）</span></span><br><span class="line">            stringRedisTemplate.opsForStream().acknowledge(<span class="string">&quot;stream.orders&quot;</span>, <span class="string">&quot;g1&quot;</span>, record.getId());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;处理Pending订单异常&quot;</span>, e);</span><br><span class="line">            <span class="keyword">try</span>&#123;</span><br><span class="line">            	Thread.sleep(<span class="number">20</span>); <span class="comment">// 重试间隔，避免频繁失败</span></span><br><span class="line">            &#125;<span class="keyword">catch</span>(Exception e)&#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>核心作用</strong>：</p>
-<ul>
-<li><code>ReadOffset.from(&quot;0&quot;)</code>：表示 “从 Pending-List 的第一条消息开始读取”，确保所有未确认的消息都能被重试；</li>
-<li><code>Thread.sleep(20)</code>：异常时短暂休眠，避免 “失败 - 立即重试 - 再失败” 的死循环，减轻系统压力。</li>
-</ul>
-<h5 id="三、Redis-Stream-的核心特性与价值-1"><a href="#三、Redis-Stream-的核心特性与价值-1" class="headerlink" title="三、Redis Stream 的核心特性与价值"></a>三、Redis Stream 的核心特性与价值</h5><ol>
-<li><strong>消费组（Consumer Group）</strong>：<ul>
-<li>多消费者可加入同一组，<strong>分摊消息处理压力</strong>，提升整体消费速度；</li>
-<li>消费组会记录每个消费者的 “消费进度”，避免同一条消息被多个消费者重复消费。</li>
-</ul>
-</li>
-<li><strong>消息确认（ACK）与 Pending-List</strong>：<ul>
-<li>消息被读取后，需手动调用<code>XACK</code>确认，否则会暂存于<code>Pending-List</code>；</li>
-<li>保证 “消息处理失败时可重试”，避免订单丢失，实现 <strong>“至少一次消费”</strong> 的可靠性。</li>
-</ul>
-</li>
-<li><strong>异步解耦</strong>：<ul>
-<li>秒杀接口只需 “发消息”，无需等待订单创建完成，<strong>响应速度提升数倍</strong>；</li>
-<li>下单逻辑由后台线程异步执行，不占用 Tomcat 请求线程，系统并发能力大幅增强。</li>
-</ul>
-</li>
-</ol>
-<h5 id="四、总结-1"><a href="#四、总结-1" class="headerlink" title="四、总结"></a>四、总结</h5><p>基于 Redis Stream 的异步秒杀下单，通过 <strong>“消费组分流 + 消息确认 + Pending-List 重试”</strong>，完美解决了 “高并发响应” 与 “订单可靠性” 的矛盾：</p>
-<ul>
-<li>秒杀接口响应更快（异步解耦）；</li>
-<li>订单创建更可靠（消息不丢失、失败可重试）；</li>
-<li>系统更稳定（请求线程与业务线程分离，资源占用更合理）。</li>
-</ul>
-<p>相比 Redis List、PubSub，Stream 提供了更<strong>企业级的消息队列能力</strong>，是秒杀、订单异步处理等核心场景的优选方案。</p>
-<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>Redis 提供了从 “轻量简单” 到 “企业级可靠” 的消息队列方案：</p>
-<ul>
-<li><code>List</code>适合<strong>单消费者、有序性要求高</strong>的轻量场景；</li>
-<li><code>PubSub</code>适合<strong>实时广播、无持久化要求</strong>的场景；</li>
-<li><code>Stream</code>是<strong>生产级消息队列的首选</strong>，尤其在秒杀、订单异步处理等对 “可靠性、可追溯、多消费者协同” 有要求的场景中，能有效解耦系统并保证消息一致性。</li>
-</ul>
 </div>
 
     <div id="highlight-nav" class="highlight-nav">
@@ -1220,9 +1031,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <span>标签:</span>
         <span class="tag">
            
-          <a href="/tags/Java/"># Java</a>
-          
           <a href="/tags/Redis/"># Redis</a>
+          
+          <a href="/tags/Java/"># Java</a>
           
           <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/"># 项目实战</a>
           
@@ -1238,8 +1049,8 @@ document.addEventListener('DOMContentLoaded', function() {
     </section>
     <section class="post-nav">
       
-      <a class="prev" rel="prev" href="/2025/10/12/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/06-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/"
-        >06-分布式锁</a
+      <a class="prev" rel="prev" href="/2025/10/12/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/07-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81-redission/"
+        >07-分布式锁-redission</a
       >
        
       <a class="next" rel="next" href="/2025/10/12/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E9%BB%91%E9%A9%AC%E7%82%B9%E8%AF%84/11-%E5%A5%BD%E5%8F%8B%E5%85%B3%E6%B3%A8/"
