@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go 循环与 range 迭代 — 控制流的克制 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go 循环与 range 迭代 — 控制流的克制</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;10:47:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="07-Go-循环与-range-迭代"><a href="#07-Go-循环与-range-迭代" class="headerlink" title="07 Go 循环与 range 迭代"></a>07 Go 循环与 range 迭代</h1><blockquote>
+<p>Go 只保留了一个循环关键字，这既是克制也是自由——这篇讲透 for &#x2F; range &#x2F; 标签，以及 Go 1.22 那个改变了无数老代码的循环变量变更。</p>
+</blockquote>
+<hr>
+<h2 id="7-1-for-的三种形态"><a href="#7-1-for-的三种形态" class="headerlink" title="7.1 for 的三种形态"></a>7.1 for 的三种形态</h2><p>Go 删掉了 <code>while</code> 和 <code>do-while</code>，只留 <code>for</code>。这不是图省事，是<strong>统一</strong>：一个关键字覆盖全部循环形态，gofmt 才能把 for 排得整整齐齐。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> cond &#123; &#125;               <span class="comment">// 条件循环</span></span><br><span class="line"><span class="keyword">for</span> &#123; &#125;                    <span class="comment">// 无限循环</span></span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; n; i++ &#123; &#125; <span class="comment">// 三段式</span></span><br></pre></td></tr></table></figure>
+
+<p>三条规则：<strong>init 里声明的变量作用域只在 for 语句内</strong>；省略条件等价于条件恒为真，<code>for &#123; &#125;</code> 就是 <code>for true &#123; &#125;</code>；<strong>post 语句在循环体执行完之后才执行</strong>，<code>continue</code> 也会走 post。</p>
+<p>Go 没有 do-while，「先执行一次再判断」写成 <code>for &#123; doSomething(); if !cond &#123; break &#125; &#125;</code>，好处是循环体中间可以随时 <code>return</code>。</p>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>Go</th>
+<th>Java</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>计数</td>
+<td><code>for i := 0; i &lt; n; i++ &#123;&#125;</code></td>
+<td><code>for (int i = 0; i &lt; n; i++) &#123;&#125;</code></td>
+<td><code>for i in range(n):</code></td>
+</tr>
+<tr>
+<td>条件</td>
+<td><code>for cond &#123;&#125;</code></td>
+<td><code>while (cond) &#123;&#125;</code></td>
+<td><code>while cond:</code></td>
+</tr>
+<tr>
+<td>无限</td>
+<td><code>for &#123;&#125;</code></td>
+<td><code>while (true) &#123;&#125;</code></td>
+<td><code>while True:</code></td>
+</tr>
+<tr>
+<td>遍历集合</td>
+<td><code>for i, v := range xs</code></td>
+<td><code>for (T v : xs)</code></td>
+<td><code>for i, v in enumerate(xs)</code></td>
+</tr>
+</tbody></table>
+<h2 id="7-2-range-遍历数组与切片"><a href="#7-2-range-遍历数组与切片" class="headerlink" title="7.2 range 遍历数组与切片"></a>7.2 range 遍历数组与切片</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">users := []<span class="type">string</span>&#123;<span class="string">&quot;alice&quot;</span>, <span class="string">&quot;bob&quot;</span>, <span class="string">&quot;carol&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i, u := <span class="keyword">range</span> users &#123; <span class="comment">// 下标 + 值</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> i := <span class="keyword">range</span> users &#123; <span class="comment">// 只要下标</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> _, u := <span class="keyword">range</span> users &#123; <span class="comment">// 只要值</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> <span class="keyword">range</span> users &#123; <span class="comment">// 都要不要，只想计数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>四个细节，每个都对应一类线上事故：</p>
+<ol>
+<li><strong><code>u</code> 是元素值的拷贝，不是引用</strong>。要改元素得写 <code>users[i] = &quot;x&quot;</code>；切片是 <code>[]*User</code> 时 <code>u</code> 是指针拷贝，改 <code>*u</code> 影响原对象，改 <code>u</code> 不影响。</li>
+<li><strong>range 表达式只求值一次</strong>，<code>for _, u := range loadUsers()</code> 只会调用一次 <code>loadUsers()</code>。</li>
+<li><strong>只写一个迭代变量时，range 不去索引切片本身</strong>，只产生下标，<code>for i := range s</code> 因此少一层边界检查。最后一个迭代变量写成 <code>_</code> 等价于不写它。</li>
+<li><strong>range 一个数组值会拷贝整份数组</strong>，大数组用 <code>arr[:]</code> 或 <code>&amp;arr</code> 绕开这次拷贝；nil 切片则是遍历 0 次，不 panic。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>拿到下标</th>
+<th>拿到值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>for i, v := range s</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>值是拷贝</td>
+</tr>
+<tr>
+<td><code>for i := range s</code></td>
+<td>✅</td>
+<td>❌</td>
+<td>最常用</td>
+</tr>
+<tr>
+<td><code>for _, v := range s</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>只要值</td>
+</tr>
+<tr>
+<td><code>for range s</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>只计数</td>
+</tr>
+</tbody></table>
+<p>Java 的增强 for 拿不到下标，Python 也没有「只要下标」的写法。Go 把这几种组合都做进了语法里。</p>
+<h2 id="7-3-range-over-int-与字符串的-rune"><a href="#7-3-range-over-int-与字符串的-rune" class="headerlink" title="7.3 range over int 与字符串的 rune"></a>7.3 range over int 与字符串的 rune</h2><p>Go 1.22 起，<code>for</code> 可以直接 range 一个整数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i := <span class="keyword">range</span> <span class="number">10</span> &#123; <span class="comment">// i 取 0 到 9</span></span><br><span class="line">    fmt.Println(i)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>n</code> 是整数类型或整型常量时，迭代值是 <code>0</code> 到 <code>n-1</code>，**<code>n &lt;= 0</code> 时一次都不迭代**。编译器在 1.22 之后会把 <code>range 10</code> 和 <code>for i := 0; i &lt; 10; i++</code> 优化成几乎一样的代码，但前者语义更直白。</p>
+<p>字符串的 range 更值得留意：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">s := <span class="string">&quot;你好Go&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i, r := <span class="keyword">range</span> s &#123;</span><br><span class="line">    fmt.Printf(<span class="string">&quot;%d %c\n&quot;</span>, i, r)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 0 你</span></span><br><span class="line"><span class="comment">// 3 好</span></span><br><span class="line"><span class="comment">// 5 G</span></span><br><span class="line"><span class="comment">// 6 o</span></span><br></pre></td></tr></table></figure>
+
+<p><strong><code>i</code> 是字节下标，不是字符序号。</strong> 这是中文场景最大的坑：Python 的 <code>s[0]</code> 是第一个字符，Go 的 <code>s[0]</code> 是第一个<strong>字节</strong>（”你”占 3 字节）。Java 字符串底层是 UTF-16，emoji 会被拆成两个 char。遇到非法 UTF-8 序列时第二个值是 <code>0xFFFD</code>，且只前进 1 个字节。</p>
+<p>只要字符用 <code>for _, r := range s</code>，只要字节位置用 <code>for i := range s</code>，要字符个数用 <code>utf8.RuneCountInString(s)</code>。</p>
+<h2 id="7-4-循环变量的语义变更（Go-1-22）"><a href="#7-4-循环变量的语义变更（Go-1-22）" class="headerlink" title="7.4 循环变量的语义变更（Go 1.22）"></a>7.4 循环变量的语义变更（Go 1.22）</h2><p>这是 Go 1.22 最重要的行为变更之一，面试也最爱问。</p>
+<p><strong>旧行为（Go 1.21 及以前）</strong>：for 循环里用 <code>:=</code> 声明的变量<strong>整个循环共用一份</strong>，每轮只是把值改掉，闭包捕获它就总拿到最后一个值：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tasks []<span class="function"><span class="keyword">func</span><span class="params">()</span></span></span><br><span class="line"><span class="keyword">for</span> _, task := <span class="keyword">range</span> []<span class="type">string</span>&#123;<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>&#125; &#123;</span><br><span class="line">    tasks = <span class="built_in">append</span>(tasks, <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; fmt.Println(task) &#125;)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> _, t := <span class="keyword">range</span> tasks &#123;</span><br><span class="line">    t()</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Go 1.21 及以前：c c c</span></span><br><span class="line"><span class="comment">// Go 1.22 起：  a b c</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>新行为（Go 1.22 起）</strong>：每轮迭代都新建一份循环变量。range 循环相当于循环体开头自动执行了 <code>k := k; v := v</code>；三段式 for 同理（规范里的例子会打印 <code>1 3 5</code> 而不是 <code>6 6 6</code>）。</p>
+<p><strong>关键门槛</strong>：新语义由 go.mod 里的 <code>go</code> 指令决定，<strong>不由你装的新工具链决定</strong>。go.mod 里写着 <code>go 1.19</code> 的老项目，即使拿 Go 1.25 编译，循环变量仍是旧的共享语义；只有声明 <code>go 1.22</code> 及以上的模块才启用新语义。</p>
+<table>
+<thead>
+<tr>
+<th>语言 &#x2F; 写法</th>
+<th>循环变量作用域</th>
+<th>闭包捕获到的值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Go 1.21 及以前（range 与三段式 for 一样）</td>
+<td>整个循环共用一份</td>
+<td>全部是最后一个值</td>
+</tr>
+<tr>
+<td>Go 1.22+（range 与三段式 for 一样）</td>
+<td>每轮新建一份</td>
+<td>每轮各拿各的值</td>
+</tr>
+<tr>
+<td>Java 增强 for <code>for (T v : xs)</code></td>
+<td>每轮新建一份</td>
+<td>每轮各拿各的值</td>
+</tr>
+<tr>
+<td>Java 普通 for <code>for (int i = 0; ...; i++)</code></td>
+<td>整个循环共用一份</td>
+<td>全部是最后一个值</td>
+</tr>
+<tr>
+<td>Python <code>for v in xs</code></td>
+<td>函数作用域，循环后仍存在</td>
+<td>全部是最后一个值</td>
+</tr>
+</tbody></table>
+<p>Java 的增强 for 从来没这个坑，但普通 for 里的 <code>i</code> 依然中招。Python 也有同样的坑且修法不同：<code>for v in xs: v = v</code> <strong>没用</strong>，得用默认参数绑住值，如 <code>[lambda v=v: v for v in xs]</code>。</p>
+<p>新语义下仍有两个残留坑：<strong>取地址仍然会变</strong>（<code>m[&amp;v] += v</code> 这类写法每轮 <code>&amp;v</code> 都不同，map 会多出条目，解法是显式写 <code>v := v</code>）；<strong>性能</strong>上只有取地址或被闭包捕获的循环会变，可能多一次堆分配。</p>
+<p>迁移建议：老项目动 go.mod 之前，先用 <code>go vet</code> 跑一遍 <code>loopclosure</code> 检查器人工过一遍。</p>
+<h2 id="7-5-range-遍历-map"><a href="#7-5-range-遍历-map" class="headerlink" title="7.5 range 遍历 map"></a>7.5 range 遍历 map</h2><p>map 遍历有三条必须记住的规则。</p>
+<p><strong>第一，顺序是随机的，而且是被规范保证的随机。</strong> 规范写得很直接：map 的迭代顺序未指定，也不保证两次迭代相同。Go 团队是<strong>故意</strong>这么设计的——顺序一旦被程序依赖，就会有人写出「只在某个版本或某台机器上碰巧正确」的代码。需要稳定顺序就把键收集到切片排序后再遍历。</p>
+<p><strong>第二，遍历中删除是安全的，遍历中新增是「看运气」的。</strong> 规范原话是：还没遍历到的条目被删除就不会产出；遍历中新建的条目<strong>可能被产出，也可能被跳过</strong>。所以「边遍历边 delete」是官方认可的标准写法；而<strong>新增 key</strong> 是危险动作——给已有 key 赋值没问题，给新 key 赋值会触发致命错误 <code>fatal error: concurrent map iteration and map write</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> k, v := <span class="keyword">range</span> m &#123;</span><br><span class="line">    <span class="keyword">if</span> v.Expired() &#123;</span><br><span class="line">        <span class="built_in">delete</span>(m, k) <span class="comment">// 安全</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第三，nil map 可以遍历，但不能赋值</strong>。<code>var m map[string]int</code> 遍历 0 次不报错，<code>m[&quot;a&quot;] = 1</code> 直接 panic。</p>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>Go</th>
+<th>Java</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>遍历键值</td>
+<td><code>for k, v := range m</code></td>
+<td><code>for (var e : m.entrySet())</code></td>
+<td><code>for k, v in m.items()</code></td>
+</tr>
+<tr>
+<td>只要键</td>
+<td><code>for k := range m</code></td>
+<td><code>for (K k : m.keySet())</code></td>
+<td><code>for k in m</code></td>
+</tr>
+<tr>
+<td>只要值</td>
+<td><code>for _, v := range m</code></td>
+<td><code>for (V v : m.values())</code></td>
+<td><code>for v in m.values()</code></td>
+</tr>
+<tr>
+<td>顺序</td>
+<td>故意随机</td>
+<td>HashMap 随机，LinkedHashMap 保序</td>
+<td>3.7+ 保持插入序</td>
+</tr>
+</tbody></table>
+<p>「只要值」Go 没有直接语法糖：Go 1.23 起标准库提供 <code>maps.Values(m)</code>，返回迭代器 <code>iter.Seq[V]</code>；1.21、1.22 时代返回的是切片。</p>
+<h2 id="7-6-标签与控制流跳转"><a href="#7-6-标签与控制流跳转" class="headerlink" title="7.6 标签与控制流跳转"></a>7.6 标签与控制流跳转</h2><p>Go 保留了 label，但限制得很死：<strong>label 只能贴在 for、switch、select 语句上</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">outer:</span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="built_in">len</span>(grid); i++ &#123;</span><br><span class="line">    <span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="built_in">len</span>(grid[i]); j++ &#123;</span><br><span class="line">        <span class="keyword">if</span> grid[i][j] == target &#123;</span><br><span class="line">            <span class="keyword">break</span> outer <span class="comment">// 直接跳出外层 for</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>continue outer</code> 则跳到外层循环的下一轮，常用于「整行都不合格就跳过这行」的场景。</p>
+<p>Go 的 <code>break</code> 语义要特别小心：<strong>它终止的是最内层的 for、switch 或 select</strong>。写在 switch 里的 <code>break</code> 只跳出 switch，不会跳出外面的 for——这点和 Java 一致；但也正因如此，「跳出双层循环」必须用 label。Java 的 label 能贴在<strong>任意语句</strong>上，<code>break label;</code> 可以跳出被标记的块；Go 的 label 范围更窄，但语法几乎一样，从 Java 迁过来最容易想当然。</p>
+<p>更 Go 味的做法是<strong>把双层循环抽成函数，用 return 跳出</strong>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">findTarget</span><span class="params">(grid [][]<span class="type">int</span>, target <span class="type">int</span>)</span></span> (<span class="type">int</span>, <span class="type">int</span>, <span class="type">bool</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> i, row := <span class="keyword">range</span> grid &#123;</span><br><span class="line">        <span class="keyword">for</span> j, v := <span class="keyword">range</span> row &#123;</span><br><span class="line">            <span class="keyword">if</span> v == target &#123;</span><br><span class="line">                <span class="keyword">return</span> i, j, <span class="literal">true</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>, <span class="number">0</span>, <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Go 鼓励「小函数 + 早返回」。Go 也有 <code>goto</code>，但限制到几乎不可用：不能跳过变量声明，也不能跳进块里。</p>
+<h2 id="7-7-常见写法"><a href="#7-7-常见写法" class="headerlink" title="7.7 常见写法"></a>7.7 常见写法</h2><p><strong>遍历下标</strong>：优先 <code>for i := range s</code>，别手写 <code>for i := 0; i &lt; len(s); i++</code>——前者表达「我要下标」，后者把边界甩给写代码的人。</p>
+<p><strong>跳过元素</strong>用 continue 写卫语句，让主逻辑保持扁平；<strong>提前退出</strong>则能用 <code>break</code> &#x2F; <code>return</code> 就别套 if，Go 的 if 支持带初始语句，判断和取值可以写在一起：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, u := <span class="keyword">range</span> users &#123;</span><br><span class="line">    <span class="keyword">if</span> u.Deleted &#123;</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> err := save(u); err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> err</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>查找与排序</strong>：Go 1.21 起标准库 <code>slices</code> 包有现成的，别手写。<code>slices.Index(users, &quot;bob&quot;)</code> 找不到返回 -1，<code>slices.Contains(users, &quot;bob&quot;)</code> 给布尔判断，<code>slices.Sort(names)</code> 就地排序，<code>slices.Reverse(s)</code> 就地反转。</p>
+<p><strong>分组统计</strong>：map + range 是最常见的聚合写法，<code>byTag[a.Tag] = append(byTag[a.Tag], a)</code> 一行就够。</p>
+<p><strong>分页遍历</strong>：<code>for i := range</code> 只能给下标，分页得自己算边界，<code>start := page * pageSize</code>，<code>end := min(start+pageSize, len(items))</code>，其中 <code>min</code> 是 Go 1.21 起内置的。</p>
+<h2 id="7-8-动手练"><a href="#7-8-动手练" class="headerlink" title="7.8 动手练"></a>7.8 动手练</h2><ol>
+<li><strong>迁移练习</strong>：把一段 Java 的双层 for + break 改写成 Go，分别用 label 写一版、用抽函数 + return 写一版，比较哪种更好维护。</li>
+<li><strong>复现闭包陷阱</strong>：go.mod 写 <code>go 1.21</code> 时跑一段 range 里 append 闭包的代码，再改成 <code>go 1.22</code> 跑一次，对比两次输出。</li>
+<li><strong>统计与清理</strong>：实现 <code>wordCount(text string) map[string]int</code>，再用「边遍历边 delete」删掉只出现一次且长度大于 3 的词。</li>
+<li><strong>中文下标</strong>：写一个函数把字符串按 rune 切成切片，验证 <code>for i, r := range s</code> 里的 <code>i</code> 是字节下标。</li>
+</ol>
+<h2 id="7-9-常见错误清单"><a href="#7-9-常见错误清单" class="headerlink" title="7.9 常见错误清单"></a>7.9 常见错误清单</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>错误写法 &#x2F; 错误想法</th>
+<th>后果</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>写 <code>while cond &#123;&#125;</code></td>
+<td>编译不过</td>
+<td><code>for cond &#123;&#125;</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>range 里改 <code>v</code> 以为改了切片</td>
+<td>白改一场</td>
+<td><code>v</code> 是拷贝，要改写 <code>s[i]</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>range 一个大数组</td>
+<td>整份数组被拷贝</td>
+<td>先 <code>arr[:]</code> 或用 <code>&amp;arr</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>老项目 go.mod 低于 1.22</td>
+<td>闭包捕获仍是旧语义</td>
+<td>升 go.mod，先跑 <code>go vet</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>依赖 map 遍历顺序</td>
+<td>结果随机、难复现</td>
+<td>收集键后排序再遍历</td>
+</tr>
+<tr>
+<td>6</td>
+<td>range map 时新增 key</td>
+<td>运行时 fatal error</td>
+<td>先收集再写，或只用 <code>delete</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>以为 switch 里的 <code>break</code> 能跳出 for</td>
+<td>只跳出 switch</td>
+<td>用 label，或抽函数 return</td>
+</tr>
+<tr>
+<td>8</td>
+<td>把 range 字符串的 <code>i</code> 当字符下标</td>
+<td>中文、emoji 场景切错</td>
+<td><code>i</code> 是字节下标</td>
+</tr>
+<tr>
+<td>9</td>
+<td>给 nil map 赋值</td>
+<td><code>panic: assignment to entry in nil map</code></td>
+<td>先 <code>make(map[K]V)</code></td>
+</tr>
+</tbody></table>
+<p>Go 的循环只有一种关键字，range 把「遍历什么」表达得比 Java 和 Python 更直白，Go 1.22 的循环变量变更则填平了一个流传多年的老坑。记住三条：<strong>遍历 map 别依赖顺序，range 拿到的值是拷贝，循环变量的新语义由 go.mod 决定。</strong></p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/"># 基础教程</a>
+          
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+          
+          <a href="/tags/%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/"># 基础语法</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%88%87%E7%89%87%20%E2%80%94%20%E5%BA%95%E5%B1%82%E6%95%B0%E7%BB%84%E3%80%81%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6%E4%B8%8E%E5%88%AB%E5%90%8D%E9%99%B7%E9%98%B1/"
+        >Go 切片 — 底层数组、扩容机制与别名陷阱</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6%20%E2%80%94%20error%20%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%94%99%E8%AF%AF%E5%8C%85%E8%A3%85/"
+        >Go 错误处理机制 — error 接口与错误包装</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

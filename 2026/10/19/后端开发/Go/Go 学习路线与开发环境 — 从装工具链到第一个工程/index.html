@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go 学习路线与开发环境 — 从装工具链到第一个工程 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go 学习路线与开发环境 — 从装工具链到第一个工程</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;10:05:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="01-Go-学习路线与开发环境"><a href="#01-Go-学习路线与开发环境" class="headerlink" title="01 Go 学习路线与开发环境"></a>01 Go 学习路线与开发环境</h1><blockquote>
+<p>装好工具链、跑通第一个程序、写出第一份 go.mod，这篇把 Go 的入门门槛一次拆干净。</p>
+</blockquote>
+<hr>
+<h2 id="1-1-为什么是-Go：给后端与运维岗的取舍"><a href="#1-1-为什么是-Go：给后端与运维岗的取舍" class="headerlink" title="1.1 为什么是 Go：给后端与运维岗的取舍"></a>1.1 为什么是 Go：给后端与运维岗的取舍</h2><p>一句话记住 Go 的定位：<strong>编译型静态语言 + 内建并发 + 单一二进制产物</strong>。三条互相咬合：编译成机器码，部署不用带运行时；运行时小，塞进小机器才划算；并发内建，扛连接不用额外引框架。</p>
+<h3 id="1-1-1-它和-Java、Python-的运行时差异"><a href="#1-1-1-它和-Java、Python-的运行时差异" class="headerlink" title="1.1.1 它和 Java、Python 的运行时差异"></a>1.1.1 它和 Java、Python 的运行时差异</h3><p>Go 编译成目标平台机器码，不依赖虚拟机也不依赖解释器；Java 编译成字节码交给 JVM，Python 由解释器逐行执行。差别不在语法，在 <strong>部署形态</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Go</th>
+<th>Java</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>编译产物</td>
+<td>目标平台机器码</td>
+<td>字节码 <code>.class</code> &#x2F; <code>.jar</code></td>
+<td>无（只有 <code>.py</code>）</td>
+</tr>
+<tr>
+<td>运行依赖</td>
+<td>无（自带 runtime）</td>
+<td>需 JRE &#x2F; JDK</td>
+<td>需解释器 + 依赖</td>
+</tr>
+<tr>
+<td>分发方式</td>
+<td>拷贝 1 个可执行文件</td>
+<td>jar + 目标机装 JRE</td>
+<td>源码 + requirements</td>
+</tr>
+<tr>
+<td>并发模型</td>
+<td>goroutine 内建，<strong>没有 GIL</strong></td>
+<td>线程 + 线程池</td>
+<td>GIL 限制 CPU 密集并行</td>
+</tr>
+</tbody></table>
+<p>Go 编译出的程序内嵌一个很小的 runtime（GC、调度、网络轮询）。一组常被引用的对比里，同机跑一个空转程序 Java 约占 162MB、Go 约 0.86MB——只说明 <strong>空载基线</strong>，却足以解释 Go 为什么适合塞进小机器。</p>
+<h3 id="1-1-2-什么时候别选-Go"><a href="#1-1-2-什么时候别选-Go" class="headerlink" title="1.1.2 什么时候别选 Go"></a>1.1.2 什么时候别选 Go</h3><p>极致性能与内存控制仍归 C&#x2F;C++&#x2F;Rust，数值计算的生态积累在 Python，存量 Spring 业务迁移成本又高——这三种情况别硬上 Go。</p>
+<h3 id="1-1-3-这套系列的学习路线"><a href="#1-1-3-这套系列的学习路线" class="headerlink" title="1.1.3 这套系列的学习路线"></a>1.1.3 这套系列的学习路线</h3><p>工具链 → 语言基础 → 并发 → 工程化 → 实战，五段递进：先独立建项目、跑通测试，再读懂并改写存量代码，然后定位并发问题，最后交付能上线的小服务。Go 后端面试高频问 goroutine 泄漏、channel 何时能关、map 的并发限制，前四段就是为这些打底。</p>
+<h2 id="1-2-装工具链：go-version-与几个环境变量"><a href="#1-2-装工具链：go-version-与几个环境变量" class="headerlink" title="1.2 装工具链：go version 与几个环境变量"></a>1.2 装工具链：go version 与几个环境变量</h2><h3 id="1-2-1-三种系统的装法"><a href="#1-2-1-三种系统的装法" class="headerlink" title="1.2.1 三种系统的装法"></a>1.2.1 三种系统的装法</h3><ul>
+<li><strong>Windows</strong>：官方 <code>.msi</code>，默认装到 <code>C:\Program Files\Go</code>，安装程序会写进系统 PATH。</li>
+<li><strong>macOS</strong>：官方 <code>.pkg</code>，默认 <code>/usr/local/go</code>，同样写进 shell 配置。</li>
+<li><strong>Linux</strong>：官方 <code>.tar.gz</code> 解压到 <code>/usr/local/go</code>，再在 <code>~/.profile</code> 加 <code>export PATH=$PATH:/usr/local/go/bin</code>。</li>
+</ul>
+<p>用 Homebrew 也行，只是版本比官方慢一拍；<strong>别用第三方打包的 Go</strong>，各发行版塞了各自的补丁，出问题很难查。</p>
+<h3 id="1-2-2-验证装好了"><a href="#1-2-2-验证装好了" class="headerlink" title="1.2.2 验证装好了"></a>1.2.2 验证装好了</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">go version</span><br><span class="line">go <span class="built_in">env</span></span><br></pre></td></tr></table></figure>
+
+<p><code>go version</code> 打出类似 <code>go version go1.25.0 windows/amd64</code> 就算成了。不带参数的 <code>go env</code> 列出全部配置，是排查环境问题最快的一招。</p>
+<h3 id="1-2-3-GOROOT-GOPATH-GOBIN-管什么"><a href="#1-2-3-GOROOT-GOPATH-GOBIN-管什么" class="headerlink" title="1.2.3 GOROOT &#x2F; GOPATH &#x2F; GOBIN 管什么"></a>1.2.3 GOROOT &#x2F; GOPATH &#x2F; GOBIN 管什么</h3><table>
+<thead>
+<tr>
+<th>变量</th>
+<th>管什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GOROOT</code></td>
+<td>工具链自身的安装目录</td>
+</tr>
+<tr>
+<td><code>GOPATH</code></td>
+<td>旧工作区根目录，现在管模块缓存与二进制安装目录</td>
+</tr>
+<tr>
+<td><code>GOBIN</code></td>
+<td><code>go install</code> 装出来的可执行文件放哪</td>
+</tr>
+<tr>
+<td><code>GOPROXY</code></td>
+<td>拉模块走哪个代理，网络慢时改（格式 <code>主机名,direct</code>）</td>
+</tr>
+</tbody></table>
+<p><strong>PATH 只需两段</strong>：<code>$GOROOT/bin</code>（<code>go</code>、<code>gofmt</code>）和 <code>$GOPATH/bin</code>（<code>go install</code> 装出来的工具，如 <code>staticcheck</code>）。老教程里「源码放 GOPATH&#x2F;src」是模块时代之前的事，现在一律模块模式。</p>
+<h2 id="1-3-第一个程序：从-package-main-到一个二进制"><a href="#1-3-第一个程序：从-package-main-到一个二进制" class="headerlink" title="1.3 第一个程序：从 package main 到一个二进制"></a>1.3 第一个程序：从 package main 到一个二进制</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;Hello, Go!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>package main</code> 声明这是可执行程序，<code>func main()</code> 是入口，<code>fmt.Println</code> 是标准库 <code>fmt</code> 包的打印函数。与 Java&#x2F;Python 有三处差异值得记：<strong>不需要类名与文件名一致</strong>；<strong>没有 <code>public static void</code> 样板</strong>；**<code>import</code> 按文件写而非按类**。</p>
+<h3 id="1-3-1-go-run-go-build-go-install-的区别"><a href="#1-3-1-go-run-go-build-go-install-的区别" class="headerlink" title="1.3.1 go run &#x2F; go build &#x2F; go install 的区别"></a>1.3.1 go run &#x2F; go build &#x2F; go install 的区别</h3><p>写小脚本用 <code>go run</code>，编译到临时目录立刻执行、用完即删；跑服务用 <code>go build</code>，产物是当前目录下、与导入路径同名的可执行文件；装工具用 <code>go install</code>，装进 <code>$GOBIN</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go run .                <span class="comment"># 直接跑</span></span><br><span class="line">go build -o hello .     <span class="comment"># 指定产物名</span></span><br><span class="line">./hello                 <span class="comment"># PowerShell 里是 .\hello.exe</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>坑：产物 **不在 <code>bin/</code> 也不在 <code>pkg/</code>**，就在当前目录，名字默认取当前包导入路径的最后一段。例外是用了 cgo 的依赖，产物会动态链接系统库，部署时得带上 <code>.so</code>、<code>.dll</code>。</p>
+</blockquote>
+<p>顺带说一句交叉编译：<code>GOOS=linux GOARCH=amd64 go build -o app</code>（PowerShell 里是 <code>$env:GOOS=&quot;linux&quot;; $env:GOARCH=&quot;amd64&quot;; go build -o app</code>）能直接在 Windows 上打出 Linux 二进制——这也是 Go 特别适合写运维小工具和 CLI 的原因。</p>
+<h2 id="1-4-模块化：go-mod-与依赖管理"><a href="#1-4-模块化：go-mod-与依赖管理" class="headerlink" title="1.4 模块化：go.mod 与依赖管理"></a>1.4 模块化：go.mod 与依赖管理</h2><h3 id="1-4-1-go-mod-记了三件事"><a href="#1-4-1-go-mod-记了三件事" class="headerlink" title="1.4.1 go.mod 记了三件事"></a>1.4.1 go.mod 记了三件事</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> myapi &amp;&amp; <span class="built_in">cd</span> myapi</span><br><span class="line">go mod init github.com/meisijiya/myapi</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">module github.com/meisijiya/myapi</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="number">1.25</span></span><br></pre></td></tr></table></figure>
+
+<p><code>module</code> 行是 <strong>导入路径前缀</strong>，要和代码实际所在位置对得上；<code>go 1.25</code> 行声明 <strong>这份代码用的语言版本下限</strong>，不是「你机器装的 Go 版本」。导入路径 &#x3D; module 路径 + 目录相对路径，<code>internal/service/feed.go</code> 的导入路径就是 <code>github.com/meisijiya/myapi/internal/service</code>；主版本号 ≥ 2 时路径要带 <code>/v2</code> 后缀。</p>
+<h3 id="1-4-2-日常命令"><a href="#1-4-2-日常命令" class="headerlink" title="1.4.2 日常命令"></a>1.4.2 日常命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go mod tidy      <span class="comment"># 补齐缺失依赖、删掉没用的依赖</span></span><br><span class="line">go get github.com/gin-gonic/gin@v1.10.0   <span class="comment"># 加依赖并写进 go.mod</span></span><br><span class="line">go mod vendor    <span class="comment"># 依赖拷进 vendor/，用于离线构建</span></span><br></pre></td></tr></table></figure>
+
+<p><code>go mod tidy</code> 是 Go 生态的「扫房间」动作，<strong>每次增删 import 都该跑一次</strong>。<code>go.sum</code> 存每个依赖版本的哈希用来防篡改，由工具链自动维护，<strong>不要手改</strong>。<code>replace</code> 可在本地把依赖指向另一个目录，联调方便但 <strong>别提交上去</strong>，正式做法是把库发布到远程仓库。</p>
+<h3 id="1-4-3-和-Maven-pip-的对照"><a href="#1-4-3-和-Maven-pip-的对照" class="headerlink" title="1.4.3 和 Maven &#x2F; pip 的对照"></a>1.4.3 和 Maven &#x2F; pip 的对照</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Go</th>
+<th>Maven &#x2F; Gradle</th>
+<th>pip</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>依赖声明</td>
+<td><code>go.mod</code></td>
+<td><code>pom.xml</code> &#x2F; <code>build.gradle</code></td>
+<td><code>requirements.txt</code></td>
+</tr>
+<tr>
+<td>完整性校验</td>
+<td><code>go.sum</code> 哈希</td>
+<td>依赖收敛 &#x2F; lockfile</td>
+<td><code>pip-compile</code> &#x2F; lock</td>
+</tr>
+<tr>
+<td>编译产物</td>
+<td>单个可执行文件</td>
+<td><code>jar</code> + 还得有 JRE</td>
+<td>无产物，跑源码</td>
+</tr>
+</tbody></table>
+<p>差别最大的一点：Maven 和 pip 的依赖声明本质是 <strong>纯文本清单</strong>，装出来对不对要到编译期才暴露；Go 的 <code>go.mod</code> 里既有版本又有校验和，工具链会验证「装下来的和声明的是不是同一份」。</p>
+<h2 id="1-5-目录组织：cmd-internal-pkg-的真实语义"><a href="#1-5-目录组织：cmd-internal-pkg-的真实语义" class="headerlink" title="1.5 目录组织：cmd &#x2F; internal &#x2F; pkg 的真实语义"></a>1.5 目录组织：cmd &#x2F; internal &#x2F; pkg 的真实语义</h2><h3 id="1-5-1-小项目的真实布局"><a href="#1-5-1-小项目的真实布局" class="headerlink" title="1.5.1 小项目的真实布局"></a>1.5.1 小项目的真实布局</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">myapi/</span><br><span class="line">├── go.mod</span><br><span class="line">├── cmd/</span><br><span class="line">│   └── server/</span><br><span class="line">│       └── main.go</span><br><span class="line">└── internal/</span><br><span class="line">    ├── config/</span><br><span class="line">    ├── handler/</span><br><span class="line">    ├── service/</span><br><span class="line">    └── store/</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-5-2-internal-和-pkg-到底什么语义"><a href="#1-5-2-internal-和-pkg-到底什么语义" class="headerlink" title="1.5.2 internal 和 pkg 到底什么语义"></a>1.5.2 internal 和 pkg 到底什么语义</h3><p>这是新手最容易照抄错的地方：</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>编译器认吗</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>internal/</code></td>
+<td><strong>认</strong></td>
+<td>只有那棵树内部的代码能 import 它</td>
+</tr>
+<tr>
+<td><code>pkg/</code></td>
+<td><strong>不认</strong></td>
+<td>社区习惯，没有特殊含义</td>
+</tr>
+<tr>
+<td><code>cmd/</code></td>
+<td>不认</td>
+<td>惯例：每个子目录一个 <code>main</code> 包</td>
+</tr>
+</tbody></table>
+<p><code>internal/</code> 是 Go 少数几个 <strong>由编译器强制</strong> 的约定之一，也是「把实现细节关起来」最省事的手段。<code>pkg/</code> 只是社区习惯，官方不给特殊待遇，很多新项目干脆只留 <code>internal/</code>。<code>cmd/</code> 让一个仓库能装多个可执行文件（先 <code>mkdir -p bin</code>）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">go build -o bin/server ./cmd/server</span><br><span class="line">go build -o bin/migrate ./cmd/migrate</span><br></pre></td></tr></table></figure>
+
+<p><code>main.go</code> 应当尽量薄——只负责读配置、连数据库、装路由然后启动，业务逻辑放 <code>internal/service</code>，读完三十行就明白服务怎么搭起来。</p>
+<h3 id="1-5-3-包的边界"><a href="#1-5-3-包的边界" class="headerlink" title="1.5.3 包的边界"></a>1.5.3 包的边界</h3><p>Go 里 <strong>一个目录就是一个包</strong>，包名通常与目录名同名，同目录下的 <code>.go</code> 文件共享包名。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> service</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> FeedItem <span class="keyword">struct</span> &#123;</span><br><span class="line">	Title <span class="type">string</span></span><br><span class="line">	Link  <span class="type">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>导出与否 <strong>只看首字母大小写</strong>，没有 <code>public</code> 关键字，所以「对外暴露哪些 API」在设计包结构时就得想清楚。还有一条常被违反的原则：<strong>包不该知道谁在用它</strong>，也别在 <code>main</code> 包里导出函数，main 不是库包。Java 的包名写在文件头且必须与目录一致，Go 由构建系统说了算——所以 module 路径必须和实际托管地址一致。</p>
+<h2 id="1-6-常用命令速查"><a href="#1-6-常用命令速查" class="headerlink" title="1.6 常用命令速查"></a>1.6 常用命令速查</h2><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>go build ./...</code></td>
+<td>编译检查，多包时只检查不落产物</td>
+</tr>
+<tr>
+<td><code>go run ./cmd/server</code></td>
+<td>跑起来，改代码要重跑</td>
+</tr>
+<tr>
+<td><code>go test ./...</code></td>
+<td>跑单测，默认会跑 vet 的一个子集</td>
+</tr>
+<tr>
+<td><code>go test -race ./...</code></td>
+<td>带竞态检测跑，并发代码必跑</td>
+</tr>
+<tr>
+<td><code>go vet ./...</code></td>
+<td>静态检查，找「可能写错」的代码</td>
+</tr>
+<tr>
+<td><code>gofmt -l .</code></td>
+<td>列出格式不合规的文件，输出为空才合格</td>
+</tr>
+<tr>
+<td><code>gofmt -w .</code></td>
+<td>就地改格式，唯一格式化器且无配置项</td>
+</tr>
+</tbody></table>
+<h3 id="1-6-1-为什么-gofmt-和-vet-必须进-CI"><a href="#1-6-1-为什么-gofmt-和-vet-必须进-CI" class="headerlink" title="1.6.1 为什么 gofmt 和 vet 必须进 CI"></a>1.6.1 为什么 gofmt 和 vet 必须进 CI</h3><p><strong>gofmt</strong> 是 Go 的唯一格式化器，<strong>没有配置项</strong>：不存在「用 4 空格还是 tab」的争论，格式对不对不该靠人眼在 code review 里吵。</p>
+<p><strong>go vet</strong> 抓的是「很可能写错了」的代码而非风格：格式串与参数不匹配、<code>err</code> 声明了却没检查、复制带锁的值导致锁失效。CI 里要显式 <code>go vet ./...</code>，因为 <code>go test</code> 默认只跑它的一个子集。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"><span class="built_in">test</span> -z <span class="string">&quot;<span class="subst">$(gofmt -l .)</span>&quot;</span>   <span class="comment"># 格式</span></span><br><span class="line">go vet ./...               <span class="comment"># 可疑代码</span></span><br><span class="line">go <span class="built_in">test</span> -race ./...        <span class="comment"># 行为 + 竞态</span></span><br></pre></td></tr></table></figure>
+
+<p>风格类检查（命名、圈复杂度）交给 <code>golangci-lint</code> 这类聚合工具，<code>vet</code> 只管「可能出错」。</p>
+<h2 id="1-7-动手练：三个-10-分钟任务"><a href="#1-7-动手练：三个-10-分钟任务" class="headerlink" title="1.7 动手练：三个 10 分钟任务"></a>1.7 动手练：三个 10 分钟任务</h2><h3 id="1-7-1-任务一-·-摸清工具链与-PATH"><a href="#1-7-1-任务一-·-摸清工具链与-PATH" class="headerlink" title="1.7.1 任务一 · 摸清工具链与 PATH"></a>1.7.1 任务一 · 摸清工具链与 PATH</h3><p>跑 <code>go version</code> 记下版本；跑 <code>go env GOROOT GOPATH GOBIN</code> 并确认 <code>GOROOT/bin</code> 在 PATH 里（PowerShell 用 <code>Get-Command go</code>，Git Bash 用 <code>which go</code>）。<strong>验收</strong>：能说清 GOROOT 与 GOPATH 各管什么，PATH 为什么要有那两段。</p>
+<h3 id="1-7-2-任务二-·-第一个程序与产物观察"><a href="#1-7-2-任务二-·-第一个程序与产物观察" class="headerlink" title="1.7.2 任务二 · 第一个程序与产物观察"></a>1.7.2 任务二 · 第一个程序与产物观察</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/go-demo/hello &amp;&amp; <span class="built_in">cd</span> ~/go-demo/hello</span><br><span class="line"><span class="comment"># 写 main.go：package main + func main</span></span><br><span class="line">go run .</span><br><span class="line">go build -o hello .</span><br><span class="line"><span class="built_in">ls</span> -lh hello</span><br></pre></td></tr></table></figure>
+
+<p>Git Bash 用 <code>ls -lh</code> 看体积，PowerShell 用 <code>Get-Item hello | Select-Object Length</code>。再想一下：这个文件拷到没装 Go 也没装 Java 的服务器上能跑吗？</p>
+<h3 id="1-7-3-任务三-·-亲手撞一次-internal-的墙"><a href="#1-7-3-任务三-·-亲手撞一次-internal-的墙" class="headerlink" title="1.7.3 任务三 · 亲手撞一次 internal 的墙"></a>1.7.3 任务三 · 亲手撞一次 internal 的墙</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/go-demo/myapi &amp;&amp; <span class="built_in">cd</span> ~/go-demo/myapi</span><br><span class="line">go mod init github.com/meisijiya/myapi</span><br><span class="line"><span class="built_in">mkdir</span> -p internal/secret cmd/server</span><br><span class="line"><span class="comment"># internal/secret/secret.go 写 package secret 和一个导出函数</span></span><br><span class="line"><span class="comment"># cmd/server/main.go 里 import 自己的 internal/secret —— 能编译</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在 <strong>另一个目录</strong> 建模块，import <code>github.com/meisijiya/myapi/internal/secret</code> 并 <code>go build</code>，编译器会直接拒绝——这就是 <code>internal/</code> 的全部意义。</p>
+<h2 id="1-8-常见错误清单"><a href="#1-8-常见错误清单" class="headerlink" title="1.8 常见错误清单"></a>1.8 常见错误清单</h2><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>怎么办</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>go: command not found</code></td>
+<td><code>GOROOT/bin</code> 没进 PATH</td>
+<td>重开终端或刷新 profile</td>
+</tr>
+<tr>
+<td><code>go: cannot find package</code></td>
+<td>停留在模块模式之前的老写法</td>
+<td><code>go mod init</code> + <code>go mod tidy</code></td>
+</tr>
+<tr>
+<td><code>go: updates to go.mod needed</code></td>
+<td>新增 import 没整理依赖</td>
+<td><code>go mod tidy</code></td>
+</tr>
+<tr>
+<td><code>go build</code> 完找不到产物</td>
+<td>产物在 <strong>当前目录</strong></td>
+<td><code>go build -o bin/app .</code>（先 <code>mkdir -p bin</code>）</td>
+</tr>
+<tr>
+<td>依赖下载卡住不动</td>
+<td>代理不通</td>
+<td><code>go env -w GOPROXY=&lt;你的代理&gt;,direct</code></td>
+</tr>
+<tr>
+<td>换台机器就构建失败</td>
+<td><code>go.mod</code> 里留了本地 <code>replace</code></td>
+<td>删掉 replace，发布真实版本</td>
+</tr>
+<tr>
+<td><code>go vet</code> 报 <code>copylocks</code></td>
+<td>复制了带 <code>sync.Mutex</code> 的值</td>
+<td>改成传指针</td>
+</tr>
+</tbody></table>
+<p>工具链只有三件事要记住：**<code>go</code> 负责构建，<code>go.mod</code> 负责依赖，<code>gofmt</code> + <code>go vet</code> 负责别让代码变脏**。这三样用顺了，剩下的就是把 Go 语法填进去。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/"># 基础教程</a>
+          
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+          
+          <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/"># 工程化</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%8F%98%E9%87%8F%E3%80%81%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B%E4%B8%8E%E9%9B%B6%E5%80%BC%20%E2%80%94%20%E5%A3%B0%E6%98%8E%E6%96%B9%E5%BC%8F%E4%B8%8E%E5%86%85%E5%AD%98%E8%A7%86%E8%A7%92/"
+        >Go 变量、基本类型与零值 — 声明方式与内存视角</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E7%B3%BB%E5%88%97%E6%80%BB%E8%A7%88%20%E2%80%94%20%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E4%B8%8E%E6%96%87%E7%AB%A0%E7%B4%A2%E5%BC%95/"
+        >Go 系列总览 — 学习路线与文章索引</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

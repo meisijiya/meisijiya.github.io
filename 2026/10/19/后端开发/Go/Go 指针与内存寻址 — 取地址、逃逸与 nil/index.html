@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go 指针与内存寻址 — 取地址、逃逸与 nil | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go 指针与内存寻址 — 取地址、逃逸与 nil</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;11:15:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="11-Go-指针与内存寻址"><a href="#11-Go-指针与内存寻址" class="headerlink" title="11 Go 指针与内存寻址"></a>11 Go 指针与内存寻址</h1><blockquote>
+<p>Go 把指针保留了下来，却给它套了三层安全网：不能算地址、不用手动释放、空指针会明确崩溃。</p>
+</blockquote>
+<hr>
+<h2 id="11-1-取地址与解引用"><a href="#11-1-取地址与解引用" class="headerlink" title="11.1 取地址与解引用"></a>11.1 取地址与解引用</h2><p>跟指针有关的运算符只有两个：<code>&amp;x</code> 是<strong>取地址</strong>，<code>*p</code> 是<strong>解引用</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	x := <span class="number">42</span></span><br><span class="line">	p := &amp;x <span class="comment">// p 的类型是 *int，值是 x 的内存地址</span></span><br><span class="line"></span><br><span class="line">	fmt.Println(p)  <span class="comment">// 0xc0000102a0（地址每次都不一样）</span></span><br><span class="line">	fmt.Println(*p) <span class="comment">// 42 —— 通过指针读到 x</span></span><br><span class="line"></span><br><span class="line">	*p = <span class="number">100</span>       <span class="comment">// 通过指针改 x</span></span><br><span class="line">	fmt.Println(x) <span class="comment">// 100</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意 <code>p</code> 的**类型是 <code>*int</code>**，不是 <code>int</code>。它是一个「装着地址的盒子」，盒子本身也有类型：<code>把 *int 赋给 *string 编译期就报类型不匹配</code>。</p>
+<p>跟 Java 最大的区别在这儿：<strong>Java 里你拿不到一个变量的地址</strong>，引用本身就是地址，你没法通过它改写「这个引用指向谁」。另外只有<strong>可寻址</strong>的表达式才能取地址：变量、数组元素、结构体字段可以，字面量、函数返回值不行。</p>
+<h3 id="Go-C-Java-三方对比"><a href="#Go-C-Java-三方对比" class="headerlink" title="Go &#x2F; C &#x2F; Java 三方对比"></a>Go &#x2F; C &#x2F; Java 三方对比</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>C</th>
+<th>Java</th>
+<th>Go</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>声明指针</td>
+<td><code>int *p;</code></td>
+<td><code>Integer p;</code>（对象引用）</td>
+<td><code>var p *int</code></td>
+</tr>
+<tr>
+<td>取地址</td>
+<td><code>&amp;x</code></td>
+<td>拿不到，引用本身就是地址</td>
+<td><code>&amp;x</code></td>
+</tr>
+<tr>
+<td>解引用</td>
+<td><code>*p</code></td>
+<td><code>p.intValue()</code></td>
+<td><code>*p</code></td>
+</tr>
+<tr>
+<td>指针运算</td>
+<td><strong>允许</strong>：<code>p + 1</code></td>
+<td>不允许</td>
+<td><strong>不允许</strong>（编译期报错）</td>
+</tr>
+<tr>
+<td>空指针</td>
+<td><code>NULL</code></td>
+<td><code>null</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr>
+<td>解引用空指针</td>
+<td>未定义行为</td>
+<td>抛 <code>NullPointerException</code></td>
+<td><code>panic</code>，进程终止</td>
+</tr>
+<tr>
+<td>悬垂指针</td>
+<td>允许（<code>free</code> 后仍可访问）</td>
+<td>GC 保证不出现</td>
+<td>GC 保证不出现</td>
+</tr>
+<tr>
+<td>手动释放</td>
+<td><code>free(p)</code></td>
+<td>无</td>
+<td>无</td>
+</tr>
+</tbody></table>
+<p>一句话概括：<strong>Go 的指针 &#x3D; C 的指针语法 + 编译期禁掉指针运算 + GC 兜底 + 类型约束</strong>。</p>
+<h2 id="11-2-Go-的指针为什么说它「安全」"><a href="#11-2-Go-的指针为什么说它「安全」" class="headerlink" title="11.2 Go 的指针为什么说它「安全」"></a>11.2 Go 的指针为什么说它「安全」</h2><p>安全不是说它不会崩，而是指<strong>它把 C 里最危险的几条路堵死了</strong>。</p>
+<h3 id="11-2-1-不能做指针运算"><a href="#11-2-1-不能做指针运算" class="headerlink" title="11.2.1 不能做指针运算"></a>11.2.1 不能做指针运算</h3><p>C 的指针本质就是个整数，<code>p + 1</code> 能跳到下一个元素，<code>p + 8</code> 能硬跳到任意位置——这是 C 越界漏洞的源头。Go 直接禁：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x := <span class="number">10</span></span><br><span class="line">p := &amp;x</span><br><span class="line"></span><br><span class="line"><span class="comment">// q := p + 1 // ❌ 编译错误：invalid operation: p + 1 (pointer + int)</span></span><br></pre></td></tr></table></figure>
+
+<p>唯一的绕法是标准库自带的 <code>unsafe</code> 包，比如 <code>unsafe.Add(unsafe.Pointer(p), 8)</code>。业务代码里看到 <code>unsafe</code> 基本可判定为「有 bug，或有极致的性能需求」。</p>
+<h3 id="11-2-2-不能把整数强转成指针"><a href="#11-2-2-不能把整数强转成指针" class="headerlink" title="11.2.2 不能把整数强转成指针"></a>11.2.2 不能把整数强转成指针</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// p := (*int)(12345) // ❌ 编译错误：cannot convert 12345 (untyped int constant) to type *int</span></span><br></pre></td></tr></table></figure>
+
+<p>C 里可以 <code>(int*)0xdeadbeef</code> 凭空造一个野指针，Go 不给这条路。绕法是 <code>unsafe.Pointer(uintptr(0xdeadbeef))</code>，但 <code>go vet</code> 会报 <strong>possible misuse of unsafe.Pointer</strong>——等于官方在骂你。</p>
+<h3 id="11-2-3-解引用未初始化指针：编译期不管，运行期-panic"><a href="#11-2-3-解引用未初始化指针：编译期不管，运行期-panic" class="headerlink" title="11.2.3 解引用未初始化指针：编译期不管，运行期 panic"></a>11.2.3 解引用未初始化指针：编译期不管，运行期 panic</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p *<span class="type">int</span> <span class="comment">// 零值是 nil</span></span><br><span class="line">fmt.Println(*p) <span class="comment">// panic: runtime error: invalid memory address or nil pointer dereference</span></span><br></pre></td></tr></table></figure>
+
+<p><code>go vet</code> 查不出这个，<code>staticcheck</code> 也未必能查（它可能在别处被赋过值）。**唯一的防线是你自己写 <code>if p != nil</code>**。这也是它跟 Java <code>NullPointerException</code> 最大的区别：Java 是「运行到那儿才发现」，Go 是「忘了判就崩」。</p>
+<p>C 里 <code>free(p)</code> 之后 <code>p</code> 仍指向已释放内存，成为悬垂指针；Go 没有 <code>free</code>，堆对象由 GC 回收。唯一的优化手段是<u>让指针别逃逸</u>（见 11.5）。</p>
+<h2 id="11-3-nil-指针：Go-为什么不用-NULL"><a href="#11-3-nil-指针：Go-为什么不用-NULL" class="headerlink" title="11.3 nil 指针：Go 为什么不用 NULL"></a>11.3 nil 指针：Go 为什么不用 NULL</h2><p>Go 的零值哲学决定了指针的零值只能是 <code>nil</code>：<code>NULL</code> 在 C 里是<strong>宏</strong>，就是整数 0 的替身，能塞进任何整型变量。Go 需要 <code>nil</code> 能<strong>参与类型检查</strong>——只有指针、切片、map、channel、func、interface 这六类可以是 nil，<code>var x int = nil</code> 报错。</p>
+<h3 id="nil-对不同类型意味着完全不同的东西"><a href="#nil-对不同类型意味着完全不同的东西" class="headerlink" title="nil 对不同类型意味着完全不同的东西"></a>nil 对不同类型意味着完全不同的东西</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>读 nil</th>
+<th>写 nil</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>指针 <code>*T</code></td>
+<td><strong>panic</strong></td>
+<td>—</td>
+<td>解引用空指针必崩</td>
+</tr>
+<tr>
+<td>切片 <code>[]T</code></td>
+<td>合法</td>
+<td><code>append</code> 合法</td>
+<td><code>len</code> 为 0，<code>range</code> 不进循环</td>
+</tr>
+<tr>
+<td>映射 <code>map[K]V</code></td>
+<td>合法（返回零值）</td>
+<td><strong>panic</strong></td>
+<td>必须先 <code>make</code> 或用字面量</td>
+</tr>
+<tr>
+<td>通道 <code>chan T</code></td>
+<td>永久阻塞</td>
+<td>永久阻塞</td>
+<td><code>close</code> nil 通道会 panic</td>
+</tr>
+<tr>
+<td>函数 <code>func()</code></td>
+<td>调用即 <strong>panic</strong></td>
+<td>—</td>
+<td>空函数不可调用</td>
+</tr>
+<tr>
+<td>接口 <code>any</code></td>
+<td><strong>不为 nil</strong>（见下）</td>
+<td>—</td>
+<td>装的是「非空类型 + nil 值」</td>
+</tr>
+</tbody></table>
+<h3 id="经典陷阱：typed-nil"><a href="#经典陷阱：typed-nil" class="headerlink" title="经典陷阱：typed nil"></a>经典陷阱：typed nil</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span>&#123; Name <span class="type">string</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">findUser</span><span class="params">()</span></span> *User &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span> <span class="comment">// 返回一个「非 nil 类型」的 nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> u *User = findUser()</span><br><span class="line">	fmt.Println(u == <span class="literal">nil</span>) <span class="comment">// true —— 直接比较没问题</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> i any = u</span><br><span class="line">	fmt.Println(i == <span class="literal">nil</span>) <span class="comment">// false ！！！接口里存的是 (*User, nil)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接口值在运行时是「动态类型 + 动态值」两元组。<code>i</code> 的动态类型是 <code>*User</code>，动态值是 nil，所以 <code>i != nil</code>。<strong>这是 Go 的 typed nil 陷阱</strong>，Java 里没有对应物。规避办法：接口别装 nil 指针。</p>
+<h2 id="11-4-指针与结构体"><a href="#11-4-指针与结构体" class="headerlink" title="11.4 指针与结构体"></a>11.4 指针与结构体</h2><p>结构体是 Go 里最常配合指针使用的类型。规则很简单：<strong>用指针改的是原对象，用值改的是副本</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name <span class="type">string</span></span><br><span class="line">	Age  <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	u := User&#123;Name: <span class="string">&quot;老江湖&quot;</span>, Age: <span class="number">24</span>&#125;</span><br><span class="line"></span><br><span class="line">	p := &amp;u</span><br><span class="line">	p.Name = <span class="string">&quot;新名字&quot;</span> <span class="comment">// 通过指针修改</span></span><br><span class="line"></span><br><span class="line">	fmt.Println(u.Name) <span class="comment">// 新名字 —— u 本身被改了</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="11-4-1-User-是取地址的简写"><a href="#11-4-1-User-是取地址的简写" class="headerlink" title="11.4.1 &amp;User{...} 是取地址的简写"></a>11.4.1 <code>&amp;User&#123;...&#125;</code> 是取地址的简写</h3><p><code>&amp;User&#123;Name: &quot;老江湖&quot;, Age: 24&#125;</code> 编译器视角下等价于「先造一个临时变量再取地址」，差别只在<strong>能不能在表达式里把字段填好</strong>。<code>new(User)</code> 则是「先分配一块零值内存再给指针」：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p := <span class="built_in">new</span>(User) <span class="comment">// *User，指向零值 User</span></span><br><span class="line">p.Name = <span class="string">&quot;老江湖&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>两者在内存行为上完全等价，都可能栈分配也可能堆分配，取决于是否逃逸。要填字段用 <code>&amp;User&#123;...&#125;</code>，要「先拿指针再填」用 <code>new(User)</code>。</p>
+<h3 id="11-4-2-接收者：值接收者-vs-指针接收者"><a href="#11-4-2-接收者：值接收者-vs-指针接收者" class="headerlink" title="11.4.2 接收者：值接收者 vs 指针接收者"></a>11.4.2 接收者：值接收者 vs 指针接收者</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Counter <span class="keyword">struct</span> &#123;</span><br><span class="line">	Hits <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c Counter)</span></span> Add(n <span class="type">int</span>) &#123;</span><br><span class="line">	c.Hits += n <span class="comment">// 值接收者：c 是副本，改不到原对象</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Counter)</span></span> AddPtr(n <span class="type">int</span>) &#123;</span><br><span class="line">	c.Hits += n <span class="comment">// 指针接收者：改的是原对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用时<strong>不用显式写 <code>&amp;</code><strong>——Go 会对可寻址的变量自动取地址（<code>c.AddPtr(1)</code> 等价于 <code>(&amp;c).AddPtr(1)</code>）。但前提是</strong>变量可寻址</strong>：map 的元素不可寻址，<code>m[&quot;a&quot;].AddPtr(1)</code> 编译不过。</p>
+<h3 id="11-4-3-方法集的不对称：面试常考点"><a href="#11-4-3-方法集的不对称：面试常考点" class="headerlink" title="11.4.3 方法集的不对称：面试常考点"></a>11.4.3 方法集的不对称：面试常考点</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>方法集包含</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>T</code>（值类型）</td>
+<td>只有<strong>值接收者</strong>的方法</td>
+</tr>
+<tr>
+<td><code>*T</code>（指针类型）</td>
+<td>值接收者的方法 <strong>+</strong> 指针接收者的方法</td>
+</tr>
+</tbody></table>
+<p>推论：只要你的类型里有指针接收者的方法，<strong>它就不能直接当接口实现传给别人</strong>。假设 <code>User.Rename</code> 是指针接收者方法，那么 <code>var w Writer = &amp;User&#123;&#125;</code> 通过，<code>var w Writer = User&#123;&#125;</code> 失败。所以有条共识：<strong>方法集里出现指针接收者，就统一用它</strong>。</p>
+<h2 id="11-5-逃逸分析：栈还是堆"><a href="#11-5-逃逸分析：栈还是堆" class="headerlink" title="11.5 逃逸分析：栈还是堆"></a>11.5 逃逸分析：栈还是堆</h2><h3 id="11-5-1-变量什么时候上堆"><a href="#11-5-1-变量什么时候上堆" class="headerlink" title="11.5.1 变量什么时候上堆"></a>11.5.1 变量什么时候上堆</h3><p>Go 编译器会做<strong>逃逸分析（escape analysis）</strong>：判断变量的生命周期会不会超出所在函数的栈帧。逃出去了就分配到堆上交给 GC 管；没逃出去就留在栈上，函数返回即回收，零 GC 压力。典型逃逸有三种：返回局部变量地址、被闭包捕获、地址存进会逃逸的容器。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 返回局部变量的地址</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newUser</span><span class="params">()</span></span> *User &#123;</span><br><span class="line">	u := User&#123;Name: <span class="string">&quot;老江湖&quot;</span>&#125;</span><br><span class="line">	<span class="keyword">return</span> &amp;u <span class="comment">// u 必须活到函数外 → 堆</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 被闭包捕获</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">counter</span><span class="params">()</span></span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	n := <span class="number">0</span></span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> <span class="type">int</span> &#123; n++; <span class="keyword">return</span> n &#125; <span class="comment">// n 被闭包引用 → 堆</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>最反直觉的一点：Go 里返回局部变量地址是安全的。</strong> C 里返回 <code>&amp;local</code> 是未定义行为（栈帧一销毁指针就悬垂），Go 编译器会自动把 <code>local</code> 从栈「搬到」堆上（输出里写 <code>moved to heap</code>）。这正是 Go 比 C 少一类内存 bug 的原因。</p>
+<h3 id="11-5-2-打开逃逸分析输出"><a href="#11-5-2-打开逃逸分析输出" class="headerlink" title="11.5.2 打开逃逸分析输出"></a>11.5.2 打开逃逸分析输出</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 对命令行列出的包输出逃逸信息</span></span><br><span class="line">go build -gcflags=<span class="string">&quot;-m&quot;</span> ./...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重复 -m 输出更详细的信息</span></span><br><span class="line">go build -gcflags=<span class="string">&quot;-m -m&quot;</span> ./...</span><br></pre></td></tr></table></figure>
+
+<p>输出大致是这样（行号随文件变化）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./user.go:6:6: moved to heap: u</span><br><span class="line">./user.go:7:9: &amp;u escapes to heap</span><br></pre></td></tr></table></figure>
+
+<p>读法：<code>moved to heap: u</code> 是变量被搬到堆上；<code>&amp;u escapes to heap</code> 是地址会逃出函数；<code>does not escape</code> 是<strong>好消息</strong>，对象留在栈上。</p>
+<h3 id="11-5-3-逃逸的代价"><a href="#11-5-3-逃逸的代价" class="headerlink" title="11.5.3 逃逸的代价"></a>11.5.3 逃逸的代价</h3><p>GC 的触发条件是<strong>堆内存相对上次 GC 增长了阈值</strong>（默认 <code>GOGC=100</code>，即堆翻倍触发一次）。所以逃逸对象多，堆就增长快，GC 就触发频繁，CPU 占用上升、stop-the-world 时间变长；反过来栈上的对象根本不进 GC 统计，分配几乎零成本。</p>
+<p>优化手法就是<strong>别让指针乱跑</strong>：能用值传递就别用指针传。反过来，大结构体用值接收者每次调用都要整份拷贝，那才是该换指针接收者时。</p>
+<h2 id="11-6-new-与-make：一个分配内存，一个初始化容器"><a href="#11-6-new-与-make：一个分配内存，一个初始化容器" class="headerlink" title="11.6 new 与 make：一个分配内存，一个初始化容器"></a>11.6 new 与 make：一个分配内存，一个初始化容器</h2><p>这俩是 Go 新手最常混的一对 builtin。<strong>一句话：new 管「给一块零值内存」，make 管「把容器准备好用」。</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th><code>new(T)</code></th>
+<th><code>make(T, len, cap)</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>适用类型</td>
+<td><strong>任意</strong>类型 <code>T</code></td>
+<td><strong>仅</strong> slice、map、channel</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td><code>*T</code>（<strong>指针</strong>）</td>
+<td><code>T</code>（<strong>值</strong>，不是指针）</td>
+</tr>
+<tr>
+<td>分配的内存</td>
+<td>一块 <code>T</code> 大小的零值内存</td>
+<td>容器本身 + 运行时附属结构</td>
+</tr>
+<tr>
+<td>初始化</td>
+<td>全部字段为零值</td>
+<td>额外做完「能用」的初始化</td>
+</tr>
+<tr>
+<td>典型用法</td>
+<td>结构体、指针类型</td>
+<td><code>make([]int, 0, 10)</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">p := <span class="built_in">new</span>(<span class="type">int</span>)             <span class="comment">// *int，指向一个值为 0 的 int</span></span><br><span class="line">q := <span class="built_in">new</span>(User)            <span class="comment">// *User，指向一个全零的 User</span></span><br><span class="line">s := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">0</span>, <span class="number">10</span>)   <span class="comment">// []int，len=0，cap=10</span></span><br><span class="line">m := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">int</span>) <span class="comment">// map[string]int，非 nil，可直接写</span></span><br><span class="line">c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>, <span class="number">1</span>)    <span class="comment">// chan int，1 个缓冲</span></span><br></pre></td></tr></table></figure>
+
+<p><code>new(int)</code> 几乎没意义——<code>x := 0</code> 就够了。**<code>new</code> 的合理场景基本只有「我需要一个指向某结构体的指针」**。</p>
+<h3 id="最经典的长度陷阱"><a href="#最经典的长度陷阱" class="headerlink" title="最经典的长度陷阱"></a>最经典的长度陷阱</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">5</span>)    <span class="comment">// len=5, cap=5 —— 5 个零值</span></span><br><span class="line">b := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">0</span>, <span class="number">5</span>) <span class="comment">// len=0, cap=5 —— 空切片但预留了空间</span></span><br></pre></td></tr></table></figure>
+
+<p><code>make</code> 的第二个参数是<strong>长度</strong>，第三个才是<strong>容量</strong>。<code>make([]int, 100)</code> 是想要 100 个元素；<code>make([]int, 0, 100)</code> 才是「预留 100 容量，稍后 append」。</p>
+<p>至于 nil map：它可以读（返回零值），但不能写——<code>m[&quot;a&quot;] = 1</code> 会 panic: assignment to entry in nil map。要写先 <code>make</code>。</p>
+<h2 id="11-7-常见坑"><a href="#11-7-常见坑" class="headerlink" title="11.7 常见坑"></a>11.7 常见坑</h2><h3 id="11-7-1-指针塞进-slice-map，仍然指向原变量"><a href="#11-7-1-指针塞进-slice-map，仍然指向原变量" class="headerlink" title="11.7.1 指针塞进 slice &#x2F; map，仍然指向原变量"></a>11.7.1 指针塞进 slice &#x2F; map，仍然指向原变量</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span>&#123; Name <span class="type">string</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	u := User&#123;Name: <span class="string">&quot;A&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">	users := []*User&#123;&amp;u&#125;</span><br><span class="line">	users[<span class="number">0</span>].Name = <span class="string">&quot;B&quot;</span></span><br><span class="line">	fmt.Println(u.Name) <span class="comment">// B —— 切片里存的是同一个对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果你想要「三个独立副本」，应该存值：<code>users := []User&#123;&#123;Name: "A"&#125;&#125;</code>。</p>
+<p>顺带一个高频面试点，<code>range</code> 出来的变量是<strong>拷贝</strong>：<code>[]*User</code> 里 <code>u</code> 是指针的拷贝，改 <code>u.Name</code> 等于改同一对象；<code>[]User</code> 里 <code>u</code> 是结构体副本，改完原切片不变。</p>
+<h3 id="11-7-2-map-元素不可寻址"><a href="#11-7-2-map-元素不可寻址" class="headerlink" title="11.7.2 map 元素不可寻址"></a>11.7.2 map 元素不可寻址</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">m := <span class="keyword">map</span>[<span class="type">string</span>]User&#123;<span class="string">&quot;a&quot;</span>: &#123;Name: <span class="string">&quot;A&quot;</span>&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// m[&quot;a&quot;].Name = &quot;B&quot; // ❌ 编译错误：不能对 map 元素取地址</span></span><br><span class="line"></span><br><span class="line">v := m[<span class="string">&quot;a&quot;</span>]</span><br><span class="line">v.Name = <span class="string">&quot;B&quot;</span> <span class="comment">// ✅ 改的是副本，map 里的还是原来那个</span></span><br></pre></td></tr></table></figure>
+
+<p>想改 map 里的结构体，得改成 <code>map[string]*User</code>。</p>
+<h2 id="11-8-动手练"><a href="#11-8-动手练" class="headerlink" title="11.8 动手练"></a>11.8 动手练</h2><p><strong>练习一：地址与解引用</strong><br>声明 <code>x := 42</code>，用 <code>&amp;x</code> 拿到指针，打印指针本身和 <code>*p</code>；再通过 <code>*p = 100</code> 修改 <code>x</code>，打印 <code>x</code> 验证确实被改了。</p>
+<p><strong>练习二：nil 边界</strong><br>写三个小函数：一个接收 <code>*User</code> 并在解引用前检查 nil，一个接收 <code>[]int</code> 并在 nil 切片上安全地 <code>append</code>，一个接收 <code>map[string]int</code> 并在 nil map 上安全地读。观察三者对 nil 的待遇差异。</p>
+<p><strong>练习三：逃逸分析实战</strong><br>写 <code>func byValue() User</code> 和 <code>func byPointer() *User</code> 两个函数，跑 <code>go build -gcflags=&quot;-m&quot; main.go</code>，对比输出里 <code>moved to heap</code> &#x2F; <code>escapes to heap</code> 的位置，把结论写进注释里。</p>
+<p><strong>练习四：切片里的指针</strong><br>准备 <code>[]User</code> 和 <code>[]*User</code> 各一份，在 <code>for range</code> 里改名字，观察哪一个改动了原始数据，并解释原因。</p>
+<h2 id="11-9-常见错误清单"><a href="#11-9-常见错误清单" class="headerlink" title="11.9 常见错误清单"></a>11.9 常见错误清单</h2><table>
+<thead>
+<tr>
+<th>错误写法</th>
+<th>后果</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>var p *int; fmt.Println(*p)</code></td>
+<td>运行期 panic，进程退出</td>
+<td>解引用前先 <code>if p != nil</code></td>
+</tr>
+<tr>
+<td><code>p + 1</code> 形式的指针运算</td>
+<td>编译期报错</td>
+<td>用切片下标 <code>arr[i]</code></td>
+</tr>
+<tr>
+<td><code>(*int)(12345)</code> 整数转指针</td>
+<td>编译期报错</td>
+<td>正常用 <code>&amp;x</code> 取地址</td>
+</tr>
+<tr>
+<td><code>make([]int, 100)</code> 当成「预留容量」</td>
+<td>多出 100 个零值元素</td>
+<td><code>make([]int, 0, 100)</code></td>
+</tr>
+<tr>
+<td><code>var m map[string]int; m[&quot;a&quot;] = 1</code></td>
+<td>panic: assignment to entry in nil map</td>
+<td><code>make(map[string]int)</code></td>
+</tr>
+<tr>
+<td><code>var i any = (*User)(nil); i == nil</code></td>
+<td>判定为 false（typed nil）</td>
+<td>接口别装 nil 指针</td>
+</tr>
+<tr>
+<td><code>m[&quot;a&quot;].Name = &quot;X&quot;</code>（map 存值类型）</td>
+<td>编译期报错</td>
+<td>改用 <code>map[string]*User</code></td>
+</tr>
+<tr>
+<td>用 <code>unsafe.Pointer</code> 绕过检查</td>
+<td>越界、崩溃、难排查</td>
+<td>优先把数据结构设计对</td>
+</tr>
+</tbody></table>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/"># 基础教程</a>
+          
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E5%86%85%E5%AD%98/"># 内存</a>
+          
+          <a href="/tags/%E6%8C%87%E9%92%88/"># 指针</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20goroutine%20%E4%B8%8E%20channel%20%E2%80%94%20%E5%B9%B6%E5%8F%91%E6%A8%A1%E5%9E%8B/"
+        >Go goroutine 与 channel — 并发模型</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0%E4%B8%8E%E9%97%AD%E5%8C%85%20%E2%80%94%20%E5%87%BD%E6%95%B0%E4%BD%9C%E4%B8%BA%E4%B8%80%E7%AD%89%E5%85%AC%E6%B0%91/"
+        >Go 高阶函数与闭包 — 函数作为一等公民</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

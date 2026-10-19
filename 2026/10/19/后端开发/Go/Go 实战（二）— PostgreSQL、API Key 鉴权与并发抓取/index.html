@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go 实战（二）— PostgreSQL、API Key 鉴权与并发抓取 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go 实战（二）— PostgreSQL、API Key 鉴权与并发抓取</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;11:50:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="16-Go-实战（二）—-PostgreSQL、API-Key-鉴权与并发抓取"><a href="#16-Go-实战（二）—-PostgreSQL、API-Key-鉴权与并发抓取" class="headerlink" title="16 Go 实战（二）— PostgreSQL、API Key 鉴权与并发抓取"></a>16 Go 实战（二）— PostgreSQL、API Key 鉴权与并发抓取</h1><blockquote>
+<p>前一篇把路由和中间件的骨架搭了起来，这一篇把它接到真实的 PostgreSQL 上：迁移、代码生成、API Key 鉴权、并发抓取入库，一次串通。</p>
+</blockquote>
+<hr>
+<h2 id="16-1-数据模型：四张表撑起整个聚合器"><a href="#16-1-数据模型：四张表撑起整个聚合器" class="headerlink" title="16.1 数据模型：四张表撑起整个聚合器"></a>16.1 数据模型：四张表撑起整个聚合器</h2><p>用户注册后拿到一把 API Key，用 Key 订阅若干 RSS 源，后台定时并发抓取，文章存进库。四张表的关系，决定了后面所有代码的形状。</p>
+<h3 id="16-1-1-先看关系图"><a href="#16-1-1-先看关系图" class="headerlink" title="16.1.1 先看关系图"></a>16.1.1 先看关系图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"> ┌─────────────────────────────┐</span><br><span class="line"> │ USERS                      │</span><br><span class="line"> │   id (PK)                  │</span><br><span class="line"> │   name                     │</span><br><span class="line"> │   api_key_hash (UK)        │</span><br><span class="line"> │   created_at               │</span><br><span class="line"> └──────┬──────────────┬──────┘</span><br><span class="line">        │ 创建          │ 订阅</span><br><span class="line">        ▼              ▼</span><br><span class="line">┌───────────────┐  ┌────────────────────┐</span><br><span class="line">│ FEEDS         │  │ FEED_FOLLOWS       │</span><br><span class="line">│   id (PK)     │  │   id (PK)          │</span><br><span class="line">│   user_id(FK) │  │   user_id (FK)     │</span><br><span class="line">│   name        │  │   feed_id (FK)     │</span><br><span class="line">│   url         │  │   created_at       │</span><br><span class="line">└───────┬───────┘  └─────────┬──────────┘</span><br><span class="line">        │ 被订阅              │</span><br><span class="line">        └─────────────────────┘</span><br><span class="line">                  ▲</span><br><span class="line">                  │ 产出文章</span><br><span class="line">           ┌──────┴────────┐</span><br><span class="line">           │ POSTS         │</span><br><span class="line">           │   id (PK)     │</span><br><span class="line">           │   feed_id(FK) │</span><br><span class="line">           │   title       │</span><br><span class="line">           │   link        │</span><br><span class="line">           │   published_at│</span><br><span class="line">           └───────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>两条从 <code>USERS</code> 出发的线语义不同：<code>USERS → FEEDS</code> 是<strong>谁登记了它</strong>，<code>USERS → FEED_FOLLOWS → FEEDS</code> 是<strong>谁订阅了它</strong>。</p>
+<h3 id="16-1-2-四张表的-DDL"><a href="#16-1-2-四张表的-DDL" class="headerlink" title="16.1.2 四张表的 DDL"></a>16.1.2 四张表的 DDL</h3><p>数据库用 PostgreSQL，迁移文件由 goose 管理：数字前缀决定执行顺序。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 00001_users.sql</span></span><br><span class="line"><span class="comment">-- +goose Up</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> users (</span><br><span class="line">    id           UUID <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    name         TEXT        <span class="keyword">NOT NULL</span>,</span><br><span class="line">    api_key_hash TEXT        <span class="keyword">UNIQUE</span>,</span><br><span class="line">    created_at   TIMESTAMPTZ <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> now()</span><br><span class="line">);</span><br><span class="line"><span class="comment">-- 00002_feeds.sql</span></span><br><span class="line"><span class="comment">-- +goose Up</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> feeds (</span><br><span class="line">    id      UUID <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    user_id UUID <span class="keyword">NOT NULL</span> <span class="keyword">REFERENCES</span> users(id) <span class="keyword">ON</span> <span class="keyword">DELETE</span> CASCADE,</span><br><span class="line">    name    TEXT <span class="keyword">NOT NULL</span>,</span><br><span class="line">    url     TEXT <span class="keyword">NOT NULL</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">UNIQUE</span> INDEX feeds_user_id_url_idx <span class="keyword">ON</span> feeds (user_id, url);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 00003_feed_follows.sql</span></span><br><span class="line"><span class="comment">-- +goose Up</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> feed_follows (</span><br><span class="line">    id          UUID <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    user_id     UUID <span class="keyword">NOT NULL</span> <span class="keyword">REFERENCES</span> users(id) <span class="keyword">ON</span> <span class="keyword">DELETE</span> CASCADE,</span><br><span class="line">    feed_id     UUID <span class="keyword">NOT NULL</span> <span class="keyword">REFERENCES</span> feeds(id) <span class="keyword">ON</span> <span class="keyword">DELETE</span> CASCADE,</span><br><span class="line">    created_at  TIMESTAMPTZ <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> now()</span><br><span class="line">);</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">UNIQUE</span> INDEX feed_follows_user_feed_idx <span class="keyword">ON</span> feed_follows (user_id, feed_id);</span><br><span class="line"><span class="keyword">CREATE</span> INDEX feed_follows_user_id_idx <span class="keyword">ON</span> feed_follows (user_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 00004_posts.sql</span></span><br><span class="line"><span class="comment">-- +goose Up</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> posts (</span><br><span class="line">    id           UUID <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    feed_id      UUID <span class="keyword">NOT NULL</span> <span class="keyword">REFERENCES</span> feeds(id) <span class="keyword">ON</span> <span class="keyword">DELETE</span> CASCADE,</span><br><span class="line">    title        TEXT <span class="keyword">NOT NULL</span>,</span><br><span class="line">    link         TEXT <span class="keyword">NOT NULL</span>,</span><br><span class="line">    published_at TIMESTAMPTZ <span class="keyword">NOT NULL</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">UNIQUE</span> INDEX posts_feed_id_link_idx <span class="keyword">ON</span> posts (feed_id, link);</span><br></pre></td></tr></table></figure>
+
+<h3 id="16-1-3-表结构速查"><a href="#16-1-3-表结构速查" class="headerlink" title="16.1.3 表结构速查"></a>16.1.3 表结构速查</h3><table>
+<thead>
+<tr>
+<th>表</th>
+<th>作用</th>
+<th>关键约束</th>
+<th>设计理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>users</code></td>
+<td>用户主体</td>
+<td><code>api_key_hash</code> 唯一</td>
+<td>一人一把 Key，摘要唯一即可</td>
+</tr>
+<tr>
+<td><code>feeds</code></td>
+<td>被登记的订阅源</td>
+<td><code>(user_id, url)</code> 唯一</td>
+<td>同一人不能重复登记同一地址</td>
+</tr>
+<tr>
+<td><code>feed_follows</code></td>
+<td>订阅关系中间表</td>
+<td><code>(user_id, feed_id)</code> 唯一</td>
+<td>多对多的标准落地方式，天然防重复订阅</td>
+</tr>
+<tr>
+<td><code>posts</code></td>
+<td>抓取到的文章</td>
+<td><code>(feed_id, link)</code> 唯一</td>
+<td>反复抓取时重复文章被唯一约束挡住</td>
+</tr>
+</tbody></table>
+<h3 id="16-1-4-为什么订阅关系必须单独一张表"><a href="#16-1-4-为什么订阅关系必须单独一张表" class="headerlink" title="16.1.4 为什么订阅关系必须单独一张表"></a>16.1.4 为什么订阅关系必须单独一张表</h3><p>把订阅关系塞进 <code>users</code> 表、加一个 <code>feeds UUID[]</code> 数组列也能跑，但一旦要回答「谁订阅了源 X？」，数组列就没法建反向索引。多对多中间表是标准答案：把「关系」当成一行来存，于是它有了主键、创建时间、可以被索引、被唯一约束保护。Java 对应 <code>@ManyToMany</code>。</p>
+<hr>
+<h2 id="16-2-迁移与代码生成：goose-管版本，sqlc-管类型"><a href="#16-2-迁移与代码生成：goose-管版本，sqlc-管类型" class="headerlink" title="16.2 迁移与代码生成：goose 管版本，sqlc 管类型"></a>16.2 迁移与代码生成：goose 管版本，sqlc 管类型</h2><p>手写 <code>database/sql</code> 的查询，<code>Scan</code> 的目标类型和 SQL 里的列类型之间<strong>没有任何编译期检查</strong>。sqlc 的答案是——你写 SQL，它反推出类型安全的代码。</p>
+<h3 id="16-2-1-goose：把-schema-变成有版本的历史"><a href="#16-2-1-goose：把-schema-变成有版本的历史" class="headerlink" title="16.2.1 goose：把 schema 变成有版本的历史"></a>16.2.1 goose：把 schema 变成有版本的历史</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go install github.com/pressly/goose/v3/cmd/goose@latest</span><br><span class="line">goose -<span class="built_in">dir</span> sql/schema postgres <span class="string">&quot;postgres://postgres:postgres@localhost:5432/rssagg?sslmode=disable&quot;</span> create add_users</span><br><span class="line">goose -<span class="built_in">dir</span> sql/schema postgres <span class="string">&quot;postgres://postgres:postgres@localhost:5432/rssagg?sslmode=disable&quot;</span> up</span><br></pre></td></tr></table></figure>
+
+<p>命令形态是固定的四段：<code>goose -dir &lt;迁移目录&gt; &lt;驱动&gt; &lt;连接串&gt; &lt;子命令&gt;</code>。三个必须知道的细节：<strong>数字前缀决定顺序</strong>（要补齐位数）；<strong>已执行过的文件不要改</strong>，goose 只记版本号；<code>up</code> 是<strong>幂等</strong>的。</p>
+<h3 id="16-2-2-sqlc：从-SQL-反推出类型安全的-Go-代码"><a href="#16-2-2-sqlc：从-SQL-反推出类型安全的-Go-代码" class="headerlink" title="16.2.2 sqlc：从 SQL 反推出类型安全的 Go 代码"></a>16.2.2 sqlc：从 SQL 反推出类型安全的 Go 代码</h3><p>sqlc 的输入是 <strong>schema</strong>（表结构）和 <strong>queries</strong>（查询语句），输出是 Go 代码。查询语句要用 <code>-- name:</code> 注释声明名字和返回类型：<code>:one</code> 一行，<code>:many</code> 多行，<code>:exec</code> 无结果集。比如 <code>-- name: GetUserByAPIKeyHash :one</code> 后面跟一条 <code>SELECT id, name, created_at FROM users WHERE api_key_hash = $1;</code> 就行。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sqlc.yaml</span></span><br><span class="line"><span class="attr">version:</span> <span class="string">&quot;2&quot;</span></span><br><span class="line"><span class="attr">sql:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">engine:</span> <span class="string">&quot;postgresql&quot;</span></span><br><span class="line">    <span class="attr">queries:</span> <span class="string">&quot;sql/queries&quot;</span></span><br><span class="line">    <span class="attr">schema:</span> <span class="string">&quot;sql/schema&quot;</span></span><br><span class="line">    <span class="attr">overrides:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">db_type:</span> <span class="string">&quot;uuid&quot;</span></span><br><span class="line">        <span class="attr">go_type:</span></span><br><span class="line">          <span class="attr">import:</span> <span class="string">&quot;github.com/google/uuid&quot;</span></span><br><span class="line">          <span class="attr">package:</span> <span class="string">&quot;uuid&quot;</span></span><br><span class="line">          <span class="attr">type:</span> <span class="string">&quot;UUID&quot;</span></span><br><span class="line">    <span class="attr">gen:</span></span><br><span class="line">      <span class="attr">go:</span></span><br><span class="line">        <span class="attr">package:</span> <span class="string">&quot;database&quot;</span></span><br><span class="line">        <span class="attr">out:</span> <span class="string">&quot;internal/database&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>最关键的是 <code>overrides</code>：PostgreSQL 的 <code>uuid</code> 默认映射成 <code>pgtype.UUID</code>，不写 override 就会到处是这种噪音。<code>sqlc compile</code> 只校验 SQL，放进 CI 能报出「引用了不存在的列」。</p>
+<h3 id="16-2-3-为什么要-sqlc，而不是手写-SQL-或上-ORM"><a href="#16-2-3-为什么要-sqlc，而不是手写-SQL-或上-ORM" class="headerlink" title="16.2.3 为什么要 sqlc，而不是手写 SQL 或上 ORM"></a>16.2.3 为什么要 sqlc，而不是手写 SQL 或上 ORM</h3><p>核心理由只有一条：<strong>Go 里没有一个像 JPA 那样被广泛接受的一等公民 ORM</strong>。GORM 是最接近的，但反射和魔法方法太多。sqlc 反过来走：<strong>你写 SQL，工具补类型</strong>。</p>
+<h3 id="16-2-4-目录约定：生成物锁进-internal"><a href="#16-2-4-目录约定：生成物锁进-internal" class="headerlink" title="16.2.4 目录约定：生成物锁进 internal"></a>16.2.4 目录约定：生成物锁进 <code>internal</code></h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">rssagg/</span><br><span class="line">├── cmd/rssagg/main.go        # 进程入口</span><br><span class="line">├── internal/</span><br><span class="line">│   ├── auth/api_key.go       # API Key 解析与摘要</span><br><span class="line">│   └── database/             # sqlc 生成，勿手改</span><br><span class="line">├── sql/</span><br><span class="line">│   ├── schema/               # goose 迁移文件，表结构的唯一真相源</span><br><span class="line">│   └── queries/              # sqlc 查询</span><br><span class="line">└── go.mod</span><br></pre></td></tr></table></figure>
+
+<p><code>sql/schema</code> 是表结构的唯一真相源，goose 执行它、sqlc 读它推导类型；生成物放在 <code>internal/</code> 下，只能被本模块内代码导入；不要手改。</p>
+<hr>
+<h2 id="16-3-API-Key-鉴权：把一把密钥变成用户身份"><a href="#16-3-API-Key-鉴权：把一把密钥变成用户身份" class="headerlink" title="16.3 API Key 鉴权：把一把密钥变成用户身份"></a>16.3 API Key 鉴权：把一把密钥变成用户身份</h2><p>接口分两类：创建用户是公开的，其余都要证明「你是谁」。这里不用 JWT：这是<strong>服务端给自己客户端用的</strong>场景，一把可随时吊销的随机密钥就够了。</p>
+<h3 id="16-3-1-请求头格式与解析"><a href="#16-3-1-请求头格式与解析" class="headerlink" title="16.3.1 请求头格式与解析"></a>16.3.1 请求头格式与解析</h3><p>约定请求头是标准的两段式：<code>Authorization: ApiKey &lt;key&gt;</code>。解析函数放在 <code>internal/auth</code>，<strong>不依赖任何 HTTP 框架</strong>，只吃 <code>http.Header</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> auth</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;errors&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;strings&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> authScheme = <span class="string">&quot;ApiKey&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// GetAPIKey 从请求头里取出 API Key，摘要由调用方决定。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetAPIKey</span><span class="params">(headers http.Header)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line"></span><br><span class="line">	raw := headers.Get(<span class="string">&quot;Authorization&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> raw == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, errors.New(<span class="string">&quot;missing Authorization header&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	scheme, key, found := strings.Cut(raw, <span class="string">&quot; &quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> !found || key == <span class="string">&quot;&quot;</span> || !strings.EqualFold(scheme, authScheme) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, errors.New(<span class="string">&quot;malformed Authorization header&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> key, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>strings.Cut</code> 一次切出两段；<code>strings.EqualFold</code> 做大小写不敏感比较——HTTP 的认证方案名按规范就不区分大小写。</p>
+<table>
+<thead>
+<tr>
+<th>语言</th>
+<th>表达「可能失败」的方式</th>
+<th>典型写法</th>
+<th>调用方怎么接</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Go</td>
+<td>返回值 <code>error</code></td>
+<td><code>func GetAPIKey(h http.Header) (string, error)</code></td>
+<td><code>key, err := ...; if err != nil &#123; ... &#125;</code></td>
+</tr>
+<tr>
+<td>Java</td>
+<td>抛异常</td>
+<td><code>throw new IllegalArgumentException(&quot;...&quot;)</code></td>
+<td><code>try &#123; ... &#125; catch (IllegalArgumentException e) &#123; ... &#125;</code></td>
+</tr>
+<tr>
+<td>Python</td>
+<td>抛异常</td>
+<td><code>raise ValueError(&quot;...&quot;)</code></td>
+<td><code>try: ... except ValueError: ...</code></td>
+</tr>
+</tbody></table>
+<h3 id="16-3-2-数据库里只存摘要"><a href="#16-3-2-数据库里只存摘要" class="headerlink" title="16.3.2 数据库里只存摘要"></a>16.3.2 数据库里只存摘要</h3><p>明文存 API Key 绝对不能做：库被拖走、备份泄露、日志被打出来，密钥就等于公开了。所以库里存 SHA-256 摘要。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HashAPIKey 计算 API Key 的十六进制 SHA-256 摘要，长度固定，存 TEXT 列即可。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">HashAPIKey</span><span class="params">(raw <span class="type">string</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	sum := sha256.Sum256([]<span class="type">byte</span>(raw))</span><br><span class="line">	<span class="keyword">return</span> hex.EncodeToString(sum[:])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>密钥本身用 <code>crypto/rand</code> 读 32 字节随机数，再用 <code>base64.RawURLEncoding</code> 编码（放进 HTTP 头里不用转义）。<strong>为什么用 SHA-256 而不是 bcrypt&#x2F;Argon2？</strong> 用户密码熵很低、可以被离线爆破，必须用慢哈希；API Key 是随机数，穷举空间是 $2^{256}$。<strong>用慢哈希保护高熵随机密钥，是把慢哈希用错了地方。</strong></p>
+<h3 id="16-3-3-中间件与-context-传递"><a href="#16-3-3-中间件与-context-传递" class="headerlink" title="16.3.3 中间件与 context 传递"></a>16.3.3 中间件与 context 传递</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ctxKey 是自定义类型，避免和别的包里的 context key 撞车。</span></span><br><span class="line"><span class="keyword">type</span> ctxKey <span class="type">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ctxKeyUser ctxKey = <span class="literal">iota</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// authMiddleware 解析 API Key、查出用户，并把用户塞进请求的 context。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *api)</span></span> authMiddleware(next http.Handler) http.Handler &#123;</span><br><span class="line">	<span class="keyword">return</span> http.HandlerFunc(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		rawKey, err := auth.GetAPIKey(r.Header)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			respondWithError(w, http.StatusUnauthorized, <span class="string">&quot;missing or malformed credentials&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		user, err := a.DB.GetUserByAPIKeyHash(r.Context(), auth.HashAPIKey(rawKey))</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="comment">// 查不到用户和数据库出故障，都不告诉客户端细节。</span></span><br><span class="line">			log.Printf(<span class="string">&quot;auth lookup failed: %v&quot;</span>, err)</span><br><span class="line">			respondWithError(w, http.StatusUnauthorized, <span class="string">&quot;invalid credentials&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		ctx := context.WithValue(r.Context(), ctxKeyUser, user)</span><br><span class="line">		next.ServeHTTP(w, r.WithContext(ctx))</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>中间件是「装饰器」在 Go 里的样子：<code>func(http.Handler) http.Handler</code>，收到请求时先干活，再决定要不要往下传。<code>context.Context</code> 和 Java 的 <code>ThreadLocal</code> 是一家人，但有两条硬性约定——<strong>不要存进结构体字段</strong>，<strong>只放请求范围的元数据</strong>。取用户用 <code>r.Context().Value(ctxKeyUser)</code> 断言即可。</p>
+<h3 id="16-3-4-401-响应的约定"><a href="#16-3-4-401-响应的约定" class="headerlink" title="16.3.4 401 响应的约定"></a>16.3.4 401 响应的约定</h3><p>错误响应统一一个结构：状态码 + <code>&#123;&quot;error&quot;:&#123;&quot;message&quot;:&quot;...&quot;&#125;&#125;</code>。鉴权失败一律返回 <code>401 Unauthorized</code>，并且<strong>不透露具体原因</strong>：没带头、头格式不对、Key 不存在、数据库故障，全是同一个响应体。</p>
+<hr>
+<h2 id="16-4-订阅关系接口：多对多的写入与读取"><a href="#16-4-订阅关系接口：多对多的写入与读取" class="headerlink" title="16.4 订阅关系接口：多对多的写入与读取"></a>16.4 订阅关系接口：多对多的写入与读取</h2><p>有了鉴权，接口就能按用户维度工作了。先把 API 清单列出来，写代码时对着它实现。</p>
+<h3 id="16-4-1-API-清单"><a href="#16-4-1-API-清单" class="headerlink" title="16.4.1 API 清单"></a>16.4.1 API 清单</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>需要鉴权</th>
+<th>请求体</th>
+<th>成功状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/v1/users</code></td>
+<td>否</td>
+<td><code>&#123;&quot;name&quot;:&quot;...&quot;&#125;</code></td>
+<td>201</td>
+<td>创建用户，响应里一次性返回明文 API Key</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/v1/feeds/follows</code></td>
+<td>是</td>
+<td><code>&#123;&quot;feed_id&quot;:&quot;...&quot;&#125;</code></td>
+<td>201</td>
+<td>订阅一个已登记的源</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/v1/feeds/follows</code></td>
+<td>是</td>
+<td>-</td>
+<td>200</td>
+<td>列出我订阅的源（分页）</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/v1/scrape</code></td>
+<td>是</td>
+<td>-</td>
+<td>202</td>
+<td>手动触发一次抓取</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/v1/posts</code></td>
+<td>是</td>
+<td><code>?limit=&amp;offset=</code></td>
+<td>200</td>
+<td>列出我订阅源上的文章</td>
+</tr>
+</tbody></table>
+<p>订阅关系的写入用一条带 <code>RETURNING</code> 的 INSERT 就够了：<code>INSERT INTO feed_follows (id, user_id, feed_id) VALUES ($1, $2, $3) RETURNING id, user_id, feed_id, created_at;</code>，在 sqlc 里标成 <code>-- name: CreateFeedFollow :one</code>。</p>
+<h3 id="16-4-2-创建订阅：把唯一约束冲突翻译成人话"><a href="#16-4-2-创建订阅：把唯一约束冲突翻译成人话" class="headerlink" title="16.4.2 创建订阅：把唯一约束冲突翻译成人话"></a>16.4.2 创建订阅：把唯一约束冲突翻译成人话</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *api)</span></span> handleCreateFeedFollow(w http.ResponseWriter, r *http.Request) &#123;</span><br><span class="line">	user, ok := currentUser(r)</span><br><span class="line">	<span class="keyword">if</span> !ok &#123;</span><br><span class="line">		respondWithError(w, http.StatusUnauthorized, <span class="string">&quot;unauthorized&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> req <span class="keyword">struct</span> &#123;</span><br><span class="line">		FeedID <span class="type">string</span> <span class="string">`json:&quot;feed_id&quot;`</span></span><br><span class="line">	&#125;</span><br><span class="line">	feedID, err := uuid.Parse(req.FeedID)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		respondWithError(w, http.StatusBadRequest, <span class="string">&quot;feed_id is not a valid uuid&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	follow, err := a.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams&#123;</span><br><span class="line">		ID:     uuid.NewString(),</span><br><span class="line">		UserID: user.ID,</span><br><span class="line">		FeedID: feedID,</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> isUniqueViolation(err) &#123;</span><br><span class="line">			<span class="comment">// 重复订阅不是服务端故障，是客户端的状态冲突。</span></span><br><span class="line">			respondWithError(w, http.StatusConflict, <span class="string">&quot;already following this feed&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		log.Printf(<span class="string">&quot;create feed follow failed: %v&quot;</span>, err)</span><br><span class="line">		respondWithError(w, http.StatusInternalServerError, <span class="string">&quot;internal error&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	respondWithJSON(w, http.StatusCreated, feedFollowToAPI(follow))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>判断唯一约束冲突，用 PostgreSQL 驱动返回的错误码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;errors&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;github.com/lib/pq&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// isUniqueViolation 判断错误是不是唯一约束冲突。</span></span><br><span class="line"><span class="comment">// PostgreSQL 的 SQLSTATE 23505 就是 unique_violation。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">isUniqueViolation</span><span class="params">(err <span class="type">error</span>)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">var</span> pgErr *pq.Error</span><br><span class="line">	<span class="keyword">if</span> errors.As(err, &amp;pgErr) &#123;</span><br><span class="line">		<span class="keyword">return</span> pgErr.Code == <span class="string">&quot;23505&quot;</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>errors.As</code> 是 Go 1.13 之后的标准做法：沿着错误链往上找，找到第一个能装进目标类型的错误就停下。<code>pgErr</code> 是指针类型，<code>&amp;pgErr</code> 是 <code>**pq.Error</code>。</p>
+<p><strong>别写「先查一遍再插」</strong>。两个请求同时查到「不存在」然后同时插入，就出现了重复。正确姿势是让唯一约束裁决，冲突了翻译成 409。</p>
+<h3 id="16-4-3-查询我的订阅与模型转换"><a href="#16-4-3-查询我的订阅与模型转换" class="headerlink" title="16.4.3 查询我的订阅与模型转换"></a>16.4.3 查询我的订阅与模型转换</h3><p>查询逻辑和创建对称：从 context 取用户 → 调 sqlc 生成的 <code>ListFeedFollows</code>（一条 <code>feed_follows JOIN feeds</code> 的查询）→ 逐行转成业务结构体 → 返回。</p>
+<p>转换层要单独一层，因为 sqlc 生成的 <code>database.FeedFollow</code> 是<strong>贴着数据库表</strong>的：列名变了它就变，直接当响应体返回，等于把数据库结构公开成了 API 契约。所以另定义业务结构体 <code>FeedFollow</code> 带 <code>json</code> tag。</p>
+<p>另外 <code>make([]FeedFollow, 0, len(rows))</code> 更稳：序列化成 <code>[]</code> 而不是 nil。业务模型（<code>models.go</code>）决定对外吐什么字段。</p>
+<hr>
+<h2 id="16-5-RSS-解析与并发抓取"><a href="#16-5-RSS-解析与并发抓取" class="headerlink" title="16.5 RSS 解析与并发抓取"></a>16.5 RSS 解析与并发抓取</h2><p>接口能读能写了，接下来是聚合器的核心：把订阅源里的文章抓回来存进库。</p>
+<h3 id="16-5-1-gofeed-解析"><a href="#16-5-1-gofeed-解析" class="headerlink" title="16.5.1 gofeed 解析"></a>16.5.1 gofeed 解析</h3><p>RSS&#x2F;Atom 的解析用 <code>github.com/mmcdole/gofeed</code>：<code>parser.ParseURL(url)</code> 返回 <code>*gofeed.Feed</code>，失败用 <code>fmt.Errorf</code> 包装一层错误。</p>
+<p>两个必踩的坑：<code>Feed.Items</code> 才是正规入口，老的 <code>Feed.Channel</code> 是历史遗留字段；<code>PublishedParsed</code> <strong>可能为 nil</strong>，用 <code>time.Now().UTC()</code> 兜底。<code>Description</code> 带 HTML，直接塞进前端会出 XSS。</p>
+<h3 id="16-5-2-用-WaitGroup-编排抓取任务"><a href="#16-5-2-用-WaitGroup-编排抓取任务" class="headerlink" title="16.5.2 用 WaitGroup 编排抓取任务"></a>16.5.2 用 WaitGroup 编排抓取任务</h3><p>抓取是典型的 IO 密集型任务：大部分时间在等网络。Go 的 goroutine 就是为这种场景准备的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// maxConcurrentScrapes 是同时进行的抓取上限，否则本机 socket 和对端站点都会被打爆。</span></span><br><span class="line"><span class="keyword">const</span> maxConcurrentScrapes = <span class="number">8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// scrapeAll 并发抓取所有订阅源，任意一个源失败都不影响其它源。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *scraper)</span></span> scrapeAll(ctx context.Context, feeds []database.Feed) &#123;</span><br><span class="line">	<span class="comment">// 信号量：把并发数限制在 maxConcurrentScrapes 以内。</span></span><br><span class="line">	sem := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, maxConcurrentScrapes)</span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, feed := <span class="keyword">range</span> feeds &#123;</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(feed database.Feed)</span></span> &#123;</span><br><span class="line">			<span class="keyword">defer</span> wg.Done()</span><br><span class="line"></span><br><span class="line">			sem &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125;</span><br><span class="line">			<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; &lt;-sem &#125;()</span><br><span class="line"></span><br><span class="line">			s.scrapeOne(ctx, feed)</span><br><span class="line">		&#125;(feed)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 主协程在这里等待所有抓取结束。</span></span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>四个必须讲清楚的点：**<code>wg.Add(1)</code> 必须在 <code>go</code> 之前<strong>——写在 goroutine 内部的话，主协程可能在 <code>Add</code> 执行前就跑到 <code>wg.Wait()</code>，任务全丢，这是 Go 并发里最经典的竞态；</strong>Go 1.22 起 <code>for range</code> 的循环变量每轮新建<strong>，把 <code>feed</code> 作为参数传给 goroutine 已经不是必需；</strong>信号量用带缓冲的 channel** 实现。</p>
+<table>
+<thead>
+<tr>
+<th>语言</th>
+<th>并发单元</th>
+<th>等待全部完成</th>
+<th>限制并发数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Go</td>
+<td><code>go</code> 关键字</td>
+<td><code>sync.WaitGroup</code></td>
+<td>带缓冲 channel 当信号量</td>
+</tr>
+<tr>
+<td>Java</td>
+<td><code>ExecutorService</code></td>
+<td><code>invokeAll</code></td>
+<td>固定大小的线程池</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><code>ThreadPoolExecutor</code></td>
+<td><code>as_completed</code></td>
+<td>池大小参数</td>
+</tr>
+</tbody></table>
+<p>goroutine 比线程轻量得多（初始栈只有几 KB），Java 的线程是 OS 线程，开多了是几 GB 栈。</p>
+<h3 id="16-5-3-抓到的文章要入库"><a href="#16-5-3-抓到的文章要入库" class="headerlink" title="16.5.3 抓到的文章要入库"></a>16.5.3 抓到的文章要入库</h3><p>只 <code>log.Printf</code> 打印出来是最常见的「看起来做完了」——数据没落库，接口查出来还是空的。入库要用 <code>Upsert</code>，因为同一个源会被反复抓取：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- name: UpsertPost :one</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> posts (id, feed_id, title, link, published_at)</span><br><span class="line"><span class="keyword">VALUES</span> ($<span class="number">1</span>, $<span class="number">2</span>, $<span class="number">3</span>, $<span class="number">4</span>, $<span class="number">5</span>)</span><br><span class="line"><span class="keyword">ON</span> CONFLICT (feed_id, link) DO <span class="keyword">UPDATE</span></span><br><span class="line"><span class="keyword">SET</span> title <span class="operator">=</span> EXCLUDED.title</span><br><span class="line">RETURNING id, feed_id, title, link, published_at;</span><br></pre></td></tr></table></figure>
+
+<p><code>ON CONFLICT (feed_id, link) DO UPDATE</code> 依赖 <code>posts</code> 表上的唯一索引。冲突时更新标题和摘要，但**保留原来的 <code>id</code> 和 <code>published_at</code>**。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *scraper)</span></span> scrapeOne(ctx context.Context, feed database.Feed) &#123;</span><br><span class="line">	rssFeed, err := s.parser.ParseURL(feed.URL)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// 单个源失败：记日志、返回，不能影响其它源。</span></span><br><span class="line">		log.Printf(<span class="string">&quot;scrape feed %q failed: %v&quot;</span>, feed.Name, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	stored := <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> _, item := <span class="keyword">range</span> rssFeed.Items &#123;</span><br><span class="line">		<span class="keyword">if</span> item == <span class="literal">nil</span> || item.Title == <span class="string">&quot;&quot;</span> || item.Link == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		publishedAt := time.Now().UTC()</span><br><span class="line">		<span class="keyword">if</span> item.PublishedParsed != <span class="literal">nil</span> &#123;</span><br><span class="line">			publishedAt = item.PublishedParsed.UTC()</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		_, err := s.queries.UpsertPost(ctx, database.UpsertPostParams&#123;</span><br><span class="line">			ID:          uuid.NewString(),</span><br><span class="line">			FeedID:      feed.ID,</span><br><span class="line">			Title:       item.Title,</span><br><span class="line">			Link:        item.Link,</span><br><span class="line">			PublishedAt: publishedAt,</span><br><span class="line">		&#125;)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="comment">// 篇文章失败不能中断整个源的抓取。</span></span><br><span class="line">			log.Printf(<span class="string">&quot;store post %q failed: %v&quot;</span>, item.Title, err)</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		stored++</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>错误处理是分层的：<strong>单篇文章失败 → 跳过继续；单个源失败 → 记日志返回；整体不因任何一个源失败而中断</strong>。定时调度用 <code>time.Ticker</code> 加 <code>select</code>，进程退出时 context 一取消就返回。</p>
+<hr>
+<h2 id="16-6-分页查询：offset-的坑与游标解法"><a href="#16-6-分页查询：offset-的坑与游标解法" class="headerlink" title="16.6 分页查询：offset 的坑与游标解法"></a>16.6 分页查询：offset 的坑与游标解法</h2><p>「列出我的文章」这个接口必然要分页。分页怎么做，差别比看上去大得多。</p>
+<h3 id="16-6-1-limit-offset-到底慢在哪"><a href="#16-6-1-limit-offset-到底慢在哪" class="headerlink" title="16.6.1 limit&#x2F;offset 到底慢在哪"></a>16.6.1 limit&#x2F;offset 到底慢在哪</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- name: ListPostsForUser :many</span></span><br><span class="line"><span class="keyword">SELECT</span> p.id, p.feed_id, p.title, p.link, p.published_at</span><br><span class="line"><span class="keyword">FROM</span> posts p</span><br><span class="line"><span class="keyword">JOIN</span> feed_follows ff <span class="keyword">ON</span> ff.feed_id <span class="operator">=</span> p.feed_id</span><br><span class="line"><span class="keyword">WHERE</span> ff.user_id <span class="operator">=</span> $<span class="number">1</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> p.published_at <span class="keyword">DESC</span>, p.id <span class="keyword">DESC</span></span><br><span class="line">LIMIT $<span class="number">2</span> <span class="keyword">OFFSET</span> $<span class="number">3</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这段 SQL 语法没问题，但有两个隐蔽的坑。<strong>第一，深分页会越来越慢</strong>：<code>OFFSET 100000</code> 是「先产出 100000 行再扔掉」，数据库仍要扫过并排序。<strong>第二，翻页期间数据在变会重复或漏看</strong>：第一页查完、第二页还没点时来了 10 篇新文章，<code>OFFSET 20</code> 就会把原来第 21 条挤到第 31 条。</p>
+<h3 id="16-6-2-游标（keyset）分页"><a href="#16-6-2-游标（keyset）分页" class="headerlink" title="16.6.2 游标（keyset）分页"></a>16.6.2 游标（keyset）分页</h3><p>游标分页的思路是：<strong>不告诉服务器「跳过前 N 条」，而是告诉它「从这一条之后开始」</strong>。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- name: ListPostsForUserCursor :many</span></span><br><span class="line"><span class="keyword">SELECT</span> p.id, p.feed_id, p.title, p.link, p.published_at</span><br><span class="line"><span class="keyword">FROM</span> posts p</span><br><span class="line"><span class="keyword">JOIN</span> feed_follows ff <span class="keyword">ON</span> ff.feed_id <span class="operator">=</span> p.feed_id</span><br><span class="line"><span class="keyword">WHERE</span> ff.user_id <span class="operator">=</span> $<span class="number">1</span></span><br><span class="line">  <span class="keyword">AND</span> (p.published_at, p.id) <span class="operator">&lt;</span> ($<span class="number">2</span>, $<span class="number">3</span>)</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> p.published_at <span class="keyword">DESC</span>, p.id <span class="keyword">DESC</span></span><br><span class="line">LIMIT $<span class="number">4</span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>(p.published_at, p.id) &lt; ($2, $3)</code> 是 PostgreSQL 的<strong>行值比较</strong>，等价于 <code>p.published_at &lt; $2 OR (p.published_at = $2 AND p.id &lt; $3)</code>，但只写一遍，索引也能用。为什么要带 <code>id</code> 这个第二排序键？因为<strong>排序必须唯一</strong>——两篇文章 <code>published_at</code> 相同时，只按它排，边界就会漏掉或重复某条。</p>
+<p>游标一般是把 <code>published_at</code> 和 <code>id</code> 拼起来做 base64 编码，客户端原样回传。为了让查询走索引，还要追加一个迁移文件建 <code>(published_at DESC, id DESC)</code> 的索引。数据量小、页数少时用 offset 最省事；数据量上来后，尤其是无限滚动的信息流，游标才是稳妥选择。</p>
+<h3 id="16-6-3-参数化查询：注入问题从根上消失"><a href="#16-6-3-参数化查询：注入问题从根上消失" class="headerlink" title="16.6.3 参数化查询：注入问题从根上消失"></a>16.6.3 参数化查询：注入问题从根上消失</h3><p>回头看 16.6.1 那条 SQL，参数是 <code>$1</code> <code>$2</code> <code>$3</code>，值从来不和 SQL 文本拼在一起，这是防注入的<strong>唯一可靠办法</strong>。用 sqlc 之后更省心：生成的代码里不存在拼字符串的机会，参数是<strong>传值</strong>，注入在物理上不可能发生——而手写 <code>fmt.Sprintf</code> 拼 SQL，塞个单引号就能被注入。Java 用 PreparedStatement 的 <code>?</code> 占位符，Python 用 DB-API 的参数元组；<strong>区别在于 Go 手写拼 SQL 是合法语法，编译器不会拦你</strong>。</p>
+<hr>
+<h2 id="16-7-从零跑通全流程"><a href="#16-7-从零跑通全流程" class="headerlink" title="16.7 从零跑通全流程"></a>16.7 从零跑通全流程</h2><p>前面讲的都是片段，这一节把它们串成一条能跑的完整命令序列。</p>
+<h3 id="16-7-1-环境与依赖"><a href="#16-7-1-环境与依赖" class="headerlink" title="16.7.1 环境与依赖"></a>16.7.1 环境与依赖</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">go mod init rssagg</span><br><span class="line">go get github.com/go-chi/chi/v5</span><br><span class="line">go get github.com/lib/pq</span><br><span class="line">go get github.com/google/uuid</span><br><span class="line">go get github.com/mmcdole/gofeed</span><br><span class="line">go install github.com/pressly/goose/v3/cmd/goose@latest</span><br><span class="line">go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest</span><br></pre></td></tr></table></figure>
+
+<p><code>.env</code> 放配置和密钥，**一定要加进 <code>.gitignore</code>**：<code>PORT=8080</code> 和 <code>DATABASE_URL=postgres://postgres:postgres@localhost:5432/rssagg?sslmode=disable</code>。</p>
+<h3 id="16-7-2-建库、迁移、生成代码"><a href="#16-7-2-建库、迁移、生成代码" class="headerlink" title="16.7.2 建库、迁移、生成代码"></a>16.7.2 建库、迁移、生成代码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">createdb rssagg</span><br><span class="line">goose -<span class="built_in">dir</span> sql/schema postgres <span class="string">&quot;postgres://postgres:postgres@localhost:5432/rssagg?sslmode=disable&quot;</span> up</span><br><span class="line">sqlc generate</span><br><span class="line">go build -o bin/rssagg ./cmd/rssagg &amp;&amp; ./bin/rssagg</span><br></pre></td></tr></table></figure>
+
+<p>第 3 步之后 <code>internal/database</code> 下就会多出 <code>db.go</code>、<code>models.go</code> 和几个 <code>*.sql.go</code>。第一次生成时你大概率会看到编译错误 <code>cannot use &quot;xxx&quot; (untyped string constant) as uuid.UUID value</code>，这不是 bug，是 <code>overrides</code> 没配。</p>
+<p>路由装配和上一篇一致：公开的 <code>POST /v1/users</code> 挂在根路由上，受保护的放进 <code>r.Group(func(r chi.Router) &#123; r.Use(app.authMiddleware); ... &#125;)</code>。</p>
+<h3 id="16-7-3-灌数据"><a href="#16-7-3-灌数据" class="headerlink" title="16.7.3 灌数据"></a>16.7.3 灌数据</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1) 创建用户，响应里会一次性返回明文 API Key</span></span><br><span class="line">curl -s -X POST localhost:8080/v1/users \</span><br><span class="line">  -H <span class="string">&quot;Content-Type: application/json&quot;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;&quot;name&quot;:&quot;meisijiya&quot;&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 把 api_key 存进环境变量，后面就不用反复粘贴</span></span><br><span class="line"><span class="built_in">export</span> API_KEY=<span class="string">&#x27;3vB9xQ2mK7pR4tL8nW1zY6cF0dH5jA2sE7uI3oP9xQ4&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 登记一个订阅源，再订阅它</span></span><br><span class="line">curl -s -X POST localhost:8080/v1/feeds \</span><br><span class="line">  -H <span class="string">&quot;Authorization: ApiKey <span class="variable">$API_KEY</span>&quot;</span> \</span><br><span class="line">  -H <span class="string">&quot;Content-Type: application/json&quot;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;&quot;name&quot;:&quot;Example Feed&quot;,&quot;url&quot;:&quot;feeds.example.com/rss.xml&quot;&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line">curl -s -X POST localhost:8080/v1/feeds/follows \</span><br><span class="line">  -H <span class="string">&quot;Authorization: ApiKey <span class="variable">$API_KEY</span>&quot;</span> \</span><br><span class="line">  -H <span class="string">&quot;Content-Type: application/json&quot;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;&quot;feed_id&quot;:&quot;9b2a1c88-3d4e-4f50-8a6b-7c8d9e0f1a2b&quot;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里的 <code>url</code> 只是示意，实际填一个完整的、带协议头的 RSS 地址（<code>http</code> 或 <code>https</code> 开头），只给域名 <code>ParseURL</code> 解析不了。再订阅一次会返回 409 和 <code>already following this feed</code>，这就是唯一约束在起作用。</p>
+<hr>
+<h2 id="16-8-上线前的检查清单"><a href="#16-8-上线前的检查清单" class="headerlink" title="16.8 上线前的检查清单"></a>16.8 上线前的检查清单</h2><p>能跑通和能上线之间隔着一堆「不出事看不出来」的配置，下面这四项最容易漏。</p>
+<h3 id="16-8-1-连接池"><a href="#16-8-1-连接池" class="headerlink" title="16.8.1 连接池"></a>16.8.1 连接池</h3><p><code>database/sql</code> 自带连接池，但默认值对生产环境往往不合适：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">db.SetMaxOpenConns(<span class="number">25</span>)                    <span class="comment">// 最大打开的连接数</span></span><br><span class="line">db.SetMaxIdleConns(<span class="number">25</span>)                    <span class="comment">// 最大空闲连接数</span></span><br><span class="line">db.SetConnMaxLifetime(<span class="number">5</span> * time.Minute)    <span class="comment">// 连接的最长存活时间</span></span><br><span class="line">db.SetConnMaxIdleTime(<span class="number">1</span> * time.Minute)    <span class="comment">// 空闲连接的最长保留时间</span></span><br></pre></td></tr></table></figure>
+
+<p><code>MaxOpenConns</code> 不设的话默认无限，突发流量直接打爆数据库连接，报 <code>too many connections</code>。<strong>先算 PostgreSQL 那边 <code>max_connections</code> 的总数，再按实例数分摊</strong>。<code>ConnMaxLifetime</code> 用来应对中间件掐掉长连接，取 5 分钟左右即可。</p>
+<h3 id="16-8-2-超时"><a href="#16-8-2-超时" class="headerlink" title="16.8.2 超时"></a>16.8.2 超时</h3><p><strong>没有超时的 <code>http.Client</code> 是最常见的资源泄漏源。</strong> 一个卡住的对端能让 goroutine 一直挂着，几千个之后内存和文件描述符就都满了：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">client := &amp;http.Client&#123;Timeout: <span class="number">15</span> * time.Second&#125;</span><br><span class="line"></span><br><span class="line">srv := &amp;http.Server&#123;</span><br><span class="line">	ReadHeaderTimeout: <span class="number">5</span> * time.Second,  <span class="comment">// 只读请求头，挡住慢速攻击</span></span><br><span class="line">	ReadTimeout:       <span class="number">15</span> * time.Second, <span class="comment">// 读完整请求</span></span><br><span class="line">	WriteTimeout:      <span class="number">30</span> * time.Second, <span class="comment">// 写完整响应</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>数据库查询也要带超时，否则一条慢 SQL 能把连接池占满：拿到 <code>r.Context()</code> 之后套一层 <code>context.WithTimeout(ctx, 3*time.Second)</code> 再传给 sqlc 的查询方法即可。</p>
+<h3 id="16-8-3-优雅关闭"><a href="#16-8-3-优雅关闭" class="headerlink" title="16.8.3 优雅关闭"></a>16.8.3 优雅关闭</h3><p>进程收到 <code>SIGTERM</code> 时应该做三件事：停止接收新请求、等待在途请求做完、关掉数据库连接。<code>http.Server.Shutdown</code> 就是干这个的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)</span><br><span class="line"><span class="keyword">defer</span> stop()</span><br><span class="line"></span><br><span class="line">&lt;-ctx.Done()</span><br><span class="line">stop() <span class="comment">// 恢复默认信号行为，第二次 Ctrl+C 可以直接杀</span></span><br><span class="line"></span><br><span class="line">shutdownCtx, cancel := context.WithTimeout(context.Background(), <span class="number">10</span>*time.Second)</span><br><span class="line"><span class="keyword">defer</span> cancel()</span><br><span class="line">_ = srv.Shutdown(shutdownCtx)</span><br></pre></td></tr></table></figure>
+
+<p><code>Shutdown</code> 会关闭监听器、等待所有活跃连接空闲。如果超过 10 秒还没结束，context 超时，进程被强制退出——<strong>优雅关闭是「尽力而为」，不是「保证完成」</strong>。</p>
+<h3 id="16-8-4-限流"><a href="#16-8-4-限流" class="headerlink" title="16.8.4 限流"></a>16.8.4 限流</h3><p>限流有两层含义。<strong>对内</strong>是保护自己的服务不被单个客户端打爆，按 API Key 维度做令牌桶限速（<code>golang.org/x/time/rate</code>），超限返回 429。<strong>对外</strong>是抓取别人的 RSS 源时要「礼貌」：加 <code>User-Agent</code>、限并发、失败退避重试。</p>
+<hr>
+<h2 id="16-9-动手练"><a href="#16-9-动手练" class="headerlink" title="16.9 动手练"></a>16.9 动手练</h2><p><strong>练习一：加一个「重置 API Key」接口。</strong> 新增 <code>POST /v1/users/me/api-key</code>，生成新密钥、更新 <code>api_key_hash</code>、返回新的明文 Key。验收：旧 Key 立刻失效，新 Key 可用。</p>
+<p><strong>练习二：给抓取加重试与退避。</strong> 单个源抓取失败时最多重试 3 次，间隔依次为 1s、2s、4s；三次都失败就标记该源为失败状态（给 <code>feeds</code> 加 <code>last_error</code> 列）。验收：把某个源的地址写错，日志里能看到 3 次重试，其它源照常入库。</p>
+<hr>
+<h2 id="16-10-常见错误清单"><a href="#16-10-常见错误清单" class="headerlink" title="16.10 常见错误清单"></a>16.10 常见错误清单</h2><p>下面是实际写这类项目时最容易踩的坑，按「症状 → 原因 → 修法」整理。</p>
+<table>
+<thead>
+<tr>
+<th>症状</th>
+<th>真正的原因</th>
+<th>修法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>goose up</code> 报版本已执行，但表还是老的</td>
+<td>改了已执行过的迁移文件内容，goose 只记版本号不记内容</td>
+<td>已执行的迁移永不改，追加新文件；开发期用 <code>reset</code> 推倒重来</td>
+</tr>
+<tr>
+<td><code>sqlc generate</code> 后编译报类型不匹配</td>
+<td><code>overrides</code> 没配，数据库的 <code>uuid</code> 被映射成了驱动类型</td>
+<td>在 <code>sqlc.yaml</code> 里加 <code>uuid</code> → <code>uuid.UUID</code> 的 override</td>
+</tr>
+<tr>
+<td>明明带了正确的 Key 却一直 401</td>
+<td>入库时存了明文，查询时按摘要查</td>
+<td>统一走 <code>auth.HashAPIKey</code>，库里只存摘要</td>
+</tr>
+<tr>
+<td>重复订阅时插入了两条</td>
+<td>没加 <code>UNIQUE(user_id, feed_id)</code>，或者只靠「先查再插」</td>
+<td>加唯一索引，靠数据库裁决，冲突转 409</td>
+</tr>
+<tr>
+<td>抓取一次后文章越来越多</td>
+<td><code>posts</code> 没有 <code>(feed_id, link)</code> 唯一约束</td>
+<td>加唯一约束 + <code>ON CONFLICT DO UPDATE</code></td>
+</tr>
+<tr>
+<td>抓取任务「偶尔」丢一两个源</td>
+<td><code>wg.Add(1)</code> 写在了 <code>go</code> 语句里面</td>
+<td><code>wg.Add(1)</code> 必须在 <code>go</code> 之前</td>
+</tr>
+<tr>
+<td>整个进程被一个源的异常带崩</td>
+<td>goroutine 里的 panic 不会被主协程的 <code>recover</code> 捕获</td>
+<td>每个 goroutine 内部自己 <code>defer recover()</code></td>
+</tr>
+<tr>
+<td>翻到第 50 页要等好几秒</td>
+<td><code>OFFSET</code> 让数据库扫过并丢弃前 50 页的数据</td>
+<td>换游标分页，并建 <code>(published_at, id)</code> 索引</td>
+</tr>
+<tr>
+<td>数据库报 <code>too many connections</code></td>
+<td>没设 <code>SetMaxOpenConns</code>，或者进程起了太多副本</td>
+<td>按 <code>max_connections</code> 反推每个实例的池大小</td>
+</tr>
+<tr>
+<td>接口返回 <code>null</code> 而不是 <code>[]</code></td>
+<td>切片是 nil</td>
+<td><code>make([]T, 0, len(rows))</code> 初始化</td>
+</tr>
+<tr>
+<td>抓取时个别文章没有发布时间</td>
+<td>源本身没写时间，<code>PublishedParsed</code> 是 nil</td>
+<td>用抓取时间兜底</td>
+</tr>
+</tbody></table>
+<p>最后一条单独强调一下：**<code>published_at</code> 是 <code>NOT NULL</code> 列**，不做 nil 判断就 INSERT，会得到一个「插入失败但错误信息很奇怪」的现象。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"># 并发编程</a>
+          
+          <a href="/tags/%E5%AE%9E%E6%88%98/"># 实战</a>
+          
+          <a href="/tags/PostgreSQL/"># PostgreSQL</a>
+          
+          <a href="/tags/SQL/"># SQL</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%80%83%E7%82%B9%E4%B8%8E%E5%A4%8D%E7%9B%98/"
+        >Go 面试高频考点与复盘</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%AE%9E%E6%88%98%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%20RSS%20%E8%81%9A%E5%90%88%E5%99%A8%E6%9E%B6%E6%9E%84%E4%B8%8E%20Chi%20%E8%B7%AF%E7%94%B1%E7%BD%91%E5%85%B3/"
+        >Go 实战（一）— RSS 聚合器架构与 Chi 路由网关</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

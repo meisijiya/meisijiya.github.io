@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go 面试高频考点与复盘 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go 面试高频考点与复盘</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;11:57:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="17-Go-面试高频考点与复盘"><a href="#17-Go-面试高频考点与复盘" class="headerlink" title="17 Go 面试高频考点与复盘"></a>17 Go 面试高频考点与复盘</h1><blockquote>
+<p>前十六篇讲的是「Go 怎么写」，这一篇讲「面试官怎么问」——把语言机制、并发模型、工具链和项目讲述串成一套能背的答题框架。</p>
+</blockquote>
+<hr>
+<h2 id="17-1-语言机制高频题"><a href="#17-1-语言机制高频题" class="headerlink" title="17.1 语言机制高频题"></a>17.1 语言机制高频题</h2><h3 id="17-1-1-零值与类型转换"><a href="#17-1-1-零值与类型转换" class="headerlink" title="17.1.1 零值与类型转换"></a>17.1.1 零值与类型转换</h3><ul>
+<li>零值 &#x3D; 类型「天然为空」：数值 <code>0</code>、字符串 <code>&quot;&quot;</code>、布尔 <code>false</code>、指针&#x2F;slice&#x2F;map&#x2F;chan&#x2F;func 是 <code>nil</code>。</li>
+<li><strong>零值可用</strong>：<code>var mu sync.Mutex</code> 直接能加锁，不用像 Java 那样 <code>new</code>。</li>
+<li>转换<strong>没有隐式转换</strong>：<code>var i int = 3.14</code> 编译不过；数字转字符串走 <code>strconv</code>，<code>string(65)</code> 得到字符 <code>&quot;A&quot;</code> 而非 <code>&quot;65&quot;</code>。</li>
+</ul>
+<h3 id="17-1-2-切片三要素与扩容"><a href="#17-1-2-切片三要素与扩容" class="headerlink" title="17.1.2 切片三要素与扩容"></a>17.1.2 切片三要素与扩容</h3><p>切片 &#x3D; <strong>底层数组指针 + len + cap</strong>。</p>
+<ul>
+<li>扩容：<strong>小切片大致翻倍，变大后增长系数降到约 1.25 倍</strong>。</li>
+<li>真正要记的是别名陷阱：<code>a := make([]int, 3, 5)</code> 后取 <code>b := a[:2]</code>，再 <code>b = append(b, 99)</code>——因为 cap 还够，元素直接写回 <code>a</code> 的底层数组，<code>a</code> 变成 <code>[0 0 99]</code>。</li>
+<li>防御手段：三索引切片 <code>a[:2:2]</code> 把 cap 钉死。</li>
+<li>Python 切片返回新对象、Java <code>ArrayList</code> 扩容也从不原地改，<strong>只有 Go 的切片「看起来像引用」</strong>。</li>
+</ul>
+<h3 id="17-1-3-map-遍历随机与并发限制"><a href="#17-1-3-map-遍历随机与并发限制" class="headerlink" title="17.1.3 map 遍历随机与并发限制"></a>17.1.3 map 遍历随机与并发限制</h3><ul>
+<li>遍历顺序<strong>故意随机</strong>（运行时随机化起始桶），不是 bug，答「这是设计而非缺陷」更懂。</li>
+<li>map <strong>不是并发安全</strong>的：一边 <code>range</code> 一边写会触发 <code>fatal error: concurrent map iteration and map write</code>，<strong>不可 recover</strong>，进程直接死。Java 有 <code>ConcurrentHashMap</code> 兜底，Go 交给标准库显式选。</li>
+</ul>
+<h3 id="17-1-4-interface-隐式实现与方法集"><a href="#17-1-4-interface-隐式实现与方法集" class="headerlink" title="17.1.4 interface 隐式实现与方法集"></a>17.1.4 interface 隐式实现与方法集</h3><ul>
+<li>接口就是一组方法，类型凑齐方法即自动满足。</li>
+<li><strong>方法集规则</strong>：值接收者的方法，<code>T</code> 和 <code>*T</code> 都包含它；指针接收者的方法，<strong>只有 <code>*T</code> 包含它</strong>。</li>
+<li>于是传 <code>&amp;Email&#123;...&#125;</code> 能编译、传 <code>Email&#123;...&#125;</code> 编译不过——Java 没这个坑，转 Go 的人几乎必踩。断言用 <code>v, ok := n.(*Email)</code>。</li>
+</ul>
+<h3 id="17-1-5-nil-接口陷阱"><a href="#17-1-5-nil-接口陷阱" class="headerlink" title="17.1.5 nil 接口陷阱"></a>17.1.5 nil 接口陷阱</h3><ul>
+<li>接口值 &#x3D; 「动态类型 + 动态值」两部分，<code>err == nil</code> 要求两者<strong>都</strong>为 nil。</li>
+<li>nil 指针装进接口后动态类型仍非 nil，于是 <code>err != nil</code>——nil 指针<strong>不能</strong>直接 return 成 error：</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p *MyError</span><br><span class="line"><span class="keyword">var</span> err <span class="type">error</span> = p</span><br><span class="line">fmt.Println(err == <span class="literal">nil</span>) <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="17-1-6-defer-执行顺序与参数求值"><a href="#17-1-6-defer-执行顺序与参数求值" class="headerlink" title="17.1.6 defer 执行顺序与参数求值"></a>17.1.6 defer 执行顺序与参数求值</h3><ul>
+<li>多个 <code>defer</code> 按<strong>后进先出</strong>执行；<code>defer</code> 的<strong>参数在 defer 语句执行时就求值</strong>，函数体在返回时才执行。所以循环里 <code>defer fmt.Println(i)</code> 打出来的是 0、1、2，不是 3、3、3。</li>
+<li>循环里的 <code>defer</code> <strong>不会每轮执行</strong>，要等整个函数返回：循环里打开的文件会一直不释放。</li>
+</ul>
+<h3 id="17-1-7-闭包捕获与-range-变量"><a href="#17-1-7-闭包捕获与-range-变量" class="headerlink" title="17.1.7 闭包捕获与 range 变量"></a>17.1.7 闭包捕获与 range 变量</h3><ul>
+<li>Go 1.22 起，<code>for range</code> 的循环变量<strong>每轮新建</strong>，被闭包捕获也各自独立；1.22 之前多个 goroutine 很可能都拿到同一个 <code>v</code>（要在循环体内写 <code>v := v</code> 兜底）。</li>
+<li>说清这是<strong>版本行为变更</strong>而非语法变化，点名「Go 1.22」是加分项。</li>
+</ul>
+<h3 id="17-1-8-字符串与字节"><a href="#17-1-8-字符串与字节" class="headerlink" title="17.1.8 字符串与字节"></a>17.1.8 字符串与字节</h3><p><code>string</code> 是<strong>不可变的 UTF-8 字节序列</strong>。</p>
+<ul>
+<li><code>len(s)</code> 是<strong>字节数</strong>不是字符数（字符数用 <code>utf8.RuneCountInString</code>）；<code>s[0]</code> 取字节；<code>range</code> 迭代的是 rune，<code>i</code> 是字节偏移。</li>
+<li>循环里 <code>s += x</code> 是 O(n²)，改用 <code>strings.Builder</code>。</li>
+<li>Java <code>String</code> 内部是 UTF-16、Python <code>str</code> 是 Unicode 码点——<strong>三门语言都和 Go 不一样</strong>。</li>
+</ul>
+<h3 id="17-1-9-逃逸分析"><a href="#17-1-9-逃逸分析" class="headerlink" title="17.1.9 逃逸分析"></a>17.1.9 逃逸分析</h3><ul>
+<li><code>go build -gcflags=&#39;-m&#39;</code> 打印逃逸结论，<code>moved to heap</code> 即为逃逸，诱因通常是接口装箱、被 goroutine 捕获、返回局部变量指针。对比 JVM，Go 的<strong>分配点更可预测</strong>。</li>
+</ul>
+<hr>
+<h2 id="17-2-并发高频题"><a href="#17-2-并发高频题" class="headerlink" title="17.2 并发高频题"></a>17.2 并发高频题</h2><h3 id="17-2-1-goroutine-与线程"><a href="#17-2-1-goroutine-与线程" class="headerlink" title="17.2.1 goroutine 与线程"></a>17.2.1 goroutine 与线程</h3><ul>
+<li>goroutine 由 Go 运行时调度、初始栈约 2KB；线程由 OS 调度、栈 1MB 起、切换进内核态。</li>
+<li>实现是经典的 <strong>GMP 模型</strong>，<code>GOMAXPROCS</code> 控制同时执行 Go 代码的 OS 线程数。Java 21 的虚拟线程也做到百万级但要 JDK 21+；<strong>Go 从 1.0 就是这个模型</strong>。</li>
+</ul>
+<h3 id="17-2-2-channel-关闭语义与-panic-条件"><a href="#17-2-2-channel-关闭语义与-panic-条件" class="headerlink" title="17.2.2 channel 关闭语义与 panic 条件"></a>17.2.2 channel 关闭语义与 panic 条件</h3><ul>
+<li><strong>三 panic 一安全</strong>：向已关闭 channel 发送、重复 <code>close</code>、<code>close(nil channel)</code> 会 panic；从已关闭 channel 接收返回零值且 <code>ok=false</code>，不 panic。</li>
+<li>关闭是广播语义，检测方式只能是 <code>v, ok := &lt;-ch</code>；<strong>只有发送方负责关闭</strong>，多个发送方时用关闭信号 channel 或 <code>sync.Once</code> 收口。</li>
+</ul>
+<h3 id="17-2-3-nil-channel-阻塞"><a href="#17-2-3-nil-channel-阻塞" class="headerlink" title="17.2.3 nil channel 阻塞"></a>17.2.3 nil channel 阻塞</h3><ul>
+<li>对 nil channel 发送或接收会<strong>永久阻塞</strong>——这不是缺陷而是设计：<code>select</code> 里放一个 nil channel &#x3D; 「这个 case 永远不触发」，可用来做动态开关。</li>
+</ul>
+<h3 id="17-2-4-select"><a href="#17-2-4-select" class="headerlink" title="17.2.4 select"></a>17.2.4 select</h3><ul>
+<li>同时监听多个 channel，谁先就绪走谁；<strong>多个同时就绪时随机选一个</strong>（高频 channel 因此不会饿死其他分支）；带 <code>default</code> 就是非阻塞 select，空 select 永久阻塞。</li>
+</ul>
+<h3 id="17-2-5-WaitGroup-的-Add-时机"><a href="#17-2-5-WaitGroup-的-Add-时机" class="headerlink" title="17.2.5 WaitGroup 的 Add 时机"></a>17.2.5 WaitGroup 的 Add 时机</h3><p><code>wg.Add(1)</code> 必须在 <code>go</code> 语句<strong>之前</strong>、由<strong>启动方 goroutine</strong> 调用：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line"><span class="keyword">for</span> _, feed := <span class="keyword">range</span> feeds &#123;</span><br><span class="line">    wg.Add(<span class="number">1</span>) <span class="comment">// ✅ 在 go 之前</span></span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(f database.Feed)</span></span> &#123;</span><br><span class="line">        <span class="keyword">defer</span> wg.Done()</span><br><span class="line">        scrapeFeed(f)</span><br><span class="line">    &#125;(feed)</span><br><span class="line">&#125;</span><br><span class="line">wg.Wait()</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>写进被启动的 goroutine 内部是竞态：<code>Wait</code> 可能在 <code>Add</code> 之前就返回，计数永远不归零。**Go 1.25 新增 <code>wg.Go(func()&#123;...&#125;)</code>**，把 Add&#x2F;Done 收进闭包，从语法上就很难写错。</li>
+</ul>
+<h3 id="17-2-6-Mutex-vs-RWMutex"><a href="#17-2-6-Mutex-vs-RWMutex" class="headerlink" title="17.2.6 Mutex vs RWMutex"></a>17.2.6 Mutex vs RWMutex</h3><ul>
+<li><code>sync.Mutex</code> 一次只放行一个 goroutine；<code>sync.RWMutex</code> 允许多个读者同时持读锁，但读锁与写锁互斥，读多写少时更划算、开销也更大。</li>
+<li>两个高频陷阱：<code>RLock</code> <strong>仍然是锁</strong>，它挡的是写者而非读者；Go 的 <code>Mutex</code> <strong>不可重入</strong>，同 goroutine 重复 <code>Lock</code> 直接死锁——Java 的 <code>synchronized</code> 则可重入。</li>
+</ul>
+<h3 id="17-2-7-竞态检测器能做什么"><a href="#17-2-7-竞态检测器能做什么" class="headerlink" title="17.2.7 竞态检测器能做什么"></a>17.2.7 竞态检测器能做什么</h3><ul>
+<li><code>go test -race ./...</code> 或 <code>go run -race main.go</code>，靠运行时插桩查<strong>数据竞争</strong>：两个 goroutine 访问同一地址、至少一个是写、且缺乏 happens-before 关系。它<strong>查不出</strong> goroutine 泄漏、死锁和业务逻辑错误，但会直接打印两个栈指出冲突位置。</li>
+</ul>
+<h3 id="17-2-8-goroutine-泄漏的几种形态"><a href="#17-2-8-goroutine-泄漏的几种形态" class="headerlink" title="17.2.8 goroutine 泄漏的几种形态"></a>17.2.8 goroutine 泄漏的几种形态</h3><ol>
+<li>往无人接收的 channel 发送。</li>
+<li>从永不关闭的 channel 接收。</li>
+<li>channel 环：两个 goroutine 互相发送、缓冲区为 0。</li>
+<li>HTTP 响应体没 <code>Close()</code>：连接不归还，goroutine 卡住。</li>
+<li>context 没往下传：下游不知道该退出。</li>
+</ol>
+<p>排查靠 goroutine 数量监控 + pprof goroutine profile，单测可引入 <code>go.uber.org/goleak</code>。</p>
+<h3 id="17-2-9-context-取消"><a href="#17-2-9-context-取消" class="headerlink" title="17.2.9 context 取消"></a>17.2.9 context 取消</h3><ul>
+<li>context &#x3D; 跨 API 边界的<strong>取消信号 + 请求域数据载体</strong>。</li>
+<li>四条纪律：<code>cancel</code> 一定要 <code>defer</code>（否则 timer 泄漏）；放第一个参数；不要塞进 struct；<strong>取消是协作式的</strong>——<code>ctx.Done()</code> 只是通知，goroutine 得自己检查。配合 HTTP 用 <code>http.NewRequestWithContext</code>。</li>
+</ul>
+<hr>
+<h2 id="17-3-工程与生态高频题"><a href="#17-3-工程与生态高频题" class="headerlink" title="17.3 工程与生态高频题"></a>17.3 工程与生态高频题</h2><h3 id="17-3-1-go-mod-go-mod-tidy-vendor"><a href="#17-3-1-go-mod-go-mod-tidy-vendor" class="headerlink" title="17.3.1 go.mod &#x2F; go mod tidy &#x2F; vendor"></a>17.3.1 go.mod &#x2F; go mod tidy &#x2F; vendor</h3><ul>
+<li><code>go.mod</code> 声明模块路径、Go 版本和依赖（<code>module</code> + <code>go</code> + <code>require</code> 三段），是 Go 工程的「单一事实源」。</li>
+<li><code>go mod tidy</code> 同步 <code>go.mod</code> 与 <code>go.sum</code>，删掉用不到的、补上新导入的，<strong>提交前必跑</strong>；<code>go mod vendor</code> 把依赖复制进 <code>vendor/</code>，之后 <code>go build</code> 自动按 vendor 模式构建，适合内网、CI 缓存或审计依赖场景。</li>
+</ul>
+<h3 id="17-3-2-go-build-vs-go-run"><a href="#17-3-2-go-build-vs-go-run" class="headerlink" title="17.3.2 go build vs go run"></a>17.3.2 go build vs go run</h3><ul>
+<li><code>go build</code> 在当前目录生成可执行文件，用于部署和 CI；<code>go run</code> 编译到临时目录直接执行、<strong>不留产物</strong>，用于本地调试；<code>go install pkg@ver</code> 装命令行工具到 <code>GOPATH/bin</code>。</li>
+<li><code>go build ./...</code> 编译当前模块所有包，<code>-o</code> 指定输出名。差别就是<strong>有没有留下产物</strong>：<code>go build &amp;&amp; ./rssagg</code> 是最常见的部署姿势。</li>
+</ul>
+<h3 id="17-3-3-gofmt-与-go-vet"><a href="#17-3-3-gofmt-与-go-vet" class="headerlink" title="17.3.3 gofmt 与 go vet"></a>17.3.3 gofmt 与 go vet</h3><ul>
+<li><code>gofmt -l .</code> 列出格式不达标的文件，<code>gofmt -w .</code> 原地改写。gofmt <strong>没有配置项</strong>，输出是唯一正确格式，CI 里一行 <code>gofmt -l .</code> 就能卡住脏格式。</li>
+<li><code>go vet ./...</code> 做静态检查：<code>printf</code> 格式与参数不匹配、<strong>copylocks</strong>（复制含 <code>sync.Mutex</code> 的值）、不可达代码等；它不阻止编译通过，而 <code>go test -race</code> 是运行时检测。</li>
+</ul>
+<h3 id="17-3-4-零值可用性"><a href="#17-3-4-零值可用性" class="headerlink" title="17.3.4 零值可用性"></a>17.3.4 零值可用性</h3><ul>
+<li><code>sync.Mutex</code>、<code>bytes.Buffer</code>、<code>sync.WaitGroup</code> 等常见类型<strong>零值即可用</strong>，构造函数只填非零字段。所以 Go 的惯例是 <code>NewXxx</code>，而不是 Java 式「必须 new 一个对象才能用」。</li>
+</ul>
+<h3 id="17-3-5-错误处理范式"><a href="#17-3-5-错误处理范式" class="headerlink" title="17.3.5 错误处理范式"></a>17.3.5 错误处理范式</h3><ol>
+<li><code>error</code> 永远是最后一个返回值，<code>nil</code> 表示成功。</li>
+<li>不用 panic 做流程控制；panic 只用于「继续必然出错」的场景，且<strong>只在包边界 recover</strong>。</li>
+<li>包装用 <code>fmt.Errorf(&quot;拉取 %s 失败: %w&quot;, url, err)</code>，<code>%w</code> 形成错误链。</li>
+<li>判定用 <code>errors.Is(err, ErrNotFound)</code> 与 <code>errors.As(err, &amp;target)</code>；多错误合并用 <code>errors.Join(err1, err2)</code>（Go 1.20+）。</li>
+</ol>
+<ul>
+<li>对比 Java：异常是控制流，编译器不逼你处理；Go 的 error 是<strong>普通值</strong>，签名里带 error 等于公开了失败路径——样板多，但错误路径不会被悄悄吞掉。</li>
+</ul>
+<h3 id="17-3-6-泛型什么时候用"><a href="#17-3-6-泛型什么时候用" class="headerlink" title="17.3.6 泛型什么时候用"></a>17.3.6 泛型什么时候用</h3><ul>
+<li><strong>写库和工具包</strong>最合适：同一套逻辑要处理多种类型；业务代码类型单一就用 <code>any</code> + 类型断言。约束本质就是接口：<code>any</code> 最松，<code>comparable</code> 要求可比较，<code>~int</code> 允许底层是 int 的自定义类型。</li>
+<li>官方态度：<strong>泛型消灭重复代码，不消灭接口</strong>。</li>
+</ul>
+<h3 id="17-3-7-标准库常用包"><a href="#17-3-7-标准库常用包" class="headerlink" title="17.3.7 标准库常用包"></a>17.3.7 标准库常用包</h3><table>
+<thead>
+<tr>
+<th>包</th>
+<th>常用 API</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>fmt</code></td>
+<td><code>Printf</code> &#x2F; <code>Errorf</code></td>
+<td>格式化与错误包装</td>
+</tr>
+<tr>
+<td><code>os</code></td>
+<td><code>ReadFile</code> &#x2F; <code>Open</code></td>
+<td>文件读写</td>
+</tr>
+<tr>
+<td><code>strings</code></td>
+<td><code>Split</code> &#x2F; <code>Join</code> &#x2F; <code>Builder</code></td>
+<td>字符串处理</td>
+</tr>
+<tr>
+<td><code>time</code></td>
+<td><code>Now</code> &#x2F; <code>Since</code> &#x2F; <code>Ticker</code></td>
+<td>时间与定时器</td>
+</tr>
+<tr>
+<td><code>net/http</code></td>
+<td><code>Server</code> &#x2F; <code>Client</code></td>
+<td>HTTP 服务端与客户端</td>
+</tr>
+<tr>
+<td><code>encoding/json</code></td>
+<td><code>Marshal</code> &#x2F; <code>NewDecoder</code></td>
+<td>JSON 序列化</td>
+</tr>
+<tr>
+<td><code>sync</code></td>
+<td><code>Mutex</code> &#x2F; <code>WaitGroup</code> &#x2F; <code>Map</code></td>
+<td>同步原语</td>
+</tr>
+<tr>
+<td><code>context</code></td>
+<td><code>WithCancel</code> &#x2F; <code>WithTimeout</code></td>
+<td>取消与请求域数据</td>
+</tr>
+<tr>
+<td><code>slices</code></td>
+<td><code>Sort</code> &#x2F; <code>Contains</code></td>
+<td>切片工具（1.21+）</td>
+</tr>
+<tr>
+<td><code>maps</code></td>
+<td><code>Keys</code> &#x2F; <code>Values</code></td>
+<td>映射工具（1.21+）</td>
+</tr>
+<tr>
+<td><code>strconv</code></td>
+<td><code>Atoi</code> &#x2F; <code>Itoa</code></td>
+<td>数字与字符串互转</td>
+</tr>
+<tr>
+<td><code>errors</code></td>
+<td><code>New</code> &#x2F; <code>Is</code> &#x2F; <code>As</code> &#x2F; <code>Join</code></td>
+<td>错误构造与匹配</td>
+</tr>
+</tbody></table>
+<ul>
+<li>版本细节：<code>slices</code> &#x2F; <code>maps</code> 从 Go 1.21 起进标准库；<code>maps.Keys</code> 在较新版本返回<strong>迭代器</strong>，配 <code>slices.Sorted(maps.Keys(m))</code> 取切片。</li>
+</ul>
+<hr>
+<h2 id="17-4-高频问答速查表"><a href="#17-4-高频问答速查表" class="headerlink" title="17.4 高频问答速查表"></a>17.4 高频问答速查表</h2><blockquote>
+<p>先遮住「一句话答案」那一列自问自答，再对照补漏。<strong>答完还能往下追问一句，才算真懂。</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>一句话答案</th>
+<th>追问方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>goroutine 和线程区别？</td>
+<td>运行时调度 vs OS 调度，栈 2KB vs 1MB</td>
+<td>GMP？</td>
+</tr>
+<tr>
+<td>channel 何时 panic？</td>
+<td>往已关闭 channel 发送、重复 close、close(nil)</td>
+<td>谁关闭？</td>
+</tr>
+<tr>
+<td>nil channel 有什么用？</td>
+<td>收发永久阻塞，select 里等于禁用 case</td>
+<td>default？</td>
+</tr>
+<tr>
+<td>map 遍历顺序为什么乱？</td>
+<td>运行时故意随机化起始桶，是设计</td>
+<td>删除元素？</td>
+</tr>
+<tr>
+<td>map 能并发读写吗？</td>
+<td>不能，fatal error 且不可 recover</td>
+<td>sync.Map？</td>
+</tr>
+<tr>
+<td>append 一定复制底层数组吗？</td>
+<td>不一定，容量够就原地写</td>
+<td>三索引切片？</td>
+</tr>
+<tr>
+<td>defer 参数何时求值？</td>
+<td>defer 语句执行时求值，函数体返回时执行</td>
+<td>循环里？</td>
+</tr>
+<tr>
+<td>nil error 接口等于 nil 吗？</td>
+<td>不一定，nil 指针装进接口后接口非 nil</td>
+<td>怎么返回 nil？</td>
+</tr>
+<tr>
+<td>怎么判断 channel 已关闭？</td>
+<td>只能用 <code>v, ok := &lt;-ch</code></td>
+<td>剩余值？</td>
+</tr>
+<tr>
+<td>select 多 case 就绪会怎样？</td>
+<td>随机挑一个，不保证优先级</td>
+<td>和 switch 差别？</td>
+</tr>
+<tr>
+<td>WaitGroup 的 Add 何时调？</td>
+<td>在 go 之前、由启动方调用</td>
+<td>wg.Go？</td>
+</tr>
+<tr>
+<td>Go 的 Mutex 可重入吗？</td>
+<td>不可重入，重复 Lock 直接死锁</td>
+<td>Java 的呢？</td>
+</tr>
+<tr>
+<td>go vet 能查出什么？</td>
+<td>printf 格式、copylocks、不可达代码</td>
+<td>copylocks？</td>
+</tr>
+<tr>
+<td>竞态检测器能查什么？</td>
+<td>查数据竞争，不查泄漏、死锁、业务错误</td>
+<td>原理？</td>
+</tr>
+<tr>
+<td>context 干什么的？</td>
+<td>跨调用边界的取消信号 + 请求域数据</td>
+<td>为何不塞 struct？</td>
+</tr>
+<tr>
+<td>Go 有异常吗？</td>
+<td>没有，error 表达失败，panic 只用于不可恢复场景</td>
+<td>对比 Java？</td>
+</tr>
+<tr>
+<td>错误包装用什么？</td>
+<td><code>fmt.Errorf</code> 的 <code>%w</code> + <code>errors.Is</code>&#x2F;<code>As</code></td>
+<td><code>%v</code> 还是 <code>%w</code>？</td>
+</tr>
+<tr>
+<td>len(s) 是字符数吗？</td>
+<td>不是，是字节数</td>
+<td>range 迭代什么？</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="17-5-项目讲述模板"><a href="#17-5-项目讲述模板" class="headerlink" title="17.5 项目讲述模板"></a>17.5 项目讲述模板</h2><p>面试讲项目<strong>别按功能列表念</strong>。先甩 30 秒版本：「我做了一个 RSS 聚合器：Go + chi 路由 + PostgreSQL，SQL 用 sqlc 生成类型安全代码，后台用 goroutine 并发抓取各源、抓完落库并提供分页查询。」再按「背景 → 架构 → 难点 → 取舍 → 复盘」五段式展开 2 分钟版本。</p>
+<h3 id="17-5-1-三段式详述（2-分钟）"><a href="#17-5-1-三段式详述（2-分钟）" class="headerlink" title="17.5.1 三段式详述（2 分钟）"></a>17.5.1 三段式详述（2 分钟）</h3><p><strong>第一段 · 背景与目标</strong></p>
+<blockquote>
+<p>这是我练手后端全链路的载体：用户注册后拿到 API Key 订阅 RSS 源，后台定时并发抓取各源新文章并入库，用户按订阅关系查文章列表。目标是<strong>把「抓取、解析、入库、查询」一次打通</strong>。</p>
+</blockquote>
+<p><strong>第二段 · 架构与难点</strong></p>
+<blockquote>
+<p>架构分四层。接入层是 chi 路由加中间件，鉴权中间件从 <code>Authorization: ApiKey &lt;key&gt;</code> 头里取出 key，SHA-256 比对后把用户塞进 <code>context.Context</code>，后续 handler 直接从 context 取用户，<strong>不重复查库</strong>。存储层是 PostgreSQL，迁移用 goose，SQL 用 sqlc 生成——SQL 完全可控又不用手写 <code>rows.Scan</code>。最难的是并发抓取：每个源一个 goroutine，用 <code>sync.WaitGroup</code> 收口，每个源带自己的超时 context，<strong>任何一源挂住都不能拖垮整批</strong>。</p>
+</blockquote>
+<p><strong>第三段 · 取舍与复盘</strong></p>
+<blockquote>
+<p>取舍上，选 chi 不选 gin 是因为依赖极少；API Key 存 SHA-256 摘要而不是明文。并发抓取我一开始是「一个源一个 goroutine」，源多起来要换 worker pool 加限流。复盘踩过两个坑：最早抓完只打印没入库，后来补了 <code>posts</code> 表和分页接口；还有个 <code>resp.Body</code> 忘了 <code>Close</code>，goroutine 越堆越多，我才回头学了 goroutine 泄漏的几种形态。</p>
+</blockquote>
+<h3 id="17-5-2-追问预案"><a href="#17-5-2-追问预案" class="headerlink" title="17.5.2 追问预案"></a>17.5.2 追问预案</h3><table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>回答要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>「为什么用 sqlc 不用 ORM？」</td>
+<td>SQL 完全可控、无反射开销；代价是 SQL 样板多。</td>
+</tr>
+<tr>
+<td>「抓取并发度怎么控制？」</td>
+<td>每源一个 goroutine + WaitGroup 收口 + 每源独立超时；规模再大换 worker pool。</td>
+</tr>
+<tr>
+<td>「最大的收获？」</td>
+<td>「全链路闭环」的工程观：抓取到入库到分页，任何一环不通项目都不成立。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="17-6-复习路线"><a href="#17-6-复习路线" class="headerlink" title="17.6 复习路线"></a>17.6 复习路线</h2><h3 id="17-6-1-7-天冲刺版"><a href="#17-6-1-7-天冲刺版" class="headerlink" title="17.6.1 7 天冲刺版"></a>17.6.1 7 天冲刺版</h3><table>
+<thead>
+<tr>
+<th>天</th>
+<th>主题</th>
+<th>当天必须跑通的代码练习</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>语言机制</td>
+<td>打印零值、<code>len(&quot;中文&quot;)</code> 字节数、<code>string(rune(65))</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>切片与 map</td>
+<td>复现 append 改写原切片；复现 map 并发读写 fatal error</td>
+</tr>
+<tr>
+<td>3</td>
+<td>interface 与 error</td>
+<td>值&#x2F;指针接收者各实现一次接口，故意写错看编译报错</td>
+</tr>
+<tr>
+<td>4</td>
+<td>goroutine 与 channel</td>
+<td>WaitGroup 跑 100 个任务、channel 生产者消费者、select + default</td>
+</tr>
+<tr>
+<td>5</td>
+<td>工具链</td>
+<td><code>go mod tidy</code>、<code>gofmt -w .</code>、<code>go vet ./...</code>、交叉编译</td>
+</tr>
+<tr>
+<td>6</td>
+<td>项目复述</td>
+<td>照 17.5 三段式讲三遍 RSS 项目，录音掐时间</td>
+</tr>
+<tr>
+<td>7</td>
+<td>模拟面</td>
+<td>按 17.7 题库限时口述，记下没答上的题</td>
+</tr>
+</tbody></table>
+<h3 id="17-6-2-14-天系统版"><a href="#17-6-2-14-天系统版" class="headerlink" title="17.6.2 14 天系统版"></a>17.6.2 14 天系统版</h3><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>天</th>
+<th>主题</th>
+<th>阶段产出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基础</td>
+<td>1–3</td>
+<td>零值与转换、多返回值与 defer、结构体与方法</td>
+<td>「零值 &#x2F; defer」速查卡</td>
+</tr>
+<tr>
+<td>基础</td>
+<td>4–5</td>
+<td>接口隐式实现与断言、<code>%w</code> 错误包装</td>
+<td><code>errors.Is</code>&#x2F;<code>As</code> 练习</td>
+</tr>
+<tr>
+<td>进阶</td>
+<td>6–8</td>
+<td>切片扩容与别名、map 语义、range 变量版本差异</td>
+<td>复现 5 个坑的 demo 仓库</td>
+</tr>
+<tr>
+<td>进阶</td>
+<td>9–11</td>
+<td>goroutine 与 channel、WaitGroup &#x2F; Mutex、context 取消</td>
+<td>带超时的抓取小工具</td>
+</tr>
+<tr>
+<td>工程</td>
+<td>12–13</td>
+<td>go.mod &#x2F; tidy &#x2F; vendor、gofmt &#x2F; vet &#x2F; race、标准库</td>
+<td>CI：gofmt + vet + <code>go test -race</code></td>
+</tr>
+<tr>
+<td>收口</td>
+<td>14</td>
+<td>项目讲述与模拟面</td>
+<td>30 秒 &#x2F; 2 分钟讲述稿</td>
+</tr>
+</tbody></table>
+<p><strong>节奏建议</strong>：每天动手写代码的时间不少于看文档的时间——Go 的坑几乎都是「以为会了但没跑过」那一类。</p>
+<hr>
+<h2 id="17-7-动手练与常见错误清单"><a href="#17-7-动手练与常见错误清单" class="headerlink" title="17.7 动手练与常见错误清单"></a>17.7 动手练与常见错误清单</h2><h3 id="17-7-1-动手练：模拟面试（每题限时-2-分钟口述）"><a href="#17-7-1-动手练：模拟面试（每题限时-2-分钟口述）" class="headerlink" title="17.7.1 动手练：模拟面试（每题限时 2 分钟口述）"></a>17.7.1 动手练：模拟面试（每题限时 2 分钟口述）</h3><p>按顺序做，<strong>每题先出声讲满 2 分钟</strong>再对答案：</p>
+<ol>
+<li>讲清切片三要素与 <code>append</code> 的别名陷阱。</li>
+<li>讲清接口的隐式实现、方法集规则与类型断言。</li>
+<li>解释「nil error 接口不一定为 nil」的成因。</li>
+<li>讲清 <code>defer</code> 的顺序、参数求值时机和循环里的坑。</li>
+<li>说清 goroutine 与线程的差别，以及 GMP 模型。</li>
+<li>列出 channel 触发 panic 的三种情况，说明谁负责关闭。</li>
+<li>讲清 <code>WaitGroup</code> 的 <code>Add</code> 为什么必须在 <code>go</code> 之前。</li>
+<li>说明 Go 的 <code>Mutex</code> 为什么不可重入，并与 Java <code>synchronized</code> 对比。</li>
+<li>讲清竞态检测器能查什么、不能查什么，并列举 goroutine 泄漏形态。</li>
+<li>说明 <code>context</code> 的四条纪律，再讲清 <code>go build</code> &#x2F; <code>go run</code> &#x2F; <code>go vet</code> &#x2F; <code>gofmt</code> 与 <code>errors.Is</code> &#x2F; <code>errors.As</code> &#x2F; <code>%w</code> 的分工。</li>
+<li>用 2 分钟把 RSS 项目从背景讲到复盘。</li>
+</ol>
+<h3 id="17-7-2-常见错误清单"><a href="#17-7-2-常见错误清单" class="headerlink" title="17.7.2 常见错误清单"></a>17.7.2 常见错误清单</h3><table>
+<thead>
+<tr>
+<th>错误</th>
+<th>后果</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>var i int = 3.14</code></td>
+<td>编译不过</td>
+<td>显式转换，转字符串用 <code>strconv</code></td>
+</tr>
+<tr>
+<td>以为 <code>len(s)</code> 是字符数</td>
+<td>中文统计错误</td>
+<td><code>utf8.RuneCountInString(s)</code></td>
+</tr>
+<tr>
+<td>以为 <code>append</code> 后原切片不变</td>
+<td>数据被意外改写</td>
+<td>三索引切片限制 cap</td>
+</tr>
+<tr>
+<td>并发读写同一个 map</td>
+<td>进程 fatal error</td>
+<td><code>sync.RWMutex</code> 或 <code>sync.Map</code></td>
+</tr>
+<tr>
+<td>值类型传给需要指针方法的接口</td>
+<td>编译不过</td>
+<td>传 <code>&amp;T</code> 或改值接收者</td>
+</tr>
+<tr>
+<td>把 nil 指针直接 return 成 error</td>
+<td><code>err != nil</code> 判断失效</td>
+<td>先转成 nil error</td>
+</tr>
+<tr>
+<td>在 goroutine 内部 <code>wg.Add(1)</code></td>
+<td><code>Wait</code> 提前返回</td>
+<td><code>Add</code> 放在 <code>go</code> 之前</td>
+</tr>
+<tr>
+<td><code>resp.Body.Close()</code> 漏写</td>
+<td>goroutine 泄漏</td>
+<td>拿到响应立刻 defer Close</td>
+</tr>
+</tbody></table>
+<p><strong>复盘建议</strong>：每答错一题就把对应行的「正确做法」抄一遍——<strong>错一次基本就是终身的肌肉记忆</strong>。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"># 并发编程</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+          
+          <a href="/tags/%E9%80%9F%E9%80%9A/"># 速通</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%AE%9E%E6%88%98%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%20PostgreSQL%E3%80%81API%20Key%20%E9%89%B4%E6%9D%83%E4%B8%8E%E5%B9%B6%E5%8F%91%E6%8A%93%E5%8F%96/"
+        >Go 实战（二）— PostgreSQL、API Key 鉴权与并发抓取</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

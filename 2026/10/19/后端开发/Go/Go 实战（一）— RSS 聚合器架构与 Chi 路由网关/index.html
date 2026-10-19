@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go 实战（一）— RSS 聚合器架构与 Chi 路由网关 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go 实战（一）— RSS 聚合器架构与 Chi 路由网关</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;11:43:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="15-Go-实战（一）—-RSS-聚合器架构与-Chi-路由网关"><a href="#15-Go-实战（一）—-RSS-聚合器架构与-Chi-路由网关" class="headerlink" title="15 Go 实战（一）— RSS 聚合器架构与 Chi 路由网关"></a>15 Go 实战（一）— RSS 聚合器架构与 Chi 路由网关</h1><blockquote>
+<p>从零搭一个 RSS 聚合器的 HTTP 网关：先把目录结构、路由、中间件和统一响应的边界划清楚，再谈数据库与并发抓取。</p>
+</blockquote>
+<hr>
+<h2 id="15-1-这个项目到底要解决什么问题"><a href="#15-1-这个项目到底要解决什么问题" class="headerlink" title="15.1 这个项目到底要解决什么问题"></a>15.1 这个项目到底要解决什么问题</h2><h3 id="15-1-1-先把业务闭环拆开"><a href="#15-1-1-先把业务闭环拆开" class="headerlink" title="15.1.1 先把业务闭环拆开"></a>15.1.1 先把业务闭环拆开</h3><p>RSS 聚合器的用户故事很短，但每一环都对应一类工程问题：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>用户在干什么</th>
+<th>服务端必须做到的事</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>注册</td>
+<td>填昵称创建账号</td>
+<td>生成用户记录和一枚 API Key，<strong>密钥只在创建时明文返回一次</strong></td>
+</tr>
+<tr>
+<td>订阅</td>
+<td>拿 API Key 提交 RSS 地址</td>
+<td>校验地址、落库、建立「用户 ↔ 订阅源」的关联</td>
+</tr>
+<tr>
+<td>抓取</td>
+<td>什么都不做，后台自动跑</td>
+<td>并发拉取订阅源，解析标题 &#x2F; 链接 &#x2F; 发布时间并入库</td>
+</tr>
+<tr>
+<td>查询</td>
+<td>查订阅列表和文章列表</td>
+<td>联表分页返回</td>
+</tr>
+</tbody></table>
+<p>四条线里<strong>只有注册和查询是同步 HTTP 接口，抓取是纯后台任务</strong>。所以第一个工程决定就出来了：<strong>先把 HTTP 网关立稳，再往里塞业务</strong>——网关的路由、错误格式、关停行为一旦不稳定，后面所有工作都会被它反噬。</p>
+<h3 id="15-1-2-架构图"><a href="#15-1-2-架构图" class="headerlink" title="15.1.2 架构图"></a>15.1.2 架构图</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">    客户端（curl / 前端 / 移动端）</span><br><span class="line">                │  HTTP</span><br><span class="line">                ▼</span><br><span class="line">┌───────────────────────────────────────────┐</span><br><span class="line">│ 接入层 internal/httpapi                    │</span><br><span class="line">│    chi.Router 路由表                       │</span><br><span class="line">│        ↓                                   │</span><br><span class="line">│    中间件链 RequestID / Logger / Recoverer   │</span><br><span class="line">│        ↓                                   │</span><br><span class="line">│    handler（解析请求体 + 参数校验）          │</span><br><span class="line">└───────────────────────────────────────────┘</span><br><span class="line">                │  普通 Go 值（不是 *http.Request）</span><br><span class="line">                ▼</span><br><span class="line">┌───────────────────────────────────────────┐</span><br><span class="line">│ 领域层 internal/service                     │</span><br><span class="line">│    service（业务规则 + 流程编排）             │</span><br><span class="line">└───────────────────────────────────────────┘</span><br><span class="line">                │  store 接口 UserStore</span><br><span class="line">                ▼</span><br><span class="line">┌───────────────────────────────────────────┐</span><br><span class="line">│ 基础设施层 internal/store                   │</span><br><span class="line">│    store 接口 ─┬─ MemoryStore（内存实现）    │</span><br><span class="line">│               └─ PostgreSQL + sqlc（可替换） │</span><br><span class="line">└───────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>三个刻意为之的设计：<strong>handler 不碰数据库</strong>，只把 HTTP 世界翻译成 Go 世界；<strong>service 不碰 HTTP</strong>，参数和返回值都是普通 Go 值；<strong>store 是接口</strong>，实现可互换。</p>
+<h3 id="15-1-3-分层靠目录强制，不靠自觉"><a href="#15-1-3-分层靠目录强制，不靠自觉" class="headerlink" title="15.1.3 分层靠目录强制，不靠自觉"></a>15.1.3 分层靠目录强制，不靠自觉</h3><p>Go 没有注解驱动的依赖注入，它给你的工具是<strong>目录结构 + 接口</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>目录</th>
+<th>允许依赖</th>
+<th>能出现 HTTP 相关的东西吗</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>接入层</td>
+<td><code>internal/httpapi</code></td>
+<td>service</td>
+<td>能，这是它的本职工作</td>
+</tr>
+<tr>
+<td>领域层</td>
+<td><code>internal/service</code></td>
+<td>store、models</td>
+<td><strong>不能</strong></td>
+</tr>
+<tr>
+<td>存储层</td>
+<td><code>internal/store</code></td>
+<td>models</td>
+<td>不能</td>
+</tr>
+</tbody></table>
+<p>「service 层不能出现 HTTP 相关的东西」是这套分层最值钱的一条：它意味着<strong>同一个 service 既能被 HTTP handler 调用，也能被后台抓取 goroutine 调用</strong>。Go 里 <code>internal/</code> 目录能挡掉九成架构事故。</p>
+<hr>
+<h2 id="15-2-工程初始化：目录、模块与配置"><a href="#15-2-工程初始化：目录、模块与配置" class="headerlink" title="15.2 工程初始化：目录、模块与配置"></a>15.2 工程初始化：目录、模块与配置</h2><h3 id="15-2-1-目录结构逐个解释"><a href="#15-2-1-目录结构逐个解释" class="headerlink" title="15.2.1 目录结构逐个解释"></a>15.2.1 目录结构逐个解释</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">rssagg/</span><br><span class="line">├── cmd/rssagg/main.go       # 入口：读配置、装配依赖、启停</span><br><span class="line">├── internal/</span><br><span class="line">│   ├── config/config.go     # 环境变量读取与默认值</span><br><span class="line">│   ├── httpapi/             # router / respond / middleware / *_handler</span><br><span class="line">│   ├── service/user.go      # 业务规则：重名校验、API Key 生成</span><br><span class="line">│   ├── store/               # UserStore 接口 + 内存实现</span><br><span class="line">│   └── models/user.go       # 领域模型</span><br><span class="line">├── sql/&#123;schema,queries&#125;/    # 迁移脚本与 sqlc 查询（下一篇展开）</span><br><span class="line">├── .env                     # 本地配置，务必进 .gitignore</span><br><span class="line">├── go.mod</span><br><span class="line">└── go.sum</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>职责</th>
+<th>关键约束</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cmd/rssagg/main.go</code></td>
+<td>进程入口</td>
+<td>只做装配和启停，<strong>不写业务逻辑</strong></td>
+</tr>
+<tr>
+<td><code>internal/config</code></td>
+<td>读 <code>.env</code> &#x2F; 环境变量</td>
+<td>不依赖项目内其它包，是依赖树的叶子</td>
+</tr>
+<tr>
+<td><code>internal/httpapi</code></td>
+<td>路由、handler、中间件</td>
+<td>只能依赖 <code>service</code>，不能直接依赖 <code>store</code></td>
+</tr>
+<tr>
+<td><code>internal/service</code></td>
+<td>业务规则与流程编排</td>
+<td>感知不到 HTTP，也不知道数据存在哪</td>
+</tr>
+<tr>
+<td><code>internal/store</code></td>
+<td>存储接口 + 实现</td>
+<td>只依赖 <code>models</code></td>
+</tr>
+</tbody></table>
+<p>入口之所以叫 <code>cmd/rssagg</code>：Go 的约定是<strong>一个仓库可以编译出多个二进制</strong>，每个可执行程序一个 <code>cmd/&lt;名字&gt;/</code> 子目录且必须是 <code>package main</code>；以后想再拆一个 <code>cmd/migrate</code> 做迁移，位置就留好了。</p>
+<h3 id="15-2-2-go-mod-与模块路径"><a href="#15-2-2-go-mod-与模块路径" class="headerlink" title="15.2.2 go.mod 与模块路径"></a>15.2.2 go.mod 与模块路径</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">module github.com/meisijiya/rssagg</span><br><span class="line"></span><br><span class="line">go 1.23</span><br><span class="line"></span><br><span class="line">require (</span><br><span class="line">	github.com/go-chi/chi/v5 v5.5.0</span><br><span class="line">	github.com/google/uuid v1.6.0</span><br><span class="line">	github.com/joho/godotenv v1.5.1</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><code>go mod init github.com/meisijiya/rssagg</code> 生成的就是上面这样。<code>module</code> 路径是<strong>所有 import 的前缀</strong>；<code>go 1.23</code> 声明语言最低版本；<code>require</code> 里的版本号由 <code>go mod tidy</code> 写入并被 <code>go.sum</code> 锁定。</p>
+<p><code>internal/</code> 的特殊语义值得强调：<strong>只有模块根目录树内部的包才能 import 它</strong>，外部模块 import 会直接编译失败（<code>use of internal package ... not allowed</code>）。</p>
+<h3 id="15-2-3-env、godotenv-与-PORT"><a href="#15-2-3-env、godotenv-与-PORT" class="headerlink" title="15.2.3 .env、godotenv 与 PORT"></a>15.2.3 .env、godotenv 与 PORT</h3><p>本地开发写一个 <code>.env</code>（<code>PORT=8080</code>、<code>SHUTDOWN_TIMEOUT=10</code>），并**第一时间把它加进 <code>.gitignore</code>**，连同编译产物 <code>rssagg</code> &#x2F; <code>rssagg.exe</code>。</p>
+<p>配置读取放在 <code>internal/config/config.go</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> config</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;os&quot;</span></span><br><span class="line">	<span class="string">&quot;strconv&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Config 汇总进程运行期需要的外部配置，每个字段都有可用默认值。</span></span><br><span class="line"><span class="keyword">type</span> Config <span class="keyword">struct</span> &#123;</span><br><span class="line">	Port            <span class="type">string</span></span><br><span class="line">	ShutdownTimeout time.Duration</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Load 从进程环境变量读取配置。</span></span><br><span class="line"><span class="comment">// 这里不直接读 .env 文件——.env 只是给环境变量兜底的加载方式。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Load</span><span class="params">()</span></span> (Config, <span class="type">error</span>) &#123;</span><br><span class="line">	cfg := Config&#123;Port: <span class="string">&quot;8080&quot;</span>, ShutdownTimeout: <span class="number">10</span> * time.Second&#125;</span><br><span class="line">	<span class="keyword">if</span> port := os.Getenv(<span class="string">&quot;PORT&quot;</span>); port != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		cfg.Port = port</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> raw := os.Getenv(<span class="string">&quot;SHUTDOWN_TIMEOUT&quot;</span>); raw != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		seconds, err := strconv.Atoi(raw)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> Config&#123;&#125;, fmt.Errorf(<span class="string">&quot;解析 SHUTDOWN_TIMEOUT %q 失败: %w&quot;</span>, raw, err)</span><br><span class="line">		&#125;</span><br><span class="line">		cfg.ShutdownTimeout = time.Duration(seconds) * time.Second</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> cfg, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>.env</code> 的加载放在 <code>main.go</code> 里：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// .env 只是本地开发的便利手段；容器里的真实环境变量优先级更高。</span></span><br><span class="line"><span class="keyword">if</span> err := godotenv.Load(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	slog.Warn(<span class="string">&quot;未找到 .env，改用进程环境变量&quot;</span>, <span class="string">&quot;err&quot;</span>, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>godotenv.Load()</code> 不会覆盖已存在的环境变量</strong>，只有 <code>Overload()</code> 才会强制覆盖。所以本地开发用 <code>Load()</code>，容器里什么都不做，单元测试则显式 <code>t.Setenv</code>。对比 Spring 内置的「环境变量 &gt; profile 文件 &gt; 默认值」分层配置，Go 标准库没有这套东西：<strong>代价是合并逻辑自己写，收益是配置一眼看得清</strong>。</p>
+<hr>
+<h2 id="15-3-路由层：为什么选-chi"><a href="#15-3-路由层：为什么选-chi" class="headerlink" title="15.3 路由层：为什么选 chi"></a>15.3 路由层：为什么选 chi</h2><h3 id="15-3-1-为什么选-chi"><a href="#15-3-1-为什么选-chi" class="headerlink" title="15.3.1 为什么选 chi"></a>15.3.1 为什么选 chi</h3><p>选 chi 的三个理由：<strong>轻量</strong>（只依赖标准库）、<strong>组合式中间件</strong>（<code>func(http.Handler) http.Handler</code> 可以随便套）、<strong>可嵌套</strong>（<code>r.Route(&quot;/v1&quot;, ...)</code> 做版本前缀，<code>r.Mount</code> 挂子应用）。和 Java 特别值得说：Spring 的拦截器靠 <code>addInterceptors</code> 注册，<strong>没法给单个 handler 单独挂一层</strong>；chi 的 <code>r.With(mw).Get(&quot;/users&quot;, h)</code> 就是给单个接口加一层。</p>
+<h3 id="15-3-2-chi-NewRouter-与注册路由"><a href="#15-3-2-chi-NewRouter-与注册路由" class="headerlink" title="15.3.2 chi.NewRouter 与注册路由"></a>15.3.2 chi.NewRouter 与注册路由</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> httpapi</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;github.com/go-chi/chi/v5&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewRouter 组装整棵路由树。</span></span><br><span class="line"><span class="comment">// 返回 http.Handler 而不是 *chi.Mux，上层只依赖标准库接口。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewRouter</span><span class="params">(h *Handler)</span></span> http.Handler &#123;</span><br><span class="line">	r := chi.NewRouter()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 全局中间件：按注册顺序由外到内执行</span></span><br><span class="line">	r.Use(RequestID)</span><br><span class="line">	r.Use(Logger)</span><br><span class="line">	r.Use(Recoverer)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 健康检查放在版本前缀之外，方便探针直接访问</span></span><br><span class="line">	r.Get(<span class="string">&quot;/healthz&quot;</span>, h.Health)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 按版本分组，子树里的路径都是 /v1/xxx</span></span><br><span class="line">	r.Route(<span class="string">&quot;/v1&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(r chi.Router)</span></span> &#123;</span><br><span class="line">		r.Post(<span class="string">&quot;/users&quot;</span>, h.CreateUser)</span><br><span class="line">		r.Get(<span class="string">&quot;/users/&#123;id&#125;&quot;</span>, h.GetUser)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 覆写 chi 默认的纯文本 404 / 405，保持响应格式统一</span></span><br><span class="line">	<span class="comment">// （下面以 NotFound 为例，MethodNotAllowed 同理）</span></span><br><span class="line">	r.NotFound(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		respondWithError(w, http.StatusNotFound, <span class="string">&quot;接口不存在&quot;</span>)</span><br><span class="line">	&#125;)</span><br><span class="line">	r.MethodNotAllowed(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		respondWithError(w, http.StatusMethodNotAllowed, <span class="string">&quot;请求方法不被支持&quot;</span>)</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">return</span> r</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>chi.NewRouter()</code> 返回 <code>*chi.Mux</code>，实现了 <code>http.Handler</code>，能直接塞进 <code>http.Server.Handler</code>。<code>&#123;id&#125;</code> 是<strong>路径参数</strong>，取值用 <code>chi.URLParam(r, &quot;id&quot;)</code>；查询参数是 <code>r.URL.Query().Get(&quot;page&quot;)</code>。<code>r.NotFound</code> 和 <code>r.MethodNotAllowed</code> 必须显式覆写：chi 默认返回纯文本，客户端按 JSON 解析会直接崩。</p>
+<h3 id="15-3-3-http-Server-的字段"><a href="#15-3-3-http-Server-的字段" class="headerlink" title="15.3.3 http.Server 的字段"></a>15.3.3 http.Server 的字段</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">srv := &amp;http.Server&#123;</span><br><span class="line">	Addr:              <span class="string">&quot;:&quot;</span> + cfg.Port,</span><br><span class="line">	Handler:           router,</span><br><span class="line">	ReadHeaderTimeout: <span class="number">5</span> * time.Second,</span><br><span class="line">	ReadTimeout:       <span class="number">15</span> * time.Second,</span><br><span class="line">	WriteTimeout:      <span class="number">15</span> * time.Second,</span><br><span class="line">	IdleTimeout:       <span class="number">60</span> * time.Second,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Addr</code> 是监听地址（<code>:8080</code> 表示所有网卡），<code>Handler</code> 是路由树（传 <code>nil</code> 会用默认的 <code>DefaultServeMux</code>）。四个超时字段是重点：<code>ReadHeaderTimeout</code> 缺失就没有 <strong>Slowloris 防护</strong>，恶意连接能占住 goroutine 不放；<code>ReadTimeout</code> 防慢速上传；<code>WriteTimeout</code> 防客户端不读响应；<code>IdleTimeout</code> 防连接堆积。<strong>Go 的 <code>http.Server</code> 默认一个超时都不设</strong>，这是最容易漏的安全项。</p>
+<h3 id="15-3-4-优雅关闭"><a href="#15-3-4-优雅关闭" class="headerlink" title="15.3.4 优雅关闭"></a>15.3.4 优雅关闭</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 监听退出信号：Ctrl+C 或者容器里的 SIGTERM</span></span><br><span class="line">ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)</span><br><span class="line"><span class="keyword">defer</span> stop()</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> err := srv.ListenAndServe(); err != <span class="literal">nil</span> &amp;&amp; !errors.Is(err, http.ErrServerClosed) &#123;</span><br><span class="line">		slog.Error(<span class="string">&quot;http server 异常退出&quot;</span>, <span class="string">&quot;err&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line">&lt;-ctx.Done()</span><br><span class="line">slog.Info(<span class="string">&quot;收到退出信号，开始优雅关闭&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 给在途请求留出收尾时间</span></span><br><span class="line">shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)</span><br><span class="line"><span class="keyword">defer</span> cancel()</span><br><span class="line"><span class="keyword">if</span> err := srv.Shutdown(shutdownCtx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	slog.Error(<span class="string">&quot;优雅关闭超时，强制断开&quot;</span>, <span class="string">&quot;err&quot;</span>, err)</span><br><span class="line">	_ = srv.Close()</span><br><span class="line">	os.Exit(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>两个必须记住的点：**<code>ListenAndServe</code> 在正常关闭时返回的是 <code>http.ErrServerClosed</code> 而不是 <code>nil</code><strong>，不判断的话每次正常关停都会打一条 error 日志；</strong><code>Shutdown</code> 只停止接受新连接，再等在途请求跑完**，必须配 <code>context.WithTimeout</code>，超时后用 <code>Close()</code> 强制断开。</p>
+<hr>
+<h2 id="15-4-统一响应与错误处理"><a href="#15-4-统一响应与错误处理" class="headerlink" title="15.4 统一响应与错误处理"></a>15.4 统一响应与错误处理</h2><h3 id="15-4-1-一个-respondWithJSON-打天下"><a href="#15-4-1-一个-respondWithJSON-打天下" class="headerlink" title="15.4.1 一个 respondWithJSON 打天下"></a>15.4.1 一个 respondWithJSON 打天下</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> httpapi</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;encoding/json&quot;</span></span><br><span class="line">	<span class="string">&quot;log/slog&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// ErrorBody 是所有非 2xx 响应的统一报文格式。</span></span><br><span class="line"><span class="keyword">type</span> ErrorBody <span class="keyword">struct</span> &#123;</span><br><span class="line">	Error <span class="type">string</span> <span class="string">`json:&quot;error&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// respondWithJSON 把任意 payload 序列化成 JSON 写回客户端。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">respondWithJSON</span><span class="params">(w http.ResponseWriter, status <span class="type">int</span>, payload any)</span></span> &#123;</span><br><span class="line">	body, err := json.Marshal(payload)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// 序列化失败是服务端 bug，此时还没写过字节，可以安全改状态码</span></span><br><span class="line">		slog.Error(<span class="string">&quot;序列化响应失败&quot;</span>, <span class="string">&quot;err&quot;</span>, err)</span><br><span class="line">		w.WriteHeader(http.StatusInternalServerError)</span><br><span class="line">		_, _ = w.Write([]<span class="type">byte</span>(<span class="string">`&#123;&quot;error&quot;:&quot;internal server error&quot;&#125;`</span>))</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 顺序不能反：Header 必须在 WriteHeader 之前设置</span></span><br><span class="line">	w.Header().Set(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json; charset=utf-8&quot;</span>)</span><br><span class="line">	w.WriteHeader(status)</span><br><span class="line">	_, _ = w.Write(body)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// respondWithError 是错误出口，格式固定为 &#123;&quot;error&quot;: &quot;...&quot;&#125;。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">respondWithError</span><span class="params">(w http.ResponseWriter, status <span class="type">int</span>, msg <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">	respondWithJSON(w, status, ErrorBody&#123;Error: msg&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>w.Header().Set</code> 必须在 <code>w.WriteHeader</code> 之前</strong>——这是 Go 最常见的低级 bug。<code>WriteHeader</code> 一旦调用，响应头就已经写进 socket 了，之后再 <code>Set</code> 毫无效果：症状是状态码对了，但 <code>Content-Type</code> 变成 Go 默认猜测的 <code>text/plain; charset=utf-8</code>，前端 <code>JSON.parse</code> 报错。同理，**一个请求只能调用一次 <code>WriteHeader</code>**。</p>
+<h3 id="15-4-2-错误响应约定"><a href="#15-4-2-错误响应约定" class="headerlink" title="15.4.2 错误响应约定"></a>15.4.2 错误响应约定</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>状态码</th>
+<th>响应体示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>请求体不是合法 JSON</td>
+<td><code>400</code></td>
+<td><code>&#123;&quot;error&quot;:&quot;请求体不是合法 JSON: ...&quot;&#125;</code></td>
+</tr>
+<tr>
+<td>参数校验不通过</td>
+<td><code>422</code></td>
+<td><code>&#123;&quot;error&quot;:&quot;name 不能为空&quot;&#125;</code></td>
+</tr>
+<tr>
+<td>缺 API Key &#x2F; Key 无效</td>
+<td><code>401</code></td>
+<td><code>&#123;&quot;error&quot;:&quot;缺少 API Key&quot;&#125;</code></td>
+</tr>
+<tr>
+<td>服务端内部错误</td>
+<td><code>500</code></td>
+<td><code>&#123;&quot;error&quot;:&quot;internal server error&quot;&#125;</code></td>
+</tr>
+</tbody></table>
+<p>三条纪律：<strong>4xx 给可读的中文提示</strong>；<strong>5xx 只给一句通用话</strong>，真实细节只写日志不进响应体；<strong>格式全站统一</strong>成 <code>&#123;&quot;error&quot;: &quot;...&quot;&#125;</code> 一种形状。</p>
+<h3 id="15-4-3-http-Error-和自定义-JSON-怎么选"><a href="#15-4-3-http-Error-和自定义-JSON-怎么选" class="headerlink" title="15.4.3 http.Error 和自定义 JSON 怎么选"></a>15.4.3 http.Error 和自定义 JSON 怎么选</h3><p><code>http.Error(w, &quot;something went wrong&quot;, 500)</code> 是标准库自带的错误输出：写纯文本、<code>Content-Type</code> 设为 <code>text/plain; charset=utf-8</code>、自动加 <code>X-Content-Type-Options: nosniff</code>。它适合返回给人看的页面，用在 API 接口上客户端按 JSON 解析会炸。</p>
+<p>Spring 靠 <code>@RestControllerAdvice</code> 自动完成这件事，FastAPI 靠注册 <code>exception_handler</code>。<strong>Go 没有注解，只能靠约定 + 一个辅助函数</strong>——所以 <code>respondWithError</code> 必须在项目里只有一份，放在 <code>internal/httpapi</code> 包里共用。</p>
+<hr>
+<h2 id="15-5-第一个业务接口：创建用户"><a href="#15-5-第一个业务接口：创建用户" class="headerlink" title="15.5 第一个业务接口：创建用户"></a>15.5 第一个业务接口：创建用户</h2><h3 id="15-5-1-入参结构体与-json-tag"><a href="#15-5-1-入参结构体与-json-tag" class="headerlink" title="15.5.1 入参结构体与 json tag"></a>15.5.1 入参结构体与 json tag</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> createUserRequest <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name <span class="type">string</span> <span class="string">`json:&quot;name&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> createUserResponse <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID     <span class="type">string</span> <span class="string">`json:&quot;id&quot;`</span></span><br><span class="line">	Name   <span class="type">string</span> <span class="string">`json:&quot;name&quot;`</span></span><br><span class="line">	APIKey <span class="type">string</span> <span class="string">`json:&quot;api_key&quot;`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Go 的 <code>encoding/json</code> 在<strong>没有 tag 时</strong>会做大小写不敏感匹配（<code>Name</code>、<code>name</code> 都能对上），但客户端多传的字段会被<strong>静默忽略</strong>。显式写 tag 表达两件事：字段名以 wire 格式为准，以及「这个字段我认得」。Java 的 Jackson 需要 <code>@JsonProperty</code>，Python 的 pydantic v2 要 <code>Field(alias=...)</code>：<strong>三门语言都要显式声明映射关系</strong>，只是 Go 默认宽松。</p>
+<h3 id="15-5-2-为什么用-Decoder-而不是-Unmarshal"><a href="#15-5-2-为什么用-Decoder-而不是-Unmarshal" class="headerlink" title="15.5.2 为什么用 Decoder 而不是 Unmarshal"></a>15.5.2 为什么用 Decoder 而不是 Unmarshal</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th><code>json.Unmarshal</code></th>
+<th><code>json.NewDecoder</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内存占用</td>
+<td>整个 body 进内存</td>
+<td>边读边解析</td>
+</tr>
+<tr>
+<td>未知字段</td>
+<td>默认忽略</td>
+<td><code>DisallowUnknownFields()</code> 直接报错</td>
+</tr>
+<tr>
+<td>大整数</td>
+<td>目标为 <code>any</code> 时按 <code>float64</code> 解，<strong>丢精度</strong></td>
+<td><code>UseNumber()</code> 保留原始数字</td>
+</tr>
+</tbody></table>
+<p><strong>省一次内存拷贝。</strong> <code>Unmarshal</code> 要求你先 <code>io.ReadAll(r.Body)</code> 拿到完整字节切片，等于把请求体在内存里存了两份；Decoder 直接从 <code>r.Body</code> 读，边读边解析。Java 侧的 Jackson <code>readValue(InputStream, Class)</code> 本身就是流式的。</p>
+<p><strong>把「前端字段名拼错」变成一次明确的 400。</strong> <code>DisallowUnknownFields()</code> 开启后，前端把 <code>userName</code> 写成 <code>username</code>，服务端直接报 400；不开启的话服务端静默忽略，<code>name</code> 保持零值，返回一个 name 为空的用户——这种 bug 能潜伏好几个月，因为接口返回 201，客户端也不报错。</p>
+<p><strong>解决大整数精度丢失。</strong> Go 把数字解到 <code>any</code> 时用 <code>float64</code> 承载，超过 2^53 的整数会被悄悄改掉：<code>9007199254740993</code> 反序列化进 <code>any</code> 打印出来是 <code>9.007199254740992e+15</code>，末尾的 3 没了。Python 的 <code>int</code> 是任意精度，Java 的 <code>long</code> 是定长 64 位，都不会「悄悄变形」；<strong>Go 最容易在这上面翻车</strong>，解法是 <code>dec.UseNumber()</code>。</p>
+<h3 id="15-5-3-校验、业务与-201-返回"><a href="#15-5-3-校验、业务与-201-返回" class="headerlink" title="15.5.3 校验、业务与 201 返回"></a>15.5.3 校验、业务与 201 返回</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CreateUser 处理 POST /v1/users。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *Handler)</span></span> CreateUser(w http.ResponseWriter, r *http.Request) &#123;</span><br><span class="line">	<span class="keyword">var</span> req createUserRequest</span><br><span class="line"></span><br><span class="line">	dec := json.NewDecoder(r.Body)</span><br><span class="line">	dec.DisallowUnknownFields()</span><br><span class="line">	<span class="keyword">if</span> err := dec.Decode(&amp;req); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		respondWithError(w, http.StatusBadRequest, <span class="string">&quot;请求体不是合法 JSON: &quot;</span>+err.Error())</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	req.Name = strings.TrimSpace(req.Name)</span><br><span class="line">	<span class="keyword">if</span> err := validateName(req.Name); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		respondWithError(w, http.StatusUnprocessableEntity, err.Error())</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	user, err := h.users.Create(r.Context(), req.Name)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> errors.Is(err, service.ErrNameTaken) &#123;</span><br><span class="line">			respondWithError(w, http.StatusConflict, <span class="string">&quot;用户名已被占用&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 未预期的错误只记日志，响应体里不暴露细节</span></span><br><span class="line">		slog.Error(<span class="string">&quot;创建用户失败&quot;</span>, <span class="string">&quot;err&quot;</span>, err, <span class="string">&quot;request_id&quot;</span>, RequestIDFrom(r.Context()))</span><br><span class="line">		respondWithError(w, http.StatusInternalServerError, <span class="string">&quot;创建用户失败&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 201 + Location 头是 RESTful 里创建资源的标准姿势</span></span><br><span class="line">	w.Header().Set(<span class="string">&quot;Location&quot;</span>, <span class="string">&quot;/v1/users/&quot;</span>+user.ID)</span><br><span class="line">	respondWithJSON(w, http.StatusCreated, createUserResponse&#123;</span><br><span class="line">		ID: user.ID, Name: user.Name, APIKey: user.APIKey,</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// validateName 做格式层面的校验。</span></span><br><span class="line"><span class="comment">// 长度用 rune 数而不是字节数——一个汉字是 3 字节但只算 1 个字符。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">validateName</span><span class="params">(name <span class="type">string</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> name == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> errors.New(<span class="string">&quot;name 不能为空&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>([]<span class="type">rune</span>(name)) &gt; <span class="number">64</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> errors.New(<span class="string">&quot;name 长度不能超过 64 个字符&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同一条业务，三种语言写起来差别很大。Java + Spring Boot 靠注解驱动，参数校验交给 <code>@Valid</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/v1/users&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> UserService users;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">UserController</span><span class="params">(UserService users)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.users = users;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;CreateUserResponse&gt; <span class="title function_">create</span><span class="params">(</span></span><br><span class="line"><span class="params">            <span class="meta">@Valid</span> <span class="meta">@RequestBody</span> CreateUserRequest req)</span> &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> users.create(req.name());</span><br><span class="line">        <span class="keyword">return</span> ResponseEntity</span><br><span class="line">            .created(URI.create(<span class="string">&quot;/v1/users/&quot;</span> + user.id()))</span><br><span class="line">            .body(<span class="keyword">new</span> <span class="title class_">CreateUserResponse</span>(user.id(), user.name(), user.apiKey()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Python + FastAPI 靠依赖注入拿 service、靠 pydantic 做校验：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> APIRouter, Depends, HTTPException, status</span><br><span class="line"></span><br><span class="line">router = APIRouter(prefix=<span class="string">&quot;/v1/users&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@router.post(<span class="params"><span class="string">&quot;&quot;</span>, status_code=status.HTTP_201_CREATED</span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">create_user</span>(<span class="params">req: CreateUserRequest,</span></span><br><span class="line"><span class="params">                      users: UserService = Depends(<span class="params">get_users</span>)</span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        user = users.create(req.name)</span><br><span class="line">    <span class="keyword">except</span> NameTakenError:</span><br><span class="line">        <span class="keyword">raise</span> HTTPException(status_code=<span class="number">409</span>, detail=<span class="string">&quot;name already taken&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> CreateUserResponse(<span class="built_in">id</span>=user.<span class="built_in">id</span>, name=user.name, api_key=user.api_key)</span><br></pre></td></tr></table></figure>
+
+<p>三段代码做的是同一件事，但<strong>依赖从哪来、错误怎么抛、校验在哪一步</strong>完全不同：Go 全靠构造函数和返回值显式表达，Java 交给容器，Python 交给依赖注入。</p>
+<p>两个细节：**<code>len([]rune(s))</code> 而不是 <code>len(s)</code><strong>——后者返回</strong>字节数<strong>，中文昵称「老江湖」是 9 字节，限制 64 字节就只放得下 21 个汉字；Python 的 <code>len()</code> 数字符，Java 的 <code>String.length()</code> 数 UTF-16 code unit。</strong>业务校验和格式校验分开**——<code>name</code> 为空在 handler 做，「用户名重复」交给 service，用哨兵错误 <code>ErrNameTaken</code> 抛回来翻译成 <code>409</code>。</p>
+<p>service 层完全不感知 HTTP，<code>Create</code> 大致长这样：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> service</span><br><span class="line"></span><br><span class="line"><span class="comment">// ErrNameTaken 是「用户名重复」这个业务错误的哨兵值，用 errors.Is 判断。</span></span><br><span class="line"><span class="keyword">var</span> ErrNameTaken = errors.New(<span class="string">&quot;用户名已被占用&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Create 创建用户并生成一枚 API Key。</span></span><br><span class="line"><span class="comment">// 明文 Key 只在这里出现一次，落库存的是 SHA-256 摘要。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *UserService)</span></span> Create(ctx context.Context, name <span class="type">string</span>) (models.User, <span class="type">error</span>) &#123;</span><br><span class="line">	existing, err := s.store.FindByName(ctx, strings.TrimSpace(name))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> models.User&#123;&#125;, fmt.Errorf(<span class="string">&quot;按名字查用户失败: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> existing != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> models.User&#123;&#125;, ErrNameTaken</span><br><span class="line">	&#125;</span><br><span class="line">	rawKey, err := generateAPIKey() <span class="comment">// 32 字节随机数，十六进制编码</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> models.User&#123;&#125;, fmt.Errorf(<span class="string">&quot;生成 API Key 失败: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	sum := sha256.Sum256([]<span class="type">byte</span>(rawKey))</span><br><span class="line">	user := models.User&#123;ID: uuid.NewString(), Name: name, APIKey: rawKey,</span><br><span class="line">		APIKeySum: hex.EncodeToString(sum[:]), CreatedAt: time.Now().UTC()&#125;</span><br><span class="line">	<span class="keyword">if</span> err := s.store.Insert(ctx, user); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> models.User&#123;&#125;, fmt.Errorf(<span class="string">&quot;写入用户失败: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> user, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里体现了 Go 错误处理的两个招牌动作：**<code>fmt.Errorf</code> 带 <code>%w</code> 包装底层错误<strong>形成错误链，调用方可以用 <code>errors.Is</code> &#x2F; <code>errors.As</code> 追到根因；</strong>用导出的哨兵变量 <code>ErrNameTaken</code> 表达业务错误<strong>，而不是抛字符串。注意 <code>time.Now().UTC()</code>——</strong>时间统一存 UTC**，展示时再转本地时区。</p>
+<hr>
+<h2 id="15-6-中间件：Go-的装饰器"><a href="#15-6-中间件：Go-的装饰器" class="headerlink" title="15.6 中间件：Go 的装饰器"></a>15.6 中间件：Go 的装饰器</h2><h3 id="15-6-1-签名与本质"><a href="#15-6-1-签名与本质" class="headerlink" title="15.6.1 签名与本质"></a>15.6.1 签名与本质</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Middleware <span class="function"><span class="keyword">func</span><span class="params">(http.Handler)</span></span> http.Handler</span><br></pre></td></tr></table></figure>
+
+<p><code>http.Handler</code> 只有一个方法 <code>ServeHTTP(ResponseWriter, *Request)</code>，所以「中间件」就是一个<strong>吃 handler、吐 handler</strong>的函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">RequestID</span><span class="params">(next http.Handler)</span></span> http.Handler &#123;</span><br><span class="line">	<span class="keyword">return</span> http.HandlerFunc(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		<span class="comment">// 进入前做的事</span></span><br><span class="line">		id := uuid.NewString()</span><br><span class="line">		w.Header().Set(<span class="string">&quot;X-Request-Id&quot;</span>, id)</span><br><span class="line">		ctx := context.WithValue(r.Context(), requestIDKey, id)</span><br><span class="line">		next.ServeHTTP(w, r.WithContext(ctx))</span><br><span class="line">		<span class="comment">// 返回后做的事（可选）</span></span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Go 的中间件就是装饰器</strong>——和第 10 篇讲的闭包、高阶函数是一回事。Java 的对应物是 <code>HandlerInterceptor</code> 或 Servlet 的 <code>Filter</code>；Go 的写法最直白：<strong>中间件是一个返回函数的函数</strong>。</p>
+<h3 id="15-6-2-执行顺序：注册顺序-由外到内"><a href="#15-6-2-执行顺序：注册顺序-由外到内" class="headerlink" title="15.6.2 执行顺序：注册顺序 &#x3D; 由外到内"></a>15.6.2 执行顺序：注册顺序 &#x3D; 由外到内</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">请求进来</span><br><span class="line">   │</span><br><span class="line">   ▼</span><br><span class="line">① RequestID    生成 ID，写回响应头</span><br><span class="line">   │</span><br><span class="line">   ▼</span><br><span class="line">② Logger       计时 + 记录状态码</span><br><span class="line">   │</span><br><span class="line">   ▼</span><br><span class="line">③ Recoverer    兜住 panic，转成 500</span><br><span class="line">   │</span><br><span class="line">   ▼</span><br><span class="line">④ Auth         校验 API Key（下一篇）</span><br><span class="line">   │</span><br><span class="line">   ▼</span><br><span class="line"> handler        真正的业务处理</span><br></pre></td></tr></table></figure>
+
+<p>规则只有一条，但必须记牢：<strong>注册顺序 &#x3D; 请求进入顺序 &#x3D; 响应返回顺序的逆序。</strong> 排顺序的原则：<strong>RequestID 必须最外层</strong>，否则后面的日志里就拿不到 ID；<strong>Recoverer 要在 Logger 里面</strong>，这样 panic 被兜住之后 Logger 依然能记录状态码和耗时；<strong>Auth 放在最内层</strong>。</p>
+<h3 id="15-6-3-panic-恢复中间件"><a href="#15-6-3-panic-恢复中间件" class="headerlink" title="15.6.3 panic 恢复中间件"></a>15.6.3 panic 恢复中间件</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Recoverer 兜住 handler 里的 panic，避免整个进程被拖垮。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Recoverer</span><span class="params">(next http.Handler)</span></span> http.Handler &#123;</span><br><span class="line">	<span class="keyword">return</span> http.HandlerFunc(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">if</span> rec := <span class="built_in">recover</span>(); rec != <span class="literal">nil</span> &#123;</span><br><span class="line">				slog.Error(<span class="string">&quot;panic 已恢复&quot;</span>,</span><br><span class="line">					<span class="string">&quot;panic&quot;</span>, rec,</span><br><span class="line">					<span class="string">&quot;stack&quot;</span>, <span class="type">string</span>(debug.Stack()),</span><br><span class="line">					<span class="string">&quot;request_id&quot;</span>, RequestIDFrom(r.Context()),</span><br><span class="line">				)</span><br><span class="line">				respondWithError(w, http.StatusInternalServerError, <span class="string">&quot;服务内部错误&quot;</span>)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">		next.ServeHTTP(w, r)</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Go 的 panic 沿 goroutine 栈向上冒泡，<strong>如果一路没人 recover，整个进程立刻退出</strong>——比 Java 更硬朗，所以 <code>Recoverer</code> 是必须有的一层。注意三点：**<code>recover()</code> 必须写在 <code>defer func()&#123;...&#125;()</code> 这种直接调用的匿名函数里<strong>，<code>defer recover()</code> 是无效的；</strong><code>debug.Stack()</code> 拿的是当前 goroutine 的调用栈<strong>，一定要打进日志；</strong>出错后不要再写响应**。</p>
+<h3 id="15-6-4-请求-ID-与结构化日志"><a href="#15-6-4-请求-ID-与结构化日志" class="headerlink" title="15.6.4 请求 ID 与结构化日志"></a>15.6.4 请求 ID 与结构化日志</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ctxKey 是自定义类型，避免用 string 做 context key。</span></span><br><span class="line"><span class="keyword">type</span> ctxKey <span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> requestIDKey ctxKey = <span class="string">&quot;request_id&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// RequestIDFrom 从 context 中取回请求 ID。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">RequestIDFrom</span><span class="params">(ctx context.Context)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> v, ok := ctx.Value(requestIDKey).(<span class="type">string</span>); ok &#123;</span><br><span class="line">		<span class="keyword">return</span> v</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// statusRecorder 包装 ResponseWriter，记录状态码。</span></span><br><span class="line"><span class="keyword">type</span> statusRecorder <span class="keyword">struct</span> &#123;</span><br><span class="line">	http.ResponseWriter</span><br><span class="line">	status <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *statusRecorder)</span></span> WriteHeader(code <span class="type">int</span>) &#123;</span><br><span class="line">	w.status = code</span><br><span class="line">	w.ResponseWriter.WriteHeader(code)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Logger 记录每个请求的方法、路径、状态码、耗时和请求 ID。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Logger</span><span class="params">(next http.Handler)</span></span> http.Handler &#123;</span><br><span class="line">	<span class="keyword">return</span> http.HandlerFunc(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		start := time.Now()</span><br><span class="line">		rec := &amp;statusRecorder&#123;ResponseWriter: w&#125;</span><br><span class="line">		next.ServeHTTP(rec, r)</span><br><span class="line">		<span class="keyword">if</span> rec.status == <span class="number">0</span> &#123;</span><br><span class="line">			rec.status = http.StatusOK</span><br><span class="line">		&#125;</span><br><span class="line">		slog.Info(<span class="string">&quot;http 请求&quot;</span>,</span><br><span class="line">			<span class="string">&quot;method&quot;</span>, r.Method,</span><br><span class="line">			<span class="string">&quot;path&quot;</span>, r.URL.Path,</span><br><span class="line">			<span class="string">&quot;status&quot;</span>, rec.status,</span><br><span class="line">			<span class="string">&quot;duration_ms&quot;</span>, time.Since(start).Milliseconds(),</span><br><span class="line">			<span class="string">&quot;request_id&quot;</span>, RequestIDFrom(r.Context()),</span><br><span class="line">		)</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>四个点：<strong>context key 用自定义类型</strong>（用 <code>string</code> 做 key 时 <code>go vet</code> 会报警告）；<strong>请求 ID 优先用客户端带来的</strong>；<strong>状态码靠包装 ResponseWriter 拿到</strong>；<strong>包装会丢可选接口</strong>（<code>http.Flusher</code>、<code>http.Hijacker</code> 失效）。</p>
+<h3 id="15-6-5-路由与中间件对照表"><a href="#15-6-5-路由与中间件对照表" class="headerlink" title="15.6.5 路由与中间件对照表"></a>15.6.5 路由与中间件对照表</h3><table>
+<thead>
+<tr>
+<th>注册位置</th>
+<th>写法</th>
+<th>生效范围</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>全局</td>
+<td><code>r.Use(mw)</code></td>
+<td>整棵路由树</td>
+<td>RequestID、Logger、Recoverer</td>
+</tr>
+<tr>
+<td>版本分组</td>
+<td><code>r.Route(&quot;/v1&quot;, func(r chi.Router)&#123;...&#125;)</code></td>
+<td>子树</td>
+<td>版本前缀、给整组加中间件</td>
+</tr>
+<tr>
+<td>单个路由</td>
+<td><code>r.With(mw).Get(&quot;/x&quot;, h)</code></td>
+<td>仅这一个 handler</td>
+<td>鉴权、限流</td>
+</tr>
+<tr>
+<td>兜底</td>
+<td><code>r.NotFound(...)</code> &#x2F; <code>r.MethodNotAllowed(...)</code></td>
+<td>全局</td>
+<td>统一 404 &#x2F; 405 格式</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="15-7-把它跑起来"><a href="#15-7-把它跑起来" class="headerlink" title="15.7 把它跑起来"></a>15.7 把它跑起来</h2><h3 id="15-7-1-编译与启动"><a href="#15-7-1-编译与启动" class="headerlink" title="15.7.1 编译与启动"></a>15.7.1 编译与启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go mod tidy                      <span class="comment"># 拉齐依赖，go.mod / go.sum 自动整理</span></span><br><span class="line">go build -o rssagg ./cmd/rssagg  <span class="comment"># 编译成单个可执行文件</span></span><br><span class="line">./rssagg                         <span class="comment"># 启动</span></span><br></pre></td></tr></table></figure>
+
+<p>Windows 下产物是 <code>rssagg.exe</code>（PowerShell 里写 <code>.\rssagg.exe</code>）。开发期更常用 <code>go run ./cmd/rssagg</code>。</p>
+<h3 id="15-7-2-三个-curl-验证"><a href="#15-7-2-三个-curl-验证" class="headerlink" title="15.7.2 三个 curl 验证"></a>15.7.2 三个 curl 验证</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1) 健康检查</span></span><br><span class="line">curl -i http://localhost:8080/healthz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 创建用户</span></span><br><span class="line">curl -i -X POST http://localhost:8080/v1/users \</span><br><span class="line">  -H <span class="string">&quot;Content-Type: application/json&quot;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;&quot;name&quot;:&quot;laojianghu&quot;&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 故意写错字段名，验证 DisallowUnknownFields 生效</span></span><br><span class="line">curl -i -X POST http://localhost:8080/v1/users \</span><br><span class="line">  -H <span class="string">&quot;Content-Type: application/json&quot;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;&quot;userName&quot;:&quot;laojianghu&quot;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 201 Created</span><br><span class="line">Location: /v1/users/6f2c1d84-...</span><br><span class="line">X-Request-Id: 3f0c9d2e-6b1a-4a55-9d0e-2c1a7b3f8e10</span><br><span class="line"></span><br><span class="line">&#123;&quot;id&quot;:&quot;6f2c1d84-...&quot;,&quot;name&quot;:&quot;laojianghu&quot;,&quot;api_key&quot;:&quot;3a9f...（64 位十六进制）&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 400 Bad Request</span><br><span class="line"></span><br><span class="line">&#123;&quot;error&quot;:&quot;请求体不是合法 JSON: json: unknown field \&quot;userName\&quot;&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第三条命令是本文最有价值的一次验证</strong>：它证明「未知字段直接报错」真的生效了——没有它，前端拼错字段名会得到一个 name 为空的用户，然后在别的模块里莫名报错，还很难查。</p>
+<h3 id="15-7-3-日志规范"><a href="#15-7-3-日志规范" class="headerlink" title="15.7.3 日志规范"></a>15.7.3 日志规范</h3><p><code>log/slog</code> 是 Go 1.21 起进标准库的结构化日志包，不用再引第三方：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 生产环境用 JSON，方便日志系统采集</span></span><br><span class="line">slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, <span class="literal">nil</span>)))</span><br></pre></td></tr></table></figure>
+
+<p>四条规范：<strong>结构化</strong>（<code>slog.Info(&quot;msg&quot;, &quot;key&quot;, value, ...)</code>，字段可检索）；<strong>请求字段固定</strong>（<code>request_id</code> &#x2F; <code>method</code> &#x2F; <code>path</code> &#x2F; <code>status</code> &#x2F; <code>duration_ms</code>）；<strong>级别分明</strong>（2xx&#x2F;3xx 用 Info，4xx 用 Warn，5xx 用 Error）；<strong>绝不打印密钥</strong>。按 <code>Ctrl+C</code> 应当看到「收到退出信号，开始优雅关闭」和「服务已退出」两条日志；只看到第一条然后卡住，说明有 handler 没返回。</p>
+<hr>
+<h2 id="15-8-动手练"><a href="#15-8-动手练" class="headerlink" title="15.8 动手练"></a>15.8 动手练</h2><p>四个任务都基于本文代码，按顺序做，每步都能用 curl 验证：</p>
+<ol>
+<li><strong>补一个查询接口</strong>。实现 <code>GET /v1/users/&#123;id&#125;</code>，用 <code>chi.URLParam(r, &quot;id&quot;)</code> 取路径参数；查到返回 <code>200</code>，查不到返回 <code>404</code>。提示：store 接口要加 <code>FindByID(ctx, id)</code>。</li>
+<li><strong>加一条字段校验</strong>。给 <code>createUserRequest</code> 加一个 <code>Email</code> 字段（非必填），填了就必须包含 <code>@</code>，否则返回 <code>422</code>。</li>
+<li><strong>把未知字段的错误改友好</strong>。定义一个自己的错误类型，用 <code>errors.As</code> 识别后返回「请求包含未知字段：userName」，这一步是为了理解第 6 篇讲的 <code>errors.As</code>。</li>
+<li><strong>加一个慢请求中间件</strong>。在 <code>Logger</code> 之外加一个 <code>SlowRequest</code>，超过 200ms 的请求打一条 Warn 日志。</li>
+</ol>
+<hr>
+<h2 id="15-9-常见错误清单"><a href="#15-9-常见错误清单" class="headerlink" title="15.9 常见错误清单"></a>15.9 常见错误清单</h2><table>
+<thead>
+<tr>
+<th>坑</th>
+<th>现象</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>WriteHeader</code> 之后再 <code>Header().Set</code></td>
+<td>状态码对但 <code>Content-Type</code> 不对，客户端解析 JSON 失败</td>
+<td><strong>所有 <code>Header().Set</code> 必须在 <code>WriteHeader</code> 之前</strong></td>
+</tr>
+<tr>
+<td>忽略 <code>Decode</code> 的错误</td>
+<td>请求体是坏的，结构体全是零值，接口却返回 201</td>
+<td>每次 <code>Decode</code> 都要判 <code>err</code></td>
+</tr>
+<tr>
+<td>忘了 <code>DisallowUnknownFields</code></td>
+<td>前端字段名拼错，服务端静默忽略，返回一个字段为空的对象</td>
+<td>开启它，把拼错变成 400</td>
+</tr>
+<tr>
+<td><code>len(s)</code> 当字符数</td>
+<td>中文字段的长度限制比预期严 3 倍</td>
+<td><code>len([]rune(s))</code></td>
+</tr>
+<tr>
+<td><code>http.Server</code> 不设超时</td>
+<td>慢连接能占住 goroutine，服务被拖垮</td>
+<td>至少设 <code>ReadHeaderTimeout</code> &#x2F; <code>ReadTimeout</code> &#x2F; <code>WriteTimeout</code></td>
+</tr>
+</tbody></table>
+<hr>
+<p>这一篇把项目骨架和 HTTP 网关立住了：目录分层、配置读取、chi 路由、统一 JSON 响应、三个手写中间件，以及一个能用 curl 验证的创建用户接口。下一篇把内存 store 换成真正的 PostgreSQL，用 goose 管迁移、用 sqlc 生成类型安全的查询代码——<strong>当存储层换掉了，handler 和 service 一行都不用改</strong>。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/"># 工程化</a>
+          
+          <a href="/tags/%E5%AE%9E%E6%88%98/"># 实战</a>
+          
+          <a href="/tags/Chi/"># Chi</a>
+          
+          <a href="/tags/HTTP/"># HTTP</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%AE%9E%E6%88%98%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%20PostgreSQL%E3%80%81API%20Key%20%E9%89%B4%E6%9D%83%E4%B8%8E%E5%B9%B6%E5%8F%91%E6%8A%93%E5%8F%96/"
+        >Go 实战（二）— PostgreSQL、API Key 鉴权与并发抓取</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E6%B3%9B%E5%9E%8B%E4%B8%8E%E7%B1%BB%E5%9E%8B%E7%BA%A6%E6%9D%9F%20%E2%80%94%20%E4%BB%8E%20any%20%E5%88%B0%E7%B1%BB%E5%9E%8B%E5%AE%89%E5%85%A8/"
+        >Go 泛型与类型约束 — 从 any 到类型安全</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

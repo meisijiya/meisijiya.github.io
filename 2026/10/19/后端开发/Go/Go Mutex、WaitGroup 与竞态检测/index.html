@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go Mutex、WaitGroup 与竞态检测 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go Mutex、WaitGroup 与竞态检测</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;11:29:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="13-Go-Mutex、WaitGroup-与竞态检测"><a href="#13-Go-Mutex、WaitGroup-与竞态检测" class="headerlink" title="13 Go Mutex、WaitGroup 与竞态检测"></a>13 Go Mutex、WaitGroup 与竞态检测</h1><blockquote>
+<p>数据竞争到底长什么样？这一篇把 Go 的同步三件套——互斥锁、等待组、竞态检测器——连同 <code>context</code> 取消机制一起讲透。</p>
+</blockquote>
+<hr>
+<h2 id="13-1-数据竞争：不是「偶尔出错」，而是「无法推理」"><a href="#13-1-数据竞争：不是「偶尔出错」，而是「无法推理」" class="headerlink" title="13.1 数据竞争：不是「偶尔出错」，而是「无法推理」"></a>13.1 数据竞争：不是「偶尔出错」，而是「无法推理」</h2><p>Go 对数据竞争（data race）的定义很干脆：<strong>两个 goroutine 并发访问同一块内存，其中至少一个是写，而且没有任何同步手段</strong>。它强调的是「并发访问」而不是「结果错了」——没有同步时，谁先写谁后写完全由调度器决定。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	counter := <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">100</span>; i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			counter++ <span class="comment">// ❌ 多个 goroutine 同时写同一个普通变量</span></span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(counter) <span class="comment">// 打印多少？不确定</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Java 里写过类似代码的人第一反应是 <code>counter++</code> 不是原子的，要换 <code>AtomicInteger</code>。Go 的问题更彻底：<strong>普通变量的并发读写一律是竞争，哪怕你只写不读</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Go</th>
+<th>Java</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>普通变量并发写</td>
+<td>静默出错，编译期与运行期都不报（除非开 <code>-race</code>）</td>
+<td>同样静默出错</td>
+</tr>
+<tr>
+<td>内置容器并发写</td>
+<td><strong>运行时直接崩</strong>：<code>fatal error: concurrent map writes</code></td>
+<td><code>HashMap</code> 迭代才抛 <code>ConcurrentModificationException</code></td>
+</tr>
+<tr>
+<td>并发写的正解</td>
+<td>自己加锁，或用 <code>sync.Map</code></td>
+<td><code>ConcurrentHashMap</code></td>
+</tr>
+</tbody></table>
+<p>Go 的取向是<strong>宁可当场崩，也不悄悄给你错数据</strong>。注意 map 并发写触发的是 <strong>fatal error 而不是 panic</strong>，<code>recover()</code> 救不回来，进程直接退出。</p>
+<h2 id="13-2-sync-Mutex：Go-版的-synchronized"><a href="#13-2-sync-Mutex：Go-版的-synchronized" class="headerlink" title="13.2 sync.Mutex：Go 版的 synchronized"></a>13.2 sync.Mutex：Go 版的 synchronized</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Counter <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu sync.Mutex <span class="comment">// 零值即可用，不需要构造函数初始化</span></span><br><span class="line">	n  <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Counter)</span></span> Inc() &#123;</span><br><span class="line">	c.mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> c.mu.Unlock() <span class="comment">// ✅ defer 保证 panic 时也能解锁</span></span><br><span class="line">	c.n++</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三个必须记住的特性：</p>
+<ol>
+<li><strong>零值可用</strong>。<code>var mu sync.Mutex</code> 直接就能用，Java 里得记得 <code>new ReentrantLock()</code>。</li>
+<li><strong>不可重入</strong>。同一 goroutine 里连续 <code>Lock()</code> 两次，第二次永久阻塞——Go 的锁不记录持有者，直接死锁。Java 的两种锁都可重入，这点极易踩。</li>
+<li><strong>不会自动释放</strong>。Java 的 <code>synchronized</code> 块退出时自动解锁，Go 必须自己 <code>Unlock()</code>，所以永远用 <code>defer c.mu.Unlock()</code>。</li>
+</ol>
+<p><code>Unlock</code> 配错锁类型会直接 fatal：<code>sync: unlock of unlocked mutex</code>。</p>
+<h3 id="Go-vs-Java：锁原语对照"><a href="#Go-vs-Java：锁原语对照" class="headerlink" title="Go vs Java：锁原语对照"></a>Go vs Java：锁原语对照</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Go</th>
+<th>Java</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>互斥锁</td>
+<td><code>sync.Mutex</code>，零值可用</td>
+<td><code>synchronized</code> &#x2F; <code>ReentrantLock</code>，需 new</td>
+</tr>
+<tr>
+<td>是否可重入</td>
+<td>❌ 重入即死锁</td>
+<td>✅ 两者都可重入</td>
+</tr>
+<tr>
+<td>异常时释放</td>
+<td>❌ 手动 <code>Unlock</code>（务必 <code>defer</code>）</td>
+<td>✅ 退出代码块自动释放</td>
+</tr>
+<tr>
+<td>读写锁</td>
+<td><code>sync.RWMutex</code>，写者优先</td>
+<td><code>ReentrantReadWriteLock</code>，可选公平&#x2F;非公平</td>
+</tr>
+<tr>
+<td>条件变量</td>
+<td><code>sync.Cond</code>，需自己配一把锁</td>
+<td><code>wait()</code> &#x2F; <code>notify()</code>，与对象锁绑定</td>
+</tr>
+<tr>
+<td>原子类</td>
+<td><code>sync/atomic</code>，<code>atomic.Int64</code> 等</td>
+<td><code>AtomicLong</code> 等</td>
+</tr>
+<tr>
+<td>计数等待</td>
+<td><code>sync.WaitGroup</code></td>
+<td><code>CountDownLatch</code> &#x2F; <code>CompletableFuture</code></td>
+</tr>
+<tr>
+<td>取消与超时</td>
+<td><code>context.Context</code></td>
+<td>无统一内置方案</td>
+</tr>
+</tbody></table>
+<h2 id="13-3-sync-RWMutex：读多写少才划算"><a href="#13-3-sync-RWMutex：读多写少才划算" class="headerlink" title="13.3 sync.RWMutex：读多写少才划算"></a>13.3 sync.RWMutex：读多写少才划算</h2><p><code>RWMutex</code> 把「读」和「写」拆开：多个读者可同时持锁，写者独占。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cache)</span></span> Get(key <span class="type">string</span>) (<span class="type">string</span>, <span class="type">bool</span>) &#123;</span><br><span class="line">	c.mu.RLock()         <span class="comment">// 读锁</span></span><br><span class="line">	<span class="keyword">defer</span> c.mu.RUnlock()</span><br><span class="line">	v, ok := c.items[key]</span><br><span class="line">	<span class="keyword">return</span> v, ok</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三条容易忽略的规则：</p>
+<ul>
+<li>**<code>RLock</code> 必须配 <code>RUnlock</code>，<code>Lock</code> 必须配 <code>Unlock</code>**。配错会 fatal，比如对一把只加了写锁的锁调用 <code>RUnlock</code>，报 <code>sync: RUnlock of unlocked RWMutex</code>。</li>
+<li><strong>读锁不能升级成写锁</strong>。持有 <code>RLock</code> 时再调 <code>Lock()</code>，等于自己等自己，死锁。</li>
+<li><strong>递归读锁也可能死锁</strong>。若 A 持有读锁、B 正在等写锁，A 再来一次 <code>RLock</code> 就会被挂住——Go 的 <code>RWMutex</code> 是<strong>写者优先</strong>的，一旦有写者在等，新读者一律排队。</li>
+</ul>
+<p><strong>写多的时候用 <code>RWMutex</code> 反而更慢</strong>——每次 <code>RLock</code>&#x2F;<code>RUnlock</code> 都要额外维护读者计数，只有读远多于写时才有正收益。</p>
+<h2 id="13-4-sync-WaitGroup：别再用-sleep-等-goroutine"><a href="#13-4-sync-WaitGroup：别再用-sleep-等-goroutine" class="headerlink" title="13.4 sync.WaitGroup：别再用 sleep 等 goroutine"></a>13.4 sync.WaitGroup：别再用 sleep 等 goroutine</h2><p><code>WaitGroup</code> 是一个计数信号量：加一、减一、等归零。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">results := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">10</span>) <span class="comment">// 预分配</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">	wg.Add(<span class="number">1</span>) <span class="comment">// ✅ 必须在 go 之前加</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(idx <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done() <span class="comment">// ✅ Done 与 Add 配对</span></span><br><span class="line">		results[idx] = idx * idx</span><br><span class="line">	&#125;(i)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">wg.Wait() <span class="comment">// 等所有任务结束</span></span><br></pre></td></tr></table></figure>
+
+<p>每个 goroutine 只写自己那个下标，虽然底层是同一个数组，但<strong>不同内存位置不构成数据竞争</strong>。</p>
+<p>规则是：<strong>当计数器为 0 时，增加计数的调用必须发生在 <code>Wait</code> 之前</strong>，也就是 <code>Add(1)</code> 必须在 <code>go</code> 之前。写错位置就会这样：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done() <span class="comment">// ❌ 计数器还是 0，Wait 立刻返回</span></span><br><span class="line">		work()</span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br><span class="line">wg.Wait() <span class="comment">// ❌ 什么都没等，直接返回</span></span><br></pre></td></tr></table></figure>
+
+<p>把 <code>Add(1)</code> 写进 goroutine 内部同样错：主 goroutine 可能已经跑到 <code>Wait()</code>，此时计数器还是 0，<code>Wait</code> 直接放行。</p>
+<p><strong>永远不要用 <code>time.Sleep</code> 代替等待</strong>：sleep 是「猜时间」，机器一忙就出错。Go 1.25 起新增 <code>wg.Go(func()&#123;...&#125;)</code>，把 <code>Add</code> + <code>go</code> + <code>Done</code> 三步合成一步。</p>
+<h2 id="13-5-sync-Once-与-atomic：一次初始化与轻量计数"><a href="#13-5-sync-Once-与-atomic：一次初始化与轻量计数" class="headerlink" title="13.5 sync.Once 与 atomic：一次初始化与轻量计数"></a>13.5 sync.Once 与 atomic：一次初始化与轻量计数</h2><p><code>sync.Once</code> 保证某段初始化代码<strong>只执行一次</strong>，哪怕被多个 goroutine 同时触发。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> getConn() *net.DialConn &#123;</span><br><span class="line">	c.once.Do(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		c.conn = dial(<span class="string">&quot;localhost:8080&quot;</span>) <span class="comment">// 只会被执行一次</span></span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">return</span> c.conn</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它和 Java <code>static</code> 块有个明显差别：<strong>如果 <code>Do</code> 里的函数 panic 了，<code>Once</code> 仍认为这件事「已经做过了」</strong>，后续再调 <code>Do</code> 不会重试。所以 <code>Once</code> 适合「加载配置、建立连接」这类场景。</p>
+<p>单变量加减用 <code>sync/atomic</code> 比加锁更轻：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> hits atomic.Int64 <span class="comment">// Go 1.19+ 提供的类型化原子变量</span></span><br><span class="line">hits.Add(<span class="number">1</span>)          <span class="comment">// 原子自增，不需要加锁</span></span><br><span class="line">fmt.Println(hits.Load())</span><br></pre></td></tr></table></figure>
+
+<p><strong>原子操作的边界</strong>在于：它只保证单个变量的操作不被打断；若要保护「两个字段必须同时改」这种组合一致性，<code>atomic</code> 无能为力，必须上 <code>Mutex</code>。</p>
+<h2 id="13-6-竞态检测器：让-Go-自己喊出-bug"><a href="#13-6-竞态检测器：让-Go-自己喊出-bug" class="headerlink" title="13.6 竞态检测器：让 Go 自己喊出 bug"></a>13.6 竞态检测器：让 Go 自己喊出 bug</h2><p>Go 的杀手锏是<strong>竞态检测器</strong>：编译时给内存访问插桩，运行时记录每次访问的 goroutine 身份，一旦发现两个 goroutine 对同一地址发生冲突访问且没有同步，立刻打印报告。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go <span class="built_in">test</span> -race ./...        <span class="comment"># 跑测试并开启检测</span></span><br><span class="line">go build -race -o app .    <span class="comment"># 编译带检测的二进制</span></span><br><span class="line">go run -race main.go       <span class="comment"># 直接跑带检测的程序</span></span><br></pre></td></tr></table></figure>
+
+<p>前提是<strong>需要 CGO 和 C 编译器</strong>：Windows 上要装 MinGW 的 gcc，<code>CGO_ENABLED=0</code> 会直接报 <code>-race requires cgo</code>。检测器大致慢 2<del>20 倍、内存涨 5</del>10 倍，别拿它压测。</p>
+<p>一份报告大致长这样（示意）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">WARNING: DATA RACE</span><br><span class="line">Write at 0x00c0000b4010 by goroutine 8:</span><br><span class="line">  main.Counter.Inc()</span><br><span class="line">      /work/counter.go:20 +0x3c</span><br><span class="line">Previous read at 0x00c0000b4010 by goroutine 7:</span><br><span class="line">  main.Counter.Get()</span><br><span class="line">      /work/counter.go:28 +0x3c</span><br><span class="line">Goroutine 8 (running) created at:</span><br><span class="line">  main.main()</span><br><span class="line">      /work/main.go:14 +0x1a</span><br></pre></td></tr></table></figure>
+
+<p><code>Write at ... by goroutine 8</code> 是冲突的写方，<code>Previous read at ... by goroutine 7</code> 是另一方，两段栈告诉你<strong>在哪里出的事</strong>；最后那段 <code>created at</code> 告诉你<strong>这个 goroutine 从哪儿来</strong>，定位并发问题第三段往往最关键。</p>
+<p>它能发现未同步的变量读写、map 并发写、缺失的原子操作；发现不了业务层面的逻辑竞态、死锁、goroutine 泄漏。而且它是<strong>动态检测</strong>：只有真正跑到的、真正冲突的访问才会被报出来，覆盖不足它就一声不吭。所以并发相关的测试统一带上 <code>-race</code> 并放进 CI。</p>
+<h2 id="13-7-context：给后台任务一个取消开关"><a href="#13-7-context：给后台任务一个取消开关" class="headerlink" title="13.7 context：给后台任务一个取消开关"></a>13.7 context：给后台任务一个取消开关</h2><p>Go 的 <code>context</code> 是<strong>一等公民</strong>：标准库里凡是可能长时间阻塞的 API（<code>net/http</code>、<code>database/sql</code>、<code>os/exec</code>）都提供了 <code>...Context</code> 版本，让「取消」和「超时」成为可以层层传递的显式参数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">worker</span><span class="params">(ctx context.Context, id <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-ctx.Done():</span><br><span class="line">			fmt.Printf(<span class="string">&quot;worker %d 退出: %v\n&quot;</span>, id, ctx.Err())</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">case</span> &lt;-time.After(time.Second):</span><br><span class="line">			fmt.Printf(<span class="string">&quot;worker %d 干活中\n&quot;</span>, id)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ctx, cancel := context.WithTimeout(context.Background(), <span class="number">3</span>*time.Second)</span><br><span class="line">	<span class="keyword">defer</span> cancel() <span class="comment">// ❌ 删掉这行，go vet 会报 lostcancel</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">1</span>; i &lt;= <span class="number">3</span>; i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> worker(ctx, i)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	&lt;-ctx.Done()</span><br><span class="line">	fmt.Println(<span class="string">&quot;主流程结束:&quot;</span>, ctx.Err()) <span class="comment">// context deadline exceeded</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>几条核心约定：</p>
+<ul>
+<li>用 <code>context.WithCancel(parent)</code> 派生，用 <code>ctx.Done()</code> 感知取消，<code>ctx.Err()</code> 区分 <code>context.Canceled</code>（主动取消）和 <code>context.DeadlineExceeded</code>（超时）。</li>
+<li><strong><code>ctx</code> 一律作为函数的第一个参数</strong>，名字就叫 <code>ctx</code>——它几乎出现在每个函数签名里，位置必须统一。</li>
+<li><strong>不要把 <code>ctx</code> 存进结构体字段</strong>。结构体一旦持有 <code>ctx</code>，生命周期就被外部的取消信号绑死了，测试时也难以替换。</li>
+<li><strong>派生出来的 <code>ctx</code> 必须调用 <code>cancel</code><strong>，<code>go vet</code> 的 <code>lostcancel</code> 检查专盯这个。而且取消是</strong>协作式</strong>的：<code>ctx</code> 不会强杀 goroutine，被取消方要自己检查 <code>ctx.Done()</code> 并退出。</li>
+</ul>
+<p>Java 那边没有对等的统一方案，通常靠 <code>Future.cancel(true)</code>。Go 的优势是<strong>标准库全链路支持</strong>：把 <code>ctx</code> 往下传，HTTP 请求、数据库查询会自己响应取消。</p>
+<h2 id="13-8-锁的粒度、复制陷阱与性能取舍"><a href="#13-8-锁的粒度、复制陷阱与性能取舍" class="headerlink" title="13.8 锁的粒度、复制陷阱与性能取舍"></a>13.8 锁的粒度、复制陷阱与性能取舍</h2><p>最常见的性能问题不是「锁太慢」，而是<strong>临界区太大</strong>。锁只该包住真正共享内存的那几行，<strong>网络调用绝不能放在锁里</strong>，否则锁被长时间占用，并发直接塌陷。</p>
+<p>更彻底的解法是<strong>用 channel 传递数据所有权</strong>：每个 goroutine 独占一份数据，别的 goroutine 通过 channel 发请求、收结果，共享可变状态被消灭了，连锁都不需要——这是 Go 处理并发的首选姿势。</p>
+<h3 id="复制一把锁：go-vet-的-copylocks"><a href="#复制一把锁：go-vet-的-copylocks" class="headerlink" title="复制一把锁：go vet 的 copylocks"></a>复制一把锁：go vet 的 copylocks</h3><p><code>sync.Mutex</code> <strong>使用后不可复制</strong>。结构体一旦用值接收者，调用方法时会隐式复制整个结构体，锁也就被复制了——复制出来的锁和原锁是两份互不相干的状态，加锁等于没加。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Cache <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu    sync.Mutex</span><br><span class="line">	items <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ❌ 值接收者：每次调用都复制一把锁</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c Cache)</span></span> Get(key <span class="type">string</span>) <span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> c.items[key]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ✅ 指针接收者</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cache)</span></span> Get(key <span class="type">string</span>) <span class="type">string</span> &#123;</span><br><span class="line">	c.mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> c.mu.Unlock()</span><br><span class="line">	<span class="keyword">return</span> c.items[key]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>go vet ./...</code> 的 <code>copylocks</code> 检查会直接报出来，形如 <code>Get passes lock by value: Cache contains sync.Mutex</code>。<strong>凡是结构体里放了 <code>Mutex</code>、<code>RWMutex</code>、<code>WaitGroup</code>、<code>Once</code>，接收者一律用指针。</strong></p>
+<h2 id="13-9-sync-包-API-速查表"><a href="#13-9-sync-包-API-速查表" class="headerlink" title="13.9 sync 包 API 速查表"></a>13.9 sync 包 API 速查表</h2><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>关键方法</th>
+<th>一句话说明</th>
+<th>零值可用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sync.Mutex</code></td>
+<td><code>Lock</code> &#x2F; <code>Unlock</code> &#x2F; <code>TryLock</code>（1.18+）</td>
+<td>互斥保护临界区，不可重入</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>sync.RWMutex</code></td>
+<td><code>Lock</code> &#x2F; <code>Unlock</code> &#x2F; <code>RLock</code> &#x2F; <code>RUnlock</code></td>
+<td>多读单写，读多写少时用</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>sync.WaitGroup</code></td>
+<td><code>Add</code> &#x2F; <code>Done</code> &#x2F; <code>Wait</code> &#x2F; <code>Go</code>（1.25+）</td>
+<td>等待一组 goroutine 结束</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>sync.Once</code></td>
+<td><code>Do</code></td>
+<td>只执行一次的初始化</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>sync.Cond</code></td>
+<td><code>Wait</code> &#x2F; <code>Signal</code> &#x2F; <code>Broadcast</code></td>
+<td>条件变量，需自己配一把锁</td>
+<td>❌ 需 <code>sync.NewCond(&amp;mu)</code></td>
+</tr>
+<tr>
+<td><code>sync.Map</code></td>
+<td><code>Load</code> &#x2F; <code>Store</code> &#x2F; <code>LoadOrStore</code></td>
+<td>key 几乎只写，或读多写少</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>sync/atomic</code></td>
+<td><code>AddInt64</code> &#x2F; <code>LoadInt64</code> &#x2F; <code>atomic.Int64</code></td>
+<td>单个变量的原子操作</td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<h2 id="13-10-动手练"><a href="#13-10-动手练" class="headerlink" title="13.10 动手练"></a>13.10 动手练</h2><ol>
+<li><strong>修 bug + 验证</strong>：把 13.1 那段 <code>counter++</code> 改对，写个 <code>counter_test.go</code> 用 <code>go test -race ./...</code> 跑通；再故意把 <code>Add</code> 挪进 goroutine 内部，看报告长什么样。</li>
+<li><strong>读写锁对比</strong>：同一缓存分别写 <code>Mutex</code> 版与 <code>RWMutex</code> 版，用 <code>go test -bench</code> 在「100 个读、1 个写」和「写占一半」两种负载下各跑一次，用数据解释 13.3。</li>
+<li><strong>给后台任务加取消</strong>：写一个带 <code>context.WithTimeout</code> 的定时任务，用 <code>runtime.NumGoroutine()</code> 观察超时后 goroutine 是否真的退出。</li>
+<li><strong>让 vet 说话</strong>：写一个用值接收者持有 <code>sync.Mutex</code> 的方法，跑 <code>go vet ./...</code> 读懂报错并改对。</li>
+</ol>
+<h2 id="13-11-常见错误清单"><a href="#13-11-常见错误清单" class="headerlink" title="13.11 常见错误清单"></a>13.11 常见错误清单</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>错误写法</th>
+<th>后果</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>wg.Add(1)</code> 写在 goroutine 内部</td>
+<td><code>Wait</code> 提前返回，任务还在跑</td>
+<td><code>Add</code> 必须在 <code>go</code> 之前</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>defer wg.Done()</code> 写在父函数里</td>
+<td>计数器提前归零</td>
+<td><code>Done</code> 写在 goroutine 内部</td>
+</tr>
+<tr>
+<td>3</td>
+<td>忘记解锁或锁类型配错</td>
+<td>死锁 &#x2F; <code>fatal error</code></td>
+<td>永远用 <code>defer</code> 配对释放</td>
+</tr>
+<tr>
+<td>4</td>
+<td>同一 goroutine 连续 <code>Lock</code></td>
+<td>死锁（Go 锁不可重入）</td>
+<td>拆成两个函数，别递归加锁</td>
+</tr>
+<tr>
+<td>5</td>
+<td>值接收者持有 <code>Mutex</code></td>
+<td>锁被复制，保护失效</td>
+<td>接收者一律用指针</td>
+</tr>
+<tr>
+<td>6</td>
+<td>持有 <code>RLock</code> 时再 <code>Lock</code></td>
+<td>死锁（读锁不能升级）</td>
+<td>先释放读锁再取写锁</td>
+</tr>
+<tr>
+<td>7</td>
+<td>用 <code>time.Sleep</code> 等 goroutine</td>
+<td>机器一忙就错</td>
+<td>用 <code>WaitGroup</code> 或 channel 信号</td>
+</tr>
+<tr>
+<td>8</td>
+<td>共享 <code>map</code> 不加锁</td>
+<td><code>fatal error: concurrent map writes</code></td>
+<td>加锁，或换 <code>sync.Map</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>网络调用放在临界区内</td>
+<td>锁被长时间占用，并发塌陷</td>
+<td>临界区只留内存操作</td>
+</tr>
+<tr>
+<td>10</td>
+<td>派生 <code>ctx</code> 后不调 <code>cancel</code></td>
+<td>定时器与 goroutine 泄漏</td>
+<td><code>defer cancel()</code> 写上</td>
+</tr>
+</tbody></table>
+<p>整篇的核心是：<strong>Go 的并发哲学是「用最少的共享换最大的并行」</strong>。锁、<code>WaitGroup</code>、<code>atomic</code>、<code>context</code> 都只是补丁，真正的解法是让数据只有一个主人。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"># 并发编程</a>
+          
+          <a href="/tags/Mutex/"># Mutex</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E6%B3%9B%E5%9E%8B%E4%B8%8E%E7%B1%BB%E5%9E%8B%E7%BA%A6%E6%9D%9F%20%E2%80%94%20%E4%BB%8E%20any%20%E5%88%B0%E7%B1%BB%E5%9E%8B%E5%AE%89%E5%85%A8/"
+        >Go 泛型与类型约束 — 从 any 到类型安全</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20goroutine%20%E4%B8%8E%20channel%20%E2%80%94%20%E5%B9%B6%E5%8F%91%E6%A8%A1%E5%9E%8B/"
+        >Go goroutine 与 channel — 并发模型</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go 高阶函数与闭包 — 函数作为一等公民 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go 高阶函数与闭包 — 函数作为一等公民</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;11:08:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="10-Go-高阶函数与闭包"><a href="#10-Go-高阶函数与闭包" class="headerlink" title="10 Go 高阶函数与闭包"></a>10 Go 高阶函数与闭包</h1><blockquote>
+<p>函数在 Go 里就是普通变量，闭包能装住状态——这一篇把「函数是一等公民」讲透，并把循环变量、defer 这两个经典坑一次讲清。</p>
+</blockquote>
+<hr>
+<h2 id="10-1-函数是值：一等公民到底是什么意思"><a href="#10-1-函数是值：一等公民到底是什么意思" class="headerlink" title="10.1 函数是值：一等公民到底是什么意思"></a>10.1 函数是值：一等公民到底是什么意思</h2><p>「一等公民」其实就是一句话：<strong>函数和 <code>int</code>、<code>string</code> 一样，是可以被赋值、传参、返回的普通值</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(x, y <span class="type">int</span>)</span></span> <span class="type">int</span> &#123; <span class="keyword">return</span> x + y &#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">mul</span><span class="params">(x, y <span class="type">int</span>)</span></span> <span class="type">int</span> &#123; <span class="keyword">return</span> x * y &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// aggregate 把传入的算术函数连续作用两次</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">aggregate</span><span class="params">(a, b, c <span class="type">int</span>, arithmetic <span class="keyword">func</span>(<span class="type">int</span>, <span class="type">int</span>)</span></span> <span class="type">int</span>) <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> arithmetic(arithmetic(a, b), c)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(aggregate(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, add)) <span class="comment">// 9</span></span><br><span class="line">	fmt.Println(aggregate(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, mul)) <span class="comment">// 24</span></span><br><span class="line"></span><br><span class="line">	op := add                            <span class="comment">// 赋值给变量</span></span><br><span class="line">	square := <span class="function"><span class="keyword">func</span><span class="params">(x <span class="type">int</span>)</span></span> <span class="type">int</span> &#123; <span class="keyword">return</span> x * x &#125; <span class="comment">// 匿名函数</span></span><br><span class="line">	fmt.Println(op(<span class="number">1</span>, <span class="number">2</span>), square(<span class="number">5</span>))    <span class="comment">// 3 25</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>1. 函数类型只看签名。</strong> <code>func(int, int) int</code> 只看参数和结果的类型，参数名不参与判断，所以 <code>add</code> 和 <code>mul</code> 类型相同，能互换着传给 <code>aggregate</code>。Go <strong>不支持函数重载</strong>，也源于此。</p>
+<p><strong>2. 函数值不可比较。</strong> 规范里写得很直白：函数值只能和 <code>nil</code> 比，所以<strong>不能把函数当 map 的 key</strong>（key 必须可比较），但可以当 value 存起来。</p>
+<p><strong>3. 方法也能变成函数值</strong>，这叫「方法值」：以 <code>type Counter struct&#123; n int &#125;</code> 上的 <code>Inc()</code>&#x2F;<code>Get()</code> 为例，<code>inc := c.Inc</code> 之后 <code>inc()</code> 就等价于 <code>c.Inc()</code>。它绑定的是接收者的<strong>一份副本</strong>，所以 <code>get := c.Get</code> 之后再改 <code>c.n</code>，<code>get()</code> 看到的仍是旧值。</p>
+<h3 id="Go-Java-Python-的函数一等性对比"><a href="#Go-Java-Python-的函数一等性对比" class="headerlink" title="Go &#x2F; Java &#x2F; Python 的函数一等性对比"></a>Go &#x2F; Java &#x2F; Python 的函数一等性对比</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Go</th>
+<th>Java（8+）</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>函数是值</td>
+<td>✅ <code>op := add</code></td>
+<td>✅ 方法引用 <code>Math::max</code></td>
+<td>✅ <code>op = add</code></td>
+</tr>
+<tr>
+<td>函数作参数 &#x2F; 返回值</td>
+<td>✅ 原生支持</td>
+<td>✅ <code>Function</code> &#x2F; <code>Consumer</code></td>
+<td>✅ 任意形参与返回值</td>
+</tr>
+<tr>
+<td>捕获并修改外层变量</td>
+<td>✅ 直接赋值</td>
+<td>❌ 只能捕获 effectively final</td>
+<td>✅ 需 <code>nonlocal</code></td>
+</tr>
+<tr>
+<td>函数值可比较</td>
+<td>❌ 只能和 <code>nil</code> 比</td>
+<td>✅ 引用相等可判</td>
+<td>✅ 函数对象可判</td>
+</tr>
+</tbody></table>
+<p>Java 同学最容易卡住的是「捕获并修改」那行：Java 的 lambda 捕获的是<strong>值</strong>，想在闭包里累加计数得包一个 <code>AtomicInteger</code>；Go 捕获的是<strong>变量本身</strong>。</p>
+<hr>
+<h2 id="10-2-闭包：捕获的是变量，不是值"><a href="#10-2-闭包：捕获的是变量，不是值" class="headerlink" title="10.2 闭包：捕获的是变量，不是值"></a>10.2 闭包：捕获的是变量，不是值</h2><p>闭包 &#x3D; 一个函数 + 它从外层捕获的那份环境。关键在于，<strong>捕获的是变量的引用（本体），不是某个时刻的快照</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">concatter</span><span class="params">()</span></span> <span class="function"><span class="keyword">func</span><span class="params">(<span class="type">string</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	doc := <span class="string">&quot;&quot;</span></span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(word <span class="type">string</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">		doc += word + <span class="string">&quot; &quot;</span></span><br><span class="line">		<span class="keyword">return</span> doc</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	harryPotter := concatter()</span><br><span class="line">	harryPotter(<span class="string">&quot;Mr.&quot;</span>)</span><br><span class="line">	harryPotter(<span class="string">&quot;and&quot;</span>)</span><br><span class="line">	fmt.Println(harryPotter(<span class="string">&quot;Dursley&quot;</span>)) <span class="comment">// Mr. and Dursley</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每调用一次 <code>concatter()</code> 就造出一个<strong>全新独立的 <code>doc</code><strong>。反直觉的推论是：</strong>闭包捕获的变量，在外层函数返回之后依然存活</strong>。</p>
+<h3 id="闭包语义速查"><a href="#闭包语义速查" class="headerlink" title="闭包语义速查"></a>闭包语义速查</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>Go</th>
+<th>Java（lambda）</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>捕获语义</td>
+<td>变量本体（引用）</td>
+<td>值（effectively final 快照）</td>
+<td>变量（cell 引用）</td>
+</tr>
+<tr>
+<td>能否修改捕获值</td>
+<td>✅ 直接赋值</td>
+<td>❌ 需可变包装类</td>
+<td>✅ 需写 <code>nonlocal</code></td>
+</tr>
+<tr>
+<td>循环变量捕获（≤1.21）</td>
+<td>共享同一个变量</td>
+<td>需 final 副本</td>
+<td>共享同一个变量</td>
+</tr>
+<tr>
+<td>循环变量捕获（≥1.22）</td>
+<td>每轮新建，已修复</td>
+<td>—</td>
+<td>仍共享，需 <code>i=i</code> 规避</td>
+</tr>
+</tbody></table>
+<p>Python 的 <code>nonlocal</code> 在 Go 里是多余的：Go 不区分「赋值」和「重新绑定」，闭包内直接写 <code>doc += word</code>，改的就是外层那个 <code>doc</code> 本身。反过来也有代价——闭包会把本该栈上分配的东西拖到堆上。</p>
+<hr>
+<h2 id="10-3-实战模式：回调与函数工厂"><a href="#10-3-实战模式：回调与函数工厂" class="headerlink" title="10.3 实战模式：回调与函数工厂"></a>10.3 实战模式：回调与函数工厂</h2><p>回调是闭包最直接的用法：把「做什么」交给调用方，把「什么时候做」留给框架。</p>
+<p><strong>排序。</strong> Go 1.21 起标准库自带 <code>slices</code> 包，排序函数直接收一个比较器（签名 <code>func(a, b E) int</code>，和 Java <code>Comparator</code> 返回 int 一回事）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">users := []User&#123;&#123;<span class="string">&quot;bob&quot;</span>, <span class="number">30</span>&#125;, &#123;<span class="string">&quot;amy&quot;</span>, <span class="number">25</span>&#125;, &#123;<span class="string">&quot;cid&quot;</span>, <span class="number">35</span>&#125;&#125;</span><br><span class="line"></span><br><span class="line">slices.SortFunc(users, <span class="function"><span class="keyword">func</span><span class="params">(a, b User)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> cmp.Compare(a.Age, b.Age)</span><br><span class="line">&#125;)</span><br><span class="line">fmt.Println(users) <span class="comment">// [&#123;amy 25&#125; &#123;bob 30&#125; &#123;cid 35&#125;]</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>过滤与查找。</strong> <code>slices</code> 把「遍历一次干件事」的写法标准化了：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fmt.Println(slices.IndexFunc(users, <span class="function"><span class="keyword">func</span><span class="params">(u User)</span></span> <span class="type">bool</span> &#123; <span class="keyword">return</span> u.Age &gt;= <span class="number">30</span> &#125;)) <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>重试。</strong> 重试逻辑天生适合写成「接收一个函数」：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">retry</span><span class="params">(attempts <span class="type">int</span>, fn <span class="keyword">func</span>(attempt <span class="type">int</span>)</span></span> <span class="type">error</span>) <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">var</span> err <span class="type">error</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">1</span>; i &lt;= attempts; i++ &#123;</span><br><span class="line">		<span class="keyword">if</span> err = fn(i); err == <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">		&#125;</span><br><span class="line">		time.Sleep(time.Duration(i) * <span class="number">200</span> * time.Millisecond)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;重试 %d 次仍失败: %w&quot;</span>, attempts, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意 <code>attempt</code> 是通过<strong>参数</strong>传进去的，不是捕获循环变量——这样写无论 Go 1.22 前后行为都一致。</p>
+<p><strong>函数工厂。</strong> 返回函数的函数，本质是「把参数固定住」；柯里化是它的特例，把收两个参数的函数变成先收一个、再收一个：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// selfMath 返回一个「把输入作用两次」的函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">selfMath</span><span class="params">(mathFunc <span class="keyword">func</span>(<span class="type">int</span>, <span class="type">int</span>)</span></span> <span class="type">int</span>) <span class="function"><span class="keyword">func</span><span class="params">(<span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(x <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> mathFunc(x, x)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">square := selfMath(<span class="function"><span class="keyword">func</span><span class="params">(x, y <span class="type">int</span>)</span></span> <span class="type">int</span> &#123; <span class="keyword">return</span> x * y &#125;)</span><br><span class="line">fmt.Println(square(<span class="number">5</span>)) <span class="comment">// 25</span></span><br></pre></td></tr></table></figure>
+
+<p>Java 里得手搓嵌套 <code>Function</code>，Python 靠 <code>functools.partial</code>，Go 反而最直白。</p>
+<hr>
+<h2 id="10-4-装饰器思想在-Go-里的样子"><a href="#10-4-装饰器思想在-Go-里的样子" class="headerlink" title="10.4 装饰器思想在 Go 里的样子"></a>10.4 装饰器思想在 Go 里的样子</h2><p>Python 的 <code>@decorator</code> 在 Go 里没有语法糖，但思想完全一样：<strong>装饰器就是一个接受函数、返回新函数的函数</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Middleware <span class="function"><span class="keyword">func</span><span class="params">(http.Handler)</span></span> http.Handler</span><br><span class="line"></span><br><span class="line"><span class="comment">// Logging 记录每个请求的耗时</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Logging</span><span class="params">(next http.Handler)</span></span> http.Handler &#123;</span><br><span class="line">	<span class="keyword">return</span> http.HandlerFunc(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		start := time.Now()</span><br><span class="line">		next.ServeHTTP(w, r)</span><br><span class="line">		log.Printf(<span class="string">&quot;%s %s 耗时 %v&quot;</span>, r.Method, r.URL.Path, time.Since(start))</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Logging</code> 接收一个 <code>http.Handler</code>，返回一个<strong>新的</strong> <code>http.Handler**，新 handler 在干活前后多做了些事再转交出去——这就是装饰器。链式组合 </code>Logging(Auth(HealthHandler))&#96; 的顺序是<strong>由外向内</strong>的：请求先进 Logging，再进 Auth，最后到 HealthHandler。</p>
+<p>Go 没有装饰器语法的原因很实在：它不支持函数重载，也不支持默认参数，「包装器」只能显式规定自己的类型签名。</p>
+<hr>
+<h2 id="10-5-闭包与循环变量：Go-1-22-前后是两套语义"><a href="#10-5-闭包与循环变量：Go-1-22-前后是两套语义" class="headerlink" title="10.5 闭包与循环变量：Go 1.22 前后是两套语义"></a>10.5 闭包与循环变量：Go 1.22 前后是两套语义</h2><p><strong>Go 1.22 之前</strong>，for 循环里的变量是<strong>整个循环共用一个</strong>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		fmt.Println(i)</span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三个 goroutine 拿到的是**同一个 <code>i</code>**，等它们真正被调度执行时循环早已结束，<code>i</code> 已经是 3，于是三行全打印 <code>3</code>。凡是「循环里注册回调」的写法都会中招。</p>
+<p><strong>Go 1.22 起</strong>，每个迭代都有自己独立的循环变量。两点注意：</p>
+<ol>
+<li>生效前提是 <code>go.mod</code> 里的 <code>go</code> 指令为 <code>1.22</code> 或更高，老模块即使升级工具链语义也不变。</li>
+<li>修复的是「<strong>每个闭包看到哪个值</strong>」，不是「<strong>输出顺序</strong>」——goroutine 的执行顺序由调度器决定，永远不确定。</li>
+</ol>
+<p>要兼容老版本，显式复制一份即可：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</span><br><span class="line">	i := i <span class="comment">// 手动给每轮造一个独立变量</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; fmt.Println(i) &#125;()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="10-6-defer-与闭包：两个必须分清的坑"><a href="#10-6-defer-与闭包：两个必须分清的坑" class="headerlink" title="10.6 defer 与闭包：两个必须分清的坑"></a>10.6 defer 与闭包：两个必须分清的坑</h2><p>Go 的 <code>defer</code> 有两个特性叠在一起：<strong>参数在 defer 语句执行时立即求值，函数体在外层函数返回时才执行</strong>。闭包一掺和，输出就反直觉。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">demoA</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</span><br><span class="line">		<span class="keyword">defer</span> fmt.Println(<span class="string">&quot;A:&quot;</span>, i)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">demoB</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; fmt.Println(<span class="string">&quot;B:&quot;</span>, i) &#125;()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Go 1.22+ 的输出：</strong></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">A: 2</span><br><span class="line">A: 1</span><br><span class="line">A: 0</span><br><span class="line">B: 2</span><br><span class="line">B: 1</span><br><span class="line">B: 0</span><br></pre></td></tr></table></figure>
+
+<p><strong>Go 1.21 及更早的输出：</strong></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">A: 2</span><br><span class="line">A: 1</span><br><span class="line">A: 0</span><br><span class="line">B: 3</span><br><span class="line">B: 3</span><br><span class="line">B: 3</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>defer fmt.Println(&quot;A:&quot;, i)</code> 里 <code>i</code> 是<strong>参数</strong>，在 defer 那一行就求值，依次存下 0、1、2；defer 按<strong>后进先出</strong>执行，于是打印成 2、1、0。</li>
+<li><code>defer func()&#123;...&#125;()</code> 里 <code>i</code> 是<strong>闭包捕获的变量</strong>。Go 1.22 之前循环结束后 <code>i</code> 已是 3，三个闭包读到的都是 3；1.22 之后每轮有独立的 <code>i</code>，拿到 0、1、2，同样按后进先出打印。</li>
+</ul>
+<p><strong>要打印 defer 那一刻的值就用 <code>defer fmt.Println(i)</code>，要打印函数返回那一刻的值就用 <code>defer func()&#123; fmt.Println(i) &#125;()</code>。</strong></p>
+<p>第二个坑更隐蔽：<strong>defer 绑定的是函数，不是循环体</strong>。在循环里 defer 释放资源，关闭动作会被推迟到函数返回时，句柄被一路攥到底，数量多了直接撞上限——循环里直接写 <code>defer f.Close()</code>，N 个文件要等到函数结束才关。修法是<strong>把单次处理抽成独立函数</strong>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">readOne</span><span class="params">(name <span class="type">string</span>)</span></span> ([]<span class="type">byte</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	f, err := os.Open(name)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> f.Close() <span class="comment">// 函数一返回就关闭</span></span><br><span class="line">	<span class="keyword">return</span> io.ReadAll(f)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="10-7-常见闭包用途"><a href="#10-7-常见闭包用途" class="headerlink" title="10.7 常见闭包用途"></a>10.7 常见闭包用途</h2><p><strong>计时器。</strong> 用闭包包住「开始时刻」：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">timed</span><span class="params">(name <span class="type">string</span>, fn <span class="keyword">func</span>()</span></span>) &#123;</span><br><span class="line">	start := time.Now()</span><br><span class="line">	fn()</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s 耗时 %v\n&quot;</span>, name, time.Since(start))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>状态机。</strong> 闭包持有当前状态，外面只管调用：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newWorkflow</span><span class="params">(states []<span class="type">string</span>)</span></span> (current <span class="function"><span class="keyword">func</span><span class="params">()</span></span> <span class="type">string</span>, step <span class="function"><span class="keyword">func</span><span class="params">()</span></span> <span class="type">bool</span>) &#123;</span><br><span class="line">	idx := <span class="number">0</span></span><br><span class="line">	current = <span class="function"><span class="keyword">func</span><span class="params">()</span></span> <span class="type">string</span> &#123; <span class="keyword">return</span> states[idx] &#125;</span><br><span class="line">	step = <span class="function"><span class="keyword">func</span><span class="params">()</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> idx+<span class="number">1</span> &gt;= <span class="built_in">len</span>(states) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">		&#125;</span><br><span class="line">		idx++</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>newWorkflow(...)</code> 拿到的 <code>cur</code> 打印当前状态，<code>step()</code> 推进一步，推到底返回 <code>false</code>。</p>
+<p><strong>限流器。</strong> 闭包正好适合藏「桶里还剩多少令牌」这种可变状态：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 每隔 interval 放行一个请求</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newLimiter</span><span class="params">(interval time.Duration)</span></span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	tokens := <span class="number">1</span></span><br><span class="line">	last := time.Now()</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">		now := time.Now()</span><br><span class="line">		<span class="keyword">if</span> now.Sub(last) &gt;= interval &#123;</span><br><span class="line">			tokens = <span class="number">1</span></span><br><span class="line">			last = now</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> tokens == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">		&#125;</span><br><span class="line">		tokens--</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个实现<strong>没有加锁</strong>，只能单 goroutine 使用；生产环境用 <code>golang.org/x/time/rate</code> 这类成熟实现。</p>
+<p>规律由此而来：<strong>凡是「需要藏一份可变状态」的逻辑，闭包都是最省事的载体</strong>。</p>
+<hr>
+<h2 id="10-8-动手练"><a href="#10-8-动手练" class="headerlink" title="10.8 动手练"></a>10.8 动手练</h2><p><strong>练习一：实现一个 <code>Pipeline</code>。</strong> 写出 <code>func Pipeline(steps ...func(int) int) func(int) int</code>，把输入依次交给每个 <code>step</code>。</p>
+<p><strong>练习二：写一个 <code>Counter</code> 闭包工厂。</strong> <code>NewCounter()</code> 返回一个闭包，每次调用返回自增后的计数；要求两个 <code>NewCounter()</code> 互不影响。</p>
+<p><strong>练习三：复现并修复循环变量 bug。</strong> 先把 <code>go.mod</code> 的 <code>go</code> 指令写成 <code>1.21</code>，写一段在 for 循环里 <code>append</code> 闭包的代码，看它是否全打印最后一个元素；再改成 <code>1.22</code> 观察变化。</p>
+<p><strong>练习四：实现一个带退避的重试器。</strong> 退避时长可配置并统计总耗时，失败时错误里要带上重试次数。</p>
+<hr>
+<h2 id="10-9-常见错误清单"><a href="#10-9-常见错误清单" class="headerlink" title="10.9 常见错误清单"></a>10.9 常见错误清单</h2><table>
+<thead>
+<tr>
+<th>症状</th>
+<th>根因</th>
+<th>修法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>循环里注册的回调全部拿到最后一个值</td>
+<td>Go 1.22 前循环变量共享</td>
+<td>升级 <code>go.mod</code> 到 <code>1.22</code>+，或循环内 <code>i := i</code></td>
+</tr>
+<tr>
+<td><code>defer fmt.Println(i)</code> 打印出的是旧值</td>
+<td>defer 参数在语句处求值</td>
+<td>想要最终值就改成 <code>defer func()&#123; ... &#125;()</code></td>
+</tr>
+<tr>
+<td><code>defer func()&#123;...&#125;()</code> 在 Go 1.21 打出 <code>3 3 3</code></td>
+<td>闭包捕获的循环变量已自增到 3</td>
+<td>同上，升级语言版本</td>
+</tr>
+<tr>
+<td>循环里 <code>defer f.Close()</code> 迟迟不关文件</td>
+<td>defer 绑定函数而非循环体</td>
+<td>把单次处理抽成独立函数</td>
+</tr>
+<tr>
+<td>以为闭包捕获的是快照</td>
+<td>Go 捕获的是变量本体</td>
+<td>需要快照就显式复制：<code>v := v</code></td>
+</tr>
+</tbody></table>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/"># 基础教程</a>
+          
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E5%87%BD%E6%95%B0%E5%BC%8F/"># 函数式</a>
+          
+          <a href="/tags/%E9%97%AD%E5%8C%85/"># 闭包</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E6%8C%87%E9%92%88%E4%B8%8E%E5%86%85%E5%AD%98%E5%AF%BB%E5%9D%80%20%E2%80%94%20%E5%8F%96%E5%9C%B0%E5%9D%80%E3%80%81%E9%80%83%E9%80%B8%E4%B8%8E%20nil/"
+        >Go 指针与内存寻址 — 取地址、逃逸与 nil</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20map%20%E2%80%94%20%E5%93%88%E5%B8%8C%E8%A1%A8%E3%80%81%E9%81%8D%E5%8E%86%E9%A1%BA%E5%BA%8F%E4%B8%8E%E5%B9%B6%E5%8F%91%E9%99%90%E5%88%B6/"
+        >Go map — 哈希表、遍历顺序与并发限制</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

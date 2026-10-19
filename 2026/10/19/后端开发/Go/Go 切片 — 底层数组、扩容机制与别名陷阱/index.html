@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go 切片 — 底层数组、扩容机制与别名陷阱 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go 切片 — 底层数组、扩容机制与别名陷阱</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;10:54:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="08-Go-切片"><a href="#08-Go-切片" class="headerlink" title="08 Go 切片"></a>08 Go 切片</h1><blockquote>
+<p>切片是 Go 里用得最多、也最容易用错的类型：这一次把它的底层数组、扩容代价和别名陷阱彻底讲透。</p>
+</blockquote>
+<hr>
+<h2 id="8-1-数组-vs-切片：一个是值，一个是「视图」"><a href="#8-1-数组-vs-切片：一个是值，一个是「视图」" class="headerlink" title="8.1 数组 vs 切片：一个是值，一个是「视图」"></a>8.1 数组 vs 切片：一个是值，一个是「视图」</h2><p><strong>数组 <code>[N]T</code> 是定长、值类型。</strong> 长度写在类型里，<code>[5]int</code> 和 <code>[10]int</code> 是两个互不相同的类型。数组赋值就是<strong>逐元素复制</strong>，传参也是复制：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">arr := [<span class="number">3</span>]<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">arrCopy := arr</span><br><span class="line">arrCopy[<span class="number">0</span>] = <span class="number">99</span></span><br><span class="line">fmt.Println(arr) <span class="comment">// [1 2 3] —— 数组是值类型</span></span><br><span class="line"></span><br><span class="line">view := arr[:] <span class="comment">// 把数组切成切片视图</span></span><br><span class="line">view[<span class="number">0</span>] = <span class="number">7</span></span><br><span class="line">fmt.Println(arr) <span class="comment">// [7 2 3] —— 视图和数组共享同一块内存</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>切片 <code>[]T</code> 是一个「视图」</strong>：本身只是个小描述符（切片头），指向某个底层数组的某个位置，加上自己的长度和容量。复制切片复制的是描述符，<strong>指向的数据还是同一份</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Go 数组 <code>[N]T</code></th>
+<th>Go 切片 <code>[]T</code></th>
+<th>Java <code>int[]</code></th>
+<th>Java <code>ArrayList</code></th>
+<th>Python <code>list</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>长度</td>
+<td>编译期固定，写在类型里</td>
+<td>运行时可变</td>
+<td>运行时固定</td>
+<td>运行时可变</td>
+<td>运行时可变</td>
+</tr>
+<tr>
+<td>赋值 &#x2F; 传参</td>
+<td><strong>复制整个数组</strong></td>
+<td><strong>共享底层数组</strong></td>
+<td>引用共享</td>
+<td>引用共享</td>
+<td>引用共享</td>
+</tr>
+<tr>
+<td>扩容</td>
+<td>不支持</td>
+<td><code>append</code> 自动处理</td>
+<td>手动 <code>Arrays.copyOf</code></td>
+<td><code>add()</code> 自动</td>
+<td><code>append()</code> 自动</td>
+</tr>
+</tbody></table>
+<p>两个容易忽略的推论：<strong>Java 的 <code>int[]</code> 对应的是 Go 的切片，不是 Go 的数组</strong>（Java 数组是引用类型，Go 数组是值类型、长度写死在类型里）；<strong>Python 的切片会复制，Go 的切片不会</strong>——<code>lst[1:3]</code> 造出全新 list，<code>s[1:3]</code> 只是换个起点看同一块内存。</p>
+<hr>
+<h2 id="8-2-切片三要素：ptr、len、cap"><a href="#8-2-切片三要素：ptr、len、cap" class="headerlink" title="8.2 切片三要素：ptr、len、cap"></a>8.2 切片三要素：ptr、len、cap</h2><p>一个切片值由三部分组成：<strong>ptr</strong> 指向底层数组中第一个元素（切片起点）；<strong>len</strong> 是长度，决定 <code>s[0]</code> 到 <code>s[len-1]</code> 能访问多少个元素；<strong>cap</strong> 是容量，表示从切片起点到底层数组末尾最多能放下多少个元素。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">s := []<span class="type">string</span>&#123;<span class="string">&quot;I&quot;</span>, <span class="string">&quot;love&quot;</span>, <span class="string">&quot;go&quot;</span>&#125;</span><br><span class="line">fmt.Println(<span class="built_in">len</span>(s)) <span class="comment">// 3</span></span><br><span class="line">fmt.Println(<span class="built_in">cap</span>(s)) <span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
+
+<p>字面量的 <code>len</code> 和 <code>cap</code> 相等。需要预留空间时用 <code>make</code>：<code>make([]int, 0, 100)</code> 得到 len&#x3D;0、cap&#x3D;100，这是「先占坑再填」的典型写法。<strong>容量决定了 <code>append</code> 何时需要重新分配底层数组</strong>。</p>
+<h3 id="切片操作速查"><a href="#切片操作速查" class="headerlink" title="切片操作速查"></a>切片操作速查</h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>写法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>长度 &#x2F; 容量</td>
+<td><code>len(s)</code> &#x2F; <code>cap(s)</code></td>
+<td>可访问元素数 &#x2F; 底层数组剩余槽位数</td>
+</tr>
+<tr>
+<td>截取</td>
+<td><code>s[low:high]</code></td>
+<td>左闭右开，<strong>不复制数据</strong></td>
+</tr>
+<tr>
+<td>限容截取</td>
+<td><code>s[low:high:max]</code></td>
+<td>把 cap 钉死，追加时强制重新分配</td>
+</tr>
+<tr>
+<td>追加</td>
+<td><code>s = append(s, v)</code></td>
+<td><strong>必须接住返回值</strong>；<code>s = append(s, other...)</code> 展开另一个切片</td>
+</tr>
+<tr>
+<td>拷贝</td>
+<td><code>n := copy(dst, src)</code></td>
+<td>拷贝 <code>min(len(dst), len(src))</code> 个，返回拷贝数</td>
+</tr>
+<tr>
+<td>排序 &#x2F; 深拷贝</td>
+<td><code>slices.Sort(s)</code> &#x2F; <code>slices.Clone(s)</code></td>
+<td>Go 1.21+ 标准库 <code>slices</code> 包</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="8-3-切片表达式：越界与「三索引切片」"><a href="#8-3-切片表达式：越界与「三索引切片」" class="headerlink" title="8.3 切片表达式：越界与「三索引切片」"></a>8.3 切片表达式：越界与「三索引切片」</h2><p>切片表达式的形式是 <code>s[low:high]</code>，<strong>左闭右开</strong>，结果是共享同一块底层数组的新描述符。<code>s[1:]</code> 表示「从下标 1 到末尾」，<code>s[:3]</code> 表示「从头到下标 2」，<code>s[:]</code> 表示全部。</p>
+<h3 id="越界会-panic，而且上界看的是-cap-不是-len"><a href="#越界会-panic，而且上界看的是-cap-不是-len" class="headerlink" title="越界会 panic，而且上界看的是 cap 不是 len"></a>越界会 panic，而且上界看的是 cap 不是 len</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s := []<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">fmt.Println(s[<span class="number">1</span>:<span class="number">5</span>]) <span class="comment">// panic: slice bounds out of range</span></span><br></pre></td></tr></table></figure>
+
+<p>和 Python 的两处差异：<strong>Go 不支持负数下标</strong>（<code>s[-1:]</code> 编译不过），<strong>Go 的切片没有步长</strong>（<code>s[::2]</code> 不存在）。</p>
+<p>还有一个更隐蔽的规则：**对切片做 <code>s[low:high]</code> 时，<code>high</code> 的上界是 <code>cap(s)</code> 而不是 <code>len(s)</code>**：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">3</span>, <span class="number">10</span>) <span class="comment">// len=3, cap=10</span></span><br><span class="line">b := a[:<span class="number">5</span>]              <span class="comment">// 合法！b 的 len=5, cap=10</span></span><br><span class="line">b[<span class="number">3</span>] = <span class="number">99</span>              <span class="comment">// 写进了底层数组的第 4 个槽位</span></span><br></pre></td></tr></table></figure>
+
+<p>这意味着<strong>你能看到并写入 <code>len</code> 之外的槽位</strong>（初始是零值）。如果 <code>a</code> 是数组而不是切片，同样的写法是<strong>编译错误</strong>——数组长度是类型的一部分，编译器判得出来。</p>
+<h3 id="三索引切片-s-low-high-max"><a href="#三索引切片-s-low-high-max" class="headerlink" title="三索引切片 s[low:high:max]"></a>三索引切片 <code>s[low:high:max]</code></h3><p>第三个索引把新切片的 <code>cap</code> 钉死为 <code>max - low</code>。最大的用途是：<strong>防止 <code>append</code> 悄悄写坏共享同一数组的邻居</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">looseBuf := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">8</span>, <span class="number">16</span>)</span><br><span class="line">loose := looseBuf[:<span class="number">4</span>] <span class="comment">// len=4, cap=16</span></span><br><span class="line">loose = <span class="built_in">append</span>(loose, <span class="string">&#x27;B&#x27;</span>)</span><br><span class="line">fmt.Println(looseBuf) <span class="comment">// [0 0 0 0 66 0 0 0] —— 写进了 looseBuf[4]，越界到别人地盘</span></span><br><span class="line"></span><br><span class="line">tightBuf := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">8</span>, <span class="number">16</span>)</span><br><span class="line">tight := tightBuf[:<span class="number">4</span>:<span class="number">4</span>] <span class="comment">// len=4, cap=4</span></span><br><span class="line">tight = <span class="built_in">append</span>(tight, <span class="string">&#x27;B&#x27;</span>)</span><br><span class="line">fmt.Println(tightBuf) <span class="comment">// [0 0 0 0 0 0 0 0] —— 重新分配，tightBuf 没被动</span></span><br></pre></td></tr></table></figure>
+
+<p>Go 1.21 之后写法更清楚：<code>slices.Clip(buf[:4])</code> 等价于 <code>buf[:4:4]</code>。<strong>打算 <code>append</code> 又担心和别的切片共享底层数组时，就用三索引切片把 cap 钉死。</strong></p>
+<hr>
+<h2 id="8-4-append-的扩容机制"><a href="#8-4-append-的扩容机制" class="headerlink" title="8.4 append 的扩容机制"></a>8.4 append 的扩容机制</h2><p><code>append</code> 的签名是 <code>func append(s []T, elems ...T) []T</code>，行为分两种情况：</p>
+<ul>
+<li><strong>容量够</strong>（<code>len(s) + 追加数量 &lt;= cap(s)</code>）：直接在底层数组末尾写入，新切片只是 <code>len</code> 加一，<code>cap</code> 不变，<strong>和原切片共享数据</strong>。</li>
+<li><strong>容量不够</strong>：<strong>分配一块新的底层数组</strong>，把原来的 <code>len</code> 个元素拷进去再追加，返回指向新数组的切片。<strong>原切片仍指向旧数组</strong>，两者互不影响。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">s := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">0</span>, <span class="number">2</span>)</span><br><span class="line">s = <span class="built_in">append</span>(s, <span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">fmt.Println(<span class="built_in">len</span>(s), <span class="built_in">cap</span>(s)) <span class="comment">// 2 2</span></span><br><span class="line"></span><br><span class="line">s = <span class="built_in">append</span>(s, <span class="number">3</span>) <span class="comment">// 容量不够，触发扩容</span></span><br><span class="line">fmt.Println(<span class="built_in">len</span>(s), <span class="built_in">cap</span>(s)) <span class="comment">// 3 4 —— 换了新数组，旧数组被丢弃</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="扩容倍数是实现细节，不是语言契约"><a href="#扩容倍数是实现细节，不是语言契约" class="headerlink" title="扩容倍数是实现细节，不是语言契约"></a>扩容倍数是实现细节，不是语言契约</h3><p>常见的说法是「append 会翻倍」，<strong>这个说法只在一定范围内成立</strong>：容量 <strong>小于 256</strong> 时新容量大致是原来的 <strong>2 倍</strong>；<strong>达到 256 及以上</strong> 时增长率降到 <strong>1.25 倍左右</strong>（实现里还带一个固定偏移，小容量阶段看起来会略高）；最终的新容量还会<strong>向上取整到内存分配器的尺寸类（size class）</strong>。</p>
+<p><strong>这些数字属于运行时实现细节，Go 升级版本就可能变。业务代码不要依赖具体倍数</strong>，唯一可靠的假设只有一条：**<code>append</code> 之后必须使用它的返回值**。</p>
+<p>想亲眼看一遍，跑这个程序：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">s := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">0</span>, <span class="number">4</span>)</span><br><span class="line">fmt.Printf(<span class="string">&quot;start   len=%d cap=%d\n&quot;</span>, <span class="built_in">len</span>(s), <span class="built_in">cap</span>(s))</span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">300</span>; i++ &#123;</span><br><span class="line">	s = <span class="built_in">append</span>(s, i)</span><br><span class="line">	<span class="keyword">if</span> i &lt; <span class="number">10</span> || i%<span class="number">32</span> == <span class="number">31</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;append %3d -&gt; len=%d cap=%d backing=%p\n&quot;</span>,</span><br><span class="line">			i, <span class="built_in">len</span>(s), <span class="built_in">cap</span>(s), &amp;s[<span class="number">0</span>])</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>小容量阶段的结果基本稳定：</p>
+<table>
+<thead>
+<tr>
+<th>时机</th>
+<th>len</th>
+<th>cap</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>make([]int, 0, 4)</code></td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>第 5 次</td>
+<td>5</td>
+<td>8</td>
+</tr>
+<tr>
+<td>第 129 次</td>
+<td>129</td>
+<td>256</td>
+</tr>
+</tbody></table>
+<h3 id="扩容带来的「不共享」错觉"><a href="#扩容带来的「不共享」错觉" class="headerlink" title="扩容带来的「不共享」错觉"></a>扩容带来的「不共享」错觉</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">3</span>, <span class="number">10</span>) <span class="comment">// 有富余容量</span></span><br><span class="line">b := <span class="built_in">append</span>(a, <span class="number">4</span>)       <span class="comment">// 容量够，没有扩容，a 和 b 共享底层数组</span></span><br><span class="line">b[<span class="number">0</span>] = <span class="number">99</span></span><br><span class="line">fmt.Println(a) <span class="comment">// [99 0 0] —— a 也变了</span></span><br></pre></td></tr></table></figure>
+
+<p>把 <code>make([]int, 3, 10)</code> 换成 <code>make([]int, 3)</code>，结果就变成 <code>a</code> 保持 <code>[0 0 0]</code>——因为扩容了，新旧彻底分离。<strong>这类「有时共享有时不共享」的行为是 Go 里最难排查的 bug 温床之一。</strong></p>
+<hr>
+<h2 id="8-5-别名陷阱：两个切片，一块内存"><a href="#8-5-别名陷阱：两个切片，一块内存" class="headerlink" title="8.5 别名陷阱：两个切片，一块内存"></a>8.5 别名陷阱：两个切片，一块内存</h2><h3 id="共享是特性，不是-bug"><a href="#共享是特性，不是-bug" class="headerlink" title="共享是特性，不是 bug"></a>共享是特性，不是 bug</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">3</span>, <span class="number">5</span>)</span><br><span class="line">b := a[:<span class="number">2</span>] <span class="comment">// b 和 a 共享底层数组</span></span><br><span class="line">b[<span class="number">0</span>] = <span class="number">100</span></span><br><span class="line">fmt.Println(a) <span class="comment">// [100 0 0] —— a 跟着变了</span></span><br></pre></td></tr></table></figure>
+
+<p>Java 里 <code>int[] b = a;</code> 是引用共享，Go 切片只是更精确的描述。真正的问题在于 <strong>Go 的切片还能被重新切、重新分配，「共享」会在你意料之外的时间点被打破</strong>。</p>
+<h3 id="追加覆盖别人的数据"><a href="#追加覆盖别人的数据" class="headerlink" title="追加覆盖别人的数据"></a>追加覆盖别人的数据</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">base := []<span class="type">string</span>&#123;<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;d&quot;</span>&#125;</span><br><span class="line">head := base[:<span class="number">2</span>] <span class="comment">// len=2, cap=4</span></span><br><span class="line">head = <span class="built_in">append</span>(head, <span class="string">&quot;X&quot;</span>)</span><br><span class="line">fmt.Println(base) <span class="comment">// [a b X d] —— base[2] 被覆盖了</span></span><br></pre></td></tr></table></figure>
+
+<p>这段代码没有 bug，每一行都合法，但 <code>base</code> 的第三个元素被无声地改掉了。修法：预留足够容量让它不扩容、用三索引切片把 cap 钉死、或者干脆复制一份。</p>
+<h3 id="copy-的语义"><a href="#copy-的语义" class="headerlink" title="copy 的语义"></a>copy 的语义</h3><p><code>copy(dst, src)</code> 把 <code>src</code> 的元素拷进 <code>dst</code>，实际拷贝个数是 <code>min(len(dst), len(src))</code>，返回值就是拷贝了多少个。**源和目标重叠时行为类似 <code>memmove</code>**，不会把数据搅乱。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">s := []<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">n := <span class="built_in">copy</span>(s[<span class="number">1</span>:], s[:<span class="number">3</span>]) <span class="comment">// 左移一位</span></span><br><span class="line">fmt.Println(n, s) <span class="comment">// 3 [1 1 2 3]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="for-循环里-append-的经典错误"><a href="#for-循环里-append-的经典错误" class="headerlink" title="for 循环里 append 的经典错误"></a>for 循环里 append 的经典错误</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">s := []<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line"><span class="keyword">for</span> i := <span class="keyword">range</span> s &#123;</span><br><span class="line">	s = <span class="built_in">append</span>(s, s[i]*<span class="number">2</span>)</span><br><span class="line">&#125;</span><br><span class="line">fmt.Println(s) <span class="comment">// [1 2 3 2 4 6]</span></span><br></pre></td></tr></table></figure>
+
+<p><code>range</code> 表达式<strong>只在进入循环时求值一次</strong>，所以循环次数是最初的 <code>len(s) == 3</code>，不会死循环；但循环体里的 <code>s</code> 已经是扩容后的新切片了，结果往往是「看起来对但完全不是想要的」。</p>
+<p>更隐蔽的是<strong>拿元素地址</strong>的版本：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">s := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">0</span>, <span class="number">4</span>)</span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</span><br><span class="line">	s = <span class="built_in">append</span>(s, i)</span><br><span class="line">	_ = &amp;s[i] <span class="comment">// 取地址的瞬间还没扩容</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 之后某次 append 触发扩容，之前拿到的地址都指向旧数组</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>规则很简单：不要长期持有切片元素的地址，append 之后一律重新取。</strong> 顺带一提循环变量：Go 1.22 起 <code>for range</code> 的循环变量每轮新建（前提是 <code>go.mod</code> 声明 <code>go 1.22</code> 或更高），闭包捕获 <code>v</code> 的老问题消失；1.22 之前 <code>v</code> 是复用的，把它传进 goroutine 几乎必然出错。</p>
+<hr>
+<h2 id="8-6-nil-切片-vs-空切片"><a href="#8-6-nil-切片-vs-空切片" class="headerlink" title="8.6 nil 切片 vs 空切片"></a>8.6 nil 切片 vs 空切片</h2><p>这两种「长度都是 0」的切片，在 Go 里是<strong>两种不同的值</strong>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> nilSlice []<span class="type">int</span></span><br><span class="line">emptySlice := []<span class="type">int</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">fmt.Println(nilSlice == <span class="literal">nil</span>)  <span class="comment">// true</span></span><br><span class="line">fmt.Println(emptySlice == <span class="literal">nil</span>) <span class="comment">// false</span></span><br><span class="line"></span><br><span class="line">a, _ := json.Marshal(nilSlice)</span><br><span class="line">b, _ := json.Marshal(emptySlice)</span><br><span class="line">fmt.Println(<span class="type">string</span>(a), <span class="type">string</span>(b)) <span class="comment">// null []</span></span><br><span class="line"></span><br><span class="line">count := <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> <span class="keyword">range</span> nilSlice &#123; count++ &#125; <span class="comment">// 遍历 nil 切片完全安全，一次都不执行</span></span><br><span class="line">fmt.Println(count)             <span class="comment">// 0</span></span><br><span class="line"></span><br><span class="line">nilSlice = <span class="built_in">append</span>(nilSlice, <span class="number">1</span>) <span class="comment">// nil 切片可以直接 append</span></span><br><span class="line">fmt.Println(nilSlice)           <span class="comment">// [1]</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th><code>s == nil</code></th>
+<th><code>len(s)</code></th>
+<th><code>cap(s)</code></th>
+<th>JSON 序列化</th>
+<th>Java 对照</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>var s []int</code></td>
+<td>true</td>
+<td>0</td>
+<td>0</td>
+<td><code>null</code></td>
+<td><code>null</code></td>
+</tr>
+<tr>
+<td><code>s := []int&#123;&#125;</code></td>
+<td>false</td>
+<td>0</td>
+<td>0</td>
+<td><code>[]</code></td>
+<td><code>new ArrayList&lt;&gt;()</code></td>
+</tr>
+<tr>
+<td><code>make([]int, 0, 8)</code></td>
+<td>false</td>
+<td>0</td>
+<td>8</td>
+<td><code>[]</code></td>
+<td><code>new ArrayList&lt;&gt;(8)</code></td>
+</tr>
+</tbody></table>
+<p><strong>实践建议：对外输出 JSON 的结构体，字段用 <code>[]T&#123;&#125;</code> 而不是零值 nil</strong>，否则客户端收到 <code>null</code> 而不是 <code>[]</code>，Java 端反序列化时更容易出问题。接收方要记得：<strong>nil 切片可以 append、可以 range、可以安全读下标</strong>；另外 Go 里 <code>if s &#123;&#125;</code> 是语法错误，只能写 <code>s != nil</code> 或 <code>len(s) &gt; 0</code>。</p>
+<hr>
+<h2 id="8-7-二维切片的坑：行是切片"><a href="#8-7-二维切片的坑：行是切片" class="headerlink" title="8.7 二维切片的坑：行是切片"></a>8.7 二维切片的坑：行是切片</h2><p><code>[][]int</code> 看上去像 Java 的 <code>int[][]</code>，但<strong>每一行本身就是一个切片</strong>（有自己的 ptr &#x2F; len &#x2F; cap），所以多出一堆 Java 那边不存在的坑。</p>
+<h3 id="坑一：只分配外层，行还是-nil"><a href="#坑一：只分配外层，行还是-nil" class="headerlink" title="坑一：只分配外层，行还是 nil"></a>坑一：只分配外层，行还是 nil</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">grid := <span class="built_in">make</span>([][]<span class="type">int</span>, <span class="number">3</span>)</span><br><span class="line">grid[<span class="number">0</span>][<span class="number">0</span>] = <span class="number">1</span> <span class="comment">// panic: index out of range [0] with length 0</span></span><br></pre></td></tr></table></figure>
+
+<p><code>make([][]int, 3)</code> 只创建了 3 个<strong>空的行描述符</strong>，每行指向的还是 nil。必须逐行初始化：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">grid := <span class="built_in">make</span>([][]<span class="type">int</span>, <span class="number">3</span>)</span><br><span class="line"><span class="keyword">for</span> i := <span class="keyword">range</span> grid &#123;</span><br><span class="line">	grid[i] = <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">3</span>)</span><br><span class="line">&#125;</span><br><span class="line">grid[<span class="number">1</span>][<span class="number">1</span>] = <span class="number">5</span></span><br><span class="line">fmt.Println(grid) <span class="comment">// [[0 0 0] [0 5 0] [0 0 0]]</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>对比 Python</strong>：<code>[[0] * 3] * 3</code> 会让三行指向同一个列表对象，改一行三行全变——这是 Python 新手第一大坑。Go 的 <code>make</code> 每次都给你新内存，但它换了个坑给你，就是上面这个。</p>
+<h3 id="坑二：行与行之间共享底层数组"><a href="#坑二：行与行之间共享底层数组" class="headerlink" title="坑二：行与行之间共享底层数组"></a>坑二：行与行之间共享底层数组</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">backing := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">6</span>)</span><br><span class="line">row0 := backing[<span class="number">0</span>:<span class="number">3</span>:<span class="number">3</span>]</span><br><span class="line">row1 := backing[<span class="number">1</span>:<span class="number">4</span>:<span class="number">4</span>] <span class="comment">// 和 row0 共享第 1~3 号槽位</span></span><br><span class="line"></span><br><span class="line">row0[<span class="number">1</span>] = <span class="number">7</span></span><br><span class="line">fmt.Println(backing) <span class="comment">// [0 7 0 0 0 0]</span></span><br><span class="line">fmt.Println(row1)   <span class="comment">// [7 0 0] —— row1[0] 就是 backing[1]</span></span><br></pre></td></tr></table></figure>
+
+<p>只要两行的区间有重叠，写任何一行都会影响另一行。<strong>多行共享底层数组时，请用三索引切片把每行的 cap 钉死</strong>，把「共享」限制在你明确想要的范围内。</p>
+<p>顺带提醒：返回 <code>[][]int</code> 之前，务必确认每一行都已经 <code>make</code> 过——只 <code>make</code> 外层就返回，调用方拿到的还是一堆 nil 行。</p>
+<hr>
+<h2 id="8-8-动手练"><a href="#8-8-动手练" class="headerlink" title="8.8 动手练"></a>8.8 动手练</h2><ol>
+<li><strong>扩容观察器</strong>：每轮 <code>append</code> 一个元素，打印 <code>len</code>、<code>cap</code> 和底层数组首地址（<code>&amp;s[0]</code>），把前 300 次的结果贴进表格，找出 cap 翻倍的确切位置。</li>
+<li><strong>别名侦探</strong>：构造两个共享底层数组的切片（<code>b := a[:2]</code>），用「直接 append」「三索引切片」「提前 make 足容量」三种方式修复，验证哪一种能保证 <code>a</code> 不被改写。</li>
+<li><strong>二维切片初始化器</strong>：实现 <code>buildGrid(rows, cols int) [][]int</code>，故意写出错误版本并跑一次，把 panic 信息抄下来，解释它到底在哪一步炸了。</li>
+<li><strong>nil 与空</strong>：写一个返回 JSON 的小接口，让某个字段先是 nil 切片、再改成空切片，用 <code>curl</code> 观察两次响应的差异。</li>
+</ol>
+<hr>
+<h2 id="8-9-常见错误清单"><a href="#8-9-常见错误清单" class="headerlink" title="8.9 常见错误清单"></a>8.9 常见错误清单</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>错误写法</th>
+<th>后果</th>
+<th>正确写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>append(s, v)</code> 不接返回值</td>
+<td>元素凭空消失</td>
+<td><code>s = append(s, v)</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>b := a[:2]</code> 后 <code>b = append(b, x)</code></td>
+<td>悄悄改写 <code>a</code> 的后续元素</td>
+<td><code>b := a[:2:2]</code> 或先 <code>slices.Clone</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>把 <code>s[1:3]</code> 当成复制</td>
+<td>修改结果会影响原切片</td>
+<td><code>slices.Clone(s[1:3])</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>grid := make([][]int, n)</code> 直接写 <code>grid[i][j]</code></td>
+<td><code>panic: index out of range</code></td>
+<td>逐行 <code>grid[i] = make([]int, m)</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>for i := range s &#123; s = append(s, ...) &#125;</code></td>
+<td>循环次数按旧 len</td>
+<td>先把结果写到新切片</td>
+</tr>
+<tr>
+<td>6</td>
+<td>长期持有 <code>&amp;s[i]</code></td>
+<td>扩容后指针指向过期数据</td>
+<td>append 后重新取地址</td>
+</tr>
+</tbody></table>
+<p><strong>收束成一句</strong>：切片是「指针 + 长度 + 容量」的三元组视图，**<code>append</code> 可能在原地写、也可能换一块新内存，你无法从类型上判断<strong>。所以 Go 的纪律是——</strong>永远使用 <code>append</code> 的返回值，永远不假设两个切片互不相干**。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/"># 基础教程</a>
+          
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E5%88%87%E7%89%87/"># 切片</a>
+          
+          <a href="/tags/%E5%86%85%E5%AD%98/"># 内存</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20map%20%E2%80%94%20%E5%93%88%E5%B8%8C%E8%A1%A8%E3%80%81%E9%81%8D%E5%8E%86%E9%A1%BA%E5%BA%8F%E4%B8%8E%E5%B9%B6%E5%8F%91%E9%99%90%E5%88%B6/"
+        >Go map — 哈希表、遍历顺序与并发限制</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%BE%AA%E7%8E%AF%E4%B8%8E%20range%20%E8%BF%AD%E4%BB%A3%20%E2%80%94%20%E6%8E%A7%E5%88%B6%E6%B5%81%E7%9A%84%E5%85%8B%E5%88%B6/"
+        >Go 循环与 range 迭代 — 控制流的克制</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

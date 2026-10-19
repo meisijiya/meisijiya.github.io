@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go 系列总览 — 学习路线与文章索引 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go 系列总览 — 学习路线与文章索引</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;10:00:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="00-Go-系列总览"><a href="#00-Go-系列总览" class="headerlink" title="00 Go 系列总览"></a>00 Go 系列总览</h1><blockquote>
+<p>18 篇按「语言基础 → 复合数据结构 → 并发 → 工程实战 → 面试复盘」排列的 Go 学习文档，从装工具链一路走到能讲清楚一个生产级项目。</p>
+</blockquote>
+<hr>
+<h2 id="0-1-这套文档解决什么问题"><a href="#0-1-这套文档解决什么问题" class="headerlink" title="0.1 这套文档解决什么问题"></a>0.1 这套文档解决什么问题</h2><p>学 Go 的资料满地都是，真正缺的是<strong>一条能走完的路径</strong>。市面上的内容通常掉进两个坑：</p>
+<ul>
+<li><strong>语法字典式灌输</strong>：把变量、循环、函数挨个念一遍，看完还是不会写。</li>
+<li><strong>跳过基础直接上框架</strong>：上来就 Gin + GORM，出了并发问题根本不知道是 channel 用错还是 map 没加锁。</li>
+</ul>
+<p>这套文档的做法是：<strong>每一篇都按「概念 → 可运行代码 → 与 Java&#x2F;Python 的差异 → 什么时候会踩坑 → 动手练」五段式展开</strong>，读的时候手边一定要有编辑器。</p>
+<p>有 Java 或 Python 基础的话，01~07 篇一周内能过完；后面的并发与实战是拉开差距的部分。</p>
+<h2 id="0-2-文章索引"><a href="#0-2-文章索引" class="headerlink" title="0.2 文章索引"></a>0.2 文章索引</h2><table>
+<thead>
+<tr>
+<th>序号</th>
+<th>文章</th>
+<th>核心问题</th>
+<th>难度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E4%B8%8E%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%20%E2%80%94%20%E4%BB%8E%E8%A3%85%E5%B7%A5%E5%85%B7%E9%93%BE%E5%88%B0%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%B7%A5%E7%A8%8B/">Go 学习路线与开发环境</a></td>
+<td>为什么选 Go、装工具链、第一个程序、go.mod 与工程结构</td>
+<td>入门</td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%8F%98%E9%87%8F%E3%80%81%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B%E4%B8%8E%E9%9B%B6%E5%80%BC%20%E2%80%94%20%E5%A3%B0%E6%98%8E%E6%96%B9%E5%BC%8F%E4%B8%8E%E5%86%85%E5%AD%98%E8%A7%86%E8%A7%92/">Go 变量、基本类型与零值</a></td>
+<td>声明方式、基本类型、零值语义、iota 与常量</td>
+<td>入门</td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%20%E2%80%94%20%E5%A4%9A%E8%BF%94%E5%9B%9E%E5%80%BC%E3%80%81%E5%91%BD%E5%90%8D%E8%BF%94%E5%9B%9E%E4%B8%8E%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0/">Go 函数设计</a></td>
+<td>多返回值、命名返回、defer、可变参数</td>
+<td>入门</td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E7%BB%93%E6%9E%84%E4%BD%93%E4%B8%8E%E6%96%B9%E6%B3%95%20%E2%80%94%20%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E4%B8%8E%E6%8E%A5%E6%94%B6%E8%80%85%E9%80%89%E6%8B%A9/">Go 结构体与方法</a></td>
+<td>struct、方法、值&#x2F;指针接收者、内存对齐与嵌入</td>
+<td>入门</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%9A%90%E5%BC%8F%E5%AE%9E%E7%8E%B0%20%E2%80%94%20%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%8A%9B%E9%87%8F/">Go 接口与隐式实现</a></td>
+<td>接口定义、隐式实现、类型断言、any 与 nil 接口陷阱</td>
+<td>入门</td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6%20%E2%80%94%20error%20%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%94%99%E8%AF%AF%E5%8C%85%E8%A3%85/">Go 错误处理机制</a></td>
+<td>error 接口、errors 包、%w 包装、panic 的边界</td>
+<td>进阶</td>
+</tr>
+<tr>
+<td>07</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%BE%AA%E7%8E%AF%E4%B8%8E%20range%20%E8%BF%AD%E4%BB%A3%20%E2%80%94%20%E6%8E%A7%E5%88%B6%E6%B5%81%E7%9A%84%E5%85%8B%E5%88%B6/">Go 循环与 range 迭代</a></td>
+<td>for 三形态、range 遍历、range 变量语义、标签跳转</td>
+<td>入门</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%88%87%E7%89%87%20%E2%80%94%20%E5%BA%95%E5%B1%82%E6%95%B0%E7%BB%84%E3%80%81%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6%E4%B8%8E%E5%88%AB%E5%90%8D%E9%99%B7%E9%98%B1/">Go 切片</a></td>
+<td>切片三要素、切片表达式、append 扩容、别名陷阱</td>
+<td>进阶</td>
+</tr>
+<tr>
+<td>09</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20map%20%E2%80%94%20%E5%93%88%E5%B8%8C%E8%A1%A8%E3%80%81%E9%81%8D%E5%8E%86%E9%A1%BA%E5%BA%8F%E4%B8%8E%E5%B9%B6%E5%8F%91%E9%99%90%E5%88%B6/">Go map</a></td>
+<td>map 语义、遍历顺序随机、不可比较、并发限制</td>
+<td>进阶</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0%E4%B8%8E%E9%97%AD%E5%8C%85%20%E2%80%94%20%E5%87%BD%E6%95%B0%E4%BD%9C%E4%B8%BA%E4%B8%80%E7%AD%89%E5%85%AC%E6%B0%91/">Go 高阶函数与闭包</a></td>
+<td>函数作为值、闭包捕获、回调与装饰器思想</td>
+<td>进阶</td>
+</tr>
+<tr>
+<td>11</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E6%8C%87%E9%92%88%E4%B8%8E%E5%86%85%E5%AD%98%E5%AF%BB%E5%9D%80%20%E2%80%94%20%E5%8F%96%E5%9C%B0%E5%9D%80%E3%80%81%E9%80%83%E9%80%B8%E4%B8%8E%20nil/">Go 指针与内存寻址</a></td>
+<td>取地址解引用、Go 无指针运算、逃逸分析、new 与 make</td>
+<td>进阶</td>
+</tr>
+<tr>
+<td>12</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20goroutine%20%E4%B8%8E%20channel%20%E2%80%94%20%E5%B9%B6%E5%8F%91%E6%A8%A1%E5%9E%8B/">Go goroutine 与 channel</a></td>
+<td>goroutine、channel 语义、关闭规则、select、nil channel</td>
+<td>进阶</td>
+</tr>
+<tr>
+<td>13</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20Mutex%E3%80%81WaitGroup%20%E4%B8%8E%E7%AB%9E%E6%80%81%E6%A3%80%E6%B5%8B/">Go Mutex、WaitGroup 与竞态检测</a></td>
+<td>数据竞争、Mutex&#x2F;RWMutex、WaitGroup、context、race detector</td>
+<td>进阶</td>
+</tr>
+<tr>
+<td>14</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E6%B3%9B%E5%9E%8B%E4%B8%8E%E7%B1%BB%E5%9E%8B%E7%BA%A6%E6%9D%9F%20%E2%80%94%20%E4%BB%8E%20any%20%E5%88%B0%E7%B1%BB%E5%9E%8B%E5%AE%89%E5%85%A8/">Go 泛型与类型约束</a></td>
+<td>类型参数、约束、comparable 与 union、泛型取舍</td>
+<td>进阶</td>
+</tr>
+<tr>
+<td>15</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%AE%9E%E6%88%98%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%20RSS%20%E8%81%9A%E5%90%88%E5%99%A8%E6%9E%B6%E6%9E%84%E4%B8%8E%20Chi%20%E8%B7%AF%E7%94%B1%E7%BD%91%E5%85%B3/">Go 实战（一）— RSS 聚合器架构与 Chi 路由网关</a></td>
+<td>工程初始化、chi 路由、统一 JSON 响应、中间件</td>
+<td>实战</td>
+</tr>
+<tr>
+<td>16</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%AE%9E%E6%88%98%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%20PostgreSQL%E3%80%81API%20Key%20%E9%89%B4%E6%9D%83%E4%B8%8E%E5%B9%B6%E5%8F%91%E6%8A%93%E5%8F%96/">Go 实战（二）— PostgreSQL、API Key 鉴权与并发抓取</a></td>
+<td>表设计与迁移、sqlc、API Key 鉴权、并发抓取、分页查询</td>
+<td>实战</td>
+</tr>
+<tr>
+<td>17</td>
+<td><a href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%80%83%E7%82%B9%E4%B8%8E%E5%A4%8D%E7%9B%98/">Go 面试高频考点与复盘</a></td>
+<td>语言&#x2F;并发&#x2F;工程三类高频问答、项目讲述模板、复习路线</td>
+<td>面试</td>
+</tr>
+</tbody></table>
+<h2 id="0-3-三种学习节奏"><a href="#0-3-三种学习节奏" class="headerlink" title="0.3 三种学习节奏"></a>0.3 三种学习节奏</h2><table>
+<thead>
+<tr>
+<th>节奏</th>
+<th>周期</th>
+<th>怎么用</th>
+<th>适合谁</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>速通</td>
+<td>7 天</td>
+<td>01<del>07 每天一篇，08</del>14 只读「坑」小节，15~16 只跑不写</td>
+<td>已有其他语言基础、只为过面试</td>
+</tr>
+<tr>
+<td>系统</td>
+<td>14 天</td>
+<td>每天一篇 + 动手练全部做完，第 15~16 篇完整跟着敲</td>
+<td>准备把 Go 当主力语言</td>
+</tr>
+<tr>
+<td>项目驱动</td>
+<td>一个月</td>
+<td>先扫 01&#x2F;03&#x2F;05&#x2F;06，其余按需查，直接开 15~16，遇到不会再回来补</td>
+<td>已有工程经验、想要作品</td>
+</tr>
+</tbody></table>
+<p><strong>不管哪种节奏，动手练都别跳。</strong> 切片、map、channel 这三个坑，看懂和写对之间隔着一整个编译期。</p>
+<h2 id="0-4-环境准备"><a href="#0-4-环境准备" class="headerlink" title="0.4 环境准备"></a>0.4 环境准备</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 装 Go（当前稳定版 1.27.x；1.22 起有循环变量语义变更与 range 覆盖整数）</span></span><br><span class="line">go version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 建工作区</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/go-lab &amp;&amp; <span class="built_in">cd</span> ~/go-lab</span><br><span class="line">go mod init example.com/lab</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 写第一个文件</span></span><br><span class="line"><span class="built_in">cat</span> &gt; main.go &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">package main</span><br><span class="line"></span><br><span class="line">import <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line">func <span class="function"><span class="title">main</span></span>() &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;hello, go&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 两种运行方式</span></span><br><span class="line">go run main.go     <span class="comment"># 直接跑，临时编译</span></span><br><span class="line">go build -o lab .  <span class="comment"># 编译成当前目录的可执行文件</span></span><br><span class="line">./lab</span><br></pre></td></tr></table></figure>
+
+<p>编辑器建议 <strong>VS Code + Go 官方扩展</strong>：保存即编译、<code>gopls</code> 跳转、格式化用 <code>gofmt</code>。</p>
+<h3 id="版本这件事要说清楚"><a href="#版本这件事要说清楚" class="headerlink" title="版本这件事要说清楚"></a>版本这件事要说清楚</h3><p>Go 每半年发一个大版本，新语法<strong>由 <code>go.mod</code> 里的 <code>go</code> 指令决定是否生效</strong>，而不是由你装的是哪个工具链决定：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># go.mod 里写 go 1.22，这条指令决定循环变量语义与 range over int 是否可用</span></span><br><span class="line"><span class="built_in">cat</span> go.mod</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>关键变化</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1.22</td>
+<td>循环变量每轮新建、<code>for range</code> 覆盖整数、<code>ServeMux</code> 支持方法与通配符</td>
+<td><strong>写新代码的最低版本线</strong></td>
+</tr>
+<tr>
+<td>1.23</td>
+<td><code>range</code> 覆盖函数（迭代器）、<code>iter</code> 包、<code>slices</code>&#x2F;<code>maps</code> 扩展</td>
+<td>遍历抽象统一</td>
+</tr>
+<tr>
+<td>1.24</td>
+<td>泛型类型别名、<code>go.mod</code> 的 <code>tool</code> 指令、<code>testing.B.Loop</code>、map 换 Swiss Tables 实现</td>
+<td>工具链与性能</td>
+</tr>
+<tr>
+<td>1.25</td>
+<td><code>sync.WaitGroup.Go</code>、容器感知 <code>GOMAXPROCS</code></td>
+<td>并发写法更短</td>
+</tr>
+<tr>
+<td>1.26</td>
+<td><code>new(expr)</code> 带初值、Green Tea GC 默认开启</td>
+<td>运行时与 GC</td>
+</tr>
+<tr>
+<td>1.27</td>
+<td><strong>泛型方法</strong>、<code>encoding/json/v2</code> 转正、goroutine 泄漏 profile</td>
+<td>语言与可观测性</td>
+</tr>
+</tbody></table>
+<p><code>go.mod</code> 里的 <code>go</code> 指令写成 <code>go 1.22</code> 及以上，上面这些新语法才会启用；写低了会直接编译报错。</p>
+<h2 id="0-5-每篇的固定结构"><a href="#0-5-每篇的固定结构" class="headerlink" title="0.5 每篇的固定结构"></a>0.5 每篇的固定结构</h2><p>为了让「读完能动手」而不是「读完记不住」，每篇都按同一套骨架写：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">概念先讲清楚     为什么 Go 要这么设计，而不是 Java 那样</span><br><span class="line">代码可运行       完整片段，不是 // 省略号 那种伪代码</span><br><span class="line">和 Java/Python 对比   同一件事两种语言怎么写、差在哪</span><br><span class="line">什么时候会踩坑   线上事故级别的坑单独列</span><br><span class="line">动手练           2~4 个能在 10 分钟内做完的小任务</span><br><span class="line">常见错误清单     收尾自查用</span><br></pre></td></tr></table></figure>
+
+<h2 id="0-6-官方资料索引"><a href="#0-6-官方资料索引" class="headerlink" title="0.6 官方资料索引"></a>0.6 官方资料索引</h2><p>文档写的是「为什么」和「怎么用」，<strong>API 的准确签名永远以官方文档为准</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>地址</th>
+<th>什么时候看</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Go 官方教程</td>
+<td><a target="_blank" rel="noopener" href="https://go.dev/doc/tutorial">https://go.dev/doc/tutorial</a></td>
+<td>想按官方口径过一遍基础</td>
+</tr>
+<tr>
+<td>A Tour of Go</td>
+<td><a target="_blank" rel="noopener" href="https://go.dev/tour/">https://go.dev/tour/</a></td>
+<td>交互式练语法，30 分钟能刷完</td>
+</tr>
+<tr>
+<td>Effective Go</td>
+<td><a target="_blank" rel="noopener" href="https://go.dev/doc/effective_go">https://go.dev/doc/effective_go</a></td>
+<td>想知道「这样写才地道」的理由</td>
+</tr>
+<tr>
+<td>包文档</td>
+<td><a target="_blank" rel="noopener" href="https://pkg.go.dev/">https://pkg.go.dev/</a></td>
+<td>查任何标准库&#x2F;第三方库的签名与示例</td>
+</tr>
+<tr>
+<td>Go 官方博客</td>
+<td><a target="_blank" rel="noopener" href="https://go.dev/blog/">https://go.dev/blog/</a></td>
+<td>切片、map、泛型、并发设计的官方长文</td>
+</tr>
+<tr>
+<td>Go 官方博客 · 切片内部机制</td>
+<td><a target="_blank" rel="noopener" href="https://go.dev/blog/slices">https://go.dev/blog/slices</a></td>
+<td>切片扩容与底层数组的权威解释</td>
+</tr>
+<tr>
+<td>Go 官方博客 · 切片入门</td>
+<td><a target="_blank" rel="noopener" href="https://go.dev/blog/slices-intro">https://go.dev/blog/slices-intro</a></td>
+<td>切片用法的官方说明</td>
+</tr>
+</tbody></table>
+<h2 id="0-7-动手练清单（学完就能打卡）"><a href="#0-7-动手练清单（学完就能打卡）" class="headerlink" title="0.7 动手练清单（学完就能打卡）"></a>0.7 动手练清单（学完就能打卡）</h2><ul>
+<li><input disabled="" type="checkbox"> 用 <code>:=</code> 和 <code>var</code> 各写一遍声明，说清两者差别</li>
+<li><input disabled="" type="checkbox"> 写一个函数返回 <code>(int, error)</code>，并用 <code>errors.Is</code> 判断具体错误</li>
+<li><input disabled="" type="checkbox"> 打印 <code>append</code> 前后的 <code>len</code> 和 <code>cap</code>，观察扩容点</li>
+<li><input disabled="" type="checkbox"> 制造一次「两个切片共享底层数组」的 bug，再修掉</li>
+<li><input disabled="" type="checkbox"> 写一个生产者-消费者：用带缓冲 channel 传数据，用 <code>close</code> 通知结束</li>
+<li><input disabled="" type="checkbox"> 写一个 <code>sync.WaitGroup</code> 版的多任务等待，并跑 <code>go test -race</code> 验证</li>
+<li><input disabled="" type="checkbox"> 用 <code>chi</code> 起一个服务，注册两条路由 + 一个鉴权中间件</li>
+<li><input disabled="" type="checkbox"> 把上面这些串成一个能跑的 RSS 抓取小工具</li>
+</ul>
+<h2 id="0-8-写在最后"><a href="#0-8-写在最后" class="headerlink" title="0.8 写在最后"></a>0.8 写在最后</h2><p>Go 的学习曲线前段平缓（语法三天能上手），后段陡峭（并发与工程化能劝退一批人）。这套文档把陡的那段拆成了 08~16 共九篇，每篇都配了能跑的代码。</p>
+<p><strong>先跑起来，再谈优化。</strong> 祝学习顺利。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/"># 基础教程</a>
+          
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E9%80%9F%E9%80%9A/"># 速通</a>
+          
+          <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/"># 学习路线</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E4%B8%8E%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%20%E2%80%94%20%E4%BB%8E%E8%A3%85%E5%B7%A5%E5%85%B7%E9%93%BE%E5%88%B0%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%B7%A5%E7%A8%8B/"
+        >Go 学习路线与开发环境 — 从装工具链到第一个工程</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/18/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80/%E4%BB%8E0%E5%88%B0%E8%AE%AD%E7%BB%83%E5%A4%A7%E6%A8%A1%E5%9E%8B/"
+        >视频总结：大模型训练与部署零基础实战笔记（基于 Minimind3）</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>

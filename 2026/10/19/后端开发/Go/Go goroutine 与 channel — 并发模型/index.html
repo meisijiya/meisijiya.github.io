@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Go goroutine 与 channel — 并发模型 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
+<!-- highlight.js 自动上色功能 -->
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
+});
+</script>
+
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                <div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  var tocbot_timer_mobile;
+  var DEPTH_MAX = 6;
+  var tocbot_mobile_config = {
+    tocSelector: '.tocbot-list-mobile',
+    contentSelector: '.post-content',
+    headingSelector: 'h1, h2, h3, h4, h5',
+    orderedList: false,
+    scrollSmooth: true,
+    onClick: extend_click_mobile,
+  };
+
+  function extend_click_mobile() {
+    clearTimeout(tocbot_timer_mobile);
+    tocbot_timer_mobile = setTimeout(function() {
+      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
+        hasInnerContainers: true
+      }));
+    }, 420);
+  }
+
+  document.ready(function() {
+    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
+      collapseDepth: 1
+    }));
+  });
+
+  function obj_merge_mobile(target, source) {
+    for (var item in source) {
+      if (source.hasOwnProperty(item)) {
+        target[item] = source[item];
+      }
+    }
+    return target;
+  }
+
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+    
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Go goroutine 与 channel — 并发模型</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 19, 2026&nbsp;&nbsp;11:22:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/">Go</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="12-Go-goroutine-与-channel"><a href="#12-Go-goroutine-与-channel" class="headerlink" title="12 Go goroutine 与 channel"></a>12 Go goroutine 与 channel</h1><blockquote>
+<p>goroutine 怎么起、channel 怎么传、什么时候该关、什么时候会漏——Go 并发里最容易翻车的四个点，一次讲透。</p>
+</blockquote>
+<hr>
+<h2 id="12-1-goroutine：比线程轻，也比线程便宜"><a href="#12-1-goroutine：比线程轻，也比线程便宜" class="headerlink" title="12.1 goroutine：比线程轻，也比线程便宜"></a>12.1 goroutine：比线程轻，也比线程便宜</h2><p>Go 里启动并发只有一个入口：<code>go f()</code>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> work()   <span class="comment">// ❌ main 一返回，work 可能根本没跑</span></span><br></pre></td></tr></table></figure>
+
+<p>Go 没有任何隐式等待，等待得自己写：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    done := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">defer</span> <span class="built_in">close</span>(done)</span><br><span class="line">        work()</span><br><span class="line">    &#125;()</span><br><span class="line">    &lt;-done</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="和-Java-线程-Python-线程差在哪"><a href="#和-Java-线程-Python-线程差在哪" class="headerlink" title="和 Java 线程 &#x2F; Python 线程差在哪"></a>和 Java 线程 &#x2F; Python 线程差在哪</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Go goroutine</th>
+<th>Java 线程</th>
+<th>Python 线程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>创建成本</td>
+<td>几 KB 栈，纳秒级</td>
+<td>约 1 MB 栈 + 内核对象</td>
+<td>不算贵，但受 GIL 限制</td>
+</tr>
+<tr>
+<td>可用数量</td>
+<td>几万到几十万</td>
+<td>几千条就明显吃内存</td>
+<td>纯 CPU 任务无法真并行</td>
+</tr>
+<tr>
+<td>栈大小</td>
+<td>初始约 2 KB，按需增长</td>
+<td>固定，深递归易溢出</td>
+<td>沿用主线程栈</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>运行时自调度，多核并行</td>
+<td>OS 抢占式</td>
+<td>GIL 同一时刻只跑一个</td>
+</tr>
+<tr>
+<td>通信方式</td>
+<td><strong>channel 传值（首选）</strong></td>
+<td>共享内存 + 锁</td>
+<td>共享内存 + 锁</td>
+</tr>
+</tbody></table>
+<p>goroutine 背后是 <strong>GMP 调度模型</strong>：G 是 goroutine，M 是 OS 线程，P 是逻辑处理器（数量等于 <code>GOMAXPROCS</code>）。<strong>Go 运行时自己实现了用户态调度器，把海量 goroutine 复用到少量 OS 线程上，多个 P 各自绑定一个 M，从而实现真正的多核并行</strong>。</p>
+<p>这也是 Go 和 Java 最根本的路线差异。Java 默认把你丢进<strong>共享内存 + 锁</strong>的世界（<code>synchronized</code>、<code>ConcurrentHashMap</code>），写对之前得先做竞态分析；Go 希望你把”共享数据”改写成”传递数据”。</p>
+<blockquote>
+<p>⚠️ 别理解成”Go 里不用锁”。多个 goroutine 改同一份内存当然要 <code>sync.Mutex</code>（下一篇 13 专讲），但<strong>能用消息传递解决的，就别去共享内存</strong>。</p>
+</blockquote>
+<h2 id="12-2-channel：一条有类型的管道"><a href="#12-2-channel：一条有类型的管道" class="headerlink" title="12.2 channel：一条有类型的管道"></a>12.2 channel：一条有类型的管道</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>)   <span class="comment">// 无缓冲</span></span><br><span class="line">ch &lt;- <span class="number">42</span>              <span class="comment">// 发送</span></span><br><span class="line">v := &lt;-ch              <span class="comment">// 接收</span></span><br></pre></td></tr></table></figure>
+
+<p>Java 里你熟悉 <code>BlockingQueue</code>；Go 的 channel 更像一条<strong>没有缓冲的传送带</strong>。</p>
+<h3 id="无缓冲-channel：必须同时就绪"><a href="#无缓冲-channel：必须同时就绪" class="headerlink" title="无缓冲 channel：必须同时就绪"></a>无缓冲 channel：必须同时就绪</h3><p>无缓冲 channel 的语义是 <strong>rendezvous（同步交接）</strong>：发送方和接收方必须<strong>同时准备好</strong>，通信才真正完成。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    ch &lt;- <span class="number">1</span>        <span class="comment">// 卡在这，直到有人接收</span></span><br><span class="line">    fmt.Println(<span class="string">&quot;发送完成&quot;</span>)   <span class="comment">// 暂时不会打印</span></span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line">v := &lt;-ch          <span class="comment">// 双方碰面，1 被交出去</span></span><br><span class="line">fmt.Println(v)    <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<p>两个直接后果：<strong>其一，channel 同时是同步原语</strong>，一次收发完成一次 happens-before 同步，不用额外加锁；<strong>其二，无缓冲 channel 把并发度压到 1</strong>——多个 worker 共用一条无缓冲 channel 读任务时，实际永远只有一个 worker 在交接，想提高并发度就得用有缓冲 channel。注意 <code>make(chan int)</code> 默认<strong>无缓冲</strong>，而 Java 的 <code>ArrayBlockingQueue</code> 要指定容量、满了才阻塞，这是两个库默认值上的经典差异。</p>
+<h3 id="channel-操作速查表"><a href="#channel-操作速查表" class="headerlink" title="channel 操作速查表"></a>channel 操作速查表</h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>代码</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>创建（无缓冲）</td>
+<td><code>ch := make(chan int)</code></td>
+<td>收发必须同时就绪</td>
+</tr>
+<tr>
+<td>创建（有缓冲）</td>
+<td><code>ch := make(chan int, 10)</code></td>
+<td>容量 10，满了发送才阻塞</td>
+</tr>
+<tr>
+<td>发送</td>
+<td><code>ch &lt;- v</code></td>
+<td>无接收方或缓冲满时阻塞</td>
+</tr>
+<tr>
+<td>接收</td>
+<td><code>v := &lt;-ch</code></td>
+<td>通道空时阻塞</td>
+</tr>
+<tr>
+<td>接收并判关闭</td>
+<td><code>v, ok := &lt;-ch</code></td>
+<td><code>ok == false</code> 表示已关闭且排空</td>
+</tr>
+<tr>
+<td>遍历</td>
+<td><code>for v := range ch</code></td>
+<td>通道关闭后循环自动结束</td>
+</tr>
+<tr>
+<td>关闭</td>
+<td><code>close(ch)</code></td>
+<td>只应由发送方调用，重复 close 会 panic</td>
+</tr>
+<tr>
+<td>只发 &#x2F; 只收</td>
+<td><code>chan&lt;- int</code> &#x2F; <code>&lt;-chan int</code></td>
+<td>编译期限制方向</td>
+</tr>
+<tr>
+<td>元素数 &#x2F; 容量</td>
+<td><code>len(ch)</code> &#x2F; <code>cap(ch)</code></td>
+<td>当前几个 &#x2F; 总共能装几个</td>
+</tr>
+</tbody></table>
+<h2 id="12-3-关闭-channel：谁发送，谁负责关"><a href="#12-3-关闭-channel：谁发送，谁负责关" class="headerlink" title="12.3 关闭 channel：谁发送，谁负责关"></a>12.3 关闭 channel：谁发送，谁负责关</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="built_in">close</span>(ch)      <span class="comment">// 发送方负责关</span></span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">1</span>; i &lt;= <span class="number">3</span>; i++ &#123;</span><br><span class="line">        ch &lt;- i</span><br><span class="line">    &#125;</span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> v := <span class="keyword">range</span> ch &#123;      <span class="comment">// 收到关闭信号后自动结束</span></span><br><span class="line">    fmt.Println(v)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三条必须背下来的规则：</p>
+<p><strong>规则一：关闭后接收立刻返回，不再阻塞。</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>)</span><br><span class="line"><span class="built_in">close</span>(ch)</span><br><span class="line"></span><br><span class="line">v, ok := &lt;-ch    <span class="comment">// v == 0（零值），ok == false</span></span><br></pre></td></tr></table></figure>
+
+<p><code>ok</code> 和 map 取值的 <code>v, ok := m[k]</code> 一模一样，用来区分”收到一个恰好是零值的元素”和”通道已关闭”。关闭后每次接收都<strong>立即返回零值</strong>，不看 <code>ok</code> 就会陷入无限循环。</p>
+<p><strong>规则二：重复 close 会 panic</strong>（<code>panic: close of closed channel</code>）；<strong>规则三：向已关闭 channel 发送会 panic</strong>（<code>panic: send on closed channel</code>）；<code>close(nil)</code> 同样 panic。</p>
+<p>这三条 panic 有个<strong>很坑的共同点</strong>：发生在非 main goroutine 里，<strong>整个进程会挂掉</strong>——Go 里任何未被 <code>recover</code> 的 panic 都会终止程序。谁负责 close 必须在设计时定死。关闭 channel 也不是强制义务，<strong>只有当你需要明确告诉接收方”不会再有新数据了”时才 close</strong>。</p>
+<h2 id="12-4-select：同时等多个-channel"><a href="#12-4-select：同时等多个-channel" class="headerlink" title="12.4 select：同时等多个 channel"></a>12.4 select：同时等多个 channel</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> i, ok := &lt;-chInts:</span><br><span class="line">    fmt.Println(<span class="string">&quot;整数通道:&quot;</span>, i, ok)</span><br><span class="line"><span class="keyword">case</span> s := &lt;-chStrings:</span><br><span class="line">    fmt.Println(<span class="string">&quot;字符串通道:&quot;</span>, s)</span><br><span class="line"><span class="keyword">case</span> &lt;-time.After(<span class="number">2</span> * time.Second):</span><br><span class="line">    fmt.Println(<span class="string">&quot;超时了&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>行为规则：<strong>没有 case 就绪时 <code>select</code> 阻塞</strong>；<strong>多个 case 同时就绪时选一个是随机的</strong>（伪随机，不是源码顺序）；<code>ok</code> 的含义和普通接收一致，用来识别”这个 channel 已被关闭”。</p>
+<h3 id="default：把-select-变成非阻塞"><a href="#default：把-select-变成非阻塞" class="headerlink" title="default：把 select 变成非阻塞"></a>default：把 select 变成非阻塞</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> v := &lt;-ch:</span><br><span class="line">    fmt.Println(<span class="string">&quot;拿到了:&quot;</span>, v)</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    fmt.Println(<span class="string">&quot;暂时没有数据，先干别的&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是 Go 里实现”<strong>轮询 &#x2F; 非阻塞尝试</strong>“的标准写法，比 Java 的 <code>queue.poll()</code> 多一层含义：Java 的 <code>poll()</code> 是”取一个元素”，Go 的 <code>default</code> 是”<strong>这一轮什么都没等到</strong>“。</p>
+<h3 id="陷阱：select-里的-channel-表达式每次进入都重新求值"><a href="#陷阱：select-里的-channel-表达式每次进入都重新求值" class="headerlink" title="陷阱：select 里的 channel 表达式每次进入都重新求值"></a>陷阱：select 里的 channel 表达式每次进入都重新求值</h3><p><code>select</code> 每次<strong>进入语句</strong>时，会按源码顺序把 case 里的 channel 表达式<strong>各求值一次</strong>。所以 <code>case v := &lt;-nextChan():</code> 写在 <code>for</code> 循环里，每轮都会重新调用一次 <code>nextChan()</code>——你可以在循环里安全地”换一条通道”，但也别在 case 里写有副作用的函数，它的执行次数比你以为的多。</p>
+<p>顺带一提，<code>time.After</code> 每次调用都会新建一个定时器且不会提前释放，循环里要用 <code>time.NewTimer</code> + <code>Stop</code>&#x2F;<code>Reset</code> 复用。</p>
+<h2 id="12-5-nil-channel：不是崩溃，是永久阻塞"><a href="#12-5-nil-channel：不是崩溃，是永久阻塞" class="headerlink" title="12.5 nil channel：不是崩溃，是永久阻塞"></a>12.5 nil channel：不是崩溃，是永久阻塞</h2><p>对 nil channel 发送或接收，<strong>不 panic 也不崩溃，而是永久阻塞</strong>——<code>ch &lt;- 1</code> 和 <code>v := &lt;-ch</code> 都会把 goroutine 永久卡死：</p>
+<p>这个”软失败”特性很好用，因为它能<strong>优雅地禁用 select 的某个分支</strong>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> disabled <span class="keyword">chan</span> <span class="type">int</span>   <span class="comment">// nil channel，永远不会就绪</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> v := &lt;-disabled:   <span class="comment">// 这个 case 永远不会触发</span></span><br><span class="line">    use(v)</span><br><span class="line"><span class="keyword">case</span> v := &lt;-active:</span><br><span class="line">    use(v)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反过来，<strong>在 <code>select</code> 里对 nil channel 操作不会让整个 select 卡死</strong>——只要还有别的 case 就绪它照常走。这也是 <code>for range</code> 遍历 nil channel 会永久阻塞的原因。</p>
+<h2 id="12-6-有缓冲-channel：削峰与任务队列"><a href="#12-6-有缓冲-channel：削峰与任务队列" class="headerlink" title="12.6 有缓冲 channel：削峰与任务队列"></a>12.6 有缓冲 channel：削峰与任务队列</h2><p><code>make(chan int, 10)</code> 表示能装 10 个元素。此时发送<strong>缓冲没满</strong>就立即返回、满了才阻塞；接收<strong>有货</strong>就立即返回、空了才阻塞。所以有缓冲 channel 是天然的<strong>生产者—消费者队列</strong>，用来削平突发流量。</p>
+<p>对比无缓冲：有缓冲时生产者可以一口气塞 100 个任务然后继续干活，<strong>解耦程度更高</strong>，代价是<strong>失去了”必须有人接”的同步语义</strong>。</p>
+<h3 id="写一个-worker-pool"><a href="#写一个-worker-pool" class="headerlink" title="写一个 worker pool"></a>写一个 worker pool</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">worker</span><span class="params">(jobs &lt;-<span class="keyword">chan</span> Job, results <span class="keyword">chan</span>&lt;- Result, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> wg.Done()</span><br><span class="line">    <span class="keyword">for</span> job := <span class="keyword">range</span> jobs &#123;     <span class="comment">// 依赖 jobs 被 close 才能退出</span></span><br><span class="line">        results &lt;- process(job)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">runPool</span><span class="params">(urls []<span class="type">string</span>)</span></span> []Result &#123;</span><br><span class="line">    jobs := <span class="built_in">make</span>(<span class="keyword">chan</span> Job, <span class="built_in">len</span>(urls))</span><br><span class="line">    results := <span class="built_in">make</span>(<span class="keyword">chan</span> Result, <span class="built_in">len</span>(urls))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">8</span>; i++ &#123;</span><br><span class="line">        wg.Add(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">go</span> worker(jobs, results, &amp;wg)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">defer</span> <span class="built_in">close</span>(jobs)        <span class="comment">// 发完就关，worker 的 range 才能结束</span></span><br><span class="line">        <span class="keyword">for</span> _, u := <span class="keyword">range</span> urls &#123;</span><br><span class="line">            jobs &lt;- Job&#123;URL: u&#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line"></span><br><span class="line">    wg.Wait()</span><br><span class="line">    <span class="built_in">close</span>(results)               <span class="comment">// 所有 worker 退出后才安全关闭</span></span><br><span class="line">    <span class="keyword">return</span> collect(results)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三个细节：<strong>缓冲大小 &#x3D; 任务总数</strong>，生产者一次塞完不会阻塞；**<code>close(jobs)</code> 必须在所有任务发完之后<strong>；</strong><code>close(results)</code> 放在 <code>wg.Wait()</code> 之后**，因为只有所有 worker 退出后才不会再有写入。</p>
+<h2 id="12-7-方向化-channel：把-API-设计成最小权限"><a href="#12-7-方向化-channel：把-API-设计成最小权限" class="headerlink" title="12.7 方向化 channel：把 API 设计成最小权限"></a>12.7 方向化 channel：把 API 设计成最小权限</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">produce</span><span class="params">(out <span class="keyword">chan</span>&lt;- <span class="type">int</span>)</span></span> &#123; ... &#125;   <span class="comment">// 只能发送</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">consume</span><span class="params">(in  &lt;-<span class="keyword">chan</span> <span class="type">int</span>)</span></span> &#123; ... &#125;   <span class="comment">// 只能接收</span></span><br></pre></td></tr></table></figure>
+
+<p>好处很直接：<strong>在编译期就挡住误用</strong>。只想收数据的函数拿到 <code>chan&lt;- int</code> 是编译错误，根本没法偷偷往里写。</p>
+<p>方向化 channel 还能表达”<strong>这个函数会关闭它</strong>“：接收方向的 <code>&lt;-chan int</code> <strong>不能</strong>被 <code>close()</code>，编译期就报”cannot close receive-only channel”。所以”只收”这个类型本身就说明了”关闭权不在你手上”。配合 <code>context</code> 是 Go 服务端的标准形态：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> out &lt;- compute(ctx):</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line"><span class="keyword">case</span> &lt;-ctx.Done():</span><br><span class="line">    <span class="keyword">return</span> ctx.Err()   <span class="comment">// 客户端断了就放弃，别卡死</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="12-8-传结构体，还是传切片-完成信号"><a href="#12-8-传结构体，还是传切片-完成信号" class="headerlink" title="12.8 传结构体，还是传切片 + 完成信号"></a>12.8 传结构体，还是传切片 + 完成信号</h2><p>最容易搞错的一点：<strong>通过 channel 发送一个 slice，只复制了 slice 头（指针 + 长度 + 容量），底层数组还是同一块</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">items := []<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> []<span class="type">int</span>, <span class="number">1</span>)</span><br><span class="line">ch &lt;- items          <span class="comment">// 只复制了 slice 头</span></span><br><span class="line"></span><br><span class="line">got := &lt;-ch</span><br><span class="line">got[<span class="number">0</span>] = <span class="number">999</span></span><br><span class="line">fmt.Println(items[<span class="number">0</span>])   <span class="comment">// 999！发送方手里的数据被改了</span></span><br></pre></td></tr></table></figure>
+
+<p>所以传切片时，要么接收方<strong>只读不改</strong>，要么发送前显式复制一份。选结构体还是选切片，标准很朴素：<strong>这个数据在下游会被改吗？</strong> 会改且上游还要用就传值复制，不会被改就传切片省内存。</p>
+<p>“传切片 + done channel”本质是<strong>流式生产</strong>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 返回一个只读通道，调用方拿到就边收边处理</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">stream</span><span class="params">(ctx context.Context)</span></span> &lt;-<span class="keyword">chan</span> []Item &#123;</span><br><span class="line">    out := <span class="built_in">make</span>(<span class="keyword">chan</span> []Item)</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">defer</span> <span class="built_in">close</span>(out)          <span class="comment">// 生产结束，通知下游</span></span><br><span class="line">        <span class="keyword">for</span> &#123;</span><br><span class="line">            batch := collectBatch(ctx)</span><br><span class="line">            <span class="keyword">select</span> &#123;</span><br><span class="line">            <span class="keyword">case</span> out &lt;- batch:</span><br><span class="line">            <span class="keyword">case</span> &lt;-ctx.Done():</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> out</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用方用 <code>for batch := range stream(ctx)</code> 遍历即可，<strong>不需要在内存里攒齐全部数据</strong>。这和 Java 里先 <code>new ArrayList&lt;&gt;()</code> 再 <code>addAll</code> 的思路完全相反：**Go 倾向于把”结果集”变成”流”**，处理完一批释放一批。</p>
+<h2 id="12-9-goroutine-泄漏：看不见的线程杀手"><a href="#12-9-goroutine-泄漏：看不见的线程杀手" class="headerlink" title="12.9 goroutine 泄漏：看不见的线程杀手"></a>12.9 goroutine 泄漏：看不见的线程杀手</h2><p>goroutine 泄漏指的是：<strong>goroutine 永远等不到结果而卡住，栈和内存一直不释放</strong>。可怕之处在于——进程不报错、不崩溃，只是内存一路涨，最后 OOM。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>)     <span class="comment">// 无缓冲，没人接收</span></span><br><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; ch &lt;- <span class="number">1</span> &#125;()  <span class="comment">// 永远阻塞在这</span></span><br></pre></td></tr></table></figure>
+
+<p>四类典型写法：<strong>向无缓冲 channel 发送但对方可能不读了</strong>（发送方永久阻塞，加缓冲或 <code>select</code> + <code>ctx.Done()</code>）；**<code>for v := range ch</code> 但发送方忘了 <code>close</code><strong>（接收方永久阻塞，补上 <code>defer close(ch)</code>）；</strong>消费者提前 <code>return</code> 而生产者还在发<strong>（生产者永久阻塞，需要 quit channel &#x2F; <code>context</code> 取消）；</strong><code>defer close(ch)</code> 写在 <code>if</code> 之后**（提前 <code>return</code> 的路径没注册 defer）。</p>
+<p><code>defer</code> 写错位置是最高频的一种——<code>defer</code> 只在<strong>它所在那行被执行时</strong>才注册：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ❌ 前面任何一次 return 都会跳过 close</span></span><br><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>)</span><br><span class="line"><span class="keyword">if</span> err := prepare(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> err        <span class="comment">// 直接返回，ch 永远不关</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">defer</span> <span class="built_in">close</span>(ch)       <span class="comment">// 注册得太晚</span></span><br></pre></td></tr></table></figure>
+
+<p>✅ 正确做法是把 <code>defer close(ch)</code> 紧跟在 <code>make</code> 后面，也就是一进函数就注册。</p>
+<p><strong>Go 没有 kill goroutine 的办法</strong>（不能像 Java 那样 <code>interrupt</code> 线程），取消的唯一标准姿势是<strong>协作式取消</strong>：传一个 <code>context.Context</code> 或 quit channel，goroutine 在阻塞点用 <code>select</code> 同时监听”数据”和”取消”两个信号。排查泄漏也有现成手段：给进程发 <code>SIGQUIT</code>（或按 <code>Ctrl+\</code>），Go 运行时会把<strong>所有 goroutine 的栈</strong>打到日志里，栈顶停在哪个 channel 操作上一目了然。</p>
+<h2 id="12-10-动手练"><a href="#12-10-动手练" class="headerlink" title="12.10 动手练"></a>12.10 动手练</h2><ol>
+<li><strong>手写 rendezvous</strong>：两个 goroutine 用无缓冲 channel 完成 5 次交接；再改成容量 1 的有缓冲，用 <code>time.Sleep</code> 制造不同时序，观察输出顺序变化并解释原因。</li>
+<li><strong>实现带超时的取数</strong>：用 <code>select</code> + <code>time.NewTimer</code> 实现 <code>fetchWithTimeout(ch, d)</code>，超时返回 <code>error</code>。**不要用 <code>time.After</code>**，再故意把 timer 放进循环跑 1000 次，用 <code>runtime.NumGoroutine()</code> 观察差异。</li>
+<li><strong>复现并修掉泄漏</strong>：producer 往无缓冲 channel 发送 10 条，consumer 只收 3 条就返回，观察 producer 卡在哪；再用 quit channel 修好它。</li>
+<li><strong>把共享内存改成 channel</strong>：先用 <code>sync.Mutex</code> 保护 <code>map[string]int</code> 实现计数，再用 channel + 单个 goroutine 持有 map 重写一遍，对比两者的代码行数。</li>
+</ol>
+<h2 id="12-11-常见错误清单"><a href="#12-11-常见错误清单" class="headerlink" title="12.11 常见错误清单"></a>12.11 常见错误清单</h2><table>
+<thead>
+<tr>
+<th>❌ 错误写法</th>
+<th>后果</th>
+<th>✅ 正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>close(ch)</code> 写了两次</td>
+<td>panic，进程退出</td>
+<td>只由发送方 close 一次</td>
+</tr>
+<tr>
+<td>向已关闭 channel 发送</td>
+<td>panic，进程退出</td>
+<td>用 <code>select</code> + quit channel 协调生命周期</td>
+</tr>
+<tr>
+<td><code>v := &lt;-ch</code> 后不看 <code>ok</code></td>
+<td>关闭后死循环拿零值</td>
+<td>用 <code>v, ok := &lt;-ch</code> 或 <code>for range</code></td>
+</tr>
+<tr>
+<td><code>defer close(ch)</code> 写在错误分支之后</td>
+<td>提前 <code>return</code> 时漏关</td>
+<td>defer 紧跟创建语句</td>
+</tr>
+<tr>
+<td>以为 <code>ch &lt;- v</code> 发送的是深拷贝</td>
+<td>切片底层数组共享</td>
+<td>发送前 <code>copy</code> 一份</td>
+</tr>
+<tr>
+<td>循环里用 <code>time.After</code></td>
+<td>定时器堆积，隐性泄漏</td>
+<td>复用 <code>time.NewTimer</code> + <code>Reset</code></td>
+</tr>
+</tbody></table>
+<p>最后再强调 Go 并发的三条底层原则，面试被追问时按这个顺序答：<strong>一，不要用共享内存 + 锁去实现本可以用 channel 表达的数据流；二，每个 channel 都要有明确的关闭者，通常就是发送方；三，每个 goroutine 都要有明确的退出路径</strong>，靠 channel 关闭、<code>context</code> 取消或 quit channel。把这三条落实到代码里，goroutine 泄漏和”偶发卡死”这类问题基本就消失了大半。下一篇我们会把共享内存那条路补完：<code>sync.Mutex</code>、<code>sync.WaitGroup</code> 和 <code>go test -race</code> 怎么用。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Go/"># Go</a>
+          
+          <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"># 并发编程</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+          
+          <a href="/tags/Goroutine/"># Goroutine</a>
+          
+          <a href="/tags/Channel/"># Channel</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20Mutex%E3%80%81WaitGroup%20%E4%B8%8E%E7%AB%9E%E6%80%81%E6%A3%80%E6%B5%8B/"
+        >Go Mutex、WaitGroup 与竞态检测</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/19/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Go/Go%20%E6%8C%87%E9%92%88%E4%B8%8E%E5%86%85%E5%AD%98%E5%AF%BB%E5%9D%80%20%E2%80%94%20%E5%8F%96%E5%9C%B0%E5%9D%80%E3%80%81%E9%80%83%E9%80%B8%E4%B8%8E%20nil/"
+        >Go 指针与内存寻址 — 取地址、逃逸与 nil</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    requestGiscusRebuild();
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+</body>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+</html>
