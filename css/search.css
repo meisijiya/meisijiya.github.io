@@ -5,10 +5,40 @@
   vertical-align: middle;
   margin-right: 10px;
 }
-.search-container a {
+.search-container a,
+.search-container .search-icon-btn {
   padding-right: 6px;
   cursor: pointer;
   font-size: 1.1em;
+}
+
+/* 搜索图标按钮：<a href="javascript:;"> 改成 <button> 后的默认值重置，
+   使图标在字号 / 光标 / 间距上与原来的链接完全一致 */
+.search-container .search-icon-btn {
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-decoration: none;
+  vertical-align: middle;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.search-container .search-icon-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+/* 移动端菜单里的搜索图标：与 media.styl 中 `.navbar-mobile .container .menu a`
+   的行高与间距保持一致，避免 <a> 换成 <button> 后掉行 */
+.navbar-mobile .container .menu .search-icon-btn {
+  display: inline-block;
+  margin: 0 1em;
+  line-height: 2.5em;
 }
 
 .nav-search-input {
@@ -41,44 +71,8 @@
   z-index: 999;
 }
 
-/* 搜索卡片 */
-.search-card {
-  padding: 4px 6px;
-  margin-bottom: 3px;
-  border-bottom: 1px solid #eee;
-  transition: background 0.2s;
-}
-.search-card:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-.search-card:hover {
-  background: #f9f9f9;
-}
-.search-card-title {
-  display: block;
-  font-weight: bold;
-  color: #1a0dab;
-  font-size: 1em;
-  line-height: 1.2em;
-  text-decoration: none;
-  margin: 0;
-  padding: 0;
-  text-align: left;
-}
-.search-card-title:hover {
-  text-decoration: underline;
-}
-.search-card-snippet {
-  font-size: 0.88em;
-  color: #444;
-  margin-top: 2px;
-  line-height: 1.3em;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+/* 搜索卡片样式已删除：早期实现用 .search-card 命名，主题实际渲染的类名是
+   .search-result-item，全仓无任何模板引用前者，属从未生效过的死样式。 */
 
 /* 🌙 暗色主题适配 */
 .dark-theme .nav-search-input {
@@ -91,23 +85,12 @@
   color: #eee;
   border: 1px solid #555;
 }
-.dark-theme .search-card {
-  border-bottom: 1px solid #444;
-}
-.dark-theme .search-card:hover {
-  background: #333;
-}
-.dark-theme .search-card-title {
-  color: #4ea1ff;
-}
-.dark-theme .search-card-snippet {
-  color: #ccc;
-}
 
 /* 移动端适配 */
 /* 移动端搜索框始终可见（与 navbar-mobile 断点 1023px 对齐），隐藏冗余的切换图标 */
 @media (max-width: 1023px) {
-  .search-container > a {
+  .search-container > a,
+  .search-container > .search-icon-btn {
     display: none;
   }
   .nav-search-input {
@@ -132,4 +115,166 @@
     margin: 0;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   }
+}
+
+/* ============ 以下样式由 header.ejs 的内联 <style> 块迁移而来 ============ */
+
+/* 手机端使用flexbox布局搜索容器。
+   必须排在本文件 .search-container 之后：两者特异性同为单类，
+   靠源码顺序取胜，否则 flex 布局会被上面的 inline-block 压掉。 */
+.mobile-container {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  flex-grow: 1;
+  max-width: calc(100% - 40px);
+}
+
+.search-result-item {
+  border: 1px solid #ddd; /* 边框 */
+  margin: 4px 0; /* 外层间距 */
+  padding: 0; /* 无内边距 */
+  background: #fff; /* 背景色 */
+}
+
+.search-result-item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-result-item div {
+  padding: 3px 8px; /* 紧凑的内边距 */
+  margin: 0; /* 无外边距 */
+  line-height: 1.3; /* 紧凑的行高 */
+  word-wrap: break-word; /* 允许长单词换行 */
+  white-space: normal; /* 允许正常换行 */
+}
+
+.search-result-item div:first-child {
+  border-bottom: 1px solid #eee; /* 标题和内容之间的分隔线 */
+}
+
+.dark-theme .search-result-item {
+  background: #2d2d2d;
+  border: 1px solid #444;
+}
+.dark-theme .search-result-item a {
+  color: #e0e0e0;
+}
+.dark-theme .search-result-item div:first-child {
+  border-bottom-color: #444;
+}
+
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(0, 0, 0, 0.2);
+  color: #666;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.clear-search:hover {
+  background: rgba(0, 0, 0, 0.3);
+  color: #333;
+}
+.nav-search-input:focus + .clear-search,
+.nav-search-input.active:not(:placeholder-shown) + .clear-search {
+  display: flex;
+}
+.dark-theme .clear-search {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ccc;
+}
+.dark-theme .clear-search:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.highlight-nav {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 99;
+}
+.highlight-nav .count {
+  font-size: 14px;
+  color: #333;
+  min-width: 50px;
+  text-align: center;
+}
+.highlight-nav button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+.highlight-nav button:hover {
+  background: #e0e0e0;
+}
+.dark-theme .highlight-nav {
+  background: rgba(40, 40, 40, 0.95);
+}
+.dark-theme .highlight-nav .count {
+  color: #eee;
+}
+.dark-theme .highlight-nav button {
+  background: #444;
+  color: #fff;
+}
+.dark-theme .highlight-nav button:hover {
+  background: #555;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .highlight-nav {
+    gap: 16px;
+    padding: 12px 20px;
+  }
+  .highlight-nav .count {
+    font-size: 16px;
+    min-width: 60px;
+  }
+  .highlight-nav button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
+
+/* 移动端目录悬浮按钮由 <div> 改为 <button> 后的默认值重置。
+   外观（背景 / 颜色 / 圆角 / 尺寸）仍由 _page/_post/post_toc_mobile.styl 决定，
+   这里只清掉浏览器 button 默认的边框、内边距、字体与 appearance。 */
+.toc-mobile-fab {
+  padding: 0;
+  border: none;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
 }

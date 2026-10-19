@@ -65,36 +65,24 @@ document.ready(
             const toggleBtn = document.getElementsByClassName('toggleBtn')[0];
             const mobileBtn = document.getElementById('mobile-toggle-theme');
 
+            // 模式切换的唯一入口：class、标签文案、本地存储、代码高亮样式一次性同步
+            function setTheme(isDarkMode) {
+                pagebody.classList.toggle('dark-theme', isDarkMode);
+                mobileBtn.innerText = isDarkMode ? "· Dark" : "· Light";
+                window.localStorage &&
+                window.localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+
+                updateCodeHighlightStyle(isDarkMode);
+            }
+
             // 桌面端切换按钮
             toggleBtn.addEventListener('click', () => {
-                const isNowDark = !pagebody.classList.contains('dark-theme');
-                if (isNowDark) {
-                    pagebody.classList.add('dark-theme');
-                    mobileBtn.innerText = "· Dark";
-                } else {
-                    pagebody.classList.remove('dark-theme');
-                    mobileBtn.innerText = "· Light";
-                }
-                window.localStorage &&
-                window.localStorage.setItem('theme', isNowDark ? 'dark' : 'light');
-
-                updateCodeHighlightStyle(isNowDark);
+                setTheme(!pagebody.classList.contains('dark-theme'));
             });
 
             // 移动端切换按钮
             mobileBtn.addEventListener('click', () => {
-                const isNowDark = !pagebody.classList.contains('dark-theme');
-                if (isNowDark) {
-                    pagebody.classList.add('dark-theme');
-                    mobileBtn.innerText = "· Dark";
-                } else {
-                    pagebody.classList.remove('dark-theme');
-                    mobileBtn.innerText = "· Light";
-                }
-                window.localStorage &&
-                window.localStorage.setItem('theme', isNowDark ? 'dark' : 'light');
-
-                updateCodeHighlightStyle(isNowDark);
+                setTheme(!pagebody.classList.contains('dark-theme'));
             });
         };
 
