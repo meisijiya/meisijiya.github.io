@@ -751,6 +751,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>“给 TEXT 字段建个普通索引就能支持全文搜索。” —— 只能建前缀索引，匹配效果差，关键词搜索应上 FULLTEXT 或 Elasticsearch。</li>
 <li>“给字段加个前缀索引就等于完整索引。” —— 前缀索引区分度会下降，而且不能用于 <code>order by</code> 和 <code>group by</code>。</li>
 </ul>
+<blockquote>
+<p><strong>同源追问</strong>：这一题同时回答了《在 MySQL 中建索引时需要注意哪些事项？》《MySQL 中的索引数量是否越多越好？为什么？》（同一问题的不同问法，内容已并入本题）。</p>
+</blockquote>
 <hr>
 <h3 id="8-MySQL-的查询优化器如何选择执行计划？"><a href="#8-MySQL-的查询优化器如何选择执行计划？" class="headerlink" title="8. MySQL 的查询优化器如何选择执行计划？"></a>8. MySQL 的查询优化器如何选择执行计划？</h3><p><strong>🎬 面试现场</strong></p>
 <blockquote>
@@ -881,6 +884,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>“MySQL 里凡是排序结构都用 B+ 树，红黑树完全用不到。” —— Buffer Pool 的脏页列表、空闲列表等内存结构就会用到红黑树。</li>
 <li>“B+ 树比哈希表查询快。” —— 哈希等值查询是 O(1)，比 B+ 树还快；B+ 树赢在范围查询和排序。</li>
 </ul>
+<blockquote>
+<p><strong>同源追问</strong>：这一题同时回答了《为什么 MySQL 选择使用 B+ 树作为索引结构？》《MySQL 三层 B+ 树能存多少数据？》（同一问题的不同问法，内容已并入本题）。</p>
+</blockquote>
 <hr>
 <h3 id="10-MySQL-的存储引擎有哪些？它们之间有什么区别？"><a href="#10-MySQL-的存储引擎有哪些？它们之间有什么区别？" class="headerlink" title="10. MySQL 的存储引擎有哪些？它们之间有什么区别？"></a>10. MySQL 的存储引擎有哪些？它们之间有什么区别？</h3><p><strong>🎬 面试现场</strong></p>
 <blockquote>
@@ -1241,6 +1247,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>“ReadView 的 max_trx_id 是当前最大已分配事务 ID”（是下一个将被分配的事务 ID）</li>
 <li>“没有 MVCC 就是完全串行执行”（是读写互斥、锁粒度的问题，不是全局排队）</li>
 </ul>
+<blockquote>
+<p><strong>同源追问</strong>：这一题同时回答了《MySQL 中的日志类型有哪些？binlog、redo log 和 undo log 的作用和区别是什么？》《MySQL 二级索引有 MVCC 快照吗？》《如果 MySQL 中没有 MVCC，会有什么影响？》（同一问题的不同问法，内容已并入本题）。</p>
+</blockquote>
 <hr>
 <h3 id="16-MySQL-中的事务隔离级别有哪些？"><a href="#16-MySQL-中的事务隔离级别有哪些？" class="headerlink" title="16. MySQL 中的事务隔离级别有哪些？"></a>16. MySQL 中的事务隔离级别有哪些？</h3><p><strong>🎬 面试现场</strong></p>
 <blockquote>
@@ -1306,6 +1315,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>“读已提交能防止幻读”（它连不可重复读都防不住，幻读更不用说）</li>
 <li>“不可重复读和幻读是一回事，都是两次查结果不一样。” —— 一个变内容、一个变条数，解法也不同。</li>
 </ul>
+<blockquote>
+<p><strong>同源追问</strong>：这一题同时回答了《数据库的脏读、不可重复读和幻读分别是什么？》（同一问题的不同问法，内容已并入本题）。</p>
+</blockquote>
 <hr>
 <h3 id="17-MySQL-中有哪些锁类型？"><a href="#17-MySQL-中有哪些锁类型？" class="headerlink" title="17. MySQL 中有哪些锁类型？"></a>17. MySQL 中有哪些锁类型？</h3><p><strong>🎬 面试现场</strong></p>
 <blockquote>
@@ -1420,6 +1432,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>“改成 RC 不用管 binlog 格式”（RC 下必须 ROW 格式，否则主从可能不一致）</li>
 <li>“MySQL 默认的事务隔离级别是读已提交。” —— 官方默认是可重复读，读已提交是很多团队自己改的。</li>
 </ul>
+<blockquote>
+<p><strong>同源追问</strong>：这一题同时回答了《MySQL 默认的事务隔离级别是什么？为什么选择这个级别？》（同一问题的不同问法，内容已并入本题）。</p>
+</blockquote>
 <hr>
 <h3 id="19-MySQL-事务的二阶段提交是什么？"><a href="#19-MySQL-事务的二阶段提交是什么？" class="headerlink" title="19. MySQL 事务的二阶段提交是什么？"></a>19. MySQL 事务的二阶段提交是什么？</h3><p><strong>🎬 面试现场</strong></p>
 <blockquote>
@@ -1976,6 +1991,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>“分析器和优化器是一回事，都是解析 SQL 的。”——职责完全不同，语法树由分析器生成、执行计划由优化器决定。</li>
 <li>“<code>sort_buffer_size</code> 调得越大排序越快，调到 1G 没问题。”——每个连接各有一份 <code>sort_buffer</code>，调太大内存吃紧还会影响并发。</li>
 </ul>
+<blockquote>
+<p><strong>同源追问</strong>：这一题同时回答了《MySQL 中的数据排序是怎么实现的？》（同一问题的不同问法，内容已并入本题）。</p>
+</blockquote>
 <hr>
 <h3 id="29-MySQL-中如何进行-SQL-调优？"><a href="#29-MySQL-中如何进行-SQL-调优？" class="headerlink" title="29. MySQL 中如何进行 SQL 调优？"></a>29. MySQL 中如何进行 SQL 调优？</h3><p><strong>🎬 面试现场</strong></p>
 <blockquote>
@@ -2048,6 +2066,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>“<code>ORDER BY</code> 和 <code>GROUP BY</code> 哪个先？”——执行顺序里 <code>GROUP BY</code> 在 <code>ORDER BY</code> 之前，这是固定顺序，不要说反。</li>
 <li>“性能不行就加内存、换 SSD。”——硬件升级是最后手段，SQL 优化才是收益最高的一步。</li>
 </ul>
+<blockquote>
+<p><strong>同源追问</strong>：这一题同时回答了《MySQL 数据库的性能优化方法有哪些？》（同一问题的不同问法，内容已并入本题）。</p>
+</blockquote>
 <hr>
 <h3 id="30-如何在-MySQL-中监控和优化慢-SQL？"><a href="#30-如何在-MySQL-中监控和优化慢-SQL？" class="headerlink" title="30. 如何在 MySQL 中监控和优化慢 SQL？"></a>30. 如何在 MySQL 中监控和优化慢 SQL？</h3><p><strong>🎬 面试现场</strong></p>
 <blockquote>
@@ -3818,6 +3839,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <li>“OFFSET 大只是慢一点”——页码越深越慢，而且还会回表放大开销。</li>
 <li>“深度分页只能靠分库分表才能解决。”——延迟关联、游标分页、限制最大页数这些手段在单表上就能解决大部分问题。</li>
 </ul>
+<blockquote>
+<p><strong>同源追问</strong>：这一题同时回答了《MySQL 中如何解决深度分页的问题？》《MySQL 中 <code>LIMIT 100000000, 10</code> 和 <code>LIMIT 10</code> 的执行速度是否相同？》（同一问题的不同问法，内容已并入本题）。</p>
+</blockquote>
 <hr>
 <h3 id="66-如果组长要求你主导项目中的分库分表，大致的实施流程是？"><a href="#66-如果组长要求你主导项目中的分库分表，大致的实施流程是？" class="headerlink" title="66. 如果组长要求你主导项目中的分库分表，大致的实施流程是？"></a>66. 如果组长要求你主导项目中的分库分表，大致的实施流程是？</h3><p><strong>🎬 面试现场</strong></p>
 <blockquote>
