@@ -241,22 +241,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
     var tocbot_timer;
+    var toc_visible_timer;
     var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
     var tocbot_default_config = {
         tocSelector: '.tocbot-list',
         contentSelector: '.post-content',
         headingSelector: 'h1, h2, h3, h4, h5',
         orderedList: false,
         scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
         onClick: extend_click,
     };
 
     function extend_click() {
         clearTimeout(tocbot_timer);
         tocbot_timer = setTimeout(function() {
-            tocbot.refresh(obj_merge(tocbot_default_config, {
-                hasInnerContainers: true
-            }));
+            tocbot.refresh(tocbot_default_config);
         }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
     }
 
@@ -264,7 +268,66 @@ document.addEventListener('DOMContentLoaded', function() {
         tocbot.init(obj_merge(tocbot_default_config, {
             collapseDepth: 1
         }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
     });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
 
     function expand_toc() {
         var b = document.querySelector('.tocbot-toc-expand');
@@ -302,50 +365,16 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="toc-mobile-header">
     <span class="toc-mobile-title">目录</span>
   </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
   <div class="tocbot-list-mobile"></div>
 </div>
 
 <script>
-  var tocbot_timer_mobile;
-  var DEPTH_MAX = 6;
-  var tocbot_mobile_config = {
-    tocSelector: '.tocbot-list-mobile',
-    contentSelector: '.post-content',
-    headingSelector: 'h1, h2, h3, h4, h5',
-    orderedList: false,
-    scrollSmooth: true,
-    onClick: extend_click_mobile,
-  };
-
-  function extend_click_mobile() {
-    clearTimeout(tocbot_timer_mobile);
-    tocbot_timer_mobile = setTimeout(function() {
-      tocbot.refresh(obj_merge_mobile(tocbot_mobile_config, {
-        hasInnerContainers: true
-      }));
-    }, 420);
-  }
-
-  document.ready(function() {
-    tocbot.init(obj_merge_mobile(tocbot_mobile_config, {
-      collapseDepth: 1
-    }));
-  });
-
-  function obj_merge_mobile(target, source) {
-    for (var item in source) {
-      if (source.hasOwnProperty(item)) {
-        target[item] = source[item];
-      }
-    }
-    return target;
-  }
-
   function toggleMobileToc() {
     var overlay = document.querySelector('.toc-mobile-overlay');
     var drawer = document.querySelector('.toc-mobile-drawer');
     var fab = document.querySelector('.toc-mobile-fab');
-    
+
     if (overlay.classList.contains('active')) {
       overlay.classList.remove('active');
       drawer.classList.remove('active');
@@ -360,6 +389,18 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.style.overflow = 'hidden';
     }
   }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
 </script>  
   <article class="post-wrap">
     <header class="post-header">
