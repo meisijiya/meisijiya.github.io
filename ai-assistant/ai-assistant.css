@@ -1,0 +1,1846 @@
+/*
+ * AI 阅读助手 · 组件样式
+ *
+ * 作用域：.ai-root（类名与令牌都限定在这里，不外泄到博客主题）
+ * 依赖：source/ai-assistant/ai-assistant-tokens.css 提供两套令牌
+ * 风格：framed-sheet —— 白纸面板、一档灰阶分组、不加装饰
+ *
+ * 三条自定的规矩：
+ *   1. 面板底色与博客页面同族，且不比页面暗（深色档比页面亮一档）；
+ *   2. 强调色只留给悬浮球与用户自己的气泡两处；
+ *   3. 分组靠灰阶，不靠发丝线；阴影只给真正浮起来的东西（面板 / 悬浮球 / 浮层）。
+ */
+
+/* ================================================================= 基础 */
+
+.ai-root {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    pointer-events: none;
+    font-family: var(--ai-font);
+    font-size: var(--ai-fs-body);
+    line-height: var(--ai-lh);
+    color: var(--ai-ink);
+    -webkit-font-smoothing: antialiased;
+    /* 面板高度跟着视图走：聊天短，设置是整张表单单子，用满高度才不被折叠线切控件 */
+    --ai-panel-h-chat: 70vh;
+    --ai-panel-h-settings: min(calc(100vh - 24px), 900px);
+}
+
+.ai-root *,
+.ai-root *::before,
+.ai-root *::after {
+    box-sizing: border-box;
+}
+
+/* ============================================================= 悬浮球 */
+
+.ai-fab {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ai-accent);
+    color: var(--ai-fab-ink);
+    display: grid;
+    place-items: center;
+    cursor: grab;
+    touch-action: none;
+    pointer-events: auto;
+    box-shadow: var(--ai-shadow-fab);
+    transition: transform var(--ai-t-quick) var(--ai-ease);
+}
+
+.ai-fab:hover {
+    transform: scale(1.04);
+}
+
+.ai-fab:active {
+    transform: scale(0.97);
+}
+
+.ai-fab.is-dragging {
+    cursor: grabbing;
+    transform: scale(1.06);
+}
+
+/* 悬浮球用图片：铺满圆球，裁成圆形 */
+.ai-fab-glyph {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+    object-fit: cover;
+    /* 图片默认能被浏览器原生拖走，一旦启动原生拖拽就不再发 pointermove，
+       悬浮球的 pointer 拖拽会断在半路（表现为「拖不动」）。
+       JS 侧的 draggable="false" 与这里的 user-drag 一起兜住。 */
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* =============================================================== 面板 */
+
+.ai-panel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    height: var(--ai-panel-h-chat);
+    min-height: min(480px, calc(100vh - 24px));
+    max-height: calc(100vh - 24px);
+    background: var(--ai-surface);
+    border: 1px solid var(--ai-border);
+    border-radius: var(--ai-r-panel);
+    box-shadow: var(--ai-shadow-panel);
+    overflow: hidden;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity var(--ai-t-close) linear, transform var(--ai-t-close) var(--ai-ease),
+        height var(--ai-t-quick) linear;
+}
+
+/* 设置项比对话多，面板在设置视图里长高，把整张表单摊开在一屏里 */
+.ai-root[data-view="settings"] .ai-panel {
+    height: var(--ai-panel-h-settings);
+}
+
+.ai-panel.is-open {
+    opacity: 1;
+    transform: translateY(0);
+    transition-duration: var(--ai-t-open);
+}
+
+.ai-panel-head {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid var(--ai-border);
+    /* 头部是拖拽把手：抓住标题栏就能把浮窗挪走 */
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+}
+
+.ai-panel-head.is-dragging {
+    cursor: grabbing;
+}
+
+/* 抽屉抓手：窄屏才显示。宽屏浮窗是拖着悬浮球挪位置的，头部不需要这个提示。 */
+.ai-panel-grip {
+    display: none;
+}
+
+.ai-source-more {
+    flex: none;
+    align-self: center;
+    color: var(--ai-ink-3);
+    font-size: var(--ai-fs-meta);
+}
+
+.ai-head-row {
+    display: flex;
+    align-items: center;
+    /* 放不下时允许换行：上下文提示整体挪到第二行，而不是被挤成「（不…」 */
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+}
+
+.ai-panel-title {
+    margin: 0;
+    flex: none;
+    font-size: var(--ai-fs-title);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0;
+    color: var(--ai-ink);
+}
+
+.ai-head-actions {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 视图切换用下划线标签，不做成又一块控件：面板是纸，标签是纸上的字 */
+.ai-tabs {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.ai-tabs .ai-seg {
+    appearance: none;
+    margin: 0;
+    padding: 4px 8px 8px;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-label);
+    line-height: 1.2;
+    color: var(--ai-ink-3);
+    cursor: pointer;
+    position: relative;
+}
+
+.ai-tabs .ai-seg:hover {
+    color: var(--ai-ink-2);
+}
+
+.ai-tabs .ai-seg[aria-selected="true"] {
+    color: var(--ai-ink);
+    font-weight: 600;
+}
+
+.ai-tabs .ai-seg[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: 2px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--ai-ink);
+}
+
+.ai-icon-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--ai-r-chip);
+    background: transparent;
+    color: var(--ai-ink-3);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.ai-icon-btn:hover {
+    background: var(--ai-raised);
+    color: var(--ai-ink);
+}
+
+.ai-icon-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+}
+
+/* 上下文提示：独占一整行。
+ * 头部一行里还挤着标题、会话入口、标签栏和关闭键，
+ * 上下文提示跟它们抢宽度只会被压成「（不…」，看不出在读哪一篇；
+ * 排到第二行后标题行保持整齐，提示也能完整显示。 */
+.ai-panel-context {
+    margin: 0;
+    /* order 排到最后：标题行先排完（标题/会话/标签/关闭），上下文提示落到下一行 */
+    order: 10;
+    flex: 1 0 100%;
+    min-width: 0;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.5;
+    color: var(--ai-ink-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.ai-panel-context:hover {
+    color: var(--ai-ink-2);
+}
+
+/* 会话入口：标题栏里一个能点的当前会话名，点开是历史会话 */
+.ai-session-wrap {
+    /* 位置不够时先让上下文提示收窄，会话按钮本身不参与压缩 */
+    flex: 0 0 auto;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.ai-session-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    max-width: 96px;
+    padding: 4px 6px;
+    border: 0;
+    border-radius: var(--ai-r-chip);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    color: var(--ai-ink-3);
+    cursor: pointer;
+}
+
+.ai-session-btn:hover {
+    background: var(--ai-raised);
+    color: var(--ai-ink-2);
+}
+
+.ai-session-btn[aria-expanded="true"] {
+    background: var(--ai-raised);
+    color: var(--ai-ink);
+}
+
+.ai-session-btn:disabled {
+    color: var(--ai-ink-3);
+    cursor: default;
+}
+
+.ai-session-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ai-session-btn .ai-chevron {
+    width: 13px;
+    height: 13px;
+    flex: none;
+}
+
+/* 会话下拉：挂在根节点上的浮层，不受面板 overflow 裁剪 */
+.ai-session-panel {
+    position: fixed;
+    z-index: 20;
+    width: 260px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 6px;
+    border: 1px solid var(--ai-border);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    box-shadow: var(--ai-shadow-pop);
+    pointer-events: auto;
+}
+
+.ai-session-new {
+    display: block;
+    width: 100%;
+    margin-bottom: 4px;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: var(--ai-r-chip);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-label);
+    text-align: left;
+    color: var(--ai-ink);
+    cursor: pointer;
+}
+
+.ai-session-new:hover {
+    background: var(--ai-raised);
+}
+
+.ai-session-new:disabled {
+    color: var(--ai-ink-3);
+    cursor: default;
+}
+
+.ai-session-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ai-session-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: var(--ai-r-chip);
+}
+
+.ai-session-item:hover {
+    background: var(--ai-raised);
+}
+
+.ai-session-pick {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 2px 0;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.ai-session-item-title {
+    font-size: var(--ai-fs-label);
+    color: var(--ai-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ai-session-item-meta {
+    font-size: var(--ai-fs-meta);
+    color: var(--ai-ink-3);
+}
+
+.ai-session-ops {
+    flex: none;
+    display: flex;
+    gap: 2px;
+}
+
+.ai-session-op {
+    padding: 3px 6px;
+    border: 0;
+    border-radius: var(--ai-r-chip);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-meta);
+    color: var(--ai-ink-3);
+    cursor: pointer;
+}
+
+.ai-session-op:hover {
+    background: var(--ai-surface);
+    color: var(--ai-ink);
+}
+
+.ai-session-op[data-op="confirm-delete"] {
+    color: var(--ai-danger);
+}
+
+.ai-session-confirm {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ai-session-confirm-text {
+    font-size: var(--ai-fs-meta);
+    color: var(--ai-danger);
+}
+
+.ai-session-rename {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid var(--ai-border-strong);
+    border-radius: var(--ai-r-chip);
+    background: var(--ai-surface);
+    font-family: inherit;
+    font-size: var(--ai-fs-label);
+    color: var(--ai-ink);
+}
+
+.ai-session-empty {
+    padding: 6px 10px;
+    font-size: var(--ai-fs-meta);
+    color: var(--ai-ink-3);
+}
+
+/* 历史会话只存文字：恢复后补一行说明，别让人以为工具过程丢了 */
+.ai-session-note {
+    margin: 0;
+    padding: 2px 0;
+    text-align: center;
+    font-size: var(--ai-fs-meta);
+    color: var(--ai-ink-3);
+}
+
+.ai-panel-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.ai-main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.ai-views {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.ai-view {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================================= 对话视图 */
+
+.ai-stream {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 纵向 flex 里的子项默认可被压到内容高度以下。
+   工具卡自带 overflow:hidden，命中列表会被裁掉半行；来源列表会被压扁成互相重叠的几行。 */
+.ai-stream > *,
+.ai-msg > * {
+    flex: none;
+}
+
+/* 空状态：一句话说明能做什么，不画插画 */
+.ai-empty {
+    margin: 0;
+    padding: 4px 0;
+    font-size: var(--ai-fs-label);
+    line-height: 1.6;
+    color: var(--ai-ink-3);
+}
+
+.ai-msg {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* 思考过程：单独一块、默认收起，和正文气泡分开，别混在一起读 */
+.ai-thinking {
+    border: 1px solid var(--ai-border);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    font-size: var(--ai-fs-meta);
+    color: var(--ai-ink-2);
+}
+
+.ai-thinking__summary {
+    padding: 8px 12px;
+    color: var(--ai-ink-3);
+    cursor: pointer;
+    list-style-position: inside;
+}
+
+.ai-thinking__body {
+    padding: 0 12px 10px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.ai-msg-user {
+    align-items: flex-end;
+}
+
+.ai-bubble {
+    max-width: 88%;
+    padding: 10px 12px;
+    border-radius: var(--ai-r-card);
+    background: var(--ai-field);
+    color: var(--ai-ink);
+    font-size: var(--ai-fs-body);
+    line-height: var(--ai-lh);
+    overflow-wrap: anywhere;
+}
+
+.ai-msg-ai .ai-bubble {
+    width: fit-content;
+    max-width: 96%;
+    border-bottom-left-radius: var(--ai-r-chip);
+}
+
+.ai-msg-user .ai-bubble {
+    background: var(--ai-accent-strong);
+    color: var(--ai-on-accent);
+    border-bottom-right-radius: var(--ai-r-chip);
+}
+
+/* 历史消息用 .ai-msg--user / .ai-msg--assistant 标名，样式跟实时消息一致 */
+.ai-msg--user {
+    align-items: flex-end;
+}
+
+.ai-msg--user .ai-bubble {
+    background: var(--ai-accent-strong);
+    color: var(--ai-on-accent);
+    border-bottom-right-radius: var(--ai-r-chip);
+}
+
+.ai-msg--assistant .ai-bubble {
+    width: fit-content;
+    max-width: 96%;
+    border-bottom-left-radius: var(--ai-r-chip);
+}
+
+.ai-bubble p {
+    margin: 0 0 8px;
+}
+
+.ai-bubble p:last-child {
+    margin-bottom: 0;
+}
+
+.ai-bubble ul,
+.ai-bubble ol {
+    margin: 0 0 8px;
+    padding-left: 20px;
+}
+
+.ai-bubble ul:last-child,
+.ai-bubble ol:last-child {
+    margin-bottom: 0;
+}
+
+/*
+ * 标题层级：Markdown 的 # 到 #### 映射到 h3~h6（不生成 h1/h2，免得盖过文章本身的标题）。
+ * 字号只从既有五档里取：h3 用标题档 17px，h4 用正文档 16px（靠 600 字重跟正文区分），
+ * h5/h6 都用标签档 14px（h6 再靠次级色区分）——14px 是可读底线，不再往下掉。
+ */
+.ai-bubble h3 {
+    margin: 14px 0 6px;
+    font-size: var(--ai-fs-title);
+    font-weight: 600;
+    color: var(--ai-ink);
+}
+
+.ai-bubble h4 {
+    margin: 12px 0 6px;
+    font-size: var(--ai-fs-body);
+    font-weight: 600;
+    color: var(--ai-ink);
+}
+
+.ai-bubble h5 {
+    margin: 10px 0 4px;
+    font-size: var(--ai-fs-label);
+    font-weight: 600;
+    color: var(--ai-ink);
+}
+
+.ai-bubble h6 {
+    margin: 10px 0 4px;
+    font-size: var(--ai-fs-label);
+    font-weight: 600;
+    color: var(--ai-ink-2);
+}
+
+/* 气泡顶部第一行是标题时不要留上边距，否则气泡上方凭空多一截空白 */
+.ai-bubble > :first-child {
+    margin-top: 0;
+}
+
+.ai-bubble strong {
+    font-weight: 600;
+}
+
+/*
+ * 气泡里的链接：主题全局 a 规则只有颜色没有下划线，
+ * 落到助手气泡里就跟正文一样看不出是链接。给链接自己的颜色与下划线。
+ * 用 .ai-root 前缀提高特异性，压得住主题的 .dark-theme a。
+ */
+.ai-root .ai-bubble a {
+    color: var(--ai-accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* 用户气泡底本来就是强调实底，链接再用强调色就看不见了，改用同底反色 */
+.ai-root .ai-msg-user .ai-bubble a,
+.ai-root .ai-msg--user .ai-bubble a {
+    color: var(--ai-on-accent);
+}
+
+/*
+ * 用户消息也走同一个 Markdown 渲染器，所以标题、引用、删除线、表格
+ * 真的会出现在用户气泡里。它们默认用墨色，压在强调实底上只有 2.7:1
+ * （深色档 1.6:1），小标题几乎看不见——统一换成同底反色。
+ */
+.ai-root .ai-msg-user .ai-bubble h3,
+.ai-root .ai-msg-user .ai-bubble h4,
+.ai-root .ai-msg-user .ai-bubble h5,
+.ai-root .ai-msg-user .ai-bubble h6,
+.ai-root .ai-msg-user .ai-bubble del,
+.ai-root .ai-msg-user .ai-bubble blockquote,
+.ai-root .ai-msg-user .ai-bubble .ai-table th,
+.ai-root .ai-msg-user .ai-bubble .ai-table td,
+.ai-root .ai-msg--user .ai-bubble h3,
+.ai-root .ai-msg--user .ai-bubble h4,
+.ai-root .ai-msg--user .ai-bubble h5,
+.ai-root .ai-msg--user .ai-bubble h6,
+.ai-root .ai-msg--user .ai-bubble del,
+.ai-root .ai-msg--user .ai-bubble blockquote,
+.ai-root .ai-msg--user .ai-bubble .ai-table th,
+.ai-root .ai-msg--user .ai-bubble .ai-table td {
+    color: var(--ai-on-accent);
+}
+
+/* 表头那一格也不该铺浅色块：底已经全是强调色了 */
+.ai-root .ai-msg-user .ai-bubble .ai-table th,
+.ai-root .ai-msg--user .ai-bubble .ai-table th {
+    background: transparent;
+}
+
+/* 嵌套列表：内层只留一点间距，别跟外层一样各挂一个 8px 下边距 */
+.ai-bubble li > ul,
+.ai-bubble li > ol {
+    margin: 4px 0 0;
+}
+
+.ai-bubble li + li {
+    margin-top: 2px;
+}
+
+.ai-bubble del {
+    color: var(--ai-ink-3);
+}
+
+/* 引用块：一条竖线加次级色，不做成卡片 */
+.ai-bubble blockquote {
+    margin: 0 0 8px;
+    padding: 2px 0 2px 10px;
+    border-left: 3px solid var(--ai-border-strong);
+    color: var(--ai-ink-2);
+}
+
+.ai-bubble blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+.ai-bubble hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid var(--ai-border);
+}
+
+.ai-bubble img.ai-img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--ai-r-chip);
+}
+
+/* 表格：模型爱用表格，竖线裸露出来太难看。
+   外层留个横向滚动容器，窄屏时表格自己滑，不把气泡撑破。 */
+.ai-table-wrap {
+    margin: 0 0 8px;
+    overflow-x: auto;
+}
+
+.ai-table {
+    /* 宽度由内容决定：窄表铺满气泡，宽表保持自己的列宽，
+       装不下时由外层 .ai-table-wrap 横向滚动，不把气泡撑破。
+       max-width 兜住超长单元格，免得横向滚动条拖出去几千像素。 */
+    width: max-content;
+    min-width: 100%;
+    max-width: 640px;
+    border-collapse: collapse;
+    /* 表格里是答案正文，不是元信息：13px 低于 14px 的可读底线 */
+    font-size: var(--ai-fs-label);
+    line-height: 1.6;
+}
+
+.ai-table th,
+.ai-table td {
+    padding: 6px 8px;
+    border: 1px solid var(--ai-border);
+    text-align: left;
+    vertical-align: top;
+}
+
+.ai-table th {
+    background: var(--ai-raised);
+    color: var(--ai-ink);
+    font-weight: 600;
+}
+
+.ai-table td {
+    color: var(--ai-ink-2);
+}
+
+/* 用量与耗时：贴在气泡末尾的一行小字 */
+.ai-usage {
+    margin-top: 6px;
+    color: var(--ai-ink-3);
+    font-size: var(--ai-fs-meta);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* 工具调用卡片：一圈描边，不给阴影 */
+.ai-tool {
+    border: 1px solid var(--ai-border);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    overflow: hidden;
+}
+
+.ai-tool-head {
+    appearance: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 12px;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    color: var(--ai-ink-2);
+    text-align: left;
+    cursor: pointer;
+}
+
+.ai-tool-head:hover {
+    background: var(--ai-raised);
+}
+
+.ai-tool-body {
+    border-top: 1px solid var(--ai-border);
+    padding: 10px 12px;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.6;
+    color: var(--ai-ink-2);
+}
+
+.ai-tool-name {
+    color: var(--ai-ink);
+    font-weight: 500;
+}
+
+.ai-tool-status {
+    margin-left: auto;
+    color: var(--ai-ink-3);
+}
+
+.ai-tool-status[data-status="error"] {
+    color: var(--ai-danger);
+}
+
+.ai-hit {
+    display: flex;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--ai-border);
+    font-size: var(--ai-fs-meta);
+}
+
+.ai-hit:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.ai-hit::before {
+    content: "";
+    flex: none;
+    width: 5px;
+    height: 5px;
+    margin-top: 8px;
+    border-radius: 1px;
+    background: var(--ai-ink-3);
+}
+
+.ai-hit-title {
+    color: var(--ai-ink);
+    /* flex 子项不写 min-width:0 就压不下去，长标题会把工具卡横向撑破 */
+    min-width: 0;
+    flex: 0 1 auto;
+}
+
+.ai-hit-path {
+    color: var(--ai-ink-3);
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 没匹配到小节时的原因说明：说清为什么空，别只丢一个「没有结果」 */
+.ai-tool-note {
+    margin: 0 0 6px;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.6;
+    color: var(--ai-ink-2);
+}
+
+/* 可改用的候选标题：模型换标题重试的依据，读者也能看懂 */
+.ai-tool-candidates {
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.6;
+    color: var(--ai-ink-2);
+}
+
+.ai-tool-candidate {
+    padding: 2px 0;
+    border-top: 1px solid var(--ai-border);
+}
+
+.ai-tool-candidate::before {
+    content: "";
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin-right: 6px;
+    border-radius: 1px;
+    background: var(--ai-ink-3);
+    vertical-align: middle;
+}
+
+/* ========================================================= 过程分组 */
+
+/*
+ * 过程：工具调用与思考收在一条通栏低调横条里。
+ * 不做成卡片——一屏可能叠十几张工具卡，卡片堆起来会把正文挤没。
+ */
+.ai-process {
+    width: 100%;
+    border-top: 1px solid var(--ai-border);
+    border-bottom: 1px solid var(--ai-border);
+    background: transparent;
+}
+
+.ai-process__summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 2px;
+    color: var(--ai-ink-3);
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+}
+
+.ai-process__summary::-webkit-details-marker {
+    display: none;
+}
+
+.ai-process__summary:hover {
+    color: var(--ai-ink-2);
+}
+
+/* 展开态的小箭头：收着时朝右，展开时朝下 */
+.ai-process__summary::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 5px solid currentColor;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    transition: transform var(--ai-t-quick) var(--ai-ease);
+}
+
+.ai-process[open] > .ai-process__summary::before {
+    transform: rotate(90deg);
+}
+
+.ai-process__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 2px 0 8px;
+}
+
+/* 收起时工具卡只剩一行标题：名字太长就截断，别把状态角标挤走 */
+.ai-process__body .ai-tool-name {
+    /* flex 子项默认 min-width:auto，不置 0 就不肯收缩，截断会失效 */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 来源：底部一排小字，不做成卡片 */
+.ai-source-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 2px;
+}
+
+.ai-source {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.6;
+    color: var(--ai-ink-2);
+}
+
+/* 来源标题：链接本身就是 .ai-source（ai-assistant-ui.js 里 el('a','ai-source')），
+   所以省略号要落在标题这一层；裸文本节点在 flex 容器里只是匿名项，只能被硬切 */
+.ai-source-title {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ai-source-mark {
+    width: 13px;
+    height: 13px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ai-source:hover {
+    color: var(--ai-ink-2);
+    text-decoration: underline;
+}
+
+/* 等待：一条灰色细条，不做渐变不做微光 */
+.ai-msg-pending .ai-bubble {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+}
+
+.ai-pending-label {
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    color: var(--ai-ink-3);
+}
+
+.ai-pending-bar {
+    width: 52px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--ai-border);
+    overflow: hidden;
+    position: relative;
+}
+
+.ai-pending-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 18px;
+    background: var(--ai-ink-3);
+    animation: ai-pending-slide 1.1s var(--ai-ease) infinite;
+}
+
+@keyframes ai-pending-slide {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(292%);
+    }
+}
+
+/* ============================================================= 输入区 */
+
+.ai-composer {
+    flex: none;
+    padding: 12px 16px 14px;
+    border-top: 1px solid var(--ai-border);
+}
+
+.ai-quote {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border-radius: var(--ai-r-control);
+    background: var(--ai-raised);
+}
+
+.ai-quote-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.ai-quote-path {
+    margin: 0;
+    font-size: var(--ai-fs-meta);
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--ai-ink-2);
+}
+
+.ai-quote-text {
+    margin: 2px 0 0;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.5;
+    color: var(--ai-ink-3);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ai-quote-clear {
+    flex: none;
+    appearance: none;
+    padding: 2px 6px;
+    border: 0;
+    border-radius: var(--ai-r-chip);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.5;
+    color: var(--ai-ink-3);
+    cursor: pointer;
+}
+
+.ai-quote-clear:hover {
+    background: var(--ai-field);
+    color: var(--ai-ink);
+}
+
+.ai-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 6px 6px 6px 12px;
+    border: 1px solid var(--ai-border);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-field);
+    transition: border-color var(--ai-t-quick) linear, box-shadow var(--ai-t-quick) linear;
+}
+
+.ai-input-row:focus-within {
+    border-color: var(--ai-ink-3);
+    box-shadow: 0 0 0 3px var(--ai-ring);
+}
+
+.ai-input {
+    flex: 1;
+    min-width: 0;
+    min-height: 26px;
+    max-height: 140px;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-body);
+    line-height: 1.5;
+    color: var(--ai-ink);
+    resize: none;
+}
+
+.ai-input::placeholder {
+    color: var(--ai-ink-3);
+}
+
+/* 焦点指示由外层 .ai-input-row:focus-within 的描边加深加焦点环承担。
+   textarea 自带的 UA 焦点框会在这层灰底上套一圈黑边，像输入框里又嵌了个框，必须关掉。 */
+.ai-input:focus {
+    outline: none;
+}
+
+.ai-send {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--ai-r-chip);
+    background: var(--ai-ink);
+    color: var(--ai-surface);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background-color var(--ai-t-quick) linear;
+}
+
+.ai-send:hover:not(:disabled) {
+    background: var(--ai-ink-hover);
+}
+
+.ai-send:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.ai-send svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ====================================================== 代码块与复制 */
+
+/*
+ * 面板里的代码块自己排版：主题只给 pre 留了字体，padding、圆角、溢出都在这边补齐。
+ * 底色由文件末尾的 .ai-root pre !important 兜住（主题 custom.css 抢过 pre 的背景）。
+ */
+.ai-code {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: var(--ai-r-control);
+    font-family: var(--ai-mono);
+    font-size: var(--ai-fs-code);
+    line-height: 1.55;
+    color: var(--ai-ink);
+    background: var(--ai-code);
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.ai-code-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    margin: 0 0 8px;
+}
+
+.ai-code-wrap:last-child {
+    margin-bottom: 0;
+}
+
+/* 复制按钮是第三级动作：纯文字，不加边框不加底色 */
+.ai-code-copy {
+    appearance: none;
+    margin: 0;
+    padding: 2px 4px;
+    border: 0;
+    border-radius: var(--ai-r-chip);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    color: var(--ai-ink-3);
+    cursor: pointer;
+    transition: color var(--ai-t-quick) linear;
+}
+
+.ai-code-copy:hover {
+    color: var(--ai-ink);
+}
+
+.ai-code-copy:focus-visible {
+    outline: 2px solid var(--ai-ink);
+    outline-offset: 2px;
+}
+
+/* ============================================================ 设置视图 */
+
+/* 设置区是两条灰阶分组带：带子通栏铺开，字段离面板边缘只有一层 16px */
+.ai-settings {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 16px 0 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ai-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ai-section + .ai-section {
+    margin-top: 24px;
+}
+
+.ai-section-title {
+    margin: 0;
+    padding: 0 16px;
+    font-size: var(--ai-fs-meta);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--ai-ink-2);
+}
+
+.ai-section-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    background: var(--ai-raised);
+}
+
+/*
+ * 表单不靠滚动撑场面：最后一组（提示词）吃掉面板剩下的高度，
+ * 编辑器把多出来的空间填满，控件就不会被折叠线切掉一半。
+ * 用 1 0 auto（只长不缩）：屏幕太矮时整块退回到滚动，而不是把内容压出灰带。
+ */
+.ai-settings > .ai-section:last-child,
+.ai-settings > .ai-section:last-child .ai-section-card,
+.ai-settings > .ai-section:last-child .ai-field {
+    flex: 1 0 auto;
+    min-height: 0;
+}
+
+.ai-settings > .ai-section:last-child .ai-textarea {
+    flex: 1 1 auto;
+    height: 88px;
+    min-height: 80px;
+    max-height: 220px;
+    overflow-y: auto;
+    resize: none;
+}
+
+/* 协议是这一组的总开关：它跟下面的具体字段之间多留一档空隙 */
+.ai-section-card > .ai-field:first-child {
+    margin-bottom: 8px;
+}
+
+.ai-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ai-label {
+    font-size: var(--ai-fs-label);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--ai-ink);
+}
+
+/* 协议分段控件：轨道一档灰，选中项白底加一圈描边 */
+.ai-segmented {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 6px;
+    border-radius: var(--ai-r-control);
+    background: var(--ai-track);
+}
+
+.ai-settings .ai-segmented {
+    width: 100%;
+}
+
+.ai-segmented .ai-seg {
+    appearance: none;
+    margin: 0;
+    padding: 0 12px;
+    min-height: 36px;
+    flex: 1;
+    border: 0;
+    border-radius: var(--ai-r-chip);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-label);
+    line-height: 1.2;
+    color: var(--ai-ink-2);
+    text-align: center;
+    cursor: pointer;
+    transition: background-color var(--ai-t-quick) linear, color var(--ai-t-quick) linear;
+}
+
+.ai-segmented .ai-seg:hover {
+    color: var(--ai-ink);
+}
+
+.ai-segmented .ai-seg[aria-checked="true"] {
+    background: var(--ai-surface);
+    color: var(--ai-ink);
+    font-weight: 500;
+    box-shadow: inset 0 0 0 1px var(--ai-border-strong);
+}
+
+/* 输入框：白底 + 一圈描边，落在灰卡片上也分得清 */
+.ai-input-line,
+.ai-textarea {
+    appearance: none;
+    width: 100%;
+    margin: 0;
+    padding: 8px 12px;
+    min-height: 40px;
+    border: 1px solid var(--ai-border);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    color: var(--ai-ink);
+    font-family: inherit;
+    font-size: var(--ai-fs-body);
+    line-height: 1.5;
+    transition: border-color var(--ai-t-quick) linear, box-shadow var(--ai-t-quick) linear;
+}
+
+.ai-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.ai-input-line::placeholder,
+.ai-textarea::placeholder {
+    color: var(--ai-ink-3);
+}
+
+.ai-input-line:focus,
+.ai-textarea:focus {
+    outline: none;
+    border-color: var(--ai-ink-3);
+    box-shadow: 0 0 0 3px var(--ai-ring);
+}
+
+/* 密钥：输入框右侧留出「显示 / 隐藏」的位置 */
+.ai-secret {
+    position: relative;
+    display: flex;
+}
+
+.ai-secret .ai-input-line {
+    padding-right: 64px;
+}
+
+.ai-secret-toggle {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+    appearance: none;
+    padding: 4px 8px;
+    border: 0;
+    border-radius: var(--ai-r-chip);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    color: var(--ai-ink-3);
+    cursor: pointer;
+}
+
+.ai-secret-toggle:hover {
+    background: var(--ai-field);
+    color: var(--ai-ink);
+}
+
+/* 预设下拉：自绘控件，描边比输入框深一档 */
+.ai-select {
+    position: relative;
+}
+
+.ai-select-btn {
+    appearance: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin: 0;
+    padding: 10px 12px;
+    min-height: 40px;
+    border: 1px solid var(--ai-border-strong);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    font-family: inherit;
+    font-size: var(--ai-fs-body);
+    line-height: 1.5;
+    color: var(--ai-ink);
+    text-align: left;
+    cursor: pointer;
+}
+
+.ai-select-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ai-chevron {
+    flex: none;
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: var(--ai-ink-3);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ai-select-list {
+    position: fixed;
+    z-index: 6;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    min-width: 180px;
+    border: 1px solid var(--ai-border);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    box-shadow: var(--ai-shadow-pop);
+}
+
+.ai-select-list li {
+    padding: 8px 10px;
+    border-radius: var(--ai-r-chip);
+    font-size: var(--ai-fs-label);
+    line-height: 1.4;
+    color: var(--ai-ink-2);
+    cursor: pointer;
+}
+
+.ai-select-list li:hover {
+    background: var(--ai-raised);
+    color: var(--ai-ink);
+}
+
+.ai-select-list li[aria-selected="true"] {
+    color: var(--ai-ink);
+    font-weight: 500;
+}
+
+/* 请求地址：设置项「会产生什么」的一行预览，替掉原来的示例代码块 */
+.ai-endpoint {
+    margin: 0;
+    font-family: var(--ai-mono);
+    font-size: var(--ai-fs-code);
+    line-height: 1.5;
+    color: var(--ai-ink-3);
+    overflow-wrap: anywhere;
+}
+
+.ai-settings-foot {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px 14px;
+    border-top: 1px solid var(--ai-border);
+}
+
+.ai-foot-left {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
+
+.ai-foot-note {
+    margin: 0;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    color: var(--ai-ink-3);
+}
+
+.ai-saved {
+    flex: none;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    color: var(--ai-success);
+    opacity: 0;
+    transition: opacity var(--ai-t-quick) linear;
+}
+
+.ai-saved.is-on {
+    opacity: 1;
+}
+
+/* ================================================================ 按钮 */
+
+.ai-btn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 8px 14px;
+    border: 1px solid var(--ai-border-strong);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    font-family: inherit;
+    font-size: var(--ai-fs-label);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--ai-ink);
+    cursor: pointer;
+    transition: background-color var(--ai-t-quick) linear, border-color var(--ai-t-quick) linear;
+}
+
+.ai-btn:hover {
+    background: var(--ai-raised);
+}
+
+.ai-btn-primary {
+    background: var(--ai-ink);
+    border-color: var(--ai-ink);
+    color: var(--ai-surface);
+}
+
+.ai-btn-primary:hover {
+    background: var(--ai-ink-hover);
+    border-color: var(--ai-ink-hover);
+}
+
+/* =========================================================== 选区气泡 */
+
+.ai-selection-bubble {
+    position: fixed;
+    z-index: 10001;
+    padding: 7px 12px;
+    min-height: 32px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--ai-ink);
+    color: var(--ai-surface);
+    font-family: inherit;
+    font-size: var(--ai-fs-label);
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: var(--ai-shadow-pop);
+    transform: translate(-50%, -100%);
+}
+
+/* ============================================================== 焦点环 */
+
+.ai-fab:focus-visible,
+.ai-tabs .ai-seg:focus-visible,
+.ai-segmented .ai-seg:focus-visible,
+.ai-icon-btn:focus-visible,
+.ai-btn:focus-visible,
+.ai-send:focus-visible,
+.ai-select-btn:focus-visible,
+.ai-secret-toggle:focus-visible,
+.ai-quote-clear:focus-visible,
+.ai-tool-head:focus-visible,
+.ai-selection-bubble:focus-visible {
+    outline: 2px solid var(--ai-ink);
+    outline-offset: 2px;
+}
+
+/* ============================================================== 移动端 */
+
+@media (max-width: 767px) {
+    /* 抽屉高度也跟视图走：设置项多，抽屉长高一点，表单少滚动 */
+    .ai-root {
+        --ai-panel-h-chat: 74vh;
+        --ai-panel-h-settings: 88vh;
+    }
+
+    .ai-panel {
+        left: 0;
+        right: 0;
+        top: auto;
+        bottom: 0;
+        width: 100%;
+        /* 高度由拖拽写进内联 style，这里只留一个上限，别让抽屉高过屏幕 */
+        height: var(--ai-panel-h-chat);
+        min-height: 0;
+        max-height: 92vh;
+        border-radius: var(--ai-r-panel) var(--ai-r-panel) 0 0;
+        border-bottom: 0;
+        transform: translateY(12px);
+    }
+
+    .ai-panel.is-open {
+        transform: translateY(0);
+    }
+
+    /* 抽屉打开时悬浮球让位 */
+    .ai-root.is-mobile.is-open .ai-fab {
+        display: none;
+    }
+
+    .ai-panel-head {
+        padding: 12px 16px 10px;
+    }
+
+    /*
+     * 窄屏一行放不下：标题和上下文都允许收窄（省略号兜底），
+     * 会话按钮和标签栏保持原尺寸，不被挤出去。
+     */
+    .ai-panel-title {
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ai-session-btn {
+        max-width: 72px;
+    }
+
+    /* 抓手：一条细横条。能不能拖是看得出来的，不用再写一句提示 */
+    .ai-panel-grip {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 14px;
+        margin-top: -4px;
+        cursor: ns-resize;
+    }
+
+    .ai-panel-grip::before {
+        content: "";
+        width: 34px;
+        height: 3px;
+        border-radius: var(--ai-r-chip);
+        background: var(--ai-border-strong);
+    }
+
+    .ai-composer {
+        padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+/* ========================================================= 动效降级 */
+
+@media (prefers-reduced-motion: reduce) {
+    .ai-fab,
+    .ai-panel,
+    .ai-saved,
+    .ai-segmented .ai-seg,
+    .ai-input-row,
+    .ai-input-line,
+    .ai-textarea {
+        transition: none;
+    }
+
+    .ai-pending-bar::after {
+        animation: none;
+        transform: none;
+        width: 100%;
+        opacity: 0.4;
+    }
+}
+
+/* ======================================================== 错误与反馈 */
+
+/* 错误没有独立组件，用助手气泡承载，靠 ai-msg--error 区分 */
+.ai-msg--error .ai-bubble {
+    background: var(--ai-danger-soft);
+    border: 1px solid var(--ai-danger);
+    color: var(--ai-danger);
+}
+
+/* 保存配置失败时把原因染成危险色 */
+.ai-saved.is-error {
+    color: var(--ai-danger);
+}
+
+/* 空气泡不占位，模型吐字后再长出来 */
+.ai-bubble:empty {
+    display: none;
+}
+
+/* ========================================================= hidden 兜底 */
+
+/* hidden 属性必须压过组件自己的 display 规则：博客主题 style.css 里的
+   `[hidden] { display: none }` 与组件类是同特异性，而助手样式后加载，
+   同特异性后来者胜，会让本该隐藏的分区常驻可见。
+   本规则用 `!important` 且写在组件规则之后，两重保险都占着：
+   只按特异性排层的引擎（jsdom 等）不认 !important，只认书写顺序，
+   所以别把下面带 display 的规则挪到它前面。 */
+.ai-root [hidden] {
+    display: none !important;
+}
+
+/* ========================================================= 代码块兜底 */
+
+/*
+ * 主题 custom.css 给所有 pre/code 加了 !important：
+ *   pre, code, pre code { background: inherit !important; color: inherit !important }
+ *   body.dark-theme pre, body.dark-theme code { background: #0d1117 !important; color: #c9d1d9 !important }
+ * 助手自己的代码块底色会被它吃掉：浅色下退化成没有块，
+ * 深色下变成硬编码纯黑 #0d1117 压在面板上（反差最大的一处）。
+ * 这里把底色抢回来：代码块用 --ai-code，行内代码用更轻的 --ai-field。
+ * 深色档要用 body.dark-theme .ai-root 前缀，特异性 (0,2,2) 才压得住主题的 (0,1,2)。
+ */
+.ai-root pre {
+    background: var(--ai-code) !important;
+    color: var(--ai-ink) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.ai-root pre code {
+    background: transparent !important;
+    color: inherit !important;
+}
+
+/* 行内代码：跟正文同色的轻底，不跟代码块一样重。
+   padding 只给不在 pre 里的行内码，否则块内代码会多出 4px 内缩。 */
+.ai-root code {
+    background: var(--ai-field) !important;
+    color: var(--ai-ink) !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: var(--ai-r-chip);
+}
+
+.ai-root :not(pre) > code {
+    padding: 1px 4px;
+}
+
+body.dark-theme .ai-root pre {
+    background: var(--ai-code) !important;
+    color: var(--ai-ink) !important;
+}
+
+body.dark-theme .ai-root pre code {
+    background: transparent !important;
+    color: inherit !important;
+}
+
+body.dark-theme .ai-root code {
+    background: var(--ai-field) !important;
+    color: var(--ai-ink) !important;
+}
+
+/*
+ * 气泡里的行内代码做成看得见的 chip。
+ * 只换底色不够：气泡底是 --ai-field(#eef2f5)，行内码底 --ai-code(#e6ecef)
+ * 两档只差 1.06:1，肉眼和截图都分不出来。所以可见性由描边承担。
+ * 描边色不能用 --ai-border-strong：它对气泡底只有 1.35:1（深色 1.72:1），
+ * 低于非文本元素 3:1 的可见性门槛，截图上仍然等于「看不见」。
+ * 改用 --ai-ink-3：对气泡底 4.80:1（深色 5.87:1），浅深都够。
+ * 用 inset 描边而不是 border：不占布局、不顶开行高。
+ * 主题 custom.css 给所有 code 加了 border/box-shadow:none !important，
+ * 这里必须自带 !important，且选择器要压得住 body.dark-theme .ai-root code。
+ */
+.ai-root .ai-msg .ai-bubble :not(pre) > code {
+    background: var(--ai-code) !important;
+    box-shadow: inset 0 0 0 1px var(--ai-ink-3) !important;
+}
+
+/* 关闭状态的浮窗不接事件，避免透明面板挡住正文与链接 */
+.ai-panel:not(.is-open) {
+    pointer-events: none;
+}

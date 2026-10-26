@@ -36,17 +36,7 @@
     
 
 <!-- highlight.js 样式（默认亮色） -->
-<link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.css">
 <!-- highlight.js 自动上色功能 -->
-<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof hljs !== 'undefined') {
-        hljs.highlightAll();
-    }
-});
-</script>
-
 <link rel="stylesheet" href="/css/custom.css">
 
 
@@ -411,7 +401,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.addEventListener("DOMContentLoaded", () => {
     // 页面首次加载，根据当前主题挂载评论
-    requestGiscusRebuild();
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
 
     // 主题切换只保留这一条触发路径：按钮点击。
     // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
@@ -443,7 +443,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
 </body>
 <!-- umami -->
-<script defer src="https://cloud.umami.is/script.js" data-website-id="91b923f2-ff2d-43d0-ba5f-bc348d82426a"></script>
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
 </html>
