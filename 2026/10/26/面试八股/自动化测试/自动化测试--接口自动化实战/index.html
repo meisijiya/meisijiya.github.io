@@ -1,0 +1,2481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>自动化测试--接口自动化实战 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">自动化测试--接口自动化实战</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十月 26, 2026&nbsp;&nbsp;19:40:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/">自动化测试</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<hr>
+<p>接口自动化的门槛不是发请求，是把请求组织成<strong>能长期维护的框架</strong>。JMeter 配一个 POST 传 JSON 要几步？参数怎么参数化？上一个接口返回的加密值下一个接口怎么用？签名 Token 怎么算？这些细节答不上来，面试官就知道你只跑过 Demo。</p>
+<blockquote>
+<p><strong>怎么用这篇</strong>：不要背「现场作答」，要背<strong>「翻车点」</strong>。面试时最容易失分的从来不是不知道，而是<strong>知道自己不知道却硬答</strong>。考前扫翻车点，性价比最高。</p>
+<p><strong>关于编号</strong>：标题里的编号是<strong>本文内的阅读顺序</strong>，已经按主题重排过——同一主题的题会连着讲。要找具体题目请用站内搜索。</p>
+</blockquote>
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#%E4%B8%80%E3%80%81JMeter-%E8%AF%B7%E6%B1%82%E9%85%8D%E7%BD%AE%EF%BC%9A%E6%96%B9%E6%B3%95%E3%80%81%E6%8A%A5%E6%96%87%E4%B8%8E%E5%8F%82%E6%95%B0%E5%8C%96">一、JMeter 请求配置：方法、报文与参数化</a></li>
+<li><a href="#%E4%BA%8C%E3%80%81JMeter-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%EF%BC%9A%E5%85%B3%E8%81%94%E3%80%81%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%B7%A8%E7%BA%BF%E7%A8%8B%E7%BB%84%E4%BC%A0%E5%8F%82">二、JMeter 数据处理：关联、加密与跨线程组传参</a></li>
+<li><a href="#%E4%B8%89%E3%80%81JMeter-%E6%A0%A1%E9%AA%8C%E4%B8%8E%E9%80%9A%E7%9F%A5%EF%BC%9A%E6%96%AD%E8%A8%80%E3%80%81%E8%AF%B7%E6%B1%82%E5%A4%B4%E4%B8%8E%E7%BB%93%E6%9E%9C%E9%80%9A%E7%9F%A5">三、JMeter 校验与通知：断言、请求头与结果通知</a></li>
+<li><a href="#%E5%9B%9B%E3%80%81JMeter-%E5%AE%89%E5%85%A8%E4%B8%8E%E4%BB%A3%E7%90%86%EF%BC%9AHTTPS-%E8%AF%81%E4%B9%A6%E4%B8%8E%E4%BB%A3%E7%90%86%E5%BD%95%E5%88%B6">四、JMeter 安全与代理：HTTPS 证书与代理录制</a></li>
+<li><a href="#%E4%BA%94%E3%80%81Requests-%E5%9F%BA%E7%A1%80%EF%BC%9A%E8%AF%B7%E6%B1%82%E3%80%81Session%E3%80%81Cookie-%E4%B8%8E%E8%AF%81%E4%B9%A6">五、Requests 基础：请求、Session、Cookie 与证书</a></li>
+<li><a href="#%E5%85%AD%E3%80%81%E6%8E%A5%E5%8F%A3%E8%87%AA%E5%8A%A8%E5%8C%96%E5%B7%A5%E7%A8%8B%E5%8C%96%EF%BC%9A%E7%AD%BE%E5%90%8D%E3%80%81Pytest-%E7%BB%84%E7%BB%87%E4%B8%8E%E6%95%B0%E6%8D%AE%E9%A9%B1%E5%8A%A8">六、接口自动化工程化：签名、Pytest 组织与数据驱动</a></li>
+<li><a href="#%E9%9D%A2%E8%AF%95%E5%89%8D-10-%E5%88%86%E9%92%9F%E9%80%9F%E6%9F%A5">面试前 10 分钟速查</a></li>
+</ul>
+<hr>
+<h2 id="一、JMeter-请求配置：方法、报文与参数化"><a href="#一、JMeter-请求配置：方法、报文与参数化" class="headerlink" title="一、JMeter 请求配置：方法、报文与参数化"></a>一、JMeter 请求配置：方法、报文与参数化</h2><hr>
+<h3 id="1-如何使用-JMeter-测试文件上传接口？"><a href="#1-如何使用-JMeter-测试文件上传接口？" class="headerlink" title="1. 如何使用 JMeter 测试文件上传接口？"></a>1. 如何使用 JMeter 测试文件上传接口？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：文件上传接口用 JMeter 怎么测？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易翻车的是<strong>漏掉 “Use multipart&#x2F;form-data for POST” 这个复选框</strong>——不勾它，文件根本传不上去，报错时很难第一时间想到是这个开关。第二个坑是<strong>只做单次上传就收工</strong>：文件路径、文件名在项目里是会变的，不做参数化脚本就没有复用性。第三个坑是<strong>不加断言</strong>：响应返回了不等于上传成功，不加断言就无从判断。第三个常见疏漏是<strong>没加监听器</strong>，跑完根本看不到响应结果。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>可以使用 JMeter 中的 <strong>HTTP Request 采样器</strong>来测试文件上传接口，具体步骤如下：<ol>
+<li>启动 JMeter，并创建一个新的 <strong>Test Plan</strong>。</li>
+<li>在 Test Plan 下添加一个 <strong>Thread Group</strong> 以模拟用户行为。</li>
+<li>在 Thread Group 下添加一个 <strong>HTTP Request 采样器</strong>。</li>
+<li>在 HTTP Request 采样器中，设置所需的上传接口的 <strong>URL 和请求方法</strong>（通常是 POST 请求）。</li>
+<li>在 HTTP Request 采样器的 “Body Data” 部分，选择 <strong>“Use multipart&#x2F;form-data for POST”</strong> 复选框。</li>
+<li>点击 “Body Data” 部分的 “Add” 按钮，添加一个<strong>文件类型的元件</strong>，并选择要上传的文件。</li>
+<li>为了查看响应结果，可以添加一个<strong>监听器</strong>，例如 “View Results Tree”。</li>
+<li>点击运行按钮，开始测试文件上传接口。</li>
+</ol>
+</li>
+<li>扩展的六点：<ol>
+<li><strong>参数化测试</strong>：实际项目中，文件的路径、文件名等可能会有所不同，可以在 JMeter 中使用 <strong>CSV Data Set Config</strong> 来进行参数化测试，从而提高脚本的复用性和灵活性。</li>
+<li><strong>压力测试</strong>：除了单次上传测试，还可以设置多个线程以及不同的调度策略，对文件上传接口进行压力测试，观察在高并发情况下接口的性能表现。</li>
+<li><strong>断言</strong>：为了确保文件上传接口的正确性，可以添加断言组件；例如使用<strong>响应断言</strong>来验证接口返回的状态码和响应内容，确保文件上传操作成功。</li>
+<li><strong>后处理器</strong>：如果接口返回的数据需要进一步处理和验证，可以使用后处理器，例如 <strong>JSON Extractor</strong> 或 <strong>Regular Expression Extractor</strong> 提取返回的数据，并进行相应的验证。</li>
+<li><strong>命令行运行</strong>：JMeter 测试脚本可以通过命令行运行，这对于持续集成和自动化测试非常有用；可以将 JMeter 脚本集成到 Jenkins 等 CI&#x2F;CD 平台中，以实现自动化的接口测试。</li>
+<li><strong>插件</strong>：JMeter 社区有许多有用的插件，可以扩展 JMeter 的功能，比如额外的数据处理组件、报告生成工具等，这些插件可以增强你的测试能力。</li>
+</ol>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用 JMeter 测文件上传接口的步骤？</td>
+<td>启动 JMeter 新建 Test Plan → 加 Thread Group 模拟用户行为 → 加 HTTP Request 采样器 → 设置上传接口的 URL 和请求方法（通常是 POST）→ 在 “Body Data” 部分勾选 “Use multipart&#x2F;form-data for POST” → 点 “Add” 添加文件类型的元件并选择要上传的文件 → 加监听器（如 “View Results Tree”）查看响应 → 点运行。</td>
+</tr>
+<tr>
+<td>为什么要勾 multipart&#x2F;form-data？</td>
+<td>文件上传接口要通过 “Body Data” 部分的 “Use multipart&#x2F;form-data for POST” 复选框来指定提交形式，然后用 “Add” 按钮添加文件类型的元件并选择要上传的文件。</td>
+</tr>
+<tr>
+<td>多个文件路径怎么处理？</td>
+<td>用 CSV Data Set Config 做参数化测试，提高脚本的复用性和灵活性。</td>
+</tr>
+<tr>
+<td>怎么确认上传真的成功了？</td>
+<td>添加断言组件，例如用响应断言验证接口返回的状态码和响应内容，确保文件上传操作成功。</td>
+</tr>
+<tr>
+<td>返回的数据还要拿来做别的验证怎么办？</td>
+<td>使用后处理器，例如 JSON Extractor 或 Regular Expression Extractor 提取返回的数据，再进行相应的验证。</td>
+</tr>
+<tr>
+<td>想在流水线里跑怎么搞？</td>
+<td>JMeter 测试脚本可以通过命令行运行，可以把脚本集成到 Jenkins 等 CI&#x2F;CD 平台中，实现自动化的接口测试；还可以用 JMeter 社区的插件扩展功能，比如额外的数据处理组件、报告生成工具。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“传文件就是在 Body Data 里填个路径就行。” —— 要勾选 “Use multipart&#x2F;form-data for POST”，再通过 “Add” 按钮添加文件类型的元件并选择要上传的文件。</li>
+<li>“响应返回了就说明上传成功了。” —— 要加断言组件，用响应断言验证状态码和响应内容，才能确保文件上传操作成功。</li>
+<li>“文件路径写死在脚本里最省事。” —— 路径和文件名在项目里会变，用 CSV Data Set Config 参数化才能提高脚本的复用性和灵活性。</li>
+</ul>
+<hr>
+<h3 id="2-对于-POST-请求需要传递-JSON-格式数据，如何在-JMeter-中实现？"><a href="#2-对于-POST-请求需要传递-JSON-格式数据，如何在-JMeter-中实现？" class="headerlink" title="2. 对于 POST 请求需要传递 JSON 格式数据，如何在 JMeter 中实现？"></a>2. 对于 POST 请求需要传递 JSON 格式数据，如何在 JMeter 中实现？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：用 JMeter 发 POST 带 JSON，具体怎么配？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易翻车的是<strong>只贴了 JSON 却不设 Content-Type</strong>——服务端按表单解析，字段全丢，现象是”参数没传过去”。第二个坑是<strong>找不到”发送参数处”这个勾选项</strong>：JSON 是在 HTTP 请求取样器里往下滚到”发送参数处”、勾选”HTTP 请求主体数据”之后才有的入口，不是随便往文本框粘。第三个坑是<strong>不做断言</strong>：请求发出去了不代表业务成功，要用响应断言校验返回数据。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中发送需要传递 JSON 格式数据的 POST 请求，可以按照以下步骤进行：<ol>
+<li>**添加”线程组”**：打开 JMeter，右键点击”测试计划”，选择”添加” -&gt; “线程（用户）” -&gt; “线程组”。</li>
+<li>**添加”HTTP 请求”**：在线程组上右键，选择”添加” -&gt; “取样器” -&gt; “HTTP 请求”。</li>
+<li><strong>配置 HTTP 请求</strong>：在”HTTP 请求”取样器中，设置好<strong>服务器名称或 IP、端口号</strong>（如果有的话）、<strong>HTTP 请求方法选择”POST”<strong>、并填写</strong>具体的路径</strong>。</li>
+<li><strong>添加 JSON 数据</strong>：在同一个”HTTP 请求”取样器中，往下滚动到”<strong>发送参数处</strong>“，勾选”<strong>HTTP 请求主体数据</strong>“。然后，把要发送的 JSON 数据粘贴到文本框内。</li>
+<li><strong>设置请求头</strong>：还需要告诉服务器你发送的是 JSON 数据。在”HTTP 请求”取样器上右键，选择”添加” -&gt; “配置元件” -&gt; “<strong>HTTP Header 管理器</strong>“。在”HTTP Header 管理器”中，添加一个新条目，名称为 “<strong>Content-Type</strong>“，值为 “<strong>application&#x2F;json</strong>“。</li>
+</ol>
+</li>
+<li>做完这些配置后，就能够成功在 JMeter 中使用 POST 请求发送 JSON 数据了。扩展的四点：<ol>
+<li><strong>校验响应</strong>：为了确保 POST 请求的结果是符合预期的，一般需要添加一个”断言”。可以在”HTTP 请求”取样器上右键，选择”添加” -&gt; “断言” -&gt; “<strong>响应断言</strong>“，来检查响应数据是否包含或等于某些预期的值。</li>
+<li><strong>使用变量</strong>：实际测试中，如果发送的数据中有一些动态值或者从之前的请求中获取的值，可以使用 JMeter 的变量功能；可以用 JMeter 的内置函数，比如<strong>正则表达式提取器</strong>或者 <strong>JSON 提取器</strong>，来提取前一请求的响应中的值，并在后续请求的数据中使用该变量。</li>
+<li><strong>结果查看器</strong>：为了查看请求和响应的细节，可以在取样器上右键，选择”添加” -&gt; “监听器” -&gt; “<strong>查看结果树</strong>“；这个工具可以帮助调试并详细查看 HTTP 请求和响应。</li>
+<li><strong>参数化与数据驱动测试</strong>：如果需要多次发送不同的数据，可以使用 <strong>CSV 数据文件</strong>来参数化；添加一个 <strong>CSV 数据文件集配置元件</strong>，然后在 HTTP 请求中的数据部分使用变量来引用 CSV 文件中的数据。</li>
+</ol>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用 JMeter 发 POST 带 JSON 的完整步骤？</td>
+<td>测试计划里添加线程组 → 线程组下添加 HTTP 请求取样器 → 配置服务器名称或 IP、端口号（如果有）、请求方法选 POST、填写具体路径 → 在”发送参数处”勾选”HTTP 请求主体数据”并粘贴 JSON → 用 HTTP Header 管理器加一条 Content-Type: application&#x2F;json。</td>
+</tr>
+<tr>
+<td>JSON 数据粘在哪里？</td>
+<td>在同一个”HTTP 请求”取样器中往下滚动到”发送参数处”，勾选”HTTP 请求主体数据”后，把要发送的 JSON 数据粘贴到文本框内。</td>
+</tr>
+<tr>
+<td>为什么要设 Content-Type？</td>
+<td>需要告诉服务器你发送的是 JSON 数据，所以在 HTTP Header 管理器中新增一个条目，名称为 “Content-Type”，值为 “application&#x2F;json”。</td>
+</tr>
+<tr>
+<td>怎么确认 POST 的结果符合预期？</td>
+<td>添加”断言”——在 HTTP 请求取样器上右键，”添加” -&gt; “断言” -&gt; “响应断言”，检查响应数据是否包含或等于某些预期的值。</td>
+</tr>
+<tr>
+<td>数据里有动态值或要串上一个请求的返回？</td>
+<td>使用 JMeter 的变量功能，用内置的正则表达式提取器或 JSON 提取器提取前一请求响应中的值，并在后续请求的数据中使用该变量。</td>
+</tr>
+<tr>
+<td>要测多组数据怎么办？</td>
+<td>用 CSV 数据文件参数化：添加一个 CSV 数据文件集配置元件，在 HTTP 请求的数据部分用变量引用 CSV 文件中的数据。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“JSON 贴到参数栏，再加个 header 就行了。” —— JSON 要在”发送参数处”勾选”HTTP 请求主体数据”后粘贴，并且必须用 HTTP Header 管理器加上 Content-Type 为 application&#x2F;json。</li>
+<li>“请求发出去没报错就说明成功了。” —— 要加响应断言，检查响应数据是否包含或等于某些预期的值，才能确保结果符合预期。</li>
+<li>“多组数据只能一条条改。” —— 可以用 CSV 数据文件集配置元件参数化，在 HTTP 请求的数据部分用变量引用 CSV 文件中的数据。</li>
+</ul>
+<hr>
+<h3 id="3-如何在-JMeter-中测试-GET-请求接口？"><a href="#3-如何在-JMeter-中测试-GET-请求接口？" class="headerlink" title="3. 如何在 JMeter 中测试 GET 请求接口？"></a>3. 如何在 JMeter 中测试 GET 请求接口？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：拿 JMeter 测一个 GET 接口，整个流程你走一遍给我看看。</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易漏掉的是<strong>监听器和参数化</strong>：只把请求发出去、不挂 “View Results Tree” 看结果，等于没测；只测一组固定路径，也不叫覆盖。另外线程组的三个参数（线程数、Ramp-Up Period 秒、循环次数）不是可选项，不填就等于压测参数没定义。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中测试 GET 请求接口的大致步骤如下：<br>1）打开 JMeter，新建一个测试计划（Test Plan）；<br>2）在测试计划下添加线程组（Thread Group），定义用户数、循环次数等参数；<br>3）在线程组下添加 HTTP 请求（HTTP Request）；<br>4）在 HTTP 请求配置中设置 GET 请求的 URL、协议、服务器名称或 IP 地址、端口号等参数；<br>5）执行测试，并查看结果。</li>
+<li>具体操作：<br>1）打开 JMeter，点击左上角的”文件(File)”菜单，选择”新建(New)”来创建一个新的测试计划；<br>2）右键点击测试计划，选择”添加(Add)” -&gt; “Threads(Users)” -&gt; “Thread Group”；<br>3）设置线程属性，比如线程数(Number of Threads)、Ramp-Up Period (秒)和循环次数(Loop Count)；<br>4）右键点击新建的线程组，选择”添加(Add)” -&gt; “Sampler” -&gt; “HTTP Request”；<br>5）在 HTTP 请求的配置窗口中，设置协议（通常为 http 或 https），服务器名称或 IP 地址，端口号（如存在），路径（即 GET 请求的具体路径）；<br>6）为了查看结果，可以为线程组添加一个监听器，比如右键点击线程组，选择”添加(Add)” -&gt; “Listener” -&gt; “View Results Tree”；<br>7）保存并运行测试计划，查看结果树中的响应数据。</li>
+<li>实际项目中常见的增强手段：<br>1）用户定义变量：可以在测试计划中添加”Config Element” -&gt; “User Defined Variables”，这样可以在 HTTP 请求中的路径、参数等位置使用这些变量；<br>2）参数化与数据驱动：需要测试多组数据时，可以使用 JMeter 中的 CSV Data Set Config 配置元素，它可以从外部 CSV 文件中读取参数，提高测试灵活性；<br>3）断言：JMeter 提供不同类型的断言（如响应断言、JSON 断言等）来确保接口返回的响应符合预期，可以添加一个响应断言（Response Assertion）来检查响应的数据是否包含特定的文本或 JSON 路径等；<br>4）聚合报告（Aggregate Report）：为了更专业地查看测试结果，可以使用”Aggregate Report”来查看线程组的累计结果，这对分析性能测试的数据非常有用；<br>5）分布式测试：如果需要大规模的性能测试，JMeter 支持分布式测试，可以使用主从模式分布式运行多个 JMeter 实例来模拟大量的并发用户；<br>6）插件支持：JMeter 有丰富的插件支持，可以通过安装不同的插件来扩展其功能，比如有些插件可以生成图表、支持更复杂的协议或提供附加的监听器类型；<br>7）命令行执行：除了在 GUI 界面上运行测试计划，JMeter 还支持命令行模式（非 GUI 模式），这对于 CI&#x2F;CD 流水线中的自动化测试非常有帮助。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>路径里有一堆固定参数，每次改都要动采样器吗？</td>
+<td>可以在测试计划中添加”Config Element” -&gt; “User Defined Variables”，把变量定义好后在 HTTP 请求中的路径、参数等位置直接使用这些变量。</td>
+</tr>
+<tr>
+<td>想用多组数据跑同一个 GET 接口怎么办？</td>
+<td>使用 CSV Data Set Config 配置元素，它可以从外部 CSV 文件中读取参数，提高测试灵活性。</td>
+</tr>
+<tr>
+<td>怎么确认返回结果是对的？</td>
+<td>JMeter 提供不同类型的断言（如响应断言、JSON 断言等），可以添加响应断言来检查响应的数据是否包含特定的文本或 JSON 路径等。</td>
+</tr>
+<tr>
+<td>大并发怎么压？</td>
+<td>JMeter 支持分布式测试，可以用主从模式分布式运行多个 JMeter 实例来模拟大量的并发用户。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“发一次请求没报错就算测完了。” —— 只发请求不看结果没有意义，要挂监听器（如 “View Results Tree”）查看响应数据，并用断言校验响应是否符合预期。</li>
+<li>“线程数、循环次数随便填就行。” —— 线程数、Ramp-Up Period (秒)和循环次数是线程组的核心属性，直接决定并发量和执行轮次。</li>
+<li>“JMeter 只能手动点运行。” —— 除 GUI 模式外还支持命令行模式（非 GUI 模式），对 CI&#x2F;CD 流水线中的自动化测试非常有帮助。</li>
+</ul>
+<hr>
+<h3 id="4-如何在-JMeter-中测试-JSON-数据格式的接口？"><a href="#4-如何在-JMeter-中测试-JSON-数据格式的接口？" class="headerlink" title="4. 如何在 JMeter 中测试 JSON 数据格式的接口？"></a>4. 如何在 JMeter 中测试 JSON 数据格式的接口？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：要测一个 JSON 接口，JMeter 里从建计划到校验结果，你怎么配？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易错的两步：一是<strong>忘了设 Content-Type 为 application&#x2F;json</strong>，服务端可能按表单解析而报参数缺失；二是<strong>没配 HTTP Header Manager 就直接往 Body Data 里填 JSON</strong>，请求头里没有正确的类型声明，接口往往返回 415 或者解析成空对象。另外 POST 的 JSON 要写在 “Body Data” 里，选错选项卡同样白测。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中测试 JSON 数据格式的接口可以通过以下步骤完成：<br>1）创建一个测试计划；<br>2）添加一个线程组；<br>3）添加 HTTP 请求采样器；<br>4）配置 HTTP 请求采样器，设置 URL、请求方法（如 GET 或 POST）以及请求体中的 JSON 数据；<br>5）配置 HTTP Header Manager，设定 Content-Type 为 application&#x2F;json；<br>6）添加响应断言（如 JSON 断言）来验证响应的内容；<br>7）运行测试并查看结果。</li>
+<li>具体配置细节：<br>1）打开 JMeter，默认已经创建了一个新的测试计划，如果没有可以手动创建一个新的测试计划；<br>2）右键点击测试计划，选择 “Add” -&gt; “Threads (Users)” -&gt; “Thread Group”；<br>3）右键点击线程组，选择 “Add” -&gt; “Sampler” -&gt; “HTTP Request”，在采样器中配置相应的 URL 和 HTTP 方法，如 GET 或者 POST；如果是 POST 请求，需要在 “Body Data” 中输入请求的 JSON 数据，例如：</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;John&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span> <span class="number">30</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>  4）在 HTTP 请求中发送 JSON 数据时需要设定 Content-Type 为 application&#x2F;json：右键点击线程组，选择 “Add” -&gt; “Config Element” -&gt; “HTTP Header Manager”，添加新的 HTTP Header，名称为 Content-Type，值为 application&#x2F;json；<br>  5）为了确保接口返回了正确的 JSON，可以添加响应断言：右键点击 HTTP 请求采样器，选择 “Add” -&gt; “Assertions” -&gt; “JSON Assertion”，在 JSON 断言中配置想验证的 JSON 路径和值；<br>  6）点击工具栏上的绿色箭头按钮运行测试；<br>  7）右键点击线程组，选择 “Add” -&gt; “Listener” -&gt; “View Results Tree”，添加查看结果树以便更直观地查看和分析测试结果。</p>
+<ul>
+<li>这些步骤可以帮助你在 JMeter 中高效地测试接口的 JSON 数据格式。还可以考虑：JMeter 插件中的 JSON Path PostProcessor 可以帮助更加细粒度地解析和验证 JSON 响应；使用 CSV Data Set Config 进行参数化测试，用不同的 JSON 输入数据测试 API 的稳定性和处理能力；JMeter 支持分布式测试，允许将测试负载分布到多个机器上，以提高测试效能；还可以将 JMeter 测试脚本整合到 CI&#x2F;CD 流水线中，如 Jenkins 等，进行持续集成和自动化测试。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>为什么一定要加 HTTP Header Manager？</td>
+<td>在 HTTP 请求中发送 JSON 数据时需要设定 Content-Type 为 application&#x2F;json，添加新的 HTTP Header，名称为 Content-Type，值为 application&#x2F;json，否则服务端可能不按 JSON 解析。</td>
+</tr>
+<tr>
+<td>JSON 断言和普通响应断言怎么选？</td>
+<td>如果要精确校验返回的数据结构和内容，可以添加 JSON 断言并配置想验证的 JSON 路径和值。</td>
+</tr>
+<tr>
+<td>响应结构很复杂、只想取某个字段怎么办？</td>
+<td>JMeter 插件中的 JSON Path PostProcessor 可以帮助更加细粒度地解析和验证 JSON 响应。</td>
+</tr>
+<tr>
+<td>想用不同 JSON 数据反复测同一接口呢？</td>
+<td>可以使用 CSV Data Set Config 进行参数化测试，用不同的 JSON 输入数据测试 API 的稳定性和处理能力。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“把 JSON 直接贴在请求里就行，JMeter 会自动带上 Content-Type。” —— Content-Type 必须通过 “Config Element” -&gt; “HTTP Header Manager” 显式设为 application&#x2F;json。</li>
+<li>“POST 的 JSON 要写在 Parameters 里。” —— 请求体中的 JSON 数据是写在 “Body Data” 里。</li>
+<li>“跑通了就说明接口没问题。” —— 需要用 JSON 断言配置想验证的 JSON 路径和值，再配合查看结果树检查响应，才能确认返回内容正确。</li>
+</ul>
+<hr>
+<h3 id="5-如何在-JMeter-中测试-SOAP-请求？"><a href="#5-如何在-JMeter-中测试-SOAP-请求？" class="headerlink" title="5. 如何在 JMeter 中测试 SOAP 请求？"></a>5. 如何在 JMeter 中测试 SOAP 请求？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：SOAP 接口用 JMeter 怎么测，跟普通 HTTP 请求有什么不一样？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>两个高频失误：一是<strong>采样器选错</strong>，SOAP 要用 “SOAP&#x2F;XML-RPC 请求” 采样器，不是普通的 “HTTP Request”；二是<strong>忘配 Content-Type</strong>，SOAP 请求体是 XML，Header 里要加 <code>Content-Type: text/xml;charset=UTF-8</code>，否则服务端不认。还有人把 XML 粘到 Parameters 里，那不是正文位置。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>要在 JMeter 中测试 SOAP 请求，可以按照以下步骤进行：<br>1）启动 JMeter 并创建一个新的测试计划；<br>2）在测试计划中添加一个线程组，并设置线程数、循环次数等参数；<br>3）在线程组中添加一个”SOAP&#x2F;XML-RPC 请求”采样器；<br>4）设置”SOAP&#x2F;XML-RPC 请求”采样器的 URL（即要测试的 SOAP 服务的地址）；<br>5）在”SOAP&#x2F;XML-RPC 请求”采样器中添加 SOAP 请求的具体内容，可以将 SOAP 请求的 XML 数据粘贴到数据输入框中；<br>6）配置”HTTP Header Manager”，添加内容类型（Content-Type: text&#x2F;xml;charset&#x3D;UTF-8）；<br>7）运行测试，查看结果。</li>
+<li>相关的常用配套组件：<br>1）断言（Assertions）：可以使用断言来验证响应结果是否符合预期，比如”响应断言”可以用来检查返回的 HTTP 状态码、响应消息中的文本内容等；<br>2）定时器（Timers）：定时器可以用来控制请求的时间间隔，比如设置恒定的定时器来让每个请求之间保持一定的时间间隔，从而模拟用户的操作行为；<br>3）前置处理器和后置处理器：前置处理器（如”用户定义的变量”）可以在发出请求之前做一些准备工作，后置处理器（如”正则表达式提取器”）可以在得到响应后分析和处理响应数据；<br>4）聚合报告和图形报告：可以通过添加”聚合报告”和”图形报告”来实时监控和展示性能测试的结果数据，这些报告可以帮助我们更好地分析性能瓶颈。</li>
+<li>多协议支持：除了 HTTP&#x2F;HTTPS，JMeter 还支持许多其他协议，比如 JDBC（数据库连接）、JMS（Java 消息服务）、LDAP（轻量目录访问协议）等，这使得 JMeter 在复杂的测试环境中也能得心应手。</li>
+<li>扩展插件：JMeter 拥有一个丰富的插件生态，许多第三方插件可以扩展 JMeter 的功能，比如可以通过 JMeter 插件来支持不同类型的协议，增加新的报告类型等。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SOAP 请求的 Header 要怎么配？</td>
+<td>配置 “HTTP Header Manager”，添加内容类型 Content-Type: text&#x2F;xml;charset&#x3D;UTF-8。</td>
+</tr>
+<tr>
+<td>怎么校验 SOAP 响应对不对？</td>
+<td>使用断言来验证响应结果是否符合预期，比如”响应断言”可以检查返回的 HTTP 状态码、响应消息中的文本内容等。</td>
+</tr>
+<tr>
+<td>想按固定节奏压 SOAP 接口呢？</td>
+<td>用定时器控制请求的时间间隔，比如设置恒定的定时器让每个请求之间保持一定的时间间隔，从而模拟用户的操作行为。</td>
+</tr>
+<tr>
+<td>响应里的数据要传给下一个请求怎么办？</td>
+<td>用后置处理器（如”正则表达式提取器”）在得到响应后分析和处理响应数据。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“SOAP 接口直接用 HTTP Request 采样器发就行。” —— JMeter 为 SOAP 提供了专门的”SOAP&#x2F;XML-RPC 请求”采样器，XML 内容粘贴到它的数据输入框里。</li>
+<li>“SOAP 请求不用设置 Content-Type。” —— 要配置 “HTTP Header Manager”，添加 Content-Type: text&#x2F;xml;charset&#x3D;UTF-8。</li>
+<li>“JMeter 只能测 HTTP 接口。” —— 除了 HTTP&#x2F;HTTPS，JMeter 还支持 JDBC、JMS、LDAP 等多种协议。</li>
+</ul>
+<hr>
+<h3 id="6-如何在-JMeter-中进行参数化？参数化类型有哪些？"><a href="#6-如何在-JMeter-中进行参数化？参数化类型有哪些？" class="headerlink" title="6. 如何在 JMeter 中进行参数化？参数化类型有哪些？"></a>6. 如何在 JMeter 中进行参数化？参数化类型有哪些？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：同一个接口要跑很多组不同的数据，JMeter 里参数化有哪几种做法？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>容易混的是<strong>四种参数化手段的适用场景</strong>：CSV Data Set Config 面向大量数据，User Defined Variables 面向全局常量，Configuration Elements（如 “HTTP Request Defaults”）面向通用请求参数，函数和变量面向动态生成或引用。另一个坑是<strong>作用域</strong>：User Defined Variables 一旦定义就在其层级下全程生效、不能运行时动态改，而函数与 <code>$&#123;VarName&#125;</code> 引用是可以动态取值的。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中进行参数化，是模拟真实用户行为、提升测试灵活性和可重复性的一个重要途径，可以通过以下几点实现：<br>1）CSV Data Set Config：这是最常用的方式，通过将参数存储在一个 CSV 文件中，然后在 JMeter 中调用；<br>2）User Defined Variables：定义全局或者局部的参数变量；<br>3）Configuration Elements：例如 “HTTP Request Defaults”，可以设置一些默认参数；<br>4）函数和变量：使用内置函数或自定义函数来生成或引用参数值。</li>
+<li>各类型的用法：<br>1）CSV Data Set Config：适用于大量的数据参数化，例如用户名、密码列表；添加”CSV Data Set Config”到测试计划，设置文件路径、变量名称、分隔符等；<br>2）User Defined Variables：适用于定义一些全局常量，例如 API 的 base URL；在 Test Plan 或某个线程组下添加”User Defined Variables”，然后在需要的地方使用 ${VAR_NAME} 的格式引用；<br>3）Configuration Elements：例如设置 HTTP 请求的通用参数，如服务器地址、端口号等；添加例如 “HTTP Request Defaults”，设置默认的参数值，这些值可以在子级的 HTTP 请求中自动引用；<br>4）函数和变量：需要动态生成参数值或者引用别的已定义的变量时，使用 JMeter 内置函数，例如 __Random() 生成随机数，或者自定义函数；使用 ${VarName} 来引用已定义的变量。</li>
+<li>参数化的优势：增强测试场景的覆盖，通过参数化可以模拟各种不同的用户输入和行为；提高测试用例的重用性，通过一次性配置参数文件，可以重复使用相同的测试计划；自动化和可维护性，参数化使得脚本维护更容易，只需修改参数文件，不用更改测试脚本。</li>
+<li>如何验证参数化是否成功：首先，可以在 CSV Data Set Config 中设置一个迭代数，看是否按预期读取参数；其次，可通过 Debug Sampler 来检查变量是否正确读取和替换。</li>
+<li>复杂场景下维护的技巧：如果参数文件较大，可以分模块管理，例如不同的 CSV 文件存储不同类型的参数；利用配置管理工具（如 Git）来管理参数文件的版本。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>几万个账号密码怎么喂进去？</td>
+<td>用 CSV Data Set Config，它适用于大量的数据参数化，例如用户名、密码列表，配置好文件路径、变量名称、分隔符即可。</td>
+</tr>
+<tr>
+<td>base URL 这种固定值也要放 CSV 里吗？</td>
+<td>不必，用 User Defined Variables 适合定义一些全局常量，例如 API 的 base URL，在需要的地方用 ${VAR_NAME} 引用。</td>
+</tr>
+<tr>
+<td>怎么确认参数真的替换进去了？</td>
+<td>在 CSV Data Set Config 中设置一个迭代数，看是否按预期读取参数；也可以通过 Debug Sampler 检查变量是否正确读取和替换。</td>
+</tr>
+<tr>
+<td>参数值想每次随机生成呢？</td>
+<td>用函数和变量，使用 JMeter 内置函数，例如 __Random() 生成随机数，或者自定义函数。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“参数化就是把所有数据塞进一个 CSV。” —— CSV Data Set Config 只是其中一种；User Defined Variables 管全局常量，Configuration Elements 管通用请求参数，函数和变量用来动态生成或引用。</li>
+<li>“User Defined Variables 可以在脚本运行中被改掉。” —— 它定义之后在整个作用域内保持不变，属于静态配置；需要动态变化的值应该交给函数和变量那一类做法。</li>
+<li>“参数化之后维护脚本更麻烦。” —— 参数化使脚本维护更容易，只需修改参数文件，不用更改测试脚本，还能提高用例重用性。</li>
+</ul>
+<hr>
+<h3 id="7-如何使用-JMeter-进行-POST-请求测试？"><a href="#7-如何使用-JMeter-进行-POST-请求测试？" class="headerlink" title="7. 如何使用 JMeter 进行 POST 请求测试？"></a>7. 如何使用 JMeter 进行 POST 请求测试？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：用 JMeter 发一个 POST 请求，参数怎么传？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最常错的是<strong>把参数写在错的地方</strong>：POST 的请求参数应该写在 “Body Data” 选项卡里，通常为键值对的格式；写成 Parameters 里拼在请求地址上虽然也能通，但和真实接口调用形态不一致。另一个容易漏的是<strong>线程组代表什么</strong>——它代表你模拟的用户数量和请求频率，线程数不给足就谈不上压测。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>使用 JMeter 进行 POST 请求测试的步骤如下：<br>1）下载安装 JMeter：首先下载并安装 JMeter，确保你安装了最新版本；<br>2）新建测试计划：打开 JMeter，点击创建一个新的”测试计划”；<br>3）添加线程组：在测试计划下添加一个”线程组”（Thread Group）来模拟用户请求；<br>4）添加 Sampler：在线程组下添加一个”HTTP请求”（HTTP Request）Sampler；<br>5）配置 HTTP 请求：选择你需要测试的类型（POST），然后在”Server Name or IP”中填写目标服务器地址，在”Path”中填写具体的 API 路径；<br>6）设置请求参数：在”Body Data”选项卡中添加你需要传递的 POST 请求参数，通常为键值对的格式；<br>7）添加监听器：为了查看请求结果，在 HTTP 请求下添加一个”监听器”（Listener），比如”查看结果树”（View Results Tree）；<br>8）执行测试：点击工具栏上的”运行”按钮（绿色箭头），JMeter 将发送请求并在监听器中显示结果。</li>
+<li>各步骤的展开细节：<br>1）下载安装 JMeter：可以从 JMeter 官方网站下载最新版本，并按照提供的说明完成安装；JMeter 是一个基于 Java 的工具，所以需要先安装 Java；<br>2）新建测试计划：打开 JMeter 后，默认就有一个空的测试计划，如果没有可以点击”文件” -&gt; “新建”来创建一个；<br>3）添加线程组：右键点击”测试计划”，选择”添加” -&gt; “线程(Users)” -&gt; “线程组”，线程组代表你模拟的用户数量和请求频率；<br>4）添加 Sampler：右键点击”线程组”，选择”添加” -&gt; “Sampler” -&gt; “HTTP 请求”，这个 HTTP 请求是你要发出的 POST 请求；<br>5）配置 HTTP 请求：在新添加的 HTTP 请求中选择”POST”方法，填写”Server Name or IP”（例如 api.example.com）和”Path”（例如 &#x2F;login）；<br>6）设置请求参数：点击”Body Data”选项卡，直接在框中填写 POST 请求的参数，比如 username&#x3D;admin&amp;password&#x3D;123456；<br>7）添加监听器：右键点击”HTTP 请求”，选择”添加” -&gt; “监听器” -&gt; “查看结果树”，它可以帮助你查看每个请求的完整响应，提高调试效率；<br>8）执行测试：确保所有配置都正确后，点击工具栏上的绿色三角形按钮来运行测试，在”查看结果树”中可以看到请求的详细信息，如请求和响应数据、请求头等。</li>
+<li>如果熟悉高级功能，可以进一步扩展测试计划，比如使用 CSV Data Set Config 来模拟不同用户登录，或者添加 Assertions 来验证响应内容是否符合预期。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST 的参数写在哪？</td>
+<td>在”Body Data”选项卡中添加需要传递的 POST 请求参数，通常为键值对的格式，例如 username&#x3D;admin&amp;password&#x3D;123456。</td>
+</tr>
+<tr>
+<td>怎么模拟多个用户登录？</td>
+<td>使用 CSV Data Set Config 来模拟不同用户登录。</td>
+</tr>
+<tr>
+<td>怎么确认响应内容对不对？</td>
+<td>可以添加 Assertions 来验证响应内容是否符合预期。</td>
+</tr>
+<tr>
+<td>跑完在哪里看结果？</td>
+<td>在 HTTP 请求下添加”查看结果树”（View Results Tree）监听器，可以看到请求的详细信息，如请求和响应数据、请求头等。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“POST 参数写在 Parameters 里传。” —— 请求参数通常写在”Body Data”选项卡中。</li>
+<li>“只要发了请求就够了。” —— 需要在 HTTP 请求下添加”查看结果树”监听器查看响应，并可添加 Assertions 验证响应内容。</li>
+<li>“线程组只是个分组，配置不重要。” —— 线程组代表你模拟的用户数量和请求频率，它决定了并发规模。</li>
+</ul>
+<h2 id="二、JMeter-数据处理：关联、加密与跨线程组传参"><a href="#二、JMeter-数据处理：关联、加密与跨线程组传参" class="headerlink" title="二、JMeter 数据处理：关联、加密与跨线程组传参"></a>二、JMeter 数据处理：关联、加密与跨线程组传参</h2><hr>
+<h3 id="8-如何在-JMeter-中处理需要加密的请求参数？"><a href="#8-如何在-JMeter-中处理需要加密的请求参数？" class="headerlink" title="8. 如何在 JMeter 中处理需要加密的请求参数？"></a>8. 如何在 JMeter 中处理需要加密的请求参数？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：接口的请求参数是要加密的，JMeter 里这个加密逻辑你一般怎么实现？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易答错的是把加密当成 JMeter 的现成功能——JMeter 本身不提供加密元件，必须借 JSR223 元件写 Groovy 脚本。另一个坑是<strong>加密完忘了把结果回写</strong>：脚本里算出的密文必须 <code>vars.put</code> 回 JMeter 变量，再在 HTTP Request 里用 <code>$&#123;变量名&#125;</code> 引用，否则请求带出去的仍是原始参数。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中处理需要加密的请求参数，通常会使用 JSR223 Sampler 或者 JSR223 PreProcessor 来编写自定义的 Groovy 脚本，加密请求参数。在这个过程中，需要先把请求参数传递给脚本，然后利用 Groovy 编写相应的加密逻辑，最后将加密后的参数传递给 HTTP 请求。</li>
+<li>具体步骤如下：<ol>
+<li>添加一个 HTTP Request 元件，配置好目标 URL 和请求方法；</li>
+<li>在 HTTP Request 元件的子元素中，添加 “JSR223 PreProcessor” 并选择语言为 “Groovy”；</li>
+<li>在 JSR223 PreProcessor 中编写 Groovy 脚本来处理加密逻辑；</li>
+<li>在 HTTP Request 中使用 <code>$&#123;variableName&#125;</code> 引用加密后的参数。</li>
+</ol>
+</li>
+<li>例如，假设我们需要对请求中的某个参数进行 Base64 编码，可以在 JSR223 PreProcessor 中这样编写：</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.commons.codec.binary.Base64</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取原始参数</span></span><br><span class="line"><span class="keyword">def</span> originalParameter = vars.get(<span class="string">&quot;originalParameter&quot;</span>)</span><br><span class="line"><span class="comment">// 对参数进行 Base64 编码</span></span><br><span class="line"><span class="keyword">def</span> encodedParameter = Base64.encodeBase64String(originalParameter.bytes)</span><br><span class="line"><span class="comment">// 将编码后的参数设置为 JMeter 变量</span></span><br><span class="line">vars.put(<span class="string">&quot;encodedParameter&quot;</span>, encodedParameter)</span><br></pre></td></tr></table></figure>
+
+<p>然后，在 HTTP Request 中，把请求参数设置为 ${encodedParameter}。</p>
+<ul>
+<li>扩展知识：<ol>
+<li>加密算法：现实中，经常需要使用更为复杂的加密算法，如 AES、RSA 等，对于这些加密方法的实现，可以借助 Java 强大的加密库，如 javax.crypto 包。以下是一个简单的 AES 加密的例子：</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.crypto.Cipher</span><br><span class="line"><span class="keyword">import</span> javax.crypto.spec.SecretKeySpec</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> key = <span class="string">&quot;1234567890123456&quot;</span>  <span class="comment">// AES 需要 16 字节的密钥</span></span><br><span class="line"><span class="keyword">def</span> originalParameter = vars.get(<span class="string">&quot;originalParameter&quot;</span>)</span><br><span class="line"><span class="keyword">def</span> keySpec = <span class="keyword">new</span> SecretKeySpec(key.bytes, <span class="string">&quot;AES&quot;</span>)</span><br><span class="line"><span class="keyword">def</span> cipher = Cipher.getInstance(<span class="string">&quot;AES&quot;</span>)</span><br><span class="line">cipher.init(Cipher.ENCRYPT_MODE, keySpec)</span><br><span class="line"><span class="keyword">def</span> encrypted = cipher.doFinal(originalParameter.bytes)</span><br><span class="line"><span class="keyword">def</span> encodedParameter = Base64.encodeBase64String(encrypted)</span><br><span class="line">vars.put(<span class="string">&quot;encodedParameter&quot;</span>, encodedParameter)</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>复用性：为了提高脚本的复用性和可维护性，可以将加密逻辑抽取到一个公共的函数中，然后在需要的地方调用此函数。例如，将脚本存储在一个外部文件中，并在多个计划（Test Plan）中引用。</li>
+<li>对称与非对称加密：除了对称加密（如 AES），非对称加密（如 RSA）在接口测试中也广泛使用。非对称加密需要公钥和私钥的配合，可以用于签名和验证签名。合理使用这两种加密方式，可以提升数据传输的安全性。</li>
+<li>性能考虑：编写复杂的加密脚本时，要注意对测试性能的影响。尽量选用高效的算法，并避免在每个请求前都重复创建加密对象。如果加密过程较为耗时，可以考虑将加密操作放在测试计划的开头，只执行一次。</li>
+</ol>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>加密写成 Groovy 脚本，会不会把压测性能拖垮？</td>
+<td>编写复杂的加密脚本时，要注意对测试性能的影响：尽量选用高效的算法，并避免在每个请求前都重复创建加密对象；如果加密过程较为耗时，可以考虑将加密操作放在测试计划的开头，只执行一次。</td>
+</tr>
+<tr>
+<td>Base64 之外，实际项目里用的什么加密方式？</td>
+<td>现实中经常需要使用更为复杂的加密算法，如 AES、RSA 等。AES 属于对称加密，RSA 属于非对称加密；非对称加密需要公钥和私钥的配合，可以用于签名和验证签名。</td>
+</tr>
+<tr>
+<td>多个接口都要加密，这段脚本怎么维护？</td>
+<td>把加密逻辑抽取到一个公共的函数中，在需要的地方调用此函数，例如将脚本存储在一个外部文件中，并在多个计划（Test Plan）中引用。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“JMeter 自带加密功能，在请求里勾选一下就能加密。” —— 加密要靠 JSR223 Sampler 或 JSR223 PreProcessor 编写 Groovy 脚本实现，再把加密结果回写为 JMeter 变量供 HTTP Request 引用。</li>
+<li>“脚本里算完密文，请求参数里直接填密文就行。” —— 算完必须用 <code>vars.put</code> 写回 JMeter 变量，HTTP Request 里再用 <code>$&#123;encodedParameter&#125;</code> 这样的引用，否则发出去的还是原始参数。</li>
+</ul>
+<hr>
+<h3 id="9-如果接口返回的数据进行了加密，如何在-JMeter-中进行断言？"><a href="#9-如果接口返回的数据进行了加密，如何在-JMeter-中进行断言？" class="headerlink" title="9. 如果接口返回的数据进行了加密，如何在 JMeter 中进行断言？"></a>9. 如果接口返回的数据进行了加密，如何在 JMeter 中进行断言？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：接口返回的数据是加密的，在 JMeter 里还能不能对这个结果做断言？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易踩的坑是<strong>直接拿密文去匹配响应文本</strong>——响应体里根本没有明文关键字，断言必然失败。正确思路是<strong>先解密、再断言</strong>：用一个后置处理器把解密后的结果写进 JMeter 变量，然后让响应断言作用在这个变量上，而不是作用在原始响应上。另一个细节是 “Apply to” 必须选 “JMeter Variable” 并填变量名，选错了断言还是去校验原始响应。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中进行接口测试时，如果接口返回的数据进行了加密，想要进行断言，可以按照以下步骤操作：<br>1）解密加密的响应数据：需要对返回的数据进行解密，可以在 JMeter 中使用 “BeanShell PostProcessor” 或者 “JSR223 PostProcessor” 来执行自定义的解密脚本；<br>2）存储解密后的数据：将解密后的数据保存到 JMeter 变量中，以便后续进行断言；<br>3）断言处理：使用 “Response Assertion” 对解密后的数据进行断言。</li>
+<li>具体操作为：添加一个 “HTTP Request” 采样器用于发送接口请求；在 “HTTP Request” 采样器下添加一个 “JSR223 PostProcessor”，写入自定义解密脚本，确保解密后的数据被存储到一个变量中，比如 ${decryptedResponse}；再添加一个 “Response Assertion”，选中 “Apply to” 选项，然后选择 “JMeter Variable” 并填写变量名 ${decryptedResponse}，再在 “Pattern to Test” 中填写断言条件。</li>
+<li>JSR223 后处理器支持多种脚本语言，如 Groovy、JavaScript 等，可以方便地编写复杂逻辑。下面是一个使用 Groovy 进行解密的示例：</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.crypto.Cipher</span><br><span class="line"><span class="keyword">import</span> javax.crypto.spec.SecretKeySpec</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> encryptedData = prev.getResponseDataAsString()</span><br><span class="line"><span class="keyword">def</span> key = <span class="string">&#x27;your-secret-key&#x27;</span> <span class="comment">// 需要与加密时一致</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 假设这里使用 AES 解密</span></span><br><span class="line"><span class="keyword">def</span> cipher = Cipher.getInstance(<span class="string">&#x27;AES&#x27;</span>)</span><br><span class="line"><span class="keyword">def</span> keySpec = <span class="keyword">new</span> SecretKeySpec(key.bytes, <span class="string">&#x27;AES&#x27;</span>)</span><br><span class="line">cipher.init(Cipher.DECRYPT_MODE, keySpec)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> decryptedBytes = cipher.doFinal(encryptedData.decodeBase64())</span><br><span class="line"><span class="keyword">def</span> decryptedData = <span class="keyword">new</span> String(decryptedBytes, <span class="string">&#x27;UTF-8&#x27;</span>)</span><br><span class="line"></span><br><span class="line">vars.put(<span class="string">&#x27;decryptedResponse&#x27;</span>, decryptedData) <span class="comment">// 将解密后的数据存储到 JMeter 变量中</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果解密逻辑非常复杂，还可以选择编写一个自定义类库来处理解密，在 JMeter 中引入该类库并在 JSR223 后处理器中调用：</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.example.YourCustomDecryptor</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> encryptedData = prev.getResponseDataAsString()</span><br><span class="line"><span class="keyword">def</span> decryptedData = YourCustomDecryptor.decrypt(encryptedData)</span><br><span class="line">vars.put(<span class="string">&#x27;decryptedResponse&#x27;</span>, decryptedData)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>调试技巧：为了确保解密逻辑的正确性，可以在开发阶段使用 JMeter 的 “Debug Sampler” 和 “View Results Tree” 监听器来检查中间变量的值，这对于调试脚本特别有用。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>解密逻辑很复杂、不好写在脚本里怎么办？</td>
+<td>可以编写一个自定义类库来处理解密，在 JMeter 中引入该类库并在 JSR223 后处理器中调用，例如引入 com.example.YourCustomDecryptor 后直接调用它的 decrypt 方法，再把结果存进 JMeter 变量。</td>
+</tr>
+<tr>
+<td>怎么确认解密脚本没写错？</td>
+<td>在开发阶段使用 JMeter 的 “Debug Sampler” 和 “View Results Tree” 监听器来检查中间变量的值，这对调试脚本特别有用。</td>
+</tr>
+<tr>
+<td>JSR223 后处理器能用哪些语言？</td>
+<td>支持多种脚本语言，如 Groovy、JavaScript 等，可以方便地编写复杂逻辑。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“直接对返回的密文做响应断言就行，匹配关键字就行。” —— 响应体里是密文，用明文关键字去匹配当然匹配不到；必须先在 “JSR223 PostProcessor” 或 “BeanShell PostProcessor” 里解密，再把结果存进 JMeter 变量，用 “Response Assertion” 去断言这个变量。</li>
+<li>“断言不用管 Apply to 选项，默认就是对的。” —— 解密场景下必须把 “Apply to” 选成 “JMeter Variable” 并填写变量名（如 ${decryptedResponse}），否则断言校验的还是原始响应。</li>
+</ul>
+<hr>
+<h3 id="10-如果下一个接口需要使用上一个接口返回的加密数据，如何在-JMeter-中提取？"><a href="#10-如果下一个接口需要使用上一个接口返回的加密数据，如何在-JMeter-中提取？" class="headerlink" title="10. 如果下一个接口需要使用上一个接口返回的加密数据，如何在 JMeter 中提取？"></a>10. 如果下一个接口需要使用上一个接口返回的加密数据，如何在 JMeter 中提取？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：第二个接口要用第一个接口返回的那串加密数据，在 JMeter 里怎么把它取出来传下去？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>坑点在于<strong>只提取了值、没留下名</strong>，或者名取对了却在下一个接口里引用错。JMeter 的提取器不是”自动传参”的，它只是把匹配到的内容存进一个<strong>变量</strong>，下一个请求必须显式用 <code>$&#123;变量名&#125;</code> 去引用。另外一个常见错误是照抄正则时把转义写丢，导致正则匹配不到却以为”提取器失效”。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中，如果需要使用上一个接口返回的加密数据作为下一个接口的输入参数，可以通过”正则表达式提取器”来实现，步骤如下：<br>1）首先，在上一个接口的 HTTP 请求后添加一个”正则表达式提取器”（Regular Expression Extractor）；<br>2）在”正则表达式提取器”中配置提取规则，包括”引用名”（Reference Name）、”正则表达式”（Regular Expression）、”模板”（Template）、”匹配数字”（Match No.）和”默认值”（Default Value）；<br>3）配置”引用名”，它是变量名，通过这个变量名我们可以在后续的请求中引用提取到的数据；<br>4）在下一个接口的 HTTP 请求中，通过使用 ${引用名} 来调用提取到的数据。</li>
+<li>例如，上一个接口返回的数据是：{“encryptedData”: “abc123xyz”}，需要提取 encryptedData 的值，可以这样配置：引用名 <code>encryptedData</code>；正则表达式 <code>&quot;encryptedData&quot;:\s*&quot;([^&quot;]+)&quot;</code>；模板 <code>Template</code>；匹配数字 1；默认值 <code>Default Value</code>。然后在下一个 HTTP 请求中使用 ${encryptedData} 引用提取到的数据。</li>
+<li>除了正则表达式提取器，JMeter 还支持其他数据提取器：<br>1）JSON 提取器（JSON Extractor）：如果接口返回的是标准的 JSON 格式数据，使用 JSON 提取器会更加方便和直接，可以配置 JSON 路径 $..encryptedData 来提取加密数据；<br>2）XPath 提取器（XPath Extractor）：如果接口返回的是 XML 数据，可以使用 XPath 表达式来提取需要的部分，例如 XPath 表达式 &#x2F;&#x2F;encryptedData&#x2F;text() 可以提取到 <encryptedData>abc123xyz</encryptedData> 中的内容。</li>
+<li>有些时候接口返回的数据比较复杂或者嵌套很多，可以结合使用多个提取器进行数据的逐层提取。</li>
+<li>为了保证测试的稳定性和可维护性，建议在编写提取规则时做好注释和解释，方便日后的维护和排查问题；同时可以利用 JMeter 的 Debug Sampler 和 View Results Tree 等组件来调试和验证提取的正确性。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>返回的是标准 JSON，用正则是不是太笨了？</td>
+<td>如果接口返回的是标准的 JSON 格式数据，使用 JSON 提取器会更加方便和直接，可以配置 JSON 路径 $..encryptedData 来提取加密数据。</td>
+</tr>
+<tr>
+<td>返回的是 XML 呢？</td>
+<td>可以用 XPath 提取器，XPath 表达式 &#x2F;&#x2F;encryptedData&#x2F;text() 能提取到 <encryptedData>abc123xyz</encryptedData> 中的内容。</td>
+</tr>
+<tr>
+<td>数据结构嵌套很深、一次提不出来怎么办？</td>
+<td>有些时候接口返回的数据比较复杂或者嵌套很多，可以结合使用多个提取器进行数据的逐层提取。</td>
+</tr>
+<tr>
+<td>提取结果怎么确认是对的？</td>
+<td>可以利用 JMeter 的 Debug Sampler 和 View Results Tree 等组件来调试和验证提取的正确性，提取规则也要做好注释和解释，方便日后维护和排查问题。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“配好提取器，下一个接口就自动带上加密数据了。” —— 提取器只是把值存进变量，下一个请求必须用 <code>$&#123;引用名&#125;</code> 显式引用才生效。</li>
+<li>“正则表达式提取器是唯一的选择。” —— 还有 JSON 提取器和 XPath 提取器：标准 JSON 用 JSON 提取器，XML 用 XPath 提取器，更方便也更直接。</li>
+<li>“提取不到数据是 JMeter 的问题。” —— 更常见的是正则里转义写丢或模板没填对；同时可以用 Debug Sampler 和 View Results Tree 验证提取是否正确。</li>
+</ul>
+<hr>
+<h3 id="11-如何在-JMeter-中跨线程组传输参数？"><a href="#11-如何在-JMeter-中跨线程组传输参数？" class="headerlink" title="11. 如何在 JMeter 中跨线程组传输参数？"></a>11. 如何在 JMeter 中跨线程组传输参数？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：第一个线程组里拿到的数据，第二个线程组要拿来用，JMeter 里怎么传？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>关键区别是<strong>JMeter 变量和”网络变量”（Properties）不是一回事</strong>：JMeter 变量的作用范围仅限于当前线程组，无法直接跨线程组传递；用户定义的变量虽然所有线程组都能访问，但<strong>无法在测试计划执行过程中动态变化</strong>。要动态跨组传值，得用 <code>props</code> 这个全局属性对象。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中，跨线程组传输参数的一种有效方法是使用”网络变量”（Properties）。网络变量是 JMeter 的全局变量，任何线程组都可以访问和修改这些变量。</li>
+<li>步骤如下：<br>1）在一个线程组中设置网络变量，可以使用 JSR223 PreProcessor 或者 BeanShell PreProcessor 来设置网络变量：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">props.put(<span class="string">&quot;variableName&quot;</span>, <span class="string">&quot;value&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>  2）在另一个线程组中获取网络变量，同样可以使用 JSR223 PreProcessor 或者 BeanShell PreProcessor 从网络变量中获取值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">value</span> <span class="operator">=</span> props.get(<span class="string">&quot;variableName&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>其他几种跨线程组的做法与它们的边界：<br>1）使用 JMeter 变量：JMeter 变量的作用范围仅限于当前线程组，无法直接跨线程组传递；如果需要在一个线程组中设置变量并在另一个线程组中使用，可以借助网络变量；<br>2）使用用户定义的变量：用户定义的变量可以在测试计划级别设置，这些变量在所有线程组中都可访问，但无法在测试计划执行过程中动态变化；如果需要动态更新变量，可以结合使用 JSR223 组件和网络变量；<br>3）使用 CSV Data Set Config：如果需要加载大量参数，也可以使用 CSV 数据文件，虽然 CSV 文件可以跨线程组共享数据，但不太适合单个参数的传递；<br>4）共享属性：有时候为了更细粒度地控制跨线程组的变量，可以尝试使用共享属性（Shared Properties），这是通过 props 对象来实现的，举例来说设置共享属性与设置网络变量类似：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置变量</span></span><br><span class="line">props.put(<span class="string">&quot;sharedVariable&quot;</span>, <span class="string">&quot;sharedValue&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取变量</span></span><br><span class="line"><span class="type">String</span> <span class="variable">value</span> <span class="operator">=</span> props.get(<span class="string">&quot;sharedVariable&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>  5）正则表达式提取器组合使用：在接口测试场景中，通过正则表达式提取器与网络变量组合，可以把从响应中得到的值存储为网络变量，供其他线程组使用。</p>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>普通的 JMeter 变量能跨线程组吗？</td>
+<td>不能，JMeter 变量的作用范围仅限于当前线程组，无法直接跨线程组传递，需要借助网络变量。</td>
+</tr>
+<tr>
+<td>用户定义的变量行不行？</td>
+<td>用户定义的变量可以在测试计划级别设置，所有线程组中都可访问，但无法在测试计划执行过程中动态变化。</td>
+</tr>
+<tr>
+<td>想传大量参数呢？</td>
+<td>可以使用 CSV Data Set Config 加载 CSV 数据文件，CSV 文件可以跨线程组共享数据，但不太适合单个参数的传递。</td>
+</tr>
+<tr>
+<td>接口场景下从响应里取值给别的线程组用呢？</td>
+<td>通过正则表达式提取器与网络变量组合，把从响应中得到的值存储为网络变量，供其他线程组使用。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“在第一个线程组里用普通 JMeter 变量设的值，第二个线程组直接就能用。” —— JMeter 变量的作用范围仅限于当前线程组，跨组要用网络变量（Properties）。</li>
+<li>“用户定义的变量可以运行时改。” —— 用户定义的变量在所有线程组中都可访问，但无法在测试计划执行过程中动态变化。</li>
+<li>“网络变量不好用，得把值塞进 CSV。” —— 网络变量是 JMeter 的全局变量，任何线程组都可以访问和修改；CSV 更适合加载大量参数，不适合单个参数的传递。</li>
+</ul>
+<hr>
+<h3 id="12-如果接口的请求参数需要加密处理，你们使用的是什么加密方式？你是如何处理加密的？"><a href="#12-如果接口的请求参数需要加密处理，你们使用的是什么加密方式？你是如何处理加密的？" class="headerlink" title="12. 如果接口的请求参数需要加密处理，你们使用的是什么加密方式？你是如何处理加密的？"></a>12. 如果接口的请求参数需要加密处理，你们使用的是什么加密方式？你是如何处理加密的？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：接口参数要加密，你们用的什么算法，加密这块怎么处理的？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易被追问倒的是<strong>密钥怎么安全地送到服务端</strong>：对称加密速度快但密钥必须保密，常见做法是<strong>用 RSA 加密 AES 密钥，再把加密后的密钥和密文一起发</strong>。另一个坑是<strong>把密钥硬编码在代码里</strong>或者把摘要、密文混在一起不区分——那样既没有完整性保护，也埋了安全隐患。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在处理接口请求参数的加密时，通常使用对称加密和非对称加密两种主要方式。对称加密主要包括 AES（高级加密标准），非对称加密主要包括 RSA（公钥加密），具体选择哪种加密方式要根据实际需求。</li>
+<li>选择 AES 进行数据加密，是因为 AES 相对而言速度较快，且安全性也很高。处理加密的具体步骤如下：<br>1）生成密钥：首先生成一个随机的 AES 密钥，这个密钥将用于加密和解密数据；<br>2）加密数据：使用生成的 AES 密钥对请求参数进行加密，这里会选择一种适合的填充方式（如 PKCS7Padding），以确保数据块大小符合加密算法的要求；<br>3）传输密钥：由于使用了对称加密，密钥的保护至关重要，在传输 AES 密钥时使用 RSA 加密这个 AES 密钥，并将加密后的密钥与加密数据一起发送；<br>4）解密数据：在服务器端，首先使用私钥解密 AES 密钥，然后使用这个 AES 密钥解密请求参数，得到原始的请求数据。</li>
+<li>AES（高级加密标准）：AES 是一种对称加密算法，意味着加密和解密使用的是同一个密钥。AES 支持 128 位、192 位和 256 位密钥。它的优点有：<br>1）高效性：由于 AES 使用对称密钥算法，对数据块进行逐块加密，因此在处理大量数据时速度很快；<br>2）高安全性：AES 通过多轮的置换和代换操作，能提供非常高的安全性，至今为止没有实用的攻击破解 AES。</li>
+<li>RSA（公钥加密算法）：RSA 是一种非对称加密算法，使用一对密钥，即公钥和私钥。公钥用于加密，私钥用于解密；公钥可以公开给任何人，而私钥必须保密。它的优点有：<br>1）公钥基础设施（PKI）：由于公钥可以公开，可以在不安全的网络上方便地分发和验证身份；<br>2）数字签名：RSA 不仅用于加密数据，还可以用于生成和验证数字签名，确保数据的完整性和来源的真实性。</li>
+<li>实际应用中还需要考虑以下几点：<br>1）数据的完整性：除了加密外，通常会对请求参数进行哈希运算（如使用 SHA-256），生成数据摘要，并将这个摘要与加密数据一起发送，来确保数据未被篡改；<br>2）性能优化：由于加密和解密操作会增加计算资源的消耗，需要在性能和安全性之间找到一个平衡点，比如对于敏感信息加密，而非所有数据都加密；<br>3）安全通信：尽管对请求参数做了加密，整个通信过程也最好使用 HTTPS 协议来增加一层安全保障，HTTPS 能够加密传输层的数据，进一步避免数据在传输过程中被窃取或篡改。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>为什么选 AES 不选 RSA 直接加密参数？</td>
+<td>AES 相对而言速度较快，且安全性也很高；对称加密对数据块进行逐块加密，处理大量数据时速度很快，适合做数据本身的加密。</td>
+</tr>
+<tr>
+<td>对称加密的密钥怎么安全传给对方？</td>
+<td>由于使用了对称加密，密钥的保护至关重要，传输 AES 密钥时使用 RSA 加密这个 AES 密钥，并将加密后的密钥与加密数据一起发送。</td>
+</tr>
+<tr>
+<td>怎么保证参数没被改过？</td>
+<td>除了加密外，通常对请求参数进行哈希运算（如使用 SHA-256）生成数据摘要，并将摘要与加密数据一起发送，确保数据未被篡改。</td>
+</tr>
+<tr>
+<td>所有字段都要加密吗？</td>
+<td>由于加密和解密操作会增加计算资源的消耗，需要在性能和安全性之间找到平衡点，比如对敏感信息加密，而非所有数据都加密。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“AES 和 RSA 都是加密，随便挑一个用。” —— AES 是对称加密、AES 支持 128 位、192 位和 256 位密钥，RSA 是非对称加密用一对密钥，适用位置不同，通常是 AES 加数据、RSA 加 AES 密钥。</li>
+<li>“RSA 可以随便公开私钥。” —— 公钥可以公开给任何人，而私钥必须保密。</li>
+<li>“参数加密了就万事大吉。” —— 还要考虑数据完整性（哈希摘要）、性能平衡，以及整体通信最好使用 HTTPS 协议。</li>
+</ul>
+<hr>
+<h3 id="13-如果接口查询结果返回的是密文，你如何进行测试？"><a href="#13-如果接口查询结果返回的是密文，你如何进行测试？" class="headerlink" title="13. 如果接口查询结果返回的是密文，你如何进行测试？"></a>13. 如果接口查询结果返回的是密文，你如何进行测试？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：接口查出来返回的是密文，这种情况你怎么做测试？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最大的坑是<strong>只测”接口有没有返回”<strong>——密文接口的测试重点是</strong>解密后内容对不对</strong>、以及<strong>密钥管理是否安全</strong>。另一个坑是<strong>只测功能不测安全和性能</strong>：密文返回还意味着要检查密文泄露风险、加密算法是否易破解、能否防重放攻击，还要看加解密开销对响应时间的影响。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>如果接口查询结果返回的是密文，会进行系统性地测试，确保接口的可靠性和数据处理的安全性，具体来说可以按照以下步骤进行测试：<br>1）了解加密方法：首先了解密文的加密算法和密钥管理方法，这是关键的一步，因为只有明白数据是如何加密和解密的，才能进行有效的测试；<br>2）测试解密功能：编写测试脚本对接口返回的密文进行解密，验证解密后的数据是否正确，例如使用相应的库和方法解密数据并与期望的数据进行比较；<br>3）测试边界情况：检查接口在处理特殊字符和长字符串时是否正常，例如输入包含特殊字符的数据，确保加密和解密过程均无异常；<br>4）安全性测试：进行安全性测试，如检查是否存在密文泄露风险、验证加密算法是否易于破解、是否能防止重放攻击等；<br>5）性能测试：测试接口在大量数据请求下的性能，确保加密和解密过程不会显著影响接口响应时间。</li>
+<li>需要重点覆盖的方面：<br>1）密钥管理：加密的安全性很大程度上依赖于密钥管理，要验证系统在处理密钥时的安全性，包括密钥的生成、存储、分发和销毁环节，例如确认密钥不被明文存放在代码中或者日志中；<br>2）加密算法强度：常用的对称加密算法如 AES、DES，非对称加密算法如 RSA 都有各自的适用范围和安全性，在选择和测试加密方案时要考虑到现行的加密标准和算法强度，例如 AES256 通常比 AES128 更为安全；<br>3）加密模式：不同的加密模式（如 ECB、CBC、GCM）对数据的安全性有不同的影响，要确保所采用的模式提供了足够的安全性，例如 GCM 模式不仅加密，还提供了数据完整性检验；<br>4）数据完整性：除了加密，还要验证数据的完整性，如使用 HMAC（基于哈希的消息认证码）来确认数据在传输过程中的完整性，避免中间人攻击；<br>5）自动化测试工具：可以使用一些测试工具和框架来辅助测试工作，如 Postman、JMeter、Python 的 unittest、PyTest，以及加密库如 pycryptodome，这些工具可以帮助构建更为系统化和可重复的测试流程，提高测试效率和覆盖率。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>密钥管理要测什么？</td>
+<td>要验证系统在处理密钥时的安全性，包括密钥的生成、存储、分发和销毁环节，例如确认密钥不被明文存放在代码中或者日志中。</td>
+</tr>
+<tr>
+<td>怎么确认加密模式选得对？</td>
+<td>不同加密模式（如 ECB、CBC、GCM）对数据的安全性有不同的影响，要确保所采用的模式提供了足够的安全性，例如 GCM 模式不仅加密，还提供了数据完整性检验。</td>
+</tr>
+<tr>
+<td>数据被篡改了怎么发现？</td>
+<td>除了加密，还要验证数据的完整性，如使用 HMAC 来确认数据在传输过程中的完整性，避免中间人攻击。</td>
+</tr>
+<tr>
+<td>这类测试怎么做成可重复的？</td>
+<td>可以使用 Postman、JMeter、Python 的 unittest、PyTest，以及加密库如 pycryptodome，构建更系统化和可重复的测试流程。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“返回密文说明接口没问题，能返回就是通过。” —— 要编写测试脚本解密并与期望数据比较，还要测边界情况、安全性以及大量数据请求下的性能。</li>
+<li>“AES 和 DES 安全性一样，随便选一个。” —— 常用的对称加密算法如 AES、DES 各有适用范围和安全性，例如 AES256 通常比 AES128 更为安全。</li>
+<li>“密钥写在配置文件里就行。” —— 加密的安全性很大程度上依赖密钥管理，密钥不应被明文存放在代码中或者日志中。</li>
+</ul>
+<h2 id="三、JMeter-校验与通知：断言、请求头与结果通知"><a href="#三、JMeter-校验与通知：断言、请求头与结果通知" class="headerlink" title="三、JMeter 校验与通知：断言、请求头与结果通知"></a>三、JMeter 校验与通知：断言、请求头与结果通知</h2><hr>
+<h3 id="14-如何在-JMeter-中添加-Cookie？"><a href="#14-如何在-JMeter-中添加-Cookie？" class="headerlink" title="14. 如何在 JMeter 中添加 Cookie？"></a>14. 如何在 JMeter 中添加 Cookie？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：被测接口要带 Cookie，JMeter 里 Cookie 怎么加上去？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易错的是<strong>以为加了 Cookie Manager 就只有手动添加的那几条生效</strong>。实际上 HTTP Cookie Manager 默认会自动处理服务器发送的 Set-Cookie 响应头，把对应 Cookie 加到后续请求里；另外 Cookie Manager 是<strong>作用于整个测试计划</strong>的，如果你只想给某一个请求带 Cookie，把它挂在那个 HTTP 样本下面就行，挂在计划层面就会全局生效。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中添加 Cookie 通常使用 Cookie Manager 来管理整个测试计划中的 Cookie，具体步骤如下：<br>1）打开 JMeter 测试计划；<br>2）在 HTTP 样本（Sample）下方添加 HTTP Cookie Manager：右键点击你的 HTTP 样本，选择 Add -&gt; Config Element -&gt; HTTP Cookie Manager；<br>3）在 HTTP Cookie Manager 中添加自定义的 Cookie：可以点击 Add 按钮，手动添加需要的 Cookie 名称、值、域、路径等属性；<br>4）完成后，保存测试计划并运行。这样做后，HTTP 请求列表中所有的请求将会自动携带你添加的这些 Cookie 信息。</li>
+<li>Cookie 的概念和作用：Cookie 是由服务器发送到浏览器并保存在本地的一小段文本文件，用于保存用户状态，通常在会话管理（如登录状态等）以及个性化设置（如主题选择等）中具有重要的意义。浏览器每次请求同一服务器时，会把相应的 Cookie 带上，从而实现状态的保持。</li>
+<li>JMeter 中还有其他管理组件：除了 HTTP Cookie Manager 管理 Cookie 外，JMeter 还提供了 HTTP Header Manager、HTTP Cache Manager 等，用于更灵活、方便地进行请求的定制和优化。</li>
+<li>自动添加 Cookie：JMeter 的 HTTP Cookie Manager 默认会自动处理服务器发送的 Set-Cookie 响应头，并将对应的 Cookie 添加到后续的请求中，省去了手动处理的麻烦，这对于模拟用户浏览器行为的自动化测试特别有帮助。</li>
+<li>Cookie Manager 的选项：在 HTTP Cookie Manager 中有几个重要的选项，如 Clear Cookies each iteration（每次迭代清除 Cookie）和 Policy（策略，默认是标准浏览器行为），这些选项允许你根据具体测试需求进行更精细的控制。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>服务器返回的 Set-Cookie 还需要我自己手动搬过去吗？</td>
+<td>不需要，HTTP Cookie Manager 默认会自动处理服务器发送的 Set-Cookie 响应头，并将对应的 Cookie 添加到后续的请求中，省去了手动处理的麻烦。</td>
+</tr>
+<tr>
+<td>Cookie 每次请求都留着会不会串味？</td>
+<td>可以用 Clear Cookies each iteration（每次迭代清除 Cookie）选项在每次迭代时清掉 Cookie，Policy 策略默认是标准浏览器行为，可以按测试需求精细控制。</td>
+</tr>
+<tr>
+<td>Cookie 挂在哪个位置会影响作用范围吗？</td>
+<td>把 HTTP Cookie Manager 放在 HTTP 样本下面，就由这个 HTTP 样本使用；通常使用 Cookie Manager 来管理整个测试计划中的 Cookie。</td>
+</tr>
+<tr>
+<td>Cookie 到底是干什么用的？</td>
+<td>Cookie 是由服务器发送到浏览器并保存在本地的一小段文本文件，用于保存用户状态，在会话管理（如登录状态等）以及个性化设置（如主题选择等）中具有重要意义。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“每次登录后都得手动把 Cookie 一个个抄进 Cookie Manager。” —— Cookie Manager 默认会自动处理服务器发送的 Set-Cookie 响应头，并添加到后续请求中。</li>
+<li>“Cookie Manager 只影响我手动添加的那几条。” —— 它还会自动管理服务器下发的 Cookie，作用范围按挂载位置而定。</li>
+<li>“Cookie 只是个请求头而已。” —— Cookie 是服务器下发、浏览器保存的一小段文本文件，用于保存用户状态，配合会话管理使用。</li>
+</ul>
+<hr>
+<h3 id="15-如何在-JMeter-中添加-Header-信息？"><a href="#15-如何在-JMeter-中添加-Header-信息？" class="headerlink" title="15. 如何在 JMeter 中添加 Header 信息？"></a>15. 如何在 JMeter 中添加 Header 信息？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：接口要求带 Authorization 头，JMeter 里这个 Header 你怎么加？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>两种加法各有适用场景，选错就会重复或漏加：<strong>HTTP Header Manager 适合多个请求共享相同的 Header</strong>，而直接在 HTTP 请求的”头部信息”里添加适合<strong>单个请求的定制需求</strong>。另一个坑是”默认值”与”显式指定”的优先级——Header Manager 里设的默认 Header 只在请求中没有明确指定相关 Header 时才生效。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中添加 Header 信息主要有两种方式，一种是通过 HTTP Header Manager，另一种是直接在 HTTP 请求中添加。</li>
+<li>使用 HTTP Header Manager：<br>1）打开你的 JMeter 测试计划；<br>2）在你希望添加 Header 的 HTTP 请求下面右键，选择”添加” -&gt; “配置元件” -&gt; “HTTP Header Manager”；<br>3）在 HTTP Header Manager 中，点击”添加”按钮，添加新的 Header 和相应的值。</li>
+<li>直接在 HTTP 请求中添加：<br>1）选择你要添加 Header 的 HTTP 请求；<br>2）在”HTTP请求”界面中，找到”头部信息”部分；<br>3）点击”添加”按钮，填写关键字和值，添加需要的 Header 信息。</li>
+<li>这两种方法都可实现向 HTTP 请求添加 Header 信息的目标。</li>
+<li>HTTP Header Manager 适用于需要在多个请求中共享相同的 Header 情况，避免在每个请求中逐一添加 Header 的麻烦；可以配置多个头部信息项，比如 Content-Type、Authorization 等；可以在 HTTP Header Manager 中设置默认的 Header，如果请求中没有明确指定相关 Header，则会使用这个默认值。</li>
+<li>直接在 HTTP 请求中添加适用于仅需在特定的单个 HTTP 请求中添加特定 Header 的情况，更加灵活，可以根据具体的请求需要设定不同的头部信息。</li>
+<li>进阶用法：<br>1）动态设置 Header：可以使用 JMeter 的变量和函数功能动态地设置 HTTP Header 的值，例如通过 User Defined Variables 或者 CSV Data Set Config 动态读取值；<br>2）结合脚本：通过 BeanShell PreProcessor、JSR223 PreProcessor 等脚本组件，可以实现更复杂的逻辑，比如根据条件动态添加或修改 Header。例如在 BeanShell PreProcessor 中可以写：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.jmeter.protocol.http.control.Header;</span><br><span class="line"><span class="keyword">import</span> org.apache.jmeter.protocol.http.control.HeaderManager;</span><br><span class="line"></span><br><span class="line"><span class="type">HeaderManager</span> <span class="variable">headerManager</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HeaderManager</span>();</span><br><span class="line">headerManager.add(<span class="keyword">new</span> <span class="title class_">Header</span>(<span class="string">&quot;Authorization&quot;</span>, <span class="string">&quot;Bearer &quot;</span> + vars.get(<span class="string">&quot;authToken&quot;</span>)));</span><br><span class="line">sampler.setHeaderManager(headerManager);</span><br></pre></td></tr></table></figure>
+
+<p>  这样，Header 的值就可以在执行到请求之前动态地根据脚本逻辑进行设置了。</p>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一堆请求都要带同一个 Authorization，怎么加最省事？</td>
+<td>用 HTTP Header Manager，它适用于需要在多个请求中共享相同的 Header 情况，避免在每个请求中逐一添加 Header 的麻烦。</td>
+</tr>
+<tr>
+<td>Header Manager 里配的 Header 一定会生效吗？</td>
+<td>可以设置默认的 Header，如果请求中没有明确指定相关 Header，则会使用这个默认值。</td>
+</tr>
+<tr>
+<td>Authorization 这种每次都变的值怎么加？</td>
+<td>可以用 BeanShell PreProcessor、JSR223 PreProcessor 等脚本组件实现更复杂的逻辑，根据条件动态添加或修改 Header，值从 vars 里取。</td>
+</tr>
+<tr>
+<td>只想给某一个请求加特殊 Header 呢？</td>
+<td>直接在 HTTP 请求的”头部信息”部分点击”添加”，填写关键字和值，更加灵活，适合单个请求的定制需求。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“Header 只能一个一个在每个请求里加。” —— 需要在多个请求中共享相同的 Header 时，用 HTTP Header Manager 即可避免逐一添加的麻烦。</li>
+<li>“Header Manager 里配的值会覆盖请求上自己设置的值。” —— 在 HTTP Header Manager 中设置的默认 Header，是在请求中没有明确指定相关 Header 时才会使用。</li>
+<li>“Header 是写死的。” —— 通过变量和函数（如 User Defined Variables、CSV Data Set Config）或 BeanShell PreProcessor、JSR223 PreProcessor 等脚本组件，Header 的值可以在请求发出前动态设置。</li>
+</ul>
+<hr>
+<h3 id="16-如何在-JMeter-中进行断言？"><a href="#16-如何在-JMeter-中进行断言？" class="headerlink" title="16. 如何在 JMeter 中进行断言？"></a>16. 如何在 JMeter 中进行断言？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：接口返回的结果怎么判断对不对，JMeter 里的断言是怎么加的？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>两个常见误区：一是<strong>只加一种断言</strong>，JSON 接口用响应断言去匹配关键字，XML 接口不用 XPath 断言，定位能力很弱；二是<strong>忽略断言之间的关系</strong>——同一个请求节点下添加多个断言时，它们之间是 <strong>AND</strong> 关系，所有断言都必须通过，该请求才会被认为是成功的，漏配一个就可能让失败请求被放过。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中进行断言的步骤如下：<br>1）打开 JMeter 并加载你的测试计划；<br>2）在测试计划中找到需要断言的请求节点；<br>3）右键点击该请求节点，选择”添加（Add）” -&gt; “断言（Assertions）”；<br>4）在出现的菜单中选择你需要的断言类型，例如”响应断言（Response Assertion）”、”响应时间断言（Duration Assertion）”等；<br>5）配置断言参数，比如匹配内容、模式、响应时间等。</li>
+<li>常见断言类型：<br>1）响应断言：这是最常用的断言类型之一，主要用来验证响应的内容是否包含特定的字符串、正则表达式或响应码，例如检查接口返回的 JSON 格式数据中是否包含某个关键字；<br>2）JSON 断言：如果接口返回的是 JSON 数据，可以使用 JSON 断言来验证响应数据中的特定字段和值，从而精确地校验返回的数据结构和内容；<br>3）XPath 断言：用来验证 XML 格式的响应数据，使用 XPath 表达式来定位和检查文本内容，对于处理 web 服务返回的 XML 数据尤其有用；<br>4）响应时间断言：用于确保服务器在规定的时间内返回响应，适用于那些对性能有较高要求的测试场景；<br>5）自定义断言（BeanShell Assertion 或者 JSR223 Assertion）：对于复杂的验证逻辑，可以使用自定义断言，通过脚本（如 Groovy、BeanShell、JavaScript 等）来进行复杂的校验；<br>6）组合断言：在实际工作中可能需要同时验证多个方面，可以在同一个请求节点下添加多个断言，它们之间的关系是 AND，也就是说所有断言都必须通过，该请求才会被认为是成功的。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>返回的是 JSON，断言怎么写更精确？</td>
+<td>如果接口返回的是 JSON 数据，可以使用 JSON 断言来验证响应数据中的特定字段和值，精确校验返回的数据结构和内容。</td>
+</tr>
+<tr>
+<td>XML 响应呢？</td>
+<td>用 XPath 断言，使用 XPath 表达式来定位和检查文本内容，对处理 web 服务返回的 XML 数据尤其有用。</td>
+</tr>
+<tr>
+<td>校验逻辑很复杂怎么办？</td>
+<td>使用自定义断言（BeanShell Assertion 或者 JSR223 Assertion），通过脚本（如 Groovy、BeanShell、JavaScript 等）进行复杂的校验。</td>
+</tr>
+<tr>
+<td>加了多个断言，一个挂了会怎样？</td>
+<td>同一请求节点下多个断言之间是 AND 关系，所有断言都必须通过，该请求才会被认为是成功的。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“有一个断言通过就算这条请求成功。” —— 同一请求节点下的多个断言是 AND 关系，必须全部通过才算成功。</li>
+<li>“响应断言万能，JSON 和 XML 都能用。” —— JSON 响应有专门的 JSON 断言，XML 响应适合用 XPath 断言，定位更准。</li>
+<li>“接口慢一点没关系，反正是功能测试。” —— 响应时间断言用于确保服务器在规定的时间内返回响应，适用于对性能有较高要求的测试场景。</li>
+</ul>
+<hr>
+<h3 id="17-JMeter-测试完成后如何自动发送邮件？"><a href="#17-JMeter-测试完成后如何自动发送邮件？" class="headerlink" title="17. JMeter 测试完成后如何自动发送邮件？"></a>17. JMeter 测试完成后如何自动发送邮件？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：JMeter 跑完想自动收到一封结果邮件，怎么配？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易踩的是<strong>以为加个 SMTP Sampler 就一定会发出去</strong>：还要能连上 SMTP 服务器，这通常需要网络访问权限和 SMTP 服务器的正确配置；企业邮箱尤其容易卡在安全策略上，比如 Gmail 的 SMTP 服务需要开启”双因素认证”以及”低安全应用访问权限”。另一个坑是<strong>步骤本身写得不严谨</strong>——有的版本会把 Mail Reader Sampler 和 SMTP Sampler 混着说，实际要发测试结果邮件靠的是 SMTP Sampler 配合监听器上的条件。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>要在 JMeter 测试完成后自动发送邮件，可以使用 JMeter 内置的 SMTP Sampler，此功能可以在测试结束时自动发送邮件，具体步骤如下：<br>1）在 JMeter 界面中，右键点击你的测试计划，选择”添加” -&gt; “监听器” -&gt; “查看结果树”，这一步是为了方便调试和查看测试结果；<br>2）在同一测试计划中，右键点击测试计划，选择”添加” -&gt; “后置处理器” -&gt; “模式控制器”（Post Processor -&gt; Mail Reader Sampler）；<br>3）在测试计划中添加一个 SMTP Sampler，填写相关的邮件服务器配置，如 SMTP 服务器地址、用户名、密码、发件人和收件人等信息；<br>4）确保你可以连接到 SMTP 服务器，这通常需要网络访问权限和 SMTP 服务器的正确配置；<br>5）最后，在目标侦听器中设置条件，让其在特定条件下发送邮件，如测试执行完毕时发送邮件。</li>
+<li>通过这些步骤，能在测试完成后自动发送邮件来报告测试结果。</li>
+<li>邮箱服务器配置和安全性：SMTP 服务器的配置有时并不是一帆风顺的，尤其是在涉及企业邮箱或那些配置了严格安全策略的邮箱服务时，例如 Gmail 的 SMTP 服务需要开启”双因素认证”以及”低安全应用访问权限”，所以熟悉不同邮箱服务的配置要求很有帮助。</li>
+<li>JMeter 的其他监听器和后置处理器：除了发送邮件，JMeter 提供了多种后置处理器和监听器可以用来生成更详尽的测试报告，例如通过”聚合报告”或者”图形结果”收集统计信息，然后使用自定义脚本生成报告，再通过邮件发送详细的报告，这些步骤可以由 JMeter 的 “Beanshell Sampler” 或 “JSR223 Sampler” 来实现。</li>
+<li>自动化集成：将 JMeter 和 CI&#x2F;CD 工具链接起来，如 Jenkins，可以实现更为高效的自动化测试流程：在 Jenkins 下配置 JMeter 执行测试，然后使用 Jenkins 自带的邮件插件来发送测试结果，这样可以保证在每次代码更新之后自动触发测试并及时收到反馈。</li>
+<li>JMeter 的脚本扩展：如果需要更复杂的邮件逻辑，例如根据测试结果不同发送不同内容的邮件，可以考虑使用 JMeter 的脚本功能，如封装在 JSR223 Sampler 中的 Groovy 或者 Beanshell 来写自定义逻辑，这样能灵活地处理测试结果，甚至整合到整个测试框架中。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>加了 SMTP Sampler 就能收到邮件吗？</td>
+<td>还要确保你能连接到 SMTP 服务器，这通常需要网络访问权限和 SMTP 服务器的正确配置。</td>
+</tr>
+<tr>
+<td>公司邮箱特别难配是什么问题？</td>
+<td>企业邮箱往往配置了严格安全策略，例如 Gmail 的 SMTP 服务需要开启”双因素认证”以及”低安全应用访问权限”。</td>
+</tr>
+<tr>
+<td>邮件里想带详细报告怎么做？</td>
+<td>通过”聚合报告”或”图形结果”收集统计信息，用自定义脚本生成报告，再通过邮件发送，这些步骤可以由 “Beanshell Sampler” 或 “JSR223 Sampler” 实现。</td>
+</tr>
+<tr>
+<td>不同结果想发不同内容的邮件呢？</td>
+<td>用 JMeter 的脚本功能，如封装在 JSR223 Sampler 中的 Groovy 或者 Beanshell 写自定义逻辑，灵活处理测试结果。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“配好 SMTP Sampler 填上账号密码就一定能发出去。” —— 必须能连接到 SMTP 服务器，这需要网络访问权限和正确的服务器配置，企业邮箱还常受安全策略限制。</li>
+<li>“Gmail 的 SMTP 直接填账号密码就行。” —— Gmail 的 SMTP 服务需要开启”双因素认证”以及”低安全应用访问权限”。</li>
+<li>“自动发邮件和 CI&#x2F;CD 没关系。” —— 把 JMeter 和 Jenkins 等 CI&#x2F;CD 工具链接起来，用 Jenkins 自带的邮件插件发送结果，能在每次代码更新后自动触发测试并及时收到反馈。</li>
+</ul>
+<h2 id="四、JMeter-安全与代理：HTTPS-证书与代理录制"><a href="#四、JMeter-安全与代理：HTTPS-证书与代理录制" class="headerlink" title="四、JMeter 安全与代理：HTTPS 证书与代理录制"></a>四、JMeter 安全与代理：HTTPS 证书与代理录制</h2><hr>
+<h3 id="18-如何在-JMeter-中处理-HTTPS-证书？"><a href="#18-如何在-JMeter-中处理-HTTPS-证书？" class="headerlink" title="18. 如何在 JMeter 中处理 HTTPS 证书？"></a>18. 如何在 JMeter 中处理 HTTPS 证书？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：测 HTTPS 接口的时候证书这块你们怎么处理的？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易漏的一步是<strong>证书的信任链位置</strong>——只生成了 CA 证书却不导入浏览器的受信任的根证书颁发机构存储区，HTTPS 流量照样抓不到、照样报错。另外<strong>协议与端口要配对</strong>：HTTP 请求采样器里协议要设成 https，服务器和端口也要对应，否则前面的证书都白配。还有人以为 JMeter 内置机制能自动信任任意证书，那是不成立的。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 JMeter 中处理 HTTPS 证书实际上是为了使测试能够顺利进行并得到准确的数据，JMeter 提供了一个内置的证书管理机制，可以轻松地配置和管理 HTTPS 证书，关键步骤如下：<br>1）生成 JMeter CA 证书：启动 JMeter 的 HTTP(S) 测试脚本记录器，JMeter 会自动生成一个用于捕获 HTTPS 流量的 CA 证书；<br>2）将 CA 证书导入浏览器：将生成的证书（通常位于 $JMETER_HOME&#x2F;bin 目录下，文件名为 ApacheJMeterTemporaryRootCA.crt）导入到你用来执行测试的浏览器的受信任的根证书颁发机构存储区；<br>3）配置 JMeter HTTP 请求：对于 HTTPS 请求，确保你在测试计划的 HTTP 请求采样器中正确地设置了”协议”为 https，并准确设置目标服务器和端口。</li>
+<li>以上步骤能确保 JMeter 能顺利处理 HTTPS 流量。</li>
+<li>测试环境里用自签名证书很常见：为了使用自签名证书，可以在 JMeter 中配置系统属性 javax.net.ssl.trustStore 和 javax.net.ssl.trustStorePassword 指向自签名证书的可信存储。</li>
+<li>证书别名与信任链：在复杂的场景中，可能需要处理多个证书链，使用不同别名和信任链管理证书显得尤为重要；熟悉 keytool 命令行工具，可以帮助你批量导入证书和管理密钥库。</li>
+<li>TLS Version &amp; Protocols：JMeter 允许你指定使用的 TLS 版本和不同的加密算法，如果对安全性有更高的要求或需求，可以调节 JMeter 的 https.default.protocol 和 https.socket.protocols 参数，确保使用合适的协议。</li>
+<li>证书失效处理：在自动化测试中，证书的过期是一个常见问题，会影响你的测试结果；可以通过设置 JMeter 的系统参数或者在测试执行前检查并更新证书来避免这些问题的出现。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>测试环境用的是自签名证书怎么办？</td>
+<td>可以在 JMeter 中配置系统属性 javax.net.ssl.trustStore 和 javax.net.ssl.trustStorePassword，指向自签名证书的可信存储。</td>
+</tr>
+<tr>
+<td>环境里有很多证书链怎么办？</td>
+<td>使用不同别名和信任链管理证书显得尤为重要，熟悉 keytool 命令行工具，可以帮助你批量导入证书和管理密钥库。</td>
+</tr>
+<tr>
+<td>能指定 TLS 版本吗？</td>
+<td>可以，JMeter 允许你指定使用的 TLS 版本和不同的加密算法，通过调节 https.default.protocol 和 https.socket.protocols 参数来确保使用合适的协议。</td>
+</tr>
+<tr>
+<td>证书过期了测试全挂怎么办？</td>
+<td>证书过期在自动化测试中是常见问题，可以通过设置 JMeter 的系统参数或者在测试执行前检查并更新证书来避免。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“生成 CA 证书就够了，浏览器不用动。” —— 生成的证书（$JMETER_HOME&#x2F;bin 目录下的 ApacheJMeterTemporaryRootCA.crt）还要导入浏览器的受信任的根证书颁发机构存储区。</li>
+<li>“JMeter 内置的证书管理能自动信任所有 HTTPS 站点。” —— 证书能被信任的前提是导入信任存储或配置 javax.net.ssl.trustStore 与 javax.net.ssl.trustStorePassword 指向可信存储。</li>
+<li>“证书过期只是偶发问题，重跑一次就好。” —— 证书过期会影响测试结果，应通过系统参数或在测试执行前检查并更新证书来避免。</li>
+</ul>
+<hr>
+<h3 id="19-如何使用-HTTP-代理进行接口录制？"><a href="#19-如何使用-HTTP-代理进行接口录制？" class="headerlink" title="19. 如何使用 HTTP 代理进行接口录制？"></a>19. 如何使用 HTTP 代理进行接口录制？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：要测的接口还没写好，怎么用代理工具把请求录下来？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>坑在<strong>漏了 HTTPS 流量解密</strong>：要解密 HTTPS 流量，一般需要安装代理工具提供的证书（比如在 Fiddler 里要在浏览器的信任证书管理中安装 Fiddler 根证书），只配代理端口不解密，录到的只是一堆握手失败。另一个坑是<strong>代理端口没占用检查</strong>——Fiddler 通常监听 8888，改端口前要确认没有其他应用占用。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>使用 HTTP 代理进行接口录制的步骤如下：<br>1）选择一个合适的 HTTP 代理工具，例如 Fiddler、Charles Proxy 或者 Burp Suite；<br>2）在代理工具中配置 HTTP 代理监听端口；<br>3）将要录制的客户端或服务器的网络请求指向配置好的代理端口，这通常通过在网络设置中配置 HTTP 代理服务器地址和端口来实现；<br>4）启动代理工具并开始录制，代理工具会捕获各类 HTTP 请求和响应，并将其记录；<br>5）结束录制后，可以导出捕获的 HTTP 流量用于后续分析或者自动化测试。</li>
+<li>工具选择：<br>1）Fiddler：免费且功能强大，适合用于 Windows 平台，或者通过 Mono 在其他平台运行，支持 HTTPS 流量解密；<br>2）Charles Proxy：跨平台的网络调试代理工具，界面友好，支持 HTTPS 流量解密，可以用于各种编程语言和开发环境；<br>3）Burp Suite：功能非常强大，特别适合安全测试，免费版也足够使用，但企业版需要付费。</li>
+<li>配置监听端口：通常 HTTP 代理工具会默认监听在某个端口，例如 Fiddler 通常监听在 8888 端口；可以根据需要修改监听端口，但要确保没有其他应用占用这个端口。</li>
+<li>客户端&#x2F;服务器配置：在浏览器中配置代理非常简单，只需要在设置中找到网络配置，然后输入代理地址和端口；对于移动设备，可能需要在 WiFi 设置中配置 HTTP 代理，iOS 和 Android 上都能找到相应设置；对于代码中发出的请求，可以通过设置 HTTP 库的代理参数来配置，例如 Python 中可以通过 requests 库的 proxies 参数来配置代理。</li>
+<li>HTTPS 流量解密：要解密 HTTPS 流量，一般需要安装代理工具提供的证书，例如在 Fiddler 中，需要在浏览器的信任证书管理中安装 Fiddler 根证书。</li>
+<li>导出数据：大多数 HTTP 代理工具都提供导出数据的功能，例如 Charles Proxy 支持导出为多种格式，如 HAR 文件，方便后续分析和复现；这些数据可以用于自动化测试脚本，通过重放已捕获流量模拟真实请求。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>录到的是 HTTPS 接口，能看到明文吗？</td>
+<td>要解密 HTTPS 流量，一般需要安装代理工具提供的证书，例如在 Fiddler 中需要在浏览器的信任证书管理中安装 Fiddler 根证书。</td>
+</tr>
+<tr>
+<td>代理端口怎么定？</td>
+<td>HTTP 代理工具通常默认监听在某个端口，例如 Fiddler 通常监听 8888 端口；可以根据需要修改，但要确保没有其他应用占用这个端口。</td>
+</tr>
+<tr>
+<td>代码里发出的请求怎么走代理？</td>
+<td>通过设置 HTTP 库的代理参数来配置，例如 Python 中可以通过 requests 库的 proxies 参数来配置代理。</td>
+</tr>
+<tr>
+<td>录完的流量怎么变成测试用例？</td>
+<td>大多数 HTTP 代理工具都提供导出数据的功能，如 Charles Proxy 支持导出为 HAR 文件，这些数据可以用于自动化测试脚本，通过重放已捕获流量模拟真实请求。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“配好代理端口录到的就是完整请求。” —— HTTPS 流量默认加密，要解密还得安装代理工具提供的证书，比如 Fiddler 根证书。</li>
+<li>“换端口随便换，冲突了再说。” —— 修改监听端口前要确保没有其他应用占用这个端口。</li>
+<li>“录下来的流量只能自己看。” —— 代理工具支持导出，如 Charles Proxy 导出 HAR 文件，这些数据可以用于自动化测试脚本，重放已捕获流量模拟真实请求。</li>
+</ul>
+<hr>
+<h3 id="20-你是否做过-HTTPS-接口测试？具体怎么做？"><a href="#20-你是否做过-HTTPS-接口测试？具体怎么做？" class="headerlink" title="20. 你是否做过 HTTPS 接口测试？具体怎么做？"></a>20. 你是否做过 HTTPS 接口测试？具体怎么做？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：HTTPS 的接口测试你做过吗？说说具体流程。</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>这里最容易暴露的是<strong>把证书验证随手关掉</strong>：<code>verify=False</code> 可以临时跑通，但生产环境不推荐，更推荐的做法是把自签名证书加载到客户机的信任存储中。另一个坑是<strong>只做功能测试不做安全性测试</strong>——HTTPS 接口还要确保传输内容加密、验证身份认证的可靠性，必要时用 OWASP ZAP 或 Burp Suite 做漏洞扫描和渗透测试。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>HTTPS 接口测试的步骤如下：<br>1）准备工作：配置测试环境，确保接口提供的服务正在运行，并准备好测试数据；<br>2）使用工具：选择合适的接口测试工具，如 Postman、JMeter，甚至编程语言（如 Python 的 requests 库）；<br>3）设置 HTTPS 请求：在工具中设置好 HTTPS 请求的 URL，并配置相应的请求方法（GET、POST 等）、请求头、参数和请求体；<br>4）执行测试：运行测试，检查响应状态码和响应数据是否符合预期；<br>5）验证结果：比对接口返回的数据与预期结果，确保数据正确，检查 HTTPS 的证书有效性和安全性。</li>
+<li>工具选择：常用的 HTTPS 接口测试工具包括 Postman、JMeter、SoapUI 等；如果需要更多的自动化和灵活性，可以使用编程语言，如 Python 结合 requests 库进行测试。</li>
+<li>配置 HTTPS 请求需要注意以下几点：<br>1）URL 格式：确认请求地址以 https 开头；<br>2）请求方法：根据接口文档选择合适的请求方法，如 GET、POST、PUT、DELETE；<br>3）请求头：设置必要的请求头，如 Content-Type、Authorization 等；<br>4）请求参数：根据接口文档设置查询参数或请求体。</li>
+<li>证书验证：确保服务器端使用了有效的 SSL&#x2F;TLS 证书。如果是自签名证书，在测试工具内通常需要添加信任此证书的配置，否则请求会被拒绝。以 Python 的 requests 库为例，可以禁用证书验证（不推荐生产环境）：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, verify=<span class="literal">False</span>)</span><br><span class="line"><span class="built_in">print</span>(response.status_code)</span><br></pre></td></tr></table></figure>
+
+<p>  当然，更推荐的是将自签名证书加载到客户机的信任存储中。</p>
+<ul>
+<li>自动化测试：为了提升测试效率和覆盖率，可以编写自动化测试脚本。用 Python 和 unittest 框架可以这样做：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> unittest</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TestAPI</span>(unittest.TestCase):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">test_get</span>(<span class="params">self</span>):</span><br><span class="line">        response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, headers=&#123;<span class="string">&#x27;Authorization&#x27;</span>: <span class="string">&#x27;Bearer token&#x27;</span>&#125;)</span><br><span class="line">        <span class="variable language_">self</span>.assertEqual(response.status_code, <span class="number">200</span>)</span><br><span class="line">        <span class="comment"># 根据接口文档对响应内容进一步断言</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    unittest.main()</span><br></pre></td></tr></table></figure>
+
+<p>  这种方法满足了全面测试和回归测试的需求。</p>
+<ul>
+<li>安全性测试：除了功能测试外，HTTPS 接口还需进行安全性测试，例如确保传输内容加密、验证身份认证的可靠性等。可以使用工具如 OWASP ZAP 或 Burp Suite 来进行漏洞扫描和渗透测试。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>自签名证书的接口跑不通怎么办？</td>
+<td>在测试工具内通常需要添加信任此证书的配置，否则请求会被拒绝；更推荐的是将自签名证书加载到客户机的信任存储中。</td>
+</tr>
+<tr>
+<td>可以直接关掉证书校验吗？</td>
+<td>以 Python 的 requests 库为例可以禁用证书验证（不推荐生产环境），但更推荐的是将自签名证书加载到客户机的信任存储中。</td>
+</tr>
+<tr>
+<td>HTTPS 除了功能还要测什么？</td>
+<td>还要进行安全性测试，例如确保传输内容加密、验证身份认证的可靠性等，可以使用 OWASP ZAP 或 Burp Suite 来进行漏洞扫描和渗透测试。</td>
+</tr>
+<tr>
+<td>怎么让这类测试能反复跑？</td>
+<td>编写自动化测试脚本，用 Python 结合 unittest 框架来写，满足全面测试和回归测试的需求。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“HTTPS 就是加个 s，其他和 HTTP 没区别。” —— 还要确认请求地址以 https 开头，并检查证书有效性和安全性，必要时做安全性测试。</li>
+<li>“自签名证书没关系，直接 verify&#x3D;False 最省事。” —— 这在生产环境不推荐，更推荐的是将自签名证书加载到客户机的信任存储中。</li>
+<li>“功能测通就够了。” —— HTTPS 接口还需进行安全性测试，如确保传输内容加密、验证身份认证的可靠性，可用 OWASP ZAP 或 Burp Suite 做漏洞扫描和渗透测试。</li>
+</ul>
+<h2 id="五、Requests-基础：请求、Session、Cookie-与证书"><a href="#五、Requests-基础：请求、Session、Cookie-与证书" class="headerlink" title="五、Requests 基础：请求、Session、Cookie 与证书"></a>五、Requests 基础：请求、Session、Cookie 与证书</h2><hr>
+<h3 id="21-接口测试时，如何在-Requests-中进行动态关联？"><a href="#21-接口测试时，如何在-Requests-中进行动态关联？" class="headerlink" title="21. 接口测试时，如何在 Requests 中进行动态关联？"></a>21. 接口测试时，如何在 Requests 中进行动态关联？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：第一个接口返回的值要给第二个接口用，用 requests 怎么关联？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>坑在于<strong>只做了一半</strong>：提取出来却不放回下一个请求，或者提取的键名写错导致取到 None 而脚本不报错。更深一层的坑是<strong>把关联逻辑散落在各处</strong>，重复多次时难以维护——这时应该把提取和复用<strong>封装成函数或类</strong>。另外，响应可能是嵌套 JSON，简单的 <code>data.get(&#39;key&#39;)</code> 未必够用。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在接口测试中，常常需要处理动态数据，比如前一个接收到的响应结果需要在后一个请求中使用。对于使用 requests 库进行接口测试的情况，可以通过两种方式来实现动态关联：<br>1）从响应中提取数据；<br>2）将提取的数据应用到下一个请求中。</li>
+<li>示例代码：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设这是第一个请求</span></span><br><span class="line">url_1 = <span class="string">&#x27;http://example.com/api/first_request&#x27;</span></span><br><span class="line">response_1 = requests.get(url_1)</span><br><span class="line">data = response_1.json()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们需要从第一个响应中提取一个特定字段</span></span><br><span class="line">extracted_value = data.get(<span class="string">&#x27;key&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后在第二个请求中使用该提取的值</span></span><br><span class="line">url_2 = <span class="string">&#x27;http://example.com/api/second_request&#x27;</span></span><br><span class="line">payload = &#123;<span class="string">&#x27;param&#x27;</span>: extracted_value&#125;</span><br><span class="line">response_2 = requests.post(url_2, json=payload)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>以上代码简单地说明了如何从一个请求的响应中提取数据并在下一个请求中使用。</li>
+<li>扩展做法：<br>1）处理更复杂的 JSON 结构：如果响应包含嵌套的 JSON 结构，可能需要更加复杂的提取逻辑，如使用 jsonpath 或者其他解析工具；<br>2）参数化实现动态关联：如果需要多次进行动态关联，或者需要更灵活的配置，可以使用函数或类进行封装；<br>3）处理不同类型的请求：除了 GET 和 POST，还有 PUT、DELETE 等等，所有这些请求类型都可以根据需求进行动态关联。</li>
+<li>例如，可以将上述逻辑封装成一个更灵活的函数或类：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">APIRequester</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">        <span class="variable language_">self</span>.extracted_values = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">make_request</span>(<span class="params">self, method, url, **kwargs</span>):</span><br><span class="line">        response = <span class="variable language_">self</span>.session.request(method, url, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> response</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">extract_value</span>(<span class="params">self, response, key, save_as</span>):</span><br><span class="line">        data = response.json()</span><br><span class="line">        <span class="variable language_">self</span>.extracted_values[save_as] = data.get(key)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">use_extracted_value</span>(<span class="params">self, key</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.extracted_values.get(key)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">api_requester = APIRequester()</span><br><span class="line"></span><br><span class="line">response_1 = api_requester.make_request(<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;http://example.com/api/first_request&#x27;</span>)</span><br><span class="line">api_requester.extract_value(response_1, <span class="string">&#x27;key&#x27;</span>, <span class="string">&#x27;first_key&#x27;</span>)</span><br><span class="line"></span><br><span class="line">payload = &#123;<span class="string">&#x27;param&#x27;</span>: api_requester.use_extracted_value(<span class="string">&#x27;first_key&#x27;</span>)&#125;</span><br><span class="line">response_2 = api_requester.make_request(<span class="string">&#x27;POST&#x27;</span>, <span class="string">&#x27;http://example.com/api/second_request&#x27;</span>, json=payload)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>异常处理和日志记录：在实际应用中，接口请求可能会失败，因此引入异常处理和日志记录也是非常重要的。</li>
+<li>集成到自动化测试框架：可以集成到像 pytest 这样的单元测试框架中，使用 fixture、setup 和 teardown 等机制来简化测试流程，提升自动化程度。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>响应是嵌套 JSON，取值麻烦吗？</td>
+<td>如果响应包含嵌套的 JSON 结构，可能需要更加复杂的提取逻辑，如使用 jsonpath 或者其他解析工具。</td>
+</tr>
+<tr>
+<td>关联逻辑要复用很多次怎么办？</td>
+<td>可以使用函数或类进行封装，把提取和复用集中到一处，既避免重复代码也更灵活。</td>
+</tr>
+<tr>
+<td>除 GET、POST 其他方法也能关联吗？</td>
+<td>除了 GET 和 POST，还有 PUT、DELETE 等等，所有这些请求类型都可以根据需求进行动态关联。</td>
+</tr>
+<tr>
+<td>接口偶尔失败怎么办？</td>
+<td>在实际应用中接口请求可能会失败，因此引入异常处理和日志记录也是非常重要的。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“requests 会自动把上一个响应当成下一个请求的参数。” —— 动态关联要显式完成：先从响应中提取数据，再把提取的数据应用到下一个请求中。</li>
+<li>“直接 data.get(‘key’) 就能应付所有响应。” —— 响应包含嵌套的 JSON 结构时，需要更复杂的提取逻辑，如使用 jsonpath 或者其他解析工具。</li>
+<li>“提取到 None 也没关系，接口会自己报错。” —— 实际应用中接口请求可能会失败，应当引入异常处理和日志记录来定位问题。</li>
+</ul>
+<hr>
+<h3 id="22-在-Python-接口自动化测试中如何处理-Cookie-和-Session？"><a href="#22-在-Python-接口自动化测试中如何处理-Cookie-和-Session？" class="headerlink" title="22. 在 Python 接口自动化测试中如何处理 Cookie 和 Session？"></a>22. 在 Python 接口自动化测试中如何处理 Cookie 和 Session？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：登录之后带着 Cookie 调后面的接口，Python 里怎么搞？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易踩的是<strong>每个请求都单独传 cookies</strong>，一多就乱。正确做法是<strong>用一个 requests.Session() 对象贯穿整个流程</strong>：登录请求由它发出，服务器返回的 Cookie 自动保存，后续请求继续用同一个 Session，它会自动携带 Cookie。另一个安全坑是<strong>把用户名密码硬编码在代码里</strong>——敏感数据应该用环境变量或密钥管理服务。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 Python 接口自动化测试中，为了处理 Cookie 和 Session，一般会使用 requests 库配合相应的 CookieJar 来管理和发送这些参数，步骤如下：<br>1）导入 requests 库；<br>2）创建一个 requests.Session() 对象来管理 Cookie 和 Session 状态；<br>3）通过 Session 对象发送请求（如登录请求）并自动保存服务器返回的 Cookie；<br>4）在后续请求中继续使用同一个 Session 对象，它会自动携带 Cookie。</li>
+<li>示例代码：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个 Session 对象</span></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第一次请求，模拟登录获取Cookie</span></span><br><span class="line">login_url = <span class="string">&quot;http://example.com/login&quot;</span></span><br><span class="line">login_data = &#123;<span class="string">&quot;username&quot;</span>: <span class="string">&quot;user&quot;</span>, <span class="string">&quot;password&quot;</span>: <span class="string">&quot;pass&quot;</span>&#125;</span><br><span class="line">login_response = session.post(login_url, data=login_data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 后续请求使用同一个 Session 对象</span></span><br><span class="line">data_url = <span class="string">&quot;http://example.com/data&quot;</span></span><br><span class="line">response = session.get(data_url)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出响应内容</span></span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过使用 requests.Session() 对象，能够很方便地处理 Cookie 和 Session 的自动管理。</li>
+<li>Cookie 的手动管理：有时候需要手动设置或获取 Cookie，可以用 requests.utils.cookiejar_from_dict() 方法：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> requests.utils <span class="keyword">import</span> cookiejar_from_dict</span><br><span class="line"></span><br><span class="line">cookies = &#123;<span class="string">&#x27;session_id&#x27;</span>: <span class="string">&#x27;123456&#x27;</span>, <span class="string">&#x27;user&#x27;</span>: <span class="string">&#x27;test_user&#x27;</span>&#125;</span><br><span class="line">session.cookies = cookiejar_from_dict(cookies)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>跨域访问问题：在接口测试中可能会遇到跨域访问问题，浏览器的 Same-Origin Policy 会限制跨域请求，但在使用 requests 时并不会受到这个限制，所以可以通过设定合适的头部信息来解决。</li>
+<li>Session 的持久化：在长时间运行的测试中希望持久化 Session，可以将 Cookie 保存在一个文件中，在后续跑测试时再载入：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存 Cookie</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;cookies.pkl&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    pickle.dump(session.cookies, f)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 载入 Cookie</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;cookies.pkl&#x27;</span>, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    session.cookies.update(pickle.load(f))</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>安全性考虑：在保存和加载 Cookie 时，尽量避免把敏感信息暴露到代码中，例如用户名和密码等敏感数据不应该直接出现在代码中，应该使用环境变量或密钥管理服务。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>登录后的 Cookie 怎么带到下一个请求？</td>
+<td>用 requests.Session() 对象管理 Session 状态，登录请求自动保存服务器返回的 Cookie，后续请求继续用同一个 Session 对象，它会自动携带 Cookie。</td>
+</tr>
+<tr>
+<td>已知一批 Cookie 怎么手动塞进去？</td>
+<td>可以用 requests.utils.cookiejar_from_dict() 方法构造后赋给 session.cookies。</td>
+</tr>
+<tr>
+<td>长时间跑的测试怎么复用登录态？</td>
+<td>把 Cookie 保存在一个文件中，在后续跑测试时再载入，用 pickle 序列化后 load 出来更新到 session.cookies。</td>
+</tr>
+<tr>
+<td>requests 会被浏览器的跨域限制卡住吗？</td>
+<td>浏览器的 Same-Origin Policy 会限制跨域请求，但在使用 requests 时并不会受到这个限制，可以通过设定合适的头部信息来解决。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“每个请求都自己带一份 cookies 参数就行。” —— 用 requests.Session() 对象统一管理状态，登录后服务器返回的 Cookie 会自动保存并在后续请求中携带。</li>
+<li>“Cookie 持久化就是把明文账号密码写进脚本。” —— 用户名和密码等敏感数据不应该直接出现在代码中，应该使用环境变量或密钥管理服务。</li>
+<li>“requests 也受浏览器同源策略限制。” —— 浏览器的 Same-Origin Policy 会限制跨域请求，但 requests 不受这个限制。</li>
+</ul>
+<hr>
+<h3 id="23-如何使用-Requests-测试-JSON-数据格式的接口？"><a href="#23-如何使用-Requests-测试-JSON-数据格式的接口？" class="headerlink" title="23. 如何使用 Requests 测试 JSON 数据格式的接口？"></a>23. 如何使用 Requests 测试 JSON 数据格式的接口？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：用 requests 测 JSON 接口，完整流程是怎么走的？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易出错的是<strong>请求体格式和 Content-Type 不匹配</strong>：用 <code>data=json.dumps(data)</code> 却把 Content-Type 设成 application&#x2F;json，或者反过来直接传 JSON 序列化后的请求体却没声明 Content-Type，服务端解析行为就会不一致。另一个坑是<strong>只写 happy path 不做异常处理</strong>——网络错误、超时、HTTP 错误都会直接抛异常，脚本在流水线上直接失败却看不出原因。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>使用 Python 中的 requests 库来测试 JSON 数据格式的接口非常简单，具体步骤如下：<br>1）安装 requests 库：确保你已经安装了 requests 库，如果没有安装，可以使用 pip install requests 命令来安装；<br>2）准备 JSON 数据：编写需要发送的 JSON 数据，并将其转换为字符串格式；<br>3）发送请求：使用 requests.post 或 requests.get 函数发送 HTTP 请求，并传入 JSON 数据；<br>4）处理响应：接收服务器返回的响应，并解析 JSON 数据。</li>
+<li>例如，发送一个 POST 请求的例子：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 准备 URL</span></span><br><span class="line">url = <span class="string">&#x27;https://api.example.com/data&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 准备 JSON 数据</span></span><br><span class="line">data = &#123;</span><br><span class="line">    <span class="string">&#x27;key1&#x27;</span>: <span class="string">&#x27;value1&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;key2&#x27;</span>: <span class="string">&#x27;value2&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 发送请求</span></span><br><span class="line">response = requests.post(url, headers=headers, data=json.dumps(data))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 处理响应</span></span><br><span class="line"><span class="keyword">if</span> response.status_code == <span class="number">200</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;Success:&#x27;</span>, response.json())</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;Failed:&#x27;</span>, response.status_code)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这一段代码演示了如何发送一个包含 JSON 数据的 POST 请求，并处理服务器返回的响应。</li>
+<li>错误处理：在实际应用中，可能会遇到网络错误或其他异常情况，最好能够添加异常处理。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    response = requests.post(url, headers=headers, data=json.dumps(data))</span><br><span class="line">    response.raise_for_status()</span><br><span class="line"><span class="keyword">except</span> requests.exceptions.HTTPError <span class="keyword">as</span> errh:</span><br><span class="line">    <span class="built_in">print</span> (<span class="string">&quot;Http Error:&quot;</span>, errh)</span><br><span class="line"><span class="keyword">except</span> requests.exceptions.ConnectionError <span class="keyword">as</span> errc:</span><br><span class="line">    <span class="built_in">print</span> (<span class="string">&quot;Error Connecting:&quot;</span>, errc)</span><br><span class="line"><span class="keyword">except</span> requests.exceptions.Timeout <span class="keyword">as</span> errt:</span><br><span class="line">    <span class="built_in">print</span> (<span class="string">&quot;Timeout Error:&quot;</span>, errt)</span><br><span class="line"><span class="keyword">except</span> requests.exceptions.RequestException <span class="keyword">as</span> err:</span><br><span class="line">    <span class="built_in">print</span> (<span class="string">&quot;OOps: Something Else&quot;</span>, err)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>日志记录：在进行接口测试时，记录日志是非常重要的，可以用 logging 模块来记录每次请求和响应，便于日后分析和调试。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"></span><br><span class="line">logging.basicConfig(level=logging.INFO)</span><br><span class="line">logger = logging.getLogger(__name__)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 记录请求信息</span></span><br><span class="line">logger.info(<span class="string">f&#x27;Request URL: <span class="subst">&#123;url&#125;</span>&#x27;</span>)</span><br><span class="line">logger.info(<span class="string">f&#x27;Request Headers: <span class="subst">&#123;headers&#125;</span>&#x27;</span>)</span><br><span class="line">logger.info(<span class="string">f&#x27;Request Data: <span class="subst">&#123;data&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 记录响应信息</span></span><br><span class="line">logger.info(<span class="string">f&#x27;HTTP Status Code: <span class="subst">&#123;response.status_code&#125;</span>&#x27;</span>)</span><br><span class="line">logger.info(<span class="string">f&#x27;Response JSON: <span class="subst">&#123;response.json()&#125;</span>&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>参数化请求：有些接口可能需要传递参数，可以用 requests.get(url, params&#x3D;params) 来发送请求，其中 params 是一个字典，例如传入 {‘param1’: ‘value1’, ‘param2’: ‘value2’}。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">params = &#123;</span><br><span class="line">    <span class="string">&#x27;param1&#x27;</span>: <span class="string">&#x27;value1&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;param2&#x27;</span>: <span class="string">&#x27;value2&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">response = requests.get(url, headers=headers, params=params)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>认证与授权：有些接口会需要认证，通常可以通过请求头传递认证信息，比如 API Key 或者 OAuth Token，例如把 Authorization 设为 Bearer YOUR_ACCESS_TOKEN，同时带上 Content-Type 为 application&#x2F;json。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Authorization&#x27;</span>: <span class="string">&#x27;Bearer YOUR_ACCESS_TOKEN&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>请求体怎么传才对？</td>
+<td>编写需要发送的 JSON 数据并将其转换为字符串格式，用 requests.post 传入，同时通过 headers 把 Content-Type 设为 application&#x2F;json。</td>
+</tr>
+<tr>
+<td>网络超时或者接口 500 了脚本就崩？</td>
+<td>添加异常处理，分别捕获 HTTPError、ConnectionError、Timeout 和 RequestException。</td>
+</tr>
+<tr>
+<td>怎么方便排查是哪个请求出的问题？</td>
+<td>用 logging 模块记录每次请求和响应，包括请求头、请求数据和状态码，便于日后分析和调试。</td>
+</tr>
+<tr>
+<td>查询参数怎么带？</td>
+<td>用 requests.get(url, params&#x3D;params) 发送请求，params 是一个字典。</td>
+</tr>
+<tr>
+<td>需要带 token 怎么传？</td>
+<td>通过请求头传递认证信息，比如在 headers 里设置 Authorization 为 Bearer YOUR_ACCESS_TOKEN。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“发完请求直接 print 一下返回就行，不用管异常。” —— 实际应用中可能遇到网络错误或其他异常情况，最好能够添加异常处理。</li>
+<li>“带 JSON 的接口不用写 Content-Type。” —— 请求头里要设置 Content-Type 为 application&#x2F;json。</li>
+<li>“认证信息只能放在 URL 里。” —— 有些接口需要认证，通常通过请求头传递认证信息，比如 API Key 或者 OAuth Token。</li>
+</ul>
+<hr>
+<h3 id="24-如何在-Requests-中添加-Cookie？"><a href="#24-如何在-Requests-中添加-Cookie？" class="headerlink" title="24. 如何在 Requests 中添加 Cookie？"></a>24. 如何在 Requests 中添加 Cookie？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：requests 发请求的时候怎么带上 Cookie？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易混淆的是<strong>两种带 Cookie 的方式不等价</strong>：<code>cookies=</code> 参数传字典是最直接的做法，而手工拼 <code>Cookie</code> 请求头是另一种；一旦两种混用或 Cookie 值里带分号格式不对，服务端解析出来的东西就不一样。另一个坑是<strong>每次请求都手工传 Cookie</strong>——需要保持登录态的场景应该用 requests.Session，让会话状态自动延续。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在使用 Python 的 requests 库时，可以通过在请求头中添加 Cookie 字段来实现这一目的，具体方法如下：<br>1）首先，导入 requests 库；<br>2）构造一个包含 Cookie 的字典；<br>3）将该字典作为 headers 参数传递给 requests 方法。</li>
+<li>具体代码如下：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构造包含 Cookie 的字典</span></span><br><span class="line">cookies = &#123;<span class="string">&#x27;session_id&#x27;</span>: <span class="string">&#x27;123456789&#x27;</span>, <span class="string">&#x27;user&#x27;</span>: <span class="string">&#x27;JohnDoe&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 发送带有 Cookie 的请求</span></span><br><span class="line">response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, cookies=cookies)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打印返回结果</span></span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在这个例子中，我们首先定义了一个包含 Cookie 名称和值的字典，然后在请求中使用 cookies 参数来发送这些 Cookie。</li>
+<li>除了 cookies 参数，还有几种常见的方式来处理 Cookie 和请求头：<br>1）使用 requests.Session：requests.Session 对象可以帮助我们在多个请求之间保持会话状态，包括 Cookie 的保持，这个方法在处理需要用户登录状态的接口测试时非常有用：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个 Session 对象</span></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 登录以获取 Cookie</span></span><br><span class="line">login_payload = &#123;<span class="string">&#x27;username&#x27;</span>: <span class="string">&#x27;user&#x27;</span>, <span class="string">&#x27;password&#x27;</span>: <span class="string">&#x27;pass&#x27;</span>&#125;</span><br><span class="line">session.post(<span class="string">&#x27;https://example.com/login&#x27;</span>, data=login_payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 发送请求，自动携带登录后的 Cookie</span></span><br><span class="line">response = session.get(<span class="string">&#x27;https://example.com/profile&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<p>  2）自定义请求头：除了直接添加 Cookie，有时候还需要定制更多的请求头，比如设置 User-Agent 或者其他 HTTP 头信息，可以通过在 headers 参数里自定义这些头信息：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 自定义请求头，包含 Cookie</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;my-app/0.0.1&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Cookie&#x27;</span>: <span class="string">&#x27;session_id=123456789; user=JohnDoe&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, headers=headers)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<p>  3）处理复杂 Cookie 场景：如果需要处理更加复杂的 Cookie 逻辑，例如带有路径或域设置的 Cookie，可以使用 requests.cookies.RequestsCookieJar 对象：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个 RequestsCookieJar 对象</span></span><br><span class="line">jar = requests.cookies.RequestsCookieJar()</span><br><span class="line">jar.<span class="built_in">set</span>(<span class="string">&#x27;session_id&#x27;</span>, <span class="string">&#x27;123456789&#x27;</span>, domain=<span class="string">&#x27;example.com&#x27;</span>, path=<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line"></span><br><span class="line">response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, cookies=jar)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>带 Cookie 有几种写法？</td>
+<td>一是构造包含 Cookie 的字典作为 cookies 参数传给 requests 方法，二是在 headers 里自定义 ‘Cookie’ 请求头，三是使用 requests.cookies.RequestsCookieJar 处理带路径或域的复杂 Cookie。</td>
+</tr>
+<tr>
+<td>需要保持登录态，几十个请求怎么带？</td>
+<td>用 requests.Session 对象在多个请求之间保持会话状态，包括 Cookie 的保持，登录后发起的请求会自动携带登录后的 Cookie。</td>
+</tr>
+<tr>
+<td>还要同时带 User-Agent 怎么办？</td>
+<td>在 headers 参数里自定义这些头信息，’User-Agent’ 和 ‘Cookie’ 可以一起写。</td>
+</tr>
+<tr>
+<td>Cookie 要按域和路径生效怎么设？</td>
+<td>使用 requests.cookies.RequestsCookieJar 对象，用 jar.set 设置 domain 和 path。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“requests 不支持带 Cookie。” —— 可以通过 cookies 参数传字典，也可以在 headers 里加 Cookie 字段，还能用 RequestsCookieJar 处理复杂场景。</li>
+<li>“每个请求都要重新传一遍 Cookie。” —— requests.Session 可以在多个请求之间保持会话状态，包括 Cookie 的保持。</li>
+<li>“Cookie 只能写成一串字符串。” —— 常规做法是构造包含 Cookie 名称和值的字典；只有需要连同 User-Agent 等其他头信息时，才手工拼 Cookie 头。</li>
+</ul>
+<hr>
+<h3 id="25-如何在-Requests-中添加-Header-信息？"><a href="#25-如何在-Requests-中添加-Header-信息？" class="headerlink" title="25. 如何在 Requests 中添加 Header 信息？"></a>25. 如何在 Requests 中添加 Header 信息？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：requests 怎么设置请求头？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易错的是<strong>把 headers 传成列表或者字符串</strong>——requests 要求 headers 是字典，键值对一一对应。另一个常见问题是<strong>多个头信息时互相覆盖</strong>，比如同时要 User-Agent 和 Authorization，字典里两个键都要保留；调试时如果看不到实际发出去的请求头，就用 <code>response.request.headers</code> 回读。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在使用 Python 的 Requests 库进行 HTTP 请求时，可以通过在请求方法（如 get、post、put 等）中添加 headers 参数来设置请求头信息，具体来说，可以将请求头信息以字典的形式传递给 headers 参数。</li>
+<li>举个简单的例子，如果我们想在请求中添加一个名为 User-Agent 的头信息，可以这样做：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://example.com&quot;</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;my-app/0.0.1&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">response = requests.get(url, headers=headers)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在上面的代码中，我们创建了一个包含 User-Agent 信息的 headers 字典，并在调用 requests.get 时传递该字典，这样 HTTP 请求中就包含了我们指定的 User-Agent 信息。</li>
+<li>我们不仅可以添加单一的头信息，还可以在同一个请求中添加多个头信息。比如，既要设置 User-Agent 又要设置 Authorization 信息，可以这样写：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://example.com&quot;</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;my-app/0.0.1&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Authorization&quot;</span>: <span class="string">&quot;Bearer token123&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">response = requests.get(url, headers=headers)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>常用的请求头信息及其用途：<br>1）Content-Type：指定发送给服务器的数据类型，例如 application&#x2F;json；<br>2）Accept：指定客户端能够接收的数据类型，例如 application&#x2F;json、text&#x2F;html；<br>3）Authorization：用于授权和认证的头信息，通常用于携带 token 或者 basic 认证信息；<br>4）Cookie：用于在请求中发送 cookie 信息。</li>
+<li>另外，如果有时候需要查看完整的请求头，可以通过在请求对象上调用 request.headers 属性来查看：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://example.com&quot;</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;my-app/0.0.1&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Authorization&quot;</span>: <span class="string">&quot;Bearer token123&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">response = requests.get(url, headers=headers)</span><br><span class="line"><span class="built_in">print</span>(response.request.headers)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这将会输出所有包含在请求中的头信息，有助于调试和验证。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>headers 应该传什么类型？</td>
+<td>将请求头信息以字典的形式传递给 headers 参数，键是头名称、值是对应的头内容。</td>
+</tr>
+<tr>
+<td>一次要带好几个头怎么办？</td>
+<td>在同一个字典里写多个键值对即可，比如 User-Agent 和 Authorization 可以同时设置。</td>
+</tr>
+<tr>
+<td>常用的头有哪些？</td>
+<td>Content-Type 指定发送给服务器的数据类型（如 application&#x2F;json）；Accept 指定客户端能接收的数据类型；Authorization 用于授权和认证，通常携带 token 或 basic 认证信息；Cookie 用于在请求中发送 cookie 信息。</td>
+</tr>
+<tr>
+<td>怎么确认请求头真的发出去了？</td>
+<td>在请求对象上调用 request.headers 属性查看，会输出所有包含在请求中的头信息，有助于调试和验证。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“headers 可以传一个字符串，把头拼在一起就行。” —— headers 要以字典的形式传递，一个头名称对应一个值。</li>
+<li>“设了 Authorization 就等于带上了 token。” —— Authorization 是用于授权和认证的头信息，通常用于携带 token 或者 basic 认证信息，需要按接口要求设置。</li>
+<li>“看不见请求头就没设上。” —— 可以在请求对象上调用 request.headers 属性查看完整请求头，有助于调试和验证。</li>
+</ul>
+<hr>
+<h3 id="26-如何在-Requests-中处理-HTTPS-证书？"><a href="#26-如何在-Requests-中处理-HTTPS-证书？" class="headerlink" title="26. 如何在 Requests 中处理 HTTPS 证书？"></a>26. 如何在 Requests 中处理 HTTPS 证书？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：用 Requests 发 HTTPS 请求的时候，证书这块你打算怎么处理？自签名证书的项目能不能直接跑通？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易踩的是把 <code>verify=False</code> 当成”万能解法”直接抛上去。它确实能让自签名证书的请求跑通，但也<strong>跳过了证书验证</strong>，中间人攻击的风险就全摊开了——Requests 默认是要验证服务器提供的 HTTPS 证书的，为的就是防止中间人攻击和确保服务器身份的原始性。所以 <code>verify=False</code> 只能用在可信的开发或测试环境，<strong>不要拿到生产环境用</strong>。第二个坑是只会 <code>verify=False</code>，不会用 <code>verify</code> 指定 CA 证书文件，也不会用 <code>cert</code> 提供客户端证书。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在使用 Requests 库进行网络请求时，处理 HTTPS 证书主要有以下几种常见的方法：<ol>
+<li><strong>忽略证书验证</strong>：在某些测试环境中，可能会有自签名证书或无效证书，可以通过设置参数 <code>verify=False</code> 来忽略证书验证。</li>
+<li><strong>指定证书文件</strong>：如果有一个 CA 证书文件，可以通过 <code>verify</code> 参数来指定该证书文件，这确保了请求只会信任该证书或该证书链上的证书。</li>
+<li><strong>提供客户端证书</strong>：有时候服务器可能需要客户端提供证书，这时可以使用 <code>cert</code> 参数来提供客户端证书文件，它可以是一个包含两个文件路径的元组（证书文件和私钥文件），或者一个配置了这两个文件的单个文件。</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, verify=<span class="literal">False</span>)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, verify=<span class="string">&#x27;/path/to/ca-bundle.crt&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, cert=(<span class="string">&#x27;/path/client.crt&#x27;</span>, <span class="string">&#x27;/path/client.key&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>围绕这三种方法，还有几个必须知道的点：<ul>
+<li><strong>证书验证</strong>：为了确保与服务器之间的通信是安全的，请求库默认会验证服务器提供的 HTTPS 证书，这是为了防止中间人攻击和确保服务器身份的原始性。</li>
+<li><strong>自签名证书</strong>：在开发或测试环境中，使用自签名证书还是比较普遍的。虽然自签名证书并不安全（因为它们没有经过公认的 CA 验证），但是在内部网络中进行测试时通常是可以接受的。</li>
+<li><strong>证书链</strong>：实际应用中，证书通常不只是一个单一的文件，而是一系列证书组成链条。根证书（CA）信任中间证书，中间证书信任最终的服务器证书，可以使用 <code>verify</code> 参数提供一个包含完整证书链的文件。</li>
+<li><strong>SSL 上下文</strong>：对于一些高级应用，可能需要对 SSL 上下文进行更多的配置。虽然 Requests 库没有直接暴露这个功能，但可以通过创建一个 <code>requests.Session</code> 然后设置自定义的 <code>SSLContext</code> 来实现更多自定义控制，例如需要启用和禁用特定的 TLS 版本或密码套件时，就用这个方式。</li>
+<li><strong>安全考量</strong>：虽然可以通过设置 <code>verify=False</code> 来绕过证书验证，但这会带来明显的安全风险，只应该在可信的开发或测试环境中使用，而不要在生产环境中使用。</li>
+</ul>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实际项目里碰到自签名证书，你会怎么处理？</td>
+<td>自签名证书在开发或测试环境比较普遍，它没有经过公认的 CA 验证，本身并不安全，但在内部网络测试中通常可以接受。生产环境不应该靠 <code>verify=False</code> 绕过，而是用 <code>verify</code> 指定 CA 证书文件；如果需要客户端证书，用 <code>cert</code> 参数传证书文件和私钥。</td>
+</tr>
+<tr>
+<td>什么是证书链？为什么不能只给一个证书文件？</td>
+<td>实际应用中的证书通常不是单一文件，而是一系列证书组成的链条：根证书（CA）信任中间证书，中间证书信任最终的服务器证书。所以要用 <code>verify</code> 参数提供一个包含完整证书链的文件，才能保证整条链都被信任。</td>
+</tr>
+<tr>
+<td>Requests 里能不能自己控制 TLS 版本和密码套件？</td>
+<td>可以。Requests 库没有直接暴露 SSL 上下文的功能，但可以创建一个 <code>requests.Session</code>，然后设置自定义的 <code>SSLContext</code>，从而实现更多自定义控制，比如启用和禁用特定的 TLS 版本或密码套件。</td>
+</tr>
+<tr>
+<td>什么时候该用 <code>cert</code> 参数？</td>
+<td>当服务器要求客户端提供证书时使用。<code>cert</code> 可以是一个包含两个文件路径的元组（证书文件和私钥文件），也可以是一个把这两个文件配置在一起的单个文件。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“证书验证太麻烦，一律 <code>verify=False</code> 就行。” —— Requests 默认验证服务器提供的 HTTPS 证书，正是为了防止中间人攻击和确保服务器身份的原始性；绕过验证只在可信的开发或测试环境里用，生产环境不能用。</li>
+<li>“自签名证书和 CA 签发的证书一样安全。” —— 自签名证书没有经过公认的 CA 验证，本身并不安全，只是在内部网络测试中通常可以被接受。</li>
+<li>“指定了 <code>verify</code> 之后客户端证书就不用管了。” —— 客户端证书是另一回事，服务器需要客户端提供证书时要单独用 <code>cert</code> 参数传证书文件与私钥文件。</li>
+</ul>
+<hr>
+<h3 id="27-Requests-框架有哪些常用方法？"><a href="#27-Requests-框架有哪些常用方法？" class="headerlink" title="27. Requests 框架有哪些常用方法？"></a>27. Requests 框架有哪些常用方法？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：Requests 框架你常用哪些方法？发一个请求和读一个大文件分别怎么写？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>容易答漏的是”发请求只是 get&#x2F;post”。Requests 框架一共给了七种常用方法，其中 <code>head</code> 特别容易忘——它与 GET 类似，但<strong>不返回响应体，仅返回响应头信息</strong>；<code>options</code> 则是用来<strong>获取服务器支持的 HTTP 方法</strong>。另一个坑是只用 <code>requests.get(...)</code> 而不用 <code>requests.Session()</code>，会白白丢掉自动处理 Cookies 和连接池、提升请求性能的能力。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>Requests 框架常用方法：<ol>
+<li><code>requests.get(url, params=None, **kwargs)</code>：发送一个 GET 请求，用于从服务器获取数据。</li>
+<li><code>requests.post(url, data=None, json=None, **kwargs)</code>：发送一个 POST 请求，通常用于向服务器提交数据。</li>
+<li><code>requests.put(url, data=None, **kwargs)</code>：发送一个 PUT 请求，通常用于更新已有资源。</li>
+<li><code>requests.delete(url, **kwargs)</code>：发送一个 DELETE 请求，通常用于删除服务器上的某些资源。</li>
+<li><code>requests.head(url, **kwargs)</code>：发送一个 HEAD 请求，与 GET 类似，但不返回响应体，仅返回响应头信息。</li>
+<li><code>requests.patch(url, data=None, **kwargs)</code>：发送一个 PATCH 请求，通常用于部分更新资源。</li>
+<li><code>requests.options(url, **kwargs)</code>：发送一个 OPTIONS 请求，用于获取服务器支持的 HTTP 方法。</li>
+</ol>
+</li>
+<li>几个高频用法：<ul>
+<li><strong>超时设置</strong>：在实际项目中，设置请求的超时时间是非常重要的，避免因为服务器响应过慢导致程序卡死。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, timeout=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>认证</strong>：Requests 框架支持多种认证方式，比如 Basic Auth 和 Token Auth。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> requests.auth <span class="keyword">import</span> HTTPBasicAuth</span><br><span class="line"></span><br><span class="line">response = requests.get(<span class="string">&#x27;https://example.com&#x27;</span>, auth=HTTPBasicAuth(<span class="string">&#x27;user&#x27;</span>, <span class="string">&#x27;pass&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>会话对象</strong>：使用 <code>requests.Session()</code> 可以保持会话，自动处理 Cookies 和连接池，提升请求性能。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">session = requests.Session()</span><br><span class="line">response = session.get(<span class="string">&#x27;https://example.com&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>文件上传</strong>：通过 POST 请求上传文件也非常方便，可以使用 <code>files</code> 参数。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">files = &#123;<span class="string">&#x27;file&#x27;</span>: <span class="built_in">open</span>(<span class="string">&#x27;report.xls&#x27;</span>, <span class="string">&#x27;rb&#x27;</span>)&#125;</span><br><span class="line">response = requests.post(<span class="string">&#x27;https://example.com/upload&#x27;</span>, files=files)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>流式请求</strong>：对于需要处理大文件的场景，Requests 的流式请求可以改善内存使用情况。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">response = requests.get(<span class="string">&#x27;https://example.com/largefile&#x27;</span>, stream=<span class="literal">True</span>)</span><br><span class="line"><span class="keyword">for</span> chunk <span class="keyword">in</span> response.iter_content(chunk_size=<span class="number">1024</span>):</span><br><span class="line">    <span class="keyword">if</span> chunk:</span><br><span class="line">        <span class="built_in">print</span>(chunk)</span><br></pre></td></tr></table></figure>
+
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>发请求一定要设超时吗？</td>
+<td>要。在实际项目中，设置请求的超时时间是非常重要的，避免因为服务器响应过慢导致程序卡死，比如 <code>requests.get(url, timeout=3)</code>。</td>
+</tr>
+<tr>
+<td><code>requests.Session()</code> 好在哪？</td>
+<td>使用 <code>requests.Session()</code> 可以保持会话，自动处理 Cookies 和连接池，提升请求性能。</td>
+</tr>
+<tr>
+<td>大文件下载怎么避免内存爆掉？</td>
+<td>用流式请求，<code>requests.get(url, stream=True)</code> 之后通过 <code>response.iter_content(chunk_size=1024)</code> 逐块处理，这样可以改善内存使用情况。</td>
+</tr>
+<tr>
+<td><code>head</code> 和 <code>get</code> 有什么区别？</td>
+<td>GET 用于从服务器获取数据；HEAD 与 GET 类似，但不返回响应体，仅返回响应头信息。另外 OPTIONS 用于获取服务器支持的 HTTP 方法。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“Requests 只有 get 和 post 两个方法。” —— 还有 put（更新已有资源）、delete（删除资源）、head（不返回响应体，仅返回响应头）、patch（部分更新资源）、options（获取服务器支持的 HTTP 方法）。</li>
+<li>“文件上传要手动拼 multipart 请求体。” —— 直接用 POST 请求的 <code>files</code> 参数即可。</li>
+<li>“大文件一次性读进内存最省事。” —— 处理大文件的场景应当用流式请求来改善内存使用情况。</li>
+</ul>
+<h2 id="六、接口自动化工程化：签名、Pytest-组织与数据驱动"><a href="#六、接口自动化工程化：签名、Pytest-组织与数据驱动" class="headerlink" title="六、接口自动化工程化：签名、Pytest 组织与数据驱动"></a>六、接口自动化工程化：签名、Pytest 组织与数据驱动</h2><hr>
+<h3 id="28-如何在-Pytest-中调用其他用例返回的接口参数？"><a href="#28-如何在-Pytest-中调用其他用例返回的接口参数？" class="headerlink" title="28. 如何在 Pytest 中调用其他用例返回的接口参数？"></a>28. 如何在 Pytest 中调用其他用例返回的接口参数？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：一个用例查出来的 token，后面的用例要用，Pytest 里怎么传？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易犯的错是<strong>用全局变量或模块级变量硬传</strong>——用例之间一耦合，执行顺序一换就崩。Pytest 里的正道是 <strong>fixture</strong>：在 conftest.py 里定义一个返回共享参数的 fixture，需要它的测试函数<strong>按参数名声明</strong>就能自动拿到。另外要注意 <strong>fixture 的作用域</strong>：作用域越大，创建和销毁次数越少。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 Pytest 中，可以通过使用共享夹具（fixtures）来调用和复用其他用例返回的接口参数。Fixtures 提供了一种灵活且有组织的方式来共享测试数据或对象。</li>
+<li>具体步骤如下：<br>1）首先，在 conftest.py 文件中定义一个 fixture 函数，该函数会返回你希望共享的参数，这个 fixture 可以通过标识符传递给任何测试函数；<br>2）在需要复用该参数的测试函数中，通过传递相应的参数名来引用该 fixture。</li>
+<li>示例代码：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># conftest.py</span></span><br><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">api_response</span>():</span><br><span class="line">    <span class="comment"># 假设这是你从接口获取的参数</span></span><br><span class="line">    response = &#123;</span><br><span class="line">        <span class="string">&quot;token&quot;</span>: <span class="string">&quot;abc123&quot;</span>,</span><br><span class="line">        <span class="string">&quot;user_id&quot;</span>: <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> response</span><br><span class="line"></span><br><span class="line"><span class="comment"># test_example.py</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_first_example</span>(<span class="params">api_response</span>):</span><br><span class="line">    <span class="keyword">assert</span> api_response[<span class="string">&quot;token&quot;</span>] == <span class="string">&quot;abc123&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_second_example</span>(<span class="params">api_response</span>):</span><br><span class="line">    <span class="keyword">assert</span> api_response[<span class="string">&quot;user_id&quot;</span>] == <span class="number">1</span></span><br><span class="line">    <span class="comment"># 你可以继续使用 `api_response` 进行其他测试或接口调用</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在上述示例中，api_response 是一个 fixture，它返回一个包含 token 和 user_id 的字典；任何需要这些数据的测试函数，只需声明它们的参数即可自动获取此数据，从而实现复用。</li>
+<li>Fixture 的作用域：Fixture 可以设置不同的作用域级别（如 function、class、module、session），这决定了 fixture 的生命周期，作用域越大，fixture 的创建和销毁次数越少：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@pytest.fixture(<span class="params">scope=<span class="string">&quot;module&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">api_response</span>():</span><br><span class="line">    <span class="comment"># 模块级别的 fixture，在整个模块中共享</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Fixture 的依赖：Fixture 之间也可以相互调用，从而构建更加复杂的数据依赖：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@pytest.fixture</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">auth_token</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;secret-token&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">api_response</span>(<span class="params">auth_token</span>):</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&quot;token&quot;</span>: auth_token,</span><br><span class="line">        <span class="string">&quot;user_id&quot;</span>: <span class="number">1</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>动态生成数据：有时我们需要为每个测试生成不同的数据，可以用 yield 关键字或者动态计算的方法来实现：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@pytest.fixture</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dynamic_response</span>():</span><br><span class="line">    token = generate_token()</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&quot;token&quot;</span>: token,</span><br><span class="line">        <span class="string">&quot;user_id&quot;</span>: random_user_id()</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>这个共享数据放哪里定义？</td>
+<td>在 conftest.py 文件中定义一个 fixture 函数，该函数返回你希望共享的参数，fixture 可以通过标识符传递给任何测试函数。</td>
+</tr>
+<tr>
+<td>别的用例怎么用到它？</td>
+<td>在需要复用该参数的测试函数中，通过传递相应的参数名来引用该 fixture，声明参数即可自动获取数据。</td>
+</tr>
+<tr>
+<td>fixture 会被反复创建吗？</td>
+<td>Fixture 可以设置不同的作用域级别（如 function、class、module、session），作用域越大，fixture 的创建和销毁次数越少。</td>
+</tr>
+<tr>
+<td>一个用例的参数依赖另一个呢？</td>
+<td>Fixture 之间也可以相互调用，从而构建更加复杂的数据依赖，比如 api_response 依赖 auth_token。</td>
+</tr>
+<tr>
+<td>每个用例需要不同数据呢？</td>
+<td>可以用 yield 关键字或者动态计算的方法来实现，比如调用 generate_token() 和 random_user_id() 生成动态数据。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“把接口返回的参数写成全局变量，用例直接取就行。” —— 用共享夹具（fixtures）来调用和复用其他用例返回的接口参数才是 Pytest 里的组织方式。</li>
+<li>“fixture 就是随便写个函数。” —— fixture 要写在 conftest.py 里并用标识符注册，测试函数通过参数名声明即可自动获取。</li>
+<li>“每个测试都会重新跑一遍 fixture。” —— fixture 有作用域级别，作用域越大，创建和销毁次数越少。</li>
+</ul>
+<hr>
+<h3 id="29-你们在进行接口自动化测试时，如何组织和管理用例数据？"><a href="#29-你们在进行接口自动化测试时，如何组织和管理用例数据？" class="headerlink" title="29. 你们在进行接口自动化测试时，如何组织和管理用例数据？"></a>29. 你们在进行接口自动化测试时，如何组织和管理用例数据？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：接口自动化那堆用例和数据，你们是怎么组织管理的？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>容易答偏成”我把用例都写在代码里”。规范的做法是<strong>数据与脚本分离</strong>：用例数据存放在统一的文件或数据库中（Excel、JSON、CSV 或数据库表），再通过参数化让同一套脚本跑多个数据集。另一个坑是<strong>只设计正常场景</strong>——正常、异常、边界三类都要覆盖，否则覆盖率上不去。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在进行接口自动化测试时，一般会从以下几个方面组织和管理用例数据：<br>1）用例设计：先根据接口文档设计测试用例，确保覆盖率，包括正常情况、异常情况、边界情况等；<br>2）数据管理：将用例数据存放在统一的文件或数据库中，如 Excel、JSON、CSV 文件或者数据库表，便于管理和修改；<br>3）套件分组：将相关的用例分成不同的测试套件，按照功能或模块进行分组，便于维护和执行；<br>4）参数化：通过数据驱动框架实现参数化，支持多个数据集，减少重复代码，提高用例的复用性；<br>5）版本控制：利用版本控制工具（如 Git）管理测试用例数据，确保团队协作和用例的历史版本追踪。</li>
+<li>用例设计过程：在设计用例时一般需要参考接口文档，包括请求方法、URL、请求参数和返回结果，需要考虑各种不同的情况——正常情况是接口提供的功能按照预期正常执行；异常情况是传入非法参数，检查接口是否能处理异常并返回适当的错误信息；边界情况是测试一些边界值，如空值、最大最小值等。</li>
+<li>数据管理工具：常用的数据管理工具包括：<br>1）Excel&#x2F;CSV：适用于业务相对简单且数据量不大的场景，便于查看和修改；<br>2）JSON&#x2F;XML：适合于结构化数据和嵌套结构的用例，比较流行且易于解析；<br>3）数据库：适用于数据量大且结构复杂的用例，能够方便地进行增删改查操作。</li>
+<li>参数化工具：常见的测试框架如 JUnit、TestNG、pytest 都支持参数化，通过读取外部数据文件或者数据库的数据，生成多个测试用例；例如在 Python 的 pytest 中可以使用 @pytest.mark.parametrize 来实现参数化。</li>
+<li>自动化测试框架：常见的接口自动化测试框架包括：<br>1）RestAssured：适用于 Java 语言，简洁且功能强大，支持多种 HTTP 方法；<br>2）Postman：支持手动和自动测试，具有强大的测试和调试功能；<br>3）JMeter：不仅支持性能测试，还可以用于接口功能测试；<br>4）Robot Framework：基于关键字驱动，支持 Java 和 Python，具有良好的扩展性。</li>
+<li>CI&#x2F;CD 集成：自动化测试通常会集成到持续集成&#x2F;持续交付（CI&#x2F;CD）流程中，如与 Jenkins、CircleCI 等工具结合，实现自动化测试的定时执行和结果报告，这样可以在代码提交后立即运行测试，迅速反馈问题。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用例数据放在哪里？</td>
+<td>放在统一的文件或数据库中，如 Excel、JSON、CSV 文件或者数据库表，便于管理和修改。</td>
+</tr>
+<tr>
+<td>数据量大的时候怎么办？</td>
+<td>数据库适用于数据量大且结构复杂的用例，能够方便地进行增删改查操作；Excel&#x2F;CSV 适合业务简单且数据量不大的场景。</td>
+</tr>
+<tr>
+<td>一套脚本怎么跑多组数据？</td>
+<td>通过数据驱动框架实现参数化，支持多个数据集，减少重复代码，提高用例的复用性；pytest 里可以用 @pytest.mark.parametrize 来实现。</td>
+</tr>
+<tr>
+<td>怎么保证用例不会只测正常情况？</td>
+<td>设计用例时要覆盖正常情况、异常情况和边界情况，异常情况传入非法参数看是否返回适当错误信息，边界情况测空值、最大最小值等。</td>
+</tr>
+<tr>
+<td>用例怎么接进流水线？</td>
+<td>与 Jenkins、CircleCI 等工具结合实现定时执行和结果报告，在代码提交后立即运行测试，迅速反馈问题。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“用例数据直接写在测试脚本里最方便。” —— 用例数据存放在统一的文件或数据库中，便于管理和修改，也便于版本控制与团队协作。</li>
+<li>“参数化只是为了少写几行代码。” —— 参数化通过数据驱动框架支持多个数据集，减少重复代码，提高用例的复用性，同时扩展了场景覆盖。</li>
+<li>“只要正常场景跑通就算覆盖了。” —— 还要覆盖异常情况（传入非法参数检查错误信息）和边界情况（空值、最大最小值等）。</li>
+</ul>
+<hr>
+<h3 id="30-如何在-Requests-中处理签名（sign）和-Token？"><a href="#30-如何在-Requests-中处理签名（sign）和-Token？" class="headerlink" title="30. 如何在 Requests 中处理签名（sign）和 Token？"></a>30. 如何在 Requests 中处理签名（sign）和 Token？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：接口测试里有的接口要带签名和 Token，这个在 Requests 里你一般怎么搞？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易答偏的是只说”把 Token 放到 header 里”就完事，漏掉<strong>签名的生成过程</strong>。签名不是随便拼一个字符串，一般是<strong>根据特定的算法（如 HMAC、MD5）对请求数据及密钥进行哈希</strong>；Token 也通常是从授权服务器通过<strong>用户名密码认证</strong>获取，获取后可能需要缓存。另一个坑是签名和 Token 混为一谈——它们是两件事，一个是自己算出来的，一个是服务端发的。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在进行接口测试时，使用 Requests 库处理签名（sign）和 Token 主要涉及以下关键步骤：生成签名、获取或生成 Token、在请求中附加签名和 Token。</li>
+<li>具体实现步骤如下：<ol>
+<li>首先导入 Requests 库和其他所需库（如 <code>hashlib</code>、<code>hmac</code>）。</li>
+<li>编写函数生成签名，例如使用 HMAC-SHA256。</li>
+<li>编写函数获取或生成 Token（假设通过用户名密码获取）。</li>
+<li>在请求中附加签名和 Token。</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hmac</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_signature</span>(<span class="params">secret_key, message</span>):</span><br><span class="line">    signature = hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).hexdigest()</span><br><span class="line">    <span class="keyword">return</span> signature</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_token</span>(<span class="params">auth_url, username, password</span>):</span><br><span class="line">    response = requests.post(auth_url, data=&#123;<span class="string">&#x27;username&#x27;</span>: username, <span class="string">&#x27;password&#x27;</span>: password&#125;)</span><br><span class="line">    <span class="keyword">if</span> response.status_code == <span class="number">200</span>:</span><br><span class="line">        <span class="keyword">return</span> response.json().get(<span class="string">&#x27;token&#x27;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">raise</span> Exception(<span class="string">&quot;Failed to obtain token&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_signed_request</span>(<span class="params">api_url, params, headers, secret_key</span>):</span><br><span class="line">    <span class="comment"># 生成签名</span></span><br><span class="line">    message = <span class="string">&#x27;&amp;&#x27;</span>.join([<span class="string">f&quot;<span class="subst">&#123;key&#125;</span>=<span class="subst">&#123;value&#125;</span>&quot;</span> <span class="keyword">for</span> key, value <span class="keyword">in</span> <span class="built_in">sorted</span>(params.items())])</span><br><span class="line">    signature = generate_signature(secret_key, message)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将签名和 Token 添加到头部</span></span><br><span class="line">    headers[<span class="string">&#x27;Signature&#x27;</span>] = signature</span><br><span class="line">    token = get_token(auth_url, <span class="string">&#x27;user&#x27;</span>, <span class="string">&#x27;passwd&#x27;</span>)  <span class="comment"># 假设获取 Token 的函数</span></span><br><span class="line">    headers[<span class="string">&#x27;Authorization&#x27;</span>] = <span class="string">f&quot;Bearer <span class="subst">&#123;token&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 发送请求</span></span><br><span class="line">    response = requests.get(api_url, params=params, headers=headers)</span><br><span class="line">    <span class="keyword">return</span> response</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>配套要考虑的还有几点：<ul>
+<li><strong>哈希和加密算法</strong>：除了 HMAC-SHA256，还需要熟悉其他常见的签名算法，如 MD5、RSA 等。在实际项目中选择合适的算法非常重要，尤其是在对安全要求较高的项目中。</li>
+<li><strong>Token 的管理</strong>：Token 的有效期和刷新机制也是需要考虑的。如果 Token 有效期较短，需要设计合理的刷新机制，确保在 Token 失效时及时获取新的 Token。</li>
+<li><strong>安全性</strong>：在生成签名和 Token 的过程中，需要严格保护密钥和秘密信息。此外，在传输过程中使用 HTTPS 加密通信，防止中间人攻击。</li>
+<li><strong>错误处理</strong>：在实际应用中，接口可能会遇到各种错误情况，比如网络问题、权限不足等，需要设计合理的错误处理机制，确保系统的可靠性和健壮性。</li>
+</ul>
+</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>签名具体是怎么算出来的？</td>
+<td>通常是根据特定的算法（如 HMAC、MD5）对请求数据及密钥进行哈希。示例里用 HMAC-SHA256，把参数按 key 排序后拼成 <code>f&quot;&#123;key&#125;=&#123;value&#125;&quot;</code> 这样一段 message（用 <code>&amp;</code> 拼接），再用密钥做哈希，输出十六进制签名。</td>
+</tr>
+<tr>
+<td>Token 从哪来？用完怎么办？</td>
+<td>Token 通常从授权服务器获取，可以通过用户名密码认证，获取后可能需要缓存。还要考虑 Token 的有效期和刷新机制，有效期较短时需要设计合理的刷新机制，确保失效时及时获取新的 Token。</td>
+</tr>
+<tr>
+<td>除了 HMAC-SHA256，还有哪些签名算法？</td>
+<td>还需要熟悉其他常见的签名算法，如 MD5、RSA 等。在实际项目中选择合适的算法非常重要，尤其是在对安全要求较高的项目中。</td>
+</tr>
+<tr>
+<td>带签名的接口失败了怎么排查？</td>
+<td>接口可能会遇到各种错误情况，比如网络问题、权限不足等，需要设计合理的错误处理机制，确保系统的可靠性和健壮性；同时在生成签名和 Token 的过程中严格保护密钥和秘密信息，传输过程中使用 HTTPS 加密通信，防止中间人攻击。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“签名就是随便拼个字符串塞进 header。” —— 签名通常是根据特定的算法（如 HMAC、MD5）对请求数据及密钥进行哈希，是有确定算法的，不是随意拼接。</li>
+<li>“Token 和签名是一回事。” —— 签名是自己根据算法和密钥算出来的；Token 是从授权服务器通过用户名密码认证获取的，两者获取方式和生命周期都不同。</li>
+<li>“密钥写在代码里没关系。” —— 生成签名和 Token 的过程中需要严格保护密钥和秘密信息，传输过程中也应使用 HTTPS 加密通信，防止中间人攻击。</li>
+</ul>
+<hr>
+<h3 id="31-数据驱动测试了解多少？如何实现？"><a href="#31-数据驱动测试了解多少？如何实现？" class="headerlink" title="31. 数据驱动测试了解多少？如何实现？"></a>31. 数据驱动测试了解多少？如何实现？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：数据驱动测试你了解多少？具体怎么落地实现？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易漏掉的是<strong>为什么要做</strong>——它让我们可以更高效地进行回归测试，不用每次手动更改输入数据，就能验证系统对各种数据情况的处理。只背「用 CSV&#x2F;Excel 存数据」而不说清楚数据与代码分离带来的复用性和覆盖面提升，考官会觉得你只知道名词。另外实现方式要说具体到框架和库：Java 用 JUnit + Apache Commons CSV、Python 用 unittest + pandas、Web 用 Selenium + TestNG 的 DataProvider。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>数据驱动测试是一种测试自动化的方法，通过将测试用例的数据与测试代码分离，从而使得同一套测试代码可以在不同的数据集上运行多次。这种方法不仅能提高代码复用性，还能更全面地测试应用的各个方面，涵盖不同的数据输入场景。实现数据驱动测试的常见手段包括使用 CSV、Excel、数据库等来存储测试数据，然后在测试中动态地读取这些数据并执行。</li>
+<li>数据驱动测试之所以这么重要，是因为它让我们可以更高效地进行回归测试，不用每次手动更改输入数据，就能验证系统对各种数据情况的处理。</li>
+<li>使用 JUnit 和 CSV 文件：如果你使用的是 Java，可以使用 JUnit 结合 Apache Commons CSV 库实现数据驱动测试。将测试数据保存在一个 CSV 文件中，然后在测试代码中读取这个文件并遍历每行数据，传入测试方法中执行。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith(Parameterized.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DataDrivenTest</span> &#123;</span><br><span class="line">    <span class="meta">@Parameterized</span>.Parameters</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Collection&lt;Object[]&gt; data() &#123;</span><br><span class="line">        <span class="keyword">return</span> Arrays.asList(<span class="keyword">new</span> <span class="title class_">Object</span>[][] &#123;</span><br><span class="line">            &#123;<span class="string">&quot;data1&quot;</span>, <span class="string">&quot;expectedResult1&quot;</span>&#125;,</span><br><span class="line">            &#123;<span class="string">&quot;data2&quot;</span>, <span class="string">&quot;expectedResult2&quot;</span>&#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> String input;</span><br><span class="line">    <span class="keyword">private</span> String expected;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DataDrivenTest</span><span class="params">(String input, String expected)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.input = input;</span><br><span class="line">        <span class="built_in">this</span>.expected = expected;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 测试代码，使用input和expected进行验证</span></span><br><span class="line">        assertEquals(expected, someMethod(input));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用 Python 和 unittest 框架：在 Python 中，可以利用 unittest 框架和 pandas 库来读取 Excel 文件进行数据驱动测试，pandas 能方便地读取 Excel 文件并对数据进行处理。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> unittest</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TestExample</span>(unittest.TestCase):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">test_using_excel</span>(<span class="params">self</span>):</span><br><span class="line">        df = pd.read_excel(<span class="string">&#x27;test_data.xlsx&#x27;</span>)</span><br><span class="line">        <span class="keyword">for</span> index, row <span class="keyword">in</span> df.iterrows():</span><br><span class="line">            input_data = row[<span class="string">&#x27;input&#x27;</span>]</span><br><span class="line">            expected_result = row[<span class="string">&#x27;expected&#x27;</span>]</span><br><span class="line">            actual_result = some_function(input_data)</span><br><span class="line">            <span class="variable language_">self</span>.assertEqual(actual_result, expected_result)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    unittest.main()</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用 Selenium 和 TestNG：对于 Web 测试，Selenium 结合 TestNG 框架也支持数据驱动测试，可以使用 TestNG 的数据提供者（DataProvider）注解实现这一点，将测试数据从 Excel 文件中读取。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@DataProvider(name = &quot;testData&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Object[][] getData() &#123;</span><br><span class="line">    <span class="comment">// 读取Excel文件并返回数据</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test(dataProvider = &quot;testData&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testMethod</span><span class="params">(String input, String expected)</span> &#123;</span><br><span class="line">    <span class="comment">// 输入input值到Web页面并验证结果</span></span><br><span class="line">    assertEquals(expected, getWebResult(input));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据驱动测试的收益是什么？</td>
+<td>它让我们可以更高效地进行回归测试，不用每次手动更改输入数据，就能验证系统对各种数据情况的处理；同时提高代码复用性，更全面地测试应用的各个方面。</td>
+</tr>
+<tr>
+<td>Java 里怎么做数据驱动？</td>
+<td>使用 JUnit 结合 Apache Commons CSV 库，把测试数据保存在 CSV 文件中，在测试代码中读取这个文件并遍历每行数据，传入测试方法中执行；也可以用 JUnit 的 Parameterized 参数化。</td>
+</tr>
+<tr>
+<td>Web 测试里怎么做数据驱动？</td>
+<td>使用 Selenium 结合 TestNG 框架，用 TestNG 的数据提供者（DataProvider）注解，将测试数据从 Excel 文件中读取。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“数据驱动测试就是把数据写在代码里循环一遍。” —— 数据驱动测试的核心是把测试用例的数据与测试代码分离，同一套测试代码可以在不同的数据集上运行多次。</li>
+<li>“数据驱动主要提升的是执行速度。” —— 它主要提升的是代码复用性，并让你更全面地测试应用的各个方面、涵盖不同的数据输入场景，同时让回归测试不用每次手动更改输入数据。</li>
+</ul>
+<hr>
+<h3 id="32-参数化类型有哪些？自动化脚本如何实现数据参数化？"><a href="#32-参数化类型有哪些？自动化脚本如何实现数据参数化？" class="headerlink" title="32. 参数化类型有哪些？自动化脚本如何实现数据参数化？"></a>32. 参数化类型有哪些？自动化脚本如何实现数据参数化？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：参数化分几种类型？自动化脚本里具体怎么把参数打进去？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>容易答漏的是<strong>第 5 类 API 参数化</strong>——随着微服务和云原生应用的普及，越来越多的测试场景需要动态数据，通过调用 API 接口来获取实时数据是一种非常灵活有效的方式。另外别把「参数化类型」和「实现方法」混成两套东西：类型是值&#x2F;文件&#x2F;数据库&#x2F;环境变量&#x2F;API，方法是硬编码、测试数据文件、配置文件或环境变量、框架自带的数据驱动功能、直接读数据库。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>参数化类型主要有几种：<br>1）值参数化：这是最常见的一种，其中每次运行脚本时，使用不同的值进行测试。<br>2）文件参数化：通过读取外部文件（如 CSV、Excel 文件）中的数据来实现参数化。<br>3）数据库参数化：从数据库中获取数据来驱动测试。<br>4）环境变量参数化：使用环境变量来确定测试数据。<br>5）API 参数化：通过 API 接口获取数据来进行测试。</li>
+<li>对于实现数据参数化，自动化脚本可以使用以下几种方法：<br>1）直接在代码中硬编码不同的测试数据，但这不推荐使用，因为维护成本比较高。<br>2）使用测试数据文件，比如 CSV、Excel 文件，通过读取这些文件来获取参数。<br>3）使用配置文件或者环境变量来设置参数。<br>4）结合测试框架本身带有的数据驱动功能，如 TestNG 中的 @DataProvider 或 JUnit 中的 @Parameterized。<br>5）直接从数据库读取数据，动态地更改测试数据。</li>
+<li>参数化测试对于提升测试覆盖率和效率非常重要，因为它允许我们用相同的测试脚本来验证多个数据集。<ul>
+<li>值参数化：这种方式很适合一些简单的情况，但对于复杂数据，还是建议使用文件或数据库参数化。值参数化常见于测试框架中，如 JUnit 的 @Parameterized 注解或 TestNG 的 @DataProvider。</li>
+<li>文件参数化：常用的文件有 CSV、Excel。这里推荐使用处理这类文件的第三方库，例如 Apache POI 来处理 Excel 文件，OpenCSV 来处理 CSV 文件。这样既能提高代码的可读性和灵活性，还能动态地更新测试数据。</li>
+<li>数据库参数化：通常用于需要大规模数据或者数据经常变化的场景。可以使用 JDBC 连接数据库，利用 SQL 查询获取不同的数据集。为了提高性能，可以在测试开始前进行一次性查询并缓存数据。</li>
+<li>环境变量参数化：这种方式更多地用于环境相关的设置，比如不同的测试环境 URL、数据库连接字符串等。好处是增加了测试的配置灵活性，不需要修改代码，只需修改环境变量即可。</li>
+<li>API 参数化：随着微服务和云原生应用的普及，越来越多的测试场景需要动态数据。通过调用 API 接口来获取实时数据，是一种非常灵活有效的方式。可以使用 RestAssured、HttpClient 等库来实现。</li>
+</ul>
+</li>
+<li>此外还可以结合 CI&#x2F;CD 工具（如 Jenkins）来进行数据的参数化，比如在 Jenkins 中通过配置参数化构建，输入不同的参数来执行自动化测试。</li>
+</ul>
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>环境变量参数化一般用在哪？</td>
+<td>更多地用于环境相关的设置，比如不同的测试环境 URL、数据库连接字符串等；好处是增加了测试的配置灵活性，不需要修改代码，只需修改环境变量即可。</td>
+</tr>
+<tr>
+<td>处理 Excel 和 CSV 分别推荐什么库？</td>
+<td>推荐使用处理这类文件的第三方库，例如 Apache POI 来处理 Excel 文件，OpenCSV 来处理 CSV 文件，这样既能提高代码的可读性和灵活性，还能动态地更新测试数据。</td>
+</tr>
+<tr>
+<td>数据库参数化怎么保证性能？</td>
+<td>通常用于需要大规模数据或者数据经常变化的场景，可以使用 JDBC 连接数据库，利用 SQL 查询获取不同的数据集；为了提高性能，可以在测试开始前进行一次性查询并缓存数据。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“参数化就是把不同数据写死在脚本里循环跑。” —— 硬编码不同测试数据维护成本比较高、不推荐使用；值参数化也只是最常见的一种，复杂数据还建议使用文件或数据库参数化。</li>
+<li>“参数化类型就值参数化和文件参数化两种。” —— 除了这两种，还有数据库参数化、环境变量参数化和 API 参数化。</li>
+</ul>
+<hr>
+<h3 id="33-Web-自动化测试中，如何生成随机数？"><a href="#33-Web-自动化测试中，如何生成随机数？" class="headerlink" title="33. Web 自动化测试中，如何生成随机数？"></a>33. Web 自动化测试中，如何生成随机数？</h3><p><strong>🎬 面试现场</strong></p>
+<blockquote>
+<p>面试官（口语化）：自动化跑注册场景要造一批随机用户名密码，随机数你怎么生成？</p>
+</blockquote>
+<p><strong>⚠️ 翻车点</strong></p>
+<p>最容易被追的一刀是<strong>种子值</strong>。只说 <code>random.randint</code> 不提 <code>random.seed(42)</code>，会被追问「你的用例今天跑通明天挂了怎么办」。设了种子值能确保每次运行测试脚本时生成的随机数序列是相同的，这在调试和回归测试中尤为重要。另外别忽略随机字符串生成这个高频场景——用 <code>string.ascii_letters</code> 拼 <code>random.choice</code> 生成指定长度字符串是注册、登录测试的常规写法。</p>
+<p><strong>📝 现场作答</strong></p>
+<ul>
+<li>在 Web 自动化测试中，为了模拟真实的用户行为和数据输入，我们经常需要生成随机数来创建不同的测试数据。通常会使用编程语言自带的随机数生成函数来实现这一目标。以 Python 语言为例：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个0到9之间的随机整数</span></span><br><span class="line">random_int = random.randint(<span class="number">0</span>, <span class="number">9</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个0到1之间的随机浮点数</span></span><br><span class="line">random_float = random.random()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个指定范围内的随机数，例如10到100之间</span></span><br><span class="line">random_range = random.randint(<span class="number">10</span>, <span class="number">100</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这些随机数可以用于填写表单字段、生成随机用户名、密码等。这种方法简洁高效，并且 Python 自带的 random 模块已经足够好地涵盖了一般自动化测试中所需的随机数生成功能。</li>
+<li>范围生成和种子值（Seed）设定：有时候需要生成一个特定范围内的浮点数，或为了确保测试的可重复性，可以使用种子值来控制随机数生成器。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个指定范围内的随机浮点数，例如1.5到6.5之间</span></span><br><span class="line">random_float_range = random.uniform(<span class="number">1.5</span>, <span class="number">6.5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置种子值</span></span><br><span class="line">random.seed(<span class="number">42</span>)</span><br><span class="line">random_seed_int = random.randint(<span class="number">0</span>, <span class="number">100</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过设置种子值，我们确保了每次运行测试脚本时，生成的随机数序列是相同的，这在调试和回归测试中尤为重要。</li>
+<li>使用第三方库：在某些情况下，项目可能对随机数生成有更复杂要求。这时可以考虑使用第三方库，如 numpy，这个库提供了更多功能和更高效的实现。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个1到10之间的随机整数</span></span><br><span class="line">numpy_random_int = np.random.randint(<span class="number">1</span>, <span class="number">11</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个指定范围内的随机浮点数，例如0.5到2.5之间</span></span><br><span class="line">numpy_random_float_range = np.random.uniform(<span class="number">0.5</span>, <span class="number">2.5</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>随机字符串生成：在 Web 测试中经常需要生成随机字符串，特别是用于用户注册、登录等场景。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_random_string</span>(<span class="params">length</span>):</span><br><span class="line">    letters = string.ascii_letters</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(random.choice(letters) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(length))</span><br><span class="line"></span><br><span class="line">random_string = generate_random_string(<span class="number">8</span>)</span><br><span class="line"><span class="built_in">print</span>(random_string)  <span class="comment"># 例如：aBcDefGh</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>💡 主动加分的追问准备</strong></p>
+<table>
+<thead>
+<tr>
+<th>面试官追问</th>
+<th>你的答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>随机数导致用例偶尔失败怎么办？</td>
+<td>可以使用种子值来控制随机数生成器，设置种子值能确保每次运行测试脚本时生成的随机数序列是相同的，这在调试和回归测试中尤为重要。</td>
+</tr>
+<tr>
+<td>怎么生成指定长度的大写字母数字混合字符串？</td>
+<td>用 <code>string.ascii_letters</code> 取字母表，再用 <code>random.choice</code> 反复取字符拼接，例如生成 8 位字符串的 <code>generate_random_string</code> 函数。</td>
+</tr>
+<tr>
+<td>什么时候需要用第三方库生成随机数？</td>
+<td>在某些情况下，项目可能对随机数生成有更复杂要求，这时可以考虑使用第三方库，如 numpy，这个库提供了更多功能和更高效的实现。</td>
+</tr>
+</tbody></table>
+<p><strong>❌ 千万别说的话</strong></p>
+<ul>
+<li>“随机数每次都不一样才够真实，用种子固定就没意义了。” —— 设置种子值能确保每次运行测试脚本时生成的随机数序列相同，这在调试和回归测试中尤为重要。</li>
+<li>“Python 只能生成整数随机数。” —— random 模块还可以生成 0 到 1 之间的随机浮点数和指定范围内的随机浮点数，如 <code>random.uniform(1.5, 6.5)</code>。</li>
+</ul>
+<hr>
+<h2 id="面试前-10-分钟速查"><a href="#面试前-10-分钟速查" class="headerlink" title="面试前 10 分钟速查"></a>面试前 10 分钟速查</h2><p><strong>JMeter 请求配置</strong></p>
+<ul>
+<li><strong>POST 参数位置</strong>：POST 参数写在 HTTP 请求采样器的 “Body Data” 选项卡，键值对格式，例如 username&#x3D;admin&amp;password&#x3D;123456；写成 Parameters 里拼在 URL 上虽能通，但与真实调用形态不一致。</li>
+<li><strong>POST 发 JSON</strong>：HTTP 请求采样器里往下滚到”发送参数处”，勾选”HTTP 请求主体数据”后粘贴 JSON；再用 “HTTP Header Manager” 加一条 Content-Type 值为 application&#x2F;json，否则服务端按表单解析、字段全丢。</li>
+<li><strong>JSON 请求体与请求头分离</strong>：请求体中的 JSON 写在 “Body Data” 里（不是 Parameters），Content-Type 必须通过 “Config Element” -&gt; “HTTP Header Manager” 显式设为 application&#x2F;json，漏配常表现为接口返回 415 或解析成空对象。</li>
+<li><strong>文件上传接口</strong>：在 “Body Data” 部分勾选 “Use multipart&#x2F;form-data for POST”，再点 “Add” 添加文件类型的元件选择要上传的文件；路径与文件名会变，用 CSV Data Set Config 参数化，并加响应断言校验状态码与响应内容、挂 “View Results Tree” 看结果。</li>
+<li><strong>GET 接口测试</strong>：测试计划下加 Thread Group，设定线程数、Ramp-Up Period (秒)、循环次数 (Loop Count)，再加 HTTP Request 配置协议、服务器名称或 IP、端口号与路径；路径里的固定参数放到 “Config Element” -&gt; “User Defined Variables” 里用 ${VAR_NAME} 引用。</li>
+<li><strong>SOAP 请求</strong>：用专门的 “SOAP&#x2F;XML-RPC 请求” 采样器而不是普通 HTTP Request，XML 粘在它的数据输入框；再用 “HTTP Header Manager” 配 Content-Type: text&#x2F;xml;charset&#x3D;UTF-8。</li>
+<li><strong>参数化的四类</strong>：CSV Data Set Config 面向大量数据（文件路径、变量名称、分隔符），User Defined Variables 面向全局常量（定义后作用域内不变、不能运行时动态改），Configuration Elements（如 “HTTP Request Defaults”）面向通用请求参数，函数和变量用于动态生成或引用（如 __Random()）。</li>
+</ul>
+<p><strong>JMeter 数据处理</strong></p>
+<ul>
+<li><strong>JMeter 没有加密元件</strong>：加密靠 “JSR223 PreProcessor”（语言选 Groovy）或 “JSR223 Sampler” 写脚本，脚本里必须 <code>vars.put</code> 把密文回写成 JMeter 变量，再在 HTTP Request 里用 ${encodedParameter} 引用，否则请求带出去的仍是原始参数。</li>
+<li><strong>Base64 与 AES 脚本写法</strong>：Base64 用 import org.apache.commons.codec.binary.Base64 调 encodeBase64String；AES 用 javax.crypto.Cipher 与 javax.crypto.spec.SecretKeySpec，密钥需 16 字节。</li>
+<li><strong>密文响应的断言方式</strong>：不能拿明文关键字去匹配密文，先用 “JSR223 PostProcessor” 或 “BeanShell PostProcessor” 调 prev.getResponseDataAsString 解密并存进变量（如 ${decryptedResponse}），再用 “Response Assertion” 把 “Apply to” 选成 “JMeter Variable” 并填该变量名。</li>
+<li><strong>提取上一步的加密数据</strong>：用”正则表达式提取器”配置引用名、正则表达式、模板 $1$、匹配数字 1、默认值 NOT_FOUND，下一个请求用 ${引用名} 显式引用；标准 JSON 用 JSON 提取器配 JSON 路径 $..encryptedData，XML 用 XPath 提取器配 &#x2F;&#x2F;encryptedData&#x2F;text()。</li>
+<li><strong>跨线程组传参</strong>：普通 JMeter 变量作用域仅限当前线程组，要动态跨组用全局属性对象 props——一组里 props.put(“variableName”, “value”)，另一组里 props.get(“variableName”)；用户定义的变量虽全组可访问但运行中不可动态变化，CSV Data Set Config 适合大量参数不适合单参数。</li>
+<li><strong>加密方案选型</strong>：用 AES 加密业务数据（AES 支持 128 位、192 位和 256 位密钥），用 RSA 加密 AES 密钥后与密文一起发送，密文接口还要用 SHA-256 摘要校验完整性、密钥不得明文存放在代码或日志中。</li>
+<li><strong>密文接口的测试维度</strong>：解密后与期望数据比对、特殊字符与长字符串边界、密文泄露与重放风险、AES256 通常比 AES128 更安全、加密模式 GCM 自带完整性检验、性能上加解密开销。</li>
+</ul>
+<p><strong>JMeter 校验与通知</strong></p>
+<ul>
+<li><strong>Cookie 管理</strong>：HTTP 样本下右键 Add -&gt; Config Element -&gt; HTTP Cookie Manager，点 Add 填名称、值、域、路径；它默认自动处理服务器下发的 Set-Cookie 并带到后续请求，可用 Clear Cookies each iteration 选项在每次迭代时清掉，Policy 默认是标准浏览器行为。</li>
+<li><strong>Header 的两种加法</strong>：多个请求共享同一 Header 用 “HTTP Header Manager”（默认 Header 只在请求未显式指定时才生效），单个请求的定制需求直接写在 HTTP 请求的”头部信息”部分；动态值可用 User Defined Variables、CSV Data Set Config 或 BeanShell PreProcessor、JSR223 PreProcessor 动态设置。</li>
+<li><strong>断言类型</strong>：响应断言（字符串、正则、响应码）、JSON 断言（按 JSON 路径和值精确校验）、XPath 断言（XML 响应）、响应时间断言（限定响应时长）、自定义断言（BeanShell Assertion 或 JSR223 Assertion，写 Groovy、BeanShell、JavaScript）。</li>
+<li><strong>多断言是 AND 关系</strong>：同一请求节点下添加的多个断言必须全部通过，该请求才算成功；只配一种断言会让定位能力偏弱。</li>
+<li><strong>自动发结果邮件</strong>：用内置的 SMTP Sampler，填 SMTP 服务器地址、用户名、密码、发件人与收件人，并在目标监听器上设条件（如测试执行完毕时发送）；能否发出取决于网络访问权限与服务器配置，Gmail 的 SMTP 服务需要开启”双因素认证”以及”低安全应用访问权限”。</li>
+<li><strong>报告与 CI&#x2F;CD</strong>：用”聚合报告”或”图形结果”收集统计信息，配合 “Beanshell Sampler” 或 “JSR223 Sampler” 生成报告内容；也可把 JMeter 集成到 Jenkins，用 Jenkins 自带的邮件插件在每次代码更新后自动触发并反馈结果。</li>
+</ul>
+<p><strong>JMeter 安全与代理</strong></p>
+<ul>
+<li><strong>HTTPS 证书三步</strong>：启动 HTTP(S) 测试脚本记录器生成 JMeter CA 证书，把 $JMETER_HOME&#x2F;bin 目录下的 ApacheJMeterTemporaryRootCA.crt 导入浏览器的受信任的根证书颁发机构存储区，再把 HTTP 请求采样器的协议设为 https 并配准服务器与端口。</li>
+<li><strong>自签名证书</strong>：配置系统属性 javax.net.ssl.trustStore 与 javax.net.ssl.trustStorePassword 指向自签名证书的可信存储；JMeter 内置机制并不会自动信任任意 HTTPS 站点。</li>
+<li><strong>证书链与 TLS 版本</strong>：多证书链场景用不同别名管理并用 keytool 批量导入、管理密钥库；通过 https.default.protocol 与 https.socket.protocols 指定 TLS 版本与加密算法；证书过期会影响测试结果，需用系统参数或在执行前检查并更新。</li>
+<li><strong>代理录制流程</strong>：选 Fiddler、Charles Proxy 或 Burp Suite，配置监听端口（Fiddler 通常监听 8888，改端口前确认未被占用），把浏览器&#x2F;移动端 WiFi&#x2F;代码请求指向该端口（Fiddler 通常监听 8888；Python 里用 requests 库的 proxies 参数），录完导出（Charles Proxy 可导出 HAR 文件）重放成脚本。</li>
+<li><strong>HTTPS 流量解密</strong>：要解密必须安装代理工具提供的证书，例如在浏览器的信任证书管理中安装 Fiddler 根证书，只配端口不解密只会录到握手失败。</li>
+<li><strong>HTTPS 接口的验证范围</strong>：确认 URL 以 https 开头、请求方法与请求头按接口文档配置；自签名证书在工具内加信任配置，更推荐把证书加载到客户机信任存储，而不是长期用 verify&#x3D;False；除功能外还要做安全性测试，可用 OWASP ZAP 或 Burp Suite 做漏洞扫描和渗透测试。</li>
+</ul>
+<p><strong>Requests 基础</strong></p>
+<ul>
+<li><strong>七种请求方法</strong>：requests.get、requests.post、requests.put、requests.delete、requests.head、requests.patch、requests.options；head 与 GET 类似但不返回响应体、仅返回响应头，options 用于获取服务器支持的 HTTP 方法。</li>
+<li><strong>常用参数</strong>：超时要显式设置（如 requests.get(url, timeout&#x3D;3)）避免程序卡死；认证用 HTTPBasicAuth；文件上传用 POST 的 files 参数（如 files &#x3D; {‘file’: open(‘report.xls’, ‘rb’)}）；大文件用流式请求 requests.get(url, stream&#x3D;True) 配合 response.iter_content(chunk_size&#x3D;1024) 逐块处理以改善内存使用。</li>
+<li><strong>JSON 接口四步</strong>：requests.post(url, headers&#x3D;headers, data&#x3D;json.dumps(data))，headers 里 Content-Type 设为 application&#x2F;json，响应判 status_code &#x3D;&#x3D; 200 并调 response.json()，异常分别捕获 HTTPError、ConnectionError、Timeout、RequestException 并配 logging 记录请求与响应。</li>
+<li><strong>请求头</strong>：headers 必须以字典形式传，一个头名对应一个值；常用 Content-Type、Accept、Authorization、Cookie；想确认实际发出的头可用 response.request.headers 回读。</li>
+<li><strong>带 Cookie 的三种写法</strong>：构造字典作为 cookies 参数传、或在 headers 里手工拼 ‘Cookie’ 字符串、或用 requests.cookies.RequestsCookieJar 以 jar.set 设置 domain 与 path 处理复杂场景；已知一批 Cookie 也可用 requests.utils.cookiejar_from_dict() 构造后赋给 session.cookies。</li>
+<li><strong>Session 与 Cookie 持久化</strong>：用 requests.Session() 贯穿全流程，登录请求返回的 Cookie 自动保存、后续请求自动携带；长时间跑的测试可把 session.cookies 用 pickle 序列化存文件再载入；requests 不受浏览器 Same-Origin Policy 限制，跨域靠设定合适头部解决；账号密码等敏感数据走环境变量或密钥管理服务。</li>
+<li><strong>HTTPS 证书三种处理</strong>：<code>verify=False</code> 忽略验证（只在可信的开发&#x2F;测试环境用）、<code>verify=&#39;/path/to/ca-bundle.crt&#39;</code> 指定 CA 证书文件或完整证书链、<code>cert=(&#39;/path/client.crt&#39;, &#39;/path/client.key&#39;)</code> 提供客户端证书；更精细的 TLS 版本与密码套件控制靠 requests.Session 设置自定义 SSLContext。</li>
+</ul>
+<p><strong>接口自动化工程化</strong></p>
+<ul>
+<li><strong>用例间参数传递</strong>：在 conftest.py 里用 <code>@pytest.fixture</code> 定义返回共享参数的 fixture，测试函数按参数名声明即可拿到（不要用全局变量硬传）；作用域可选 function、class、module、session，作用域越大创建和销毁次数越少；fixture 之间还能互相依赖构建数据依赖链。</li>
+<li><strong>用例数据管理</strong>：数据与脚本分离，存放在 Excel、JSON、CSV 文件或数据库表中，按功能或模块分成测试套件，用 Git 做版本控制；设计要覆盖正常情况、异常情况（传非法参数看错误信息）与边界情况（空值、最大最小值）。</li>
+<li><strong>签名与 Token</strong>：签名是按特定算法（如 HMAC、MD5）对请求数据与密钥做哈希，用 hmac.new(secret_key.encode(), message.encode(), hashlib.sha256).hexdigest() 得到十六进制串，参数按 key 排序拼成 key&#x3D;value&amp;key&#x3D;value 作为 message；Token 由授权服务器用用户名密码认证获取，要考虑有效期与刷新机制；请求头分别放 Signature 与 Authorization: Bearer {token}。</li>
+<li><strong>数据驱动的落地方式</strong>：Java 用 JUnit 的 Parameterized 配 Apache Commons CSV 遍历 CSV；Python 用 unittest 配 pandas 读 Excel（pd.read_excel 后 iterrows 逐行断言）；Web 用 Selenium 配 TestNG 的 DataProvider 从 Excel 取数。</li>
+<li><strong>参数化类型与实现方法</strong>：类型分值参数化、文件参数化、数据库参数化、环境变量参数化、API 参数化；实现上可在代码里硬编码（不推荐）、读测试数据文件（Excel 用 Apache POI、CSV 用 OpenCSV）、用配置文件或环境变量、用框架自带的数据驱动功能（TestNG 的 DataProvider、JUnit 的 Parameterized）、或直接用 JDBC 查库并缓存结果。</li>
+<li><strong>随机数据生成</strong>：random.randint 生成整数、random.uniform(1.5, 6.5) 生成范围内浮点数，random.seed(42) 固定种子保证可重复（调试与回归必须），随机字符串用 string.ascii_letters 配 random.choice 拼出指定长度（如 8 位），需要更复杂的随机能力时改用 numpy（np.random.randint、np.random.uniform）。</li>
+<li><strong>流水线接入</strong>：用例框架如 RestAssured、Postman、JMeter、Robot Framework 结合 Jenkins、CircleCI 做定时执行与结果报告，代码提交后立即跑测试以快速反馈。</li>
+</ul>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/JMeter/"># JMeter</a>
+          
+          <a href="/tags/Pytest/"># Pytest</a>
+          
+          <a href="/tags/Requests/"># Requests</a>
+          
+          <a href="/tags/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95/"># 接口测试</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/10/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95--Selenium%20%E4%B8%8E%20UI%20%E8%87%AA%E5%8A%A8%E5%8C%96%E4%BD%93%E7%B3%BB/"
+        >自动化测试--Selenium 与 UI 自动化体系</a
+      >
+       
+      <a class="next" rel="next" href="/2026/10/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95--%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%9F%BA%E7%A1%80/"
+        >自动化测试--接口测试基础</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>
