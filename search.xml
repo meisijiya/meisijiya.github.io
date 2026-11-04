@@ -81304,4 +81304,2563 @@ Dubbo 与 Gateway 的差别：Dubbo 是服务间 RPC 治理框架，Gateway 是�
         <tag>面试</tag>
       </tags>
   </entry>
+  <entry>
+    <title>RPA与AI自动化--面试速通笔记</title>
+    <url>/2026/11/04/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/RPA%E8%87%AA%E5%8A%A8%E5%8C%96/RPA%E4%B8%8EAI%E8%87%AA%E5%8A%A8%E5%8C%96--%E9%9D%A2%E8%AF%95%E9%80%9F%E9%80%9A%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[Hi，我是 meisijiya ，也是 老江湖 ，感谢你的阅读，我们一起进步。
+
+零、先判断对方在考什么广州绮丝丽贸易的同岗位 JD 写得很实：AI 自动化工程师（RPA&#x2F;Python）实习生，在广州&#x2F;深圳坂田，跨境电商，140-180 元&#x2F;天，6 天&#x2F;周。拆开只有五条职责、五条要求，考试顺序是先笔试（逻辑选择题 + 主观题），再技术面 + 业务面。
+
+
+
+JD 要求
+笔试&#x2F;面试怎么验
+本文位置
+
+
+
+需求分析与方案设计，评估 RPA 可行性
+主观题给场景让你画方案；技术面追问「为什么不用 API」
+八章主观题、六章跨境场景
+
+
+RPA 开发（影刀 + Python），单测、稳定性、健壮性
+问影刀能力边界；给一段脚本挑稳定性问题
+一章、二章、四章
+
+
+AI 能力（ChatGPT&#x2F;Claude&#x2F;Gemini 辅助编程、场景中应用）
+问你怎么用 LLM；问「RPA 里哪里能接 AI」
+五章
+
+
+文档与培训（流程定义、操作手册、给业务培训）
+主观题考操作手册要素、培训流程
+九章
+
+
+技术研究（OpenClaw&#x2F;小龙虾）
+技术面问「知不知道 OpenClaw、和 RPA 什么关系」
+一章
+
+
+熟练 RPA 工具 + Python&#x2F;Java&#x2F;JS
+笔试逻辑、技术面语言考点
+三章、四章、一章
+
+
+跨境电商 RPA、AI 应用经验优先
+业务面问「你做过哪些电商自动化」
+六章、十章
+
+
+把 JD 的考点映射到本文章节：
+
+
+
+考点
+高频问法
+本文位置
+
+
+
+RPA 是什么、影刀是什么
+用一句话说清 RPA；影刀能做哪些事
+一章
+
+
+RPA 稳定性怎么保证
+幂等、重试、断点续跑怎么设计
+二章
+
+
+Python 基础与实战
+GIL、深浅拷贝、装饰器、生成器
+三章
+
+
+Java 在 RPA 岗为何要考
+虚拟线程、record、集合并发、POI
+四章
+
+
+AI 辅助编程与 RPA 结合
+用 LLM 做过什么；四种提效做法
+五章
+
+
+跨境场景方案
+订单下载汇总到 Excel 怎么设计
+六章
+
+
+自动化测试视角
+RPA 脚本单测怎么写；Playwright vs Selenium
+七章
+
+
+逻辑笔试
+数字推理、图形、类比、逻辑判断
+八章
+
+
+主观题
+流程设计、异常处理、复盘、反问
+九章
+
+
+项目深挖
+三个项目怎么映射到本岗追问
+十章
+
+
+和上一份《软件测试–速通笔记》的分工一句话：那份以测试理论&#x2F;流程&#x2F;用例设计为主轴、走「翻车点→现场作答→追问准备」，这份以 RPA 自动化开发 + Python&#x2F;Java + AI 应用为主轴、走「表格速查 + 一句话话术 + 追问链」，测试内容只保留自动化工程师视角必需的部分。
+
+用法：今晚通读一到七章建立知识框架。明早只看九章、十一章、十二章进门清单。笔试前翻八章题型套路。
+
+
+一、RPA 认知与工具1.1 RPA 定义与适用边界RPA（Robotic Process Automation，机器人流程自动化）是用软件机器人模拟人在电脑上的操作，自动执行规则明确、重复、跨系统界面或跨应用的业务流程。它在跨境电商里价值最高的是「人要在多个后台之间搬运数据」的活。
+
+
+
+维度
+适合上 RPA
+不适合上 RPA
+
+
+
+规则
+稳定、可穷举的规则
+频繁变化、需要主观判断
+
+
+频率
+高频、批量、每日定时
+偶发、一次性的事
+
+
+系统
+有界面没 API，或 API 能力不足
+有稳定 API 且字段开放
+
+
+数据量
+中小批量可逐条处理
+海量、需流式计算
+
+
+异常
+异常路径可枚举、可兜底
+异常发散、要临场决策
+
+
+判断一句口诀：稳定规则 + 高频 + 有界面无 API，才最值钱。有 API 优先用 API，这是 1.3 的「API 优先、UI 兜底」原则。
+
+
+
+问法
+一句话答
+追问
+
+
+
+什么是 RPA
+用软件机器人模拟人操作电脑，自动跑规则明确的重复流程
+和写脚本有什么区别
+
+
+什么时候不该用 RPA
+有稳定 API 时优先 API；规则天天变、要人判断的不适合
+那你怎么说服业务方
+
+
+RPA 和自动化脚本区别
+RPA 多聚焦界面操作、低代码、带调度控制台；脚本更底层灵活
+你更想用哪种
+
+
+1.2 影刀 RPA 具体能力影刀是国产低代码 RPA，强在电商&#x2F;桌面场景，流程面板里还能写 Python 模块。
+
+
+
+能力点
+事实要点（已核实）
+
+
+
+版本
+社区版免费但限非商业使用、有每日运行时长约 30 分钟；创业版按年付费限人数；企业版团队协作、合规、私有化，官网公开标准套餐约 59800 元&#x2F;5 账号&#x2F;年
+
+
+支持系统
+Windows、Mac、信创（统信 UOS、银河麒麟、Linux）、Android 手机自动化
+
+
+元素拾取
+提供元素捕获、元素锚点、AI 辅助定位、元素库、企业云元素库；支持网页&#x2F;桌面&#x2F;手机元素
+
+
+指令库大类
+网页自动化、桌面软件、鼠标键盘、数据表格、Excel&#x2F;WPS、对话框、数据处理、操作系统、流程&#x2F;应用、人工智能 AI、网络、工作队列、手机、自定义指令、SAP 扩展
+
+
+内置 Python
+流程面板可建 Python 模块，内置 xbot 与 package 两个包；第三方库可装可用、可定义调用函数
+
+
+调度
+控制台有调度中心、高级任务计划、机器人管理、任务监控；企业版原生定时触发；社区版定时要走系统计划任务曲线方案
+
+
+异常&#x2F;日志
+有「错误列表」「运行日志」，流程可捕获异常、AI 辅助定位；异常捕获与重试属流程指令能力
+
+
+xbot 包边界必须说清：**xbot 是影刀运行环境内置包，只能在影刀 Python 模块内调用，不是可 pip install 的独立 SDK**。它封装了软件自动化、数据表格、Excel、日志、AI 等能力。外部纯 Python 进程不能直接 import xbot。面试编 xbot.orders.download() 这种没公开的方法名会翻车，只讲已公开的大类能力。
+
+
+
+问法
+一句话答
+追问
+
+
+
+影刀用过哪些能力
+元素捕获做网页&#x2F;桌面拾取，内置 Python 模块跑 xbot 做 Excel 和日志，控制台定时调度
+xbot 能 pip 装吗
+
+
+社区版和企业版差在哪
+社区版免费但非商业、有运行时长限制；企业版有控制台调度、多人多机器人、私有化
+定时任务社区版怎么做
+
+
+影刀 Python 和脚本 Python 区别
+影刀里 Python 跑在它的运行环境，能用 xbot 调封装指令；外面普通脚本调不了 xbot
+那你怎么单测影刀里的逻辑
+
+
+1.2.1 录制与编码两种开发方式
+
+
+方式
+适用
+优劣
+
+
+
+录制
+界面操作多、流程简单
+上手快；但选择器脆弱、难维护、难单测
+
+
+Python 模块编码
+复杂逻辑、批量、要单测
+灵活、可测；需会 Python
+
+
+混合
+多数真实项目
+录制搭骨架，编码补解析&#x2F;幂等&#x2F;重试
+
+
+1.2.2 指令库大类与跨境用途映射
+
+
+指令大类
+跨境 RPA 用途
+
+
+
+网页自动化
+卖家后台订单&#x2F;库存抓取
+
+
+Excel&#x2F;WPS 表格
+报表汇总、对账表生成
+
+
+数据表格
+中间数据暂存与清洗
+
+
+人工智能 AI
+调模型做单据抽取、异常分类
+
+
+网络
+直接调平台开放 API
+
+
+工作队列
+多店铺&#x2F;多任务分发排队
+
+
+操作系统
+文件整理、命名、移动
+
+
+流程&#x2F;应用
+分支、循环、子流程复用
+
+
+1.2.3 影刀开发工作流（需求到上线）
+需求澄清：平台、字段、去重键、频率、合规边界。
+搭流程：优先查 API；无 API 才录制网页&#x2F;桌面。
+写逻辑：Python 模块做解析、幂等、重试，便于单测。
+控制台调度：企业版定时触发，配机器人。
+小批量验收：抽数据对核对输出。
+灰度：单店铺先跑，再全量。
+监控：失败告警 + 每日冒烟。
+
+选型口径：能用 API&#x2F;开放 API 解决的，不上 UI 录制。录制只补足「无 API 或 API 能力不足」的环节。
+1.3 工具横向对比与定位区分两类工具：传统桌面&#x2F;UI RPA，和 AI 工作流&#x2F;Agent 编排。
+
+
+
+工具
+定位
+免费档（已核实）
+
+
+
+影刀 RPA
+国产低代码 RPA，强电商&#x2F;桌面
+社区版免费（非商业、时长限制）
+
+
+UiPath
+国际老牌，Orchestrator 调度，MCP Server 2025 GA
+Community License 免费
+
+
+Power Automate Desktop
+微软桌面 RPA，Win11 自带，Office 集成
+桌面版免费
+
+
+实在 RPA
+国产 RPA + AI，多平台采集
+有免费试用（额度未逐一核实）
+
+
+八爪鱼
+采集器起家扩展 RPA
+免费版 ¥0（100 任务数）
+
+
+n8n
+通用自动化工作流引擎，可搭 Agent
+开源自托管免费
+
+
+Dify
+LLM 应用平台，RAG&#x2F;Agent 中台
+开源自部署免费
+
+
+Coze（扣子）
+字节 AI Agent 无代码平台
+免费版 0 元
+
+
+面试对比口径：影刀&#x2F;UiPath&#x2F;PAD&#x2F;其实是传统桌面&#x2F;UI RPA。八爪鱼是采集器&#x2F;轻量 RPA。n8n&#x2F;Dify&#x2F;Coze 是 AI 工作流&#x2F;Agent 编排，不操作 Windows 界面，但能调度 API 与模型，是「RPA + AI」融合的另一条路。
+「API 优先、UI 兜底」原则：能对接平台 Open API &#x2F; ERP API 就先对接，理由是 API 稳定、快、不易被风控。UI 录制易被前端改版、登录态、验证码打断。RPA（UI 自动化）作为「无 API 或 API 能力不足」时的补充。
+1.4 OpenClaw（小龙虾）是什么OpenClaw 俗称「小龙虾」「养龙虾」，是 2026 年初在国内爆火的真实开源 AI 智能体（Agent）&#x2F; 桌面 Agent 框架，让 AI「拥有手和脚」：读写文件、操作浏览器、执行系统命令，支持本地&#x2F;云端一键部署。还有独立的 openclaw-rpa 开源项目（录制浏览器&#x2F;Excel&#x2F;Word&#x2F;API 操作回放成独立脚本、无需大模型），以及阿里云 RPA 的「OpenClaw SKILL」企业能力。
+
+
+
+问法
+一句话答
+追问
+
+
+
+知不知道 OpenClaw
+2026 爆火的开源 AI 桌面 Agent 框架，能让 AI 操作浏览器&#x2F;文件&#x2F;命令，也能和 RPA 结合做录制回放
+它和我们公司用的系统什么关系
+
+
+RPA 和 Agent 什么关系
+RPA 跑固定规则流程，Agent 用 LLM 做决策编排；OpenClaw 这类给 RPA 加了「会思考的调度」
+那是不是 Agent 会取代 RPA
+
+
+聊 OpenClaw 不翻车的边界：只说它是真实存在的开源 AI Agent 框架、能操作浏览器&#x2F;文件&#x2F;命令、可与 RPA 结合（录制回放、企业 SKILL）。不要断言它和该公司内部某系统的绑定关系，查不到。
+1.5 影刀企业版控制台能力（面试能展开）企业版和社区版的分水岭在「集中管控」。控制台提供：
+
+
+
+能力
+用途
+
+
+
+调度中心 &#x2F; 高级任务计划
+定时触发、依赖编排，不用自己写 cron
+
+
+机器人管理
+多机器人分账号、分店铺并发跑
+
+
+任务监控
+实时看运行状态、成功率、耗时
+
+
+任务管理
+启停、重跑、暂停单个流程
+
+
+云元素库
+团队共享稳定元素，降低单人维护成本
+
+
+MCP 管理
+接入模型上下文协议，给流程接 AI 能力
+
+
+社区版没有这些集中能力，定时要靠系统计划任务 + 启动流程的曲线方案。面试被问「企业版值不值」，答：多人协作、统一调度监控、合规私有化，是团队规模化的前提。
+1.6 影刀流程调试与排错思路
+
+
+现象
+排查顺序
+
+
+
+元素找不到
+看是否 iframe&#x2F;弹窗 → 元素是否改版 → 用 AI 辅助定位重拾
+
+
+运行卡住
+看日志卡在哪步 → 是否等待超时 → 是否弹窗拦截
+
+
+数据错
+看字段映射 → 解析逻辑 → 去重键是否唯一
+
+
+定时没跑
+社区版看系统计划任务是否触发 → 企业版看控制台任务状态
+
+
+登录失效
+token&#x2F;cookie 是否过期 → 重登流程是否通 → 转人工
+
+
+排错铁律：先看运行日志和错误列表，再决定改选择器还是改逻辑，不盲改。
+二、RPA 工程化与稳定性这章最能显专业。面试官看的是你把「能跑」的脚本做成「敢放生产」的系统。
+2.1 幂等与幂等键幂等指同一输入重复执行，结果一致、不产生副作用（重复下单、重复付款、重复写 Excel 行都不该发生）。
+
+
+
+要点
+做法
+
+
+
+幂等键
+用业务唯一键做去重，订单下载用订单号，付款回传用交易流水号
+
+
+幂等表&#x2F;集合
+处理前先查「已处理集合」（数据库表或本地 set&#x2F;文件），命中就跳过，没命中就处理并写入
+
+
+写 Excel
+按订单号做合并去重，已存在的行更新而非追加
+
+
+失败重跑
+重跑整批时，已成功的行靠幂等键跳过，不会重复落库
+
+
+2.2 重试与退避网络抖动、临时弹窗、页面加载慢都会造成瞬时失败，重试是标配，但要防「重试风暴」。
+
+
+
+策略
+说明
+
+
+
+指数退避
+间隔随次数指数增长：1s、2s、4s、8s
+
+
+加抖动
+在退避基础上加随机量，避免多个机器人同时重试撞车
+
+
+上限
+设最大重试次数（如 5 次），超过转人工&#x2F;告警，不无限重试
+
+
+只对瞬时错重试
+网络超时、元素暂未出现可重试；业务校验失败、数据错误不该重试
+
+
+2.3 断点续跑与检查点长流程跑了 80% 崩了，不该从头来。记录已处理游标&#x2F;检查点，失败从中断处继续。
+
+
+
+检查点类型
+例子
+
+
+
+已抓页码
+分页抓取记下当前页，重启从该页继续
+
+
+已处理主键
+订单号集合持久化到文件&#x2F;数据库，续跑跳过
+
+
+阶段标记
+下载完成→清洗完成→写入完成，每阶段落一个状态
+
+
+2.4 UI 选择器脆弱性与缓解录制生成的 XPath&#x2F;CSS 易因前端改版、动态 id、iframe、懒加载失效，这是 RPA 最常见的半夜失败原因。
+
+
+
+脆弱来源
+缓解
+
+
+
+动态 id
+改用稳定属性：data-*、文本、相对锚点、相邻稳定元素
+
+
+前端改版
+元素锚点 + AI 辅助定位，减少裸 XPath 依赖
+
+
+iframe&#x2F;弹窗
+显式切 iframe、等待弹窗出现再操作
+
+
+懒加载
+滚动到位再拾取，配合等待策略
+
+
+登录态失效
+token&#x2F;cookie 复用，失效才重新登录，避免每次验证码
+
+
+2.5 异常分层别用一个大 try 包住全流程。按层捕获，每层给不同处理。
+
+
+
+层
+典型异常
+处理
+
+
+
+UI 层
+元素未找到、弹窗
+等待重试、AI 定位重拾、截图
+
+
+IO 层
+网络超时、HTTP 错
+退避重试、熔断
+
+
+数据层
+字段缺失、校验失败
+记录脏数据、跳过并告警
+
+
+全局兜底
+未捕获异常
+截图 + 告警 + 人工兜底，绝不静默吞错
+
+
+2.6 日志结构化与告警关键节点记结构化日志：时间&#x2F;步骤&#x2F;输入&#x2F;输出&#x2F;耗时。失败自动截图，异常推送到钉钉&#x2F;邮件&#x2F;Webhook。
+import logging, timelogging.basicConfig(    level=logging.INFO,    format=&quot;%(asctime)s %(levelname)s step=%(step)s order=%(order)s cost=%(cost)s&quot;,)# 失败时截图并告警def alert(msg: str) -&gt; None:    # 这里接钉钉/邮件/Webhook    logging.error(&quot;ALERT %s&quot;, msg)
+
+日志不打印敏感信息（账号密码、token、身份证）。
+2.7 调度
+
+
+场景
+方案
+
+
+
+轻量单机
+系统 cron &#x2F; Windows 任务计划
+
+
+Python 内
+APScheduler 定时；Celery（beat + worker）做分布式
+
+
+企业
+RPA 控制台集中调度、机器人管理、任务监控
+
+
+云原生
+容器 + K8s CronJob
+
+
+APScheduler、Celery 是真实存在的库，能直接说名字。
+2.8 并发与资源冲突多机器人同时跑同一 Excel、同一账号会冲突。
+
+
+
+冲突
+解法
+
+
+
+同文件写
+文件锁、写前备份、串行化
+
+
+同账号并发
+账号分片，一个账号一个机器人
+
+
+重复处理
+工作队列 + 幂等表去重
+
+
+2.9 版本与灰度流程版本化（Git 或控制台版本），先小流量&#x2F;单店铺验证再全量，准备回滚预案。改了选择器或字段映射，先在测试店铺跑通再推生产。
+2.10 上线验收与每日冒烟上线前在仿真&#x2F;小批量数据跑回归，核对输出与手工结果一致，记通过率。建「冒烟流程」每日晨间校验：抽几条数据跑一遍核心链路，失败即告警。
+2.11 合规边界只做业务授权范围内的自动化。不绕过平台验证码&#x2F;风控、不爬禁止数据、遵守 robots 与平台 API 条款。验证码优先走官方 API 或人工兜底，避免对抗式绕过。
+
+
+
+问法
+一句话答
+追问
+
+
+
+怎么保证 RPA 不重复处理
+用业务唯一键做幂等，处理前查已处理集合，命中跳过
+集合存哪
+
+
+半夜跑失败怎么发现
+失败截图 + 钉钉告警 + 断点续跑 + 晨间冒烟
+重跑会不会重复下单
+
+
+UI 老失效怎么办
+用稳定属性定位、AI 辅助、降低对 UI 依赖，优先 API
+没有 API 呢
+
+
+2.12 监控告警与断点续跑实战失败告警建议用 Webhook 推钉钉&#x2F;飞书，结构化 payload 便于后续归类：
+&#123;  &quot;msgtype&quot;: &quot;markdown&quot;,  &quot;markdown&quot;: &#123;    &quot;title&quot;: &quot;RPA 任务失败&quot;,    &quot;text&quot;: &quot;**流程**: 订单下载\n**步骤**: 第 12 页抓取\n**错误**: 元素未找到\n**时间**: 2026-11-05 02:13\n**截图**: s3://rpa-shots/order-12.png&quot;  &#125;&#125;
+
+断点续跑的本地检查点写法（伪代码，思路通用）：
+import jsondef load_checkpoint(path: str) -&gt; dict:    try:        with open(path) as f:            return json.load(f)    except FileNotFoundError:        return &#123;&quot;page&quot;: 1, &quot;processed&quot;: []&#125;def save_checkpoint(path: str, state: dict) -&gt; None:    with open(path, &quot;w&quot;) as f:        json.dump(state, f)# 主循环：从 checkpoint.page 继续，每页落盘；崩了重启从断点跑
+
+检查点要和服务端&#x2F;文件锁配合，避免多机器人同时写同一份。
+2.13 灰度与回滚改了选择器或字段映射别全量推。灰度：先单店铺&#x2F;小批量验证，通过率达标再扩。回滚：控制台或 Git 保留上一版，出问题一键回退。本地脚本用 Git tag 锁版本。
+
+
+
+阶段
+动作
+
+
+
+发布前
+在测试店铺跑通，核对输出
+
+
+灰度
+单店铺先行，观察成功率与告警
+
+
+全量
+灰度无异常再推全部账号
+
+
+回滚
+异常率超阈值，一键回退上一版并告警
+
+
+回滚预案要提前写好，别等出事再想。RPA 生产事故多是「选择器一变全挂」，有版本和回滚就能把影响压到最小。
+2.14 性能与资源优化
+
+
+方向
+做法
+
+
+
+减少 UI 操作
+能一次抓全页就不逐元素点；批量读写 Excel 而非逐行
+
+
+限速
+尊重平台限流，退避降速，别把对方接口打挂
+
+
+并发度
+按账号&#x2F;店铺分片，别无脑拉满线程
+
+
+资源释放
+浏览器&#x2F;文件&#x2F;连接用完即关，避免句柄泄漏
+
+
+增量
+只抓增量（按时间&#x2F;游标），不全量重跑
+
+
+性能不是越快越好，是不打扰业务系统、稳定跑完。限流和增量比堆并发更重要。
+三、Python（岗位主语言）3.1 语法速查表
+
+
+考点
+要点
+追问
+
+
+
+可变&#x2F;不可变
+可变：list&#x2F;dict&#x2F;set&#x2F;bytearray；不可变：int&#x2F;str&#x2F;tuple&#x2F;frozenset&#x2F;bytes。不可变线程安全、可做 dict 键、默认参数别用可变
+函数默认参数为何别用 list
+
+
+深浅拷贝
+copy.copy 拷一层，嵌套对象仍共享引用；copy.deepcopy 递归拷贝；= 是引用不是拷贝
+改深拷贝里嵌套对象会影响原对象吗
+
+
+GIL
+CPython 同一时刻只允许一个线程执行字节码；IO 密集多线程仍有效（等待释放 GIL）；CPU 密集用 multiprocessing；3.13 起有实验性 free-threaded 构建（禁用 GIL）
+爬虫该用多线程还是多进程
+
+
+装饰器
+高阶函数包装函数；functools.wraps 保留元信息；可闭包或类实现
+写一个计时装饰器
+
+
+生成器
+yield 暂停保留状态，惰性求值省内存；迭代器实现 __iter__/__next__
+生成器和列表区别
+
+
+上下文管理器
+with 实现 __enter__/__exit__ 或 @contextmanager；自动释放文件&#x2F;锁&#x2F;连接
+自己实现一个计时 with
+
+
+异常
+继承 Exception（不继承 BaseException）；具体异常在前宽泛在后；else/finally 语义
+自定义异常怎么写
+
+
+类型注解
+给 mypy 等静态检查用，运行时不强制
+运行时类型会被检查吗
+
+
+3.12 新语法
+PEP 695 type 语句与类型参数：type Point = tuple[float, float]、def f[T](x: T) -&gt; T；还有更灵活 f-string（PEP 701）、内联推导式更快（PEP 709）
+泛型怎么写
+
+
+3.13 新特性
+实验性 free-threaded 构建（禁用 GIL）、实验性 JIT、新交互式解释器、移动平台支持
+free-threaded 能上生产吗（不能，实验性）
+
+
+3.2 RPA&#x2F;自动化高频库
+
+
+库
+用途
+
+
+
+requests
+HTTP 请求
+
+
+openpyxl
+xlsx 读写
+
+
+pandas
+数据处理
+
+
+pytest
+测试
+
+
+selenium &#x2F; playwright
+浏览器自动化
+
+
+pyautogui
+键鼠模拟
+
+
+pywin32
+Windows 系统调用
+
+
+apscheduler
+定时调度
+
+
+logging
+日志
+
+
+tenacity
+重试（@retry）
+
+
+3.3 可直接讲出口的代码片段带重试与日志的下载函数：
+import logging, requestsfrom tenacity import retry, stop_after_attempt, wait_exponentiallogging.basicConfig(level=logging.INFO)@retry(    stop=stop_after_attempt(5),    wait=wait_exponential(multiplier=1, min=1, max=8),)def download(url: str, timeout: int = 10) -&gt; bytes:    logging.info(&quot;GET %s&quot;, url)    resp = requests.get(url, timeout=timeout)    resp.raise_for_status()    return resp.content
+
+幂等去重写 Excel（按订单号合并）：
+from openpyxl import load_workbookdef upsert_rows(path: str, rows: list[dict], key: str = &quot;order_id&quot;) -&gt; None:    wb = load_workbook(path)    ws = wb.active    header = [c.value for c in ws[1]]    key_col = header.index(key) + 1    seen = &#123;ws.cell(r, key_col).value: r for r in range(2, ws.max_row + 1)&#125;    for row in rows:        vals = [row.get(h) for h in header]        if row[key] in seen:            for ci, v in enumerate(vals, 1):                ws.cell(seen[row[key]], ci, v)        else:            ws.append(vals)            seen[row[key]] = ws.max_row    wb.save(path)
+
+pytest 参数化用例：
+import pytest@pytest.mark.parametrize(&quot;a,b,expect&quot;, [(1, 2, 3), (0, 0, 0), (-1, 1, 0)])def test_add(a, b, expect):    assert a + b == expectclass FakeClient:    def get(self, url):        return &#123;&quot;ok&quot;: True&#125;@pytest.fixturedef client():    # 这里 mock 外部系统    yield FakeClient()
+
+Playwright 等待与断言：
+from playwright.sync_api import expect, sync_playwrightwith sync_playwright() as p:    browser = p.chromium.launch(headless=True)    page = browser.new_page()    page.goto(&quot;https://example.com/login&quot;)    page.fill(&quot;#username&quot;, &quot;u&quot;)    page.click(&quot;#submit&quot;)    expect(page.locator(&quot;.welcome&quot;)).to_be_visible(timeout=5000)    assert page.locator(&quot;.order-count&quot;).inner_text() == &quot;3&quot;
+
+3.4 易错点与追问链
+
+
+问法
+一句话答
+追问
+
+
+
+GIL 下 Python 能并发吗
+IO 密集多线程有效，CPU 密集用 multiprocessing，3.13 有实验性无 GIL 构建
+爬虫限在哪
+
+
+深浅拷贝区别
+浅拷一层、深递归拷；嵌套对象浅拷贝共享引用
+何时必须用深拷贝
+
+
+3.12 泛型怎么写
+PEP 695 用 def f[T](x: T) -&gt; T 或 type Point = tuple[float, float]
+旧版泛型怎么写
+
+
+装饰器保留元信息
+用 functools.wraps 包裹内层
+不写 wraps 会怎样
+
+
+为什么不直接 print
+logging 能设级别、handler、formatter，结构化且不进 stdout 污染
+日志能打密码吗（不能）
+
+
+重试用哪个库
+tenacity 的 @retry，配 stop_after_attempt 和指数等待
+重试风暴怎么防
+
+
+3.5 更多可讲出口的代码片段计时装饰器（保留元信息）：
+import functools, time, loggingdef timing(func):    @functools.wraps(func)    def wrapper(*args, **kwargs):        start = time.perf_counter()        try:            return func(*args, **kwargs)        finally:            logging.info(&quot;%s cost=%.3fs&quot;, func.__name__, time.perf_counter() - start)    return wrapper
+
+生成器惰性读大文件（不必一次读进内存）：
+def read_lines(path: str, chunk: int = 4096):    with open(path, encoding=&quot;utf-8&quot;) as f:        while buf := f.read(chunk):            yield buf
+
+上下文管理器自动关资源：
+from contextlib import contextmanager@contextmanagerdef open_lock(path: str):    lock = acquire(path)        # 伪代码：获取文件锁    try:        yield lock    finally:        release(lock)           # 无论成功失败都释放
+
+补充高频库：做 schema 校验用 pydantic&#x2F;jsonschema。测时间相关用 freezegun。测 Redis 用 fakeredis。发 HTTP 用 httpx（支持异步）。覆盖率用 pytest-cov。
+
+
+
+问法
+一句话答
+追问
+
+
+
+装饰器不写 wraps 会怎样
+被装饰函数名、doc 变成内层函数，日志&#x2F;反射出错
+怎么拿到原函数名
+
+
+生成器省内存体现在哪
+惰性产出，处理大文件&#x2F;大结果不占全量内存
+和列表推导区别
+
+
+上下文管理器不止文件
+锁、连接、事务都能用 with 自动释放
+自己怎么实现一个
+
+
+3.6 并发模型三者对比
+
+
+模型
+适用
+注意
+
+
+
+threading
+IO 密集（网络&#x2F;文件），等待时释放 GIL
+CPU 密集无效
+
+
+multiprocessing
+CPU 密集，绕过 GIL
+进程间通信成本高
+
+
+asyncio
+高并发 IO、协程、单线程事件循环
+阻塞调用会卡整个循环
+
+
+asyncio 抓取示例：
+import asyncio, aiohttpasync def fetch(url: str) -&gt; dict:    async with aiohttp.ClientSession() as s:        async with s.get(url) as r:            return await r.json()async def main(urls):    return await asyncio.gather(*(fetch(u) for u in urls))
+
+3.7 常见陷阱代码（面试爱问）可变默认参数：
+def add_item(x, items=[]):   # 陷阱：默认列表跨调用共享    items.append(x)    return items# 正确：items=None 内部新建def add_item_ok(x, items=None):    items = items or []    items.append(x)    return items
+
+闭包延迟绑定：
+funcs = [lambda: i for i in range(3)]   # 三个都返回 2funcs = [lambda i=i: i for i in range(3)]  # 正确：默认参数捕获当时值
+
+
+
+
+问法
+一句话答
+追问
+
+
+
+默认参数为何别用 list
+函数对象只创建一次，默认列表跨调用共享
+怎么改对
+
+
+闭包循环变量陷阱
+lambda 引用外部变量，循环结束才取值，全取末值
+怎么修
+
+
+asyncio 里能调阻塞函数吗
+不能，会卡事件循环，用 run_in_executor
+那 CPU 密集呢
+
+
+3.8 虚拟环境与依赖管理本地用 venv 建隔离环境，pip + requirements.txt 锁版本。现代用 uv 或 poetry&#x2F;pip-tools 做依赖解析与锁文件。RPA 脚本要能在一台干净机器上 pip install -r requirements.txt 就跑起来，不依赖你本机的全局包。
+python -m venv .venv.venv/Scripts/activate      # Windowspip install -r requirements.txt
+
+3.9 RPA 脚本代码组织别把整条流程写在一个大函数里。按职责拆模块：抓取层（只管拿数据）、解析层（HTML&#x2F;JSON → 字段）、持久层（写 Excel&#x2F;库，带幂等）、调度层（定时与重试）。每层可单测，解析层和持久层用 mock 隔离外部。
+
+
+
+层
+职责
+可测性
+
+
+
+抓取
+调 API&#x2F;UI 拿原始数据
+mock 网络
+
+
+解析
+原始 → 统一内部模型
+纯函数，易测
+
+
+持久
+upsert + 幂等
+mock 存储
+
+
+调度
+定时&#x2F;重试&#x2F;告警
+配置驱动
+
+
+
+
+
+问法
+一句话答
+追问
+
+
+
+依赖怎么管理
+venv + requirements 锁版本，干净机可装可跑
+uv 了解吗
+
+
+脚本怎么组织
+抓取&#x2F;解析&#x2F;持久&#x2F;调度分层，每层可单测
+不分层的后果
+
+
+mock 在哪一層用
+抓取和持久层 mock 外部，解析层纯函数
+UI 层怎么测
+
+
+3.10 常用内置模块速查
+
+
+模块
+用途
+
+
+
+os &#x2F; sys
+路径、环境变量、参数
+
+
+pathlib
+面向对象的路径操作（推荐替代 os.path）
+
+
+re
+正则提取（非结构化文本先用正则，正则不行再上 LLM）
+
+
+datetime
+时间解析、时区、格式化
+
+
+json
+序列化与反序列化
+
+
+csv
+CSV 读写（平台导出常用）
+
+
+collections
+defaultdict&#x2F;deque&#x2F;Counter 等实用容器
+
+
+RPA 里 re 和 datetime 用得最多：从文本抠单号&#x2F;金额、把各平台时间统一成内部格式。
+四、Java（JD 点名）4.1 为什么 RPA 岗也问 Java跨境电商企业侧大量服务是 Java：ERP、中台、对接 SAP&#x2F;用友的适配器、Excel 批量处理（POI）。RPA 机器人跑完数据，往往要落到一个 Java 后端做调度、校验、回调。会 Java 意味着你能接企业侧服务，不只是写前端脚本。
+4.2 Java 17 &#x2F; 21 LTS 特性
+
+
+版本
+特性
+状态
+
+
+
+17
+Sealed Classes（JEP 409 永久）、Records（16 转正）、Text Blocks（15 转正）、Switch 表达式（14 转正）
+已核实
+
+
+21
+Virtual Threads（JEP 444 正式，Project Loom）、Pattern Matching for switch（JEP 441 正式）、Record Patterns（JEP 440 正式）、Sequenced Collections（JEP 431 正式）
+已核实
+
+
+21
+String Templates（JEP 459&#x2F;465）曾预览
+已被撤销（withdrawn），不是正式特性，不要写错
+
+
+虚拟线程例子：
+try (var executor = Executors.newVirtualThreadPerTaskExecutor()) &#123;    for (int i = 0; i &lt; 10_000; i++) &#123;        executor.submit(() -&gt; &#123;            Thread.sleep(Duration.ofMillis(100));            return null;        &#125;);    &#125;&#125; // 自动关闭，等待全部完成
+
+record 与 sealed：
+public sealed interface OrderEvent permits Created, Paid &#123;&#125;public record Created(String orderId, long ts) implements OrderEvent &#123;&#125;public record Paid(String orderId, long amount) implements OrderEvent &#123;&#125;
+
+模式匹配 switch（21 正式）：
+String desc = switch (event) &#123;    case Created c -&gt; &quot;created &quot; + c.orderId();    case Paid p    -&gt; &quot;paid &quot; + p.amount();&#125;;
+
+4.3 集合与并发
+
+
+考点
+要点
+
+
+
+集合实现
+ArrayList&#x2F;LinkedList、HashSet&#x2F;TreeSet、HashMap；线程安全用 ConcurrentHashMap、Collections.synchronized*
+
+
+线程池
+ExecutorService &#x2F; ThreadPoolExecutor；IO 密集多线程、CPU 密集少线程
+
+
+锁
+synchronized（JVM 内置、可重入）vs ReentrantLock（可超时&#x2F;可中断&#x2F;公平锁）
+
+
+原子
+volatile（可见性，不保证原子）vs Atomic*（CAS 无锁原子更新）
+
+
+4.4 JVM 与 GC 入门JVM 内存分区：堆、栈、方法区（元空间）、直接内存。分代回收 Young&#x2F;Old。常见 GC：G1（默认）、ZGC&#x2F;Shenandoah（低延迟）。实习生了解 G1 和「Stop-The-World」概念即可。
+4.5 checked &#x2F; unchecked 异常Exception 下 checked（编译期强制处理，如 IOException）vs RuntimeException（unchecked）。Error 不捕获。RPA 脚本里外部系统调用失败用 checked 显式处理，内部逻辑错误用 unchecked。
+4.6 常用库
+
+
+用途
+库
+
+
+
+Excel 读写
+Apache POI &#x2F; EasyExcel
+
+
+HTML 解析
+Jsoup
+
+
+浏览器
+Selenium-Java
+
+
+HTTP 客户端
+OkHttp
+
+
+JSON
+Jackson
+
+
+EasyExcel 写 Excel：
+@Datapublic class OrderRow &#123;    @ExcelProperty(&quot;订单号&quot;)    private String orderId;    @ExcelProperty(&quot;金额&quot;)    private BigDecimal amount;&#125;EasyExcel.write(path, OrderRow.class)        .sheet(&quot;订单&quot;)        .doWrite(rows);
+
+OkHttp 调用：
+OkHttpClient client = new OkHttpClient();Request req = new Request.Builder()        .url(&quot;https://api.example.com/orders&quot;)        .addHeader(&quot;Authorization&quot;, &quot;Bearer &quot; + token)        .build();try (Response resp = client.newCall(req).execute()) &#123;    String body = resp.body().string();&#125;
+
+4.7 Spring Boot 写 RPA 调度 + 结果回调最小服务@SpringBootApplication@EnableSchedulingpublic class RpaCallbackApp &#123;    public static void main(String[] args) &#123;        SpringApplication.run(RpaCallbackApp.class, args);    &#125;    @Scheduled(cron = &quot;0 0 2 * * *&quot;) // 每天凌晨2点触发RPA任务    public void triggerRpaJob() &#123;        // 调用 RPA 控制台 API 或发消息队列    &#125;    @RestController    static class CallbackController &#123;        @PostMapping(&quot;/rpa/callback&quot;)        public ResponseEntity&lt;String&gt; callback(@RequestBody RpaResult result) &#123;            // 接收 RPA 执行结果，落库、校验、告警            return ResponseEntity.ok(&quot;received&quot;);        &#125;    &#125;&#125;
+
+配置用 application.yml，打 jar 用 spring-boot-maven-plugin。
+4.8 Java 与 Python 在同一自动化体系里的分工
+
+
+角色
+语言
+干什么
+
+
+
+调度&#x2F;回调&#x2F;中台
+Java
+接收 RPA 结果、对接 ERP、落库校验、提供 API
+
+
+脚本&#x2F;抓取&#x2F;AI
+Python
+写 RPA 流程逻辑、调 LLM、数据处理、快速验证
+
+
+批量跑批
+看场景
+IO 密集 Python 多线程；重计算 Java 多线程&#x2F;虚拟线程
+
+
+
+
+
+问法
+一句话答
+追问
+
+
+
+21 有字符串模板吗
+没有，String Templates 已撤销，不是正式特性
+那 21 正式特性有哪些
+
+
+虚拟线程解决什么
+高并发 IO 下不用堆大量平台线程，简化并发写法
+和线程池区别
+
+
+RPA 岗为啥考 Java
+企业侧 ERP&#x2F;中台是 Java，要能接回调和服务
+你用 Java 写过什么
+
+
+POI 还是 EasyExcel
+大数据量用 EasyExcel（流式、省内存），小文件 POI 够用
+读写大 Excel 内存爆了怎么办
+
+
+4.9 常用库代码与并发补充Jackson 序列化：
+ObjectMapper mapper = new ObjectMapper();Order order = mapper.readValue(json, Order.class); // 反序列化String out = mapper.writeValueAsString(order);     // 序列化
+
+Jsoup 解析 HTML 抽取字段：
+Document doc = Jsoup.connect(url).get();String title = doc.select(&quot;h1.product-title&quot;).first().text();String price = doc.select(&quot;span.price&quot;).first().text();
+
+Stream + Optional 处理集合与空值：
+List&lt;String&gt; ids = orders.stream()        .map(Order::orderId)        .filter(Objects::nonNull)        .toList();Optional.ofNullable(order.getCoupon())        .ifPresent(c -&gt; apply(c));
+
+并发安全集合：高并发计数&#x2F;去重用 ConcurrentHashMap，别用 HashMap 多线程写。
+GC 补充：对象先进 Young（Eden + Survivor），熬过几轮回收晋升 Old；G1 把堆切成 region 并行回收，目标是可预测的暂停时间；ZGC&#x2F;Shenandoah 把停顿压到毫秒级，适合低延迟服务。
+
+
+
+问法
+一句话答
+追问
+
+
+
+Jackson 和 Gson 区别
+Jackson 生态大、流式省内存、Spring 默认
+大 JSON 怎么不爆内存
+
+
+Jsoup 能爬动态页面吗
+只解析静态 HTML，JS 渲染要用 Selenium&#x2F;Playwright
+那怎么抽 SPA 数据
+
+
+Optional 解决什么
+显式表达可能为空，避免 NPE
+能当参数校验用吗（不推荐）
+
+
+4.10 Java 面试常问小点
+
+
+考点
+要点
+
+
+
+&#x3D;&#x3D; vs equals
+&#x3D;&#x3D; 比引用（基本类型比值），equals 比内容（需重写）
+
+
+String 不可变
+拼接产生新对象，频繁拼接用 StringBuilder
+
+
+final
+类不可继承、方法不可重写、变量不可改引用
+
+
+重载 vs 重写
+重载同方法名不同参数（编译期）；重写子类覆盖父类（运行期）
+
+
+接口 vs 抽象类
+接口多实现、无状态；抽象类可带实现与字段
+
+
+4.11 JVM 排查入门线上 RPA 回调服务卡了，先 jps 看进程，jstack 看线程栈定位死锁&#x2F;阻塞，jmap 看堆占用。OutOfMemory 配 -XX:+HeapDumpOnOutOfMemoryError 落 dump 事后分析。GC 日志开 -Xlog:gc* 看停顿。
+
+
+
+问法
+一句话答
+追问
+
+
+
+&#x3D;&#x3D; 和 equals 区别
+&#x3D;&#x3D; 比引用&#x2F;值，equals 比内容需重写
+String 用哪个
+
+
+重载重写区别
+重载编译期多参数，重写运行期覆盖
+构造器能重写吗（不能）
+
+
+服务卡了怎么查
+jstack 看线程栈，jmap 看堆，GC 日志看停顿
+OOM 怎么留证据
+
+
+4.12 Spring Boot 常用注解速查
+
+
+注解
+作用
+
+
+
+@SpringBootApplication
+启动类，开启自动配置与组件扫描
+
+
+@RestController
+暴露 HTTP 接口，返回 JSON
+
+
+@PostMapping &#x2F; @GetMapping
+绑定 POST&#x2F;GET 路由
+
+
+@RequestBody
+把请求体反序列化为对象（RPA 结果回调用）
+
+
+@Scheduled
+定时任务，配合 @EnableScheduling
+
+
+@EnableScheduling
+开启调度
+
+
+@Service &#x2F; @Component
+业务&#x2F;通用组件
+
+
+把这些注解讲顺，面试官就知道你能独立搭一个最小服务：接收 RPA 结果，定时触发任务。你不只是会写脚本。
+
+
+
+问法
+一句话答
+追问
+
+
+
+怎么收 RPA 结果
+@RestController + @PostMapping 接 JSON 回调
+失败怎么重试
+
+
+怎么定时触发
+@EnableScheduling + @Scheduled(cron=...)
+cron 表达式会写吗
+
+
+结果落库前做什么
+校验字段、按业务键幂等、写审计日志
+重复回调呢
+
+
+4.13 并发常见陷阱
+
+
+陷阱
+表现
+解法
+
+
+
+共享可变状态
+多线程改同一 Map 丢数据
+用 ConcurrentHashMap 或同步
+
+
+死锁
+两线程互等对方锁
+固定加锁顺序、用 tryLock 超时
+
+
+线程池打满
+任务堆积、响应变慢
+合理core&#x2F;max、配队列与拒绝策略
+
+
+volatile 误用
+认为 volatile 保证复合操作原子
+计数用 AtomicLong
+
+
+虚拟线程里用 synchronized  pin
+虚拟线程被平台线程钉住
+长临界区改 ReentrantLock
+
+
+
+
+
+问法
+一句话答
+追问
+
+
+
+多线程共享 Map 怎么办
+用 ConcurrentHashMap，别用裸 HashMap
+复合操作为何仍要锁
+
+
+线程池怎么设
+IO 密集多线程、CPU 密集少线程，配拒绝策略
+打满了呢
+
+
+volatile 保证原子吗
+不，只保证可见，复合操作用 Atomic
+计数怎么写
+
+
+五、AI 应用（JD 加分项）5.1 用 LLM 辅助编程的真实工作流需求拆解 → 生成代码 → review（人工 + lint&#x2F;test）→ 补单测 → 跑通 → 写文档。ChatGPT&#x2F;Claude&#x2F;Gemini 用来做调研、排错、写文档，但生成代码必须过单测和人工 review 才进库，不是直接贴进生产。
+5.2 提示工程要点清晰角色、任务、上下文、输出格式、约束。Few-shot 给样例。分步骤。让模型先思考（CoT）。避免歧义。给 RPA 写提示时把「可用的指令清单、字段名、输出 schema」写死，减少幻觉。
+5.3 Function Calling &#x2F; Tool Use模型输出结构化「调用某函数 + 参数」，由宿主执行后把结果回传模型继续推理。这是 Agent 调用真实工具（查库存、发邮件、调 API）的基础。OpenAI&#x2F;Anthropic&#x2F;Google 都支持。
+5.4 Agent 编排与 MCP
+
+
+工具
+定位
+
+
+
+LangChain &#x2F; LangGraph
+编排库，适合写复杂 Agent 与状态图
+
+
+Dify &#x2F; Coze
+无代码 Agent 平台，可视化拼装工作流
+
+
+MCP
+Model Context Protocol，Anthropic 于 2024-11-25 开源的开放标准，把 LLM 连到外部工具&#x2F;数据源（类似「AI 的 USB-C」）；影刀、UiPath 均已接入
+
+
+5.5 RAG 与评测指标RAG 流程：文档切分 → embedding 向量化 → 存入向量库 → 召回 top-k → rerank → 拼进 prompt 生成。
+
+
+
+指标
+含义
+
+
+
+Hit@k
+前 k 个结果里是否命中相关内容
+
+
+Recall@k
+前 k 个结果召回的相关占比
+
+
+MRR
+首个相关结果排名倒数的均值
+
+
+NDCG
+考虑排序位置的增益
+
+
+5.6 幻觉与护栏幻觉是模型编造不实内容。缓解：RAG 给据、引用来源、约束输出、人工复核。护栏：输入校验、输出过滤、权限最小化、限流。
+5.7 成本控制缓存重复请求、按任务选小模型、限制 token、批量调用。长文本摘要用小模型，复杂推理用大模型。
+5.8 用 LLM 提升 RPA 的四种真实做法
+
+
+做法
+说明
+
+
+
+自然语言生成流程
+把业务描述交给 LLM，生成 RPA 流程骨架或指令序列，人工校验后落地
+
+
+异常日志自动归类
+把报错日志喂给 LLM，自动分类（元素失效&#x2F;网络超时&#x2F;数据异常）并给修复建议
+
+
+OCR + LLM 抽取单据
+先 OCR 出非结构化单据文本&#x2F;版面，再 LLM 抽取字段（金额、税号、日期）
+
+
+视觉定位失效元素
+选择器失效时，用 LLM 视觉能力识别页面元素位置，兜底重定位
+
+
+5.9 「AI 自动化工程师」与「AI 应用测试」的差别AI 自动化工程师：用 RPA&#x2F;脚本把业务自动化，并在流程里接入 AI 能力提效（生成流程、处理非结构化、兜底定位）。AI 应用测试：测模型的输出是否合理、幻觉、工具调用是否按契约、RAG 召回质量。前者造自动化，后者验证 AI 产出。本岗是前者，但懂测试思维能让你交付更稳。
+5.10 你自己用 AI 做过什么用简历里的三个项目把「AI 应用经验」和「工程严谨性」讲出来，不编新项目新数字。
+
+
+
+项目
+技术栈（已核实）
+能讲的 AI &#x2F; 工程严谨点
+
+
+
+踏浪 AI 中心
+RAG 评测、分层会话记忆、单测有效性、变异验证
+评测 RAG 用 Hit@k&#x2F;Recall@k&#x2F;MRR；分层会话记忆（短期摘要 + 长期事实）；单测有效性（断言能抓住改坏实现）；变异验证验证用例真有用
+
+
+VidDigest
+Python + FastAPI + SQLite + SSE + Vue3
+pytest 分库建用例（每用例独立临时库、跑完销毁）；SSE 契约断言（逐字段断 event&#x2F;data&#x2F;结束标记）；密钥扫描；429 限流断言
+
+
+Vapor 优选
+SpringBoot + MySQL + Redis + Lua + Kafka 秒杀
+Redis + Lua 原子扣减（资格校验与库存扣减一次原子执行）；幂等；先更库后删缓存 + MQ 补偿保证最终一致
+
+
+
+
+
+问法
+一句话答
+追问
+
+
+
+你用 AI 做过什么
+三个项目里用 LLM 做 RAG 评测、SSE 流式断言、秒杀一致性校验，都过了单测
+怎么证明单测有用
+
+
+怎么用 LLM 提效 RPA
+生成流程骨架、异常日志归类、OCR+LLM 抽单据、视觉兜底定位
+哪个最实用
+
+
+幻觉怎么防
+RAG 给据 + 引用来源 + 人工复核 + 输出约束
+出错了谁兜底
+
+
+MCP 是什么
+2024-11-25 开源的开放标准，把 LLM 接外部工具，像 AI 的 USB-C
+影刀接了 MCP 吗（接了）
+
+
+5.11 提示词模板与 Agent 循环示例给 RPA 用的抽取提示词模板（把可用字段和输出 schema 写死，减少幻觉）：
+你是从电商订单单据抽取字段的助手。可用字段：订单号、买家、金额、币种、收货地址、下单时间。只输出 JSON，键严格用上面字段名，缺失填 null，不要解释。单据文本：&quot;&quot;&quot;&#123;ocr_text&#125;&quot;&quot;&quot;
+
+最小 Agent 循环（思路，不依赖具体框架）：
+while not done:    plan = llm.decide(context)          # 模型决定下一步    if plan.tool_call:                   # Function Calling        result = run_tool(plan.tool_call) # 宿主执行真实工具        context.append(result)           # 结果回传模型    else:        answer = plan.final             # 无需工具，给出答案        done = True
+
+Agent 和 RPA 的结合点：模型负责「下一步做什么」（选哪个流程分支、识别失效元素、归类异常），RPA 负责「确定性执行」（点按钮、读写 Excel）。把不确定留给模型，把稳定执行留给脚本。
+
+
+
+问法
+一句话答
+追问
+
+
+
+Agent 循环怎么写
+模型决策 → 调工具 → 结果回传 → 再决策，直到给出答案
+怎么防止死循环
+
+
+提示词怎么防幻觉
+写死字段名和输出 schema，只输出 JSON，缺失填 null
+抽错了谁发现
+
+
+RPA 和 Agent 谁执行
+模型决策，RPA 确定性执行
+能全用 Agent 吗（不稳）
+
+
+5.12 成本控制与模型选型成本控制：缓存重复请求（相同 prompt 不重复调）、按任务选模型（长文本摘要用小模型、复杂推理用大模型）、限制 token 与批量、设预算上限。
+模型选型只写「各有侧重、按任务选型、看最新基准」，不写死某模型绝对第一（能力迭代快）。编码辅助看重代码理解与工具调用，多模态任务看视觉能力，长上下文看窗口与检索。
+
+
+
+问法
+一句话答
+追问
+
+
+
+怎么控 LLM 成本
+缓存 + 小模型兜底 + 限 token + 批量
+缓存命中率低怎么办
+
+
+哪个模型最强
+不写死，各有侧重按任务选型看基准
+你平时用哪个
+
+
+小模型能替代吗
+简单抽取&#x2F;摘要可以，复杂推理需大模型
+怎么切分任务
+
+
+5.13 RAG 工程化细节（能展开聊）
+
+
+环节
+要点
+常见坑
+
+
+
+切分
+按语义&#x2F;固定窗口切，带重叠避免截断
+切太碎丢失上下文
+
+
+向量化
+用 embedding 模型转向量，存向量库
+维度&#x2F;模型版本不一致
+
+
+召回
+top-k 取相似，可加元数据过滤（时间&#x2F;店铺）
+只靠向量忽略关键词
+
+
+重排
+rerank 精排提升相关性
+跳过 rerank 质量下降
+
+
+生成
+拼上下文 + 约束输出 + 引用来源
+不引用导致幻觉无据
+
+
+RAG 里最容易出问题的是切分和召回，不是模型。面试被问「怎么提升回答质量」，先说切分策略、召回 top-k 与 rerank，再说模型选型。
+
+
+
+问法
+一句话答
+追问
+
+
+
+怎么提升 RAG 质量
+先调切分&#x2F;召回&#x2F;rerank，再换模型
+召回不准怎么查
+
+
+怎么评测 RAG
+Hit@k&#x2F;Recall@k&#x2F;MRR + 人工抽检
+只有准确率够吗
+
+
+幻觉怎么从根上减
+RAG 给据 + 引用来源 + 输出约束
+文档没有的答案呢
+
+
+六、跨境电商 RPA 场景（差异化亮点）这些场景有公开案例佐证，是面试能展开聊的业务面。核心原则：优先对接平台 Open API &#x2F; ERP API，其次才是 UI 自动化。
+6.1 场景对照表
+
+
+场景
+业务动作
+自动化点
+风险点
+验收口径
+
+
+
+订单下载
+从 Amazon&#x2F;Shopee&#x2F;Lazada&#x2F;TikTok Shop&#x2F;Temu 后台批量下订单
+调开放 API 或 UI 抓取，按订单号幂等入库
+登录态失效、分页漏抓、字段不一致
+抓取数 &#x3D; 后台数；金额&#x2F;收货信息一致
+
+
+库存同步
+多平台库存与 ERP&#x2F;仓库双向同步，回传店铺后台
+API 双向同步，差异告警
+并发改库存冲突、误差
+同步误差 &lt; 0.5%（公开案例口径）
+
+
+价格&#x2F;竞品监控
+监控竞品&#x2F;平台价格变动
+定时采集价格，变动告警
+反爬、页面改版
+采样价与页面一致；告警及时
+
+
+物流单号回传
+ERP 发货后把物流单号回传店铺后台
+发货后调 API&#x2F;UI 回填单号
+单号格式错、回传失败
+后台单号与 ERP 一致；失败重试
+
+
+ERP 对账
+平台订单&#x2F;退款与 ERP 财务对账
+拉两侧数据按单号匹配，差异表
+字段含义不同导致差异
+差异清单可解释、可人工确认
+
+
+多店铺刊登
+商品资料跨平台&#x2F;多站点上架
+模板化生成各平台字段，批量上架
+各平台字段不同、类目限制
+上架成功；类目&#x2F;必填校验通过
+
+
+报表汇总
+汇总销售&#x2F;广告&#x2F;利润报表
+定时拉数据生成 Excel&#x2F;发票
+数据口径、时区
+汇总数与源一致；公式无误
+
+
+评价监控
+监控店铺评价，预警差评
+采集评价，差评关键词告警
+语言、emoji、分页
+差评不漏；告警可达
+
+
+6.2 没有 API 只能 UI 自动化怎么设计以「每天从 3 个平台后台下载订单汇总到 Excel」为例的完整方案：
+
+登录态：复用 token&#x2F;cookie，避免每次验证码；失效才重登，重登失败转人工。
+分页抓取：循环翻页，每页记已抓页码作为检查点；遇到空页或重复末页停止。
+去重键：订单号为主键，落地前查已处理集合，命中跳过；写 Excel 用 upsert（见第三章 3.3）。
+异常：元素未找到用 AI 辅助定位重拾 + 退避重试；网络超时重试；业务校验失败记录脏数据跳过并告警；全局兜底截图 + 钉钉告警。
+调度：APScheduler&#x2F;cron&#x2F;影刀控制台定时凌晨跑；多账号用账号分片防冲突。
+对账：小批量先和手工核对无误再全量；每日晨间冒烟抽几条跑核心链路。
+
+
+
+
+问法
+一句话答
+追问
+
+
+
+跨境 RPA 最先做什么
+先查平台&#x2F;ERP 有没有 API，有就对接，没有才 UI
+API 也有坑吗（有，限流&#x2F;字段）
+
+
+订单漏抓怎么办
+分页记检查点 + 断点续跑 + 抓取数对账
+对账不一致怎么查
+
+
+多平台字段不一样
+建字段映射表统一到内部模型
+映射错了谁发现
+
+
+6.3 各场景 API &#x2F; UI 选型对照
+
+
+场景
+优先方案
+无 API 时的 UI 兜底
+
+
+
+订单下载
+平台开放 API &#x2F; ERP 拉取
+影刀录后台列表，分页抓取
+
+
+库存同步
+ERP&#x2F;平台库存 API 双向
+读后台库存页回写
+
+
+价格&#x2F;竞品监控
+平台价格 API &#x2F; 官方数据
+采集器定时抓页面
+
+
+物流单号回传
+发货 API 回填
+后台表单自动填单号
+
+
+ERP 对账
+两侧 API 拉数据匹配
+导出 Excel 后 Python 比对
+
+
+多店铺刊登
+平台刊登 API
+模板填表逐站提交
+
+
+报表汇总
+数据 API 聚合
+后台导出后 openpyxl 汇总
+
+
+评价监控
+评价 API &#x2F; 官方
+采集评价页关键词告警
+
+
+选型原则不变：能用 API 解决的绝不上 UI 录制。录制只在「无 API 或 API 能力不足」时兜底。UI 兜底也要按第二章的幂等、重试、断点续跑、告警来做，不是录完就完。
+
+
+
+问法
+一句话答
+追问
+
+
+
+哪个场景最该先自动化
+订单下载，高频、规则稳、对账价值高
+为什么不是库存
+
+
+对账用 UI 还是 API
+能 API 就 API，不行导 Excel 用 Python 比
+比出来不一致怎么处理
+
+
+UI 兜底也要工程化吗
+要，幂等重试断点告警一样不能少
+和 API 方案差在哪
+
+
+6.4 上线验收核对清单
+
+
+检查项
+通过标准
+
+
+
+数据量
+抓取&#x2F;同步条数 &#x3D; 源系统条数（误差 0）
+
+
+字段
+金额、币种、收货信息、时间格式与源一致
+
+
+幂等
+重跑整批不重复落库、不重复下单
+
+
+异常
+脏数据进差异表，不污染主表，有告警
+
+
+调度
+定时触发成功，多账号分片无冲突
+
+
+对账
+小批量与手工核对一致后再全量
+
+
+告警
+失败能推送到钉钉&#x2F;邮件，有人响应
+
+
+回滚
+异常可一键回退上一版本
+
+
+验收不通过不上全量。这条清单本身就能当笔试主观题的答题骨架。
+七、自动化测试（自动化工程师视角）不重写测试理论，只讲 RPA&#x2F;自动化工程师要会的那部分。
+7.1 RPA 脚本单测怎么写mock 外部系统（平台后台&#x2F;ERP&#x2F;浏览器），只测业务逻辑。UI 层用契约&#x2F;录制回放验证，不进单测。
+
+
+
+该测
+不该测
+
+
+
+解析（HTML&#x2F;JSON → 字段）
+真实点击浏览器
+
+
+幂等（重复输入不重复落库）
+真实调外部 API
+
+
+重试（失败按策略重试）
+真实登录态
+
+
+字段映射（多平台 → 内部模型）
+网络本身
+
+
+from unittest.mock import patchdef test_parse_order_idempotent():    rows = [&#123;&quot;order_id&quot;: &quot;A1&quot;, &quot;amount&quot;: 10&#125;, &#123;&quot;order_id&quot;: &quot;A1&quot;, &quot;amount&quot;: 10&#125;]    with patch(&quot;__main__.upsert_rows&quot;) as m:        for r in rows:            upsert_rows(&quot;x.xlsx&quot;, [r])    # 幂等：同一 order_id 只 upsert 一次    assert m.call_count == 1
+
+7.2 Playwright vs Selenium
+
+
+维度
+Playwright
+Selenium
+
+
+
+等待
+自动等待（auto-wait）
+需显式等待，flaky 更高
+
+
+浏览器
+Chromium&#x2F;WebKit&#x2F;Firefox 统一 API
+生态大、兼容旧浏览器多
+
+
+默认
+无头、内置驱动
+需配 driver
+
+
+现代 Web
+更稳
+老牌但易抖
+
+
+7.3 接口自动化最小可用模板import requests, pytestfrom pydantic import BaseModel, ValidationErrorclass Order(BaseModel):    order_id: str    amount: floatdef test_orders_api():    r = requests.get(&quot;https://api.example.com/orders&quot;, timeout=10)    assert r.status_code == 200    data = r.json()    assert &quot;items&quot; in data    for it in data[&quot;items&quot;]:        Order(**it)  # schema 校验
+
+requests + pytest 断言状态码&#x2F;JSON 字段，用 pydantic&#x2F;jsonschema 做 schema 校验。
+7.4 CI 跑自动化（GitHub Actions）name: rpa-testson: [push, pull_request]jobs:  test:    runs-on: ubuntu-latest    steps:      - uses: actions/checkout@v4      - uses: actions/setup-python@v5        with:          python-version: &quot;3.12&quot;      - run: pip install -r requirements.txt      - run: pytest --cov=src
+
+7.5 脚本 flaky 治理
+
+
+抖动来源
+治理
+
+
+
+元素未稳定
+显式等待 + 稳定选择器，不 sleep 硬编码
+
+
+网络波动
+重试 + 超时配置
+
+
+数据污染
+每用例独立环境&#x2F;临时库，跑完销毁
+
+
+环境差异
+固定依赖版本，容器化运行
+
+
+7.6 覆盖率口径pytest --cov &#x2F; coverage.py 看行覆盖与分支覆盖。**别盲目追 100%**，优先覆盖核心解析&#x2F;幂等&#x2F;重试逻辑与异常分支，业务不常走的边角不强行凑数。
+
+
+
+问法
+一句话答
+追问
+
+
+
+RPA 脚本怎么单测
+mock 外部系统，只测解析&#x2F;幂等&#x2F;重试
+UI 层怎么验
+
+
+覆盖率要 100% 吗
+不，优先核心逻辑与异常分支
+哪些分支可以放过
+
+
+Playwright 比 Selenium 好在哪
+自动等待更稳、flaky 更少
+旧浏览器兼容呢
+
+
+7.7 mock 外部系统与数据驱动实例用 pytest-mock 替掉网络调用，只测解析逻辑：
+def test_parse_order(mocker):    fake = mocker.patch(&quot;requests.get&quot;)    fake.return_value.json.return_value = &#123;&quot;items&quot;: [&#123;&quot;order_id&quot;: &quot;A1&quot;&#125;]&#125;    data = fetch_orders(&quot;https://api.example.com/orders&quot;)    assert data[&quot;items&quot;][0][&quot;order_id&quot;] == &quot;A1&quot;
+
+数据驱动读用例文件（接口自动化常见）：
+import json, pytest, requestscases = json.load(open(&quot;cases/orders.json&quot;))@pytest.mark.parametrize(&quot;case&quot;, cases)def test_orders(case):    r = requests.get(case[&quot;url&quot;], timeout=10)    assert r.status_code == case[&quot;expect_status&quot;]    assert r.json()[&quot;code&quot;] == case[&quot;expect_code&quot;]
+
+UI 层不进单测，用「契约&#x2F;录制回放」验证：录制一次成功操作的指令序列，回归时重放并比对输出，不一致就告警。
+
+
+
+问法
+一句话答
+追问
+
+
+
+mock 和真实调用区别
+mock 隔离外部，单测只验逻辑；集成测才真调
+集成测怎么做
+
+
+数据驱动好处
+用例和数据分离，加场景只改 JSON
+失败怎么定位哪条
+
+
+UI 怎么保证不回归
+录制回放比对输出 + 每日冒烟
+页面改版会怎样
+
+
+7.8 CI 失败归因自动化红了先分三类，再决定谁修：
+
+
+
+红的类型
+特征
+处理
+
+
+
+环境
+连不上数据库&#x2F;网络、依赖装不上
+修环境&#x2F;锁版本，不怪用例
+
+
+数据
+测试库被污染、脏数据、并发串
+独立临时库、清空重跑
+
+
+真缺陷
+断言失败且代码确实改坏
+提 bug，定位最小复现
+
+
+维护阶段只看两个指标：通过率与失败归因分布。一片红先分清是环境、数据还是真缺陷，别上来就改用例。
+
+
+
+问法
+一句话答
+追问
+
+
+
+CI 红了一片先做什么
+先分环境&#x2F;数据&#x2F;真缺陷三类
+怎么快速区分
+
+
+用例 flaky 能忽略吗
+不能，先定位原因再修，否则掩盖真问题
+怎么降 flaky
+
+
+测试库污染怎么防
+每用例独立临时库、跑完销毁
+共享库会怎样
+
+
+7.9 测试金字塔一分钟话术
+
+
+层
+占比
+说什么
+
+
+
+单元
+最多
+解析&#x2F;幂等&#x2F;重试纯函数，mock 外部，跑得快
+
+
+接口
+居中
+契约断言 + schema 校验，进 CI 每次回归
+
+
+UI&#x2F;端到端
+最少
+只保主流程冒烟，贵且 flaky，不铺满
+
+
+被问「自动化测试怎么投」，答：单元多、接口居中、UI 最少。RPA 脚本把解析和幂等做成单测，UI 只留主流程冒烟。
+八、逻辑思维笔试速成（博客空缺）笔试是逻辑选择题 + 主观题。下面六类套路练熟，选择题不慌。
+8.1 数字推理题型识别：给一串数求下一个。套路：先算相邻差&#x2F;比，再看平方&#x2F;立方&#x2F;递推&#x2F;隔项。
+
+2,5,8,11,? → 14（等差 +3）
+3,6,12,24,? → 48（等比 ×2）
+1,1,2,3,5,8,? → 13（斐波那契 aₙ&#x3D;aₙ₋₁+aₙ₋₂）
+1,4,9,16,? → 25（平方 n²）
+2,6,12,20,? → 30（n×(n+1)）
+
+限时：每题不超 40 秒，算不出先跳。
+8.2 图形推理题型识别：给图找规律。套路：旋转&#x2F;翻转&#x2F;平移、数元素个数&#x2F;种类、对称&#x2F;封闭&#x2F;笔画、叠加求同求异、位置遍历。
+
+每行图形依次旋转 90° → 缺失图是上一图再顺时针转 90°。
+○个数 1,2,3,4 → 下一图 5 个○。
+轴对称→中心对称→既是 → 按对称类型推进。
+两图叠加去同存异 → 套规则得结果图。
+小图形在大框内顺时针移动 → 按位置规律定位。
+
+8.3 类比推理题型识别：A : B &#x3D; C : ?。套路：先定关系类型（功能&#x2F;场所&#x2F;组成&#x2F;种属&#x2F;反义&#x2F;因果），再匹配。
+
+医生 : 医院 &#x3D; 教师 : 学校（职业:场所）
+笔 : 写字 &#x3D; 刀 : 切割（工具:功能）
+苹果 : 水果 &#x3D; 玫瑰 : 花卉（种:属）
+部分 : 整体 &#x3D; 叶 : 树（组成）
+冷 : 热 &#x3D; 静 : 动（反义）
+
+8.4 逻辑判断题型识别：充分必要、真假话、矛盾、三段论。套路：充分必要别颠倒。真假话用假设法&#x2F;矛盾法。三段论看中项。
+
+「下雨→地湿」。地湿了能推出下雨吗？→ 不能（肯定后件不成立）。
+A→B 中 A 是 B 的充分条件，B 是 A 的必要条件。
+甲乙丙一人真两人假：「甲说乙假，乙说丙假，丙说甲乙都假」。→ 乙真（假设法逐一验证，仅乙真自洽）。
+「所有鸟会飞」「有的鸟不会飞」→ 矛盾关系，必一真一假。
+所有人会死，苏格拉底是人 → 苏格拉底会死（有效三段论）。
+
+8.5 资料分析题型识别：给数据算增长率&#x2F;占比&#x2F;平均。套路：先定位指标定义再算。
+
+去年 100 万今年 120 万 → 增长率 **20%**（(120-100)&#x2F;100）。
+A 占 30%、总量 500 → A&#x3D;150。
+同比&#x3D;与上年同期比；环比&#x3D;与上一周期比。
+平均数&#x3D;总量&#x2F;个数；中位数&#x3D;排序后中间值。
+部分增速 &gt; 整体增速 → 比重上升（增速差决定升降）。
+
+8.6 情境判断（业务面常见）题型识别：给工作场景问你怎么处理。套路：先止损&#x2F;告警，再定位根因，再加固（幂等&#x2F;备份&#x2F;监控）。
+
+流程半夜跑失败、业务早上才发现 → 加失败告警（钉钉&#x2F;邮件）+ 自动重试 + 断点续跑 + 晨间冒烟。
+两平台字段含义不同导致对账差异 → 建字段映射表 + 数据校验 + 差异告警人工确认。
+RPA 误删数据 → 操作前备份&#x2F;软删除 + 幂等 + 权限最小化 + 审计日志。
+平台限流导致抓取失败 → 退避重试 + 感知 429 降速 + 分时段错峰调度。
+同事误改选择器导致全流程挂 → 版本回滚 + 灰度发布 + 关键选择器代码评审。
+
+8.7 笔试时间不够怎么取舍先抢「确定性高分」：数字&#x2F;类比&#x2F;资料分析这类有固定套路的题优先做。图形和情境判断卡住就跳。主观题别空着，按第九章模板写骨架就能拿分。选择题不会用排除法，别在单题磨超过 1 分钟。
+8.8 各题型限时分配（笔试 60 分钟示例）
+
+
+题型
+建议题量占比
+单题时限
+策略
+
+
+
+数字&#x2F;类比&#x2F;资料
+40%
+30-40 秒
+有套路的先拿满
+
+
+图形推理
+20%
+60 秒
+卡住先跳，最后回头
+
+
+逻辑判断
+20%
+60-90 秒
+假设法&#x2F;矛盾法稳做
+
+
+情境判断
+10%
+90 秒
+按「止损→根因→加固」答
+
+
+主观题
+10%
+留 8-10 分钟
+按第九章骨架写，不空
+
+
+总原则：会的先写、不确定的跳、主观不空、单题不磨超过 1 分钟。
+8.9 常见笔试误区
+
+
+误区
+正确做法
+
+
+
+一道图形题磨 5 分钟
+卡住先跳，最后回头，保其他确定分
+
+
+主观题空着
+按第九章骨架写，有结构就有分
+
+
+逻辑判断靠语感
+用假设法&#x2F;矛盾法，别凭感觉
+
+
+资料分析先算大数
+先定位指标定义，再算，避免单位错
+
+
+类比硬凑
+先定关系类型（功能&#x2F;场所&#x2F;种属&#x2F;反义），再匹配
+
+
+笔试考的是「在规定时间里拿到最多确定分」，不是每题做对。策略比单题正确率更重要。
+九、主观题模板（笔试主观题 + 面试开放题共用）9.1 RPA 流程设计题题目：「每天从 3 个平台后台下载订单汇总到 Excel」。答题骨架：
+
+需求澄清：哪 3 个平台、有无 API、去重键（订单号）、输出 Excel 格式&#x2F;路径、频率时限。
+方案选型：先查 3 平台是否开放 API &#x2F; 已有 ERP 对接；无 API 才用影刀 UI 自动化。
+流程设计：登录（token&#x2F;cookie 复用避免每次验证码）→ 分页抓取 → 统一字段映射 → 按订单号幂等合并去重 → 写 Excel（openpyxl）→ 失败重试 + 退避 → 完成通知。
+稳定性：元素锚点&#x2F;AI 定位、等待、异常捕获截图、断点续跑（记已抓页）。
+调度：APScheduler&#x2F;cron&#x2F;影刀控制台定时；并发用账号分片防冲突。
+验收：小批量对账无误再全量；每日冒烟。
+
+9.2 需求澄清题结构：5W1H + 边界。谁用、做什么、数据从哪到哪、频率、异常怎么算、成功标准、合规边界。先问清再动手，不急着写代码。
+9.3 异常处理题结构：分层 + 兜底。UI 层（元素&#x2F;弹窗）→ IO 层（网络&#x2F;超时）→ 数据层（校验）→ 全局（截图 + 告警 + 人工兜底）。强调幂等，避免重复下单&#x2F;重复付款。
+9.4 项目复盘题STAR 精简：
+
+S 背景：重复手工任务、易错。
+T 目标：自动化 + 提效 + 降错。
+A 行动：选型、设计、幂等、监控。
+R 结果：没数据就写「效率显著提升、错误率下降」，不编造数字；有数据再量化。
+改进：下一步接 API、加告警。
+
+9.5 文档与培训题
+
+
+模块
+要点
+
+
+
+操作手册要素
+前置条件（登录&#x2F;权限）、分步截图、常见报错与自救、联系人&#x2F;反馈渠道
+
+
+培训流程
+录屏 + 现场跟做一遍 + 留 Q&amp;A 文档
+
+
+受众导向
+不用技术黑话，先讲「能帮你省什么」
+
+
+边界说明
+哪些自动处理、哪些要人工介入（如验证码）
+
+
+9.6 职业规划题短期：把影刀&#x2F;RPA 工程化和 Python 基础打牢，独立交付一两个跨境场景自动化。中期：掌握 AI 辅助（LLM&#x2F;Agent）把流程提效，研究 OpenClaw 等新技术。长期：成为能设计 RPA + AI 方案的自动化工程师，覆盖需求分析到上线运维。
+9.7 反问环节清单
+
+
+反问
+目的
+
+
+
+团队现在用影刀还是其他 RPA，版本企业版吗
+确认技术栈与权限
+
+
+跨境场景里最痛的自动化点是哪个
+展示业务理解
+
+
+这个实习岗的脚本会进生产吗，有 review 机制吗
+确认工程严谨度
+
+
+团队怎么看 AI（LLM&#x2F;Agent）在 RPA 里的角色
+对齐加分项
+
+
+
+
+
+问法
+一句话答
+追问
+
+
+
+设计题怎么答最稳
+先澄清需求再选型，API 优先，再讲幂等&#x2F;重试&#x2F;调度&#x2F;验收
+没 API 怎么办
+
+
+复盘没数据怎么写
+写「效率显著提升、错误率下降」，不编数字
+有数据呢
+
+
+给业务培训注意什么
+不讲黑话，先讲省什么，附截图和自救指南
+他们不会用怎么办
+
+
+9.8 安全与权限题答题骨架：权限最小化（机器人只给必要账号&#x2F;目录）、凭证不硬编码（走环境变量&#x2F;密钥管理）、操作留审计日志、敏感字段不进日志、越权操作要审批。RPA 跑业务账号要和生产账号隔离，测试用测试店铺。
+9.9 数据质量题答题骨架：入库前校验（必填、类型、范围、格式）、去重（幂等键）、异常值隔离（脏数据入差异表不进主表）、对账（和源系统比数量与金额）、可追溯（每批带批次号和时间戳）。数据质量差比流程跑不通更危险，因为错数据会静默流进报表。
+
+
+
+问法
+一句话答
+追问
+
+
+
+自动化怎么保数据质量
+入库前校验 + 幂等去重 + 脏数据隔离 + 对账
+对账不平怎么办
+
+
+RPA 账号怎么管
+权限最小化、凭证不硬编码、测试生产隔离
+凭证泄露谁负责
+
+
+脏数据怎么处理
+进差异表隔离，不污染主表，告警人工确认
+误删了能恢复吗
+
+
+十、项目追问链把三个项目分别映射到本岗追问路径。STAR 精简，每条追问给一句话答法 + 一条翻车点。
+10.1 踏浪 AI 中心（RAG 评测 &#x2F; 分层会话记忆 &#x2F; 单测有效性 &#x2F; 变异验证）STAR 精简：S 团队要建 RAG 知识库问答。T 保证回答质量与记忆连贯。A 做 RAG 评测、分层会话记忆、单测有效性、变异验证。R 单测能抓住改坏实现、记忆分层可用（无数字不编）。
+
+
+
+追问
+一句话答法
+翻车点（不要说）
+
+
+
+RAG 怎么评测
+用 Hit@k&#x2F;Recall@k&#x2F;MRR 看召回质量
+只说「准确率」不提指标
+
+
+分层记忆怎么测
+短期摘要 + 长期事实两层，测四类场景
+把两层说成一层
+
+
+单测有效性怎么证明
+断言能抓住真实改动，空洞断言（is not None）重退
+说「跑通就是有用」
+
+
+变异验证是什么
+注入变异看用例是否变红，验证真有效
+和单测混为一谈
+
+
+和本岗关系
+RAG 评测思路能迁移到 RPA 异常日志归类
+扯远不落地
+
+
+10.2 VidDigest（Python + FastAPI + SQLite + SSE + Vue3）STAR 精简：S 视频解析要加 AI 摘要。T 保证接口与流式输出稳。A 用 pytest 分库建用例、SSE 契约逐字段断言、密钥扫描、429 断言。R 回归能抓改动（无数字不编）。
+
+
+
+追问
+一句话答法
+翻车点（不要说）
+
+
+
+怎么测 SSE
+按契约逐字段断 event&#x2F;data&#x2F;结束标记，不只看有无返回
+只断「有返回」
+
+
+分库用例怎么写
+每用例独立临时库跑完销毁，避免互相污染
+共用一个库导致串
+
+
+密钥扫描查什么
+扫代码里硬编码 token&#x2F;密钥，进 CI 拦截
+说没做过
+
+
+429 怎么断言
+触发限流断言返回 429 且有重试提示
+忽略限流场景
+
+
+和 RPA 关系
+FastAPI 可做 RPA 结果回调服务，思路相通
+否认后端经验
+
+
+10.3 Vapor 优选（SpringBoot + MySQL + Redis + Lua + Kafka 秒杀）STAR 精简：S 秒杀要防超卖和重复下单。T 保证一致性与幂等。A Redis+Lua 原子扣减、幂等、先更库后删缓存 + MQ 补偿。R 并发不超卖（无数字不编）。
+
+
+
+追问
+一句话答法
+翻车点（不要说）
+
+
+
+不超卖怎么实现
+Redis+Lua 把资格校验与扣减压成一次原子执行
+先查后扣不原子
+
+
+重复下单怎么防
+幂等键 + Lua 原子校验，超时重试只成一单
+只说「加锁」
+
+
+缓存一致性
+先更库后删缓存 + MQ 补偿保证最终一致
+只删缓存不补偿
+
+
+Kafka 干什么
+异步解耦下单与后续处理，削峰
+说不清为什么用
+
+
+和 RPA 关系
+高并发一致性设计可迁移到订单同步防重复
+认为用不上 Java
+
+
+10.4 三个项目串成一条 RPA 故事线面试时把三个项目讲成一条能力链，比孤立罗列更有说服力：
+
+Vapor 优选证明你会写「稳的后端」：一致性与幂等、并发不超卖，这是 RPA 落生产前的工程底子。
+VidDigest证明你会写「带契约的接口与测试」：SSE 逐字段断言、分库用例、429 断言，这是自动化脚本单测与校验的能力。
+踏浪 AI 中心证明你会「用 AI 提效并验证 AI」：RAG 评测、单测有效性、变异验证，这是把 LLM 接进 RPA 前的评测与护栏能力。
+
+一句话收尾：「我做过一致性的后端、带契约测试的接口、和 AI 评测，这三块正好对应 RPA 工程化里最难的落地、验证、和 AI 提效。」
+
+
+
+问法
+一句话答
+追问
+
+
+
+三个项目有什么关系
+一条能力链：稳的后端 + 带测试的接口 + AI 评测
+哪个最贴本岗
+
+
+没跨境经验怎办
+用一致性和测试经验迁移到订单同步防重复
+业务不懂呢（先学 API）
+
+
+十一、明天进门前 20 分钟11.1 极简清单（最容易忘的点）
+RPA 适用边界：稳定规则 + 高频 + 有界面无 API。
+API 优先、UI 兜底。
+影刀社区版免费但非商业、有运行时长限制；xbot 不能 pip 装。
+幂等键用业务唯一键，处理前查已处理集合。
+重试加指数退避 + 抖动 + 上限。
+断点续跑靠检查点（页码&#x2F;主键&#x2F;阶段）。
+异常分层：UI→IO→数据→全局兜底截图告警。
+UI 选择器用稳定属性 + AI 辅助，降低脆弱性。
+合规：不绕验证码&#x2F;风控，只做授权内。
+GIL：IO 密集多线程有效，CPU 密集用 multiprocessing。
+3.13 free-threaded 是实验性，不上生产。
+3.12 PEP 695 泛型写法 def f[T](x: T) -&gt; T。
+Java 21 无 String Templates（已撤销），有虚拟线程&#x2F;record&#x2F;sealed。
+checked vs unchecked：IOException 强制处理，RuntimeException 不强制。
+MCP 是 2024-11-25 开源标准，影刀&#x2F;UiPath 已接入。
+RAG 指标：Hit@k&#x2F;Recall@k&#x2F;MRR。
+LLM 提效 RPA 四法：生成流程、异常归类、OCR+LLM 抽单据、视觉兜底。
+覆盖率别追 100%，优先核心逻辑与异常分支。
+OpenClaw 是真实开源 AI Agent 框架，不编内部绑定。
+不会的就诚实说不会，给相邻经验 + 推导。
+
+11.2 三句自我介绍 &#x2F; 项目开场
+我是计科 2027 届本科生，方向偏后端和研发效能，会用 Python 和 Java 写自动化。
+我在校级 AI 团队做开发，负责 RAG 评测和单测有效性；也独立做过视频解析加 AI 摘要的项目，用 pytest 写接口和 SSE 回归。
+我还做过秒杀后端，用 Redis+Lua 做原子扣减和幂等，对一致性和健壮性比较在意。
+
+11.3 三个反问
+团队现在用影刀还是其他 RPA，是企业版吗？
+跨境场景里最痛的自动化点是哪个？
+这个岗的脚本会进生产吗，有 review 和告警机制吗？
+
+11.4 进场前心态与节奏笔试时先扫一遍题型分布，确定高分确定题先做。主观题不空，按第九章骨架写。技术面被问到不会的点，用「诚实边界」那章的话术：说不会、给相邻经验、现场推导。业务面多聊跨境场景和你做过的项目，少背概念。
+节奏：笔试前翻第八章。技术面前把第二、五、六章话术背上。进门先看第十一章清单。把「我会做、我做过、我能落地」三个信号稳定传出去，比每个知识点都答满分更重要。
+十二、诚实边界不会的怎么答：明确说不会，给相邻经验（「这个我没直接用过，但我做过类似的 X」），再现场推导思路（「如果是我，会先查 API 文档，再……」）。不编造影刀内部 API 名（如 xbot.orders.download() 这类没公开的方法）和业务数字（订单量、节省工时等没核实的不写）。
+纠偏清单（面试别踩）：
+
+
+
+错误说法
+正确事实
+
+
+
+GIL 让 Python 完全不能并发
+IO 密集多线程有效，CPU 密集用 multiprocessing，3.13 实验性无 GIL
+
+
+RPA 只能调 API &#x2F; 只能点 UI
+RPA 含 UI、API、数据表、文件；优先 API，UI 是补充
+
+
+Java 21 有 String Templates
+已撤销，不是正式特性
+
+
+xbot 能 pip 装
+影刀内置包，仅流程内可用
+
+
+OpenClaw 是骗局
+2026 真实开源 AI Agent 框架
+
+
+n8n&#x2F;Dify&#x2F;Coze 就是 RPA
+是 AI 工作流&#x2F;Agent 编排，不操作 Windows 界面
+
+
+3.13 free-threaded 可上生产
+实验性，生产谨慎
+
+
+RPA 能绕验证码&#x2F;风控
+合规边界，不对抗安全机制
+
+
+
+收尾：这份笔记偏「能答得上、聊得开」。进门先看第十一章，笔试前翻第八章，技术面把第二、五、六章的话术背上。和上一份软件测试笔记的关系是理论归理论、本文归工程化与 RPA 实战。祝你明天顺利。
+
+]]></content>
+      <categories>
+        <category>RPA自动化</category>
+        <category>面试八股</category>
+      </categories>
+      <tags>
+        <tag>AI应用</tag>
+        <tag>Java</tag>
+        <tag>Python</tag>
+        <tag>RPA</tag>
+        <tag>影刀</tag>
+        <tag>速通</tag>
+      </tags>
+  </entry>
 </search>

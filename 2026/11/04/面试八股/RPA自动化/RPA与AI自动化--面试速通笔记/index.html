@@ -1,0 +1,3167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>RPA与AI自动化--面试速通笔记 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">RPA与AI自动化--面试速通笔记</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 4, 2026&nbsp;&nbsp;21:00:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/RPA%E8%87%AA%E5%8A%A8%E5%8C%96/">RPA自动化</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<hr>
+<h2 id="零、先判断对方在考什么"><a href="#零、先判断对方在考什么" class="headerlink" title="零、先判断对方在考什么"></a>零、先判断对方在考什么</h2><p>广州绮丝丽贸易的同岗位 JD 写得很实：AI 自动化工程师（RPA&#x2F;Python）实习生，在广州&#x2F;深圳坂田，跨境电商，140-180 元&#x2F;天，6 天&#x2F;周。拆开只有五条职责、五条要求，考试顺序是先笔试（逻辑选择题 + 主观题），再技术面 + 业务面。</p>
+<table>
+<thead>
+<tr>
+<th>JD 要求</th>
+<th>笔试&#x2F;面试怎么验</th>
+<th>本文位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>需求分析与方案设计，评估 RPA 可行性</td>
+<td>主观题给场景让你画方案；技术面追问「为什么不用 API」</td>
+<td>八章主观题、六章跨境场景</td>
+</tr>
+<tr>
+<td>RPA 开发（影刀 + Python），单测、稳定性、健壮性</td>
+<td>问影刀能力边界；给一段脚本挑稳定性问题</td>
+<td>一章、二章、四章</td>
+</tr>
+<tr>
+<td>AI 能力（ChatGPT&#x2F;Claude&#x2F;Gemini 辅助编程、场景中应用）</td>
+<td>问你怎么用 LLM；问「RPA 里哪里能接 AI」</td>
+<td>五章</td>
+</tr>
+<tr>
+<td>文档与培训（流程定义、操作手册、给业务培训）</td>
+<td>主观题考操作手册要素、培训流程</td>
+<td>九章</td>
+</tr>
+<tr>
+<td>技术研究（OpenClaw&#x2F;小龙虾）</td>
+<td>技术面问「知不知道 OpenClaw、和 RPA 什么关系」</td>
+<td>一章</td>
+</tr>
+<tr>
+<td>熟练 RPA 工具 + Python&#x2F;Java&#x2F;JS</td>
+<td>笔试逻辑、技术面语言考点</td>
+<td>三章、四章、一章</td>
+</tr>
+<tr>
+<td>跨境电商 RPA、AI 应用经验优先</td>
+<td>业务面问「你做过哪些电商自动化」</td>
+<td>六章、十章</td>
+</tr>
+</tbody></table>
+<p>把 JD 的考点映射到本文章节：</p>
+<table>
+<thead>
+<tr>
+<th>考点</th>
+<th>高频问法</th>
+<th>本文位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RPA 是什么、影刀是什么</td>
+<td>用一句话说清 RPA；影刀能做哪些事</td>
+<td>一章</td>
+</tr>
+<tr>
+<td>RPA 稳定性怎么保证</td>
+<td>幂等、重试、断点续跑怎么设计</td>
+<td>二章</td>
+</tr>
+<tr>
+<td>Python 基础与实战</td>
+<td>GIL、深浅拷贝、装饰器、生成器</td>
+<td>三章</td>
+</tr>
+<tr>
+<td>Java 在 RPA 岗为何要考</td>
+<td>虚拟线程、record、集合并发、POI</td>
+<td>四章</td>
+</tr>
+<tr>
+<td>AI 辅助编程与 RPA 结合</td>
+<td>用 LLM 做过什么；四种提效做法</td>
+<td>五章</td>
+</tr>
+<tr>
+<td>跨境场景方案</td>
+<td>订单下载汇总到 Excel 怎么设计</td>
+<td>六章</td>
+</tr>
+<tr>
+<td>自动化测试视角</td>
+<td>RPA 脚本单测怎么写；Playwright vs Selenium</td>
+<td>七章</td>
+</tr>
+<tr>
+<td>逻辑笔试</td>
+<td>数字推理、图形、类比、逻辑判断</td>
+<td>八章</td>
+</tr>
+<tr>
+<td>主观题</td>
+<td>流程设计、异常处理、复盘、反问</td>
+<td>九章</td>
+</tr>
+<tr>
+<td>项目深挖</td>
+<td>三个项目怎么映射到本岗追问</td>
+<td>十章</td>
+</tr>
+</tbody></table>
+<p>和上一份《软件测试–速通笔记》的分工一句话：<strong>那份以测试理论&#x2F;流程&#x2F;用例设计为主轴、走「翻车点→现场作答→追问准备」，这份以 RPA 自动化开发 + Python&#x2F;Java + AI 应用为主轴、走「表格速查 + 一句话话术 + 追问链」，测试内容只保留自动化工程师视角必需的部分。</strong></p>
+<blockquote>
+<p>用法：今晚通读一到七章建立知识框架。明早只看九章、十一章、十二章进门清单。笔试前翻八章题型套路。</p>
+</blockquote>
+<hr>
+<h2 id="一、RPA-认知与工具"><a href="#一、RPA-认知与工具" class="headerlink" title="一、RPA 认知与工具"></a>一、RPA 认知与工具</h2><h3 id="1-1-RPA-定义与适用边界"><a href="#1-1-RPA-定义与适用边界" class="headerlink" title="1.1 RPA 定义与适用边界"></a>1.1 RPA 定义与适用边界</h3><p>RPA（Robotic Process Automation，机器人流程自动化）是用软件机器人模拟人在电脑上的操作，自动执行规则明确、重复、跨系统界面或跨应用的业务流程。它在跨境电商里价值最高的是「人要在多个后台之间搬运数据」的活。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>适合上 RPA</th>
+<th>不适合上 RPA</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>规则</td>
+<td>稳定、可穷举的规则</td>
+<td>频繁变化、需要主观判断</td>
+</tr>
+<tr>
+<td>频率</td>
+<td>高频、批量、每日定时</td>
+<td>偶发、一次性的事</td>
+</tr>
+<tr>
+<td>系统</td>
+<td>有界面没 API，或 API 能力不足</td>
+<td>有稳定 API 且字段开放</td>
+</tr>
+<tr>
+<td>数据量</td>
+<td>中小批量可逐条处理</td>
+<td>海量、需流式计算</td>
+</tr>
+<tr>
+<td>异常</td>
+<td>异常路径可枚举、可兜底</td>
+<td>异常发散、要临场决策</td>
+</tr>
+</tbody></table>
+<p>判断一句口诀：<strong>稳定规则 + 高频 + 有界面无 API，才最值钱</strong>。有 API 优先用 API，这是 1.3 的「API 优先、UI 兜底」原则。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>什么是 RPA</td>
+<td>用软件机器人模拟人操作电脑，自动跑规则明确的重复流程</td>
+<td>和写脚本有什么区别</td>
+</tr>
+<tr>
+<td>什么时候不该用 RPA</td>
+<td>有稳定 API 时优先 API；规则天天变、要人判断的不适合</td>
+<td>那你怎么说服业务方</td>
+</tr>
+<tr>
+<td>RPA 和自动化脚本区别</td>
+<td>RPA 多聚焦界面操作、低代码、带调度控制台；脚本更底层灵活</td>
+<td>你更想用哪种</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-影刀-RPA-具体能力"><a href="#1-2-影刀-RPA-具体能力" class="headerlink" title="1.2 影刀 RPA 具体能力"></a>1.2 影刀 RPA 具体能力</h3><p>影刀是国产低代码 RPA，强在电商&#x2F;桌面场景，流程面板里还能写 Python 模块。</p>
+<table>
+<thead>
+<tr>
+<th>能力点</th>
+<th>事实要点（已核实）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>版本</td>
+<td>社区版免费但限非商业使用、有每日运行时长约 30 分钟；创业版按年付费限人数；企业版团队协作、合规、私有化，官网公开标准套餐约 59800 元&#x2F;5 账号&#x2F;年</td>
+</tr>
+<tr>
+<td>支持系统</td>
+<td>Windows、Mac、信创（统信 UOS、银河麒麟、Linux）、Android 手机自动化</td>
+</tr>
+<tr>
+<td>元素拾取</td>
+<td>提供元素捕获、元素锚点、AI 辅助定位、元素库、企业云元素库；支持网页&#x2F;桌面&#x2F;手机元素</td>
+</tr>
+<tr>
+<td>指令库大类</td>
+<td>网页自动化、桌面软件、鼠标键盘、数据表格、Excel&#x2F;WPS、对话框、数据处理、操作系统、流程&#x2F;应用、人工智能 AI、网络、工作队列、手机、自定义指令、SAP 扩展</td>
+</tr>
+<tr>
+<td>内置 Python</td>
+<td>流程面板可建 Python 模块，内置 <code>xbot</code> 与 <code>package</code> 两个包；第三方库可装可用、可定义调用函数</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>控制台有调度中心、高级任务计划、机器人管理、任务监控；企业版原生定时触发；社区版定时要走系统计划任务曲线方案</td>
+</tr>
+<tr>
+<td>异常&#x2F;日志</td>
+<td>有「错误列表」「运行日志」，流程可捕获异常、AI 辅助定位；异常捕获与重试属流程指令能力</td>
+</tr>
+</tbody></table>
+<p><code>xbot</code> 包边界必须说清：**<code>xbot</code> 是影刀运行环境内置包，只能在影刀 Python 模块内调用，不是可 <code>pip install</code> 的独立 SDK**。它封装了软件自动化、数据表格、Excel、日志、AI 等能力。外部纯 Python 进程不能直接 <code>import xbot</code>。面试编 <code>xbot.orders.download()</code> 这种没公开的方法名会翻车，只讲已公开的大类能力。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>影刀用过哪些能力</td>
+<td>元素捕获做网页&#x2F;桌面拾取，内置 Python 模块跑 <code>xbot</code> 做 Excel 和日志，控制台定时调度</td>
+<td><code>xbot</code> 能 pip 装吗</td>
+</tr>
+<tr>
+<td>社区版和企业版差在哪</td>
+<td>社区版免费但非商业、有运行时长限制；企业版有控制台调度、多人多机器人、私有化</td>
+<td>定时任务社区版怎么做</td>
+</tr>
+<tr>
+<td>影刀 Python 和脚本 Python 区别</td>
+<td>影刀里 Python 跑在它的运行环境，能用 <code>xbot</code> 调封装指令；外面普通脚本调不了 <code>xbot</code></td>
+<td>那你怎么单测影刀里的逻辑</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-1-录制与编码两种开发方式"><a href="#1-2-1-录制与编码两种开发方式" class="headerlink" title="1.2.1 录制与编码两种开发方式"></a>1.2.1 录制与编码两种开发方式</h3><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>适用</th>
+<th>优劣</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>录制</td>
+<td>界面操作多、流程简单</td>
+<td>上手快；但选择器脆弱、难维护、难单测</td>
+</tr>
+<tr>
+<td>Python 模块编码</td>
+<td>复杂逻辑、批量、要单测</td>
+<td>灵活、可测；需会 Python</td>
+</tr>
+<tr>
+<td>混合</td>
+<td>多数真实项目</td>
+<td>录制搭骨架，编码补解析&#x2F;幂等&#x2F;重试</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-2-指令库大类与跨境用途映射"><a href="#1-2-2-指令库大类与跨境用途映射" class="headerlink" title="1.2.2 指令库大类与跨境用途映射"></a>1.2.2 指令库大类与跨境用途映射</h3><table>
+<thead>
+<tr>
+<th>指令大类</th>
+<th>跨境 RPA 用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>网页自动化</td>
+<td>卖家后台订单&#x2F;库存抓取</td>
+</tr>
+<tr>
+<td>Excel&#x2F;WPS 表格</td>
+<td>报表汇总、对账表生成</td>
+</tr>
+<tr>
+<td>数据表格</td>
+<td>中间数据暂存与清洗</td>
+</tr>
+<tr>
+<td>人工智能 AI</td>
+<td>调模型做单据抽取、异常分类</td>
+</tr>
+<tr>
+<td>网络</td>
+<td>直接调平台开放 API</td>
+</tr>
+<tr>
+<td>工作队列</td>
+<td>多店铺&#x2F;多任务分发排队</td>
+</tr>
+<tr>
+<td>操作系统</td>
+<td>文件整理、命名、移动</td>
+</tr>
+<tr>
+<td>流程&#x2F;应用</td>
+<td>分支、循环、子流程复用</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-3-影刀开发工作流（需求到上线）"><a href="#1-2-3-影刀开发工作流（需求到上线）" class="headerlink" title="1.2.3 影刀开发工作流（需求到上线）"></a>1.2.3 影刀开发工作流（需求到上线）</h3><ol>
+<li>需求澄清：平台、字段、去重键、频率、合规边界。</li>
+<li>搭流程：优先查 API；无 API 才录制网页&#x2F;桌面。</li>
+<li>写逻辑：Python 模块做解析、幂等、重试，便于单测。</li>
+<li>控制台调度：企业版定时触发，配机器人。</li>
+<li>小批量验收：抽数据对核对输出。</li>
+<li>灰度：单店铺先跑，再全量。</li>
+<li>监控：失败告警 + 每日冒烟。</li>
+</ol>
+<p>选型口径：能用 API&#x2F;开放 API 解决的，不上 UI 录制。录制只补足「无 API 或 API 能力不足」的环节。</p>
+<h3 id="1-3-工具横向对比与定位"><a href="#1-3-工具横向对比与定位" class="headerlink" title="1.3 工具横向对比与定位"></a>1.3 工具横向对比与定位</h3><p>区分两类工具：传统桌面&#x2F;UI RPA，和 AI 工作流&#x2F;Agent 编排。</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>定位</th>
+<th>免费档（已核实）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>影刀 RPA</td>
+<td>国产低代码 RPA，强电商&#x2F;桌面</td>
+<td>社区版免费（非商业、时长限制）</td>
+</tr>
+<tr>
+<td>UiPath</td>
+<td>国际老牌，Orchestrator 调度，MCP Server 2025 GA</td>
+<td>Community License 免费</td>
+</tr>
+<tr>
+<td>Power Automate Desktop</td>
+<td>微软桌面 RPA，Win11 自带，Office 集成</td>
+<td>桌面版免费</td>
+</tr>
+<tr>
+<td>实在 RPA</td>
+<td>国产 RPA + AI，多平台采集</td>
+<td>有免费试用（额度未逐一核实）</td>
+</tr>
+<tr>
+<td>八爪鱼</td>
+<td>采集器起家扩展 RPA</td>
+<td>免费版 ¥0（100 任务数）</td>
+</tr>
+<tr>
+<td>n8n</td>
+<td>通用自动化工作流引擎，可搭 Agent</td>
+<td>开源自托管免费</td>
+</tr>
+<tr>
+<td>Dify</td>
+<td>LLM 应用平台，RAG&#x2F;Agent 中台</td>
+<td>开源自部署免费</td>
+</tr>
+<tr>
+<td>Coze（扣子）</td>
+<td>字节 AI Agent 无代码平台</td>
+<td>免费版 0 元</td>
+</tr>
+</tbody></table>
+<p>面试对比口径：<strong>影刀&#x2F;UiPath&#x2F;PAD&#x2F;其实是传统桌面&#x2F;UI RPA。八爪鱼是采集器&#x2F;轻量 RPA。n8n&#x2F;Dify&#x2F;Coze 是 AI 工作流&#x2F;Agent 编排，不操作 Windows 界面，但能调度 API 与模型，是「RPA + AI」融合的另一条路。</strong></p>
+<p><strong>「API 优先、UI 兜底」原则</strong>：能对接平台 Open API &#x2F; ERP API 就先对接，理由是 API 稳定、快、不易被风控。UI 录制易被前端改版、登录态、验证码打断。RPA（UI 自动化）作为「无 API 或 API 能力不足」时的补充。</p>
+<h3 id="1-4-OpenClaw（小龙虾）是什么"><a href="#1-4-OpenClaw（小龙虾）是什么" class="headerlink" title="1.4 OpenClaw（小龙虾）是什么"></a>1.4 OpenClaw（小龙虾）是什么</h3><p>OpenClaw 俗称「小龙虾」「养龙虾」，是 2026 年初在国内爆火的真实开源 AI 智能体（Agent）&#x2F; 桌面 Agent 框架，让 AI「拥有手和脚」：读写文件、操作浏览器、执行系统命令，支持本地&#x2F;云端一键部署。还有独立的 <code>openclaw-rpa</code> 开源项目（录制浏览器&#x2F;Excel&#x2F;Word&#x2F;API 操作回放成独立脚本、无需大模型），以及阿里云 RPA 的「OpenClaw SKILL」企业能力。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>知不知道 OpenClaw</td>
+<td>2026 爆火的开源 AI 桌面 Agent 框架，能让 AI 操作浏览器&#x2F;文件&#x2F;命令，也能和 RPA 结合做录制回放</td>
+<td>它和我们公司用的系统什么关系</td>
+</tr>
+<tr>
+<td>RPA 和 Agent 什么关系</td>
+<td>RPA 跑固定规则流程，Agent 用 LLM 做决策编排；OpenClaw 这类给 RPA 加了「会思考的调度」</td>
+<td>那是不是 Agent 会取代 RPA</td>
+</tr>
+</tbody></table>
+<p>聊 OpenClaw 不翻车的边界：<strong>只说它是真实存在的开源 AI Agent 框架、能操作浏览器&#x2F;文件&#x2F;命令、可与 RPA 结合（录制回放、企业 SKILL）。不要断言它和该公司内部某系统的绑定关系，查不到。</strong></p>
+<h3 id="1-5-影刀企业版控制台能力（面试能展开）"><a href="#1-5-影刀企业版控制台能力（面试能展开）" class="headerlink" title="1.5 影刀企业版控制台能力（面试能展开）"></a>1.5 影刀企业版控制台能力（面试能展开）</h3><p>企业版和社区版的分水岭在「集中管控」。控制台提供：</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>调度中心 &#x2F; 高级任务计划</td>
+<td>定时触发、依赖编排，不用自己写 cron</td>
+</tr>
+<tr>
+<td>机器人管理</td>
+<td>多机器人分账号、分店铺并发跑</td>
+</tr>
+<tr>
+<td>任务监控</td>
+<td>实时看运行状态、成功率、耗时</td>
+</tr>
+<tr>
+<td>任务管理</td>
+<td>启停、重跑、暂停单个流程</td>
+</tr>
+<tr>
+<td>云元素库</td>
+<td>团队共享稳定元素，降低单人维护成本</td>
+</tr>
+<tr>
+<td>MCP 管理</td>
+<td>接入模型上下文协议，给流程接 AI 能力</td>
+</tr>
+</tbody></table>
+<p>社区版没有这些集中能力，定时要靠系统计划任务 + 启动流程的曲线方案。面试被问「企业版值不值」，答：多人协作、统一调度监控、合规私有化，是团队规模化的前提。</p>
+<h3 id="1-6-影刀流程调试与排错思路"><a href="#1-6-影刀流程调试与排错思路" class="headerlink" title="1.6 影刀流程调试与排错思路"></a>1.6 影刀流程调试与排错思路</h3><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>排查顺序</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>元素找不到</td>
+<td>看是否 iframe&#x2F;弹窗 → 元素是否改版 → 用 AI 辅助定位重拾</td>
+</tr>
+<tr>
+<td>运行卡住</td>
+<td>看日志卡在哪步 → 是否等待超时 → 是否弹窗拦截</td>
+</tr>
+<tr>
+<td>数据错</td>
+<td>看字段映射 → 解析逻辑 → 去重键是否唯一</td>
+</tr>
+<tr>
+<td>定时没跑</td>
+<td>社区版看系统计划任务是否触发 → 企业版看控制台任务状态</td>
+</tr>
+<tr>
+<td>登录失效</td>
+<td>token&#x2F;cookie 是否过期 → 重登流程是否通 → 转人工</td>
+</tr>
+</tbody></table>
+<p>排错铁律：先看运行日志和错误列表，再决定改选择器还是改逻辑，不盲改。</p>
+<h2 id="二、RPA-工程化与稳定性"><a href="#二、RPA-工程化与稳定性" class="headerlink" title="二、RPA 工程化与稳定性"></a>二、RPA 工程化与稳定性</h2><p>这章最能显专业。面试官看的是你把「能跑」的脚本做成「敢放生产」的系统。</p>
+<h3 id="2-1-幂等与幂等键"><a href="#2-1-幂等与幂等键" class="headerlink" title="2.1 幂等与幂等键"></a>2.1 幂等与幂等键</h3><p>幂等指同一输入重复执行，结果一致、不产生副作用（重复下单、重复付款、重复写 Excel 行都不该发生）。</p>
+<table>
+<thead>
+<tr>
+<th>要点</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>幂等键</td>
+<td>用业务唯一键做去重，订单下载用订单号，付款回传用交易流水号</td>
+</tr>
+<tr>
+<td>幂等表&#x2F;集合</td>
+<td>处理前先查「已处理集合」（数据库表或本地 set&#x2F;文件），命中就跳过，没命中就处理并写入</td>
+</tr>
+<tr>
+<td>写 Excel</td>
+<td>按订单号做合并去重，已存在的行更新而非追加</td>
+</tr>
+<tr>
+<td>失败重跑</td>
+<td>重跑整批时，已成功的行靠幂等键跳过，不会重复落库</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-重试与退避"><a href="#2-2-重试与退避" class="headerlink" title="2.2 重试与退避"></a>2.2 重试与退避</h3><p>网络抖动、临时弹窗、页面加载慢都会造成瞬时失败，重试是标配，但要防「重试风暴」。</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>指数退避</td>
+<td>间隔随次数指数增长：1s、2s、4s、8s</td>
+</tr>
+<tr>
+<td>加抖动</td>
+<td>在退避基础上加随机量，避免多个机器人同时重试撞车</td>
+</tr>
+<tr>
+<td>上限</td>
+<td>设最大重试次数（如 5 次），超过转人工&#x2F;告警，不无限重试</td>
+</tr>
+<tr>
+<td>只对瞬时错重试</td>
+<td>网络超时、元素暂未出现可重试；业务校验失败、数据错误不该重试</td>
+</tr>
+</tbody></table>
+<h3 id="2-3-断点续跑与检查点"><a href="#2-3-断点续跑与检查点" class="headerlink" title="2.3 断点续跑与检查点"></a>2.3 断点续跑与检查点</h3><p>长流程跑了 80% 崩了，不该从头来。记录已处理游标&#x2F;检查点，失败从中断处继续。</p>
+<table>
+<thead>
+<tr>
+<th>检查点类型</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>已抓页码</td>
+<td>分页抓取记下当前页，重启从该页继续</td>
+</tr>
+<tr>
+<td>已处理主键</td>
+<td>订单号集合持久化到文件&#x2F;数据库，续跑跳过</td>
+</tr>
+<tr>
+<td>阶段标记</td>
+<td>下载完成→清洗完成→写入完成，每阶段落一个状态</td>
+</tr>
+</tbody></table>
+<h3 id="2-4-UI-选择器脆弱性与缓解"><a href="#2-4-UI-选择器脆弱性与缓解" class="headerlink" title="2.4 UI 选择器脆弱性与缓解"></a>2.4 UI 选择器脆弱性与缓解</h3><p>录制生成的 XPath&#x2F;CSS 易因前端改版、动态 id、iframe、懒加载失效，这是 RPA 最常见的半夜失败原因。</p>
+<table>
+<thead>
+<tr>
+<th>脆弱来源</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>动态 id</td>
+<td>改用稳定属性：data-*、文本、相对锚点、相邻稳定元素</td>
+</tr>
+<tr>
+<td>前端改版</td>
+<td>元素锚点 + AI 辅助定位，减少裸 XPath 依赖</td>
+</tr>
+<tr>
+<td>iframe&#x2F;弹窗</td>
+<td>显式切 iframe、等待弹窗出现再操作</td>
+</tr>
+<tr>
+<td>懒加载</td>
+<td>滚动到位再拾取，配合等待策略</td>
+</tr>
+<tr>
+<td>登录态失效</td>
+<td>token&#x2F;cookie 复用，失效才重新登录，避免每次验证码</td>
+</tr>
+</tbody></table>
+<h3 id="2-5-异常分层"><a href="#2-5-异常分层" class="headerlink" title="2.5 异常分层"></a>2.5 异常分层</h3><p>别用一个大 try 包住全流程。按层捕获，每层给不同处理。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>典型异常</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UI 层</td>
+<td>元素未找到、弹窗</td>
+<td>等待重试、AI 定位重拾、截图</td>
+</tr>
+<tr>
+<td>IO 层</td>
+<td>网络超时、HTTP 错</td>
+<td>退避重试、熔断</td>
+</tr>
+<tr>
+<td>数据层</td>
+<td>字段缺失、校验失败</td>
+<td>记录脏数据、跳过并告警</td>
+</tr>
+<tr>
+<td>全局兜底</td>
+<td>未捕获异常</td>
+<td>截图 + 告警 + 人工兜底，绝不静默吞错</td>
+</tr>
+</tbody></table>
+<h3 id="2-6-日志结构化与告警"><a href="#2-6-日志结构化与告警" class="headerlink" title="2.6 日志结构化与告警"></a>2.6 日志结构化与告警</h3><p>关键节点记结构化日志：时间&#x2F;步骤&#x2F;输入&#x2F;输出&#x2F;耗时。失败自动截图，异常推送到钉钉&#x2F;邮件&#x2F;Webhook。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging, time</span><br><span class="line"></span><br><span class="line">logging.basicConfig(</span><br><span class="line">    level=logging.INFO,</span><br><span class="line">    <span class="built_in">format</span>=<span class="string">&quot;%(asctime)s %(levelname)s step=%(step)s order=%(order)s cost=%(cost)s&quot;</span>,</span><br><span class="line">)</span><br><span class="line"><span class="comment"># 失败时截图并告警</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">alert</span>(<span class="params">msg: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">    <span class="comment"># 这里接钉钉/邮件/Webhook</span></span><br><span class="line">    logging.error(<span class="string">&quot;ALERT %s&quot;</span>, msg)</span><br></pre></td></tr></table></figure>
+
+<p>日志不打印敏感信息（账号密码、token、身份证）。</p>
+<h3 id="2-7-调度"><a href="#2-7-调度" class="headerlink" title="2.7 调度"></a>2.7 调度</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>轻量单机</td>
+<td>系统 cron &#x2F; Windows 任务计划</td>
+</tr>
+<tr>
+<td>Python 内</td>
+<td>APScheduler 定时；Celery（beat + worker）做分布式</td>
+</tr>
+<tr>
+<td>企业</td>
+<td>RPA 控制台集中调度、机器人管理、任务监控</td>
+</tr>
+<tr>
+<td>云原生</td>
+<td>容器 + K8s CronJob</td>
+</tr>
+</tbody></table>
+<p>APScheduler、Celery 是真实存在的库，能直接说名字。</p>
+<h3 id="2-8-并发与资源冲突"><a href="#2-8-并发与资源冲突" class="headerlink" title="2.8 并发与资源冲突"></a>2.8 并发与资源冲突</h3><p>多机器人同时跑同一 Excel、同一账号会冲突。</p>
+<table>
+<thead>
+<tr>
+<th>冲突</th>
+<th>解法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>同文件写</td>
+<td>文件锁、写前备份、串行化</td>
+</tr>
+<tr>
+<td>同账号并发</td>
+<td>账号分片，一个账号一个机器人</td>
+</tr>
+<tr>
+<td>重复处理</td>
+<td>工作队列 + 幂等表去重</td>
+</tr>
+</tbody></table>
+<h3 id="2-9-版本与灰度"><a href="#2-9-版本与灰度" class="headerlink" title="2.9 版本与灰度"></a>2.9 版本与灰度</h3><p>流程版本化（Git 或控制台版本），先小流量&#x2F;单店铺验证再全量，准备回滚预案。改了选择器或字段映射，先在测试店铺跑通再推生产。</p>
+<h3 id="2-10-上线验收与每日冒烟"><a href="#2-10-上线验收与每日冒烟" class="headerlink" title="2.10 上线验收与每日冒烟"></a>2.10 上线验收与每日冒烟</h3><p>上线前在仿真&#x2F;小批量数据跑回归，核对输出与手工结果一致，记通过率。建「冒烟流程」每日晨间校验：抽几条数据跑一遍核心链路，失败即告警。</p>
+<h3 id="2-11-合规边界"><a href="#2-11-合规边界" class="headerlink" title="2.11 合规边界"></a>2.11 合规边界</h3><p>只做业务授权范围内的自动化。不绕过平台验证码&#x2F;风控、不爬禁止数据、遵守 robots 与平台 API 条款。验证码优先走官方 API 或人工兜底，避免对抗式绕过。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>怎么保证 RPA 不重复处理</td>
+<td>用业务唯一键做幂等，处理前查已处理集合，命中跳过</td>
+<td>集合存哪</td>
+</tr>
+<tr>
+<td>半夜跑失败怎么发现</td>
+<td>失败截图 + 钉钉告警 + 断点续跑 + 晨间冒烟</td>
+<td>重跑会不会重复下单</td>
+</tr>
+<tr>
+<td>UI 老失效怎么办</td>
+<td>用稳定属性定位、AI 辅助、降低对 UI 依赖，优先 API</td>
+<td>没有 API 呢</td>
+</tr>
+</tbody></table>
+<h3 id="2-12-监控告警与断点续跑实战"><a href="#2-12-监控告警与断点续跑实战" class="headerlink" title="2.12 监控告警与断点续跑实战"></a>2.12 监控告警与断点续跑实战</h3><p>失败告警建议用 Webhook 推钉钉&#x2F;飞书，结构化 payload 便于后续归类：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;msgtype&quot;</span><span class="punctuation">:</span> <span class="string">&quot;markdown&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;markdown&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;RPA 任务失败&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;**流程**: 订单下载\n**步骤**: 第 12 页抓取\n**错误**: 元素未找到\n**时间**: 2026-11-05 02:13\n**截图**: s3://rpa-shots/order-12.png&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>断点续跑的本地检查点写法（伪代码，思路通用）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_checkpoint</span>(<span class="params">path: <span class="built_in">str</span></span>) -&gt; <span class="built_in">dict</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(path) <span class="keyword">as</span> f:</span><br><span class="line">            <span class="keyword">return</span> json.load(f)</span><br><span class="line">    <span class="keyword">except</span> FileNotFoundError:</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="string">&quot;page&quot;</span>: <span class="number">1</span>, <span class="string">&quot;processed&quot;</span>: []&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">save_checkpoint</span>(<span class="params">path: <span class="built_in">str</span>, state: <span class="built_in">dict</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(path, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        json.dump(state, f)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 主循环：从 checkpoint.page 继续，每页落盘；崩了重启从断点跑</span></span><br></pre></td></tr></table></figure>
+
+<p>检查点要和服务端&#x2F;文件锁配合，避免多机器人同时写同一份。</p>
+<h3 id="2-13-灰度与回滚"><a href="#2-13-灰度与回滚" class="headerlink" title="2.13 灰度与回滚"></a>2.13 灰度与回滚</h3><p>改了选择器或字段映射别全量推。灰度：先单店铺&#x2F;小批量验证，通过率达标再扩。回滚：控制台或 Git 保留上一版，出问题一键回退。本地脚本用 Git tag 锁版本。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>发布前</td>
+<td>在测试店铺跑通，核对输出</td>
+</tr>
+<tr>
+<td>灰度</td>
+<td>单店铺先行，观察成功率与告警</td>
+</tr>
+<tr>
+<td>全量</td>
+<td>灰度无异常再推全部账号</td>
+</tr>
+<tr>
+<td>回滚</td>
+<td>异常率超阈值，一键回退上一版并告警</td>
+</tr>
+</tbody></table>
+<p>回滚预案要提前写好，别等出事再想。RPA 生产事故多是「选择器一变全挂」，有版本和回滚就能把影响压到最小。</p>
+<h3 id="2-14-性能与资源优化"><a href="#2-14-性能与资源优化" class="headerlink" title="2.14 性能与资源优化"></a>2.14 性能与资源优化</h3><table>
+<thead>
+<tr>
+<th>方向</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>减少 UI 操作</td>
+<td>能一次抓全页就不逐元素点；批量读写 Excel 而非逐行</td>
+</tr>
+<tr>
+<td>限速</td>
+<td>尊重平台限流，退避降速，别把对方接口打挂</td>
+</tr>
+<tr>
+<td>并发度</td>
+<td>按账号&#x2F;店铺分片，别无脑拉满线程</td>
+</tr>
+<tr>
+<td>资源释放</td>
+<td>浏览器&#x2F;文件&#x2F;连接用完即关，避免句柄泄漏</td>
+</tr>
+<tr>
+<td>增量</td>
+<td>只抓增量（按时间&#x2F;游标），不全量重跑</td>
+</tr>
+</tbody></table>
+<p>性能不是越快越好，是不打扰业务系统、稳定跑完。限流和增量比堆并发更重要。</p>
+<h2 id="三、Python（岗位主语言）"><a href="#三、Python（岗位主语言）" class="headerlink" title="三、Python（岗位主语言）"></a>三、Python（岗位主语言）</h2><h3 id="3-1-语法速查表"><a href="#3-1-语法速查表" class="headerlink" title="3.1 语法速查表"></a>3.1 语法速查表</h3><table>
+<thead>
+<tr>
+<th>考点</th>
+<th>要点</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>可变&#x2F;不可变</td>
+<td>可变：list&#x2F;dict&#x2F;set&#x2F;bytearray；不可变：int&#x2F;str&#x2F;tuple&#x2F;frozenset&#x2F;bytes。不可变线程安全、可做 dict 键、默认参数别用可变</td>
+<td>函数默认参数为何别用 list</td>
+</tr>
+<tr>
+<td>深浅拷贝</td>
+<td><code>copy.copy</code> 拷一层，嵌套对象仍共享引用；<code>copy.deepcopy</code> 递归拷贝；<code>=</code> 是引用不是拷贝</td>
+<td>改深拷贝里嵌套对象会影响原对象吗</td>
+</tr>
+<tr>
+<td>GIL</td>
+<td>CPython 同一时刻只允许一个线程执行字节码；IO 密集多线程仍有效（等待释放 GIL）；CPU 密集用 <code>multiprocessing</code>；3.13 起有实验性 free-threaded 构建（禁用 GIL）</td>
+<td>爬虫该用多线程还是多进程</td>
+</tr>
+<tr>
+<td>装饰器</td>
+<td>高阶函数包装函数；<code>functools.wraps</code> 保留元信息；可闭包或类实现</td>
+<td>写一个计时装饰器</td>
+</tr>
+<tr>
+<td>生成器</td>
+<td><code>yield</code> 暂停保留状态，惰性求值省内存；迭代器实现 <code>__iter__/__next__</code></td>
+<td>生成器和列表区别</td>
+</tr>
+<tr>
+<td>上下文管理器</td>
+<td><code>with</code> 实现 <code>__enter__/__exit__</code> 或 <code>@contextmanager</code>；自动释放文件&#x2F;锁&#x2F;连接</td>
+<td>自己实现一个计时 with</td>
+</tr>
+<tr>
+<td>异常</td>
+<td>继承 <code>Exception</code>（不继承 <code>BaseException</code>）；具体异常在前宽泛在后；<code>else/finally</code> 语义</td>
+<td>自定义异常怎么写</td>
+</tr>
+<tr>
+<td>类型注解</td>
+<td>给 mypy 等静态检查用，运行时不强制</td>
+<td>运行时类型会被检查吗</td>
+</tr>
+<tr>
+<td>3.12 新语法</td>
+<td>PEP 695 <code>type</code> 语句与类型参数：<code>type Point = tuple[float, float]</code>、<code>def f[T](x: T) -&gt; T</code>；还有更灵活 f-string（PEP 701）、内联推导式更快（PEP 709）</td>
+<td>泛型怎么写</td>
+</tr>
+<tr>
+<td>3.13 新特性</td>
+<td>实验性 free-threaded 构建（禁用 GIL）、实验性 JIT、新交互式解释器、移动平台支持</td>
+<td>free-threaded 能上生产吗（不能，实验性）</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-RPA-自动化高频库"><a href="#3-2-RPA-自动化高频库" class="headerlink" title="3.2 RPA&#x2F;自动化高频库"></a>3.2 RPA&#x2F;自动化高频库</h3><table>
+<thead>
+<tr>
+<th>库</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>requests</td>
+<td>HTTP 请求</td>
+</tr>
+<tr>
+<td>openpyxl</td>
+<td>xlsx 读写</td>
+</tr>
+<tr>
+<td>pandas</td>
+<td>数据处理</td>
+</tr>
+<tr>
+<td>pytest</td>
+<td>测试</td>
+</tr>
+<tr>
+<td>selenium &#x2F; playwright</td>
+<td>浏览器自动化</td>
+</tr>
+<tr>
+<td>pyautogui</td>
+<td>键鼠模拟</td>
+</tr>
+<tr>
+<td>pywin32</td>
+<td>Windows 系统调用</td>
+</tr>
+<tr>
+<td>apscheduler</td>
+<td>定时调度</td>
+</tr>
+<tr>
+<td>logging</td>
+<td>日志</td>
+</tr>
+<tr>
+<td>tenacity</td>
+<td>重试（<code>@retry</code>）</td>
+</tr>
+</tbody></table>
+<h3 id="3-3-可直接讲出口的代码片段"><a href="#3-3-可直接讲出口的代码片段" class="headerlink" title="3.3 可直接讲出口的代码片段"></a>3.3 可直接讲出口的代码片段</h3><p>带重试与日志的下载函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging, requests</span><br><span class="line"><span class="keyword">from</span> tenacity <span class="keyword">import</span> retry, stop_after_attempt, wait_exponential</span><br><span class="line"></span><br><span class="line">logging.basicConfig(level=logging.INFO)</span><br><span class="line"></span><br><span class="line"><span class="meta">@retry(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="meta">    stop=stop_after_attempt(<span class="params"><span class="number">5</span></span>),</span></span></span><br><span class="line"><span class="params"><span class="meta">    wait=wait_exponential(<span class="params">multiplier=<span class="number">1</span>, <span class="built_in">min</span>=<span class="number">1</span>, <span class="built_in">max</span>=<span class="number">8</span></span>),</span></span></span><br><span class="line"><span class="params"><span class="meta"></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">download</span>(<span class="params">url: <span class="built_in">str</span>, timeout: <span class="built_in">int</span> = <span class="number">10</span></span>) -&gt; <span class="built_in">bytes</span>:</span><br><span class="line">    logging.info(<span class="string">&quot;GET %s&quot;</span>, url)</span><br><span class="line">    resp = requests.get(url, timeout=timeout)</span><br><span class="line">    resp.raise_for_status()</span><br><span class="line">    <span class="keyword">return</span> resp.content</span><br></pre></td></tr></table></figure>
+
+<p>幂等去重写 Excel（按订单号合并）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> openpyxl <span class="keyword">import</span> load_workbook</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">upsert_rows</span>(<span class="params">path: <span class="built_in">str</span>, rows: <span class="built_in">list</span>[<span class="built_in">dict</span>], key: <span class="built_in">str</span> = <span class="string">&quot;order_id&quot;</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">    wb = load_workbook(path)</span><br><span class="line">    ws = wb.active</span><br><span class="line">    header = [c.value <span class="keyword">for</span> c <span class="keyword">in</span> ws[<span class="number">1</span>]]</span><br><span class="line">    key_col = header.index(key) + <span class="number">1</span></span><br><span class="line">    seen = &#123;ws.cell(r, key_col).value: r <span class="keyword">for</span> r <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>, ws.max_row + <span class="number">1</span>)&#125;</span><br><span class="line">    <span class="keyword">for</span> row <span class="keyword">in</span> rows:</span><br><span class="line">        vals = [row.get(h) <span class="keyword">for</span> h <span class="keyword">in</span> header]</span><br><span class="line">        <span class="keyword">if</span> row[key] <span class="keyword">in</span> seen:</span><br><span class="line">            <span class="keyword">for</span> ci, v <span class="keyword">in</span> <span class="built_in">enumerate</span>(vals, <span class="number">1</span>):</span><br><span class="line">                ws.cell(seen[row[key]], ci, v)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            ws.append(vals)</span><br><span class="line">            seen[row[key]] = ws.max_row</span><br><span class="line">    wb.save(path)</span><br></pre></td></tr></table></figure>
+
+<p>pytest 参数化用例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.parametrize(<span class="params"><span class="string">&quot;a,b,expect&quot;</span>, [(<span class="params"><span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span></span>), (<span class="params"><span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span></span>), (<span class="params">-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span></span>)]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_add</span>(<span class="params">a, b, expect</span>):</span><br><span class="line">    <span class="keyword">assert</span> a + b == expect</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FakeClient</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get</span>(<span class="params">self, url</span>):</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="string">&quot;ok&quot;</span>: <span class="literal">True</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">client</span>():</span><br><span class="line">    <span class="comment"># 这里 mock 外部系统</span></span><br><span class="line">    <span class="keyword">yield</span> FakeClient()</span><br></pre></td></tr></table></figure>
+
+<p>Playwright 等待与断言：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> playwright.sync_api <span class="keyword">import</span> expect, sync_playwright</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> sync_playwright() <span class="keyword">as</span> p:</span><br><span class="line">    browser = p.chromium.launch(headless=<span class="literal">True</span>)</span><br><span class="line">    page = browser.new_page()</span><br><span class="line">    page.goto(<span class="string">&quot;https://example.com/login&quot;</span>)</span><br><span class="line">    page.fill(<span class="string">&quot;#username&quot;</span>, <span class="string">&quot;u&quot;</span>)</span><br><span class="line">    page.click(<span class="string">&quot;#submit&quot;</span>)</span><br><span class="line">    expect(page.locator(<span class="string">&quot;.welcome&quot;</span>)).to_be_visible(timeout=<span class="number">5000</span>)</span><br><span class="line">    <span class="keyword">assert</span> page.locator(<span class="string">&quot;.order-count&quot;</span>).inner_text() == <span class="string">&quot;3&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-易错点与追问链"><a href="#3-4-易错点与追问链" class="headerlink" title="3.4 易错点与追问链"></a>3.4 易错点与追问链</h3><table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GIL 下 Python 能并发吗</td>
+<td>IO 密集多线程有效，CPU 密集用 multiprocessing，3.13 有实验性无 GIL 构建</td>
+<td>爬虫限在哪</td>
+</tr>
+<tr>
+<td>深浅拷贝区别</td>
+<td>浅拷一层、深递归拷；嵌套对象浅拷贝共享引用</td>
+<td>何时必须用深拷贝</td>
+</tr>
+<tr>
+<td>3.12 泛型怎么写</td>
+<td>PEP 695 用 <code>def f[T](x: T) -&gt; T</code> 或 <code>type Point = tuple[float, float]</code></td>
+<td>旧版泛型怎么写</td>
+</tr>
+<tr>
+<td>装饰器保留元信息</td>
+<td>用 <code>functools.wraps</code> 包裹内层</td>
+<td>不写 wraps 会怎样</td>
+</tr>
+<tr>
+<td>为什么不直接 print</td>
+<td>logging 能设级别、handler、formatter，结构化且不进 stdout 污染</td>
+<td>日志能打密码吗（不能）</td>
+</tr>
+<tr>
+<td>重试用哪个库</td>
+<td>tenacity 的 <code>@retry</code>，配 <code>stop_after_attempt</code> 和指数等待</td>
+<td>重试风暴怎么防</td>
+</tr>
+</tbody></table>
+<h3 id="3-5-更多可讲出口的代码片段"><a href="#3-5-更多可讲出口的代码片段" class="headerlink" title="3.5 更多可讲出口的代码片段"></a>3.5 更多可讲出口的代码片段</h3><p>计时装饰器（保留元信息）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> functools, time, logging</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">timing</span>(<span class="params">func</span>):</span><br><span class="line"><span class="meta">    @functools.wraps(<span class="params">func</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">        start = time.perf_counter()</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">finally</span>:</span><br><span class="line">            logging.info(<span class="string">&quot;%s cost=%.3fs&quot;</span>, func.__name__, time.perf_counter() - start)</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
+
+<p>生成器惰性读大文件（不必一次读进内存）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">read_lines</span>(<span class="params">path: <span class="built_in">str</span>, chunk: <span class="built_in">int</span> = <span class="number">4096</span></span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(path, encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">while</span> buf := f.read(chunk):</span><br><span class="line">            <span class="keyword">yield</span> buf</span><br></pre></td></tr></table></figure>
+
+<p>上下文管理器自动关资源：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> contextlib <span class="keyword">import</span> contextmanager</span><br><span class="line"></span><br><span class="line"><span class="meta">@contextmanager</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">open_lock</span>(<span class="params">path: <span class="built_in">str</span></span>):</span><br><span class="line">    lock = acquire(path)        <span class="comment"># 伪代码：获取文件锁</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">yield</span> lock</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        release(lock)           <span class="comment"># 无论成功失败都释放</span></span><br></pre></td></tr></table></figure>
+
+<p>补充高频库：做 schema 校验用 <code>pydantic</code>&#x2F;<code>jsonschema</code>。测时间相关用 <code>freezegun</code>。测 Redis 用 <code>fakeredis</code>。发 HTTP 用 <code>httpx</code>（支持异步）。覆盖率用 <code>pytest-cov</code>。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>装饰器不写 wraps 会怎样</td>
+<td>被装饰函数名、doc 变成内层函数，日志&#x2F;反射出错</td>
+<td>怎么拿到原函数名</td>
+</tr>
+<tr>
+<td>生成器省内存体现在哪</td>
+<td>惰性产出，处理大文件&#x2F;大结果不占全量内存</td>
+<td>和列表推导区别</td>
+</tr>
+<tr>
+<td>上下文管理器不止文件</td>
+<td>锁、连接、事务都能用 with 自动释放</td>
+<td>自己怎么实现一个</td>
+</tr>
+</tbody></table>
+<h3 id="3-6-并发模型三者对比"><a href="#3-6-并发模型三者对比" class="headerlink" title="3.6 并发模型三者对比"></a>3.6 并发模型三者对比</h3><table>
+<thead>
+<tr>
+<th>模型</th>
+<th>适用</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>threading</td>
+<td>IO 密集（网络&#x2F;文件），等待时释放 GIL</td>
+<td>CPU 密集无效</td>
+</tr>
+<tr>
+<td>multiprocessing</td>
+<td>CPU 密集，绕过 GIL</td>
+<td>进程间通信成本高</td>
+</tr>
+<tr>
+<td>asyncio</td>
+<td>高并发 IO、协程、单线程事件循环</td>
+<td>阻塞调用会卡整个循环</td>
+</tr>
+</tbody></table>
+<p>asyncio 抓取示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio, aiohttp</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">fetch</span>(<span class="params">url: <span class="built_in">str</span></span>) -&gt; <span class="built_in">dict</span>:</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> aiohttp.ClientSession() <span class="keyword">as</span> s:</span><br><span class="line">        <span class="keyword">async</span> <span class="keyword">with</span> s.get(url) <span class="keyword">as</span> r:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">await</span> r.json()</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>(<span class="params">urls</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> asyncio.gather(*(fetch(u) <span class="keyword">for</span> u <span class="keyword">in</span> urls))</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-7-常见陷阱代码（面试爱问）"><a href="#3-7-常见陷阱代码（面试爱问）" class="headerlink" title="3.7 常见陷阱代码（面试爱问）"></a>3.7 常见陷阱代码（面试爱问）</h3><p>可变默认参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">add_item</span>(<span class="params">x, items=[]</span>):   <span class="comment"># 陷阱：默认列表跨调用共享</span></span><br><span class="line">    items.append(x)</span><br><span class="line">    <span class="keyword">return</span> items</span><br><span class="line"><span class="comment"># 正确：items=None 内部新建</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_item_ok</span>(<span class="params">x, items=<span class="literal">None</span></span>):</span><br><span class="line">    items = items <span class="keyword">or</span> []</span><br><span class="line">    items.append(x)</span><br><span class="line">    <span class="keyword">return</span> items</span><br></pre></td></tr></table></figure>
+
+<p>闭包延迟绑定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">funcs = [<span class="keyword">lambda</span>: i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>)]   <span class="comment"># 三个都返回 2</span></span><br><span class="line">funcs = [<span class="keyword">lambda</span> i=i: i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>)]  <span class="comment"># 正确：默认参数捕获当时值</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>默认参数为何别用 list</td>
+<td>函数对象只创建一次，默认列表跨调用共享</td>
+<td>怎么改对</td>
+</tr>
+<tr>
+<td>闭包循环变量陷阱</td>
+<td>lambda 引用外部变量，循环结束才取值，全取末值</td>
+<td>怎么修</td>
+</tr>
+<tr>
+<td>asyncio 里能调阻塞函数吗</td>
+<td>不能，会卡事件循环，用 run_in_executor</td>
+<td>那 CPU 密集呢</td>
+</tr>
+</tbody></table>
+<h3 id="3-8-虚拟环境与依赖管理"><a href="#3-8-虚拟环境与依赖管理" class="headerlink" title="3.8 虚拟环境与依赖管理"></a>3.8 虚拟环境与依赖管理</h3><p>本地用 <code>venv</code> 建隔离环境，<code>pip</code> + <code>requirements.txt</code> 锁版本。现代用 <code>uv</code> 或 <code>poetry</code>&#x2F;<code>pip-tools</code> 做依赖解析与锁文件。RPA 脚本要能在一台干净机器上 <code>pip install -r requirements.txt</code> 就跑起来，不依赖你本机的全局包。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python -m venv .venv</span><br><span class="line">.venv/Scripts/activate      <span class="comment"># Windows</span></span><br><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-9-RPA-脚本代码组织"><a href="#3-9-RPA-脚本代码组织" class="headerlink" title="3.9 RPA 脚本代码组织"></a>3.9 RPA 脚本代码组织</h3><p>别把整条流程写在一个大函数里。按职责拆模块：抓取层（只管拿数据）、解析层（HTML&#x2F;JSON → 字段）、持久层（写 Excel&#x2F;库，带幂等）、调度层（定时与重试）。每层可单测，解析层和持久层用 mock 隔离外部。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>职责</th>
+<th>可测性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>抓取</td>
+<td>调 API&#x2F;UI 拿原始数据</td>
+<td>mock 网络</td>
+</tr>
+<tr>
+<td>解析</td>
+<td>原始 → 统一内部模型</td>
+<td>纯函数，易测</td>
+</tr>
+<tr>
+<td>持久</td>
+<td>upsert + 幂等</td>
+<td>mock 存储</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>定时&#x2F;重试&#x2F;告警</td>
+<td>配置驱动</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>依赖怎么管理</td>
+<td>venv + requirements 锁版本，干净机可装可跑</td>
+<td>uv 了解吗</td>
+</tr>
+<tr>
+<td>脚本怎么组织</td>
+<td>抓取&#x2F;解析&#x2F;持久&#x2F;调度分层，每层可单测</td>
+<td>不分层的后果</td>
+</tr>
+<tr>
+<td>mock 在哪一層用</td>
+<td>抓取和持久层 mock 外部，解析层纯函数</td>
+<td>UI 层怎么测</td>
+</tr>
+</tbody></table>
+<h3 id="3-10-常用内置模块速查"><a href="#3-10-常用内置模块速查" class="headerlink" title="3.10 常用内置模块速查"></a>3.10 常用内置模块速查</h3><table>
+<thead>
+<tr>
+<th>模块</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>os &#x2F; sys</td>
+<td>路径、环境变量、参数</td>
+</tr>
+<tr>
+<td>pathlib</td>
+<td>面向对象的路径操作（推荐替代 os.path）</td>
+</tr>
+<tr>
+<td>re</td>
+<td>正则提取（非结构化文本先用正则，正则不行再上 LLM）</td>
+</tr>
+<tr>
+<td>datetime</td>
+<td>时间解析、时区、格式化</td>
+</tr>
+<tr>
+<td>json</td>
+<td>序列化与反序列化</td>
+</tr>
+<tr>
+<td>csv</td>
+<td>CSV 读写（平台导出常用）</td>
+</tr>
+<tr>
+<td>collections</td>
+<td>defaultdict&#x2F;deque&#x2F;Counter 等实用容器</td>
+</tr>
+</tbody></table>
+<p>RPA 里 <code>re</code> 和 <code>datetime</code> 用得最多：从文本抠单号&#x2F;金额、把各平台时间统一成内部格式。</p>
+<h2 id="四、Java（JD-点名）"><a href="#四、Java（JD-点名）" class="headerlink" title="四、Java（JD 点名）"></a>四、Java（JD 点名）</h2><h3 id="4-1-为什么-RPA-岗也问-Java"><a href="#4-1-为什么-RPA-岗也问-Java" class="headerlink" title="4.1 为什么 RPA 岗也问 Java"></a>4.1 为什么 RPA 岗也问 Java</h3><p>跨境电商企业侧大量服务是 Java：ERP、中台、对接 SAP&#x2F;用友的适配器、Excel 批量处理（POI）。RPA 机器人跑完数据，往往要落到一个 Java 后端做调度、校验、回调。会 Java 意味着你能接企业侧服务，不只是写前端脚本。</p>
+<h3 id="4-2-Java-17-21-LTS-特性"><a href="#4-2-Java-17-21-LTS-特性" class="headerlink" title="4.2 Java 17 &#x2F; 21 LTS 特性"></a>4.2 Java 17 &#x2F; 21 LTS 特性</h3><table>
+<thead>
+<tr>
+<th>版本</th>
+<th>特性</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>17</td>
+<td>Sealed Classes（JEP 409 永久）、Records（16 转正）、Text Blocks（15 转正）、Switch 表达式（14 转正）</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>21</td>
+<td>Virtual Threads（JEP 444 正式，Project Loom）、Pattern Matching for switch（JEP 441 正式）、Record Patterns（JEP 440 正式）、Sequenced Collections（JEP 431 正式）</td>
+<td>已核实</td>
+</tr>
+<tr>
+<td>21</td>
+<td>String Templates（JEP 459&#x2F;465）曾预览</td>
+<td><strong>已被撤销（withdrawn），不是正式特性，不要写错</strong></td>
+</tr>
+</tbody></table>
+<p>虚拟线程例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> (<span class="type">var</span> <span class="variable">executor</span> <span class="operator">=</span> Executors.newVirtualThreadPerTaskExecutor()) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10_000</span>; i++) &#123;</span><br><span class="line">        executor.submit(() -&gt; &#123;</span><br><span class="line">            Thread.sleep(Duration.ofMillis(<span class="number">100</span>));</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="comment">// 自动关闭，等待全部完成</span></span><br></pre></td></tr></table></figure>
+
+<p>record 与 sealed：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">sealed</span> <span class="keyword">interface</span> <span class="title class_">OrderEvent</span> <span class="keyword">permits</span> Created, Paid &#123;&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">record</span> <span class="title class_">Created</span><span class="params">(String orderId, <span class="type">long</span> ts)</span> <span class="keyword">implements</span> <span class="title class_">OrderEvent</span> &#123;&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">record</span> <span class="title class_">Paid</span><span class="params">(String orderId, <span class="type">long</span> amount)</span> <span class="keyword">implements</span> <span class="title class_">OrderEvent</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>模式匹配 switch（21 正式）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">desc</span> <span class="operator">=</span> <span class="keyword">switch</span> (event) &#123;</span><br><span class="line">    <span class="keyword">case</span> Created c -&gt; <span class="string">&quot;created &quot;</span> + c.orderId();</span><br><span class="line">    <span class="keyword">case</span> Paid p    -&gt; <span class="string">&quot;paid &quot;</span> + p.amount();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-集合与并发"><a href="#4-3-集合与并发" class="headerlink" title="4.3 集合与并发"></a>4.3 集合与并发</h3><table>
+<thead>
+<tr>
+<th>考点</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>集合实现</td>
+<td>ArrayList&#x2F;LinkedList、HashSet&#x2F;TreeSet、HashMap；线程安全用 ConcurrentHashMap、Collections.synchronized*</td>
+</tr>
+<tr>
+<td>线程池</td>
+<td>ExecutorService &#x2F; ThreadPoolExecutor；IO 密集多线程、CPU 密集少线程</td>
+</tr>
+<tr>
+<td>锁</td>
+<td>synchronized（JVM 内置、可重入）vs ReentrantLock（可超时&#x2F;可中断&#x2F;公平锁）</td>
+</tr>
+<tr>
+<td>原子</td>
+<td>volatile（可见性，不保证原子）vs Atomic*（CAS 无锁原子更新）</td>
+</tr>
+</tbody></table>
+<h3 id="4-4-JVM-与-GC-入门"><a href="#4-4-JVM-与-GC-入门" class="headerlink" title="4.4 JVM 与 GC 入门"></a>4.4 JVM 与 GC 入门</h3><p>JVM 内存分区：堆、栈、方法区（元空间）、直接内存。分代回收 Young&#x2F;Old。常见 GC：G1（默认）、ZGC&#x2F;Shenandoah（低延迟）。实习生了解 G1 和「Stop-The-World」概念即可。</p>
+<h3 id="4-5-checked-unchecked-异常"><a href="#4-5-checked-unchecked-异常" class="headerlink" title="4.5 checked &#x2F; unchecked 异常"></a>4.5 checked &#x2F; unchecked 异常</h3><p><code>Exception</code> 下 checked（编译期强制处理，如 IOException）vs <code>RuntimeException</code>（unchecked）。<code>Error</code> 不捕获。RPA 脚本里外部系统调用失败用 checked 显式处理，内部逻辑错误用 unchecked。</p>
+<h3 id="4-6-常用库"><a href="#4-6-常用库" class="headerlink" title="4.6 常用库"></a>4.6 常用库</h3><table>
+<thead>
+<tr>
+<th>用途</th>
+<th>库</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Excel 读写</td>
+<td>Apache POI &#x2F; EasyExcel</td>
+</tr>
+<tr>
+<td>HTML 解析</td>
+<td>Jsoup</td>
+</tr>
+<tr>
+<td>浏览器</td>
+<td>Selenium-Java</td>
+</tr>
+<tr>
+<td>HTTP 客户端</td>
+<td>OkHttp</td>
+</tr>
+<tr>
+<td>JSON</td>
+<td>Jackson</td>
+</tr>
+</tbody></table>
+<p>EasyExcel 写 Excel：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderRow</span> &#123;</span><br><span class="line">    <span class="meta">@ExcelProperty(&quot;订单号&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String orderId;</span><br><span class="line">    <span class="meta">@ExcelProperty(&quot;金额&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> BigDecimal amount;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">EasyExcel.write(path, OrderRow.class)</span><br><span class="line">        .sheet(<span class="string">&quot;订单&quot;</span>)</span><br><span class="line">        .doWrite(rows);</span><br></pre></td></tr></table></figure>
+
+<p>OkHttp 调用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">OkHttpClient</span> <span class="variable">client</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">OkHttpClient</span>();</span><br><span class="line"><span class="type">Request</span> <span class="variable">req</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Request</span>.Builder()</span><br><span class="line">        .url(<span class="string">&quot;https://api.example.com/orders&quot;</span>)</span><br><span class="line">        .addHeader(<span class="string">&quot;Authorization&quot;</span>, <span class="string">&quot;Bearer &quot;</span> + token)</span><br><span class="line">        .build();</span><br><span class="line"><span class="keyword">try</span> (<span class="type">Response</span> <span class="variable">resp</span> <span class="operator">=</span> client.newCall(req).execute()) &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">body</span> <span class="operator">=</span> resp.body().string();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-7-Spring-Boot-写-RPA-调度-结果回调最小服务"><a href="#4-7-Spring-Boot-写-RPA-调度-结果回调最小服务" class="headerlink" title="4.7 Spring Boot 写 RPA 调度 + 结果回调最小服务"></a>4.7 Spring Boot 写 RPA 调度 + 结果回调最小服务</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableScheduling</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RpaCallbackApp</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(RpaCallbackApp.class, args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(cron = &quot;0 0 2 * * *&quot;)</span> <span class="comment">// 每天凌晨2点触发RPA任务</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">triggerRpaJob</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 调用 RPA 控制台 API 或发消息队列</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RestController</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">CallbackController</span> &#123;</span><br><span class="line">        <span class="meta">@PostMapping(&quot;/rpa/callback&quot;)</span></span><br><span class="line">        <span class="keyword">public</span> ResponseEntity&lt;String&gt; <span class="title function_">callback</span><span class="params">(<span class="meta">@RequestBody</span> RpaResult result)</span> &#123;</span><br><span class="line">            <span class="comment">// 接收 RPA 执行结果，落库、校验、告警</span></span><br><span class="line">            <span class="keyword">return</span> ResponseEntity.ok(<span class="string">&quot;received&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置用 <code>application.yml</code>，打 jar 用 <code>spring-boot-maven-plugin</code>。</p>
+<h3 id="4-8-Java-与-Python-在同一自动化体系里的分工"><a href="#4-8-Java-与-Python-在同一自动化体系里的分工" class="headerlink" title="4.8 Java 与 Python 在同一自动化体系里的分工"></a>4.8 Java 与 Python 在同一自动化体系里的分工</h3><table>
+<thead>
+<tr>
+<th>角色</th>
+<th>语言</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>调度&#x2F;回调&#x2F;中台</td>
+<td>Java</td>
+<td>接收 RPA 结果、对接 ERP、落库校验、提供 API</td>
+</tr>
+<tr>
+<td>脚本&#x2F;抓取&#x2F;AI</td>
+<td>Python</td>
+<td>写 RPA 流程逻辑、调 LLM、数据处理、快速验证</td>
+</tr>
+<tr>
+<td>批量跑批</td>
+<td>看场景</td>
+<td>IO 密集 Python 多线程；重计算 Java 多线程&#x2F;虚拟线程</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>21 有字符串模板吗</td>
+<td>没有，String Templates 已撤销，不是正式特性</td>
+<td>那 21 正式特性有哪些</td>
+</tr>
+<tr>
+<td>虚拟线程解决什么</td>
+<td>高并发 IO 下不用堆大量平台线程，简化并发写法</td>
+<td>和线程池区别</td>
+</tr>
+<tr>
+<td>RPA 岗为啥考 Java</td>
+<td>企业侧 ERP&#x2F;中台是 Java，要能接回调和服务</td>
+<td>你用 Java 写过什么</td>
+</tr>
+<tr>
+<td>POI 还是 EasyExcel</td>
+<td>大数据量用 EasyExcel（流式、省内存），小文件 POI 够用</td>
+<td>读写大 Excel 内存爆了怎么办</td>
+</tr>
+</tbody></table>
+<h3 id="4-9-常用库代码与并发补充"><a href="#4-9-常用库代码与并发补充" class="headerlink" title="4.9 常用库代码与并发补充"></a>4.9 常用库代码与并发补充</h3><p>Jackson 序列化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ObjectMapper</span> <span class="variable">mapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line"><span class="type">Order</span> <span class="variable">order</span> <span class="operator">=</span> mapper.readValue(json, Order.class); <span class="comment">// 反序列化</span></span><br><span class="line"><span class="type">String</span> <span class="variable">out</span> <span class="operator">=</span> mapper.writeValueAsString(order);     <span class="comment">// 序列化</span></span><br></pre></td></tr></table></figure>
+
+<p>Jsoup 解析 HTML 抽取字段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Document</span> <span class="variable">doc</span> <span class="operator">=</span> Jsoup.connect(url).get();</span><br><span class="line"><span class="type">String</span> <span class="variable">title</span> <span class="operator">=</span> doc.select(<span class="string">&quot;h1.product-title&quot;</span>).first().text();</span><br><span class="line"><span class="type">String</span> <span class="variable">price</span> <span class="operator">=</span> doc.select(<span class="string">&quot;span.price&quot;</span>).first().text();</span><br></pre></td></tr></table></figure>
+
+<p>Stream + Optional 处理集合与空值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; ids = orders.stream()</span><br><span class="line">        .map(Order::orderId)</span><br><span class="line">        .filter(Objects::nonNull)</span><br><span class="line">        .toList();</span><br><span class="line"></span><br><span class="line">Optional.ofNullable(order.getCoupon())</span><br><span class="line">        .ifPresent(c -&gt; apply(c));</span><br></pre></td></tr></table></figure>
+
+<p>并发安全集合：高并发计数&#x2F;去重用 <code>ConcurrentHashMap</code>，别用 <code>HashMap</code> 多线程写。</p>
+<p>GC 补充：对象先进 Young（Eden + Survivor），熬过几轮回收晋升 Old；G1 把堆切成 region 并行回收，目标是可预测的暂停时间；ZGC&#x2F;Shenandoah 把停顿压到毫秒级，适合低延迟服务。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Jackson 和 Gson 区别</td>
+<td>Jackson 生态大、流式省内存、Spring 默认</td>
+<td>大 JSON 怎么不爆内存</td>
+</tr>
+<tr>
+<td>Jsoup 能爬动态页面吗</td>
+<td>只解析静态 HTML，JS 渲染要用 Selenium&#x2F;Playwright</td>
+<td>那怎么抽 SPA 数据</td>
+</tr>
+<tr>
+<td>Optional 解决什么</td>
+<td>显式表达可能为空，避免 NPE</td>
+<td>能当参数校验用吗（不推荐）</td>
+</tr>
+</tbody></table>
+<h3 id="4-10-Java-面试常问小点"><a href="#4-10-Java-面试常问小点" class="headerlink" title="4.10 Java 面试常问小点"></a>4.10 Java 面试常问小点</h3><table>
+<thead>
+<tr>
+<th>考点</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x3D;&#x3D; vs equals</td>
+<td>&#x3D;&#x3D; 比引用（基本类型比值），equals 比内容（需重写）</td>
+</tr>
+<tr>
+<td>String 不可变</td>
+<td>拼接产生新对象，频繁拼接用 StringBuilder</td>
+</tr>
+<tr>
+<td>final</td>
+<td>类不可继承、方法不可重写、变量不可改引用</td>
+</tr>
+<tr>
+<td>重载 vs 重写</td>
+<td>重载同方法名不同参数（编译期）；重写子类覆盖父类（运行期）</td>
+</tr>
+<tr>
+<td>接口 vs 抽象类</td>
+<td>接口多实现、无状态；抽象类可带实现与字段</td>
+</tr>
+</tbody></table>
+<h3 id="4-11-JVM-排查入门"><a href="#4-11-JVM-排查入门" class="headerlink" title="4.11 JVM 排查入门"></a>4.11 JVM 排查入门</h3><p>线上 RPA 回调服务卡了，先 <code>jps</code> 看进程，<code>jstack</code> 看线程栈定位死锁&#x2F;阻塞，<code>jmap</code> 看堆占用。OutOfMemory 配 <code>-XX:+HeapDumpOnOutOfMemoryError</code> 落 dump 事后分析。GC 日志开 <code>-Xlog:gc*</code> 看停顿。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x3D;&#x3D; 和 equals 区别</td>
+<td>&#x3D;&#x3D; 比引用&#x2F;值，equals 比内容需重写</td>
+<td>String 用哪个</td>
+</tr>
+<tr>
+<td>重载重写区别</td>
+<td>重载编译期多参数，重写运行期覆盖</td>
+<td>构造器能重写吗（不能）</td>
+</tr>
+<tr>
+<td>服务卡了怎么查</td>
+<td>jstack 看线程栈，jmap 看堆，GC 日志看停顿</td>
+<td>OOM 怎么留证据</td>
+</tr>
+</tbody></table>
+<h3 id="4-12-Spring-Boot-常用注解速查"><a href="#4-12-Spring-Boot-常用注解速查" class="headerlink" title="4.12 Spring Boot 常用注解速查"></a>4.12 Spring Boot 常用注解速查</h3><table>
+<thead>
+<tr>
+<th>注解</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@SpringBootApplication</code></td>
+<td>启动类，开启自动配置与组件扫描</td>
+</tr>
+<tr>
+<td><code>@RestController</code></td>
+<td>暴露 HTTP 接口，返回 JSON</td>
+</tr>
+<tr>
+<td><code>@PostMapping</code> &#x2F; <code>@GetMapping</code></td>
+<td>绑定 POST&#x2F;GET 路由</td>
+</tr>
+<tr>
+<td><code>@RequestBody</code></td>
+<td>把请求体反序列化为对象（RPA 结果回调用）</td>
+</tr>
+<tr>
+<td><code>@Scheduled</code></td>
+<td>定时任务，配合 <code>@EnableScheduling</code></td>
+</tr>
+<tr>
+<td><code>@EnableScheduling</code></td>
+<td>开启调度</td>
+</tr>
+<tr>
+<td><code>@Service</code> &#x2F; <code>@Component</code></td>
+<td>业务&#x2F;通用组件</td>
+</tr>
+</tbody></table>
+<p>把这些注解讲顺，面试官就知道你能独立搭一个最小服务：接收 RPA 结果，定时触发任务。你不只是会写脚本。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>怎么收 RPA 结果</td>
+<td><code>@RestController</code> + <code>@PostMapping</code> 接 JSON 回调</td>
+<td>失败怎么重试</td>
+</tr>
+<tr>
+<td>怎么定时触发</td>
+<td><code>@EnableScheduling</code> + <code>@Scheduled(cron=...)</code></td>
+<td>cron 表达式会写吗</td>
+</tr>
+<tr>
+<td>结果落库前做什么</td>
+<td>校验字段、按业务键幂等、写审计日志</td>
+<td>重复回调呢</td>
+</tr>
+</tbody></table>
+<h3 id="4-13-并发常见陷阱"><a href="#4-13-并发常见陷阱" class="headerlink" title="4.13 并发常见陷阱"></a>4.13 并发常见陷阱</h3><table>
+<thead>
+<tr>
+<th>陷阱</th>
+<th>表现</th>
+<th>解法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>共享可变状态</td>
+<td>多线程改同一 Map 丢数据</td>
+<td>用 ConcurrentHashMap 或同步</td>
+</tr>
+<tr>
+<td>死锁</td>
+<td>两线程互等对方锁</td>
+<td>固定加锁顺序、用 tryLock 超时</td>
+</tr>
+<tr>
+<td>线程池打满</td>
+<td>任务堆积、响应变慢</td>
+<td>合理core&#x2F;max、配队列与拒绝策略</td>
+</tr>
+<tr>
+<td>volatile 误用</td>
+<td>认为 volatile 保证复合操作原子</td>
+<td>计数用 AtomicLong</td>
+</tr>
+<tr>
+<td>虚拟线程里用 synchronized  pin</td>
+<td>虚拟线程被平台线程钉住</td>
+<td>长临界区改 ReentrantLock</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多线程共享 Map 怎么办</td>
+<td>用 ConcurrentHashMap，别用裸 HashMap</td>
+<td>复合操作为何仍要锁</td>
+</tr>
+<tr>
+<td>线程池怎么设</td>
+<td>IO 密集多线程、CPU 密集少线程，配拒绝策略</td>
+<td>打满了呢</td>
+</tr>
+<tr>
+<td>volatile 保证原子吗</td>
+<td>不，只保证可见，复合操作用 Atomic</td>
+<td>计数怎么写</td>
+</tr>
+</tbody></table>
+<h2 id="五、AI-应用（JD-加分项）"><a href="#五、AI-应用（JD-加分项）" class="headerlink" title="五、AI 应用（JD 加分项）"></a>五、AI 应用（JD 加分项）</h2><h3 id="5-1-用-LLM-辅助编程的真实工作流"><a href="#5-1-用-LLM-辅助编程的真实工作流" class="headerlink" title="5.1 用 LLM 辅助编程的真实工作流"></a>5.1 用 LLM 辅助编程的真实工作流</h3><p>需求拆解 → 生成代码 → review（人工 + lint&#x2F;test）→ 补单测 → 跑通 → 写文档。ChatGPT&#x2F;Claude&#x2F;Gemini 用来做调研、排错、写文档，但生成代码必须过单测和人工 review 才进库，不是直接贴进生产。</p>
+<h3 id="5-2-提示工程要点"><a href="#5-2-提示工程要点" class="headerlink" title="5.2 提示工程要点"></a>5.2 提示工程要点</h3><p>清晰角色、任务、上下文、输出格式、约束。Few-shot 给样例。分步骤。让模型先思考（CoT）。避免歧义。给 RPA 写提示时把「可用的指令清单、字段名、输出 schema」写死，减少幻觉。</p>
+<h3 id="5-3-Function-Calling-Tool-Use"><a href="#5-3-Function-Calling-Tool-Use" class="headerlink" title="5.3 Function Calling &#x2F; Tool Use"></a>5.3 Function Calling &#x2F; Tool Use</h3><p>模型输出结构化「调用某函数 + 参数」，由宿主执行后把结果回传模型继续推理。这是 Agent 调用真实工具（查库存、发邮件、调 API）的基础。OpenAI&#x2F;Anthropic&#x2F;Google 都支持。</p>
+<h3 id="5-4-Agent-编排与-MCP"><a href="#5-4-Agent-编排与-MCP" class="headerlink" title="5.4 Agent 编排与 MCP"></a>5.4 Agent 编排与 MCP</h3><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LangChain &#x2F; LangGraph</td>
+<td>编排库，适合写复杂 Agent 与状态图</td>
+</tr>
+<tr>
+<td>Dify &#x2F; Coze</td>
+<td>无代码 Agent 平台，可视化拼装工作流</td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>Model Context Protocol，Anthropic 于 2024-11-25 开源的开放标准，把 LLM 连到外部工具&#x2F;数据源（类似「AI 的 USB-C」）；影刀、UiPath 均已接入</td>
+</tr>
+</tbody></table>
+<h3 id="5-5-RAG-与评测指标"><a href="#5-5-RAG-与评测指标" class="headerlink" title="5.5 RAG 与评测指标"></a>5.5 RAG 与评测指标</h3><p>RAG 流程：文档切分 → embedding 向量化 → 存入向量库 → 召回 top-k → rerank → 拼进 prompt 生成。</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hit@k</td>
+<td>前 k 个结果里是否命中相关内容</td>
+</tr>
+<tr>
+<td>Recall@k</td>
+<td>前 k 个结果召回的相关占比</td>
+</tr>
+<tr>
+<td>MRR</td>
+<td>首个相关结果排名倒数的均值</td>
+</tr>
+<tr>
+<td>NDCG</td>
+<td>考虑排序位置的增益</td>
+</tr>
+</tbody></table>
+<h3 id="5-6-幻觉与护栏"><a href="#5-6-幻觉与护栏" class="headerlink" title="5.6 幻觉与护栏"></a>5.6 幻觉与护栏</h3><p>幻觉是模型编造不实内容。缓解：RAG 给据、引用来源、约束输出、人工复核。护栏：输入校验、输出过滤、权限最小化、限流。</p>
+<h3 id="5-7-成本控制"><a href="#5-7-成本控制" class="headerlink" title="5.7 成本控制"></a>5.7 成本控制</h3><p>缓存重复请求、按任务选小模型、限制 token、批量调用。长文本摘要用小模型，复杂推理用大模型。</p>
+<h3 id="5-8-用-LLM-提升-RPA-的四种真实做法"><a href="#5-8-用-LLM-提升-RPA-的四种真实做法" class="headerlink" title="5.8 用 LLM 提升 RPA 的四种真实做法"></a>5.8 用 LLM 提升 RPA 的四种真实做法</h3><table>
+<thead>
+<tr>
+<th>做法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>自然语言生成流程</td>
+<td>把业务描述交给 LLM，生成 RPA 流程骨架或指令序列，人工校验后落地</td>
+</tr>
+<tr>
+<td>异常日志自动归类</td>
+<td>把报错日志喂给 LLM，自动分类（元素失效&#x2F;网络超时&#x2F;数据异常）并给修复建议</td>
+</tr>
+<tr>
+<td>OCR + LLM 抽取单据</td>
+<td>先 OCR 出非结构化单据文本&#x2F;版面，再 LLM 抽取字段（金额、税号、日期）</td>
+</tr>
+<tr>
+<td>视觉定位失效元素</td>
+<td>选择器失效时，用 LLM 视觉能力识别页面元素位置，兜底重定位</td>
+</tr>
+</tbody></table>
+<h3 id="5-9-「AI-自动化工程师」与「AI-应用测试」的差别"><a href="#5-9-「AI-自动化工程师」与「AI-应用测试」的差别" class="headerlink" title="5.9 「AI 自动化工程师」与「AI 应用测试」的差别"></a>5.9 「AI 自动化工程师」与「AI 应用测试」的差别</h3><p>AI 自动化工程师：用 RPA&#x2F;脚本把业务自动化，并在流程里接入 AI 能力提效（生成流程、处理非结构化、兜底定位）。AI 应用测试：测模型的输出是否合理、幻觉、工具调用是否按契约、RAG 召回质量。前者造自动化，后者验证 AI 产出。本岗是前者，但懂测试思维能让你交付更稳。</p>
+<h3 id="5-10-你自己用-AI-做过什么"><a href="#5-10-你自己用-AI-做过什么" class="headerlink" title="5.10 你自己用 AI 做过什么"></a>5.10 你自己用 AI 做过什么</h3><p>用简历里的三个项目把「AI 应用经验」和「工程严谨性」讲出来，不编新项目新数字。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>技术栈（已核实）</th>
+<th>能讲的 AI &#x2F; 工程严谨点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>踏浪 AI 中心</td>
+<td>RAG 评测、分层会话记忆、单测有效性、变异验证</td>
+<td>评测 RAG 用 Hit@k&#x2F;Recall@k&#x2F;MRR；分层会话记忆（短期摘要 + 长期事实）；单测有效性（断言能抓住改坏实现）；变异验证验证用例真有用</td>
+</tr>
+<tr>
+<td>VidDigest</td>
+<td>Python + FastAPI + SQLite + SSE + Vue3</td>
+<td>pytest 分库建用例（每用例独立临时库、跑完销毁）；SSE 契约断言（逐字段断 event&#x2F;data&#x2F;结束标记）；密钥扫描；429 限流断言</td>
+</tr>
+<tr>
+<td>Vapor 优选</td>
+<td>SpringBoot + MySQL + Redis + Lua + Kafka 秒杀</td>
+<td>Redis + Lua 原子扣减（资格校验与库存扣减一次原子执行）；幂等；先更库后删缓存 + MQ 补偿保证最终一致</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>你用 AI 做过什么</td>
+<td>三个项目里用 LLM 做 RAG 评测、SSE 流式断言、秒杀一致性校验，都过了单测</td>
+<td>怎么证明单测有用</td>
+</tr>
+<tr>
+<td>怎么用 LLM 提效 RPA</td>
+<td>生成流程骨架、异常日志归类、OCR+LLM 抽单据、视觉兜底定位</td>
+<td>哪个最实用</td>
+</tr>
+<tr>
+<td>幻觉怎么防</td>
+<td>RAG 给据 + 引用来源 + 人工复核 + 输出约束</td>
+<td>出错了谁兜底</td>
+</tr>
+<tr>
+<td>MCP 是什么</td>
+<td>2024-11-25 开源的开放标准，把 LLM 接外部工具，像 AI 的 USB-C</td>
+<td>影刀接了 MCP 吗（接了）</td>
+</tr>
+</tbody></table>
+<h3 id="5-11-提示词模板与-Agent-循环示例"><a href="#5-11-提示词模板与-Agent-循环示例" class="headerlink" title="5.11 提示词模板与 Agent 循环示例"></a>5.11 提示词模板与 Agent 循环示例</h3><p>给 RPA 用的抽取提示词模板（把可用字段和输出 schema 写死，减少幻觉）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">你是从电商订单单据抽取字段的助手。</span><br><span class="line">可用字段：订单号、买家、金额、币种、收货地址、下单时间。</span><br><span class="line">只输出 JSON，键严格用上面字段名，缺失填 null，不要解释。</span><br><span class="line">单据文本：</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">&#123;ocr_text&#125;</span><br><span class="line">&quot;&quot;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>最小 Agent 循环（思路，不依赖具体框架）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="keyword">not</span> done:</span><br><span class="line">    plan = llm.decide(context)          <span class="comment"># 模型决定下一步</span></span><br><span class="line">    <span class="keyword">if</span> plan.tool_call:                   <span class="comment"># Function Calling</span></span><br><span class="line">        result = run_tool(plan.tool_call) <span class="comment"># 宿主执行真实工具</span></span><br><span class="line">        context.append(result)           <span class="comment"># 结果回传模型</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        answer = plan.final             <span class="comment"># 无需工具，给出答案</span></span><br><span class="line">        done = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>Agent 和 RPA 的结合点：模型负责「下一步做什么」（选哪个流程分支、识别失效元素、归类异常），RPA 负责「确定性执行」（点按钮、读写 Excel）。把不确定留给模型，把稳定执行留给脚本。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent 循环怎么写</td>
+<td>模型决策 → 调工具 → 结果回传 → 再决策，直到给出答案</td>
+<td>怎么防止死循环</td>
+</tr>
+<tr>
+<td>提示词怎么防幻觉</td>
+<td>写死字段名和输出 schema，只输出 JSON，缺失填 null</td>
+<td>抽错了谁发现</td>
+</tr>
+<tr>
+<td>RPA 和 Agent 谁执行</td>
+<td>模型决策，RPA 确定性执行</td>
+<td>能全用 Agent 吗（不稳）</td>
+</tr>
+</tbody></table>
+<h3 id="5-12-成本控制与模型选型"><a href="#5-12-成本控制与模型选型" class="headerlink" title="5.12 成本控制与模型选型"></a>5.12 成本控制与模型选型</h3><p>成本控制：缓存重复请求（相同 prompt 不重复调）、按任务选模型（长文本摘要用小模型、复杂推理用大模型）、限制 token 与批量、设预算上限。</p>
+<p>模型选型只写「各有侧重、按任务选型、看最新基准」，不写死某模型绝对第一（能力迭代快）。编码辅助看重代码理解与工具调用，多模态任务看视觉能力，长上下文看窗口与检索。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>怎么控 LLM 成本</td>
+<td>缓存 + 小模型兜底 + 限 token + 批量</td>
+<td>缓存命中率低怎么办</td>
+</tr>
+<tr>
+<td>哪个模型最强</td>
+<td>不写死，各有侧重按任务选型看基准</td>
+<td>你平时用哪个</td>
+</tr>
+<tr>
+<td>小模型能替代吗</td>
+<td>简单抽取&#x2F;摘要可以，复杂推理需大模型</td>
+<td>怎么切分任务</td>
+</tr>
+</tbody></table>
+<h3 id="5-13-RAG-工程化细节（能展开聊）"><a href="#5-13-RAG-工程化细节（能展开聊）" class="headerlink" title="5.13 RAG 工程化细节（能展开聊）"></a>5.13 RAG 工程化细节（能展开聊）</h3><table>
+<thead>
+<tr>
+<th>环节</th>
+<th>要点</th>
+<th>常见坑</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>切分</td>
+<td>按语义&#x2F;固定窗口切，带重叠避免截断</td>
+<td>切太碎丢失上下文</td>
+</tr>
+<tr>
+<td>向量化</td>
+<td>用 embedding 模型转向量，存向量库</td>
+<td>维度&#x2F;模型版本不一致</td>
+</tr>
+<tr>
+<td>召回</td>
+<td>top-k 取相似，可加元数据过滤（时间&#x2F;店铺）</td>
+<td>只靠向量忽略关键词</td>
+</tr>
+<tr>
+<td>重排</td>
+<td>rerank 精排提升相关性</td>
+<td>跳过 rerank 质量下降</td>
+</tr>
+<tr>
+<td>生成</td>
+<td>拼上下文 + 约束输出 + 引用来源</td>
+<td>不引用导致幻觉无据</td>
+</tr>
+</tbody></table>
+<p>RAG 里最容易出问题的是切分和召回，不是模型。面试被问「怎么提升回答质量」，先说切分策略、召回 top-k 与 rerank，再说模型选型。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>怎么提升 RAG 质量</td>
+<td>先调切分&#x2F;召回&#x2F;rerank，再换模型</td>
+<td>召回不准怎么查</td>
+</tr>
+<tr>
+<td>怎么评测 RAG</td>
+<td>Hit@k&#x2F;Recall@k&#x2F;MRR + 人工抽检</td>
+<td>只有准确率够吗</td>
+</tr>
+<tr>
+<td>幻觉怎么从根上减</td>
+<td>RAG 给据 + 引用来源 + 输出约束</td>
+<td>文档没有的答案呢</td>
+</tr>
+</tbody></table>
+<h2 id="六、跨境电商-RPA-场景（差异化亮点）"><a href="#六、跨境电商-RPA-场景（差异化亮点）" class="headerlink" title="六、跨境电商 RPA 场景（差异化亮点）"></a>六、跨境电商 RPA 场景（差异化亮点）</h2><p>这些场景有公开案例佐证，是面试能展开聊的业务面。核心原则：<strong>优先对接平台 Open API &#x2F; ERP API，其次才是 UI 自动化</strong>。</p>
+<h3 id="6-1-场景对照表"><a href="#6-1-场景对照表" class="headerlink" title="6.1 场景对照表"></a>6.1 场景对照表</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>业务动作</th>
+<th>自动化点</th>
+<th>风险点</th>
+<th>验收口径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>订单下载</td>
+<td>从 Amazon&#x2F;Shopee&#x2F;Lazada&#x2F;TikTok Shop&#x2F;Temu 后台批量下订单</td>
+<td>调开放 API 或 UI 抓取，按订单号幂等入库</td>
+<td>登录态失效、分页漏抓、字段不一致</td>
+<td>抓取数 &#x3D; 后台数；金额&#x2F;收货信息一致</td>
+</tr>
+<tr>
+<td>库存同步</td>
+<td>多平台库存与 ERP&#x2F;仓库双向同步，回传店铺后台</td>
+<td>API 双向同步，差异告警</td>
+<td>并发改库存冲突、误差</td>
+<td>同步误差 &lt; 0.5%（公开案例口径）</td>
+</tr>
+<tr>
+<td>价格&#x2F;竞品监控</td>
+<td>监控竞品&#x2F;平台价格变动</td>
+<td>定时采集价格，变动告警</td>
+<td>反爬、页面改版</td>
+<td>采样价与页面一致；告警及时</td>
+</tr>
+<tr>
+<td>物流单号回传</td>
+<td>ERP 发货后把物流单号回传店铺后台</td>
+<td>发货后调 API&#x2F;UI 回填单号</td>
+<td>单号格式错、回传失败</td>
+<td>后台单号与 ERP 一致；失败重试</td>
+</tr>
+<tr>
+<td>ERP 对账</td>
+<td>平台订单&#x2F;退款与 ERP 财务对账</td>
+<td>拉两侧数据按单号匹配，差异表</td>
+<td>字段含义不同导致差异</td>
+<td>差异清单可解释、可人工确认</td>
+</tr>
+<tr>
+<td>多店铺刊登</td>
+<td>商品资料跨平台&#x2F;多站点上架</td>
+<td>模板化生成各平台字段，批量上架</td>
+<td>各平台字段不同、类目限制</td>
+<td>上架成功；类目&#x2F;必填校验通过</td>
+</tr>
+<tr>
+<td>报表汇总</td>
+<td>汇总销售&#x2F;广告&#x2F;利润报表</td>
+<td>定时拉数据生成 Excel&#x2F;发票</td>
+<td>数据口径、时区</td>
+<td>汇总数与源一致；公式无误</td>
+</tr>
+<tr>
+<td>评价监控</td>
+<td>监控店铺评价，预警差评</td>
+<td>采集评价，差评关键词告警</td>
+<td>语言、emoji、分页</td>
+<td>差评不漏；告警可达</td>
+</tr>
+</tbody></table>
+<h3 id="6-2-没有-API-只能-UI-自动化怎么设计"><a href="#6-2-没有-API-只能-UI-自动化怎么设计" class="headerlink" title="6.2 没有 API 只能 UI 自动化怎么设计"></a>6.2 没有 API 只能 UI 自动化怎么设计</h3><p>以「每天从 3 个平台后台下载订单汇总到 Excel」为例的完整方案：</p>
+<ol>
+<li><strong>登录态</strong>：复用 token&#x2F;cookie，避免每次验证码；失效才重登，重登失败转人工。</li>
+<li><strong>分页抓取</strong>：循环翻页，每页记已抓页码作为检查点；遇到空页或重复末页停止。</li>
+<li><strong>去重键</strong>：订单号为主键，落地前查已处理集合，命中跳过；写 Excel 用 upsert（见第三章 3.3）。</li>
+<li><strong>异常</strong>：元素未找到用 AI 辅助定位重拾 + 退避重试；网络超时重试；业务校验失败记录脏数据跳过并告警；全局兜底截图 + 钉钉告警。</li>
+<li><strong>调度</strong>：APScheduler&#x2F;cron&#x2F;影刀控制台定时凌晨跑；多账号用账号分片防冲突。</li>
+<li><strong>对账</strong>：小批量先和手工核对无误再全量；每日晨间冒烟抽几条跑核心链路。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跨境 RPA 最先做什么</td>
+<td>先查平台&#x2F;ERP 有没有 API，有就对接，没有才 UI</td>
+<td>API 也有坑吗（有，限流&#x2F;字段）</td>
+</tr>
+<tr>
+<td>订单漏抓怎么办</td>
+<td>分页记检查点 + 断点续跑 + 抓取数对账</td>
+<td>对账不一致怎么查</td>
+</tr>
+<tr>
+<td>多平台字段不一样</td>
+<td>建字段映射表统一到内部模型</td>
+<td>映射错了谁发现</td>
+</tr>
+</tbody></table>
+<h3 id="6-3-各场景-API-UI-选型对照"><a href="#6-3-各场景-API-UI-选型对照" class="headerlink" title="6.3 各场景 API &#x2F; UI 选型对照"></a>6.3 各场景 API &#x2F; UI 选型对照</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>优先方案</th>
+<th>无 API 时的 UI 兜底</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>订单下载</td>
+<td>平台开放 API &#x2F; ERP 拉取</td>
+<td>影刀录后台列表，分页抓取</td>
+</tr>
+<tr>
+<td>库存同步</td>
+<td>ERP&#x2F;平台库存 API 双向</td>
+<td>读后台库存页回写</td>
+</tr>
+<tr>
+<td>价格&#x2F;竞品监控</td>
+<td>平台价格 API &#x2F; 官方数据</td>
+<td>采集器定时抓页面</td>
+</tr>
+<tr>
+<td>物流单号回传</td>
+<td>发货 API 回填</td>
+<td>后台表单自动填单号</td>
+</tr>
+<tr>
+<td>ERP 对账</td>
+<td>两侧 API 拉数据匹配</td>
+<td>导出 Excel 后 Python 比对</td>
+</tr>
+<tr>
+<td>多店铺刊登</td>
+<td>平台刊登 API</td>
+<td>模板填表逐站提交</td>
+</tr>
+<tr>
+<td>报表汇总</td>
+<td>数据 API 聚合</td>
+<td>后台导出后 openpyxl 汇总</td>
+</tr>
+<tr>
+<td>评价监控</td>
+<td>评价 API &#x2F; 官方</td>
+<td>采集评价页关键词告警</td>
+</tr>
+</tbody></table>
+<p>选型原则不变：能用 API 解决的绝不上 UI 录制。录制只在「无 API 或 API 能力不足」时兜底。UI 兜底也要按第二章的幂等、重试、断点续跑、告警来做，不是录完就完。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>哪个场景最该先自动化</td>
+<td>订单下载，高频、规则稳、对账价值高</td>
+<td>为什么不是库存</td>
+</tr>
+<tr>
+<td>对账用 UI 还是 API</td>
+<td>能 API 就 API，不行导 Excel 用 Python 比</td>
+<td>比出来不一致怎么处理</td>
+</tr>
+<tr>
+<td>UI 兜底也要工程化吗</td>
+<td>要，幂等重试断点告警一样不能少</td>
+<td>和 API 方案差在哪</td>
+</tr>
+</tbody></table>
+<h3 id="6-4-上线验收核对清单"><a href="#6-4-上线验收核对清单" class="headerlink" title="6.4 上线验收核对清单"></a>6.4 上线验收核对清单</h3><table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>通过标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据量</td>
+<td>抓取&#x2F;同步条数 &#x3D; 源系统条数（误差 0）</td>
+</tr>
+<tr>
+<td>字段</td>
+<td>金额、币种、收货信息、时间格式与源一致</td>
+</tr>
+<tr>
+<td>幂等</td>
+<td>重跑整批不重复落库、不重复下单</td>
+</tr>
+<tr>
+<td>异常</td>
+<td>脏数据进差异表，不污染主表，有告警</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>定时触发成功，多账号分片无冲突</td>
+</tr>
+<tr>
+<td>对账</td>
+<td>小批量与手工核对一致后再全量</td>
+</tr>
+<tr>
+<td>告警</td>
+<td>失败能推送到钉钉&#x2F;邮件，有人响应</td>
+</tr>
+<tr>
+<td>回滚</td>
+<td>异常可一键回退上一版本</td>
+</tr>
+</tbody></table>
+<p>验收不通过不上全量。这条清单本身就能当笔试主观题的答题骨架。</p>
+<h2 id="七、自动化测试（自动化工程师视角）"><a href="#七、自动化测试（自动化工程师视角）" class="headerlink" title="七、自动化测试（自动化工程师视角）"></a>七、自动化测试（自动化工程师视角）</h2><p>不重写测试理论，只讲 RPA&#x2F;自动化工程师要会的那部分。</p>
+<h3 id="7-1-RPA-脚本单测怎么写"><a href="#7-1-RPA-脚本单测怎么写" class="headerlink" title="7.1 RPA 脚本单测怎么写"></a>7.1 RPA 脚本单测怎么写</h3><p><strong>mock 外部系统</strong>（平台后台&#x2F;ERP&#x2F;浏览器），只测业务逻辑。UI 层用契约&#x2F;录制回放验证，不进单测。</p>
+<table>
+<thead>
+<tr>
+<th>该测</th>
+<th>不该测</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>解析（HTML&#x2F;JSON → 字段）</td>
+<td>真实点击浏览器</td>
+</tr>
+<tr>
+<td>幂等（重复输入不重复落库）</td>
+<td>真实调外部 API</td>
+</tr>
+<tr>
+<td>重试（失败按策略重试）</td>
+<td>真实登录态</td>
+</tr>
+<tr>
+<td>字段映射（多平台 → 内部模型）</td>
+<td>网络本身</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> unittest.mock <span class="keyword">import</span> patch</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_parse_order_idempotent</span>():</span><br><span class="line">    rows = [&#123;<span class="string">&quot;order_id&quot;</span>: <span class="string">&quot;A1&quot;</span>, <span class="string">&quot;amount&quot;</span>: <span class="number">10</span>&#125;, &#123;<span class="string">&quot;order_id&quot;</span>: <span class="string">&quot;A1&quot;</span>, <span class="string">&quot;amount&quot;</span>: <span class="number">10</span>&#125;]</span><br><span class="line">    <span class="keyword">with</span> patch(<span class="string">&quot;__main__.upsert_rows&quot;</span>) <span class="keyword">as</span> m:</span><br><span class="line">        <span class="keyword">for</span> r <span class="keyword">in</span> rows:</span><br><span class="line">            upsert_rows(<span class="string">&quot;x.xlsx&quot;</span>, [r])</span><br><span class="line">    <span class="comment"># 幂等：同一 order_id 只 upsert 一次</span></span><br><span class="line">    <span class="keyword">assert</span> m.call_count == <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-Playwright-vs-Selenium"><a href="#7-2-Playwright-vs-Selenium" class="headerlink" title="7.2 Playwright vs Selenium"></a>7.2 Playwright vs Selenium</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Playwright</th>
+<th>Selenium</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>等待</td>
+<td>自动等待（auto-wait）</td>
+<td>需显式等待，flaky 更高</td>
+</tr>
+<tr>
+<td>浏览器</td>
+<td>Chromium&#x2F;WebKit&#x2F;Firefox 统一 API</td>
+<td>生态大、兼容旧浏览器多</td>
+</tr>
+<tr>
+<td>默认</td>
+<td>无头、内置驱动</td>
+<td>需配 driver</td>
+</tr>
+<tr>
+<td>现代 Web</td>
+<td>更稳</td>
+<td>老牌但易抖</td>
+</tr>
+</tbody></table>
+<h3 id="7-3-接口自动化最小可用模板"><a href="#7-3-接口自动化最小可用模板" class="headerlink" title="7.3 接口自动化最小可用模板"></a>7.3 接口自动化最小可用模板</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests, pytest</span><br><span class="line"><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel, ValidationError</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Order</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    order_id: <span class="built_in">str</span></span><br><span class="line">    amount: <span class="built_in">float</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_orders_api</span>():</span><br><span class="line">    r = requests.get(<span class="string">&quot;https://api.example.com/orders&quot;</span>, timeout=<span class="number">10</span>)</span><br><span class="line">    <span class="keyword">assert</span> r.status_code == <span class="number">200</span></span><br><span class="line">    data = r.json()</span><br><span class="line">    <span class="keyword">assert</span> <span class="string">&quot;items&quot;</span> <span class="keyword">in</span> data</span><br><span class="line">    <span class="keyword">for</span> it <span class="keyword">in</span> data[<span class="string">&quot;items&quot;</span>]:</span><br><span class="line">        Order(**it)  <span class="comment"># schema 校验</span></span><br></pre></td></tr></table></figure>
+
+<p><code>requests</code> + <code>pytest</code> 断言状态码&#x2F;JSON 字段，用 <code>pydantic</code>&#x2F;<code>jsonschema</code> 做 schema 校验。</p>
+<h3 id="7-4-CI-跑自动化（GitHub-Actions）"><a href="#7-4-CI-跑自动化（GitHub-Actions）" class="headerlink" title="7.4 CI 跑自动化（GitHub Actions）"></a>7.4 CI 跑自动化（GitHub Actions）</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">rpa-tests</span></span><br><span class="line"><span class="attr">on:</span> [<span class="string">push</span>, <span class="string">pull_request</span>]</span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">test:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/checkout@v4</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/setup-python@v5</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">python-version:</span> <span class="string">&quot;3.12&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">pip</span> <span class="string">install</span> <span class="string">-r</span> <span class="string">requirements.txt</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">pytest</span> <span class="string">--cov=src</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="7-5-脚本-flaky-治理"><a href="#7-5-脚本-flaky-治理" class="headerlink" title="7.5 脚本 flaky 治理"></a>7.5 脚本 flaky 治理</h3><table>
+<thead>
+<tr>
+<th>抖动来源</th>
+<th>治理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>元素未稳定</td>
+<td>显式等待 + 稳定选择器，不 sleep 硬编码</td>
+</tr>
+<tr>
+<td>网络波动</td>
+<td>重试 + 超时配置</td>
+</tr>
+<tr>
+<td>数据污染</td>
+<td>每用例独立环境&#x2F;临时库，跑完销毁</td>
+</tr>
+<tr>
+<td>环境差异</td>
+<td>固定依赖版本，容器化运行</td>
+</tr>
+</tbody></table>
+<h3 id="7-6-覆盖率口径"><a href="#7-6-覆盖率口径" class="headerlink" title="7.6 覆盖率口径"></a>7.6 覆盖率口径</h3><p><code>pytest --cov</code> &#x2F; <code>coverage.py</code> 看行覆盖与分支覆盖。**别盲目追 100%**，优先覆盖核心解析&#x2F;幂等&#x2F;重试逻辑与异常分支，业务不常走的边角不强行凑数。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RPA 脚本怎么单测</td>
+<td>mock 外部系统，只测解析&#x2F;幂等&#x2F;重试</td>
+<td>UI 层怎么验</td>
+</tr>
+<tr>
+<td>覆盖率要 100% 吗</td>
+<td>不，优先核心逻辑与异常分支</td>
+<td>哪些分支可以放过</td>
+</tr>
+<tr>
+<td>Playwright 比 Selenium 好在哪</td>
+<td>自动等待更稳、flaky 更少</td>
+<td>旧浏览器兼容呢</td>
+</tr>
+</tbody></table>
+<h3 id="7-7-mock-外部系统与数据驱动实例"><a href="#7-7-mock-外部系统与数据驱动实例" class="headerlink" title="7.7 mock 外部系统与数据驱动实例"></a>7.7 mock 外部系统与数据驱动实例</h3><p>用 <code>pytest-mock</code> 替掉网络调用，只测解析逻辑：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">test_parse_order</span>(<span class="params">mocker</span>):</span><br><span class="line">    fake = mocker.patch(<span class="string">&quot;requests.get&quot;</span>)</span><br><span class="line">    fake.return_value.json.return_value = &#123;<span class="string">&quot;items&quot;</span>: [&#123;<span class="string">&quot;order_id&quot;</span>: <span class="string">&quot;A1&quot;</span>&#125;]&#125;</span><br><span class="line">    data = fetch_orders(<span class="string">&quot;https://api.example.com/orders&quot;</span>)</span><br><span class="line">    <span class="keyword">assert</span> data[<span class="string">&quot;items&quot;</span>][<span class="number">0</span>][<span class="string">&quot;order_id&quot;</span>] == <span class="string">&quot;A1&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>数据驱动读用例文件（接口自动化常见）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json, pytest, requests</span><br><span class="line"></span><br><span class="line">cases = json.load(<span class="built_in">open</span>(<span class="string">&quot;cases/orders.json&quot;</span>))</span><br><span class="line"><span class="meta">@pytest.mark.parametrize(<span class="params"><span class="string">&quot;case&quot;</span>, cases</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_orders</span>(<span class="params"><span class="keyword">case</span></span>):</span><br><span class="line">    r = requests.get(<span class="keyword">case</span>[<span class="string">&quot;url&quot;</span>], timeout=<span class="number">10</span>)</span><br><span class="line">    <span class="keyword">assert</span> r.status_code == <span class="keyword">case</span>[<span class="string">&quot;expect_status&quot;</span>]</span><br><span class="line">    <span class="keyword">assert</span> r.json()[<span class="string">&quot;code&quot;</span>] == <span class="keyword">case</span>[<span class="string">&quot;expect_code&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>UI 层不进单测，用「契约&#x2F;录制回放」验证：录制一次成功操作的指令序列，回归时重放并比对输出，不一致就告警。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mock 和真实调用区别</td>
+<td>mock 隔离外部，单测只验逻辑；集成测才真调</td>
+<td>集成测怎么做</td>
+</tr>
+<tr>
+<td>数据驱动好处</td>
+<td>用例和数据分离，加场景只改 JSON</td>
+<td>失败怎么定位哪条</td>
+</tr>
+<tr>
+<td>UI 怎么保证不回归</td>
+<td>录制回放比对输出 + 每日冒烟</td>
+<td>页面改版会怎样</td>
+</tr>
+</tbody></table>
+<h3 id="7-8-CI-失败归因"><a href="#7-8-CI-失败归因" class="headerlink" title="7.8 CI 失败归因"></a>7.8 CI 失败归因</h3><p>自动化红了先分三类，再决定谁修：</p>
+<table>
+<thead>
+<tr>
+<th>红的类型</th>
+<th>特征</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>环境</td>
+<td>连不上数据库&#x2F;网络、依赖装不上</td>
+<td>修环境&#x2F;锁版本，不怪用例</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>测试库被污染、脏数据、并发串</td>
+<td>独立临时库、清空重跑</td>
+</tr>
+<tr>
+<td>真缺陷</td>
+<td>断言失败且代码确实改坏</td>
+<td>提 bug，定位最小复现</td>
+</tr>
+</tbody></table>
+<p>维护阶段只看两个指标：通过率与失败归因分布。一片红先分清是环境、数据还是真缺陷，别上来就改用例。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CI 红了一片先做什么</td>
+<td>先分环境&#x2F;数据&#x2F;真缺陷三类</td>
+<td>怎么快速区分</td>
+</tr>
+<tr>
+<td>用例 flaky 能忽略吗</td>
+<td>不能，先定位原因再修，否则掩盖真问题</td>
+<td>怎么降 flaky</td>
+</tr>
+<tr>
+<td>测试库污染怎么防</td>
+<td>每用例独立临时库、跑完销毁</td>
+<td>共享库会怎样</td>
+</tr>
+</tbody></table>
+<h3 id="7-9-测试金字塔一分钟话术"><a href="#7-9-测试金字塔一分钟话术" class="headerlink" title="7.9 测试金字塔一分钟话术"></a>7.9 测试金字塔一分钟话术</h3><table>
+<thead>
+<tr>
+<th>层</th>
+<th>占比</th>
+<th>说什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单元</td>
+<td>最多</td>
+<td>解析&#x2F;幂等&#x2F;重试纯函数，mock 外部，跑得快</td>
+</tr>
+<tr>
+<td>接口</td>
+<td>居中</td>
+<td>契约断言 + schema 校验，进 CI 每次回归</td>
+</tr>
+<tr>
+<td>UI&#x2F;端到端</td>
+<td>最少</td>
+<td>只保主流程冒烟，贵且 flaky，不铺满</td>
+</tr>
+</tbody></table>
+<p>被问「自动化测试怎么投」，答：单元多、接口居中、UI 最少。RPA 脚本把解析和幂等做成单测，UI 只留主流程冒烟。</p>
+<h2 id="八、逻辑思维笔试速成（博客空缺）"><a href="#八、逻辑思维笔试速成（博客空缺）" class="headerlink" title="八、逻辑思维笔试速成（博客空缺）"></a>八、逻辑思维笔试速成（博客空缺）</h2><p>笔试是逻辑选择题 + 主观题。下面六类套路练熟，选择题不慌。</p>
+<h3 id="8-1-数字推理"><a href="#8-1-数字推理" class="headerlink" title="8.1 数字推理"></a>8.1 数字推理</h3><p>题型识别：给一串数求下一个。套路：先算相邻差&#x2F;比，再看平方&#x2F;立方&#x2F;递推&#x2F;隔项。</p>
+<ol>
+<li>2,5,8,11,? → <strong>14</strong>（等差 +3）</li>
+<li>3,6,12,24,? → <strong>48</strong>（等比 ×2）</li>
+<li>1,1,2,3,5,8,? → <strong>13</strong>（斐波那契 aₙ&#x3D;aₙ₋₁+aₙ₋₂）</li>
+<li>1,4,9,16,? → <strong>25</strong>（平方 n²）</li>
+<li>2,6,12,20,? → <strong>30</strong>（n×(n+1)）</li>
+</ol>
+<p>限时：每题不超 40 秒，算不出先跳。</p>
+<h3 id="8-2-图形推理"><a href="#8-2-图形推理" class="headerlink" title="8.2 图形推理"></a>8.2 图形推理</h3><p>题型识别：给图找规律。套路：旋转&#x2F;翻转&#x2F;平移、数元素个数&#x2F;种类、对称&#x2F;封闭&#x2F;笔画、叠加求同求异、位置遍历。</p>
+<ol>
+<li>每行图形依次旋转 90° → 缺失图是上一图再顺时针转 90°。</li>
+<li>○个数 1,2,3,4 → 下一图 5 个○。</li>
+<li>轴对称→中心对称→既是 → 按对称类型推进。</li>
+<li>两图叠加去同存异 → 套规则得结果图。</li>
+<li>小图形在大框内顺时针移动 → 按位置规律定位。</li>
+</ol>
+<h3 id="8-3-类比推理"><a href="#8-3-类比推理" class="headerlink" title="8.3 类比推理"></a>8.3 类比推理</h3><p>题型识别：A : B &#x3D; C : ?。套路：先定关系类型（功能&#x2F;场所&#x2F;组成&#x2F;种属&#x2F;反义&#x2F;因果），再匹配。</p>
+<ol>
+<li>医生 : 医院 &#x3D; 教师 : <strong>学校</strong>（职业:场所）</li>
+<li>笔 : 写字 &#x3D; 刀 : <strong>切割</strong>（工具:功能）</li>
+<li>苹果 : 水果 &#x3D; 玫瑰 : <strong>花卉</strong>（种:属）</li>
+<li>部分 : 整体 &#x3D; 叶 : <strong>树</strong>（组成）</li>
+<li>冷 : 热 &#x3D; 静 : <strong>动</strong>（反义）</li>
+</ol>
+<h3 id="8-4-逻辑判断"><a href="#8-4-逻辑判断" class="headerlink" title="8.4 逻辑判断"></a>8.4 逻辑判断</h3><p>题型识别：充分必要、真假话、矛盾、三段论。套路：充分必要别颠倒。真假话用假设法&#x2F;矛盾法。三段论看中项。</p>
+<ol>
+<li>「下雨→地湿」。地湿了能推出下雨吗？→ <strong>不能</strong>（肯定后件不成立）。</li>
+<li>A→B 中 A 是 B 的充分条件，B 是 A 的必要条件。</li>
+<li>甲乙丙一人真两人假：「甲说乙假，乙说丙假，丙说甲乙都假」。→ <strong>乙真</strong>（假设法逐一验证，仅乙真自洽）。</li>
+<li>「所有鸟会飞」「有的鸟不会飞」→ <strong>矛盾关系，必一真一假</strong>。</li>
+<li>所有人会死，苏格拉底是人 → <strong>苏格拉底会死</strong>（有效三段论）。</li>
+</ol>
+<h3 id="8-5-资料分析"><a href="#8-5-资料分析" class="headerlink" title="8.5 资料分析"></a>8.5 资料分析</h3><p>题型识别：给数据算增长率&#x2F;占比&#x2F;平均。套路：先定位指标定义再算。</p>
+<ol>
+<li>去年 100 万今年 120 万 → 增长率 **20%**（(120-100)&#x2F;100）。</li>
+<li>A 占 30%、总量 500 → A&#x3D;<strong>150</strong>。</li>
+<li>同比&#x3D;与上年同期比；环比&#x3D;与上一周期比。</li>
+<li>平均数&#x3D;总量&#x2F;个数；中位数&#x3D;排序后中间值。</li>
+<li>部分增速 &gt; 整体增速 → 比重上升（增速差决定升降）。</li>
+</ol>
+<h3 id="8-6-情境判断（业务面常见）"><a href="#8-6-情境判断（业务面常见）" class="headerlink" title="8.6 情境判断（业务面常见）"></a>8.6 情境判断（业务面常见）</h3><p>题型识别：给工作场景问你怎么处理。套路：先止损&#x2F;告警，再定位根因，再加固（幂等&#x2F;备份&#x2F;监控）。</p>
+<ol>
+<li>流程半夜跑失败、业务早上才发现 → 加失败告警（钉钉&#x2F;邮件）+ 自动重试 + 断点续跑 + 晨间冒烟。</li>
+<li>两平台字段含义不同导致对账差异 → 建字段映射表 + 数据校验 + 差异告警人工确认。</li>
+<li>RPA 误删数据 → 操作前备份&#x2F;软删除 + 幂等 + 权限最小化 + 审计日志。</li>
+<li>平台限流导致抓取失败 → 退避重试 + 感知 429 降速 + 分时段错峰调度。</li>
+<li>同事误改选择器导致全流程挂 → 版本回滚 + 灰度发布 + 关键选择器代码评审。</li>
+</ol>
+<h3 id="8-7-笔试时间不够怎么取舍"><a href="#8-7-笔试时间不够怎么取舍" class="headerlink" title="8.7 笔试时间不够怎么取舍"></a>8.7 笔试时间不够怎么取舍</h3><p>先抢「确定性高分」：数字&#x2F;类比&#x2F;资料分析这类有固定套路的题优先做。图形和情境判断卡住就跳。主观题别空着，按第九章模板写骨架就能拿分。选择题不会用排除法，别在单题磨超过 1 分钟。</p>
+<h3 id="8-8-各题型限时分配（笔试-60-分钟示例）"><a href="#8-8-各题型限时分配（笔试-60-分钟示例）" class="headerlink" title="8.8 各题型限时分配（笔试 60 分钟示例）"></a>8.8 各题型限时分配（笔试 60 分钟示例）</h3><table>
+<thead>
+<tr>
+<th>题型</th>
+<th>建议题量占比</th>
+<th>单题时限</th>
+<th>策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数字&#x2F;类比&#x2F;资料</td>
+<td>40%</td>
+<td>30-40 秒</td>
+<td>有套路的先拿满</td>
+</tr>
+<tr>
+<td>图形推理</td>
+<td>20%</td>
+<td>60 秒</td>
+<td>卡住先跳，最后回头</td>
+</tr>
+<tr>
+<td>逻辑判断</td>
+<td>20%</td>
+<td>60-90 秒</td>
+<td>假设法&#x2F;矛盾法稳做</td>
+</tr>
+<tr>
+<td>情境判断</td>
+<td>10%</td>
+<td>90 秒</td>
+<td>按「止损→根因→加固」答</td>
+</tr>
+<tr>
+<td>主观题</td>
+<td>10%</td>
+<td>留 8-10 分钟</td>
+<td>按第九章骨架写，不空</td>
+</tr>
+</tbody></table>
+<p>总原则：会的先写、不确定的跳、主观不空、单题不磨超过 1 分钟。</p>
+<h3 id="8-9-常见笔试误区"><a href="#8-9-常见笔试误区" class="headerlink" title="8.9 常见笔试误区"></a>8.9 常见笔试误区</h3><table>
+<thead>
+<tr>
+<th>误区</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一道图形题磨 5 分钟</td>
+<td>卡住先跳，最后回头，保其他确定分</td>
+</tr>
+<tr>
+<td>主观题空着</td>
+<td>按第九章骨架写，有结构就有分</td>
+</tr>
+<tr>
+<td>逻辑判断靠语感</td>
+<td>用假设法&#x2F;矛盾法，别凭感觉</td>
+</tr>
+<tr>
+<td>资料分析先算大数</td>
+<td>先定位指标定义，再算，避免单位错</td>
+</tr>
+<tr>
+<td>类比硬凑</td>
+<td>先定关系类型（功能&#x2F;场所&#x2F;种属&#x2F;反义），再匹配</td>
+</tr>
+</tbody></table>
+<p>笔试考的是「在规定时间里拿到最多确定分」，不是每题做对。策略比单题正确率更重要。</p>
+<h2 id="九、主观题模板（笔试主观题-面试开放题共用）"><a href="#九、主观题模板（笔试主观题-面试开放题共用）" class="headerlink" title="九、主观题模板（笔试主观题 + 面试开放题共用）"></a>九、主观题模板（笔试主观题 + 面试开放题共用）</h2><h3 id="9-1-RPA-流程设计题"><a href="#9-1-RPA-流程设计题" class="headerlink" title="9.1 RPA 流程设计题"></a>9.1 RPA 流程设计题</h3><p>题目：「每天从 3 个平台后台下载订单汇总到 Excel」。答题骨架：</p>
+<ol>
+<li><strong>需求澄清</strong>：哪 3 个平台、有无 API、去重键（订单号）、输出 Excel 格式&#x2F;路径、频率时限。</li>
+<li><strong>方案选型</strong>：先查 3 平台是否开放 API &#x2F; 已有 ERP 对接；无 API 才用影刀 UI 自动化。</li>
+<li><strong>流程设计</strong>：登录（token&#x2F;cookie 复用避免每次验证码）→ 分页抓取 → 统一字段映射 → 按订单号幂等合并去重 → 写 Excel（openpyxl）→ 失败重试 + 退避 → 完成通知。</li>
+<li><strong>稳定性</strong>：元素锚点&#x2F;AI 定位、等待、异常捕获截图、断点续跑（记已抓页）。</li>
+<li><strong>调度</strong>：APScheduler&#x2F;cron&#x2F;影刀控制台定时；并发用账号分片防冲突。</li>
+<li><strong>验收</strong>：小批量对账无误再全量；每日冒烟。</li>
+</ol>
+<h3 id="9-2-需求澄清题"><a href="#9-2-需求澄清题" class="headerlink" title="9.2 需求澄清题"></a>9.2 需求澄清题</h3><p>结构：<strong>5W1H + 边界</strong>。谁用、做什么、数据从哪到哪、频率、异常怎么算、成功标准、合规边界。先问清再动手，不急着写代码。</p>
+<h3 id="9-3-异常处理题"><a href="#9-3-异常处理题" class="headerlink" title="9.3 异常处理题"></a>9.3 异常处理题</h3><p>结构：<strong>分层 + 兜底</strong>。UI 层（元素&#x2F;弹窗）→ IO 层（网络&#x2F;超时）→ 数据层（校验）→ 全局（截图 + 告警 + 人工兜底）。强调幂等，避免重复下单&#x2F;重复付款。</p>
+<h3 id="9-4-项目复盘题"><a href="#9-4-项目复盘题" class="headerlink" title="9.4 项目复盘题"></a>9.4 项目复盘题</h3><p>STAR 精简：</p>
+<ul>
+<li><strong>S</strong> 背景：重复手工任务、易错。</li>
+<li><strong>T</strong> 目标：自动化 + 提效 + 降错。</li>
+<li><strong>A</strong> 行动：选型、设计、幂等、监控。</li>
+<li><strong>R</strong> 结果：没数据就写「效率显著提升、错误率下降」，<strong>不编造数字</strong>；有数据再量化。</li>
+<li><strong>改进</strong>：下一步接 API、加告警。</li>
+</ul>
+<h3 id="9-5-文档与培训题"><a href="#9-5-文档与培训题" class="headerlink" title="9.5 文档与培训题"></a>9.5 文档与培训题</h3><table>
+<thead>
+<tr>
+<th>模块</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>操作手册要素</td>
+<td>前置条件（登录&#x2F;权限）、分步截图、常见报错与自救、联系人&#x2F;反馈渠道</td>
+</tr>
+<tr>
+<td>培训流程</td>
+<td>录屏 + 现场跟做一遍 + 留 Q&amp;A 文档</td>
+</tr>
+<tr>
+<td>受众导向</td>
+<td>不用技术黑话，先讲「能帮你省什么」</td>
+</tr>
+<tr>
+<td>边界说明</td>
+<td>哪些自动处理、哪些要人工介入（如验证码）</td>
+</tr>
+</tbody></table>
+<h3 id="9-6-职业规划题"><a href="#9-6-职业规划题" class="headerlink" title="9.6 职业规划题"></a>9.6 职业规划题</h3><p>短期：把影刀&#x2F;RPA 工程化和 Python 基础打牢，独立交付一两个跨境场景自动化。中期：掌握 AI 辅助（LLM&#x2F;Agent）把流程提效，研究 OpenClaw 等新技术。长期：成为能设计 RPA + AI 方案的自动化工程师，覆盖需求分析到上线运维。</p>
+<h3 id="9-7-反问环节清单"><a href="#9-7-反问环节清单" class="headerlink" title="9.7 反问环节清单"></a>9.7 反问环节清单</h3><table>
+<thead>
+<tr>
+<th>反问</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>团队现在用影刀还是其他 RPA，版本企业版吗</td>
+<td>确认技术栈与权限</td>
+</tr>
+<tr>
+<td>跨境场景里最痛的自动化点是哪个</td>
+<td>展示业务理解</td>
+</tr>
+<tr>
+<td>这个实习岗的脚本会进生产吗，有 review 机制吗</td>
+<td>确认工程严谨度</td>
+</tr>
+<tr>
+<td>团队怎么看 AI（LLM&#x2F;Agent）在 RPA 里的角色</td>
+<td>对齐加分项</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>设计题怎么答最稳</td>
+<td>先澄清需求再选型，API 优先，再讲幂等&#x2F;重试&#x2F;调度&#x2F;验收</td>
+<td>没 API 怎么办</td>
+</tr>
+<tr>
+<td>复盘没数据怎么写</td>
+<td>写「效率显著提升、错误率下降」，不编数字</td>
+<td>有数据呢</td>
+</tr>
+<tr>
+<td>给业务培训注意什么</td>
+<td>不讲黑话，先讲省什么，附截图和自救指南</td>
+<td>他们不会用怎么办</td>
+</tr>
+</tbody></table>
+<h3 id="9-8-安全与权限题"><a href="#9-8-安全与权限题" class="headerlink" title="9.8 安全与权限题"></a>9.8 安全与权限题</h3><p>答题骨架：权限最小化（机器人只给必要账号&#x2F;目录）、凭证不硬编码（走环境变量&#x2F;密钥管理）、操作留审计日志、敏感字段不进日志、越权操作要审批。RPA 跑业务账号要和生产账号隔离，测试用测试店铺。</p>
+<h3 id="9-9-数据质量题"><a href="#9-9-数据质量题" class="headerlink" title="9.9 数据质量题"></a>9.9 数据质量题</h3><p>答题骨架：入库前校验（必填、类型、范围、格式）、去重（幂等键）、异常值隔离（脏数据入差异表不进主表）、对账（和源系统比数量与金额）、可追溯（每批带批次号和时间戳）。数据质量差比流程跑不通更危险，因为错数据会静默流进报表。</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>自动化怎么保数据质量</td>
+<td>入库前校验 + 幂等去重 + 脏数据隔离 + 对账</td>
+<td>对账不平怎么办</td>
+</tr>
+<tr>
+<td>RPA 账号怎么管</td>
+<td>权限最小化、凭证不硬编码、测试生产隔离</td>
+<td>凭证泄露谁负责</td>
+</tr>
+<tr>
+<td>脏数据怎么处理</td>
+<td>进差异表隔离，不污染主表，告警人工确认</td>
+<td>误删了能恢复吗</td>
+</tr>
+</tbody></table>
+<h2 id="十、项目追问链"><a href="#十、项目追问链" class="headerlink" title="十、项目追问链"></a>十、项目追问链</h2><p>把三个项目分别映射到本岗追问路径。STAR 精简，每条追问给一句话答法 + 一条翻车点。</p>
+<h3 id="10-1-踏浪-AI-中心（RAG-评测-分层会话记忆-单测有效性-变异验证）"><a href="#10-1-踏浪-AI-中心（RAG-评测-分层会话记忆-单测有效性-变异验证）" class="headerlink" title="10.1 踏浪 AI 中心（RAG 评测 &#x2F; 分层会话记忆 &#x2F; 单测有效性 &#x2F; 变异验证）"></a>10.1 踏浪 AI 中心（RAG 评测 &#x2F; 分层会话记忆 &#x2F; 单测有效性 &#x2F; 变异验证）</h3><p><strong>STAR 精简</strong>：S 团队要建 RAG 知识库问答。T 保证回答质量与记忆连贯。A 做 RAG 评测、分层会话记忆、单测有效性、变异验证。R 单测能抓住改坏实现、记忆分层可用（无数字不编）。</p>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>一句话答法</th>
+<th>翻车点（不要说）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RAG 怎么评测</td>
+<td>用 Hit@k&#x2F;Recall@k&#x2F;MRR 看召回质量</td>
+<td>只说「准确率」不提指标</td>
+</tr>
+<tr>
+<td>分层记忆怎么测</td>
+<td>短期摘要 + 长期事实两层，测四类场景</td>
+<td>把两层说成一层</td>
+</tr>
+<tr>
+<td>单测有效性怎么证明</td>
+<td>断言能抓住真实改动，空洞断言（is not None）重退</td>
+<td>说「跑通就是有用」</td>
+</tr>
+<tr>
+<td>变异验证是什么</td>
+<td>注入变异看用例是否变红，验证真有效</td>
+<td>和单测混为一谈</td>
+</tr>
+<tr>
+<td>和本岗关系</td>
+<td>RAG 评测思路能迁移到 RPA 异常日志归类</td>
+<td>扯远不落地</td>
+</tr>
+</tbody></table>
+<h3 id="10-2-VidDigest（Python-FastAPI-SQLite-SSE-Vue3）"><a href="#10-2-VidDigest（Python-FastAPI-SQLite-SSE-Vue3）" class="headerlink" title="10.2 VidDigest（Python + FastAPI + SQLite + SSE + Vue3）"></a>10.2 VidDigest（Python + FastAPI + SQLite + SSE + Vue3）</h3><p><strong>STAR 精简</strong>：S 视频解析要加 AI 摘要。T 保证接口与流式输出稳。A 用 pytest 分库建用例、SSE 契约逐字段断言、密钥扫描、429 断言。R 回归能抓改动（无数字不编）。</p>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>一句话答法</th>
+<th>翻车点（不要说）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>怎么测 SSE</td>
+<td>按契约逐字段断 event&#x2F;data&#x2F;结束标记，不只看有无返回</td>
+<td>只断「有返回」</td>
+</tr>
+<tr>
+<td>分库用例怎么写</td>
+<td>每用例独立临时库跑完销毁，避免互相污染</td>
+<td>共用一个库导致串</td>
+</tr>
+<tr>
+<td>密钥扫描查什么</td>
+<td>扫代码里硬编码 token&#x2F;密钥，进 CI 拦截</td>
+<td>说没做过</td>
+</tr>
+<tr>
+<td>429 怎么断言</td>
+<td>触发限流断言返回 429 且有重试提示</td>
+<td>忽略限流场景</td>
+</tr>
+<tr>
+<td>和 RPA 关系</td>
+<td>FastAPI 可做 RPA 结果回调服务，思路相通</td>
+<td>否认后端经验</td>
+</tr>
+</tbody></table>
+<h3 id="10-3-Vapor-优选（SpringBoot-MySQL-Redis-Lua-Kafka-秒杀）"><a href="#10-3-Vapor-优选（SpringBoot-MySQL-Redis-Lua-Kafka-秒杀）" class="headerlink" title="10.3 Vapor 优选（SpringBoot + MySQL + Redis + Lua + Kafka 秒杀）"></a>10.3 Vapor 优选（SpringBoot + MySQL + Redis + Lua + Kafka 秒杀）</h3><p><strong>STAR 精简</strong>：S 秒杀要防超卖和重复下单。T 保证一致性与幂等。A Redis+Lua 原子扣减、幂等、先更库后删缓存 + MQ 补偿。R 并发不超卖（无数字不编）。</p>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>一句话答法</th>
+<th>翻车点（不要说）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>不超卖怎么实现</td>
+<td>Redis+Lua 把资格校验与扣减压成一次原子执行</td>
+<td>先查后扣不原子</td>
+</tr>
+<tr>
+<td>重复下单怎么防</td>
+<td>幂等键 + Lua 原子校验，超时重试只成一单</td>
+<td>只说「加锁」</td>
+</tr>
+<tr>
+<td>缓存一致性</td>
+<td>先更库后删缓存 + MQ 补偿保证最终一致</td>
+<td>只删缓存不补偿</td>
+</tr>
+<tr>
+<td>Kafka 干什么</td>
+<td>异步解耦下单与后续处理，削峰</td>
+<td>说不清为什么用</td>
+</tr>
+<tr>
+<td>和 RPA 关系</td>
+<td>高并发一致性设计可迁移到订单同步防重复</td>
+<td>认为用不上 Java</td>
+</tr>
+</tbody></table>
+<h3 id="10-4-三个项目串成一条-RPA-故事线"><a href="#10-4-三个项目串成一条-RPA-故事线" class="headerlink" title="10.4 三个项目串成一条 RPA 故事线"></a>10.4 三个项目串成一条 RPA 故事线</h3><p>面试时把三个项目讲成一条能力链，比孤立罗列更有说服力：</p>
+<ol>
+<li><strong>Vapor 优选</strong>证明你会写「稳的后端」：一致性与幂等、并发不超卖，这是 RPA 落生产前的工程底子。</li>
+<li><strong>VidDigest</strong>证明你会写「带契约的接口与测试」：SSE 逐字段断言、分库用例、429 断言，这是自动化脚本单测与校验的能力。</li>
+<li><strong>踏浪 AI 中心</strong>证明你会「用 AI 提效并验证 AI」：RAG 评测、单测有效性、变异验证，这是把 LLM 接进 RPA 前的评测与护栏能力。</li>
+</ol>
+<p>一句话收尾：「我做过一致性的后端、带契约测试的接口、和 AI 评测，这三块正好对应 RPA 工程化里最难的落地、验证、和 AI 提效。」</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>一句话答</th>
+<th>追问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>三个项目有什么关系</td>
+<td>一条能力链：稳的后端 + 带测试的接口 + AI 评测</td>
+<td>哪个最贴本岗</td>
+</tr>
+<tr>
+<td>没跨境经验怎办</td>
+<td>用一致性和测试经验迁移到订单同步防重复</td>
+<td>业务不懂呢（先学 API）</td>
+</tr>
+</tbody></table>
+<h2 id="十一、明天进门前-20-分钟"><a href="#十一、明天进门前-20-分钟" class="headerlink" title="十一、明天进门前 20 分钟"></a>十一、明天进门前 20 分钟</h2><h3 id="11-1-极简清单（最容易忘的点）"><a href="#11-1-极简清单（最容易忘的点）" class="headerlink" title="11.1 极简清单（最容易忘的点）"></a>11.1 极简清单（最容易忘的点）</h3><ol>
+<li>RPA 适用边界：稳定规则 + 高频 + 有界面无 API。</li>
+<li>API 优先、UI 兜底。</li>
+<li>影刀社区版免费但非商业、有运行时长限制；<code>xbot</code> 不能 pip 装。</li>
+<li>幂等键用业务唯一键，处理前查已处理集合。</li>
+<li>重试加指数退避 + 抖动 + 上限。</li>
+<li>断点续跑靠检查点（页码&#x2F;主键&#x2F;阶段）。</li>
+<li>异常分层：UI→IO→数据→全局兜底截图告警。</li>
+<li>UI 选择器用稳定属性 + AI 辅助，降低脆弱性。</li>
+<li>合规：不绕验证码&#x2F;风控，只做授权内。</li>
+<li>GIL：IO 密集多线程有效，CPU 密集用 multiprocessing。</li>
+<li>3.13 free-threaded 是实验性，不上生产。</li>
+<li>3.12 PEP 695 泛型写法 <code>def f[T](x: T) -&gt; T</code>。</li>
+<li>Java 21 无 String Templates（已撤销），有虚拟线程&#x2F;record&#x2F;sealed。</li>
+<li>checked vs unchecked：IOException 强制处理，RuntimeException 不强制。</li>
+<li>MCP 是 2024-11-25 开源标准，影刀&#x2F;UiPath 已接入。</li>
+<li>RAG 指标：Hit@k&#x2F;Recall@k&#x2F;MRR。</li>
+<li>LLM 提效 RPA 四法：生成流程、异常归类、OCR+LLM 抽单据、视觉兜底。</li>
+<li>覆盖率别追 100%，优先核心逻辑与异常分支。</li>
+<li>OpenClaw 是真实开源 AI Agent 框架，不编内部绑定。</li>
+<li>不会的就诚实说不会，给相邻经验 + 推导。</li>
+</ol>
+<h3 id="11-2-三句自我介绍-项目开场"><a href="#11-2-三句自我介绍-项目开场" class="headerlink" title="11.2 三句自我介绍 &#x2F; 项目开场"></a>11.2 三句自我介绍 &#x2F; 项目开场</h3><ul>
+<li>我是计科 2027 届本科生，方向偏后端和研发效能，会用 Python 和 Java 写自动化。</li>
+<li>我在校级 AI 团队做开发，负责 RAG 评测和单测有效性；也独立做过视频解析加 AI 摘要的项目，用 pytest 写接口和 SSE 回归。</li>
+<li>我还做过秒杀后端，用 Redis+Lua 做原子扣减和幂等，对一致性和健壮性比较在意。</li>
+</ul>
+<h3 id="11-3-三个反问"><a href="#11-3-三个反问" class="headerlink" title="11.3 三个反问"></a>11.3 三个反问</h3><ul>
+<li>团队现在用影刀还是其他 RPA，是企业版吗？</li>
+<li>跨境场景里最痛的自动化点是哪个？</li>
+<li>这个岗的脚本会进生产吗，有 review 和告警机制吗？</li>
+</ul>
+<h3 id="11-4-进场前心态与节奏"><a href="#11-4-进场前心态与节奏" class="headerlink" title="11.4 进场前心态与节奏"></a>11.4 进场前心态与节奏</h3><p>笔试时先扫一遍题型分布，确定高分确定题先做。主观题不空，按第九章骨架写。技术面被问到不会的点，用「诚实边界」那章的话术：说不会、给相邻经验、现场推导。业务面多聊跨境场景和你做过的项目，少背概念。</p>
+<p>节奏：笔试前翻第八章。技术面前把第二、五、六章话术背上。进门先看第十一章清单。把「我会做、我做过、我能落地」三个信号稳定传出去，比每个知识点都答满分更重要。</p>
+<h2 id="十二、诚实边界"><a href="#十二、诚实边界" class="headerlink" title="十二、诚实边界"></a>十二、诚实边界</h2><p>不会的怎么答：明确说不会，给相邻经验（「这个我没直接用过，但我做过类似的 X」），再现场推导思路（「如果是我，会先查 API 文档，再……」）。不编造影刀内部 API 名（如 <code>xbot.orders.download()</code> 这类没公开的方法）和业务数字（订单量、节省工时等没核实的不写）。</p>
+<p>纠偏清单（面试别踩）：</p>
+<table>
+<thead>
+<tr>
+<th>错误说法</th>
+<th>正确事实</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GIL 让 Python 完全不能并发</td>
+<td>IO 密集多线程有效，CPU 密集用 multiprocessing，3.13 实验性无 GIL</td>
+</tr>
+<tr>
+<td>RPA 只能调 API &#x2F; 只能点 UI</td>
+<td>RPA 含 UI、API、数据表、文件；优先 API，UI 是补充</td>
+</tr>
+<tr>
+<td>Java 21 有 String Templates</td>
+<td>已撤销，不是正式特性</td>
+</tr>
+<tr>
+<td><code>xbot</code> 能 pip 装</td>
+<td>影刀内置包，仅流程内可用</td>
+</tr>
+<tr>
+<td>OpenClaw 是骗局</td>
+<td>2026 真实开源 AI Agent 框架</td>
+</tr>
+<tr>
+<td>n8n&#x2F;Dify&#x2F;Coze 就是 RPA</td>
+<td>是 AI 工作流&#x2F;Agent 编排，不操作 Windows 界面</td>
+</tr>
+<tr>
+<td>3.13 free-threaded 可上生产</td>
+<td>实验性，生产谨慎</td>
+</tr>
+<tr>
+<td>RPA 能绕验证码&#x2F;风控</td>
+<td>合规边界，不对抗安全机制</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>收尾：这份笔记偏「能答得上、聊得开」。进门先看第十一章，笔试前翻第八章，技术面把第二、五、六章的话术背上。和上一份软件测试笔记的关系是理论归理论、本文归工程化与 RPA 实战。祝你明天顺利。</p>
+</blockquote>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/AI%E5%BA%94%E7%94%A8/"># AI应用</a>
+          
+          <a href="/tags/Java/"># Java</a>
+          
+          <a href="/tags/Python/"># Python</a>
+          
+          <a href="/tags/RPA/"># RPA</a>
+          
+          <a href="/tags/%E5%BD%B1%E5%88%80/"># 影刀</a>
+          
+          <a href="/tags/%E9%80%9F%E9%80%9A/"># 速通</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+       
+      <a class="next" rel="next" href="/2026/11/04/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91/Spring%20Cloud--%E9%9D%A2%E8%AF%95%E7%AC%94%E8%AE%B0/"
+        >Spring Cloud--面试笔记</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>
