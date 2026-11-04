@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Spring Cloud--面试笔记 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Spring Cloud--面试笔记</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 4, 2026&nbsp;&nbsp;12:00:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91/">软件开发</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<hr>
+<p>Spring Cloud 的面试题几乎都落在一个问题上：服务拆开之后，那些原本由一个进程内完成的事——事务、配置、寻址、限流——该由谁接手。这篇按「全景 → 事务 → 配置 → 注册发现 → 调用 → 稳定性 → 网关与发布」七条线把 55 道题串起来。</p>
+<blockquote>
+<p><strong>怎么用这篇</strong>：<strong>回答重点</strong>是现场能直接说出口的话，先把这段说顺；<strong>拔高</strong>是拉开分差的细节，面试官追问第二层时用。两段的顺序就是回答的顺序。</p>
+<p><strong>关于编号</strong>：标题里的编号是<strong>本文内的阅读顺序</strong>，已经按主题重排过——同一主题的题会连着讲。要找具体题目请用站内搜索。</p>
+</blockquote>
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#%E4%B8%80%E3%80%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%85%A8%E6%99%AF%EF%BC%9A%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E3%80%81%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E4%B8%8E%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA">一、微服务全景：架构演进、核心组件与链路追踪</a></li>
+<li><a href="#%E4%BA%8C%E3%80%81%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%EF%BC%9ASeata-%E7%9A%84%E6%A8%A1%E5%BC%8F%E3%80%81%E5%8E%9F%E7%90%86%E4%B8%8E%E5%9B%9E%E6%BB%9A">二、分布式事务：Seata 的模式、原理与回滚</a></li>
+<li><a href="#%E4%B8%89%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%EF%BC%9ASpring-Cloud-Config-%E4%B8%8E-Nacos">三、配置中心：Spring Cloud Config 与 Nacos</a></li>
+<li><a href="#%E5%9B%9B%E3%80%81%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0%EF%BC%9AEureka%E3%80%81Consul%E3%80%81Nacos%E3%80%81Zookeeper">四、服务注册与发现：Eureka、Consul、Nacos、Zookeeper</a></li>
+<li><a href="#%E4%BA%94%E3%80%81%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8%EF%BC%9A%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E3%80%81Feign-%E4%B8%8E-RPC">五、服务调用：负载均衡、Feign 与 RPC</a></li>
+<li><a href="#%E5%85%AD%E3%80%81%E7%A8%B3%E5%AE%9A%E6%80%A7%EF%BC%9A%E7%86%94%E6%96%AD%E3%80%81%E9%99%8D%E7%BA%A7%E3%80%81%E9%99%90%E6%B5%81%E4%B8%8E%E6%9C%8D%E5%8A%A1%E9%9B%AA%E5%B4%A9">六、稳定性：熔断、降级、限流与服务雪崩</a></li>
+<li><a href="#%E4%B8%83%E3%80%81%E7%BD%91%E5%85%B3%E3%80%81%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC%E4%B8%8E%E5%8F%91%E5%B8%83%E7%AD%96%E7%95%A5">七、网关、服务网格与发布策略</a></li>
+<li><a href="#%E9%9D%A2%E8%AF%95%E5%89%8D-10-%E5%88%86%E9%92%9F%E9%80%9F%E6%9F%A5">面试前 10 分钟速查</a></li>
+</ul>
+<hr>
+<h2 id="一、微服务全景：架构演进、核心组件与链路追踪"><a href="#一、微服务全景：架构演进、核心组件与链路追踪" class="headerlink" title="一、微服务全景：架构演进、核心组件与链路追踪"></a>一、微服务全景：架构演进、核心组件与链路追踪</h2><hr>
+<h3 id="1-分布式和微服务有什么区别？"><a href="#1-分布式和微服务有什么区别？" class="headerlink" title="1. 分布式和微服务有什么区别？"></a>1. 分布式和微服务有什么区别？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>分布式是干活的方式，微服务是组织的架构，这两个词描述的维度完全不同。</li>
+<li>分布式把任务分散到多台机器一起干活，节点目标一致，只为更快、更容错、更可扩展，比如 HDFS、TiDB。</li>
+<li>微服务是一种架构风格，把大服务拆成可独立部署、松耦合的小服务单元，比如电商拆成商品、用户、订单、库存服务，每个还能用不同技术栈。</li>
+<li>微服务通常跑在分布式系统上，但分布式不等于微服务：把单体复制 10 份加 Nginx 是分布式单体，业务逻辑没拆，不算微服务。</li>
+<li>反过来所有微服务都堆在一台机器上，虽然不常见，但它仍是微服务，只是不属于分布式。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>分布式系统的核心挑战：网络不可靠（CAP 里互联网多取 AP，金融取 CP）、时钟不同步（Lamport 时钟、向量时钟，Spanner 用原子钟加 GPS）、故障检测（Raft、Paxos 在部分故障下仍达成一致）。</li>
+<li>微服务从单体到 SOA 再到微服务演化，Netflix 开源 Eureka、Zuul、Hystrix 后 Spring Cloud 整合才真正火起来。</li>
+<li>微服务带来新问题，服务发现、分布式事务（TCC、SAGA、Seata）、链路追踪（Zipkin、Jaeger、SkyWalking）这些原来一个进程内就搞定的事，都得单独设计方案，运维翻倍需要 K8s、Prometheus、ELK。</li>
+<li>不是所有项目都适合微服务，团队超 20 人、代码超 50 万行、迭代频繁、耦合严重才值得拆，小团队上微服务纯属自找麻烦。</li>
+</ul>
+<hr>
+<h3 id="2-你是怎么理解微服务的？"><a href="#2-你是怎么理解微服务的？" class="headerlink" title="2. 你是怎么理解微服务的？"></a>2. 你是怎么理解微服务的？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>微服务是把大型应用拆成一堆小服务的架构风格，每个服务只干一件事，独立开发、独立部署、独立扩容。</li>
+<li>拿电商举例，单体下订单库存支付用户全揉一个代码库；拆成微服务后支付升级只动支付服务，其他不受影响。</li>
+<li>服务间通过 HTTP 或 RPC 通信，订单成功后调库存服务扣减、再调支付服务扣款；每个服务可选不同技术栈。</li>
+<li>代价：服务拆多了运维复杂度上升，服务发现、负载均衡、熔断、链路追踪、分布式事务等问题全冒出来。</li>
+<li>Martin Fowler：把微服务看作单体应用演进的终点，不是起点；团队少、业务未验证时别上微服务。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>单体痛点：代码库膨胀编译启动慢、多人改同一库冲突多、单模块 bug 拖垮全局、扩容必须整体多部署。</li>
+<li>微服务拆分原则高内聚低耦合，一个服务只负责一个业务领域；拆太细信号：改动总要一起发布、调用链过长。</li>
+<li>数据一致性：尽量避免强一致，用最终一致性；TCC 三阶段、RocketMQ 事务消息、Seata AT 模式。</li>
+<li>微服务技术栈：通信 HTTP REST&#x2F;gRPC&#x2F;Dubbo；注册发现 Nacos&#x2F;Consul&#x2F;Eureka；配置 Nacos Config&#x2F;Apollo；网关 Gateway&#x2F;Kong；熔断 Sentinel&#x2F;Resilience4j；事务 Seata；追踪 SkyWalking&#x2F;Zipkin&#x2F;Jaeger。</li>
+<li>HTTP REST 跨语言友好调试方便但性能差；RPC 性能好，对外用 HTTP，内部高频用 RPC，gRPC 折中。</li>
+</ul>
+<hr>
+<h3 id="3-单体应用、SOA、微服务架构有什么区别？"><a href="#3-单体应用、SOA、微服务架构有什么区别？" class="headerlink" title="3. 单体应用、SOA、微服务架构有什么区别？"></a>3. 单体应用、SOA、微服务架构有什么区别？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>三种架构代表软件从集中到分布、从粗粒度到细粒度的演进。</li>
+<li>单体应用：所有功能打包成一个整体部署，一个进程跑所有业务，开发简单部署方便，但改一行要重新发布整个应用，单模块故障拖垮全局。</li>
+<li>SOA：按业务域拆成多个服务，通过 ESB 企业服务总线通信，强调复用和标准化协议，但 ESB 成单点瓶颈、配置复杂。</li>
+<li>微服务：SOA 进化版，去中心化，服务间直接通信不需 ESB，拆分更细，每个服务独立开发部署扩容，团队自治程度更高。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>ESB 负责路由、协议转换、消息格式转换、服务编排；所有流量过 ESB 易成性能瓶颈，配置麻烦。</li>
+<li>微服务去中心化好处：无单点瓶颈、服务自治、技术栈自由；但分布式事务难、跨服务延迟高、运维复杂。</li>
+<li>数据库：单体共享库；SOA 可共享可独立；微服务 Database per Service，每服务独立库，跨服务查询需调服务内存拼。</li>
+<li>迁移用绞杀者模式：新功能微服务写，老功能逐步迁移，先拆边界清晰变更频繁的模块，每拆一个稳定一段时间再拆下一个。</li>
+<li>云原生趋势：服务网格 Istio&#x2F;Linkerd 把熔断限流追踪下沉基础设施；Serverless 按调用付费。</li>
+</ul>
+<hr>
+<h3 id="4-Spring-Cloud-的优缺点有哪些？"><a href="#4-Spring-Cloud-的优缺点有哪些？" class="headerlink" title="4. Spring Cloud 的优缺点有哪些？"></a>4. Spring Cloud 的优缺点有哪些？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>优势：开箱即用，服务注册、负载均衡、熔断、网关、配置中心、链路追踪全有现成组件，和 Spring Boot 无缝集成，中小团队两周能搭出微服务架构。</li>
+<li>缺点：组件多、版本迭代快，Eureka 停更换 Nacos、Hystrix 停更换 Resilience4j、Zuul 不维护换 Gateway，每隔一两年要折腾升级。</li>
+<li>另一缺点：HTTP + JSON 调用性能比不过 RPC 框架，高并发场景可能成瓶颈，但大多数业务场景可接受，热点接口可换 gRPC 或 Dubbo。</li>
+<li>组件演进：第一代 Eureka&#x2F;Ribbon&#x2F;Hystrix&#x2F;Zuul&#x2F;Config；Netflix 停更后第二代用 Gateway、Resilience4j、Nacos、LoadBalancer，现在主流 Spring Cloud Alibaba。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Spring Cloud 与 Dubbo 本质区别在通信协议：HTTP vs TCP 长连接 + 自定义协议，Dubbo 性能更强。</li>
+<li>对外 API 走 HTTP 网关，内部高频调用走 Dubbo，Dubbo 3.x 支持注册到 Nacos 被 Spring Cloud 服务发现。</li>
+<li>Eureka 只能做服务发现，Nacos 可同时做服务发现和配置中心，且 AP&#x2F;CP 可切换，社区更活跃。</li>
+<li>Resilience4j 比 Hystrix 更轻量，函数式设计、模块可单独使用、配置更友好、性能更好。</li>
+<li>真遇性能瓶颈可针对热点接口换 gRPC&#x2F;Dubbo，Spring Cloud 和 Dubbo 混用没问题。</li>
+</ul>
+<hr>
+<h3 id="5-Spring-Boot-和-Spring-Cloud-之间的区别？"><a href="#5-Spring-Boot-和-Spring-Cloud-之间的区别？" class="headerlink" title="5. Spring Boot 和 Spring Cloud 之间的区别？"></a>5. Spring Boot 和 Spring Cloud 之间的区别？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Spring Boot 简化单个 Spring 应用开发，约定大于配置，几行代码跑起 Web 服务，解决开发效率问题。</li>
+<li>Spring Cloud 把分布式系统常见问题的解法封装好，包括服务发现、负载均衡、熔断降级、配置中心这些微服务必备能力。</li>
+<li>Spring Cloud 建立在 Spring Boot 之上，每个微服务本身是 Spring Boot 应用，Spring Cloud 加一层分布式能力，没法单独用 Spring Cloud。</li>
+<li>不用 Spring Cloud 只用 Spring Boot 也能做微服务，但得自己集成 Nacos&#x2F;Consul、Nginx、Sentinel、Apollo 等，集成和排查都费劲。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Spring Boot 自动配置核心是 @EnableAutoConfiguration：2.7 之前的版本扫描 classpath 下 META-INF&#x2F;spring.factories，2.7 起改用 imports 文件注册，按 @Conditional 条件注解决定是否生效。</li>
+<li>Spring Cloud 组件按需引入：服务发现 Eureka&#x2F;Nacos，负载均衡 Ribbon&#x2F;LoadBalancer，熔断 Hystrix&#x2F;Resilience4j，网关 Zuul&#x2F;Gateway，配置 Config&#x2F;Nacos，追踪 Sleuth&#x2F;Zipkin。</li>
+<li>Spring Cloud 和 Dubbo 能混用，对外 API 走 Gateway，内部高频调用走 Dubbo，Dubbo 3.x 支持 Nacos 服务发现。</li>
+<li>小规模系统可能只需要 Nacos 做服务发现 + Gateway 做网关就够了。</li>
+</ul>
+<hr>
+<h3 id="6-SpringCloud-有哪些核心组件？"><a href="#6-SpringCloud-有哪些核心组件？" class="headerlink" title="6. SpringCloud 有哪些核心组件？"></a>6. SpringCloud 有哪些核心组件？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Spring Cloud 核心组件围绕微服务的几类问题展开，包括服务注册发现、负载均衡、配置中心、服务调用、熔断限流、网关、消息驱动、链路追踪、监控与管理。</li>
+<li>注册发现有 Eureka、Consul、Nacos；负载均衡 Ribbon 已停更，现在是 Spring Cloud LoadBalancer。</li>
+<li>服务调用 Feign 停更，改 OpenFeign 声明式 HTTP 客户端；熔断限流 Hystrix 停更，用 Resilience4j 或 Sentinel。</li>
+<li>网关 Zuul 停更，用 Spring Cloud Gateway；配置中心可用 Spring Cloud Config、Apollo、Nacos。</li>
+<li>很多组件已经停更，公司现在多用 Spring Cloud Alibaba 那套：Nacos 管注册加配置、Sentinel 熔断限流、Gateway 网关、OpenFeign 做调用。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>消息驱动是 Spring Cloud Stream，整合 Kafka、RabbitMQ；链路追踪 Spring Cloud Sleuth 整合 Zipkin、Jaeger；监控用 Spring Boot Admin 和 Spring Cloud Bus。</li>
+<li>用真实调用链记最牢：请求进 Gateway 做认证，Sentinel 限流，LoadBalancer 选实例，OpenFeign 调服务，配置变化 Bus 广播刷新，Sleuth 加 Zipkin 打 trace。</li>
+<li>Spring Cloud 是规范和抽象，Netflix 那套（Eureka、Ribbon、Hystrix、Zuul）从 2018 起陆续停更，Alibaba 用 Nacos、Sentinel、Seata，社区更活跃。</li>
+<li>Sentinel 用信号量和滑动窗口隔离，不需要额外线程池，资源占用小；Hystrix 用线程池隔离，切换有开销，线程池多了浪费。</li>
+</ul>
+<hr>
+<h3 id="7-Spring-Cloud-由什么组成？"><a href="#7-Spring-Cloud-由什么组成？" class="headerlink" title="7. Spring Cloud 由什么组成？"></a>7. Spring Cloud 由什么组成？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Spring Cloud 本质是一套微服务工具集，基于 Spring Boot 之上，把分布式系统里最常见的问题都封装成开箱即用的组件。</li>
+<li>核心围绕四大块展开：服务注册与发现、负载均衡与远程调用、服务容错、服务治理。</li>
+<li>注册发现这块 Eureka 最经典，每个服务启动向 Eureka Server 注册地址，调用方去查有哪些实例；Consul 也能干这活，还顺带带配置管理和健康检查。</li>
+<li>负载均衡早期用 Ribbon 按轮询、随机等策略挑实例，现在由 Spring Cloud LoadBalancer 接手，Feign 更上一层，用注解定义接口就能发 HTTP 调用，底层自动整合这套负载均衡。</li>
+<li>容错靠 Hystrix 做断路器，下游挂了或响应太慢就熔断走降级返回兜底数据，防止一个服务拖垮整条链路。</li>
+<li>治理这块 Spring Cloud Config 做配置中心，网关现在用 Spring Cloud Gateway 统一路由鉴权限流，Sleuth 配合 Zipkin 靠 traceId 串起整条链路。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>早期组件多来自 Netflix OSS（Eureka、Ribbon、Hystrix、Zuul），2018 年起陆续进入维护模式，新项目建议直接上 Spring Cloud Alibaba。</li>
+<li>Spring Cloud Alibaba 核心是 Nacos 做注册加配置中心、Sentinel 做流控熔断降级、Seata 做分布式事务，阿里内部几十万台机器在跑，稳定性经过双十一验证。</li>
+<li>Gateway 基于 WebFlux 和 Netty 异步非阻塞，吞吐量约为 Zuul 1.x 的 1.5 到 2 倍；Zuul 1.x 基于 Servlet 同步阻塞，并发高时线程池容易打满。</li>
+<li>一次典型调用是请求先到 Gateway 按路由转发，服务 A 问 Nacos 要服务 B 的实例，LoadBalancer 挑一个发 HTTP 调用，超时由 Sentinel 熔断，链路靠 Sleuth 的 traceId 串到 Zipkin 查看。</li>
+</ul>
+<hr>
+<h3 id="8-为什么需要在微服务中使用链路追踪？Spring-Cloud-可以选择哪些微服务链路追踪方案？"><a href="#8-为什么需要在微服务中使用链路追踪？Spring-Cloud-可以选择哪些微服务链路追踪方案？" class="headerlink" title="8. 为什么需要在微服务中使用链路追踪？Spring Cloud 可以选择哪些微服务链路追踪方案？"></a>8. 为什么需要在微服务中使用链路追踪？Spring Cloud 可以选择哪些微服务链路追踪方案？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>微服务系统一次请求可能跨越十几个服务，服务之间日志没关联，排查问题像噩梦，链路追踪能可视化追踪调用链快速定位问题。</li>
+<li>核心思想：统一 TraceId 串联整个调用链，每个服务内部用 SpanId 标志服务内调用，追踪信息经 HTTP Header 传递。</li>
+<li>常用方案：Spring Cloud Sleuth + Zipkin（经典组合，Sleuth 生成 TraceId&#x2F;SpanId，Zipkin 收集展示）。</li>
+<li>Jaeger：CNCF 托管，适合大规模系统；SkyWalking：Apache APM 平台，零侵入 Java Agent 接入，支持监控告警拓扑；OpenTelemetry：云原生推荐标准，跨平台跨语言。</li>
+<li>Spring Boot 3.x 起推荐 Micrometer Tracing 替代 Sleuth，引入 micrometer-tracing-bridge-brave 即可对接 Zipkin。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Span 有父子关系，一个 Trace 包含多个 Span 形成调用链树；Sleuth 默认用 X-B3-TraceId、X-B3-SpanId 头部传递。</li>
+<li>消息队列场景需把 TraceId 塞到消息属性&#x2F;消息体，Sleuth 对 Kafka、RabbitMQ 有自动支持，自研队列需自行实现。</li>
+<li>生产环境需采样，常见固定比例、限速、自适应采样；Sleuth 默认 10%，调试可设 1.0，上线调低。</li>
+<li>开启链路追踪约增加 1-3ms 延迟，QPS 高的系统吞吐量下降 2-5%，主要开销在异步数据上报。</li>
+<li>SkyWalking 用 Java Agent 零侵入，老项目改造成本低；小团队 Spring 全家桶用 Sleuth+Zipkin 够用。</li>
+</ul>
+<hr>
+<h3 id="9-你们的服务是怎么做日志收集的？"><a href="#9-你们的服务是怎么做日志收集的？" class="headerlink" title="9. 你们的服务是怎么做日志收集的？"></a>9. 你们的服务是怎么做日志收集的？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>我们用的是 ELK 那套方案：Logstash（或 Filebeat）从微服务集群采集日志，处理完发送到 Elasticsearch，ES 负责存储和检索，Kibana 负责可视化分析。</li>
+<li>三个组件各司其职：Elasticsearch 是分布式搜索引擎，专门存储和索引日志数据，支持全文检索和聚合查询；Logstash 是日志采集和预处理工具，能从文件、消息队列、网络等渠道抓日志并做过滤、格式转换；Kibana 是可视化前端，提供图表和仪表盘。</li>
+<li>日志收集流程：各微服务通过日志框架输出日志到文件或标准输出，采集组件从各服务器采集日志，经过过滤和格式化处理后发送到 Elasticsearch 存储，Kibana 连接 ES 提供可视化查询和分析界面。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>微服务下一个请求可能经过 10 多个服务、每个服务又有多个实例，日志散落在几十台机器上；集中式日志收集把所有服务的日志汇聚到一处，一条 traceId 能串起整个调用链的日志，排查问题效率提升几十倍。</li>
+<li>高并发场景下，采集组件和 ES 之间一般会加一层 Kafka 做缓冲，削峰填谷，避免日志洪峰打垮 ES 集群。</li>
+<li>主流技术栈对比：ELK 功能全、搜索能力强但 Logstash 重；EFK 云原生友好、性能好，Kubernetes 日志收集基本都用 Fluentd 或 Fluent Bit；PLG 存储成本低 5-10 倍，搜索能力弱，适合日志量大但搜索需求简单的场景。</li>
+<li>采集组件选型：Filebeat 轻量（Go 写，单机 10-20MB 内存），只采集和传输；Logstash 功能最强但 JVM 应用、单机至少 1-2GB；Fluentd 插件生态丰富，Fluent Bit 是其轻量版（C 写）。</li>
+<li>生产优化：对 DEBUG 日志做采样（只采集 10%），热数据放 SSD 保留 7 天、冷数据归档保留 30-90 天，按天或按服务建索引、单分片控制在 30-50GB，采集组件和 ES 之间加 Kafka 缓冲。</li>
+</ul>
+<hr>
+<h3 id="10-说一下你对于-DDD-的了解？"><a href="#10-说一下你对于-DDD-的了解？" class="headerlink" title="10. 说一下你对于 DDD 的了解？"></a>10. 说一下你对于 DDD 的了解？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>DDD（领域驱动设计）是一套应对复杂业务系统的软件设计方法论，核心思想是先想清楚业务（领域），再写代码（技术），让代码结构和业务逻辑保持高度一致。</li>
+<li>回答 DDD 一定要分两个层面：战略设计（宏观）解决业务边界问题，核心是限界上下文（Bounded Context）和统一语言（Ubiquitous Language）；战术设计（微观）解决代码怎么写，核心是聚合（Aggregate）、实体（Entity）、值对象（Value Object）。</li>
+<li>DDD 提倡充血模型，把业务逻辑写在对象内部，而不是只写 Get&#x2F;Set 的贫血对象把逻辑全堆在 Service 层。</li>
+<li>DDD 不是银弹：业务简单（如简单 CRUD）用 MVC 就够了，强行上 DDD 是过度设计；DDD 适合业务逻辑极其复杂、长期迭代的大型系统。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>限界上下文与微服务：一个限界上下文通常对应一个微服务，有自己独立的数据库和领域模型；电商的”用户”在不同上下文含义不同（用户中心关注注册信息&#x2F;密码&#x2F;实名认证，订单系统只关心用户 ID&#x2F;收货地址，营销系统关注用户等级&#x2F;消费偏好），每个上下文维护自己需要的用户信息，通过防腐层转换，不共享数据库。</li>
+<li>贫血 vs 充血：贫血模型 POJO 只有 get&#x2F;set，业务逻辑全在 Service 层，对象只是数据载体、业务逻辑分散、维护难；充血模型对象自己管理行为，如修改订单价格 changePrice 方法里可包含”价格不能为负数”、”记录改价日志”等业务逻辑内聚。</li>
+<li>实体看 ID（有唯一标识，属性全变还是它，如人），值对象看属性（无 ID，属性一样就是同一个东西，不可变，如颜色 RGB 都是 (255,0,0) 就是红色）；地址（省市区街道）通常为值对象。</li>
+<li>聚合根像家长：聚合里有很多对象（订单、订单明细、收货地址），外部对象想访问订单明细必须通过订单（家长）操作，目的是保证数据一致性。</li>
+<li>DDD 四层架构：用户接口层（Controller、DTO）、应用层（ApplicationService）、领域层（Entity、ValueObject、DomainService、Repository 接口）、基础设施层（Repository 实现、MQ、缓存）；领域层只依赖自己，Repository 接口定义在领域层、实现在基础设施层，即依赖倒置，领域层可脱离 Spring、MyBatis 独立测试。</li>
+<li>CQRS 把读写分离，命令模型负责写、查询模型负责读；事件溯源不存最终状态而存所有变化事件，回放事件还原任意时刻状态，天然支持审计和回溯（银行流水、Git 版本控制）。</li>
+<li>DDD 构建模块：实体、值对象、聚合（聚合根）、领域服务（无状态、业务逻辑无法归属于实体&#x2F;值对象时）、工厂（创建复杂对象和聚合）、仓储（封装对聚合根的持久化操作）。</li>
+<li>常见坑：聚合设计过大导致每次操作加载一大堆数据、性能差，原则是聚合尽量小、聚合之间用 ID 引用而非对象引用；团队习惯了 MVC，写着写着又把逻辑堆到 Service 层，需持续 Code Review 纠正。</li>
+<li>DDD 与微服务不是强绑定：DDD 是设计方法论、微服务是部署架构，单体应用一样可以用 DDD 组织代码，限界上下文可以只是代码模块；微服务拆分边界可参考限界上下文但非强绑定。</li>
+</ul>
+<h2 id="二、分布式事务：Seata-的模式、原理与回滚"><a href="#二、分布式事务：Seata-的模式、原理与回滚" class="headerlink" title="二、分布式事务：Seata 的模式、原理与回滚"></a>二、分布式事务：Seata 的模式、原理与回滚</h2><hr>
+<h3 id="11-什么情况下需要使用分布式事务，有哪些方案？"><a href="#11-什么情况下需要使用分布式事务，有哪些方案？" class="headerlink" title="11. 什么情况下需要使用分布式事务，有哪些方案？"></a>11. 什么情况下需要使用分布式事务，有哪些方案？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>跨多个数据库或跨不同服务时就要上分布式事务，因为本地事务只能管一个库的原子性，订单和库存不在一个库就保证不了要么全成功要么全回滚。</li>
+<li>分布式事务本质是由多段本地事务跨设备拼起来的，中间还要经历复杂网络，所以比本地事务复杂得多。</li>
+<li>方案分两大类：强一致性追求严格 ACID 但性能可能差，最终一致性允许中间状态不一致但最终会收敛，性能更好，适合高并发。</li>
+<li>强一致经典是 2PC&#x2F;XA，有个协调者先问大家准备好了没，统一提交或回滚，但同步阻塞、协调者单点故障风险高。</li>
+<li>柔性方案像 TCC 把事务拆成 Try 预留、Confirm 提交、Cancel 回滚三步，性能好、锁粒度小，但侵入业务、开发量大。</li>
+<li>最终一致可以靠本地消息表或事务消息（如 RocketMQ 半消息），异步高吞吐，但得处理消息幂等和顺序。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>2PC 的协调者叫 Transaction Manager，参与者是数据库这种资源管理器，准备阶段除了提交啥都干了，所以资源被锁住；协调者挂了全员卡死，且网络分区会导致部分提交的数据不一致。</li>
+<li>3PC 在 2PC 基础上加了 CanCommit 预询问阶段，参与者也引入超时能自动提交或回滚，但多一次通讯开销，实际几乎找不到落地实现。</li>
+<li>Seata 的 AT 模式其实是自动化的 2PC，不用手写三个方法，它代理数据源自动记录 Undo Log，事务失败就按日志把数据改回去。</li>
+<li>事务消息靠半消息机制保证原子性：先发半消息对消费者不可见，本地事务提交后消息才可见，broker 长时间没收到提交会反查生产者。</li>
+</ul>
+<hr>
+<h3 id="12-什么是分布式事务的防悬挂，空回滚"><a href="#12-什么是分布式事务的防悬挂，空回滚" class="headerlink" title="12. 什么是分布式事务的防悬挂，空回滚?"></a>12. 什么是分布式事务的防悬挂，空回滚?</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>空回滚和防悬挂是 TCC 分布式事务必须处理的两个异常，不处理好就会数据不一致；TCC 拆成 Try 预留资源、Confirm 提交、Cancel 回滚三步。</li>
+<li>空回滚是 Try 因网络没到达，协调者超时以为失败发起 Cancel，Cancel 先到了但 Try 从没执行过，回滚了个寂寞。</li>
+<li>悬挂是空回滚的后遗症：Cancel 先执行完，迟到的 Try 后来才到并成功，预留的资源再也没人释放，因为 Cancel 不会再执行、Confirm 也不会来。</li>
+<li>防悬挂就是要阻止这种迟到的 Try 执行，不让它再冻结资源。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>正确解法核心是一张事务记录表追踪每笔分支状态：Cancel 先查记录，没有说明是空回滚，插一条 ROLLBACKED 状态直接返回成功；Try 执行前也查，发现已有 ROLLBACKED 就拒绝，把悬挂挡住。</li>
+<li>Seata 用 tcc_fence_log 表维护三态异常，1.5 之后给 @TwoPhaseBusinessAction 加 useTCCFence &#x3D; true 就自动处理：</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> tcc_fence_log (</span><br><span class="line">    xid <span class="type">VARCHAR</span>(<span class="number">128</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    branch_id <span class="type">BIGINT</span> <span class="keyword">NOT NULL</span>,</span><br><span class="line">    action_name <span class="type">VARCHAR</span>(<span class="number">64</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    status TINYINT <span class="keyword">NOT NULL</span>,</span><br><span class="line">    gmt_create DATETIME <span class="keyword">NOT NULL</span>,</span><br><span class="line">    gmt_modified DATETIME <span class="keyword">NOT NULL</span>,</span><br><span class="line">    <span class="keyword">PRIMARY KEY</span> (xid, branch_id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>AT 模式更省事：框架执行业务 SQL 前申请全局锁，Cancel 先执行会释放锁并删 undo_log，迟到 Try 发现 undo_log 没了就拒绝；但它只支持关系型数据库且表要有主键。</li>
+<li>空回滚必须留痕而不能直接返回成功，否则后面的 Try 查不到记录会照常执行，资源就永远挂着；另外 Cancel 比 Confirm 更重要，它失败会导致资源一直锁着。</li>
+</ul>
+<hr>
+<h3 id="13-什么是-Seata？"><a href="#13-什么是-Seata？" class="headerlink" title="13. 什么是 Seata？"></a>13. 什么是 Seata？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Seata 是阿里开源的分布式事务解决方案，专门解决微服务场景下跨服务、跨数据库的数据一致性问题。</li>
+<li>分布式事务的难点：一个业务操作可能涉及多个服务、多个数据库，每个服务本地事务能保证 ACID，但整体业务的原子性没人管；比如下单扣库存，订单服务写成功了、库存服务挂了，数据就乱了。</li>
+<li>Seata 有三个核心角色：TC 事务协调者（独立部署的服务端，维护全局事务和分支事务状态，协调提交或回滚，像总指挥）；TM 事务管理者（嵌入业务应用，负责开启全局事务、提交或回滚，加了 @GlobalTransactional 注解的方法，TM 在方法开始时向 TC 注册全局事务）；RM 资源管理器（嵌入业务应用，管理分支事务，向 TC 注册分支、报告状态、执行 TC 下发的提交或回滚指令，每个参与分布式事务的数据源都有一个 RM）。</li>
+<li>整个流程：TM 开启全局事务，业务代码调用各个微服务，每个服务的 RM 注册分支事务并执行本地 SQL，所有分支执行完毕后，TM 通知 TC 全局提交或回滚，TC 再通知各个 RM 执行相应操作。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Seata 提供 4 种事务模式：AT（自动生成回滚 SQL，侵入性低只需注解，性能高，适用大多数场景）、TCC（业务代码实现 try&#x2F;confirm&#x2F;cancel，侵入性高，性能最高，适用高并发强一致性）、Saga（正向服务 + 补偿服务，侵入性中，性能高，适用长事务跨公司）、XA（数据库原生 XA 协议，侵入性低，性能低，适用传统数据库迁移）。</li>
+<li>AT 模式工作原理（两阶段提交变种，关键是 undo_log）：一阶段业务 SQL 执行前，RM 解析 SQL 拿到表名、主键、修改前后的数据镜像存到 undo_log 表，然后执行业务 SQL，本地事务直接提交（不像 XA 一直持有锁）；二阶段提交时 TC 通知各 RM 删除 undo_log（异步）；二阶段回滚时 TC 通知各 RM 回滚，RM 根据 undo_log 数据镜像生成反向 SQL（UPDATE 还原旧值、INSERT 变 DELETE、DELETE 变 INSERT）。</li>
+<li>全局锁与写隔离：执行业务 SQL 前 RM 向 TC 申请全局锁（粒度”表名 + 主键”），另一个全局事务想修改同一条数据必须等锁释放；本地事务不受全局锁影响，所以 Seata 默认只能保证写隔离，读隔离需用 @GlobalLock + SELECT FOR UPDATE。</li>
+<li>AT 回滚脏写校验：回滚前校验当前数据和 undo_log 里的 afterImage 是否一致，不一致说明被其他事务改过，回滚失败需人工介入；因此参与分布式事务的数据不能被本地事务绕过去改，要么都走全局事务，要么用 @GlobalLock 注解。</li>
+<li>TCC 空回滚与悬挂：空回滚是 Try 没执行 Cancel 先到，Cancel 要识别直接返回成功；悬挂是 Cancel 执行完了 Try 才到，Try 不能再执行。解决办法是加一张事务控制表记录每个分支状态，Seata 的 TCC 模式内置该机制，用 BusinessActionContext 传递状态。</li>
+<li>TC 挂了：进行中的全局事务会超时，TM 等不到响应抛异常；TC 恢复后从存储加载未完成事务继续处理。</li>
+<li>Seata 与 Spring @Transactional：不冲突，是包含关系；@GlobalTransactional 管全局事务，@Transactional 管本地事务；加了 @GlobalTransactional 的方法里各服务方法仍需加 @Transactional 管本地事务，本地事务是全局事务的一个分支。</li>
+</ul>
+<hr>
+<h3 id="14-Seata-支持哪些模式的分布式事务？"><a href="#14-Seata-支持哪些模式的分布式事务？" class="headerlink" title="14. Seata 支持哪些模式的分布式事务？"></a>14. Seata 支持哪些模式的分布式事务？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Seata 支持四种事务模式：AT、TCC、Saga、XA。</li>
+<li>AT 模式，通过代理数据源自动管理事务：Seata 在业务 SQL 执行前后自动记录数据快照到 undo_log 表，提交时直接提交本地事务，回滚时用快照生成反向 SQL 还原数据。业务侵入最小，加个 @GlobalTransactional 注解就行。</li>
+<li>TCC 模式，是两阶段提交的业务层实现：把一个操作拆成 Try 预留资源、Confirm 确认提交、Cancel 回滚释放三步，每一步都要业务代码自己实现。侵入性大，但性能最好，适合高并发场景。</li>
+<li>Saga 模式，是长事务解决方案：把全局事务拆成多个有序的小事务，每个事务配一个补偿操作。某个事务失败了，按相反顺序依次执行补偿操作回滚之前的变更。适合流程长、参与方多的业务。</li>
+<li>XA 模式，基于数据库原生的 XA 协议：一阶段执行 SQL 后 XA prepare，资源一直锁着，等 TC 统一下发 commit 或 rollback。强一致性，但性能最差，适合对一致性要求极高的场景。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>模式对比：AT 侵入性低、性能高、最终一致性、适用大部分业务；TCC 侵入性高、性能最高、最终一致性、适用高并发交易；Saga 侵入性中、性能高、最终一致性、适用长事务跨系统；XA 侵入性低、性能低、强一致性、适用传统迁移强一致。</li>
+<li>AT 模式：Seata 在内部做了对数据库操作的代理层，使用 Seata 自带的数据源代理 DataSourceProxy，在这层代理中加入插入回滚 undo_log 日志、检查全局锁等逻辑；全局事务由 TM（管理生命周期、标识开始和结束）、TC（管理全局事务状态和分支提交&#x2F;回滚）、RM（管理本地事务资源和数据回滚、执行具体数据库操作、向 TC 注册分支事务）三部分协同完成。</li>
+<li>AT 写隔离：一阶段本地事务提交前需先拿到全局锁，拿不到不能提交本地事务；拿全局锁的尝试被限制在一定范围内，超出范围放弃并回滚本地事务释放本地锁。整个过程全局锁在事务结束前一直被持有，所以不会发生脏写。</li>
+<li>TCC：侵入式的分布式事务解决方案，业务系统自行实现 Try&#x2F;Confirm&#x2F;Cancel 三个操作；空回滚与悬挂问题通过事务控制表记录分支状态解决，Seata 的 TCC 模式内置该机制，用 BusinessActionContext 传递状态。</li>
+<li>Saga：基于状态机引擎实现，通过状态图定义服务调用流程并生成 json 状态语言定义文件，节点可配置补偿节点；异常时状态引擎反向执行已成功节点对应的补偿节点回滚。</li>
+<li>XA：利用事务资源对 XA 协议的支持管理分支事务；编程模型与 AT 完全一致，切换只需改数据源代理（DataSourceProxy → DataSourceProxyXA）。</li>
+<li>AT 与 XA 本质区别：锁的持有时间，XA 一阶段 prepare 后数据库行锁一直持有直到二阶段 commit&#x2F;rollback，AT 一阶段本地事务就提交、数据库锁释放，只持有 Seata 全局锁；所以 AT 并发性能好很多，但只能最终一致性，XA 是强一致性。</li>
+<li>生产选型：大部分业务用 AT；核心交易链路（支付、转账）对性能要求极高的用 TCC；需要强一致性又不想改代码（老系统迁移）用 XA；跨系统、长流程用 Saga。</li>
+</ul>
+<hr>
+<h3 id="15-了解-Seata-的实现原理吗？"><a href="#15-了解-Seata-的实现原理吗？" class="headerlink" title="15. 了解 Seata 的实现原理吗？"></a>15. 了解 Seata 的实现原理吗？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Seata 靠 TC、TM、RM 三大组件协调全局事务：TC 管事务生命周期，TM 定义事务边界，RM 管本地资源和分支事务。</li>
+<li>业务方法上加 @GlobalTransactional 注解，TM 就向 TC 创建全局事务，TC 返回一个 XID。</li>
+<li>业务执行时 RM 向 TC 注册分支事务，同时记录数据快照生成回滚日志，本地事务先提交。</li>
+<li>业务结束后 TM 向 TC 发全局提交或回滚请求，TC 通知各 RM 执行，最后记录状态并释放全局锁。</li>
+<li>Seata 有 AT、TCC、SAGA、XA 四种模式，AT 最具代表性，靠 undo_log 自动回滚。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>AT 模式在本地事务提交前用 undo_log 记数据快照实现原子回滚；TCC 拆成 Try、Confirm、Cancel 三步由开发者手写；SAGA 是长事务模式，每个小事务配补偿操作；XA 基于两阶段提交协议保证强一致但性能较低。</li>
+<li>全局锁是行级的，粒度细到表名加主键值，TC 用一张内存表维护锁，拿不到锁默认重试 30 次、每次间隔 10ms，高并发下锁竞争比较激烈。</li>
+<li>分支注册信息包括 XID、资源 ID、分支事务类型和数据锁定信息，TC 记录后把注册成功结果返回给 RM。</li>
+<li>TC 支持集群部署和数据持久化，状态写进 MySQL，重启后能恢复；生产环境一般部署 3 个以上 TC 节点，用 Nacos 或 ZooKeeper 做服务发现和主备切换。</li>
+<li>事务结束后 Seata 会清理 undo_log 表数据，内置定时清理任务默认每隔 86400 秒清理一次超过 7 天的日志。</li>
+</ul>
+<hr>
+<h3 id="16-Seata-的事务回滚是怎么实现的？"><a href="#16-Seata-的事务回滚是怎么实现的？" class="headerlink" title="16. Seata 的事务回滚是怎么实现的？"></a>16. Seata 的事务回滚是怎么实现的？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Seata 有四种事务模式，回滚策略完全不一样：AT 靠 undo_log，TCC 靠 Cancel，SAGA 靠补偿操作，XA 靠 ROLLBACK 指令。</li>
+<li>AT 模式下每次 INSERT、UPDATE、DELETE 之前，RM 都会把操作前的快照存进 undo_log，这步在本地事务提交前完成。</li>
+<li>只要有一个分支失败或者 TM 发起全局回滚，TC 就通知所有相关 RM，RM 从 undo_log 读原始状态把数据还原。</li>
+<li>TCC 的回滚就是调业务自己写的 Cancel 方法，撤销 Try 阶段预留的资源，通常是 Try 的逆操作。</li>
+<li>SAGA 按相反顺序调用已完成子事务的补偿方法；XA 第一阶段准备好后不提交，TC 决定回滚就通知各 RM 执行 ROLLBACK。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>undo_log 里存 beforeImage 和 afterImage 两份快照，回滚前先拿当前数据跟 afterImage 比对，一致才用 beforeImage 还原，不一致就是脏写，Seata 抛异常告警、需要人工介入。</li>
+<li>回滚 SQL 按操作生成：UPDATE 生成把字段还原成 beforeImage 的 UPDATE，INSERT 生成 DELETE 删掉新行，DELETE 生成 INSERT 插回去。</li>
+<li>undo_log 表核心字段有 branch_id、xid、log_status、rollback_info，rollback_info 用 JSON 存 tableName、beforeImage、afterImage，里面含完整行数据和主键值。</li>
+<li>TCC 有两个经典坑：空回滚要在 Try 里记执行记录、Cancel 先查；悬挂要在 Cancel 里记回滚记录、Try 先查，防 Cancel 先于 Try 执行后资源永远预留着。</li>
+<li>XA 第一阶段 prepare 后数据库连接和本地事务要一直持有，连接池容易耗尽；MySQL 5.7 之前 XA 实现有 bug，重启后未提交的 XA 事务会丢失。</li>
+</ul>
+<h2 id="三、配置中心：Spring-Cloud-Config-与-Nacos"><a href="#三、配置中心：Spring-Cloud-Config-与-Nacos" class="headerlink" title="三、配置中心：Spring Cloud Config 与 Nacos"></a>三、配置中心：Spring Cloud Config 与 Nacos</h2><hr>
+<h3 id="17-什么是配置中心？有哪些常见的配置中心？"><a href="#17-什么是配置中心？有哪些常见的配置中心？" class="headerlink" title="17. 什么是配置中心？有哪些常见的配置中心？"></a>17. 什么是配置中心？有哪些常见的配置中心？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>配置中心把散落在各个服务里的配置文件统一收拢到一个地方管理，支持动态下发和热更新。</li>
+<li>没有它时改个数据库连接串或超时时间，得挨个服务改配置再重启，几十个服务能折腾一下午。</li>
+<li>有了它，在控制台改完配置点一下发布，几秒内所有服务自动拉到最新配置，压根不用重启，对线上太关键了。</li>
+<li>核心流程是后台改配置、存储并记录版本、实例通过长连接或长轮询监听、变更时推送或返回新配置、实例热加载无需重启。</li>
+<li>常见的配置中心有 Spring Cloud Config、Apollo、Nacos、Consul、Etcd、Zookeeper 这几个。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Spring Cloud Config 配置存在 Git 仓库，版本管理天然支持，但没有原生推送能力，需要配合 Spring Cloud Bus 才能实现动态刷新。</li>
+<li>Apollo 是携程开源，功能最全，支持灰度发布、权限管理、配置审计，国内用得很多，但部署复杂、依赖 MySQL 数据库。</li>
+<li>Nacos 是阿里开源，注册中心和配置中心二合一，轻量好用，2.x 版本支持 gRPC 长连接推送，是目前国内微服务最主流的选择。</li>
+<li>Consul 跟 K8s 生态整合好、基于 KV 键值对；Etcd 基于 gRPC 的 Watch 机制存 K8s 元数据；Zookeeper 用 Watcher 机制但本不是为配置中心设计，功能简陋。</li>
+<li>动态更新靠两种机制：长连接是毫秒级（Etcd、Nacos 2.x 用 gRPC Stream），长轮询是客户端发请求被服务端 hold 住（Apollo、Nacos 1.x、Consul，最差等一个超时周期）。</li>
+</ul>
+<hr>
+<h3 id="18-你知道-Nacos-配置中心的实现原理吗？"><a href="#18-你知道-Nacos-配置中心的实现原理吗？" class="headerlink" title="18. 你知道 Nacos 配置中心的实现原理吗？"></a>18. 你知道 Nacos 配置中心的实现原理吗？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Nacos 配置中心原理可以从配置存储、推送机制、本地缓存三个核心部分来讲。</li>
+<li>客户端启动和 Nacos Server 建立 gRPC 长连接，注册监听器订阅指定的 Data ID，Server 从 MySQL 读配置返回，客户端缓存到本地内存和磁盘。</li>
+<li>运维在控制台改配置写入 MySQL，Server 检测到变更就通过 gRPC 长连接推给所有订阅客户端，客户端更新缓存并触发应用的配置刷新回调。</li>
+<li>配置按 Namespace、Group、Data ID 三级组织：Namespace 隔离环境，Group 区分业务模块，Data ID 就是具体的配置文件标识。</li>
+<li>客户端会把配置存一份到本地磁盘，默认路径是 ~&#x2F;nacos&#x2F;config，Server 挂了照样读本地缓存运行，恢复后自动重连同步。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>1.x 用 HTTP 长轮询，客户端每 30 秒发一个请求，Server hold 住，有变更立即返回，最差要等 30 秒才感知，轮询对 Server 连接压力大。</li>
+<li>2.x 改成 gRPC 长连接，基于 HTTP&#x2F;2，配置一改 Server 直接推过来延迟毫秒级，且多路复用让注册中心和配置中心的通信共用一个连接。</li>
+<li>配置数据本身存在 MySQL，所有节点共用一个库，不需要通过 Raft 同步配置内容；Raft 只同步集群元数据（哪个客户端连到哪个节点、各节点健康状态），节点可无状态横向扩展。</li>
+<li>客户端监听靠 gRPC 双向流，Server 维护订阅关系表，变更时按关系找到客户端通过 Stream 推送，客户端拉新配置后回调 Listener 的 receiveConfigInfo；热更新可用 @RefreshScope 或 @ConfigurationProperties。</li>
+</ul>
+<hr>
+<h3 id="19-Spring-Cloud-Config-是什么？"><a href="#19-Spring-Cloud-Config-是什么？" class="headerlink" title="19. Spring Cloud Config 是什么？"></a>19. Spring Cloud Config 是什么？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Spring Cloud Config 是一套分布式配置中心解决方案，分为 Config Server 和 Config Client 两部分。</li>
+<li>Config Server 是集中式的配置服务器，所有微服务的配置文件都往这里存，底层默认用 Git 管理配置内容，配置的版本控制天然就有。</li>
+<li>Config Client 跑在每个微服务里，负责从 Config Server 拉取配置；服务启动时根据应用名和环境标识请求对应配置，拿到后加载到 Spring Environment 里用。</li>
+<li>整体流程是：Git 仓库存储各环境配置文件，Config Server 连接 Git 并暴露 HTTP 接口，Client 启动时带上 application name 和 profile 请求，Server 从 Git 拉取对应配置返回，Client 加载到 Spring Environment。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>配置中心的动机：微服务下几十上百个服务各有配置文件，配置散落本地时改个数据库连接串要跑到几十个服务里挨个改、重新打包部署，运维成本极高；配置中心把配置从代码里剥离出来集中管理。</li>
+</ul>
+<h2 id="四、服务注册与发现：Eureka、Consul、Nacos、Zookeeper"><a href="#四、服务注册与发现：Eureka、Consul、Nacos、Zookeeper" class="headerlink" title="四、服务注册与发现：Eureka、Consul、Nacos、Zookeeper"></a>四、服务注册与发现：Eureka、Consul、Nacos、Zookeeper</h2><hr>
+<h3 id="20-为什么需要服务注册发现？"><a href="#20-为什么需要服务注册发现？" class="headerlink" title="20. 为什么需要服务注册发现？"></a>20. 为什么需要服务注册发现？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>分布式系统里服务数量多、变化快，服务 IP 天天在变，靠人工维护调用关系根本搞不定。</li>
+<li>服务注册与发现用注册中心自动管理：服务启动主动注册自身信息，消费者直接问注册中心拿地址列表。</li>
+<li>流程：提供者注册 → 注册中心存储元数据 → 消费者订阅 → 注册中心推送列表 → 消费者负载均衡选实例调用。</li>
+<li>服务上下线时注册中心主动推送通知，消费者本地缓存自动更新，扩容缩容都不用改配置，实现真正的弹性伸缩。</li>
+<li>主流注册中心有 Nacos、Eureka、Consul、Zookeeper，Nacos 国内最主流，能同时做注册中心和配置中心。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Eureka 的老 2.x 预览分支在 2018 年 10 月就宣告停止，2022 年 12 月 Netflix 又发布了新的 2.x 系列，Eureka 1.x 仍在维护发版，新项目一般改用 Nacos 或 Consul；Nacos 默认 AP 模式，Zookeeper 是 CP 模式。</li>
+<li>健康检查：心跳检测（如每 5 秒一次，连续 3 次未收到剔除）或主动探测（如 Consul 访问 &#x2F;health）；Nacos 支持临时实例（心跳）与持久实例（主动探测）。</li>
+<li>注册中心挂了服务仍可调用，因为消费者本地缓存服务列表，新服务上线&#x2F;扩缩容时才感知不到变化。</li>
+<li>AP 优先可用性、网络分区时数据可能不一致但发现可用；CP 优先一致性、网络分区时可能拒绝服务；注册中心场景多选 AP。</li>
+<li>实例规模达几万时注册中心会成瓶颈，可通过分集群、服务端缓存、调大心跳间隔、本地缓存兜底来缓解。</li>
+</ul>
+<hr>
+<h3 id="21-Spring-Cloud-有哪些注册中心？"><a href="#21-Spring-Cloud-有哪些注册中心？" class="headerlink" title="21. Spring Cloud 有哪些注册中心？"></a>21. Spring Cloud 有哪些注册中心？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Spring Cloud 常用注册中心有 5 个：Eureka、Consul、Zookeeper、Nacos、Etcd，按 CAP 分 AP 和 CP 两类。</li>
+<li>Eureka 是 Netflix 开源的 AP 模式，有自我保护机制，Spring Cloud 原生支持集成最简单，但新项目基本不推荐。</li>
+<li>Consul 是 HashiCorp 出的 CP 模式，走 Raft 协议，自带 KV 存储、健康检查和多数据中心。</li>
+<li>Zookeeper 也是 CP，用 ZAB 协议，Kafka、Dubbo 早期拿它当注册中心，但太重了、本质不是为服务发现设计的。</li>
+<li>Nacos 是阿里开源的，AP 和 CP 可切换、默认 AP，服务发现加配置中心一个组件干两件事，国内用得非常多。</li>
+<li>Etcd 是 CoreOS 开发的 CP 模式 KV 存储，也走 Raft，Kubernetes 就拿它当底层存储。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>CAP 里网络分区是现实所以 P 必选：CP 宁可拒绝服务也保证数据一致，AP 宁可返回旧数据也保证可用；注册中心短暂不一致顶多流量打到刚下线节点重试一次，所以很多团队倾向 AP。</li>
+<li>选型场景：多机房用 Consul 的原生多数据中心最省心；Spring Cloud Alibaba 或 Dubbo 直接选 Nacos；跑在 K8s 上先用原生 Service 机制。</li>
+<li>Spring Cloud 2020 版本之后官方推荐 Spring Cloud LoadBalancer 加任意注册中心的组合，Eureka 1.x 只剩 bug fix，Netflix 已取消 2.0 开源计划。</li>
+<li>Nacos 2.x 通信协议从 HTTP 长轮询改成 gRPC，性能提升明显，服务数量上万建议直接上 2.x；临时实例走 AP，持久化实例走 CP。</li>
+<li>Zookeeper 的 session 机制让注册和心跳强绑定、watcher 一次触发就失效、选主期间集群不可用，Dubbo 3.x 默认已推荐 Nacos。</li>
+</ul>
+<hr>
+<h3 id="22-什么是-Eureka"><a href="#22-什么是-Eureka" class="headerlink" title="22. 什么是 Eureka?"></a>22. 什么是 Eureka?</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Eureka 是 Netflix 开源的服务注册与发现组件，属于 Spring Cloud Netflix 套件，名字来自古希腊语”我找到了”。</li>
+<li>架构分两部分：Eureka Server 是注册中心维护服务实例注册表，Eureka Client 集成在各微服务里，启动注册、运行期发心跳、停止注销。</li>
+<li>流程是提供者把 IP、端口、服务名注册到 Server，消费者拉取服务列表缓存到本地，默认每 30 秒拉一次增量更新。</li>
+<li>提供者每 30 秒发一次心跳，Server 连续 90 秒没收到就把实例踢掉；消费者再配合 Spring Cloud LoadBalancer 做客户端负载均衡。</li>
+<li>用起来很简单：Server 端加 @EnableEurekaServer，Client 端加 @EnableEurekaClient 或者 @EnableDiscoveryClient。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>服务注册本质上是个 RESTful 请求，Eureka Client 启动时往 Server 发一个 POST 请求，元数据里的核心字段长这样：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">InstanceInfo &#123;</span><br><span class="line">    instanceId: <span class="string">&quot;192.168.1.100:user-service:8080&quot;</span></span><br><span class="line">    appName: <span class="string">&quot;USER-SERVICE&quot;</span></span><br><span class="line">    ipAddr: <span class="string">&quot;192.168.1.100&quot;</span></span><br><span class="line">    port: <span class="number">8080</span></span><br><span class="line">    status: UP</span><br><span class="line">    healthCheckUrl: <span class="string">&quot;http://192.168.1.100:8080/actuator/health&quot;</span></span><br><span class="line">    leaseInfo: &#123;</span><br><span class="line">        renewalIntervalInSecs: <span class="number">30</span>  <span class="comment">// 心跳间隔</span></span><br><span class="line">        durationInSecs: <span class="number">90</span>         <span class="comment">// 过期时间</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>  心跳续约是 PUT 请求，每 30 秒发一次，超过 90 秒没收到心跳实例会被标记为过期，但不一定立刻删除，还要看自我保护机制有没有触发。</p>
+<p>  集群搭建思路是让每个 Server 互相注册，客户端配多个地址，挂了自动切下一个：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Server A 配置</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">serviceUrl:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://server-b:8761/eureka/,http://server-c:8761/eureka/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Server B 配置</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">serviceUrl:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://server-a:8761/eureka/,http://server-c:8761/eureka/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端配置多个 Server 地址，挂一个自动切换到下一个</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">serviceUrl:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://server-a:8761/eureka/,http://server-b:8761/eureka/</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Eureka 选 CAP 里的 AP，牺牲强一致性换高可用，设计理念是注册中心挂了比返回过期数据更可怕；Client 有本地缓存，Server 全挂已启动的服务还能继续调用。</li>
+<li>Server 端有多级缓存，ReadOnly 缓存加 ReadWrite 缓存，客户端拉取优先读 ReadOnly，30 秒才同步一次，所以注册信息更新有延迟。</li>
+<li>多个 Eureka Server 之间是 Peer to Peer 对等关系，没有主从，数据通过异步复制同步；自我保护按每分钟实际心跳与期望心跳的比例算，低于 85% 就触发，之后不再剔除实例、控制台红警，稳定内网可考虑 eureka.server.enable-self-preservation&#x3D;false 关掉。</li>
+<li>Netflix 2018 年取消 Eureka 2.0 开源计划，Spring Cloud 2020.0 起 Netflix 组件进维护模式，Ribbon、Hystrix、Zuul 分别被 Spring Cloud LoadBalancer、Resilience4j、Spring Cloud Gateway 替代。</li>
+</ul>
+<hr>
+<h3 id="23-Eureka-的实现原理说一下？"><a href="#23-Eureka-的实现原理说一下？" class="headerlink" title="23. Eureka 的实现原理说一下？"></a>23. Eureka 的实现原理说一下？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Eureka 的原理可以拆成三个核心机制：服务注册发现、心跳续约、服务剔除。</li>
+<li>实例启动后 Eureka Client 向 Server 发 POST 请求，把服务名、IP、端口、健康检查地址这些元数据存进内存里的注册表 registry。</li>
+<li>Client 每 30 秒发一次 PUT 心跳，Server 更新 Lease 的 lastUpdateTimestamp；连续 90 秒没收到就标过期，后台任务每 60 秒扫一次删掉。</li>
+<li>客户端启动时全量拉取，之后每 30 秒增量拉取只拿变化部分，增量失败会自动降级为全量拉取。</li>
+<li>Nacos、Consul 也是注册、心跳、剔除这一套，差别在细节实现和 CAP 选型。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>注册表是两层 ConcurrentHashMap：服务名 → 实例 ID → Lease<InstanceInfo>，按服务名查实例 O(1)；Lease 封装 holder、evictionTimestamp、registrationTimestamp、lastUpdateTimestamp 和默认 90 秒的 duration。</li>
+<li>Server 有三级缓存，客户端读 readOnlyCacheMap，它 30 秒才从 readWriteCacheMap 同步一次，新实例最坏 30 秒才被感知；把配置里的 use-read-only-response-cache 设成 false 可以关掉它换实时性。</li>
+<li>自我保护的期望心跳数 &#x3D; 实例总数 × (60 &#x2F; 心跳间隔) × 续约阈值，100 个实例就是 100 × 2 × 0.85 &#x3D; 170 次&#x2F;分钟，低于它就触发，剔除定时任务停跑、控制台红警告、新注册查询照常。</li>
+<li>集群是 Peer to Peer 对等架构，注册经 PeerEurekaNodes 异步复制到其他节点，请求带 isReplication&#x3D;true 防循环同步；增量拉取靠 recentlyChangedQueue 队列存最近 3 分钟变更，合并后比对 hashcode 不一致就全量拉取。</li>
+<li>注册表纯内存，重启靠集群同步和客户端心跳重新注册；主动注销发 DELETE 请求，kill -9 只能等剔除任务，消费者本地缓存 30 秒刷新，所以服务间调用必须有重试机制。</li>
+</ul>
+<hr>
+<h3 id="24-Spring-Cloud-如何实现服务注册？"><a href="#24-Spring-Cloud-如何实现服务注册？" class="headerlink" title="24. Spring Cloud 如何实现服务注册？"></a>24. Spring Cloud 如何实现服务注册？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Spring Cloud 自己不具备注册能力，只定义了一套服务注册规范，真正干活的是底层的注册中心客户端 SDK。</li>
+<li>项目启动时它监听 Web 服务器启动事件，再把当前服务的名称、IP、端口这些信息推送到注册中心服务端。</li>
+<li>以 Nacos 为例，引入 spring-cloud-starter-alibaba-nacos-discovery 依赖后服务就能自动注册。</li>
+<li>配置文件指定 nacos discovery 的 server-addr，比如 192.168.1.100:8848，启动后服务就自动注册，开发者无需写一行注册代码。</li>
+<li>整个流程分三步：Spring Boot 启动发 WebServerInitializedEvent，AbstractAutoServiceRegistration 监听到后调 ServiceRegistry 的 register 方法，注册中心客户端把实例信息推上去。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>注册规范就是三个接口：Registration 封装实例数据（Nacos 实现是 NacosRegistration），ServiceRegistry 负责 register，AutoServiceRegistration 监听启动事件触发注册。</li>
+<li>切换注册中心成本极低，Eureka、Zookeeper、Consul、Nacos 都有对应实现类，只换依赖改配置，业务代码一行不用动。</li>
+<li>要等 Web 服务器完全就绪才注册，避免服务没准备好就被调用；生产环境还能结合健康检查，只有状态健康才对外提供服务。</li>
+<li>不想让某服务自动注册就加 spring.cloud.nacos.discovery.register-enabled&#x3D;false，服务仍可从注册中心拉取其他实例列表，典型场景是网关。</li>
+<li>正常关闭时 Spring Cloud 会调 ServiceRegistry.deregister 主动注销；Nacos 临时实例 15 秒没心跳标记不健康、30 秒没心跳自动剔除。</li>
+</ul>
+<hr>
+<h3 id="25-Consul-是什么？"><a href="#25-Consul-是什么？" class="headerlink" title="25. Consul 是什么？"></a>25. Consul 是什么？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Consul 是 HashiCorp 用 Go 语言开发的一款开源服务注册中心，同时也能当配置中心用。</li>
+<li>它提供服务注册与发现、健康检查、KV 存储、多数据中心支持，还有 DNS 和 HTTP API 接口，自带一个可视化控制台。</li>
+<li>明显优势是 Raft 协议保证数据一致性、健康检查机制完善、原生支持跨数据中心 WAN 集群、提供跨平台图形化界面。</li>
+<li>部署架构分两层：每个服务节点部署一个 Client Agent 收集本地服务信息并转发给 Server，Server 节点组成集群选 Leader 保证一致。</li>
+<li>同一数据中心内用 LAN Gossip 协议同步状态，跨数据中心用 WAN Gossip 协议通信。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>服务实例启动把服务名、IP、端口推给 Consul Server，其他服务可用 HTTP API 查 &#x2F;v1&#x2F;catalog&#x2F;service&#x2F;{service_name}，也可用 DNS 查 {service_name}.service.consul。</li>
+<li>健康检查支持 HTTP、TCP、Script、TTL 等方式，实例被标记为不健康就立刻从列表摘除，调用方拿不到它，全程自动无需人工介入。</li>
+<li>内置分布式 KV 存储可放配置、分布式锁、元数据，支持 Watch 机制；但单纯做配置中心时 Nacos、Apollo 功能更强大，KV 更适合存轻量元数据。</li>
+<li>Consul 原生支持多数据中心，集群间走 WAN Gossip，比如查 {service_name}.service.shanghai.consul 就能跨机房发现，特别适合异地多活。</li>
+<li>1.2 版本加入 Connect 服务网格，在每个服务旁起 Sidecar 代理做自动 mTLS 加密和基于 Intention 的访问控制，比 Istio 轻量且不依赖 Kubernetes。</li>
+</ul>
+<hr>
+<h3 id="26-Eureka、Zookeeper、Nacos、Consul-的区别？"><a href="#26-Eureka、Zookeeper、Nacos、Consul-的区别？" class="headerlink" title="26. Eureka、Zookeeper、Nacos、Consul 的区别？"></a>26. Eureka、Zookeeper、Nacos、Consul 的区别？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>这四个组件在一致性模型、核心功能、使用场景上都有明显差异。</li>
+<li>一致性模型上 Eureka 是 AP，Zookeeper 和 Consul 是 CP，Nacos 既支持 AP 也支持 CP。</li>
+<li>Eureka 专注注册发现，是 Spring Cloud Netflix 生态核心；Zookeeper 本质是分布式协调器，注册发现只是顺带能力。</li>
+<li>Nacos 把注册中心和配置中心合二为一；Consul 除注册发现外还提供健康检查、KV 存储、多数据中心，功能最全面。</li>
+<li>健康检查上 Eureka 靠客户端心跳，Zookeeper 用临时节点，Nacos 支持心跳加服务端探测，Consul 支持 HTTP、TCP、gRPC、Script、TTL 五种。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Eureka 选可用性，网络分区时各节点独立工作，还有自我保护机制：大量心跳丢失也不立刻剔除，宁可返回过期数据也不返回空。</li>
+<li>Nacos 临时实例走 Distro 协议的 AP 模型、服务挂了自动剔除；永久实例走 Raft 的 CP 模型、需手动删除，多数场景用临时实例。</li>
+<li>性能上 Eureka 不建议单集群超 5000 实例；Zookeeper 写走 Leader 是瓶颈、节点建议 3 到 7 个；Nacos 2.0 换 gRPC 长连接支持百万级；Consul 杀手锏是多数据中心。</li>
+<li>选型上 Java 团队选 Nacos，大数据生态 Kafka、HBase 用 Zookeeper，跨机房或云原生用 Consul；Eureka 因 Netflix 停止维护新项目不推荐。</li>
+<li>客户端都缓存服务列表到本地，注册中心挂了只要本地有缓存服务仍能互相调用，只是感知不到上下线变化，所以至少部署 3 个节点保证高可用。</li>
+</ul>
+<hr>
+<h3 id="27-Nacos-中的-Namespace-是什么？"><a href="#27-Nacos-中的-Namespace-是什么？" class="headerlink" title="27. Nacos 中的 Namespace 是什么？"></a>27. Nacos 中的 Namespace 是什么？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Namespace 是 Nacos 提供的虚拟隔离区域，用来把服务和配置做逻辑分组。</li>
+<li>不同 Namespace 之间完全隔离，一个 Namespace 里的服务或配置压根影响不到另一个。</li>
+<li>最典型的用法是环境隔离，开发、测试、生产三套环境分别建 dev、test、prod，开发改配置不会搞挂生产。</li>
+<li>多租户系统里给每个租户分独立 Namespace，能保证租户之间数据完全隔离；一个 Nacos 实例跑多个项目也能用它隔开防冲突。</li>
+<li>Nacos 用 Namespace、Group、Data ID 三层结构管配置和服务，Namespace 是最顶层的隔离单位。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>配置时填的是 Namespace 的 ID 不是名称，控制台创建时会自动生成 UUID 作 ID，填名称不生效。</li>
+<li>默认有个 public Namespace，不显式指定参数就注册到 public 下，多个项目混在一起极易出问题，正式项目都该显式指定。</li>
+<li>跨 Namespace 调用不走服务发现，只能硬编码 IP 或域名，正常不建议跨调，真要调可走网关统一入口。</li>
+</ul>
+<h2 id="五、服务调用：负载均衡、Feign-与-RPC"><a href="#五、服务调用：负载均衡、Feign-与-RPC" class="headerlink" title="五、服务调用：负载均衡、Feign 与 RPC"></a>五、服务调用：负载均衡、Feign 与 RPC</h2><hr>
+<h3 id="28-为什么需要负载均衡？"><a href="#28-为什么需要负载均衡？" class="headerlink" title="28. 为什么需要负载均衡？"></a>28. 为什么需要负载均衡？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>核心目的是把请求流量分摊到多台服务器上，让系统扛住更大并发，同时避免单台挂掉导致整个服务不可用。</li>
+<li>像双十一订单服务几十万 QPS 打进来，单台撑死也就几千，得靠负载均衡把流量打散到几百台机器。</li>
+<li>某台服务器宕机后，负载均衡器会自动把流量切到其他健康机器，用户根本感知不到。</li>
+<li>没有负载均衡时所有请求都打同一台，压力山大且一宕机全部用户受影响；有它之后每台只承担部分流量。</li>
+<li>纵向扩展是换更牛的机器，硬件性能提升有天花板、越往上成本越离谱；横向扩展是加普通机器，理论上没有上限，机器便宜、随时能加，但用户的请求怎么知道发给哪台机器，这正是负载均衡要解决的核心问题。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>单机到瓶颈有两条路：纵向换更牛的机器（硬件有天花板、越往上越贵），横向加普通机器（廉价、随时加、理论无上限）。</li>
+<li>它带来的好处是高可用、高性能、弹性伸缩、资源利用率高，让每台机器都发挥作用而不是有的忙死有的闲着。</li>
+<li>没有它会单点故障、性能瓶颈，而且 DNS 改解析不支持健康检查，机器挂了照样往上打流量，扩展困难。</li>
+</ul>
+<hr>
+<h3 id="29-负载均衡的实现方式有哪些？"><a href="#29-负载均衡的实现方式有哪些？" class="headerlink" title="29. 负载均衡的实现方式有哪些？"></a>29. 负载均衡的实现方式有哪些？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>主要有三种：软件负载均衡、硬件负载均衡、DNS 负载均衡。</li>
+<li>软件是在普通服务器上装负载均衡软件，像 Nginx、HAProxy、LVS，成本低又灵活，绝大多数公司都在用。</li>
+<li>硬件是买专用设备，比如 F5、A10，性能猛但价格贵，一台几十万起步，一般只有大厂核心业务才舍得上。</li>
+<li>DNS 是通过 DNS 解析把同一个域名解析成不同的 IP，主要做地理级别的就近访问，北京用户访问北京机房、上海用户访问上海机房。</li>
+<li>层级上 DNS 在最外层做地理分流，硬件在机房入口承接单机房流量，软件在最内层把流量分到具体服务器实例。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>软件负载均衡按 OSI 模型分四层和七层：四层只看 IP 和端口转发效率高，七层能解析 HTTP 头、URL 做精细路由。</li>
+<li>LVS 只做四层，Nginx 和 HAProxy 四七层都能干，生产常见搭配是 LVS 前置四层转发、Nginx 后置七层路由。</li>
+<li>DNS 负载均衡好处是简单省事、用户就近延迟低，坏处是缓存时间长、机房出问题切换慢，而且不知道后端是否健康。</li>
+</ul>
+<hr>
+<h3 id="30-负载均衡算法有哪些？"><a href="#30-负载均衡算法有哪些？" class="headerlink" title="30. 负载均衡算法有哪些？"></a>30. 负载均衡算法有哪些？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>轮询：按顺序把请求依次分给后端服务器，适合处理能力相当的场景，但性能差异大时分到一样多显然不合理。</li>
+<li>加权轮询：在轮询基础上给每台设权重，权重越高被选中概率越大，Nginx 的 upstream 默认就支持 weight 配置。</li>
+<li>随机：像掷骰子一样等概率随机挑一台，缺点是不考虑服务器性能差异。</li>
+<li>加权随机：随机的升级版，根据权重调整被选中的概率，减少高性能服务器的闲置。</li>
+<li>最少连接：选择当前连接数最少的服务器处理请求，适合请求处理时间差异大的场景。</li>
+<li>哈希：根据客户端 IP 或 URL 算哈希值，把同一特征的请求路由到同一台，Redis Cluster 和 Nginx 的 ip_hash 都这样。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>普通哈希增删节点会让大量请求重路由，缓存失效率能到 75% 直接打爆数据库，一致性哈希把节点映射到 0 到 2^32 的环、顺时针找节点解决。</li>
+<li>一致性哈希有虚拟节点概念，把一台物理机映射成多个虚拟节点分散到环上，让数据分布更均匀，Dubbo 默认 160 个。</li>
+<li>服务端负载均衡把均衡器布在服务端前面（Nginx、LVS、F5），客户端无感知但可能成单点；客户端负载均衡把逻辑放客户端（Ribbon、LoadBalancer），无代理损耗但逻辑复杂。</li>
+</ul>
+<hr>
+<h3 id="31-HTTP-与-RPC-之间的区别？"><a href="#31-HTTP-与-RPC-之间的区别？" class="headerlink" title="31. HTTP 与 RPC 之间的区别？"></a>31. HTTP 与 RPC 之间的区别？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>HTTP 是应用层协议，定义网络通信的数据格式和交互方式；RPC 是远程调用的编程范式，强调让调用远程服务像调用本地方法一样简单。</li>
+<li>很多 RPC 框架底层用 HTTP 传输：gRPC 底层走 HTTP&#x2F;2，Dubbo 3.0 也支持 Triple 协议，底层同样基于 HTTP&#x2F;2。</li>
+<li>HTTP 面向资源，用 URL 标识资源，用 GET&#x2F;POST&#x2F;PUT&#x2F;DELETE 操作资源，数据格式一般是 JSON 或 XML，人眼可读，RESTful API 就是典型 HTTP 风格。</li>
+<li>RPC 面向方法调用，客户端拿到代理对象直接调方法名传参数，跟调本地方法没区别；数据格式通常是二进制的 Protobuf 或 Hessian，序列化效率高但人眼看不懂。</li>
+<li>对外暴露给第三方的接口用 HTTP，通用性好不挑语言不挑框架；内部微服务之间通信用 RPC，调用体验好、性能高，调用方不受控制就用 HTTP，都是自己的服务就用 RPC。</li>
+<li>HTTP 接口每次调用要手动拼 URL、设 Header、处理返回值，写起来啰嗦；RPC 框架封装了连接池、序列化、负载均衡、超时重试这些脏活累活。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>IDL 是接口定义语言，如 Protocol Buffers 的 .proto 文件、Thrift IDL、OpenAPI 等。</li>
+<li>HTTP&#x2F;1.1 存在队头阻塞，单连接只能串行处理请求，高并发场景下需要建立大量连接，10 万 QPS 场景下开销很可观。</li>
+<li>gRPC 基于 HTTP&#x2F;2，支持双向流、多路复用，用 Protobuf 序列化，传输效率很高；K8s 内部组件通信、Istio 数据面都用 gRPC，跨多语言首选。</li>
+<li>Dubbo 国内 Java 微服务常用，跟 Spring 深度集成，注册中心支持 Nacos、Zookeeper，3.0 推出 Triple 协议兼容 gRPC 可跨语言；Thrift 跨语言支持 20 多种，大数据组件内部通信多用。</li>
+<li>Protobuf 比 JSON 快在两点：体积小（字段编号而非字段名，同样数据比 JSON 小 3 到 10 倍），解析快（按偏移量读字段而非字符串匹配）；代价是可读性差，调试看不懂。</li>
+<li>Spring Cloud OpenFeign 底层走 HTTP&#x2F;1.1、JSON 序列化，Spring 生态开发体验好；Dubbo 性能更好、服务治理能力强但学习曲线陡，两者可混用。</li>
+</ul>
+<hr>
+<h3 id="32-什么是-Feign？"><a href="#32-什么是-Feign？" class="headerlink" title="32. 什么是 Feign？"></a>32. 什么是 Feign？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Feign 是一个声明式的 HTTP 客户端，让你调用远程服务就像调用本地方法一样简单。</li>
+<li>传统方式用 HttpClient 或 RestTemplate 调接口，得自己组装 URL、拼参数、处理响应，代码又臭又长。用 HttpClient 调一个接口就得写这么多：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">HttpClient</span> <span class="variable">httpClient</span> <span class="operator">=</span> HttpClientBuilder.create().build();</span><br><span class="line"><span class="type">HttpGet</span> <span class="variable">httpGet</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpGet</span>(<span class="string">&quot;http://order-service:8080/order/&quot;</span> + id);</span><br><span class="line"><span class="type">HttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> httpClient.execute(httpGet);</span><br><span class="line"><span class="type">HttpEntity</span> <span class="variable">entity</span> <span class="operator">=</span> response.getEntity();</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Feign 的思路是：你只管定义一个接口，用注解标明请求方式和路径，剩下的活儿它全包了，运行时生成动态代理把方法调用翻译成 HTTP 请求。</li>
+<li>调用流程：应用代码调接口方法 → 动态代理拦截 → 解析注解构建 HTTP 请求 → 通过负载均衡选择服务实例 → 发送请求接收响应 → 反序列化响应体返回结果。</li>
+<li>Feign 跟 Spring Cloud 生态深度集成，配合 Nacos、Eureka 做服务发现，配合 Spring Cloud LoadBalancer 做负载均衡，配合 Sentinel 或 Hystrix 做熔断降级。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>示例：<code>@FeignClient(name = &quot;order-service&quot;)</code> 接口里 <code>@GetMapping(&quot;/order/&#123;id&#125;&quot;) Order getOrderById(@PathVariable(&quot;id&quot;) Long id);</code> 和 <code>@PostMapping(&quot;/order&quot;) Order createOrder(@RequestBody Order order);</code>，注入后直接调方法。</li>
+<li>底层实现：Contract 组件解析方法注解拿到请求方式、URL、参数位置等元数据；Encoder 把方法参数编码成请求体；RequestInterceptor 执行拦截逻辑如统一加认证 Token；Client 发送 HTTP 请求；Decoder 把响应体解码成返回类型。</li>
+<li>Feign 原生 vs Spring Cloud OpenFeign：Feign 是 Netflix 开源后转移给 OpenFeign 社区维护，只支持 Feign 自己的注解，依赖 feign-core；OpenFeign 是 Spring Cloud 团队在 OpenFeign 基础上整合 Spring 生态，支持 Spring MVC 注解，依赖 spring-cloud-starter-openfeign，2020.0.0 之后老 spring-cloud-starter-feign 彻底移除。</li>
+<li>Feign 默认用 JDK 原生 HttpURLConnection 发请求，不支持连接池，生产环境一般换成 Apache HttpClient 或 OkHttp，配置写成这样：</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">httpclient:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">true</span>  <span class="comment"># 启用 Apache HttpClient</span></span><br></pre></td></tr></table></figure>
+
+<p>  连接数参数常见是 <code>max-connections: 200</code>、<code>max-connections-per-route: 50</code>，依赖 feign-httpclient。</p>
+<ul>
+<li>超时配置：<code>connectTimeout</code>、<code>readTimeout</code>，可全局 default 也可针对特定服务；重试默认关闭，开启用 <code>Retryer.Default(100, 1000, 3)</code>，但重试只对幂等接口安全。</li>
+<li>降级处理配置 fallback 或 fallbackFactory，需开启熔断器；传递请求头用 RequestInterceptor，配合 RequestContextHolder 获取当前请求，异步场景下拿不到需 InheritableThreadLocal 或显式传参。</li>
+<li>日志四级：NONE 不记录、BASIC 只记录请求方法和 URL 及响应状态码、HEADERS 在 BASIC 基础上加请求响应头、FULL 记录全部信息；FULL 排查问题有用但影响性能，生产一般用 BASIC。</li>
+<li>Feign 和 RestTemplate 选型：Feign 适合微服务内部调用，声明式更优雅，天然支持负载均衡和服务发现；RestTemplate 适合调外部第三方接口，灵活度高；Spring 6 开始官方推 HTTP Interface，未来可能逐步替代 Feign。</li>
+</ul>
+<hr>
+<h3 id="33-Feign-是如何实现负载均衡的？"><a href="#33-Feign-是如何实现负载均衡的？" class="headerlink" title="33. Feign 是如何实现负载均衡的？"></a>33. Feign 是如何实现负载均衡的？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Feign 本身只是个 HTTP 客户端，不具备负载均衡能力，它的负载均衡是靠底层集成的负载均衡组件来实现的。</li>
+<li>Spring Cloud 体系下早期用 Netflix 的 Ribbon，它在 2020 版之后停止维护并被移除，官方推出 Spring Cloud LoadBalancer 替代，现在新项目基本都用 LoadBalancer。</li>
+<li>整个调用流程：Feign 发起请求时先把请求交给负载均衡组件 → 组件从注册中心拉取目标服务的实例列表 → 根据策略选出一个实例把真实地址返回给 Feign → Feign 再用该地址发起真正的 HTTP 请求。</li>
+<li>代码层面只要引入了 spring-cloud-starter-loadbalancer 依赖，Feign 就会自动集成负载均衡能力，不需要额外配置，<code>@FeignClient(name = &quot;user-service&quot;)</code> 调用时底层会自动从注册中心获取 user-service 的所有实例并选一个调用。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Ribbon 通过 ServerList 接口获取实例，注册中心实现该接口即可，Nacos 的实现类是 NacosServerList，Eureka 是 DiscoveryEnabledNIWSServerList；Spring Cloud LoadBalancer 换成 ServiceInstanceListSupplier，思路一样。</li>
+<li>Ribbon 内置策略：RoundRobinRule 轮询、RandomRule 随机、WeightedResponseTimeRule 权重响应时间、BestAvailableRule 最少并发、AvailabilityFilteringRule 可用过滤、ZoneAvoidanceRule 区域优先；LoadBalancer 默认只提供轮询和随机，复杂策略需自己实现 ReactorServiceInstanceLoadBalancer。</li>
+<li>Ribbon 被弃用有几个原因，2018 年进入维护模式 Netflix 不再开发；代码结构老旧与响应式编程模型不兼容；Spring Cloud 想减少对 Netflix 组件依赖。</li>
+<li>缓存与更新：负载均衡组件本地缓存实例列表定期刷新，Ribbon 默认 30 秒（<code>ribbon.ServerListRefreshInterval</code>），LoadBalancer 默认 35 秒（<code>spring.cloud.loadbalancer.cache.ttl</code>）；实例刚下线时客户端可能仍发请求导致失败，配合重试或缩短刷新间隔。</li>
+<li>重试：Feign 原生有 Retryer 机制，但 Spring Cloud OpenFeign 默认禁用重试，可配置开启或配合 Spring Retry、Resilience4j；重试配合负载均衡每次可选不同实例，Ribbon 时代用 <code>MaxAutoRetries</code> 和 <code>MaxAutoRetriesNextServer</code> 控制同实例与换实例重试次数。</li>
+<li>指定实例不走负载均衡的方式：直接用 IP 调用、Nacos 元数据路由给实例打标签并在代码指定标签、自定义负载均衡策略做过滤，灰度发布、蓝绿部署常用。</li>
+<li>LoadBalancer 基于响应式编程模型，WebFlux 场景性能更好，Servlet 场景下两者差别不大；Nacos 支持推送模式，实例变化时主动通知客户端，实时性更好。</li>
+</ul>
+<hr>
+<h3 id="34-为什么-Feign-第一次调用耗时很长？"><a href="#34-为什么-Feign-第一次调用耗时很长？" class="headerlink" title="34. 为什么 Feign 第一次调用耗时很长？"></a>34. 为什么 Feign 第一次调用耗时很长？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>第一次调用慢，主要原因是底层负载均衡组件的懒加载机制，第一次真正发起调用才触发初始化。</li>
+<li>初始化要从注册中心拉服务实例列表、创建 HTTP 连接池、加载负载均衡策略，这一套下来可能花几百毫秒甚至几秒。</li>
+<li>耗时主要花在这几处：初始化 Feign 客户端代理对象、初始化负载均衡组件、拉取目标服务实例列表、建立 HTTP 连接池和 TCP 连接。</li>
+<li>两种解决办法：开饥饿加载让负载均衡组件在应用启动时就初始化，或者启动后做一次预热调用触发初始化。</li>
+<li>后续调用就快了，因为组件已经初始化好、连接池也建好了。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>饥饿加载配置：Ribbon 写成这样：</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">eager-load:</span></span><br><span class="line">  <span class="attr">clients:</span> <span class="string">user-service,</span> <span class="string">order-service</span></span><br></pre></td></tr></table></figure>
+
+<p>  Spring Cloud LoadBalancer 类似：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">loadbalancer:</span></span><br><span class="line">  <span class="attr">eager-load:</span></span><br><span class="line">    <span class="attr">clients:</span> <span class="string">user-service,</span> <span class="string">order-service</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>预热做法是实现 ApplicationRunner，启动时调一次 <code>userClient.healthCheck()</code>，预热调用失败不影响启动。</li>
+<li>懒加载设计有考量：依赖几十个下游服务时全量预加载会把启动时间拉得很长，很少被调用的服务提前加载也浪费内存和连接池资源。</li>
+<li>第一次慢不全是懒加载的锅：JVM 刚启动还没 JIT 优化、类加载、TCP 三次握手和 TLS 握手、框架缓存为空都要时间。</li>
+<li>量化上每个服务初始化大概 50-200 毫秒，依赖 20 个服务全饥饿加载可能增加 2-4 秒启动时间；Ribbon 默认 30 秒刷新服务列表、LoadBalancer 默认 35 秒，刷新异步进行不阻塞调用。</li>
+</ul>
+<hr>
+<h3 id="35-Feign-和-OpenFeign-的区别？"><a href="#35-Feign-和-OpenFeign-的区别？" class="headerlink" title="35. Feign 和 OpenFeign 的区别？"></a>35. Feign 和 OpenFeign 的区别？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>两者都是简化服务之间 HTTP 调用的工具，Feign 是 Netflix 开源的声明式 REST 客户端，OpenFeign 是 Spring Cloud 在 Feign 基础上的封装。</li>
+<li>Feign 的目标是让微服务调用像调本地方法：建一个接口，用注解声明方法和路径，它自动发 HTTP 请求、收响应并转成方法返回值。</li>
+<li>OpenFeign 整合了 Spring Cloud 特性，靠 Spring Boot 自动配置，用 @FeignClient 和 @EnableFeignClients 就能创建客户端。</li>
+<li>OpenFeign 支持 @GetMapping、@PostMapping 这些熟悉的 Spring MVC 注解，不用学 Feign 原生的 @RequestLine。</li>
+<li>OpenFeign 能和服务发现组件集成实现客户端负载均衡，还能简单配置接入 Hystrix 做熔断，提高容错性。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>原始 Feign 能脱离 Spring Cloud 体系用：接口加 <code>@RequestLine(&quot;GET /order/&#123;orderId&#125;&quot;)</code>，再手动 <code>Feign.builder().target(OrderApiClient.class, &quot;http://localhost:8088&quot;)</code> 创建对象。</li>
+<li>Feign 底层是 JDK 动态代理：构建时解析方法上的注解和参数，调用时把入参组装成 HTTP 请求发出，再按响应内容类型转换成返回值。</li>
+<li>核心组件可通过 Feign.builder() 替换：Contract 负责解析注解，Spring Cloud 自己实现了 Contract 才能识别 Spring MVC 注解；Encoder&#x2F;Decoder 做序列化和反序列化，默认只支持 String 和字节数组，Spring 补齐了任意类型。</li>
+<li>Client 是真正发 HTTP 请求的组件，默认用 JDK 的 HttpURLConnection，基于负载均衡的实现用来整合 Ribbon；RequestInterceptor 在发请求前拦截修改，比如加鉴权 token。</li>
+<li>Spring Cloud 重写了很多组件：Retryer 没用默认最大重试 5 次的实现，Spring Cloud 下默认不重试；Hystrix 和 Sentinel 都实现了自己的 InvocationHandler，在 HTTP 调用前后做限流降级。</li>
+</ul>
+<hr>
+<h3 id="36-Feign-和-Dubbo-的区别？"><a href="#36-Feign-和-Dubbo-的区别？" class="headerlink" title="36. Feign 和 Dubbo 的区别？"></a>36. Feign 和 Dubbo 的区别？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Feign 是声明式的 HTTP 客户端，通过接口注解发起 HTTP&#x2F;REST 请求，底层走 HTTP 协议。</li>
+<li>Dubbo 是阿里开源的 RPC 框架，默认用自定义的 Dubbo 协议做二进制序列化通信，性能比 HTTP 高不少。</li>
+<li>通信层面 Feign 报文是文本格式，跨语言友好但体积大、解析慢；Dubbo 报文是二进制，体积小、解析快，但跨语言需要额外适配。</li>
+<li>场景上 Feign 更适合对外开放 API 和异构系统调用，Spring Cloud 体系里服务间调用基本都用它；Dubbo 更适合内部高并发、低延迟的调用。</li>
+<li>用法上 Feign 定义接口加 @FeignClient 注解就行，Dubbo 定义服务接口后用 @DubboReference 注入远程服务代理。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>核心差异一表看完：定位上 Feign 是 HTTP 客户端、Dubbo 是 RPC 框架；协议上 HTTP&#x2F;HTTPS 对 Dubbo 协议、Triple、HTTP 等；序列化上 JSON 为主对 Hessian2、Protobuf 等二进制；服务治理上 Feign 依赖 Spring Cloud 组件、Dubbo 自带完整治理；性能中等对高；跨语言天然支持对需要协议适配。</li>
+<li>两条路线之争：HTTP&#x2F;REST 简单通用，Spring Cloud 走这条，Feign 由 Netflix 最早开源、后来 Spring Cloud 团队接手改名 OpenFeign；RPC 换取性能，Dubbo 协议基于 TCP 长连接 + 二进制序列化，报文体积能小 50% 以上。</li>
+<li>Dubbo 3.0 引入 Triple 协议，兼容 gRPC、基于 HTTP&#x2F;2，Java 写的 Dubbo 服务能被 Go、Python、Node.js 直接调用，不用再搞协议转换网关。</li>
+<li>性能差异的底层原因在于序列化，一个对象序列化成 JSON 可能几百字节、Hessian2 只要几十字节，Dubbo 一个 TCP 长连接能跑几万个请求，实测同样业务逻辑 Dubbo 的 QPS 能比 Feign 高 2-3 倍。</li>
+<li>治理能力上 Dubbo 的注册发现、负载均衡、熔断降级、流量管控、链路追踪开箱即用；Feign 要靠生态补齐，负载均衡用 Spring Cloud LoadBalancer、熔断用 Resilience4j 或 Sentinel、链路追踪用 Sleuth + Zipkin，灵活但集成成本高。</li>
+</ul>
+<h2 id="六、稳定性：熔断、降级、限流与服务雪崩"><a href="#六、稳定性：熔断、降级、限流与服务雪崩" class="headerlink" title="六、稳定性：熔断、降级、限流与服务雪崩"></a>六、稳定性：熔断、降级、限流与服务雪崩</h2><hr>
+<h3 id="37-什么是熔断器？为什么需要熔断器？"><a href="#37-什么是熔断器？为什么需要熔断器？" class="headerlink" title="37. 什么是熔断器？为什么需要熔断器？"></a>37. 什么是熔断器？为什么需要熔断器？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>熔断器是微服务架构中用来防止服务雪崩的保护机制，思路跟家里电路的保险丝一样：电流过大就自动断开，保护整个电路不被烧毁。</li>
+<li>微服务之间的调用是链式的，下游服务挂了或响应特别慢时，请求会堆在上游线程池里，最终整条链路全崩；熔断器在下游出问题时快速切断调用链，让请求直接失败返回，不拖垮整个系统。</li>
+<li>熔断器有三个状态：关闭状态正常放行所有请求，打开状态拒绝所有请求直接返回失败，半开状态放行少量请求试探，成功则关闭熔断器，失败则继续打开。</li>
+<li>光设超时解决不了根本问题，高并发下线程池照样被打满；熔断器的核心价值在于快速失败，连等待都不等，立刻返回失败腾出线程资源。</li>
+<li>限流是入口处的保护，防止流量太大把自己搞死；熔断是出口处的保护，防止下游故障把自己拖死；降级是功能层面的取舍，非核心功能可以暂时牺牲。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>状态转换逻辑：关闭 -&gt; 打开为失败率超过阈值，比如 10 秒内 50% 请求失败；打开 -&gt; 半开为熔断一段时间后自动进入，比如 5 秒后；半开 -&gt; 关闭为试探请求成功；半开 -&gt; 打开为试探请求失败。</li>
+<li>触发策略有三种：慢调用比例，统计时间窗口内的慢调用比例超过阈值就熔断，比如响应时间超过 1 秒算慢调用、比例超过 50% 就熔断；异常比例，异常请求比例超过阈值就熔断，比如 10 秒内 50% 请求抛异常就熔断；异常数，异常请求绝对数量超过阈值就熔断，比如 1 分钟内 100 个请求失败就熔断。</li>
+<li>熔断 vs 降级 vs 限流：熔断触发时机是下游服务故障、目的防止故障扩散、典型场景订单服务调库存服务库存挂了就熔断；降级触发时机是系统压力过大或服务不可用、目的保核心功能、典型场景双十一关闭商品评价功能保下单链路；限流触发时机是请求量超过系统承载能力、目的保护自身不被打垮、典型场景接口 QPS 限制 1000 超过直接拒绝。</li>
+<li>主流框架对比：Hystrix Netflix 已停止维护，早期微服务标配，基于线程池隔离，资源消耗大；Sentinel 阿里开源活跃维护，轻量级，基于滑动窗口统计，支持集群流控；Resilience4j 活跃维护，专为 Java 8 设计，函数式风格，轻量级。现在新项目基本不用 Hystrix，国内用 Sentinel 的多，国外用 Resilience4j 的多，Spring Cloud 官方也推荐用 Resilience4j 替代 Hystrix。</li>
+<li>Sentinel 用滑动窗口统计请求成功率，默认把 1 秒分成 2 个 500ms 的小窗口，每个小窗口独立统计请求数和失败数，统计更平滑，避免固定窗口清零导致熔断触发不了。</li>
+<li>Sentinel degrade 配置示例：resource 为 getOrder，grade 为 1，count 为 0.5，timeWindow 为 10，minRequestAmount 为 5，statIntervalMs 为 1000，slowRatioThreshold 为 0.5。</li>
+<li>半开状态放行请求数：Hystrix 默认放 1 个，Sentinel 默认放 1 个，Resilience4j 默认 10 个，可通过 permittedNumberOfCallsInHalfOpenState 配置；minRequestAmount 是触发熔断的最小请求数阈值，不是半开状态放行的请求数。</li>
+<li>线程池隔离与信号量隔离：线程池隔离给每个下游服务分配独立线程池，调用在独立线程池里执行，调用方主线程不被阻塞，隔离性好但资源消耗大；信号量隔离用计数器限制并发数，调用还在主线程里执行，轻量但隔离性差。Hystrix 默认线程池隔离，Sentinel 默认信号量隔离，高并发场景下信号量隔离性能更好。</li>
+<li>熔断规则需持久化，Sentinel 支持把规则持久化到 Nacos、Apollo、ZooKeeper 等配置中心，应用启动时拉取规则，还可以通过控制台动态推送规则；单机统计数据一般不持久化，重启后重新统计。</li>
+<li>熔断触发时走降级逻辑返回兜底数据，比如商品详情接口熔断了返回缓存里的旧数据或简化版商品信息；Sentinel 用 @SentinelResource 注解的 fallback 属性指定降级方法，Resilience4j 用 @CircuitBreaker 注解的 fallbackMethod 属性。</li>
+</ul>
+<hr>
+<h3 id="38-什么是-Hystrix？"><a href="#38-什么是-Hystrix？" class="headerlink" title="38. 什么是 Hystrix？"></a>38. 什么是 Hystrix？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Hystrix 是 Netflix 开源的一个熔断器框架，在微服务架构里用来防止服务雪崩，核心思路是通过隔离、熔断、降级，让下游服务出问题时不至于把整个系统拖垮。</li>
+<li>Hystrix 干了三件事：熔断，下游服务连续失败达到阈值后直接断开调用不再傻等；降级，调用失败或熔断触发时返回兜底数据；隔离，给每个下游服务分配独立线程池，互不影响。</li>
+<li>Hystrix 在 2018 年已经进入维护模式，Netflix 不再开发新功能；现在新项目一般用 Sentinel 或者 Resilience4j 替代。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>熔断示例：10 秒内有超过 50% 的请求失败，Hystrix 触发熔断，后续请求直接返回降级结果，等过一段时间再试探下游是否恢复。</li>
+<li>降级示例：推荐服务挂了，返回热门商品列表兜底。</li>
+<li>隔离示例：A 服务响应慢不会占用 B 服务的线程资源。</li>
+<li>代码示例：@HystrixCommand(fallbackMethod &#x3D; “getOrderFallback”, commandProperties &#x3D; {@HystrixProperty(name &#x3D; “circuitBreaker.requestVolumeThreshold”, value &#x3D; “10”), @HystrixProperty(name &#x3D; “circuitBreaker.errorThresholdPercentage”, value &#x3D; “50”), @HystrixProperty(name &#x3D; “circuitBreaker.sleepWindowInMilliseconds”, value &#x3D; “5000”)})，方法 getOrder 调用 <a target="_blank" rel="noopener" href="http://order-service/order/%7Bid%7D%EF%BC%8C%E9%99%8D%E7%BA%A7%E6%96%B9%E6%B3%95">http://order-service/order/{id}，降级方法</a> getOrderFallback 返回 new Order(id, “服务暂时不可用”)。配置意思是 10 个请求里有 50% 失败就熔断，熔断 5 秒后进入半开状态试探。</li>
+<li>执行流程：请求进来先检查熔断器状态；熔断器打开直接走降级；关闭则检查线程池&#x2F;信号量是否有余量；没余量走降级；有余量执行实际调用；调用成功返回结果并统计成功；调用失败&#x2F;超时走降级并统计失败；失败率超过阈值熔断器打开。</li>
+<li>Hystrix 熔断器三种状态：Closed 关闭状态所有请求正常发往目标服务；Open 打开状态阻断所有请求直接返回降级结果；Half-Open 半开状态部分请求试探，成功率达到阈值则关闭恢复正常，失败则继续打开。</li>
+<li>关键配置项：circuitBreaker.requestVolumeThreshold 熔断器生效最小请求数，默认 20，统计窗口内请求数不到 20 即使失败率 100% 也不会熔断；circuitBreaker.errorThresholdPercentage 失败率阈值，默认 50%；circuitBreaker.sleepWindowInMilliseconds 休眠时间，默认 5000ms，休眠结束后进入半开状态。</li>
+<li>线程池隔离：每个 HystrixCommand 可配置独立线程池，A 服务响应慢占满自己的线程池不影响 B 服务。配置示例 groupKey OrderGroup、commandKey GetOrder、threadPoolKey OrderThreadPool，threadPoolProperties coreSize 10、maxQueueSize 100、queueSizeRejectionThreshold 50。coreSize 核心线程数默认 10 决定最大并发数；maxQueueSize 队列大小默认 -1 表示用 SynchronousQueue 不排队，设成正数用 LinkedBlockingQueue；queueSizeRejectionThreshold 队列拒绝阈值，队列里请求数超过该值开始拒绝新请求，可动态修改，maxQueueSize 不能。线程池隔离代价是每个请求都要切换线程有性能损耗，对本身就很快的调用如访问本地缓存用信号量隔离更合适，配置 execution.isolation.strategy 为 SEMAPHORE、execution.isolation.semaphore.maxConcurrentRequests 为 100。</li>
+<li>Hystrix Dashboard 监控：实时查看每个 HystrixCommand 的请求成功&#x2F;失败&#x2F;超时数、熔断器状态、线程池使用情况、P99&#x2F;P95 延迟。需先暴露监控端点 &#x2F;hystrix.stream，集群环境用 Turbine 聚合多个实例监控数据；Hystrix 里包一段普通调用就行，比如：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> restTemplate.getForObject(<span class="string">&quot;http://order-service/order/&quot;</span> + id, Order.class);</span><br></pre></td></tr></table></figure>
+
+<p>  然后启动 Hystrix Dashboard 应用，输入 <a href="http://your-service:port/hystrix.stream">http://your-service:port/hystrix.stream</a> 就能看到实时监控数据。</p>
+<ul>
+<li>框架对比：Hystrix 已停止开发、线程池&#x2F;信号量隔离、滑动窗口、不支持限流、Hystrix Dashboard、不支持规则持久化、线程池开销大；Sentinel 阿里活跃维护、信号量隔离、滑动窗口、支持功能丰富限流、Sentinel Dashboard、支持多种数据源持久化、轻量性能好；Resilience4j 社区活跃维护、信号量&#x2F;线程池隔离、基于环形缓冲区、支持限流、无内置控制台需集成、需自行实现持久化、轻量性能好。国内用 Sentinel 有阿里背书控制台强大规则可动态推送；国外或不想依赖阿里生态用 Resilience4j，Spring Cloud 官方推荐。老项目 Hystrix 迁移到 Sentinel 可用 sentinel-annotation-aspectj 依赖，注解改一下即可，熔断规则需重新配置。</li>
+<li>线程池满了时：maxQueueSize 为 -1 用 SynchronousQueue 不排队，线程池满直接拒绝走降级；设成正数用 LinkedBlockingQueue 会排队，但 queueSizeRejectionThreshold 超过也会拒绝；一般不建议设太大队列。</li>
+<li>Hystrix 超时与 Ribbon 超时：两个独立但要协调好，Hystrix 超时是整体超时包括排队等待、网络传输、服务处理全部时间，Ribbon 超时是单次 HTTP 请求超时；一般建议 Hystrix 超时大于 Ribbon 超时乘以重试次数。</li>
+<li>Netflix 不维护 Hystrix 有几个原因，架构理念变了，转向自适应并发限制和无状态重试，觉得基于阈值配置的熔断方式太死板需要人工调参，内部用 concurrency-limits；线程池隔离性能开销大高并发场景不太划算；但设计思想仍有价值，Sentinel、Resilience4j 都借鉴了。</li>
+<li>异步调用：用 HystrixObservableCommand 或返回 Future；execute 同步，queue 返回 Future 可异步获取；HystrixObservableCommand 支持响应式编程返回 Observable；异步场景注意 RequestContext 在子线程里拿不到，需 HystrixRequestContext 初始化后才能访问。</li>
+</ul>
+<hr>
+<h3 id="39-什么是服务雪崩？"><a href="#39-什么是服务雪崩？" class="headerlink" title="39. 什么是服务雪崩？"></a>39. 什么是服务雪崩？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>服务雪崩就是微服务架构里一个服务挂了，把依赖它的其他服务也拖下水，像多米诺骨牌一样一个接一个倒，最后整个系统大面积瘫痪。</li>
+<li>典型场景：服务 A 调用服务 B，服务 B 调用服务 C；服务 C 响应超时，服务 B 线程池被等待中的请求占满，接着服务 A 调用服务 B 也开始超时，整条链路全崩。</li>
+<li>雪崩的根本原因有两个：调用链太长，微服务拆得越细依赖越复杂，底层服务出问题影响面沿调用链向上扩散；重试机制帮倒忙，下游快挂了还疯狂重试等于火上浇油，流量瞬间翻倍把服务彻底打死。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>防范手段核心思路是快速失败、及时止损，别让故障扩散出去。</li>
+<li>熔断器思路跟家里的保险丝一样，电流太大就自动断开保护整个电路；Hystrix、Resilience4j、Sentinel 都提供熔断能力；工作原理统计一段时间内的请求失败率，比如 10 秒内失败率超过 50% 就跳闸，后续请求直接返回失败不再真正调用下游服务，过一段时间放几个请求试探，成功了就恢复正常调用。</li>
+<li>Resilience4j 熔断器配置示例：CircuitBreakerConfig.custom().failureRateThreshold(50).waitDurationInOpenState(Duration.ofSeconds(30)).slidingWindowSize(10).build()，失败率阈值 50%，熔断后等待 30 秒，统计窗口大小 10。</li>
+<li>服务降级是服务出问题的时候给用户一个兜底方案，比如商品详情页推荐服务挂了就展示默认热销榜单，库存服务挂了就显示”库存查询中”让用户稍后再试；降级方案要提前设计好，核心交易链路一般不能降级，边缘功能完全可以。</li>
+<li>限流控制流量入口防止流量太大把服务压垮，常用算法有令牌桶和漏桶，比如限制每秒最多处理 1000 个请求超出直接拒绝；漏桶匀速处理请求能削峰填谷但没法应对突发流量，令牌桶匀速放令牌请求拿令牌拿不到就拒绝，桶里能攒一定数量令牌所以能应对短时间突发流量，实际用令牌桶更多。</li>
+<li>隔离把不同的调用方或接口隔离开，用独立的线程池或者信号量，一个接口出问题不会把其他接口资源耗光，比如订单服务调用库存、支付、物流三个下游分别用三个线程池，库存服务再慢也不影响支付。</li>
+<li>实际案例：某电商大促期间库存服务因数据库慢查询响应从 50ms 涨到 5 秒，订单服务 200 个线程很快占满，新下单请求全部排队，网关层开始超时，整个交易链路瘫痪 20 分钟损失上千万；事后复盘如果库存服务有熔断在响应变慢时直接熔断返回降级结果，订单服务就不会被拖死，至少能保证用户下单成功，库存扣减走异步补偿。</li>
+<li>熔断器三种状态转换：正常关闭状态请求正常通过；失败率达到阈值如 50% 切换到打开状态所有请求直接失败不再调用下游；打开状态持续一段时间后进入半开状态放几个请求试探，试探成功切回关闭，失败继续保持打开。</li>
+<li>线程池隔离与信号量隔离：线程池隔离用独立线程池处理请求调用方线程提交任务后返回不被阻塞，隔离彻底但线程切换有开销配置麻烦；信号量隔离用计数器控制并发数调用方线程直接执行只是限制同时进行的请求数量，开销小但隔离没那么彻底下游慢的话调用方线程还是被占着；一般来说调用外部服务用线程池隔离更安全，内部服务调用用信号量就够了。</li>
+</ul>
+<hr>
+<h3 id="40-什么是服务降级？"><a href="#40-什么是服务降级？" class="headerlink" title="40. 什么是服务降级？"></a>40. 什么是服务降级？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>服务降级就是系统扛不住的时候，主动砍掉一些非核心功能，保住最重要的业务；说白了就是丢卒保车，宁可让用户看不到推荐商品，也不能让他下不了单。</li>
+<li>拿电商场景举例，用户访问商品详情页正常流程要调用商品服务、库存服务、推荐服务、评价服务；推荐服务挂了如果没有降级策略整个页面可能都打不开，有了降级就返回默认热销榜单，其他功能照常用，用户感知不到有问题。</li>
+<li>降级的触发时机主要有三种：服务调用超时或失败，比如支付服务响应超过 3 秒直接返回”支付繁忙，请稍后重试”；系统负载过高，CPU 打到 90%、内存快爆了主动把推荐、评价关掉把资源留给下单和支付；下游服务不可用，库存服务挂了直接返回上次缓存的库存数据或显示”库存查询中”。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Fallback 降级回调是最常用方式，给每个远程调用配一个 fallback 方法调用失败就执行 fallback 返回兜底数据；Resilience4j 示例：@CircuitBreaker(name &#x3D; “inventoryService”, fallbackMethod &#x3D; “getInventoryFallback”) 的 getInventory 调用 inventoryClient.getInventory，降级方法 getInventoryFallback 返回 cacheService.getCachedInventory(productId)。</li>
+<li>缓存兜底：查询类接口可以用缓存做降级，服务挂了返回上次查到的数据，商品详情、用户信息这种不经常变的数据特别适合。</li>
+<li>限流降级：流量太大的时候直接拒绝部分请求，秒杀场景只放 1 万个请求进来多出来的直接返回”活动太火爆，请稍后再试”。</li>
+<li>开关降级：通过配置中心动态关闭特定功能。</li>
+<li>主流降级框架对比：Hystrix 停止维护 Netflix 出品功能完善但较重适用老项目维护；Resilience4j 活跃轻量级函数式风格支持响应式适用 Spring Boot 2.x+ 新项目；Sentinel 活跃阿里出品功能丰富有控制台适用 Spring Cloud Alibaba 生态。Hystrix 2018 年进入维护模式官方推荐迁移到 Resilience4j，国内用 Sentinel 多主要是跟 Spring Cloud Alibaba 配合得好且有可视化控制台。</li>
+<li>设计原则：哪些功能可以降级，核心交易链路不能降级推荐评价积分这些边缘功能可以；降级后返回什么，缓存数据、默认数据还是友好提示要根据业务场景决定，库存可以返回缓存但余额查询不能返回缓存；降级开关放配置中心如 Nacos、Apollo，大促前提前把非核心功能关掉不用改代码重启。</li>
+<li>实际场景：双 11 大促期间电商提前把商品评价、问大家、买家秀降级成静态页面或直接隐藏，把算力集中在下单支付库存扣减，流量高峰过去再恢复；金融系统某个银行渠道不可用直接降级到其他渠道或提示用户换支付方式。</li>
+<li>降级和熔断区别：熔断是被动触发检测到下游服务故障率超过阈值自动断开调用，降级是主动策略可以提前配置或手动触发；熔断触发后一般执行降级逻辑，所以经常配合使用；熔断解决怎么发现故障并快速止损，降级解决止损后给用户返回什么。</li>
+<li>判断功能能否降级：业务影响，核心交易链路不能降级影响收入的功能谨慎纯体验优化类可大胆降级；数据一致性要求，余额库存涉及资金或核心数据返回错误数据比不返回更危险宁可报错也不能返回脏数据。</li>
+<li>降级后返回缓存数据缓存过期处理：多级缓存策略本地缓存过期还有 Redis Redis 也没有返回默认值或友好提示；或缓存永不过期后台定时刷新服务恢复后再更新；具体看业务对数据时效性的容忍度。</li>
+<li>Sentinel 流控规则：支持 QPS 流控、线程数流控、关联流控、链路流控；QPS 流控每秒请求数超过阈值就限流；线程数流控并发线程数超过阈值就限流；关联流控 A 接口流量大时限制 B 接口；链路流控针对某个入口来源限流；实际用最多 QPS 流控配合预热模式让系统慢慢承接流量避免冷启动被打崩。</li>
+</ul>
+<hr>
+<h3 id="41-什么是服务熔断？"><a href="#41-什么是服务熔断？" class="headerlink" title="41. 什么是服务熔断？"></a>41. 什么是服务熔断？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>服务熔断就是下游服务扛不住的时候，调用方主动切断请求，不再去调用它，跟家里的保险丝一个道理，电流太大就自动断开，保护整个电路不被烧掉。</li>
+<li>熔断器检测到某个服务在 10 秒内失败率超过 50%，就会跳闸，后续所有请求直接返回失败，不再真正调用那个服务；过 30 秒后放几个请求去试探一下，成功了就恢复正常调用，失败就继续熔断。</li>
+<li>熔断和降级经常一起出现但职责不同：熔断解决怎么快速发现故障并止损，降级解决止损后给用户返回什么；熔断触发后一般执行降级逻辑给用户兜底响应。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>熔断器三种状态：Closed 关闭状态正常情况下熔断器关闭请求正常通过同时统计成功和失败次数；Open 打开状态失败率超过阈值熔断器跳闸进入打开状态所有请求直接失败不再调用下游服务；Half-Open 半开状态打开状态持续一段时间后进入半开状态放几个请求试探，试探成功切回关闭状态失败继续保持打开。</li>
+<li>熔断触发条件看三个指标：失败率，比如 10 秒内请求 100 次失败 60 次失败率 60% 超过阈值 50% 触发熔断；慢调用比例，请求虽然成功但响应时间超过 3 秒算慢调用比例超过阈值也会触发熔断因为慢调用会占用线程资源；异常数，某些场景下直接按异常次数触发比如 1 分钟内异常 5 次就熔断。</li>
+<li>主流熔断框架：Hystrix 停止维护滑动窗口配置较复杂适用老项目维护；Resilience4j 活跃滑动窗口&#x2F;计数窗口配置简单适用 Spring Boot 2.x+ 新项目；Sentinel 活跃滑动窗口配置简单适用 Spring Cloud Alibaba 生态。Hystrix 2018 年停止更新官方推荐迁移到 Resilience4j，Resilience4j 更轻量基于 Java 8 函数式编程跟 Spring Boot 配合得很好。</li>
+<li>Resilience4j 熔断配置示例：CircuitBreakerConfig.custom().failureRateThreshold(50).slowCallRateThreshold(80).slowCallDurationThreshold(Duration.ofSeconds(3)).waitDurationInOpenState(Duration.ofSeconds(30)).permittedNumberOfCallsInHalfOpenState(3).slidingWindowType(SlidingWindowType.COUNT_BASED).slidingWindowSize(10).build()。Sentinel 在国内用得比较多有可视化控制台可实时看到每个接口的 QPS、响应时间、熔断状态运维方便。</li>
+<li>熔断参数调优：阈值设太低正常波动就触发熔断用户动不动看到报错；阈值设太高真出故障熔断器迟迟不跳闸故障扩散开了才反应。失败率阈值 50% 是合理起点核心链路可以设低一点比如 30%；统计窗口不要太小至少 10 次请求以上再判断避免单次失败就触发；熔断等待时间 30 秒到 60 秒比较合适；半开状态试探请求数设 3 到 5 个。</li>
+<li>熔断和重试配合：重试应对偶发失败熔断应对持续故障；如果下游已挂还疯狂重试等于火上浇油；正确做法先重试再熔断，单次请求失败可重试 2 到 3 次但重试失败也算失败率统计的一部分，失败率超过阈值触发熔断后不再重试直接返回降级结果。</li>
+<li>熔断器统计窗口两种：基于时间的滑动窗口统计最近 N 秒内的请求情况如最近 10 秒失败率；基于计数的滑动窗口统计最近 N 次请求情况如最近 100 次请求失败率。时间窗口对流量变化更敏感低流量场景样本不够准确；计数窗口样本数固定但对时间不敏感可能很久以前的请求还在统计范围内；高流量用时间窗口低流量用计数窗口。</li>
+<li>熔断状态下请求直接失败不会影响用户体验，关键是熔断后要有降级逻辑兜底给用户合理响应，比如推荐服务熔断返回默认热销榜单库存服务熔断提示”库存查询中，请稍后”；熔断价值在于快速失败避免用户等 30 秒才看到超时报错现在 100 毫秒就能返回降级结果体验其实更好。</li>
+<li>半开状态试探请求失败处理取决于框架配置：Resilience4j 可配置半开状态允许请求数和成功阈值比如放 5 个请求成功 3 个以上就关闭熔断器否则继续打开；Sentinel 默认放一个请求试探成功就关闭失败就继续打开。</li>
+<li>线上怎么知道哪些服务触发了熔断：接入监控，Sentinel 自带控制台能实时看到每个接口的熔断状态和触发次数；Resilience4j 可通过 Actuator 暴露熔断器指标接入 Prometheus + Grafana；配好告警熔断器状态从关闭变成打开就发告警通知让运维第一时间知道有服务出问题。</li>
+</ul>
+<hr>
+<h3 id="42-什么是服务限流？"><a href="#42-什么是服务限流？" class="headerlink" title="42. 什么是服务限流？"></a>42. 什么是服务限流？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>服务限流是一种流量控制策略，通过限制每秒请求数量、请求频率、并发数这些指标，保护服务的处理能力，防止流量过大把系统压垮。</li>
+<li>限流和熔断、降级并称服务保护三大手段，核心思路都是限制进入系统的请求数量来实现保护。</li>
+<li>阈值可以按预估吞吐量来定，比如订单服务单实例能抗 2000 QPS，就把限流阈值设成 1800 QPS，超出的请求直接拒绝或排队等待。</li>
+<li>处理流程是请求先过限流器判断有没有超阈值，没超就放行正常处理，超了就触发限流策略：直接拒绝返回错误码、进等待队列排队，或者触发降级返回兜底数据。</li>
+<li>常见的实现算法有固定窗口、滑动窗口、漏桶、令牌桶，Guava 的 RateLimiter 就是令牌桶实现。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>固定窗口在边界处可能双倍流量：第 1 秒最后 500ms 来 100 个请求、第 2 秒前 500ms 又来 100 个，实际 1 秒处理了 200 个；滑动窗口把大窗口切成小窗口统计最近总和，比如 1 秒切成 10 个 100ms，Sentinel 默认就是滑动窗口。</li>
+<li>漏桶匀速出桶，适合对下游有严格速率要求的场景，比如调第三方短信接口限制每秒最多 10 次；令牌桶按固定速率放令牌，桶里攒了令牌就能应对一波突发，桶满了新生成的令牌直接丢弃。</li>
+<li>单机限流用 Guava RateLimiter 最轻量，几行代码就能用，但只能控单实例；分布式限流靠 Redis + Lua 脚本，一个脚本里原子完成「读计数、判断超限、计数加一」，不会有并发问题。</li>
+<li>电商秒杀可以在网关层用令牌桶限流，每秒只放 5000 个请求进来，超出的返回活动火爆提示；防爬虫可以按 IP 用滑动窗口统计，超阈值的请求直接返回 429 状态码。</li>
+</ul>
+<hr>
+<h3 id="43-Sentinel-是怎么实现限流的？"><a href="#43-Sentinel-是怎么实现限流的？" class="headerlink" title="43. Sentinel 是怎么实现限流的？"></a>43. Sentinel 是怎么实现限流的？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Sentinel 限流的核心思路是四步：定义资源、配置规则、流量统计、限流判断。</li>
+<li>先明确限流对象，在 Sentinel 里一个接口、一个方法甚至一段代码都可以定义成资源。</li>
+<li>再给资源配置限流规则，比如 QPS 不能超过 100、并发线程数不能超过 10。</li>
+<li>请求进来后 Sentinel 实时统计当前资源的 QPS 和并发数，跟阈值对比，超了就触发限流。</li>
+<li>代码层面用 @SentinelResource 注解就能定义资源，配上 blockHandler 处理限流后的逻辑。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>执行流程走 Slot Chain 责任链，槽位依次执行：NodeSelectorSlot 构建调用树，ClusterBuilderSlot 创建统计节点，StatisticSlot 实时统计 QPS 和线程数，最后 FlowSlot 拿统计数据和规则对比，超阈值就抛 FlowException。</li>
+<li>StatisticSlot 用 LeapArray 数据结构做滑动窗口，底层是环形数组，默认 1 秒切成 2 个 500ms 的窗口，按当前时间戳定位窗口累加计数，窗口过期复用槽位 reset 就行，不用频繁创建销毁对象。</li>
+<li>限流模式有直接拒绝、排队等待和预热：排队等待类似漏桶，可设最大等待 500ms（CONTROL_BEHAVIOR_RATE_LIMITER）；预热用于冷启动，令牌生成速率用冷却因子 3、预热时长 10 秒，阈值在 10 秒内从 1&#x2F;3 爬升到设定值。</li>
+<li>规则默认存在内存里，重启就没了，生产要推送到 Nacos、Apollo 这些配置中心，监听变更自动刷新到规则管理器，控制台改完规则所有节点实时生效，不用重启。</li>
+</ul>
+<hr>
+<h3 id="44-Sentinel-与-Hystrix-的区别是什么？"><a href="#44-Sentinel-与-Hystrix-的区别是什么？" class="headerlink" title="44. Sentinel 与 Hystrix 的区别是什么？"></a>44. Sentinel 与 Hystrix 的区别是什么？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>最核心的区别是设计理念不同：Hystrix 以服务保护为切入点，Sentinel 以流量控制为切入点。</li>
+<li>Hystrix 的核心是线程隔离，每次服务调用放独立线程池执行，一个服务挂了不拖垮整体，代价是线程池有开销，高并发下线程切换成本不低。</li>
+<li>Sentinel 的核心是流量控制，用滑动窗口实时统计 QPS、并发数，靠信号量机制控制并发，不依赖线程池隔离，性能开销更小。</li>
+<li>功能上 Hystrix 主做熔断和降级，监控失败率和响应时间；Sentinel 限流、熔断、降级、热点参数限流、系统自适应保护都支持，还有可视化控制台实时调整规则。</li>
+<li>现实因素是 Hystrix 2018 年就停止维护了，Netflix 官方推荐迁移到 Resilience4j；Sentinel 持续更新，社区活跃，新项目基本都选 Sentinel。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>熔断策略不同：Hystrix 是关闭、打开、半开三态，10 秒内请求数超过 20 个且失败率超过 50% 就打开，开 5 秒后半开放一个请求试探；Sentinel 支持慢调用比例、异常比例、异常数三种策略，慢调用比例能在服务变慢但还没挂时提前保护。</li>
+<li>隔离上 Hystrix 默认线程池隔离，每个依赖服务配独立线程池，比如每个池子 10 个线程，也有信号量隔离但不支持超时控制；Sentinel 默认信号量隔离，用 AtomicInteger 记录并发数，缺点是没法做超时中断，要靠调用方配置超时或慢调用熔断兜底。</li>
+<li>限流能力上 Hystrix 只能靠线程池大小和信号量间接限流，想做精细 QPS 限流得自己写代码；Sentinel 支持直接拒绝、排队等待、预热模式，还支持热点参数限流，比如同一个接口，普通用户限流 100 QPS，高等级用户限流 1000 QPS，按参数值区分对待。</li>
+<li>迁移时注解要换，@HystrixCommand 换成 @SentinelResource；blockHandler 处理限流熔断的 BlockException，要带 BlockException 参数，fallback 处理业务异常；线程池隔离在 Sentinel 没有直接替代，超时中断得在调用方自己设。</li>
+</ul>
+<hr>
+<h3 id="45-Sentinel-是怎么实现集群限流的？"><a href="#45-Sentinel-是怎么实现集群限流的？" class="headerlink" title="45. Sentinel 是怎么实现集群限流的？"></a>45. Sentinel 是怎么实现集群限流的？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>核心思路是选一个节点当令牌服务器，所有实例请求资源前都去它申请令牌，拿到令牌才放行，拿不到就限流。</li>
+<li>集群分两种角色：Token Server 集中发放令牌、内部维护全局计数器，每秒最多发 1000 个令牌就意味着整个集群 QPS 上限 1000；Token Client 就是各业务实例，申请不到就走限流逻辑。</li>
+<li>具体流程是业务请求打到某个实例，实例作为 Client 通过 Netty 发一个 TCP 请求给 Token Server，计数器没超阈值就发令牌并加一，超了就返回拒绝，Client 拿到结果决定放行还是降级。</li>
+<li>这是为了解决单机限流的问题。10 个实例各限 100 QPS，流量分布不均时可能 3 个实例扛了 80% 流量先被限，其余 7 个还闲着；集群限流按全局视角判断，整体没超 1000 QPS 就都放行。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Token Server 两种部署模式：嵌入式直接从业务集群选一个实例兼任，不用单独部署但压力大时容易成瓶颈；独立部署单独起进程不跑业务，生产推荐这种方式，一般 2-3 个节点做主备。</li>
+<li>通信细节是 Token Client 和 Token Server 走 Netty 长连接、Sentinel 自定义二进制协议，一次令牌申请约 0.5ms；申请失败 Client 可降级到单机限流，避免 Token Server 挂掉导致全被拒绝，也可配置快速失败。</li>
+<li>高可用要靠外部组件：Sentinel 本身没有内置选举算法，需要 Nacos、ZooKeeper 动态切换 Token Server 地址实现主备，注意不能让 Client 同时连不同节点，否则全局计数不一致。</li>
+<li>Token Server 内部用滑动窗口算法，默认窗口 1 秒分多个小窗口统计；除 QPS 模式外还支持并发线程数模式，统计处理中的请求数，适合下游响应时间波动大的场景。</li>
+</ul>
+<h2 id="七、网关、服务网格与发布策略"><a href="#七、网关、服务网格与发布策略" class="headerlink" title="七、网关、服务网格与发布策略"></a>七、网关、服务网格与发布策略</h2><hr>
+<h3 id="46-什么是服务网格？"><a href="#46-什么是服务网格？" class="headerlink" title="46. 什么是服务网格？"></a>46. 什么是服务网格？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>服务网格是一层专门处理服务间通信的基础设施，核心思路是在每个服务旁边部署一个代理进程，路由、限流、熔断、监控这些脏活累活都由代理负责，业务代码压根不用管。</li>
+<li>具体就是 Sidecar 模式：业务服务和代理进程跑在同一个 Pod 里，业务发出的请求先到本地代理，代理再转发给目标服务的代理，最后才到目标服务。</li>
+<li>整个过程对业务代码完全透明，开发者只管写业务逻辑，服务发现、负载均衡、TLS 加密这些都由代理搞定。</li>
+<li>Istio、Linkerd 是目前最主流的服务网格方案，数据平面一般用 Envoy 做代理。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>演进过程是通信和业务先耦合在一起，后来抽成 Dubbo、gRPC 这类公共 RPC 组件但仍要引入 SDK，服务网格更进一步把通信逻辑连 SDK 都剥离，用独立进程做代理，被称为微服务 3.0 版本。</li>
+<li>架构分两层：控制平面是大脑，负责下发配置、管理策略，Istio 原来的 Pilot、Citadel、Galley 三个组件在 1.5 版本后合并成一个 istiod 进程；数据平面是一堆 Sidecar 代理，Istio 默认用 Envoy，执行路由、限流、熔断、加密。</li>
+<li>代价是每次服务调用多两跳代理，P99 延迟增加 2-5ms；每个 Pod 多跑一个代理进程，Istio 一个 Sidecar 大概占 50-100MB 内存，100 个服务就是 5-10GB 额外开销，Linkerd 用 Rust 写、内存只有 Istio 的十分之一左右。</li>
+<li>不是所有场景都适合上服务网格：服务数量 10 个以内，用 Spring Cloud 那套 SDK 方案反而更简单；上百个服务、跨多语言、需要统一流量治理的场景才体现价值，因为能力下沉到代理层后，任何语言的服务流量经过代理都享受统一治理。</li>
+</ul>
+<hr>
+<h3 id="47-什么是灰度发布、金丝雀部署以及蓝绿部署？"><a href="#47-什么是灰度发布、金丝雀部署以及蓝绿部署？" class="headerlink" title="47. 什么是灰度发布、金丝雀部署以及蓝绿部署？"></a>47. 什么是灰度发布、金丝雀部署以及蓝绿部署？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>这三种都是为了让新版本上线更安全的发布策略，核心思路就是避免一次性全量切换带来的风险。</li>
+<li>蓝绿部署最简单直接：线上同时跑两套环境，蓝色是当前生产版本，绿色是新版本，验证完把流量一把切到绿色，出问题秒切回蓝色当备份。</li>
+<li>金丝雀部署先放一小撮流量到新版本试水，比如 5% 请求打到新版本，观察没问题再逐步放大比例直到全量；名字来自矿工用金丝雀探有毒气体。</li>
+<li>灰度发布和金丝雀很像，区别在分流维度：金丝雀一般按比例随机分，灰度发布按用户属性分，比如先内部员工、再北京用户、最后全量。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>蓝绿部署优点是切换快、回滚快（基本秒级），缺点是资源占用翻倍、两套环境成本高；涉及数据库 schema 变更时两个版本可能没法共用一个库。</li>
+<li>金丝雀不需要完整双环境，只在现有集群加几个新版本实例，K8s 里用两个 Deployment 配合 Istio 的 VirtualService 配流量权重（v1 90、v2 10）即可。</li>
+<li>灰度发布可在网关层做路由判断，读请求里的用户信息匹配灰度规则后决定转发哪个版本；按用户 ID 分流可用 userId % 100 &lt; 10 保证同一用户天然打到同一版本。</li>
+<li>数据库变更最头疼，一般用两阶段发布向前兼容：先加字段但不依赖、发布新版本让它开始写、等旧版本全下线再依赖新字段，可配合 Flyway、Liquibase 做版本管理。</li>
+</ul>
+<hr>
+<h3 id="48-什么是微服务网关？为什么需要服务网关？"><a href="#48-什么是微服务网关？为什么需要服务网关？" class="headerlink" title="48. 什么是微服务网关？为什么需要服务网关？"></a>48. 什么是微服务网关？为什么需要服务网关？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>微服务网关就是整个系统的统一入口，所有外部请求都得先经过它，再由它转发到后端各个微服务，就像小区门卫室先登记验证身份再指路。</li>
+<li>统一入口管理：没网关的话 10 个服务就是 10 个地址，客户端配置复杂、地址一变全得改；有网关客户端只认一个地址，路由分发交给网关。</li>
+<li>横切关注点集中处理：鉴权、限流、日志、监控这些公共逻辑放网关统一处理，一处修改全局生效，不用改 10 个服务。</li>
+<li>协议转换和适配：外部用 HTTPS，内部服务之间可能用 gRPC 或私有协议，网关做协议泛化，对外暴露标准 REST 接口，对内用高性能二进制协议。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>没网关时服务一多（20、50 个）问题就暴露：跨域每个服务单独配 CORS、鉴权逻辑散落各处风格不统一、服务地址一变前端得跟着发版。</li>
+<li>网关核心能力包括路由转发、负载均衡、安全鉴权（统一校验 Token&#x2F;签名&#x2F;IP 白名单）、限流熔断、协议转换（HTTP 转 Dubbo 或 gRPC）。</li>
+<li>限流在网关层做比各服务做高效：整个系统每秒最多 1 万请求，超了直接返回 429 状态码压根不打到后端；常用令牌桶和漏桶，Gateway 内置 RequestRateLimiter 用 Redis 做分布式限流。</li>
+<li>网关本身也可能成单点，生产一般部署多个实例前面挂 LVS 或 Nginx，架构是 DNS -&gt; LVS&#x2F;Nginx -&gt; Gateway 集群 -&gt; 微服务集群，4 核 8G 跑 Gateway 单实例约扛 2 万 QPS。</li>
+</ul>
+<hr>
+<h3 id="49-Spring-Cloud-可以选择哪些-API-网关？"><a href="#49-Spring-Cloud-可以选择哪些-API-网关？" class="headerlink" title="49. Spring Cloud 可以选择哪些 API 网关？"></a>49. Spring Cloud 可以选择哪些 API 网关？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Spring Cloud Gateway 是官方主推方案，底层基于 WebFlux 和 Netty 走非阻塞响应式路线，和 Nacos、Sentinel、OpenFeign 配合得很好，Java 技术栈首选。</li>
+<li>Kong 基于 Nginx 和 OpenResty 的高性能网关，单机轻松跑到 10 万+ QPS，插件生态丰富，缺点是 Lua 语言门槛高，Java 开发者二次开发不太顺手。</li>
+<li>Apache APISIX 也是 Nginx + Lua 路线，性能和 Kong 一个级别但更云原生，支持 Java、Go、Python 多语言插件，配置通过 etcd 热更新不用重启。</li>
+<li>Zuul 是 Spring Cloud Netflix 早期默认网关，1.x 是同步阻塞模型性能瓶颈明显，整体进入维护模式，Spring 官方从 2020 年起不再推荐，新项目直接上 Gateway。</li>
+<li>Envoy 底层用 C++，二次开发难度较大，是 CNCF 云原生基金会的毕业项目，比较适合服务网格场景和多语言架构部署。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>选型路径：纯 Java 技术栈选 Gateway；追求极致性能或多语言架构选 Kong 或 APISIX；服务网格场景考虑 Envoy。</li>
+<li>网关是微服务架构的咽喉要道，选错轻则性能跟不上、重则单点故障拖垮系统；某电商用 Zuul 1.x 大促扛不住（线程池 200、每请求 100ms 理论上限 2000 QPS），换成 Gateway 吞吐直接翻 10 倍。</li>
+<li>性能对比：各网关吞吐量强依赖测试环境，不同基准能差 10 倍以上，量级上 Kong&#x2F;APISIX 明显高于 Gateway，Gateway 又高于 Zuul 1.x；Gateway 支持配置热更新、学习成本低、社区活跃，Zuul 1.x 已停止维护。</li>
+<li>从 Zuul 迁移分三步：先梳理现有路由配置和过滤器（ZuulFilter 对应 GatewayFilter），再并行部署新老网关先切 10% 流量观察，最后全量切换后下掉老 Zuul。</li>
+</ul>
+<hr>
+<h3 id="50-什么是-Spring-Cloud-Zuul？"><a href="#50-什么是-Spring-Cloud-Zuul？" class="headerlink" title="50. 什么是 Spring Cloud Zuul？"></a>50. 什么是 Spring Cloud Zuul？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Zuul 是 Netflix 开源的 API 网关，Spring Cloud 把它集成进来作为早期默认的网关方案。</li>
+<li>核心能力就是请求路由和过滤，所有进入微服务的流量先过 Zuul，由它决定转发到哪个服务，转发前后可做鉴权、限流、日志等横切逻辑。</li>
+<li>Zuul 的核心是过滤器机制，所有功能都通过过滤器实现，过滤器分 pre、route、post、error 四种类型。</li>
+<li>请求进来先走 pre 过滤器链，再走 route 过滤器转发到后端服务，拿到响应走 post 过滤器链返回客户端，任何环节出错都跳到 error 过滤器处理。</li>
+<li>重要背景：Zuul 1.x 在 2017 年 11 月之后就没再更新，2019 年 1 月 Spring Cloud Greenwich 已把它列为被 Zuul 2 取代，Spring Cloud 2020 版起移除了相关模块，Spring 官方现在主推 Spring Cloud Gateway；新项目不建议再上 Zuul，老项目建议迁移到 Gateway。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>四类过滤器分工：pre 在路由前做鉴权&#x2F;参数校验&#x2F;流量染色，route 用 HttpClient 或 Ribbon 转发，post 加响应头&#x2F;记日志&#x2F;统计耗时，error 做异常处理和错误响应。route 里直接指定后端地址就写成这样：</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">url:</span> <span class="string">http://localhost:8081</span>  <span class="comment"># 直接指定地址</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>Zuul 1.x 底层就是一个 Servlet，一请求占一个线程，等后端响应时线程阻塞；Tomcat 配 200 线程、每请求 100ms 理论极限就是 2000 QPS，再多只能排队超时。</li>
+<li>Zuul 2.x 用 Netty 重写网络层，IO 线程发完请求就处理别的连接，性能约 2 万 QPS，但 Spring Cloud 没官方集成、用着得自己折腾，Netflix 对开源投入也越来越少。</li>
+<li>迁移到 Gateway 涉及路由和过滤器两部分：Zuul 路由用 serviceId，Gateway 用 lb:&#x2F;&#x2F; + predicates；过滤器 ZuulFilter 对应 GatewayFilterFactory，逻辑能复用但 API 得重写。</li>
+</ul>
+<hr>
+<h3 id="51-什么是-Spring-Cloud-Gateway？"><a href="#51-什么是-Spring-Cloud-Gateway？" class="headerlink" title="51. 什么是 Spring Cloud Gateway？"></a>51. 什么是 Spring Cloud Gateway？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>Spring Cloud Gateway 是 Spring Cloud 官方推出的 API 网关，用来替代已经进入维护状态的 Zuul 1.x。</li>
+<li>它基于 Spring 5、Spring Boot 2 和 Project Reactor 构建，底层用 Netty 做通信，走异步非阻塞路线，高并发场景比 Zuul 那套同步阻塞模型扛得住多。</li>
+<li>在微服务架构里 Gateway 就是所有外部流量的统一入口，主要干三件事：路由转发、请求过滤、负载均衡。</li>
+<li>路由转发按预配置规则把请求分发到各微服务，客户端不用关心服务部署在哪；请求过滤借鉴 Zuul 思想但改成异步非阻塞；负载均衡配合 Spring Cloud LoadBalancer 或 Ribbon 分摊流量。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>三个核心概念：Route 路由（含唯一 ID、目标 URI、一组 Predicate、一组 Filter），Predicate 断言判断请求匹配（内置十几种断言工厂，多断言是与关系），Filter 分 GatewayFilter 和 GlobalFilter，按 Order 值排序执行。</li>
+<li>替代 Zuul 的根本原因在于模型差异，Zuul 1.x 基于 Servlet 同步阻塞，一请求占一线程，流量大线程池易打满；Gateway 基于 Reactor 响应式，一线程处理多请求，基准实测吞吐约为 Zuul 1.x 的 1.5 倍，且内存更低。</li>
+<li>常见踩坑：WebFlux 和 Spring MVC 不能混用（别引 spring-boot-starter-web，得用 starter-webflux）；易漏超时配置；网关层做跨域后后端别再配否则重复 CORS 头。</li>
+<li>限流用内置 RequestRateLimiter 过滤器，底层 Redis 实现令牌桶，配 redis-rate-limiter.replenishRate 和 burstCapacity，拿不到令牌返回 429，用 Redis 支持集群分布式限流。</li>
+</ul>
+<hr>
+<h3 id="52-你项目里为什么选择-Gateway-作为网关？"><a href="#52-你项目里为什么选择-Gateway-作为网关？" class="headerlink" title="52. 你项目里为什么选择 Gateway 作为网关？"></a>52. 你项目里为什么选择 Gateway 作为网关？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>选 Spring Cloud Gateway 主要就三点：Zuul 1.x 凉了、性能更好、Spring 生态集成顺滑。</li>
+<li>Zuul 1.x 在 2018 年就进入维护状态，Netflix 的 Eureka、Hystrix、Ribbon 都陆续停更，继续用风险太大。</li>
+<li>Gateway 是 Spring 官方亲儿子，一直积极迭代、社区活跃，长期来看比 Zuul 稳得多。</li>
+<li>Gateway 基于 WebFlux 和 Netty，走异步非阻塞模型，我们高峰接近 5000 QPS，线程从几百个降到几十个。</li>
+<li>项目用 Spring Cloud Alibaba 那套，Nacos 做注册中心、Sentinel 做熔断限流，Gateway 开箱即用不用写适配代码。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Zuul 1.x 是 Servlet 阻塞模型，一个请求占一个线程；Gateway 用 Netty EventLoop 不阻塞等 IO，默认 worker 线程数是 CPU 核心两倍。</li>
+<li>迁移踩坑：Filter 写法变了，Zuul 用 filterType 区分 pre&#x2F;route&#x2F;post，Gateway 统一 chain.filter()，post 逻辑得用 then() 回调处理。</li>
+<li>WebFlux 两个坑：响应体只能读一次，想打印日志得用 ServerHttpResponseDecorator 包一层缓存；大文件上传默认会内存溢出，得调大 spring.codec.max-in-memory-size 或用流式处理。</li>
+<li>动态路由：路由配置存在 Nacos 里，改了不用重启网关，监听 Nacos 变更事件发 RefreshRoutesEvent 重新加载路由表，几秒生效。</li>
+<li>限流做两层：Gateway 内置 RequestRateLimiter 基于 Redis 令牌桶做全局 QPS 限流，再接 Sentinel 针对具体路由做细粒度控制，超阈值返回 429 和友好提示。</li>
+</ul>
+<hr>
+<h3 id="53-说说什么是-API-网关？它有什么作用？"><a href="#53-说说什么是-API-网关？它有什么作用？" class="headerlink" title="53. 说说什么是 API 网关？它有什么作用？"></a>53. 说说什么是 API 网关？它有什么作用？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>API 网关是微服务架构里的统一入口，所有外部请求先打到网关，再由网关转发到具体的后端服务。</li>
+<li>它不只是个路由器，还干认证鉴权、限流熔断、日志监控、协议转换、请求聚合这些活。</li>
+<li>简化客户端调用：客户端只认网关一个地址，不用记后端几十个服务都部署在哪儿。</li>
+<li>增强安全性：统一做 JWT、OAuth2 这些认证逻辑写一遍就够，后端服务的真实地址藏在网关后面外面看不到。</li>
+<li>流量管控：限流、熔断、降级在网关这层做最合适，流量突增先挡住保护后端服务不被打崩。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>微服务拆成几十上百个服务后，客户端直连会代码爆炸、公网往返多延迟差、协议不统一、重构受限。</li>
+<li>网关把内网多个服务的响应合并成一个返回，协议转换也放网关做，客户端只用 HTTP 就行。</li>
+<li>主流方案里 Gateway 是 Java + Netty，Kong 和 APISIX 是 Nginx + Lua 性能极高，Zuul 1.x 已停止维护。</li>
+<li>生产部署最前面是 Nginx 或云厂商负载均衡做 SSL 卸载，后面至少 2 个网关实例保证高可用。</li>
+</ul>
+<hr>
+<h3 id="54-Dubbo-和-Spring-Cloud-Gateway-有什么区别？"><a href="#54-Dubbo-和-Spring-Cloud-Gateway-有什么区别？" class="headerlink" title="54. Dubbo 和 Spring Cloud Gateway 有什么区别？"></a>54. Dubbo 和 Spring Cloud Gateway 有什么区别？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>这两个东西压根不是一个层面的，放在一起比其实不太合适。</li>
+<li>Dubbo 是高性能 RPC 框架，解决服务与服务之间怎么互相调用，提供注册发现、负载均衡、容错重试。</li>
+<li>Spring Cloud Gateway 是 API 网关，解决外部流量怎么进来的问题，按路由规则转发给后端各个微服务。</li>
+<li>Gateway 干的活是统一鉴权、限流熔断、协议转换、日志监控这些脏活累活。</li>
+<li>关系是：App 或浏览器发请求先到 Gateway 做鉴权限流，再转给订单服务，订单服务内部调库存、用户服务走 Dubbo。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>Dubbo 像专注 RPC 通信的尖刀，Spring Cloud 是微服务的全家桶，实际常混用而不是二选一。</li>
+<li>不少公司对外接口走 Gateway 做入口管控，内部服务间走 Dubbo 追求性能和治理，注册中心统一用 Nacos。</li>
+<li>请求链路是 Nginx 四层负载 → Gateway 七层路由鉴权 → 转内部 HTTP 到 BFF → BFF 用 Dubbo 调领域服务。</li>
+<li>Dubbo 用二进制协议和长连接省掉 HTTP 握手和 JSON 解析，且权重调整、灰度发布等治理能力比 Spring Cloud 原生强。</li>
+</ul>
+<hr>
+<h3 id="55-什么是令牌桶算法？工作原理是什么？使用它有哪些优点和注意事项？"><a href="#55-什么是令牌桶算法？工作原理是什么？使用它有哪些优点和注意事项？" class="headerlink" title="55. 什么是令牌桶算法？工作原理是什么？使用它有哪些优点和注意事项？"></a>55. 什么是令牌桶算法？工作原理是什么？使用它有哪些优点和注意事项？</h3><p><strong>🗣️ 回答重点</strong></p>
+<ul>
+<li>令牌桶算法是一种经典的流量控制算法，系统以固定速率往桶里放令牌，请求进来先拿到令牌才能被处理，拿不到就等着或拒绝。</li>
+<li>令牌按固定速率生成，比如配置成每秒 100 个，那就是每 10ms 生成一个。</li>
+<li>桶有容量上限，比如最多存 200 个，满了之后新生成的令牌直接扔掉。</li>
+<li>请求进来先从桶里拿令牌，有令牌就放行，没令牌就阻塞等待或者直接拒绝。</li>
+<li>因为桶能攒令牌，所以允许一定程度的突发流量，攒够 200 个令牌瞬间来 200 个请求也能全部处理。</li>
+</ul>
+<p><strong>📈 拔高</strong></p>
+<ul>
+<li>优点很明显：能平滑控制流量，又能应对突发，桶容量就是容忍的突发量，令牌速率就是稳态吞吐量，两个参数一调就适配各种场景。</li>
+<li>注意事项主要有：桶容量别设太大否则突发扛不住；分布式场景单机限流没用，得用 Redis 做集中式令牌桶；预热问题，Guava 默认首次使用会预支约 1 秒令牌把桶填满，冷启动可能放过大量请求。</li>
+<li>和漏桶区别：漏桶恒定速率流出没法应对突发，令牌桶提前攒令牌，桶有余量时突发照样能处理。</li>
+<li>常见坑：时间精度要用纳秒计时；分布式限流各节点时钟不同步得用 Redis 服务端时间；tryAcquire 的超时是愿意等多久而非最多等多久。</li>
+</ul>
+<hr>
+<h2 id="面试前-10-分钟速查"><a href="#面试前-10-分钟速查" class="headerlink" title="面试前 10 分钟速查"></a>面试前 10 分钟速查</h2><p><strong>微服务全景</strong></p>
+<ul>
+<li><strong>单体、SOA、微服务的差别</strong>：单体把所有模块打进一个进程，SOA 走企业级总线做系统间整合，微服务按业务边界拆成独立部署、独立数据的小服务，粒度更细、治理更靠自治。</li>
+<li><strong>微服务不等于分布式</strong>：分布式是部署形态，微服务是拆分与治理方式；一个微服务系统必然是分布式的，但分布式系统不一定拆成微服务。</li>
+<li><strong>Spring Cloud 的定位</strong>：它是 Spring Boot 之上的一整套微服务解决方案，核心组件覆盖服务注册发现、配置中心、网关、熔断限流、链路追踪。</li>
+<li><strong>Spring Boot 与 Spring Cloud 的关系</strong>：Boot 解决单个应用的配置与部署，Cloud 解决多个应用之间的协作；做微服务是 Boot 打底、Cloud 加持。</li>
+<li><strong>优缺点</strong>：优点是独立部署伸缩、故障隔离、技术栈自由；缺点是分布式带来网络延迟、链路变长、数据一致性更难保证、运维与排查复杂度上升。</li>
+<li><strong>链路追踪</strong>：一次请求跨多个服务后日志就散了，靠 TraceId 把整条链路串起来；Spring Cloud 里可选 Sleuth 与 Zipkin、SkyWalking 这类方案。</li>
+<li><strong>日志收集</strong>：微服务日志分散在各机器上，主流做法是统一采集到日志中心（ELK、Filebeat 之类）再检索，把打印的 TraceId 作为索引字段。</li>
+<li><strong>DDD</strong>：把业务复杂度放进领域模型，先划分限界上下文再映射到服务边界，聚合根保证一致性，不追求表结构跟数据库一一对应。</li>
+</ul>
+<p><strong>分布式事务</strong></p>
+<ul>
+<li><strong>什么时候需要</strong>：跨服务、跨库的一个业务操作必须原子成功或原子失败时，数据库本地事务就管不了了。</li>
+<li><strong>常见方案</strong>：两阶段提交、TCC、可靠消息最终一致、Seata、还有 MQ 事务消息。</li>
+<li><strong>Seata 是什么</strong>：阿里开源的分布式事务框架，提供 AT、TCC、SAGA、XA 四种模式。</li>
+<li><strong>各模式怎么选</strong>：AT 无侵入不改业务代码但只适合简单库表；TCC 要自己写三个方法、性能最好；SAGA 适合长流程、可补偿；XA 强一致但要 XA 数据源、锁资源时间长。</li>
+<li><strong>AT 原理</strong>：一阶段把业务数据和回滚日志一起提交，二阶段发现异常就按回滚日志反向补偿。</li>
+<li><strong>空回滚与防悬挂</strong>：全局事务先到了但分支还没注册，就先回滚，分支注册后收到的是一阶段已回滚的通知，这就是空回滚；反过来分支先到、全局事务后到，分支执行完却没人通知就悬挂了，Seata 用 undo_log 里的状态位来识别这两种情况。</li>
+<li><strong>回滚怎么做</strong>：靠 undo_log 记录一阶段的镜像与前后镜像，出问题按镜像还原，再通知 TC 结束全局事务。</li>
+</ul>
+<p><strong>配置中心</strong></p>
+<ul>
+<li><strong>配置中心是什么</strong>：把配置从代码和打包产物里抽出来，运行时统一管理，改配置不用重新发版；常见的有 Spring Cloud Config、Nacos、Apollo。</li>
+<li><strong>Spring Cloud Config</strong>：服务端把配置按仓库（Git 或后端存储）暴露成 REST 接口，客户端启动或刷新时拉取；支持按 <code>&#123;application&#125;-&#123;profile&#125;.yml</code> 组织，也支持仓库加密。</li>
+<li><strong>Nacos 配置中心原理</strong>：客户端启动时把 dataId、group、tenant 报给服务端建立长连接监听，服务端感知配置变更后推给客户端，客户端再拉取并触发 refresh 事件。</li>
+<li><strong>为什么用配置中心</strong>：多环境多实例时配置一致性问题最突出，配置中心提供统一管理、动态推送、版本回滚与灰度发布能力。</li>
+</ul>
+<p><strong>服务注册与发现</strong></p>
+<ul>
+<li><strong>为什么需要注册发现</strong>：服务实例地址会动态变化，写死 IP 一扩容一缩容就得改代码，服务发现让调用方按服务名找实例。</li>
+<li><strong>注册中心有哪些</strong>：Eureka、Zookeeper、Nacos、Consul，Spring Cloud 里对应 Spring Cloud Netflix、Zookeeper、Nacos Discovery、Consul Discovery 这几套实现。</li>
+<li><strong>Eureka 是什么</strong>：Netflix 开源的注册中心，Server 维护注册表，Client 启动注册、周期心跳续约、停止时注销。</li>
+<li><strong>Eureka 原理</strong>：注册本质是 POST 请求写内存注册表（ConcurrentHashMap 两层），心跳是 PUT 请求每 30 秒一次，超过 90 秒没续约标记过期；客户端拉全量加 30 秒增量缓存在本地。</li>
+<li><strong>Eureka 的坑</strong>：AP 架构、只保可用不保一致、单机内存存注册表、历史版本有 Eureka 1.x 的 bug，Spring Cloud 2020.0 起 Netflix 组件进维护模式。</li>
+<li><strong>Consul 是什么</strong>：HashiCorp 出品，注册中心加 KV 存储加多数据中心，服务实例靠 agent 主动上报并支持健康检查。</li>
+<li><strong>四者怎么选</strong>：Zookeeper 强一致但写性能一般、要自己搭；Eureka 只做注册发现且已被弱化；Nacos 功能最全，注册加配置加推送，国内用得最多；Consul 多数据中心和 KV 是强项；跑在 K8s 上直接用 Service 就行。</li>
+<li><strong>Nacos 的 Namespace</strong>：租户级隔离，同一套 Nacos 给不同环境或不同团队用，靠 namespaceId 隔开，配置和注册实例都按这个维度分。</li>
+</ul>
+<p><strong>服务调用</strong></p>
+<ul>
+<li><strong>为什么需要负载均衡</strong>：把请求分摊到多台机器，既扛并发又避免单点故障；纵向扩展有天花板，横向加机器才撑得住大促流量。</li>
+<li><strong>负载均衡怎么实现</strong>：四层（IP 层，改包，性能高）和七层（应用层，能按域名、路径、Header 路由）；硬件的用 F5&#x2F;A10，软件的用 LVS、Nginx、HAProxy，云上用云厂商的 LB。</li>
+<li><strong>常见算法</strong>：轮询、加权轮询、源地址哈希、最少连接、加权最少连接、随机。</li>
+<li><strong>HTTP 与 RPC 的差别</strong>：RPC 是跨进程调用方式的统称，HTTP 也是一种远程调用协议但更通用、可跨语言；RPC 走自定义二进制协议性能更高，HTTP 通用、调试方便、可被浏览器直接调用。</li>
+<li><strong>Feign 是什么</strong>：声明式 HTTP 客户端，定义接口加注解就行，底层生成动态代理把方法调用翻译成 HTTP 请求。</li>
+<li><strong>Feign 怎么负载均衡</strong>：配合 Ribbon 或 Spring Cloud LoadBalancer，服务名从注册中心拿实例列表，再按策略挑一个发请求。</li>
+<li><strong>Feign 第一次调用慢</strong>：负载均衡组件默认懒加载，第一次调用才初始化（拉实例、建连接池、加载策略），几百毫秒到几秒都正常；可以开饥饿加载或启动后预热一次。</li>
+<li><strong>Feign 与 OpenFeign</strong>：原生 Feign 只认自己的注解、依赖 feign-core；Spring Cloud OpenFeign 整合 Spring 生态、支持 Spring MVC 注解，老的 spring-cloud-starter-feign 已移除。</li>
+<li><strong>Feign 与 Dubbo</strong>：Feign 是声明式 HTTP 调用、和 Spring Cloud 生态一套；Dubbo 是 RPC 框架、有自己的服务治理与序列化协议，性能与治理能力更强，但和 Spring 体系融合成本高。</li>
+</ul>
+<p><strong>稳定性</strong></p>
+<ul>
+<li><strong>服务雪崩</strong>：一个下游服务慢或挂掉，把上游的线程池占满，一层层往上传染，最后整条链路全瘫，这就是雪崩。</li>
+<li><strong>熔断器干什么</strong>：下游出问题时快速切断调用链，请求直接失败返回，连等待都不等，把线程资源腾出来；三个状态是关闭、打开、半开。</li>
+<li><strong>熔断触发条件</strong>：慢调用比例、异常比例、异常数三种策略，Sentinel 用滑动窗口统计，比固定窗口平滑。</li>
+<li><strong>降级</strong>：系统压力过大或服务不可用时保核心链路、牺牲非核心功能，比如大促时关掉商品评价保下单。</li>
+<li><strong>限流</strong>：入口处保护自己，请求量超过承载能力就限制，比如接口 QPS 限制 1000 超出直接拒绝。</li>
+<li><strong>限流的算法</strong>：令牌桶最常用，固定速率往桶里放令牌、请求先取令牌，桶有容量所以能容忍突发；漏桶恒定速率出流，应对不了突发。</li>
+<li><strong>分布式限流</strong>：单机令牌桶在集群里没用，得靠 Redis 做集中式令牌桶并用服务端时间，避免各节点时钟不同步。</li>
+<li><strong>Hystrix</strong>：Netflix 出的熔断隔离框架，线程池隔离为核心，已停止维护，新项目基本不用。</li>
+<li><strong>Sentinel 与 Hystrix 的差别</strong>：Hystrix 靠线程池和信号量间接限流、只支持少量熔断策略；Sentinel 滑动窗口统计、限流&#x2F;熔断&#x2F;热点参数&#x2F;系统自适应都有，还自带控制台、规则可持久化到 Nacos、Apollo，官方也推荐用 Resilience4j 替代 Hystrix。</li>
+<li><strong>服务网格</strong>：在每个服务旁边放 Sidecar 代理，路由、限流、熔断、监控都在代理层完成，业务代码无感；主流方案 Istio、Linkerd，代价是多两跳延迟与额外内存。</li>
+</ul>
+<p><strong>网关、服务网格与发布策略</strong></p>
+<ul>
+<li><strong>为什么需要网关</strong>：统一入口，把鉴权、限流、路由、协议转换、日志这些横切能力收在一处，业务服务只管业务。</li>
+<li><strong>API 网关的作用</strong>：对外暴露统一 API，对内按服务名路由转发，顺手做认证鉴权、限流熔断、灰度发布、访问日志。</li>
+<li><strong>常用网关</strong>：Spring Cloud Gateway、Zuul、Nginx、Kong、APISIX。</li>
+<li><strong>Zuul</strong>：Netflix 的网关，核心是过滤器机制，分 pre、route、post、error 四类；1.x 是 Servlet 阻塞模型、线程吃紧，2.x 用 Netty 重写但官方集成缺失，已被 Gateway 取代。</li>
+<li><strong>Gateway</strong>：基于 Netty 与 WebFlux 的响应式网关，路由用 lb:&#x2F;&#x2F; 加 predicates，配 GatewayFilterFactory 做自定义过滤，性能与扩展性都强于 Zuul。</li>
+<li><strong>选 Gateway 的理由</strong>：底层非阻塞 IO 扛得住高并发，路由规则可编程扩展，和 Nacos、Sentinel 这些组件集成顺畅，官方还在持续维护。</li>
+<li><strong>Dubbo 与 Gateway 的差别</strong>：Dubbo 是服务间 RPC 治理框架，Gateway 是南北向的外部流量入口，两者定位不同，常常并存。</li>
+<li><strong>灰度发布</strong>：按比例或规则把一部分流量导到新版本，验证没问题再放量。</li>
+<li><strong>金丝雀部署</strong>：先放少量流量给新版本观察指标，出问题立刻回滚。</li>
+<li><strong>蓝绿部署</strong>：两套环境一套跑老版本一套跑新版本，切换时整体切流量，回滚也快，但资源成本翻倍。</li>
+</ul>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Spring-Cloud/"># Spring Cloud</a>
+          
+          <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"># 分布式事务</a>
+          
+          <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"># 微服务</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+       
+      <a class="next" rel="next" href="/2026/11/04/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91/Spring%20Boot--%E9%9D%A2%E8%AF%95%E7%AC%94%E8%AE%B0/"
+        >Spring Boot--面试笔记</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>
