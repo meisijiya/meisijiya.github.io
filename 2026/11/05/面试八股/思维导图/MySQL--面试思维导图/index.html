@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>MySQL--面试思维导图笔记 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">MySQL--面试思维导图笔记</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 5, 2026&nbsp;&nbsp;10:45:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/">思维导图</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<blockquote>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的面试思维导图（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists?sid=6589357&spm_id_from=333.788.0.0">合集·计算机专业面试总结</a>），XMind 文件转录为 Markdown。标题层级沿用导图结构，导图备注里的答案按段落排到对应标题下，原图的说法尽量保留，只补了必要的连词；个别与官方文档不符的技术说法已按规范改正，其余保持原样。</p>
+</blockquote>
+<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><h3 id="查询语句执行流程"><a href="#查询语句执行流程" class="headerlink" title="查询语句执行流程"></a>查询语句执行流程</h3><p>第一步，客户端发送 SQL 查询语句到 MySQL 服务器。<br>第二步，MySQL 服务器的连接器开始处理这个请求，跟客户端建立连接、获取权限、管理连接。<br>第三步（MySQL 8.0 以后已经干掉了），连接建立后，MySQL 服务器的查询缓存组件会检查是否有缓存的查询结果。如果有，直接返回给客户端；如果没有，进入下一步。<br>第三步，解析器开始对 SQL 语句进行解析，检查语句是否符合 SQL 语法规则，确保引用的数据库、表和列都存在，并处理 SQL 语句中的名称解析和权限验证。<br>第四步，优化器负责确定 SQL 语句的执行计划，这包括选择使用哪些索引，以及决定表之间的连接顺序等。优化器会尝试找出最高效的方式来执行查询。<br>第五步，执行器会调用存储引擎的 API 来进行数据的读写。<br>第六步，MySQL 的存储引擎是插件式的，不同的存储引擎在细节上面有很大不同。例如，InnoDB 是支持事务的，而 MyISAM 是不支持的。之后，会将执行结果返回给客户端<br>第七步，客户端接收到查询结果，完成这次查询请求。</p>
+<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><p>①、创建数据库:<br>CREATE DATABASE database_name;<br>②、删除数据库:<br>DROP DATABASE database_name;<br>③、选择数据库:<br>USE database_name;</p>
+<h1 id=""><a href="#" class="headerlink" title=""></a></h1><p>说说表操作命令？<br>①、创建表:<br>CREATE TABLE table_name (<br>column1 datatype,<br>column2 datatype,<br>…<br>);<br>②、删除表:<br>DROP TABLE table_name;<br>③、显示所有表:<br>SHOW TABLES;<br>④、查看表结构:<br>DESCRIBE table_name;<br>⑤、修改表（添加列）:<br>ALTER TABLE table_name ADD column_name datatype;</p>
+<h1 id="-1"><a href="#-1" class="headerlink" title=""></a></h1><p>说说 CRUD 命令？<br>①、插入数据:<br>INSERT INTO table_name (column1, column2, …) VALUES (value1, value2, …);<br>②、查询数据:<br>SELECT column_names FROM table_name WHERE condition;<br>③、更新数据:<br>UPDATE table_name SET column1 &#x3D; value1, column2 &#x3D; value2 WHERE condition;<br>④、删除数据:<br>DELETE FROM table_name WHERE condition;</p>
+<h1 id="-2"><a href="#-2" class="headerlink" title=""></a></h1><p>说说索引和约束的创建修改命令？<br>①、创建索引:<br>CREATE INDEX index_name ON table_name (column_name);<br>②、添加主键约束:<br>ALTER TABLE table_name ADD PRIMARY KEY (column_name);<br>③、添加外键约束:<br>ALTER TABLE table_name ADD CONSTRAINT fk_name FOREIGN KEY (column_name) REFERENCES parent_table (parent_column_name);</p>
+<h1 id="-3"><a href="#-3" class="headerlink" title=""></a></h1><p>说说用户和权限管理的命令？<br>①、创建用户:<br>CREATE USER ‘username‘@’host’ IDENTIFIED BY ‘password’;<br>②、授予权限:<br>GRANT ALL PRIVILEGES ON database_name.table_name TO ‘username‘@’host’;<br>③、撤销权限:<br>REVOKE ALL PRIVILEGES ON database_name.table_name FROM ‘username‘@’host’;<br>④、删除用户:<br>DROP USER ‘username‘@’host’;</p>
+<h1 id="-4"><a href="#-4" class="headerlink" title=""></a></h1><p>说说事务控制的命令？<br>①、开始事务:<br>START TRANSACTION;<br>②、提交事务:<br>COMMIT;<br>③、回滚事务:<br>ROLLBACK;</p>
+<h2 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h2><h3 id="MySQL支持哪些"><a href="#MySQL支持哪些" class="headerlink" title="MySQL支持哪些"></a>MySQL支持哪些</h3><p>Innodb（5.5以后默认）MyISAM（5.5之前）、Memory（存储在内存）<br>Innodb支持事务、行级锁和外键<br>MyISAM不支持事务和外键，支持表级锁<br>MyISAM适合读更多的场景，Memory适合临时表，数据量不大的情况；Innodb行级锁并发写入的性能更高<br>Innodb是聚簇索引，索引树聚在一块，MyISAM是非聚簇<br>InnoDB 支持外键，没有主键时会自动生成隐藏的聚簇索引；MyISAM 不支持外键，也可以无主键  </p>
+<h2 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h2><h3 id="MySQL日志文件有哪些"><a href="#MySQL日志文件有哪些" class="headerlink" title="MySQL日志文件有哪些"></a>MySQL日志文件有哪些</h3><p>①、错误日志（Error Log）：记录 MySQL 服务器启动、运行或停止时出现的问题。<br>②、慢查询日志（Slow Query Log）：记录执行时间超过 long_query_time 值的所有 SQL 语句。这个时间值是可配置的，默认情况下，慢查询日志功能是关闭的。可以用来识别和优化慢 SQL。<br>③、一般查询日志（General Query Log）：记录所有 MySQL 服务器的连接信息及所有的 SQL 语句，不论这些语句是否修改了数据。<br>④、二进制日志（Binary Log）：记录了所有修改数据库状态的 SQL 语句，以及每个语句的执行时间，如 INSERT、UPDATE、DELETE 等，但不包括 SELECT 和 SHOW 这类的操作。<br>以及两个 InnoDB 存储引擎特有的日志文件：<br>⑤、重做日志（Redo Log）：记录了对于 InnoDB 表的每个写操作，不是 SQL 级别的，而是物理级别的，主要用于崩溃恢复。<br>⑥、回滚日志（Undo Log，或者叫事务日志）：记录数据被修改前的值，用于事务的回滚。<br>支持事务回滚，可以用来实现 MVCC，即多版本并发控制。</p>
+<h3 id="binlog"><a href="#binlog" class="headerlink" title="binlog"></a>binlog</h3><p>binlog 是一种逻辑日志，记录 SQL 语句或行的变更事件，而不是数据页的物理改动，用来做数据恢复和主从复制，以便进行数据恢复和主从复制。<br>当发生数据丢失时，binlog 可以将数据库恢复到特定的时间点。<br>主服务器（master）上的二进制日志可以被从服务器（slave）读取，从而实现数据同步。<br>MySQL 8.0 起默认开启；5.7 及以前要在配置文件里自己打开 log-bin  </p>
+<h4 id="binlog和redolog区别"><a href="#binlog和redolog区别" class="headerlink" title="binlog和redolog区别"></a>binlog和redolog区别</h4><p>bin log 会记录所有与数据库有关的日志记录，包括 InnoDB、MyISAM 等存储引擎的日志，而 redo log 只记 InnoDB 存储引擎的日志。<br>记录的内容不同，bin log 记录的是关于一个事务的具体操作内容，即该日志是逻辑日志。而 redo log 记录的是关于每个页（Page）的更改的物理情况。<br>写入的时间不同，bin log 仅在事务提交前进行提交，也就是只写磁盘一次。而在事务进行的过程中，却不断有 redo ertry 被写入 redo log 中。<br>写入的方式也不相同，redo log 是循环写入和擦除，bin log 是追加写入，不会覆盖已经写的文件。</p>
+<h3 id="一条语句更新操作（涉及redo两阶段提交）"><a href="#一条语句更新操作（涉及redo两阶段提交）" class="headerlink" title="一条语句更新操作（涉及redo两阶段提交）"></a>一条语句更新操作（涉及redo两阶段提交）</h3><p>执行器先找引擎获取 ID&#x3D;2 这一行。ID 是主键，存储引擎检索数据，找到这一行。如果 ID&#x3D;2 这一行所在的数据页本来就在内存中，就直接返回给执行器；否则，需要先从磁盘读入内存，然后再返回。<br>执行器拿到引擎给的行数据，把这个值加上 1，比如原来是 N，现在就是 N+1，得到新的一行数据，再调用引擎接口写入这行新数据。<br>引擎将这行新数据更新到内存中，同时将这个更新操作记录到 redo log 里面，此时 redo log 处于 prepare 状态。然后告知执行器执行完成了，随时可以提交事务。<br>执行器生成这个操作的 binlog，并把 binlog 写入磁盘。<br>执行器调用引擎的提交事务接口，引擎把刚刚写入的 redo log 改成提交（commit）状态，更新完成。</p>
+<h4 id="为什么要两阶段提交"><a href="#为什么要两阶段提交" class="headerlink" title="为什么要两阶段提交"></a>为什么要两阶段提交</h4><p>先写入 redo log，后写入 binlog：<br>在写完 redo log 之后，数据此时具有crash-safe能力，因此系统崩溃，数据会恢复成事务开始之前的状态。但是，若在 redo log 写完时候，binlog 写入之前，系统发生了宕机。此时 binlog 没有对上面的更新语句进行保存，导致当使用 binlog 进行数据库的备份或者恢复时，就少了上述的更新语句。从而使得id&#x3D;2这一行的数据没有被更新。<br>先写入 binlog，后写入 redo log：<br>写完 binlog 之后，所有的语句都被保存，所以通过 binlog 复制或恢复出来的数据库中 id&#x3D;2 这一行的数据会被更新为 a&#x3D;1。但是如果在 redo log 写入之前，系统崩溃，那么 redo log 中记录的这个事务会无效，导致实际数据库中id&#x3D;2这一行的数据并没有更新。</p>
+<h4 id="redo-log"><a href="#redo-log" class="headerlink" title="redo log"></a>redo log</h4><p>redo log 是一种物理日志，记录了对数据页的物理更改。当事务进行写操作时，InnoDB 首先会写入 redo log，并不会立即修改数据文件。这种写入方式被称为“write-ahead logging”（先写日志）。<br>当 redo log 填满或在某些其他情况下，InnoDB 会异步将这些更改刷新到数据文件中。<br>系统崩溃时，由于数据可能还没有被真正写入数据文件，但已经在 redo log 中，因此系统可以在启动时使用这些日志来重新执行或“重做”这些更改，确保数据的持久性。<br>即使数据库在事务提交后立即崩溃，由于事务的更改已经记录在 redo log 中，这些更改在数据库恢复时仍然是安全的。</p>
+<h4 id="redolog刷入磁盘"><a href="#redolog刷入磁盘" class="headerlink" title="redolog刷入磁盘"></a>redolog刷入磁盘</h4><p>redo log 的写入不是直接落到磁盘，而是在内存中设置了一片称之为redo log buffer的连续内存空间，也就是redo 日志缓冲区。<br>什么时候会刷入磁盘？<br>在如下的一些情况中，log buffer 的数据会刷入磁盘：<br>log buffer 空间不足时<br>log buffer 的大小是有限的，如果不停的往这个有限大小的 log buffer 里塞入日志，很快它就会被填满。如果当前写入 log buffer 的 redo 日志量已经占满了 log buffer 总容量的大约一半左右，就需要把这些日志刷新到磁盘上。<br>事务提交时<br>在事务提交时，为了保证持久性，会把 log buffer 中的日志全部刷到磁盘。注意，这时候，除了本事务的，可能还会刷入其它事务的日志。<br>后台线程输入<br>有一个后台线程，大约每秒都会刷新一次log buffer中的redo log到磁盘。<br>正常关闭服务器时<br>触发 checkpoint 规则<br>check point规则<br>重做日志缓存、重做日志文件都是以块（block）的方式进行保存的，称之为重做日志块（redo log block）,块的大小是固定的 512 字节。我们的 redo log 它是固定大小的，可以看作是一个逻辑上的 log group，由一定数量的log block 组成。<br>它的写入方式是从头到尾开始写，写到末尾又回到开头循环写。<br>其中有两个标记位置：<br>write pos是当前记录的位置，一边写一边后移，写到第 3 号文件末尾后就回到 0 号文件开头。checkpoint是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到磁盘。<br>当write_pos追上checkpoint时，表示 redo log 日志已经写满。这时候就不能接着往里写数据了，需要执行checkpoint规则腾出可写空间。<br>所谓的checkpoint 规则，就是 checkpoint 触发后，将 buffer 中日志页都刷到磁盘。</p>
+<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><h3 id="索引为什么会加快查询？"><a href="#索引为什么会加快查询？" class="headerlink" title="索引为什么会加快查询？"></a>索引为什么会加快查询？</h3><p>数据库文件是存储在磁盘上的，磁盘 I&#x2F;O 是数据库操作中最耗时的部分之一。没有索引时，数据库会进行全表扫描（Sequential Scan），这意味着它必须读取表中的每一行数据来查找匹配的行（时间效率为 O(n)）。当表的数据量非常大时，就会导致大量的磁盘 I&#x2F;O 操作。<br>有了索引，就可以直接跳到索引指示的数据位置，而不必扫描整张表，从而大大减少了磁盘 I&#x2F;O 操作的次数。<br>MySQL 的 InnoDB 存储引擎默认使用 B+ 树来作为索引的数据结构，而 B+ 树的查询效率非常高，时间复杂度为 O(logN)。<br>索引文件相较于数据库文件，体积小得多，查到索引之后再映射到数据库记录，查询效率就会高很多。</p>
+<h3 id="索引分类"><a href="#索引分类" class="headerlink" title="索引分类"></a>索引分类</h3><p>分类  </p>
+<h4 id="按功能"><a href="#按功能" class="headerlink" title="按功能"></a>按功能</h4><p>①、主键索引: 表中每行数据唯一标识的索引，强调列值的唯一性和非空性。<br>②、唯一索引: 保证数据列中每行数据的唯一性，但允许有空值。<br>③、普通索引: 基本的索引类型，用于加速查询。<br>④、全文索引：特定于文本数据的索引，用于提高文本搜索的效率。</p>
+<h4 id="按数据结构"><a href="#按数据结构" class="headerlink" title="按数据结构"></a>按数据结构</h4><p>①、B+树索引：最常见的索引类型，一种将索引值按照一定的算法，存入一个树形的数据结构中（二叉树），每次查询都从树的根节点开始，一次遍历叶子节点，找到对应的值。查询效率是 O(logN)。<br>②、Hash 索引：基于哈希表的索引，查询效率可以达到 O(1)，但是只适合 &#x3D; 和 in 查询，不适合范围查询。<br>InnoDB 并不提供直接创建哈希索引的选项，因为 B+ 树索引能够很好地支持范围查询和等值查询，满足了大多数数据库操作的需要。<br>不过，InnoDB 存储引擎内部使用了一种名为“自适应哈希索引”的技术。<br>自适应哈希索引并不是由用户显式创建的，而是 InnoDB 根据数据访问的模式自动建立和管理的。当 InnoDB 发现某个索引被频繁访问时，会在内存中创建一个哈希索引，以加速对这个索引的访问。</p>
+<h4 id="按存储位置"><a href="#按存储位置" class="headerlink" title="按存储位置"></a>按存储位置</h4><p>①、聚簇索引：聚簇索引的叶子节点保存了一行记录的所有列信息。也就是说，聚簇索引的叶子节点中，包含了一个完整的记录行。<br>②、非聚簇索引：它的叶子节点只包含一个主键值，通过非聚簇索引查找记录要先找到主键，然后通过主键再到聚簇索引中找到对应的记录行，这个过程被称为回表。</p>
+<h3 id="创建索引要注意的"><a href="#创建索引要注意的" class="headerlink" title="创建索引要注意的"></a>创建索引要注意的</h3><p>①、选择合适的列作为索引<br>经常作为查询条件（WHERE 子句）、排序条件（ORDER BY 子句）、分组条件（GROUP BY 子句）的列是建立索引的好候选。<br>区分度低的字段，例如性别，不要建索引<br>频繁更新的字段，不要作为主键或者索引<br>不建议用无序的值(例如身份证、UUID )作为索引，当主键具有不确定性，会造成叶子节点频繁分裂，出现磁盘存储的碎片化<br>②、避免过多的索引<br>每个索引都需要占用额外的磁盘空间。<br>更新表（INSERT、UPDATE、DELETE 操作）时，所有的索引都需要被更新。<br>维护索引文件需要成本；还会导致页分裂，IO 次数增多。<br>③、利用前缀索引和索引列的顺序<br>对于字符串类型的列，可以考虑使用前缀索引来减少索引大小。<br>在创建复合索引时，应该根据查询条件将最常用作过滤条件的列放在前面。</p>
+<h3 id="索引失效场景"><a href="#索引失效场景" class="headerlink" title="索引失效场景"></a>索引失效场景</h3><p>在索引列上使用函数或表达式：如果在查询中对索引列使用了函数或表达式，那么索引可能无法使用，因为数据库无法预先计算出函数或表达式的结果。例如：SELECT * FROM table WHERE YEAR(date_column) &#x3D; 2021。<br>使用不等于（&lt;&gt;）或者 NOT 操作符：这些操作符通常会使索引失效，因为它们会扫描全表。<br>使用 LIKE 操作符，但是通配符在最前面：如果 LIKE 的模式串是以“%”或者“_”开头的，那么索引也无法使用。例如：SELECT * FROM table WHERE column LIKE ‘%abc’。<br>OR 操作符：如果查询条件中使用了 OR，并且 OR 两边的条件分别涉及不同的索引，那么这些索引可能都无法使用。<br>如果 MySQL 估计使用全表扫描比使用索引更快时（通常是小表或者大部分行都满足 WHERE 子句），也不会使用索引。<br>联合索引不满足最左前缀原则时，索引会失效。</p>
+<h3 id="Innodb选择B-树的原因"><a href="#Innodb选择B-树的原因" class="headerlink" title="Innodb选择B+树的原因"></a>Innodb选择B+树的原因</h3><p>更高效的磁盘 IO，因为它减少了磁盘寻道时间和页的加载次数（B树节点大小通常和页大小对齐）。<br>支持范围查询，与 B 树相比，B+树的叶子节点通过指针连接成一个链表，这使得范围查询变得非常高效。在 B+树上执行范围查询可以简单地从范围的起始点开始，然后沿着链表向后遍历，直到结束点。<br>查询性能稳定，B+树的所有查找操作都要查到叶子节点，这使得所有的查询操作都有着相同的访问深度，因此查询性能非常稳定。不像某些其他数据结构，如 B 树，其查询性能因为数据存在所有的节点上导致深度不一致，性能不稳定。</p>
+<h4 id="与B树的区别"><a href="#与B树的区别" class="headerlink" title="与B树的区别"></a>与B树的区别</h4><p>①、更高的查询效率<br>B+树的所有值（数据记录或指向数据记录的指针）都存在于叶子节点，并且叶子节点之间通过指针连接，形成一个有序链表。<br>②、更高的空间利用率<br>在 B+树中，非叶子节点不存储数据，只存储键值，这意味着非叶子节点可以拥有更多的键，从而有更多的分叉。<br>这导致树的高度更低，进一步降低了查询时磁盘 I&#x2F;O 的次数，因为每一次从一个节点到另一个节点的跳转都可能涉及到磁盘 I&#x2F;O 操作。<br>③、查询效率更稳定<br>B+树中所有叶子节点深度相同，所有数据查询路径长度相等，保证了每次搜索的性能稳定性。而在 B 树中，数据可以存储在内部节点，不同的查询可能需要不同深度的搜索。</p>
+<h3 id="聚簇索引和非聚簇索引区别"><a href="#聚簇索引和非聚簇索引区别" class="headerlink" title="聚簇索引和非聚簇索引区别"></a>聚簇索引和非聚簇索引区别</h3><p>在聚簇索引中，表中的行是按照键值（索引）的顺序存储的。这意味着表中的实际数据行和键值之间存在物理排序的关系。因此，每个表只能有一个聚簇索引。例如，在 MySQL 的 InnoDB 存储引擎中，主键就是聚簇索引。<br>在非聚簇索引中，索引和数据是分开存储的，索引中的键值指向数据的实际存储位置。因此，非聚簇索引也被称为二级索引或辅助索引。表可以有多个非聚簇索引。</p>
+<h4 id="回表"><a href="#回表" class="headerlink" title="回表"></a>回表</h4><p>当使用非聚簇索引查找数据时，数据库会进行两步操作：<br>查找索引：数据库首先会查找非聚簇索引，找到索引键值对应的索引项。这个索引项包含了数据行在磁盘上的位置信息。<br>读取数据：然后，数据库会根据位置信息，去磁盘上读取相应的数据行。<br>这个过程也被称为“回表”，因为数据库需要先查找索引，然后再根据索引回到数据表中去查找实际的数据。<br>因此，使用非聚簇索引查找数据通常比使用聚簇索引要慢，因为需要进行两次磁盘访问。当然，如果索引所在的数据页已经被加载到内存中，那么非聚簇索引的查找速度也可以非常快。</p>
+<h4 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a>覆盖索引</h4><p>在辅助索引里面，不管是单列索引还是联合索引，如果 select 的数据列只用辅助索引中就能够取得，不用去查主键索引，这时候使用的索引就叫做覆盖索引，避免了回表。</p>
+<h3 id="最左前缀匹配"><a href="#最左前缀匹配" class="headerlink" title="最左前缀匹配"></a>最左前缀匹配</h3><p>最左前缀原则，也叫最左匹配原则，或者最左前缀匹配原则。<br>最左匹配原则是指在使用联合索引（即包含多列的索引）时，查询条件从索引的最左列开始并且不跳过中间的列。<br>如果一个复合索引包含(col1, col2, col3)，那么它可以支持 col1、col1,col2 和 col1, col2, col3 的查询优化，但不会优化只有 col2 或 col3 的查询。<br>也就说，在进行查询时，如果没有遵循最左前缀，那么索引可能不会被利用，导致查询效率降低。</p>
+<h3 id="索引下推优化"><a href="#索引下推优化" class="headerlink" title="索引下推优化"></a>索引下推优化</h3><p>不使用索引条件下推优化时存储引擎通过索引检索到数据，然后返回给 MySQL Server，MySQL Server 进行过滤条件的判断。<br>当使用索引条件下推优化时，如果存在某些被索引的列的判断条件时，MySQL Server 将这一部分判断条件下推给存储引擎，然后由存储引擎通过判断索引是否符合 MySQL Server 传递的条件，只有当索引符合条件时才会将数据检索出来返回给 MySQL 服务器。</p>
+<h2 id="高性能"><a href="#高性能" class="headerlink" title="高性能"></a>高性能</h2><h3 id="主从复制原理"><a href="#主从复制原理" class="headerlink" title="主从复制原理"></a>主从复制原理</h3><p>在主服务器上，所有修改数据的语句（如 INSERT、UPDATE、DELETE）会被记录到二进制日志中。<br>主服务器上的一个线程（二进制日志转储线程）负责读取二进制日志的内容并发送给从服务器。<br>从服务器接收到二进制日志数据后，会将这些数据写入自己的中继日志（Relay Log）。中继日志是从服务器上的一个本地存储。<br>从服务器上有一个 SQL 线程会读取中继日志，并在本地数据库上执行，从而将更改应用到从数据库中，完成同步。</p>
+<h3 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h3><h4 id="分库"><a href="#分库" class="headerlink" title="分库"></a>分库</h4><p>①、垂直分库：按照业务模块将不同的表拆分到不同的库中，例如，用户表、订单表、商品表等分到不同的库中。<br>②、水平分库：按照一定的策略将一个表中的数据拆分到多个库中，例如，按照用户 id 的 hash 值将用户表拆分到不同的库中。</p>
+<h4 id="分表"><a href="#分表" class="headerlink" title="分表"></a>分表</h4><p>垂直分字段，水平分数据<br>垂直拆分可以减轻只查询业务基本数据，不需要附带一些数据量大的字段的查询压力。<br>当表的数据量过大时，仍然要考虑水平分表，将一个表的数据分散到多个表中，以减轻单表的查询压力。</p>
+<ul>
+<li><strong>分表策略</strong><br>为了实现水平分表，需要设计合适的路由策略来确定数据应该存储在哪个表中，具体哪个表，由分片键（Sharding Key）来决定，分片键的选择应满足以下条件：<br>高区分度：分片键的值应尽量均匀分布，以避免数据倾斜。<br>查询频率高：选择经常在查询条件中使用的字段作为分片键，有助于提高查询效率。<br>写入频率高：选择经常被写入的字段，可以均匀分布写入负载。<br>那常见的路由策略有三种，分别是范围路由、Hash 路由和配置路由。<ul>
+<li><strong>范围路由</strong><br>什么是范围路由？<br>范围路由是根据某个字段的值范围进行分表。这种方式适用于分片键具有顺序性或连续性的场景。<br>范围路由的优点是实现简单，可以随着数据的增加平滑地扩充新的表。适用于按时间或按顺序增长的字段（如时间戳、订单号等）。缺点是可能出现数据倾斜问题，导致某些表的数据量明显大于其他表。</li>
+<li><strong>Hash路由</strong><br>哈希路由是通过对分片键进行哈希计算，然后取模来确定数据存储的表。哈希值决定了数据分布，通常能较好地平衡数据量。<br>哈希路由的优点是数据可以均匀分布，避免了数据倾斜，但范围查询时可能会涉及多个表，性能较差。</li>
+<li><strong>配置路由</strong><br>配置路由是通过配置表来确定数据存储的表，适用于分片键不规律的场景。<br>配置路由的优点是可以根据实际情况灵活配置。缺点是需要额外的配置表，维护成本较高。</li>
+</ul>
+</li>
+</ul>
+<h2 id="SQL优化"><a href="#SQL优化" class="headerlink" title="SQL优化"></a>SQL优化</h2><h3 id="定位慢SQL"><a href="#定位慢SQL" class="headerlink" title="定位慢SQL"></a>定位慢SQL</h3><p>慢查询日志：开启 MySQL 慢查询日志，再通过一些工具比如 mysqldumpslow 去分析对应的慢查询日志，找出问题的根源。<br>服务监控：可以在业务的基建中加入对慢 SQL 的监控，常见的方案有字节码插桩、连接池扩展、ORM 框架过程，对服务运行中的慢 SQL 进行监控和告警。<br>找到对应的慢 SQL 后，使用 EXPLAIN 命令查看 MySQL 是如何执行 SQL 语句的，这会帮助我们找到问题的根源。</p>
+<h3 id="优化方式"><a href="#优化方式" class="headerlink" title="优化方式"></a>优化方式</h3><h4 id="避免不必要的列"><a href="#避免不必要的列" class="headerlink" title="避免不必要的列"></a>避免不必要的列</h4><p>如尽量避免select*  </p>
+<h4 id="分页优化"><a href="#分页优化" class="headerlink" title="分页优化"></a>分页优化</h4><p>数据量巨大时，传统的Limit和offset导致性能不好，数据库扫描需要offset+limit数量的行<br>有两种方式  </p>
+<ul>
+<li><strong>延迟关联</strong><br>延迟关联适用于需要从多个表中获取数据且主表行数较多的情况。它首先从索引表中检索出需要的行 ID，然后再根据这些 ID 去关联其他的表获取详细信息。</li>
+<li><strong>书签</strong><br>书签方法通过记住上一次查询返回的最后一行的某个值，然后下一次查询从这个值开始，避免了扫描大量不需要的行。</li>
+</ul>
+<h4 id="索引优化"><a href="#索引优化" class="headerlink" title="索引优化"></a>索引优化</h4><ul>
+<li><strong>覆盖索引</strong><br>使用非主键索引查询数据时需要回表，但如果索引的叶节点中已经包含要查询的字段，那就不会再回表查询了，这就叫覆盖索引。</li>
+<li><strong>避免使用!&#x3D;或&lt;&gt;操作符</strong><br>会导致无法使用索引而进行全表扫描  </li>
+<li><strong>适当使用前缀索引</strong><br>适当使用前缀索引可以降低索引空间占用，提高索引查询效率  </li>
+<li><strong>避免列上使用函数</strong><br>在 where 子句中直接对列使用函数会导致索引失效，因为数据库需要对每行的列应用函数后再进行比较，无法直接利用索引。</li>
+<li><strong>正确使用联合索引</strong><br>正确地使用联合索引可以极大地提高查询性能，联合索引的创建应遵循最左前缀原则，即索引的顺序应根据列在查询中的使用频率和重要性来安排。</li>
+</ul>
+<h4 id="Join优化"><a href="#Join优化" class="headerlink" title="Join优化"></a>Join优化</h4><ul>
+<li><strong>优化子查询</strong><br>子查询，特别是在 select 列表和 where 子句中的子查询，往往会导致性能问题，因为它们可能会为每一行外层查询执行一次子查询。</li>
+<li><strong>小表驱动大表</strong><br>在执行 JOIN 操作时，应尽量让行数较少的表（小表）驱动行数较多的表（大表），这样可以减少查询过程中需要处理的数据量。</li>
+<li><strong>适当增加冗余字段</strong><br>在某些情况下，通过在表中适当增加冗余字段来避免 JOIN 操作，可以提高查询效率，尤其是在高频查询的场景下。</li>
+<li><strong>避免join太多表</strong><br>因为 join 太多表会降低查询的速度，返回的数据量也会变得非常大，不利于后续的处理。<br>如果业务逻辑允许，可以考虑将复杂的 JOIN 查询分解成多个简单查询，然后在应用层组合这些查询的结果。</li>
+</ul>
+<h4 id="排序优化"><a href="#排序优化" class="headerlink" title="排序优化"></a>排序优化</h4><ul>
+<li><strong>利用索引扫描做排序</strong><br>设计索引时充分考虑排序的需求，这样之后按照索引顺序扫描得到自然有序的结果</li>
+</ul>
+<h4 id="UNION优化"><a href="#UNION优化" class="headerlink" title="UNION优化"></a>UNION优化</h4><ul>
+<li><strong>条件下推</strong><br>条件下推是指将 where、limit 等子句下推到 union 的各个子查询中，以便优化器可以充分利用这些条件进行优化。通过将查询条件下推到 UNION 的每个分支中，每个分支查询都只处理满足条件的数据，减少了不必要的数据合并和过滤。</li>
+<li><strong>UNION all代表UNION</strong></li>
+</ul>
+<h3 id="怎么查看explain"><a href="#怎么查看explain" class="headerlink" title="怎么查看explain"></a>怎么查看explain</h3><p>使用方法：在select语句前加explain关键字即可。<br>①、id 列：查询的标识符。<br>②、select_type 列：查询的类型。常见的类型有：<br>SIMPLE：简单查询，不包含子查询或者 UNION 查询。<br>PRIMARY：查询中如果包含子查询，则最外层查询被标记为 PRIMARY。<br>SUBQUERY：子查询。<br>DERIVED：派生表的 SELECT，FROM 子句的子查询。<br>③、table 列：查的哪个表。<br>④、type 列：表示 MySQL 在表中找到所需行的方式，性能从最优到最差分别为：system &gt; const &gt; eq_ref &gt; ref &gt; range &gt; index &gt; ALL。<br>system，表只有一行，一般是系统表，往往不需要进行磁盘 IO，速度非常快<br>const、eq_ref、ref：这些类型表示 MySQL 可以使用索引来查找单个行，其中 const 是最优的，表示查询最多返回一行。<br>range：只检索给定范围的行，使用索引来检索。在where语句中使用 bettween…and、&lt;、&gt;、&lt;&#x3D;、in 等条件查询 type 都是 range。<br>index：遍历索引树读取。<br>ALL：全表扫描，效率最低。<br>⑤、possible_keys 列：可能会用到的索引，但并不一定实际被使用。<br>⑥、key 列：实际使用的索引。如果为 NULL，则没有使用索引。<br>⑦、key_len 列：MySQL 决定使用的索引长度（以字节为单位）。当表有多个索引可用时，key_len 字段可以帮助识别哪个索引最有效。联合索引里 key_len 越大，说明实际用到的索引列越多，可以用它判断走全了没有。<br>⑧、ref 列：用于与索引列比较的值来源。<br>const：表示常量，这个值是在查询中被固定的。例如在 WHERE column &#x3D; ‘value’中。<br>一个或多个列的名称，通常在 JOIN 操作中，表示 JOIN 条件依赖的字段。<br>NULL，表示没有使用索引，或者查询使用的是全表扫描。<br>⑨、rows 列：估算查到结果集需要扫描的数据行数，原则上 rows 越少越好。<br>⑩、Extra 列：附加信息。<br>Using index：表示只利用了索引。<br>Using where：表示使用了 WHERE 过滤。<br>Using temporary ：表示使用了临时表来存储中间结果。</p>
+<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><p>锁的分类  </p>
+<h3 id="锁的分类（乐观悲观）"><a href="#锁的分类（乐观悲观）" class="headerlink" title="锁的分类（乐观悲观）"></a>锁的分类（乐观悲观）</h3><p>按锁粒度如何划分?<br>表锁：开销小，加锁快；锁定力度大，发生锁冲突概率高，并发度最低;不会出现死锁。<br>行锁：开销大，加锁慢；会出现死锁；锁定粒度小，发生锁冲突的概率低，并发度高。<br>页锁：开销和加锁速度介于表锁和行锁之间；会出现死锁；锁定粒度介于表锁和行锁之间，并发度一般<br>按兼容性如何划分?<br>共享锁（S Lock）,也叫读锁（read lock），相互不阻塞。<br>排他锁（X Lock），也叫写锁（write lock），排它锁是阻塞的，在一定时间内，只有一个请求能执行写入，并阻止其它锁读取正在写入的数据。<br>按加锁机制如何划分?<br>①、乐观锁<br>乐观锁基于这样的假设：冲突在系统中出现的频率较低，因此在数据库事务执行过程中，不会频繁地去锁定资源。相反，它在提交更新的时候才检查是否有其他事务已经修改了数据。<br>可以通过在数据表中使用版本号（Version）或时间戳（Timestamp）来实现，每次读取记录时，同时获取版本号或时间戳，更新时检查版本号或时间戳是否发生变化。<br>如果没有变化，则执行更新并增加版本号或更新时间戳；如果检测到冲突（即版本号或时间戳与之前读取的不同），则拒绝更新。<br>②、悲观锁<br>悲观锁假设冲突是常见的，因此在数据处理过程中，它会主动锁定数据，防止其他事务进行修改。<br>可以直接使用数据库的锁机制，如行锁或表锁，来锁定被访问的数据。常见的实现是 SELECT FOR UPDATE 语句，它在读取数据时就加上了锁，直到当前事务提交或回滚后才释放。</p>
+<h3 id="InnoDB行锁的实现"><a href="#InnoDB行锁的实现" class="headerlink" title="InnoDB行锁的实现"></a>InnoDB行锁的实现</h3><h4 id="记录锁"><a href="#记录锁" class="headerlink" title="记录锁"></a>记录锁</h4><p>Record Lock 记录锁<br>记录锁就是直接锁定某行记录。当我们使用唯一性的索引(包括唯一索引和聚簇索引)进行等值查询且精准匹配到一条记录时，此时就会直接将这条记录锁定。</p>
+<h4 id="间隙锁"><a href="#间隙锁" class="headerlink" title="间隙锁"></a>间隙锁</h4><p>间隙锁(Gap Locks) 的间隙指的是两个记录之间逻辑上尚未填入数据的部分,是一个左开右开空间。间隙锁就是锁定某些间隙区间的。当我们使用用等值查询或者范围查询，并且没有命中任何一个record，此时就会将对应的间隙区间锁定。</p>
+<h4 id="Next-key临键锁"><a href="#Next-key临键锁" class="headerlink" title="Next-key临键锁"></a>Next-key临键锁</h4><p>临键指的是间隙加上它右边的记录组成的左开右闭区间。临键锁就是记录锁(Record Locks)和间隙锁(Gap Locks)的结合，即除了锁住记录本身，还要再锁住索引之间的间隙。当我们使用范围查询，并且命中了部分record记录，此时锁住的就是临键区间。<br>临键锁锁住的区间会包含最后一个 record 的右边的临键区间。<br>当使用唯一性索引，等值查询匹配到一条记录的时候，临键锁(Next-Key Locks)会退化成记录锁；没有匹配到任何记录的时候，退化成间隙锁。</p>
+<h4 id="插入意向锁"><a href="#插入意向锁" class="headerlink" title="插入意向锁"></a>插入意向锁</h4><h3 id="意向锁"><a href="#意向锁" class="headerlink" title="意向锁"></a>意向锁</h3><p>意向锁是一个表级锁，不要和插入意向锁搞混。<br>意向锁的出现是为了支持 InnoDB 的多粒度锁，它解决的是表锁和行锁共存的问题。<br>当我们需要给一个表加表锁的时候，我们需要根据去判断表中有没有数据行被锁定，以确定是否能加成功。<br>假如没有意向锁，那么我们就得遍历表中所有数据行来判断有没有行锁；<br>有了意向锁这个表级锁之后，则我们直接判断一次就知道表中是否有数据行被锁定了。<br>有了意向锁之后，要执行的事务 A 在申请行锁（写锁）之前，数据库会自动先给事务 A 申请表的意向排他锁。当事务 B 去申请表的互斥锁时就会失败，因为表上有意向排他锁之后事务 B 申请表的互斥锁时会被阻塞。</p>
+<h3 id="排查死锁"><a href="#排查死锁" class="headerlink" title="排查死锁"></a>排查死锁</h3><p>排查死锁的一般步骤是这样的：<br>查看死锁日志 show engine innodb status;<br>找出死锁 sql<br>分析 sql 加锁情况<br>模拟死锁案发<br>分析死锁日志<br>分析死锁结果  </p>
+<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><h3 id="四个特性"><a href="#四个特性" class="headerlink" title="四个特性"></a>四个特性</h3><p>原子性：事务的所有操作要么全部提交成功，要么全部失败回滚，对于一个事务中的操作不能只执行其中一部分。<br>一致性：事务应确保数据库的状态从一个一致状态转变为另一个一致状态。一致性与业务规则有关，比如银行转账，不论事务成功还是失败，转账双方的总金额应该是不变的。<br>隔离性：多个并发事务之间需要相互隔离，即一个事务的执行不能被其他事务干扰。<br>持久性：一旦事务提交，则其所做的修改将永久保存到数据库中。即使发生系统崩溃，修改的数据也不会丢失。</p>
+<h4 id="如何保证四个特性"><a href="#如何保证四个特性" class="headerlink" title="如何保证四个特性"></a>如何保证四个特性</h4><p>原子性<br>undo log 是 InnoDB 存储引擎来确保事务原子性的关键机制，undo log 记录了事务发生之前的数据，如果事务失败，InnoDB 会根据 undo log 回滚数据。<br>当事务开始修改数据时，InnoDB 首先会在undo log中记录旧值（即修改前的值）。<br>如果事务顺利进行并最终提交，undo log会在某个时间点被清除。<br>如果事务中的某个操作失败或者事务被明确地回滚，InnoDB 会使用undo log中的信息来撤销所有更改，确保数据的原子性。<br>一致性<br>一致性是 ACID 的目的，也就是说，只要保证原子性、隔离性、持久性，自然也就保证了数据的一致性。<br>隔离性<br>MySQL 使用多种隔离级别来控制事务如何与其他并发事务隔离。InnoDB 存储引擎使用 MVCC (多版本并发控制) 机制来处理并发事务，确保每个事务都有自己的数据版本。<br>持久性<br>由 MySQL 的存储引擎（如 InnoDB）通过写入磁盘来确保。即使在系统崩溃之后，已提交事务的更改也不会丢失。InnoDB 使用“redo log”来记录数据的更改，在系统崩溃后，redo log 可用于恢复数据。</p>
+<h3 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h3><p>读未提交<br>读未提交是最低的隔离级别，在这个级别，当前事务可以读取未被其他事务提交的数据，以至于会出现“脏读”、“不可重复读”和“幻读”的问题。<br>读已提交<br>当前事务只能读取已经被其他事务提交的数据，可以避免“脏读”现象。但不可重复读和幻读问题仍然存在。<br>可重复读<br>确保在同一事务中多次读取相同记录的结果是一致的，即使其他事务对这条记录进行了修改，也不会影响到当前事务。<br>是 MySQL 默认的隔离级别，避免了“脏读”和“不可重复读”，也在很大程度上减少了“幻读”问题。<br>串行化<br>最高的隔离级别，通过强制事务串行执行来避免并发问题，可以解决“脏读”、“不可重复读”和“幻读”问题。<br>但会导致大量的超时和锁竞争问题。</p>
+<h4 id="隔离级别如何实现"><a href="#隔离级别如何实现" class="headerlink" title="隔离级别如何实现"></a>隔离级别如何实现</h4><p>读未提交是如何实现的？<br>不提供任何锁机制来保护读取的数据，允许读取未提交的数据（即脏读）。<br>#读已提交&amp;可重复读是如何实现的？<br>读已提交和可重复读通过 MVCC 机制中的 ReadView 来实现。<br>READ COMMITTED：每次读取数据前都生成一个 ReadView，保证每次读操作都是最新的数据。<br>REPEATABLE READ：只在第一次读操作时生成一个 ReadView，后续读操作都使用这个 ReadView，保证事务内读取的数据是一致的。<br>#串行化是如何实现的？<br>事务在读操作时，必须先加共享锁（InnoDB 用 next-key 锁逐行加，不是表级 S 锁），直到事务结束才释放；事务在写操作时，必须先加表级排他锁，直到事务结束才释放。</p>
+<h3 id="脏读、幻读、不可重复读"><a href="#脏读、幻读、不可重复读" class="headerlink" title="脏读、幻读、不可重复读"></a>脏读、幻读、不可重复读</h3><p>事务 A、B 交替执行，事务 A 读取到事务 B 未提交的数据，这就是脏读。<br>在一个事务范围内，两个相同的查询，读取同一条记录，却返回了不同的数据，这就是不可重复读。<br>事务 A 查询一个范围的结果集，另一个并发事务 B 往这个范围中插入 &#x2F; 删除了数据，并静悄悄地提交，然后事务 A 再次查询相同的范围，两次读取得到的结果集不一样了，这就是幻读。</p>
+<h3 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h3><p>MVCC 是多版本并发控制，主要用来解决数据库并发问题。<br>在支持 MVCC 的数据库中，当多个用户同时访问数据时，每个用户都可以看到一个在某一时间点之前的数据库快照，并且能够无阻塞地执行查询和修改操作，而不会相互干扰。<br>在传统的锁机制中，如果一个事务正在写数据，那么其他事务必须等待写事务完成才能读数据，MVCC 允许读操作访问数据的一个旧版本快照，同时写操作创建一个新的版本，这样读写操作就可以并行进行，不必等待对方完成。<br>在 MySQL 中，特别是 InnoDB 存储引擎，MVCC 是通过版本链和 ReadView 机制来实现的。</p>
+<h4 id="版本链"><a href="#版本链" class="headerlink" title="版本链"></a>版本链</h4><p>在 InnoDB 中，每一行数据都有两个隐藏的列：一个是 DB_TRX_ID，另一个是 DB_ROLL_PTR。<br>DB_TRX_ID，保存创建这个版本的事务 ID。<br>DB_ROLL_PTR，指向 undo 日志记录的指针，这个记录包含了该行的前一个版本的信息。通过这个指针，可以访问到该行数据的历史版本。<br>当事务更新一行数据时，InnoDB 不会直接覆盖原有数据，而是创建一个新的数据版本，并更新 DB_TRX_ID 和 DB_ROLL_PTR，使得它们指向前一个版本和相关的 undo 日志。这样，老版本的数据不会丢失，可以通过版本链找到。<br>由于 undo 日志会记录每一次的 update，并且新插入的行数据会记录上一条 undo 日志的指针，所以可以通过这个指针找到上一条记录，这样就形成了一个版本链。</p>
+<h3 id="readview视图"><a href="#readview视图" class="headerlink" title="readview视图"></a>readview视图</h3><p>ReadView（读视图）是 InnoDB 为了实现一致性读（Consistent Read）而创建的数据结构，它用于确定在特定事务中哪些版本的行记录是可见的。<br>ReadView 主要用来处理隔离级别为”可重复读”（REPEATABLE READ）和”读已提交”（READ COMMITTED）的情况。因为在这两个隔离级别下，事务在读取数据时，需要保证读取到的数据是一致的，即读取到的数据是在事务开始时的一个快照。<br>当事务开始执行时，InnoDB 会为该事务创建一个 ReadView，这个 ReadView 会记录 4 个重要的信息：<br>creator_trx_id：创建该 ReadView 的事务 ID。<br>m_ids：所有活跃事务的 ID 列表，活跃事务是指那些已经开始但尚未提交的事务。<br>min_trx_id：所有活跃事务中最小的事务 ID。它是 m_ids 数组中最小的事务 ID。<br>max_trx_id ：事务 ID 的最大值加一。换句话说，它是下一个将要生成的事务 ID。</p>
+<h4 id="readview如何判断记录某个版本是否可见"><a href="#readview如何判断记录某个版本是否可见" class="headerlink" title="readview如何判断记录某个版本是否可见"></a>readview如何判断记录某个版本是否可见</h4><p>当一个事务读取某条数据时，InnoDB 会根据 ReadView 中的信息来判断该数据的某个版本是否可见。<br>①、如果某个数据版本的 DB_TRX_ID 小于 min_trx_id，则该数据版本在生成 ReadView 之前就已经提交，因此对当前事务是可见的。<br>②、如果某个数据版本的 DB_TRX_ID 大于 max_trx_id，则表示创建该数据版本的事务在生成 ReadView 之后开始，因此对当前事务是不可见的。<br>③、如果某个数据版本的 DB_TRX_ID 在 min_trx_id 和 max_trx_id 之间，需要判断 DB_TRX_ID 是否在 m_ids 列表中：<br>不在，表示创建该数据版本的活跃事务已经提交，因此对当前事务也是可见的。<br>在，则表示创建该数据版本的事务仍然活跃，或者在当前事务生成 ReadView 之后开始，因此对当前事务是不可见的。</p>
+<h4 id="可重复读和读已提交在readview上的区别"><a href="#可重复读和读已提交在readview上的区别" class="headerlink" title="可重复读和读已提交在readview上的区别"></a>可重复读和读已提交在readview上的区别</h4><p>可重复读（REPEATABLE READ）和读已提交（READ COMMITTED）的区别在于生成 ReadView 的时机不同。<br>可重复读：在第一次读取数据时生成一个 ReadView，这个 ReadView 会一直保持到事务结束，这样可以保证在事务中多次读取同一行数据时，读取到的数据是一致的。<br>读已提交：每次读取数据前都生成一个 ReadView，这样就能保证每次读取的数据都是最新的。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/MySQL/"># MySQL</a>
+          
+          <a href="/tags/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"># 思维导图</a>
+          
+          <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"># 数据库</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/05/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/Redis--%E9%9D%A2%E8%AF%95%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"
+        >Redis--面试思维导图笔记</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/05/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/MyBatis--%E9%9D%A2%E8%AF%95%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"
+        >MyBatis--面试思维导图笔记</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>

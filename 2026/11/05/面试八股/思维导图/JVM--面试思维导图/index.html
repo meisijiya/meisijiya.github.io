@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>JVM--面试思维导图笔记 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">JVM--面试思维导图笔记</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 5, 2026&nbsp;&nbsp;10:18:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/">思维导图</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<blockquote>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的面试思维导图（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists?sid=6589357&spm_id_from=333.788.0.0">合集·计算机专业面试总结</a>），XMind 文件转录为 Markdown。标题层级沿用导图结构，导图备注里的答案按段落排到对应标题下，原图的说法尽量保留，只补了必要的连词；个别与官方文档不符的技术说法已按规范改正，其余保持原样。</p>
+</blockquote>
+<h2 id="JVM组织架构"><a href="#JVM组织架构" class="headerlink" title="JVM组织架构"></a>JVM组织架构</h2><p>① 类加载器<br>负责从文件系统、网络或其他来源加载 Class 文件，将 Class 文件中的二进制数据读入到内存当中。<br>② 运行时数据区<br>JVM 在执行 Java 程序时，需要在内存中分配空间来处理各种数据，这些内存区域主要包括方法区、堆、栈、程序计数器和本地方法栈。<br>③ 执行引擎<br>执行引擎是 JVM 的心脏，负责执行字节码。它包括一个虚拟处理器，还包括即时编译器（JIT Compiler）和垃圾回收器（Garbage Collector）。</p>
+<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><h3 id="垃圾回收机制"><a href="#垃圾回收机制" class="headerlink" title="垃圾回收机制"></a>垃圾回收机制</h3><h4 id="确定哪些是垃圾"><a href="#确定哪些是垃圾" class="headerlink" title="确定哪些是垃圾"></a>确定哪些是垃圾</h4><p>引用计数算法是给对象挂一个计数器来存被引用的次数（这是示意性的做法，HotSpot 的对象头里没有计数字段，Java 实际用的是可达性分析）。<br>可达性分析算法的基本思路是，通过一些被称为引用链（GC Roots）的对象作为起点，然后向下搜索，搜索走过的路径被称为（Reference Chain），当一个对象到 GC Roots 之间没有任何引用相连时，即从 GC Roots 到该对象节点不可达，则证明该对象是需要垃圾收集的。</p>
+<h4 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h4><p>标记清除算法：垃圾回收分为2个阶段，分别是标记和清除,标记所有需要回收的对象，然后回收。效率高,有磁盘 碎片，内存不连续<br>标记整理算法：标记清除算法一样，将存活对象都向内存另一端移动，然 后清理边界以外的垃圾，无碎片，对象需要移动，效率低<br>复制算法：将原有的内存空间一分为二，每次只用其中的一块,正在使用的 对象复制到另一个内存空间中，然后将该内存空间清空，交换两个内存的 角色，完成垃圾的回收;无碎片，内存使用率低  </p>
+<h4 id="分代回收"><a href="#分代回收" class="headerlink" title="分代回收"></a>分代回收</h4><p>一、堆的区域划分<br>堆被分为了两份：新生代和老年代【1：2】<br>对于新生代，内部又被分为了三个区域。Eden区，幸存者区survivor(分成from和to)【8：1：1】<br>二、对象回收分代回收策略<br>新创建的对象，都会先分配到eden区<br>当伊甸园内存不足，标记伊甸园与 from（现阶段没有）的存活对象<br>将存活对象采用复制算法复制到to中，复制完毕后，伊甸园和 from 内存都得到释放<br>经过一段时间后伊甸园的内存又出现不足，标记eden区域to区存活的对象，将其复制到from区<br>当幸存区对象熬过几次回收（最多15次），晋升到老年代（幸存区内存不足或大对象会提前晋升）  </p>
+<h4 id="Minor-Major-Mixed-FullGC"><a href="#Minor-Major-Mixed-FullGC" class="headerlink" title="Minor&#x2F;Major&#x2F;Mixed&#x2F;FullGC"></a>Minor&#x2F;Major&#x2F;Mixed&#x2F;FullGC</h4><p>MinorGC【young GC】发生在新生代的垃圾回收，暂停时间短（STW）<br>Mixed GC 新生代 + 老年代部分区域的垃圾回收，G1 收集器特有<br>Major GC主要指的是发生在老年代的垃圾收集<br>FullGC： 新生代 + 老年代完整垃圾回收，暂停时间长（STW），应尽力避免  </p>
+<ul>
+<li><strong>Minor&#x2F;Young GC触发时机</strong><br>新创建的对象优先在新生代 Eden 区进行分配，如果 Eden 区没有足够的空间时，就会触发 Young GC 来清理新生代。</li>
+<li><strong>FullGC触发时机</strong><br>Young GC 之前检查老年代：在要进行 Young GC 的时候，发现老年代可用的连续内存空间 &lt; 新生代历次Young GC后升入老年代的对象总和的平均大小，说明本次 Young GC 后可能升入老年代的对象大小，可能超过了老年代当前可用内存空间,那就会触发 Full GC。<br>Young GC 之后老年代空间不足：执行 Young GC 之后有一批对象需要放入老年代，此时老年代就是没有足够的内存空间存放这些对象了，此时必须立即触发一次 Full GC<br>老年代空间不足，老年代占用超过并发回收的启动阈值（CMS 默认约 92%）时，先启动一次并发回收；回收不成、内存还是不够，才退化成 Full GC。<br>空间分配担保失败，新生代的 To 区放不下从 Eden 和 From 拷贝过来对象，或者新生代对象 GC 年龄到达阈值需要晋升这两种情况，老年代如果放不下的话都会触发 Full GC。<br>方法区内存空间不足：如果方法区由永久代实现，永久代空间不足 Full GC。<br>System.gc()等命令触发：System.gc() 与 jmap -dump:live 会触发 Full GC（不带 live 的 dump 不触发）。</li>
+<li><strong>频繁Minor gc怎么办</strong><br>优化 Minor GC 频繁问题：通常情况下，由于新生代空间较小，Eden 区很快被填满，就会导致频繁 Minor GC，因此可以通过增大新生代空间-Xmn来降低 Minor GC 的频率。</li>
+<li><strong>频繁Full GC怎么办</strong><br>ull GC 的排查思路大概如下：<br>1）清楚从程序角度，有哪些原因导致 FGC？<br>大对象：系统一次性加载了过多数据到内存中（比如 SQL 查询未做分页），导致大对象进入了老年代。<br>内存泄漏：频繁创建了大量对象，但是无法被回收（比如 IO 对象使用完后未调用 close 方法释放资源），先引发 FGC，最后导致 OOM.<br>程序频繁生成一些长生命周期的对象，当这些对象的存活年龄超过分代年龄时便会进入老年代，最后引发 FGC. （即本文中的案例）<br>程序 BUG<br>代码中显式调用了 gc方法，包括自己的代码甚至框架中的代码。<br>JVM 参数设置问题：包括总内存大小、新生代和老年代的大小、Eden 区和 S 区的大小、元空间大小、垃圾回收算法等等。<br>2）清楚排查问题时能使用哪些工具<br>公司的监控系统：大部分公司都会有，可全方位监控 JVM 的各项指标。<br>JDK 的自带工具，包括 jmap、jstat 等常用命令：<h1 id="查看堆内存各区域的使用率以及GC情况"><a href="#查看堆内存各区域的使用率以及GC情况" class="headerlink" title="查看堆内存各区域的使用率以及GC情况"></a>查看堆内存各区域的使用率以及GC情况</h1>jstat -gcutil -h20 pid 1000  <h1 id="查看堆内存中的存活对象，并按空间排序"><a href="#查看堆内存中的存活对象，并按空间排序" class="headerlink" title="查看堆内存中的存活对象，并按空间排序"></a>查看堆内存中的存活对象，并按空间排序</h1>jmap -histo pid | head -n20  <h1 id="dump堆内存文件"><a href="#dump堆内存文件" class="headerlink" title="dump堆内存文件"></a>dump堆内存文件</h1>jmap -dump:format&#x3D;b,file&#x3D;heap pid<br>可视化的堆内存分析工具：JVisualVM、MAT 等<br>3）排查指南<br>查看监控，以了解出现问题的时间点以及当前 FGC 的频率（可对比正常情况看频率是否正常）<br>了解该时间点之前有没有程序上线、基础组件升级等情况。<br>了解 JVM 的参数设置，包括：堆空间各个区域的大小设置，新生代和老年代分别采用了哪些垃圾收集器，然后分析 JVM 参数设置是否合理。<br>再对步骤 1 中列出的可能原因做排除法，其中元空间被打满、内存泄漏、代码显式调用 gc 方法比较容易排查。<br>针对大对象或者长生命周期对象导致的 FGC，可通过 jmap -histo 命令并结合 dump 堆内存文件作进一步分析，需要先定位到可疑对象。<br>通过可疑对象定位到具体代码再次分析，这时候要结合 GC 原理和 JVM 参数设置，弄清楚可疑对象是否满足了进入到老年代的条件才能下结论。</li>
+</ul>
+<h3 id="GC-Roots的引用"><a href="#GC-Roots的引用" class="headerlink" title="GC Roots的引用"></a>GC Roots的引用</h3><p>所谓的 GC Roots，就是一组必须活跃的引用，不是对象，它们是程序运行时的起点，是一切引用链的源头。在 Java 中，GC Roots 包括以下几种：<br>虚拟机栈中的引用（方法的参数、局部变量等）<br>本地方法栈中 JNI 的引用<br>类静态变量<br>运行时常量池中的常量（String 或 Class 类型）  </p>
+<h3 id="对象的创建与销毁"><a href="#对象的创建与销毁" class="headerlink" title="对象的创建与销毁"></a>对象的创建与销毁</h3><h4 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h4><p>当我们使用 new 关键字创建一个对象的时候，JVM 首先会检查 new 指令的参数是否能在常量池中定位到一个类的符号引用，然后检查这个符号引用代表的类是否已被加载、解析和初始化过。如果没有，就先执行相应的类加载过程。<br>如果已经加载，JVM 会为新生对象分配内存，内存分配完成之后，JVM 将分配到的内存空间初始化为零值（成员变量，数值类型是 0，布尔类型是 false，对象类型是 null），接下来设置对象头，对象头里包含了对象是哪个类的实例、对象的哈希码、对象的 GC 分代年龄等信息。<br>最后，JVM 会执行构造方法（&lt;init&gt;），将成员变量赋值为预期的值，这样一个对象就创建完成了。</p>
+<h4 id="销毁"><a href="#销毁" class="headerlink" title="销毁"></a>销毁</h4><p>对象创建完成后，就可以通过引用来访问对象的方法和属性，当对象不再被任何引用指向时，对象就会变成垃圾。<br>垃圾收集器会通过可达性分析算法判断对象是否存活，如果对象不可达，就会被回收。<br>垃圾收集器会通过标记清除、标记复制、标记整理等算法来回收内存，将对象占用的内存空间释放出来。<br>常用的垃圾收集器有 CMS、G1、ZGC 等，它们的回收策略和效率不同，可以根据具体的场景选择合适的垃圾收集器。</p>
+<h3 id="Java堆内存分区"><a href="#Java堆内存分区" class="headerlink" title="Java堆内存分区"></a>Java堆内存分区</h3><p>按照垃圾收集，将 Java 堆划分为新生代 和老年代两个区域，新生代存放存活时间短的对象，而每次回收后存活的少量对象，将会逐步晋升到老年代中存放。<br>而新生代又可以分为三个区域，eden、from、to，比例是 8：1：1，而新生代的内存分区同样是从垃圾收集的角度来分配的。</p>
+<h4 id="新生代区域划分"><a href="#新生代区域划分" class="headerlink" title="新生代区域划分"></a>新生代区域划分</h4><p>新生代的垃圾收集主要采用标记-复制算法，因为新生代的存活对象比较少，每次复制少量的存活对象效率比较高。<br>基于这种算法，虚拟机将内存分为一块较大的 Eden 空间和两块较小的 Survivor 空间，每次分配内存只使用 Eden 和其中一块 Survivor。发生垃圾收集时，将 Eden 和 Survivor 中仍然存活的对象一次性复制到另外一块 Survivor 空间上，然后直接清理掉 Eden 和已用过的那块 Survivor 空间。默认 Eden 和 Survivor 的大小比例是 8∶1。</p>
+<h4 id="对象什么时候进入老年代"><a href="#对象什么时候进入老年代" class="headerlink" title="对象什么时候进入老年代"></a>对象什么时候进入老年代</h4><p>①、长期存活的对象将进入老年代<br>对象在年轻代中存活足够长的时间（即经过足够多的垃圾回收周期）后，会晋升到老年代。<br>每次 GC 未被回收的对象，其年龄会增加。当对象的年龄超过一个特定阈值（默认通常是 15），它就会被移动到老年代。这个年龄阈值可以通过 JVM 参数-XX:MaxTenuringThreshold来设置。<br>②、大对象直接进入老年代<br>为了避免在年轻代中频繁复制大对象，JVM 提供了一种策略，允许大对象直接在老年代中分配。<br>这些是所谓的“大对象”，其大小超过了预设的阈值（由 JVM 参数 -XX:PretenureSizeThreshold控制）。直接在老年代分配可以减少在年轻代和老年代之间的数据复制。<br>③、动态对象年龄判定<br>除了固定的年龄阈值，还会根据各个年龄段对象的存活大小和总空间等因素动态调整对象的晋升策略。<br>如果在 Survivor 空间中相同年龄的所有对象大小总和大于 Survivor 空间的一半，那么年龄大于或等于该年龄的对象就可以直接进入老年代。</p>
+<h3 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h3><h4 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h4><ul>
+<li><strong>串行垃圾收集器</strong><br>它是一个单线程工作的收集器，使用一个处理器或一条收集线程去完成垃圾收集工作。并且进行垃圾收集时，必须暂停其他所有工作线程，直到垃圾收集结束——这就是所谓的“Stop The World”。<br>新生代标记复制、老年代标记整理  </li>
+<li><strong>并行垃圾收集器</strong><br>实质是串行收集器多线程的并行版本<br>新生代标记复制、老年代标记整理  </li>
+<li><strong>CMS收集器垃圾收集过程</strong><br>CMS采用标记清除分 4 大步进行垃圾收集：<br>初始标记：标记所有从 GC Roots 直接可达的对象，这个阶段需要 STW，但速度很快。<br>并发标记：从初始标记的对象出发，遍历所有对象，标记所有可达的对象。这个阶段和应用线程并发执行，不会 STW；CMS 里只有初始标记和重新标记两次停顿。<br>重新标记：完成剩余的标记工作，包括处理并发阶段遗留下来的少量变动，这个阶段通常需要短暂的 STW 停顿。<br>并发清除：清除未被标记的对象，回收它们占用的内存空间。</li>
+<li><strong>G1垃圾收集器</strong><ul>
+<li><strong>特点</strong><br>G1 把 Java 堆划分为多个大小相等的独立区域（Region），每个区域都可以扮演新生代（Eden 和 Survivor）或老年代的角色。<br>同时，G1 还有专门为大对象设计的 Region，叫 Humongous 区。大对象的判定规则是，如果一个大对象超过了一个 Region 大小的 50%，比如每个 Region 是 2M，只要一个对象超过了 1M，就会被放入 Humongous 中。</li>
+<li><strong>工作流程</strong><br>G1 收集器的运行过程大致可划分为这几个步骤：<br>①、并发标记，G1 通过并发标记的方式找出堆中的垃圾对象。并发标记阶段与应用线程同时执行，不会导致应用线程暂停。<br>②、混合收集，在并发标记完成后，G1 会计算出哪些区域的回收价值最高（也就是包含最多垃圾的区域），然后优先回收这些区域。这种回收方式包括了部分新生代区域和老年代区域。<br>选择回收成本低而收益高的区域进行回收，可以提高回收效率和减少停顿时间。<br>③、可预测的停顿，G1 在垃圾回收期间仍然需要「Stop the World」。不过，G1 在停顿时间上添加了预测机制，用户可以 JVM 启动时指定期望停顿时间，G1 会尽可能地在这个时间内完成垃圾回收。</li>
+<li><strong>比CMS的优势</strong><br>优点：CMS 最主要的优点在名字上已经体现出来——并发收集、低停顿。<br>缺点：CMS 同样有三个明显的缺点。<br>Mark Sweep 算法会导致内存碎片比较多<br>CMS 的并发能力比较依赖于 CPU 资源，并发回收时垃圾收集线程可能会抢占用户线程的资源，导致用户程序性能下降。<br>并发清除阶段，用户线程依然在运行，会产生所谓的理“浮动垃圾”（Floating Garbage），本次垃圾收集无法处理浮动垃圾，必须到下一次垃圾收集才能处理。如果浮动垃圾太多，会触发新的垃圾回收，导致性能降低。<br>G1 主要解决了内存碎片过多的问题。</li>
+<li><strong>CMS和G1的区别</strong><br>停顿时间<br>CMS短暂但是不太可预测，G1较短且可预测<br>性能<br>CMS并发标记和清理需要额外CPU资源，G1老年代压缩减少碎片化，整体性能较好<br>内存管理<br>CMS可能产生碎片，利用率不高，G1区域化管理，内存利用率高<br>适用场景<br>CMS低延迟应用；G1大内存、长时间运行应用要求停顿时间稳定<br>调优<br>CMS手动调优参数多，G1自动调优较多，使用相对简单。</li>
+</ul>
+</li>
+</ul>
+<h4 id="强引用、软引用、弱引用、虚引用"><a href="#强引用、软引用、弱引用、虚引用" class="headerlink" title="强引用、软引用、弱引用、虚引用"></a>强引用、软引用、弱引用、虚引用</h4><p>强引用：只要所有 GC Roots 能找到，就不会被回收<br>软引用：软引用是用来描述一些还有用，但非必须的对象。只被软引用关联着的对象，在系统将要发生内存溢出异常前，会把这些对象列进回收范围之中进行第二次回收，如果这次回收还没有足够的内存， 才会抛出内存溢出异常。<br>弱引用：需要配合WeakReference使用，只要进行了垃圾回收，就会把弱 引用对象回收<br>虚引用：必须配合引用队列使用，被引用对象回收时，会将虚引用入队， 由 Reference Handler 线程调用虚引用相关方法释放直接内存  </p>
+<h4 id="垃圾收集器怎么选择"><a href="#垃圾收集器怎么选择" class="headerlink" title="垃圾收集器怎么选择"></a>垃圾收集器怎么选择</h4><p>Serial ：如果应用程序有一个很小的内存空间（大约 100 MB）亦或它在没有停顿时间要求的单线程处理器上运行。<br>Parallel：如果优先考虑应用程序的峰值性能，并且没有时间要求要求，或者可以接受 1 秒或更长的停顿时间。<br>CMS&#x2F;G1：如果响应时间比吞吐量优先级高，或者垃圾收集暂停必须保持在大约 1 秒以内。<br>ZGC：如果响应时间是高优先级的，或者堆空间比较大。</p>
+<h3 id="逃逸分析及好处"><a href="#逃逸分析及好处" class="headerlink" title="逃逸分析及好处"></a>逃逸分析及好处</h3><p>逃逸分析是指分析指针动态范围的方法，它同编译器优化原理的指针分析和外形分析相关联。当变量（或者对象）在方法中分配后，其指针有可能被返回或者被全局引用，这样就会被其他方法或者线程所引用，这种现象称作指针（或者引用）的逃逸(Escape)。<br>通俗点讲，当一个对象被 new 出来之后，它可能被外部所调用，如果是作为参数传递到外部了，就称之为方法逃逸。<br>除此之外，如果对象还有可能被外部线程访问到，例如赋值给可以在其它线程中访问的实例变量，这种就被称为线程逃逸。<br>逃逸分析的好处<br>栈上分配<br>如果确定一个对象不会逃逸到线程之外，那么久可以考虑将这个对象在栈上分配，对象占用的内存随着栈帧出栈而销毁，这样一来，垃圾收集的压力就降低很多。<br>同步消除<br>线程同步本身是一个相对耗时的过程，如果逃逸分析能够确定一个变量不会逃逸出线程，无法被其他线程访问，那么这个变量的读写肯定就不会有竞争， 对这个变量实施的同步措施也就可以安全地消除掉。<br>标量替换<br>如果一个数据是基本数据类型，不可拆分，它就被称之为标量。把一个 Java 对象拆散，将其用到的成员变量恢复为原始类型来访问，这个过程就称为标量替换。假如逃逸分析能够证明一个对象不会被方法外部访问，并且这个对象可以被拆散，那么可以不创建对象，直接用创建若干个成员变量代替，可以让对象的成员变量在栈上分配和读写。</p>
+<h2 id="虚拟机执行"><a href="#虚拟机执行" class="headerlink" title="虚拟机执行"></a>虚拟机执行</h2><h3 id="类的加载机制"><a href="#类的加载机制" class="headerlink" title="类的加载机制"></a>类的加载机制</h3><p>JVM 的操作对象是 Class 文件，JVM 把 Class 文件中描述类的数据结构加载到内存中，并对数据进行校验、解析和初始化，最终形成可以被 JVM 直接使用的类型，这个过程被称为类加载机制。<br>其中最重要的三个概念就是：类加载器、类加载过程和类加载器的双亲委派模型。<br>类加载器：负责加载类文件，将类文件加载到内存中，生成 Class 对象。<br>类加载过程：加载、验证、准备、解析和初始化。<br>双亲委派模型：当一个类加载器收到类加载请求时，它首先不会自己去尝试加载这个类，而是把请求委派给父类加载器去完成，依次递归，直到最顶层的类加载器，如果父类加载器无法完成加载请求，子类加载器才会尝试自己去加载。</p>
+<h3 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h3><p>类加载过程有：载入、验证、准备、解析、初始化。这 5 个阶段一般是顺序发生的，但在动态绑定的情况下，解析阶段会发生在初始化阶段之后。载入过程中，JVM 需要做三件事情：<br>通过一个类的全限定名来获取定义此类的二进制字节流。<br>将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。<br>在内存中生成一个代表这个类的 java.lang.Class 对象，作为方法区这个类的各种数据的访问入口。<br>载入阶段结束后，JVM 外部的二进制字节流就按照虚拟机所设定的格式存储在方法区（逻辑概念）中了，方法区中的数据存储格式完全由虚拟机自行实现。JVM 会在验证阶段对二进制字节流进行校验，只有符合 JVM 字节码规范的才能被 JVM 正确执行。JVM 会在准备阶段对类变量（也称为静态变量，static 关键字open in new window修饰的变量）分配内存并初始化，初始化为数据类型的默认值，如 0、0L、null、false 等。<br>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程。解析动作主要针对类或接口、字段、类方法、接口方法、成员方法等。<br>初始化阶段是类加载过程的最后一步。在准备阶段，类变量已经被赋过默认初始值了，而在初始化阶段，类变量将被赋值为代码期望赋的值。换句话说初始化阶段执行的是类构造器 &lt;clinit&gt;()，也就是给类变量赋代码里期望的值、跑静态代码块；实例构造方法 &lt;init&gt;() 属于对象创建，不在类加载流程里  </p>
+<h4 id="简洁版"><a href="#简洁版" class="headerlink" title="简洁版"></a>简洁版</h4><p>加载:查找和导入class文件<br>验证:保证加载类的准确性<br>准备:为类变量分配内存并设置类变量初始值<br>解析:把类中的符号引用转换为直接引用<br>初始化:对类的静态变量，静态代码块执行初始化操作<br>使用:JVM 开始从入口方法开始执行用户的程序代码<br>卸载:当用户程序代码执行完毕后，JVM便开始销毁创建的Class对象。</p>
+<h3 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h3><p>类加载器（ClassLoader）用于动态加载 Java 类到 Java 虚拟机中。主要有四种类加载器：<br>①、启动类加载器（Bootstrap ClassLoader）负责加载 JVM 的核心类库，如 rt.jar 和其他核心库位于JAVA_HOME&#x2F;jre&#x2F;lib目录下的类（这是 JDK 8 的布局；JDK 9 起 rt.jar 和 jre&#x2F;lib&#x2F;ext 都取消了，扩展类加载器改成平台类加载器，类库变成模块化镜像）。<br>②、扩展类加载器(Extension ClassLoader)：由sun.misc.Launcher$ExtClassLoader（或其它类似实现）实现。负责加载JAVA_HOME&#x2F;jre&#x2F;lib&#x2F;ext目录下，或者由系统属性java.ext.dirs指定位置的类库。<br>③、应用程序类加载器（Application ClassLoader）：由sun.misc.Launcher$AppClassLoader（或其它类似实现）实现。<br>负责加载系统类路径（classpath）上的类库，通常是我们在开发 Java 应用程序时的主要类加载器。<br>我们编写的任何类都是由应用程序类加载器加载的，除非显式使用自定义类加载器。<br>④、用户自定义类加载器 (User-Defined ClassLoader)，我们可以通过继承java.lang.ClassLoader类来创建自己的类加载器。<br>这种类加载器通常用于加载网络上的类、执行热部署（动态加载和替换应用程序的组件）或为了安全目的自定义类的加载方式。</p>
+<h3 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h3><p>当一个类加载器需要加载某个类时，它首先会请求其父类加载器加载这个类。<br>这个过程会一直向上递归，也就是说，从子加载器到父加载器，再到更上层的加载器，一直到最顶层的启动类加载器（Bootstrap ClassLoader）。<br>启动类加载器会尝试加载这个类。如果它能够加载这个类，就直接返回；如果它不能加载这个类（因为这个类不在它的搜索范围内），就会将加载任务返回给委托它的子加载器。<br>子加载器接着尝试加载这个类。如果子加载器也无法加载这个类，它就会继续向下传递这个加载任务，依此类推。<br>这个过程会继续，直到某个加载器能够加载这个类，或者所有加载器都无法加载这个类，最终抛出 ClassNotFoundException。</p>
+<h4 id="为什么要有"><a href="#为什么要有" class="headerlink" title="为什么要有"></a>为什么要有</h4><p>可以为 Java 应用程序的运行提供一致性和安全性的保障。<br>①、保证 Java 核心类库的类型安全<br>如果自定义类加载器优先加载一个类，比如说自定义的 Object，那在 Java 运行时环境中就存在多个版本的 java.lang.Object，双亲委派模型确保了 Java 核心类库的类加载工作由启动类加载器统一完成，从而保证了 Java 应用程序都是使用的同一份核心类库。<br>②、避免类的重复加载<br>在双亲委派模型中，类加载器会先委托给父加载器尝试加载类，这样同一个类不会被加载多次。如果没有这种模型，可能会导致同一个类被不同的类加载器重复加载到内存中，造成浪费和冲突。</p>
+<h4 id="如何破坏"><a href="#如何破坏" class="headerlink" title="如何破坏"></a>如何破坏</h4><p>如果不想打破双亲委派模型，就重写 ClassLoader 类中的 fifindClass()方法即可，无法被父类加载器加载的类最终会通过这个方法被加载。而如果想打破双亲委派模型则需要重写 loadClass()方法。</p>
+<h2 id="JVM调优"><a href="#JVM调优" class="headerlink" title="JVM调优"></a>JVM调优</h2><h3 id="OOM内存溢出"><a href="#OOM内存溢出" class="headerlink" title="OOM内存溢出"></a>OOM内存溢出</h3><h4 id="内存溢出和内存泄漏"><a href="#内存溢出和内存泄漏" class="headerlink" title="内存溢出和内存泄漏"></a>内存溢出和内存泄漏</h4><p>①、内存溢出：是指当程序请求分配内存时，由于没有足够的内存空间满足其需求，从而触发的错误。在 Java 中，这种情况会抛出 OutOfMemoryError。<br>内存溢出可能是由于内存泄漏导致的，也可能是因为程序一次性尝试分配大量内存，内存直接就干崩溃了导致的。<br>②、内存泄漏：是指程序在使用完内存后，未能释放已分配的内存空间，导致这部分内存无法再被使用。随着时间的推移，内存泄漏会导致可用内存逐渐减少，最终可能导致内存溢出。<br>在 Java 中，内存泄漏通常发生在长期存活的对象持有短期存活对象的引用，而长期存活的对象又没有及时释放对短期存活对象的引用，从而导致短期存活对象无法被回收。</p>
+<h4 id="OOM的例子"><a href="#OOM的例子" class="headerlink" title="OOM的例子"></a>OOM的例子</h4><p>导致内存溢出（OOM）的原因有很多，比如一次性创建了大量对象导致堆内存溢出；比如说元空间溢出，抛出 java.lang.OutOfMemoryError：Metaspace，比如说栈溢出，如果栈的深度超过了 JVM 栈所允许的深度，将会抛出 StackOverflowError（它和 OutOfMemoryError 是兄弟，同属 VirtualMachineError，不算 OOM 的一种）。</p>
+<ul>
+<li><strong>内存泄漏可能原因</strong><br>①、静态集合类引起内存泄漏<br>静态集合的生命周期和 JVM 一致，所以静态集合引用的对象不能被释放。<br>②、单例模式<br>和上面的例子原理类似，单例对象在初始化后会以静态变量的方式在 JVM 的整个生命周期中存在。如果单例对象持有外部的引用，那么这个外部对象将不能被 GC 回收，导致内存泄漏。<br>③、数据连接、IO、Socket 等连接<br>创建的连接不再使用时，需要调用 close 方法关闭连接，只有连接被关闭后，GC 才会回收对应的对象（Connection，Statement，ResultSet，Session）。忘记关闭这些资源会导致持续占有内存，无法被 GC 回收。<br>④、变量不合理的作用域<br>一个变量的定义作用域大于其使用范围，很可能存在内存泄漏；或不再使用对象没有及时将对象设置为 null，很可能导致内存泄漏的发生。<br>⑤、hash 值发生变化<br>对象 Hash 值改变，使用 HashMap、HashSet 等容器中时候，由于对象修改之后的 Hah 值和存储进容器时的 Hash 值不同，所以无法找到存入的对象，自然也无法单独删除了，这也会造成内存泄漏。说句题外话，这也是为什么 String 类型被设置成了不可变类型。<br>⑥、ThreadLocal 使用不当<br>ThreadLocal 的弱引用导致内存泄漏也是个老生常谈的话题了，使用完 ThreadLocal 一定要记得使用 remove 方法来进行清除。</li>
+</ul>
+<h3 id="如何处理OOM"><a href="#如何处理OOM" class="headerlink" title="如何处理OOM"></a>如何处理OOM</h3><p>内存溢出（Out of Memory，俗称 OOM）是指当程序请求分配内存时，由于没有足够的内存空间满足其需求，从而触发的错误。<br>首先，我会通过异常信息和日志确定 OOM 的类型。Java 的 OOM 错误通常有几种类型，如堆内存溢出、Metaspace 溢出或直接内存溢出。比如，如果日志中显示“java.lang.OutOfMemoryError: Java heap space”，那就说明是堆内存溢出。<br>一旦确定了是堆内存溢出，我会使用 JConsole 实时监控 JVM 的内存使用情况，特别是那些占用大量内存的对象和类。<br>找到可能的内存泄漏源后，我会回到代码中去，查找和修复具体的问题。<br>之后，我会在本地进行压力测试，模拟高负载情况下的内存表现，确保修改有效，且没有引入新的问题。</p>
+<h4 id="如何处理内存泄漏"><a href="#如何处理内存泄漏" class="headerlink" title="如何处理内存泄漏"></a>如何处理内存泄漏</h4><p>严重的内存泄漏伴随着频繁的Full GC，可从这里入手，<br>jps查看运行的java进程id<br>top -p [pid]查看进程使用CPU和内存占用<br>top -Hp [pid]查看进程下所有线程占用CPU和内存情况<br>可以用jstat查看Full GC次数，次数都多就大概率内存泄漏<br>jmap输出每个类的对象数量，内存大小等信息<br>生成dump文件，借助工具分析哪个对象非常多，基本就定位了  </p>
+<h3 id="JVM-调优的参数有哪些"><a href="#JVM-调优的参数有哪些" class="headerlink" title="JVM 调优的参数有哪些"></a>JVM 调优的参数有哪些</h3><p>⚫ 设置堆空间大小<br>⚫ 虚拟机栈的设置<br>⚫ 年轻代中Eden区和两个Survivor区的大小比例<br>⚫ 年轻代晋升老年代阈值<br>⚫ 设置垃圾回收收集器  </p>
+<h3 id="JVM-调优的工具"><a href="#JVM-调优的工具" class="headerlink" title="JVM 调优的工具"></a>JVM 调优的工具</h3><p>命令工具 ⚫ jps 进程状态信息 ⚫ jstack 查看java进程内线程的堆栈信息 ⚫ jmap 查看堆转信息 ⚫ jhat 堆转储快照分析工具（JDK 9 起已移除，改用 MAT、VisualVM） ⚫ jstat JVM统计监测工具<br>可视化工具 ⚫ jconsole 用于对jvm的内存，线程，类 的监控 ⚫ VisualVM 能够监控线程，内存情况  </p>
+<h3 id="java内存泄露的排查思路"><a href="#java内存泄露的排查思路" class="headerlink" title="java内存泄露的排查思路"></a>java内存泄露的排查思路</h3><p>内存泄漏通常是指堆内存，通常是指一些大对象不被回收的情况<br>通过jmap或设置jvm参数获取堆内存快照dump<br>通过工具， VisualVM去分析dump文件，VisualVM可以加载离线的dump文件<br>通过查看堆信息的情况，可以大概定位内存溢出是哪行代码出了问题<br>找到对应的代码，通过阅读上下文的情况，进行修复即可  </p>
+<h3 id="CPU飙高排查方案与思路"><a href="#CPU飙高排查方案与思路" class="headerlink" title="CPU飙高排查方案与思路"></a>CPU飙高排查方案与思路</h3><p>使用top命令查看占用cpu的情况<br>通过top命令查看后，可以查看是哪一个进程占用cpu较高<br>使用ps命令查看进程中的线程信息<br>使用jstack命令查看进程中哪些线程出现了问题，最终定位问题  </p>
+<h2 id="内存结构"><a href="#内存结构" class="headerlink" title="内存结构"></a>内存结构</h2><h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>线程私有的，每个线程一份，内部保存的字节码的行号。用于记录正在执行 的字节码指令的地址。</p>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>线程共享的区域：主要用来保存对象实例，数组等，内存不够则抛出 OutOfMemoryError异常。<br>组成：年轻代+老年代<br>年轻代被划分为三部分，Eden区和两个大小严格相同的Survivor区<br>老年代主要保存生命周期长的对象，一般是一些老的对象<br>dk1.7和1.8的区别<br>1.7 中有一个永久代，存储类信息、静态变量、常量、编译后的代码；字符串常量池从 JDK 7 起就已经挪到堆里了<br>1.8移除了永久代，把数据存储到了本地内存的元空间中，防止内存溢出  </p>
+<h3 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h3><p>⚫ 每个线程运行时所需要的内存，称为虚拟机栈<br>⚫ 每个栈由多个栈帧（frame）组成，对应着每次方法调用时所占用的内存<br>⚫ 每个线程只能有一个活动栈帧，对应着当前正在执行的那个方法  </p>
+<h3 id="堆栈的区别是什么"><a href="#堆栈的区别是什么" class="headerlink" title="堆栈的区别是什么"></a>堆栈的区别是什么</h3><p>⚫ 栈内存一般会用来存储局部变量和方法调用，但堆内存是用来存储Java对象和 数组的的。堆会GC垃圾回收，而栈不会。 ⚫ 栈内存是线程私有的，而堆内存是线程共有的。<br>⚫ 两者异常错误不同，但如果栈内存或者堆内存不足都会抛出异常。 栈空间不足：java.lang.StackOverFlowError。<br>堆空间不足：java.lang.OutOfMemoryError。</p>
+<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>⚫ 方法区(Method Area)是各个线程共享的内存区域<br>⚫ 主要存储已被JVM加载的类的信息、运行时常量池<br>⚫ 虚拟机启动的时候创建，关闭虚拟机时释放<br>⚫ 如果方法区域中的内存无法满足分配请求，则会抛出OutOfMemoryError: Metaspace  </p>
+<h3 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h3><p>⚫ 常量池：可以看作是一张表，虚拟机指令根据这张常量表找到要执行的类名、 方法名、参数类型、字面量等信息<br>⚫ 当类被加载，它的常量池信息就会放入运行时常量池，并把里面的符号地址变 为真实地址  </p>
+<h3 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h3><p>⚫ 并不属于JVM中的内存结构，不由JVM进行管理。是虚拟机的系统内存<br>⚫ 常见于 NIO 操作时，用于数据缓冲区，分配回收成本较高，但读写性能高，不 受 JVM 内存回收管理</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/JVM/"># JVM</a>
+          
+          <a href="/tags/Java/"># Java</a>
+          
+          <a href="/tags/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"># 思维导图</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/05/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/Spring--%E9%9D%A2%E8%AF%95%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"
+        >Spring--面试思维导图笔记</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/05/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/JUC%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B--%E9%9D%A2%E8%AF%95%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"
+        >JUC 并发编程--面试思维导图笔记</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>

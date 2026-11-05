@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>MyBatis--面试思维导图笔记 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">MyBatis--面试思维导图笔记</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 5, 2026&nbsp;&nbsp;10:36:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/">思维导图</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<blockquote>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的面试思维导图（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists?sid=6589357&spm_id_from=333.788.0.0">合集·计算机专业面试总结</a>），XMind 文件转录为 Markdown。标题层级沿用导图结构，导图备注里的答案按段落排到对应标题下，原图的说法尽量保留，只补了必要的连词；个别与官方文档不符的技术说法已按规范改正，其余保持原样。</p>
+</blockquote>
+<h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h2><h3 id="框架定义"><a href="#框架定义" class="headerlink" title="框架定义"></a>框架定义</h3><h4 id="MyBatis是什么"><a href="#MyBatis是什么" class="headerlink" title="MyBatis是什么"></a>MyBatis是什么</h4><ul>
+<li><strong>半ORM框架</strong></li>
+<li><strong>封装JDBC</strong></li>
+<li><strong>关注SQL语句本身</strong></li>
+<li><strong>无需处理驱动加载、连接创建、Statement创建等冗杂过程</strong></li>
+<li><strong>编写原生SQL，可严格控制执行性能</strong></li>
+<li><strong>使用XML或注解配置映射</strong></li>
+<li><strong>将POJO映射为数据库记录</strong></li>
+</ul>
+<h4 id="为什么叫半ORM"><a href="#为什么叫半ORM" class="headerlink" title="为什么叫半ORM"></a>为什么叫半ORM</h4><ul>
+<li><strong>查询关联对象需手动编写SQL</strong></li>
+<li><strong>相比Hibernate全自动ORM，MyBatis需开发者编写SQL</strong></li>
+<li><strong>Hibernate可根据对象关系模型直接获取关联对象</strong></li>
+</ul>
+<h3 id="ORM概念"><a href="#ORM概念" class="headerlink" title="ORM概念"></a>ORM概念</h3><h4 id="对象关系映射"><a href="#对象关系映射" class="headerlink" title="对象关系映射"></a>对象关系映射</h4><ul>
+<li><strong>解决关系型数据库与Java对象映射问题</strong></li>
+<li><strong>通过描述对象和数据库映射的元数据</strong></li>
+<li><strong>将程序对象自动持久化到数据库</strong></li>
+</ul>
+<h3 id="JDBC不足与MyBatis解决"><a href="#JDBC不足与MyBatis解决" class="headerlink" title="JDBC不足与MyBatis解决"></a>JDBC不足与MyBatis解决</h3><h4 id="连接频繁创建释放"><a href="#连接频繁创建释放" class="headerlink" title="连接频繁创建释放"></a>连接频繁创建释放</h4><ul>
+<li><strong>MyBatis通过连接池统一管理</strong></li>
+<li><strong>配置数据源链接池</strong></li>
+</ul>
+<h4 id="SQL写在代码中难维护"><a href="#SQL写在代码中难维护" class="headerlink" title="SQL写在代码中难维护"></a>SQL写在代码中难维护</h4><ul>
+<li><strong>MyBatis将SQL配置在映射文件中</strong></li>
+<li><strong>实现SQL与Java代码分离</strong></li>
+</ul>
+<h4 id="参数设置麻烦"><a href="#参数设置麻烦" class="headerlink" title="参数设置麻烦"></a>参数设置麻烦</h4><ul>
+<li><strong>MyBatis自动将Java对象映射至SQL语句</strong></li>
+<li><strong>自动处理占位符与参数对应</strong></li>
+</ul>
+<h4 id="结果集解析复杂"><a href="#结果集解析复杂" class="headerlink" title="结果集解析复杂"></a>结果集解析复杂</h4><ul>
+<li><strong>MyBatis自动将SQL执行结果映射为Java对象</strong></li>
+<li><strong>封装为POJO对象</strong></li>
+</ul>
+<h3 id="Hibernate与MyBatis对比"><a href="#Hibernate与MyBatis对比" class="headerlink" title="Hibernate与MyBatis对比"></a>Hibernate与MyBatis对比</h3><h4 id="映射关系"><a href="#映射关系" class="headerlink" title="映射关系"></a>映射关系</h4><ul>
+<li><strong>MyBatis半自动映射</strong></li>
+<li><strong>配置Java对象与SQL执行结果对应</strong></li>
+<li><strong>多表关联简单</strong></li>
+<li><strong>Hibernate全表映射</strong></li>
+<li><strong>配置Java对象与数据库表对应</strong></li>
+<li><strong>多表关联配置复杂</strong></li>
+</ul>
+<h4 id="SQL优化与移植性"><a href="#SQL优化与移植性" class="headerlink" title="SQL优化与移植性"></a>SQL优化与移植性</h4><ul>
+<li><strong>MyBatis手动编写SQL</strong></li>
+<li><strong>优化容易</strong></li>
+<li><strong>数据库无关性差</strong></li>
+<li><strong>Hibernate封装SQL</strong></li>
+<li><strong>提供HQL操作数据库</strong></li>
+<li><strong>数据库无关性好</strong></li>
+<li><strong>SQL优化困难</strong></li>
+</ul>
+<h4 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h4><ul>
+<li><strong>MyBatis适合需求变化频繁、快速迭代项目</strong></li>
+<li><strong>如电商网站</strong></li>
+<li><strong>Hibernate适合需求稳定、中小型项目</strong></li>
+<li><strong>如办公自动化系统</strong></li>
+</ul>
+<h2 id="核心配置与使用"><a href="#核心配置与使用" class="headerlink" title="核心配置与使用"></a>核心配置与使用</h2><h3 id="使用步骤"><a href="#使用步骤" class="headerlink" title="使用步骤"></a>使用步骤</h3><h4 id="创建SqlSessionFactory"><a href="#创建SqlSessionFactory" class="headerlink" title="创建SqlSessionFactory"></a>创建SqlSessionFactory</h4><ul>
+<li><strong>从配置文件或直接编码创建</strong></li>
+<li><strong>读取mybatis-config.xml配置</strong></li>
+</ul>
+<h4 id="创建SqlSession"><a href="#创建SqlSession" class="headerlink" title="创建SqlSession"></a>创建SqlSession</h4><ul>
+<li><strong>通过SqlSessionFactory创建</strong></li>
+<li><strong>SqlSession代表程序和数据库之间桥梁</strong></li>
+</ul>
+<h4 id="执行SQL或获取Mapper"><a href="#执行SQL或获取Mapper" class="headerlink" title="执行SQL或获取Mapper"></a>执行SQL或获取Mapper</h4><ul>
+<li><strong>直接通过session.selectOne执行SQL</strong></li>
+<li><strong>通过session.getMapper获取Mapper接口</strong></li>
+<li><strong>通过Mapper接口方法执行SQL</strong></li>
+</ul>
+<h4 id="提交事务"><a href="#提交事务" class="headerlink" title="提交事务"></a>提交事务</h4><ul>
+<li><strong>更新、删除语句需提交事务</strong></li>
+<li><strong>调用session.commit()</strong></li>
+</ul>
+<h4 id="关闭会话"><a href="#关闭会话" class="headerlink" title="关闭会话"></a>关闭会话</h4><ul>
+<li><strong>调用session.close()</strong></li>
+<li><strong>释放数据库资源</strong></li>
+</ul>
+<h3 id="组件生命周期"><a href="#组件生命周期" class="headerlink" title="组件生命周期"></a>组件生命周期</h3><h4 id="SqlSessionFactoryBuilder"><a href="#SqlSessionFactoryBuilder" class="headerlink" title="SqlSessionFactoryBuilder"></a>SqlSessionFactoryBuilder</h4><ul>
+<li><strong>方法级生命周期</strong></li>
+<li><strong>创建SqlSessionFactory后不再需要</strong></li>
+</ul>
+<h4 id="SqlSessionFactory"><a href="#SqlSessionFactory" class="headerlink" title="SqlSessionFactory"></a>SqlSessionFactory</h4><ul>
+<li><strong>应用级生命周期</strong></li>
+<li><strong>应为单例</strong></li>
+<li><strong>是应用级的 SqlSession 工厂，连接池由 DataSource（POOLED）提供</strong></li>
+<li><strong>多次创建和销毁浪费资源</strong></li>
+</ul>
+<h4 id="SqlSession"><a href="#SqlSession" class="headerlink" title="SqlSession"></a>SqlSession</h4><ul>
+<li><strong>请求或方法级生命周期</strong></li>
+<li><strong>非线程安全</strong></li>
+<li><strong>不能被共享</strong></li>
+<li><strong>每次请求创建新的实例</strong></li>
+</ul>
+<h4 id="Mapper"><a href="#Mapper" class="headerlink" title="Mapper"></a>Mapper</h4><ul>
+<li><strong>方法级生命周期</strong></li>
+<li><strong>从SqlSession中获取</strong></li>
+<li><strong>在事务方法内使用</strong></li>
+</ul>
+<h3 id="传递多个参数方法"><a href="#传递多个参数方法" class="headerlink" title="传递多个参数方法"></a>传递多个参数方法</h3><h4 id="顺序传参法"><a href="#顺序传参法" class="headerlink" title="顺序传参法"></a>顺序传参法</h4><ul>
+<li><strong>#{0}、#{1}代表传入参数顺序</strong></li>
+<li><strong>不直观，顺序调整易出错</strong></li>
+<li><strong>不推荐使用</strong></li>
+</ul>
+<h4 id="Param注解传参法"><a href="#Param注解传参法" class="headerlink" title="@Param注解传参法"></a>@Param注解传参法</h4><ul>
+<li><strong>#{名称}对应注解括号内名称</strong></li>
+<li><strong>参数不多时直观</strong></li>
+<li><strong>推荐使用</strong></li>
+</ul>
+<h4 id="Map传参法"><a href="#Map传参法" class="headerlink" title="Map传参法"></a>Map传参法</h4><ul>
+<li><strong>#{名称}对应Map中的key名称</strong></li>
+<li><strong>适合传递多个参数</strong></li>
+<li><strong>参数易变灵活传递</strong></li>
+</ul>
+<h4 id="Java-Bean传参法"><a href="#Java-Bean传参法" class="headerlink" title="Java Bean传参法"></a>Java Bean传参法</h4><ul>
+<li><strong>#{名称}对应Bean类成员属性</strong></li>
+<li><strong>直观，可读性强</strong></li>
+<li><strong>业务逻辑处理方便</strong></li>
+<li><strong>推荐使用</strong></li>
+</ul>
+<h3 id="实体类属性与字段名不一致处理"><a href="#实体类属性与字段名不一致处理" class="headerlink" title="实体类属性与字段名不一致处理"></a>实体类属性与字段名不一致处理</h3><h4 id="SQL别名方法"><a href="#SQL别名方法" class="headerlink" title="SQL别名方法"></a>SQL别名方法</h4><ul>
+<li><strong>select order_id id, order_no orderno from orders</strong></li>
+<li><strong>字段名别名与实体类属性名一致</strong></li>
+</ul>
+<h4 id="resultMap映射方法"><a href="#resultMap映射方法" class="headerlink" title="resultMap映射方法"></a>resultMap映射方法</h4><ul>
+<li><strong>使用&lt;result&gt;映射字段名和属性名对应关系</strong></li>
+<li><strong>property为实体类属性名</strong></li>
+<li><strong>column为数据库表字段名</strong></li>
+<li><strong>主键使用&lt;id&gt;标签</strong></li>
+</ul>
+<h3 id="枚举映射"><a href="#枚举映射" class="headerlink" title="枚举映射"></a>枚举映射</h3><h4 id="MyBatis支持映射枚举类"><a href="#MyBatis支持映射枚举类" class="headerlink" title="MyBatis支持映射枚举类"></a>MyBatis支持映射枚举类</h4><h4 id="自定义TypeHandler实现"><a href="#自定义TypeHandler实现" class="headerlink" title="自定义TypeHandler实现"></a>自定义TypeHandler实现</h4><h4 id="完成javaType至jdbcType转换"><a href="#完成javaType至jdbcType转换" class="headerlink" title="完成javaType至jdbcType转换"></a>完成javaType至jdbcType转换</h4><h4 id="完成jdbcType至javaType转换"><a href="#完成jdbcType至javaType转换" class="headerlink" title="完成jdbcType至javaType转换"></a>完成jdbcType至javaType转换</h4><h4 id="体现为setParameter-和getResult-方法"><a href="#体现为setParameter-和getResult-方法" class="headerlink" title="体现为setParameter()和getResult()方法"></a>体现为setParameter()和getResult()方法</h4><h3 id="和-区别"><a href="#和-区别" class="headerlink" title="#{}和${}区别"></a>#{}和${}区别</h3><h4 id="预编译处理"><a href="#预编译处理" class="headerlink" title="#{}预编译处理"></a>#{}预编译处理</h4><ul>
+<li><strong>占位符替换为问号?</strong></li>
+<li><strong>使用参数值替代问号</strong></li>
+<li><strong>能有效防止SQL注入</strong></li>
+<li><strong>参数值被正确转义</strong></li>
+</ul>
+<h4 id="字符串替换"><a href="#字符串替换" class="headerlink" title="${}字符串替换"></a>${}字符串替换</h4><ul>
+<li><strong>参数值直接替换到SQL语句</strong></li>
+<li><strong>不经过预处理</strong></li>
+<li><strong>存在SQL注入风险</strong></li>
+<li><strong>用于动态表名、列名、排序等</strong></li>
+<li><strong>需提前对参数进行安全性校验</strong></li>
+</ul>
+<h3 id="模糊查询like写法"><a href="#模糊查询like写法" class="headerlink" title="模糊查询like写法"></a>模糊查询like写法</h3><h4 id="写法"><a href="#写法" class="headerlink" title="${}写法"></a>${}写法</h4><ul>
+<li><strong>可能引起SQL注入</strong></li>
+<li><strong>不推荐</strong></li>
+</ul>
+<h4 id="“-”-写法"><a href="#“-”-写法" class="headerlink" title="“#”{}写法"></a>“#”{}写法</h4><ul>
+<li><strong>占位符必须写在引号外面</strong></li>
+<li><strong>‘%#{q}%’ 会报 Parameter index out of range；’%’#{q}%’ 或 “%”#{q}”%” 都能用</strong></li>
+</ul>
+<h4 id="CONCAT函数写法"><a href="#CONCAT函数写法" class="headerlink" title="CONCAT函数写法"></a>CONCAT函数写法</h4><ul>
+<li><strong>CONCAT(‘%’, #{question}, ‘%’)</strong></li>
+<li><strong>推荐使用</strong></li>
+</ul>
+<h4 id="bind标签写法"><a href="#bind标签写法" class="headerlink" title="bind标签写法"></a>bind标签写法</h4><ul>
+<li><strong>官方支持，与 CONCAT 并列可用，不是不推荐</strong></li>
+</ul>
+<h3 id="获取生成主键"><a href="#获取生成主键" class="headerlink" title="获取生成主键"></a>获取生成主键</h3><h4 id="新增标签中添加keyProperty-”ID”"><a href="#新增标签中添加keyProperty-”ID”" class="headerlink" title="新增标签中添加keyProperty&#x3D;”ID”"></a>新增标签中添加keyProperty&#x3D;”ID”</h4><h4 id="使用useGeneratedKeys-”true”"><a href="#使用useGeneratedKeys-”true”" class="headerlink" title="使用useGeneratedKeys&#x3D;”true”"></a>使用useGeneratedKeys&#x3D;”true”</h4><h4 id="插入完成后通过对象getId-获取主键"><a href="#插入完成后通过对象getId-获取主键" class="headerlink" title="插入完成后通过对象getId()获取主键"></a>插入完成后通过对象getId()获取主键</h4><h4 id="实现主键回填"><a href="#实现主键回填" class="headerlink" title="实现主键回填"></a>实现主键回填</h4><h3 id="全局配置settings"><a href="#全局配置settings" class="headerlink" title="全局配置settings"></a>全局配置settings</h3><h4 id="cacheEnabled"><a href="#cacheEnabled" class="headerlink" title="cacheEnabled"></a>cacheEnabled</h4><ul>
+<li><strong>全局开启二级缓存</strong></li>
+</ul>
+<h4 id="lazyLoadingEnabled"><a href="#lazyLoadingEnabled" class="headerlink" title="lazyLoadingEnabled"></a>lazyLoadingEnabled</h4><ul>
+<li><strong>全局开启延迟加载</strong></li>
+</ul>
+<h4 id="mapUnderscoreToCamelCase"><a href="#mapUnderscoreToCamelCase" class="headerlink" title="mapUnderscoreToCamelCase"></a>mapUnderscoreToCamelCase</h4><ul>
+<li><strong>自动将下划线命名映射为驼峰属性</strong></li>
+<li><strong>如user_name映射为userName</strong></li>
+</ul>
+<h4 id="useGeneratedKeys"><a href="#useGeneratedKeys" class="headerlink" title="useGeneratedKeys"></a>useGeneratedKeys</h4><ul>
+<li><strong>允许JDBC支持自动生成主键</strong></li>
+</ul>
+<h4 id="logImpl"><a href="#logImpl" class="headerlink" title="logImpl"></a>logImpl</h4><ul>
+<li><strong>指定日志实现</strong></li>
+<li><strong>支持SLF4J、LOG4J、LOG4J2、JDK_LOGGING、STDOUT_LOGGING</strong></li>
+</ul>
+<h2 id="动态SQL"><a href="#动态SQL" class="headerlink" title="动态SQL"></a>动态SQL</h2><h3 id="常用标签"><a href="#常用标签" class="headerlink" title="常用标签"></a>常用标签</h3><h4 id="if标签"><a href="#if标签" class="headerlink" title="if标签"></a>if标签</h4><ul>
+<li><strong>根据条件组成where子句</strong></li>
+<li><strong>test属性编写判断条件</strong></li>
+<li><strong>如&lt;if test&#x3D;”title !&#x3D; null”&gt;</strong></li>
+</ul>
+<h4 id="choose-when-otherwise标签"><a href="#choose-when-otherwise标签" class="headerlink" title="choose when otherwise标签"></a>choose when otherwise标签</h4><ul>
+<li><strong>类似Java的switch语句</strong></li>
+<li><strong>按顺序匹配条件</strong></li>
+<li><strong>无匹配时执行otherwise</strong></li>
+</ul>
+<h4 id="trim-where-set标签"><a href="#trim-where-set标签" class="headerlink" title="trim where set标签"></a>trim where set标签</h4><ul>
+<li><strong>&lt;where&gt;自动处理条件中的AND&#x2F;OR</strong></li>
+<li><strong>适用于所有查询条件动态情况</strong></li>
+<li><strong>&lt;set&gt;用于动态更新</strong></li>
+<li><strong>自动处理多余的逗号</strong></li>
+<li><strong>&lt;trim&gt;可自定义前缀后缀</strong></li>
+<li><strong>覆盖处理多余连接词</strong></li>
+</ul>
+<h4 id="foreach标签"><a href="#foreach标签" class="headerlink" title="foreach标签"></a>foreach标签</h4><ul>
+<li><strong>遍历集合</strong></li>
+<li><strong>用于构建IN条件</strong></li>
+<li><strong>用于批量插入</strong></li>
+</ul>
+<h3 id="foreach属性详解"><a href="#foreach属性详解" class="headerlink" title="foreach属性详解"></a>foreach属性详解</h3><h4 id="collection属性"><a href="#collection属性" class="headerlink" title="collection属性"></a>collection属性</h4><ul>
+<li><strong>必须指定</strong></li>
+<li><strong>单参数List时值为list</strong></li>
+<li><strong>单参数Array时值为array</strong></li>
+<li><strong>多参数用 @Param 起的名字，或者 Map 的 key，作为 collection 的值</strong></li>
+<li><strong>Map的key为参数名</strong></li>
+</ul>
+<h4 id="item属性"><a href="#item属性" class="headerlink" title="item属性"></a>item属性</h4><ul>
+<li><strong>集合中元素迭代别名</strong></li>
+</ul>
+<h4 id="index属性"><a href="#index属性" class="headerlink" title="index属性"></a>index属性</h4><ul>
+<li><strong>index 在 List&#x2F;数组里是序号，在 Map 里是键</strong></li>
+</ul>
+<h4 id="open属性"><a href="#open属性" class="headerlink" title="open属性"></a>open属性</h4><ul>
+<li><strong>语句以什么开始</strong></li>
+<li><strong>常用(</strong></li>
+</ul>
+<h4 id="separator属性"><a href="#separator属性" class="headerlink" title="separator属性"></a>separator属性</h4><ul>
+<li><strong>迭代之间分隔符</strong></li>
+<li><strong>常用逗号</strong></li>
+</ul>
+<h4 id="close属性"><a href="#close属性" class="headerlink" title="close属性"></a>close属性</h4><ul>
+<li><strong>语句以什么结束</strong></li>
+<li><strong>常用)</strong></li>
+</ul>
+<h3 id="OGNL表达式"><a href="#OGNL表达式" class="headerlink" title="OGNL表达式"></a>OGNL表达式</h3><h4 id="动态SQL基于OGNL计算表达式值"><a href="#动态SQL基于OGNL计算表达式值" class="headerlink" title="动态SQL基于OGNL计算表达式值"></a>动态SQL基于OGNL计算表达式值</h4><h4 id="从SQL参数对象中获取属性"><a href="#从SQL参数对象中获取属性" class="headerlink" title="从SQL参数对象中获取属性"></a>从SQL参数对象中获取属性</h4><h4 id="如"><a href="#如" class="headerlink" title="如&lt;if test&#x3D;”title !&#x3D; null”&gt;"></a>如&lt;if test&#x3D;”title !&#x3D; null”&gt;</h4><h2 id="关联查询与延迟加载"><a href="#关联查询与延迟加载" class="headerlink" title="关联查询与延迟加载"></a>关联查询与延迟加载</h2><h3 id="一对一关联association"><a href="#一对一关联association" class="headerlink" title="一对一关联association"></a>一对一关联association</h3><h4 id="订单与支付一对一关系"><a href="#订单与支付一对一关系" class="headerlink" title="订单与支付一对一关系"></a>订单与支付一对一关系</h4><h4 id="实体类中定义关联对象属性"><a href="#实体类中定义关联对象属性" class="headerlink" title="实体类中定义关联对象属性"></a>实体类中定义关联对象属性</h4><h4 id="private-Pay-pay"><a href="#private-Pay-pay" class="headerlink" title="private Pay pay;"></a>private Pay pay;</h4><h4 id="结果映射使用标签"><a href="#结果映射使用标签" class="headerlink" title="结果映射使用&lt;association&gt;标签"></a>结果映射使用&lt;association&gt;标签</h4><h4 id="property指定关联属性"><a href="#property指定关联属性" class="headerlink" title="property指定关联属性"></a>property指定关联属性</h4><h4 id="javaType指定关联对象类型"><a href="#javaType指定关联对象类型" class="headerlink" title="javaType指定关联对象类型"></a>javaType指定关联对象类型</h4><h4 id="内联映射关联对象字段"><a href="#内联映射关联对象字段" class="headerlink" title="内联映射关联对象字段"></a>内联映射关联对象字段</h4><h3 id="一对多关联collection"><a href="#一对多关联collection" class="headerlink" title="一对多关联collection"></a>一对多关联collection</h3><h4 id="商品分类与商品一对多关系"><a href="#商品分类与商品一对多关系" class="headerlink" title="商品分类与商品一对多关系"></a>商品分类与商品一对多关系</h4><h4 id="实体类中定义集合属性"><a href="#实体类中定义集合属性" class="headerlink" title="实体类中定义集合属性"></a>实体类中定义集合属性</h4><h4 id="List-products"><a href="#List-products" class="headerlink" title="List&lt;Product&gt; products;"></a>List&lt;Product&gt; products;</h4><h4 id="结果映射使用标签-1"><a href="#结果映射使用标签-1" class="headerlink" title="结果映射使用&lt;collection&gt;标签"></a>结果映射使用&lt;collection&gt;标签</h4><h4 id="property指定集合属性"><a href="#property指定集合属性" class="headerlink" title="property指定集合属性"></a>property指定集合属性</h4><h4 id="ofType指定集合元素类型"><a href="#ofType指定集合元素类型" class="headerlink" title="ofType指定集合元素类型"></a>ofType指定集合元素类型</h4><h4 id="内联映射集合元素字段"><a href="#内联映射集合元素字段" class="headerlink" title="内联映射集合元素字段"></a>内联映射集合元素字段</h4><h3 id="多对多多对一"><a href="#多对多多对一" class="headerlink" title="多对多多对一"></a>多对多多对一</h3><h4 id="同样使用association和collection"><a href="#同样使用association和collection" class="headerlink" title="同样使用association和collection"></a>同样使用association和collection</h4><h4 id="通过适当的结果映射实现"><a href="#通过适当的结果映射实现" class="headerlink" title="通过适当的结果映射实现"></a>通过适当的结果映射实现</h4><h4 id="思路与一对一、一对多一致"><a href="#思路与一对一、一对多一致" class="headerlink" title="思路与一对一、一对多一致"></a>思路与一对一、一对多一致</h4><h3 id="延迟加载原理"><a href="#延迟加载原理" class="headerlink" title="延迟加载原理"></a>延迟加载原理</h3><h4 id="配置lazyLoadingEnabled-true"><a href="#配置lazyLoadingEnabled-true" class="headerlink" title="配置lazyLoadingEnabled&#x3D;true"></a>配置lazyLoadingEnabled&#x3D;true</h4><h4 id="使用Javassist创建代理对象（MyBatis-3-3-起-proxyFactory-默认-Javassist，CGLIB-从-3-5-10-起废弃）"><a href="#使用Javassist创建代理对象（MyBatis-3-3-起-proxyFactory-默认-Javassist，CGLIB-从-3-5-10-起废弃）" class="headerlink" title="使用Javassist创建代理对象（MyBatis 3.3 起 proxyFactory 默认 Javassist，CGLIB 从 3.5.10 起废弃）"></a>使用Javassist创建代理对象（MyBatis 3.3 起 proxyFactory 默认 Javassist，CGLIB 从 3.5.10 起废弃）</h4><h4 id="调用目标方法时进入拦截器"><a href="#调用目标方法时进入拦截器" class="headerlink" title="调用目标方法时进入拦截器"></a>调用目标方法时进入拦截器</h4><h4 id="发现关联对象为null时"><a href="#发现关联对象为null时" class="headerlink" title="发现关联对象为null时"></a>发现关联对象为null时</h4><h4 id="发送预先保存的关联查询SQL"><a href="#发送预先保存的关联查询SQL" class="headerlink" title="发送预先保存的关联查询SQL"></a>发送预先保存的关联查询SQL</h4><h4 id="查询到关联对象后调用set方法赋值"><a href="#查询到关联对象后调用set方法赋值" class="headerlink" title="查询到关联对象后调用set方法赋值"></a>查询到关联对象后调用set方法赋值</h4><h4 id="再完成目标方法调用"><a href="#再完成目标方法调用" class="headerlink" title="再完成目标方法调用"></a>再完成目标方法调用</h4><h4 id="几乎所有的ORM框架延迟加载原理相同"><a href="#几乎所有的ORM框架延迟加载原理相同" class="headerlink" title="几乎所有的ORM框架延迟加载原理相同"></a>几乎所有的ORM框架延迟加载原理相同</h4><h3 id="嵌套查询与嵌套结果"><a href="#嵌套查询与嵌套结果" class="headerlink" title="嵌套查询与嵌套结果"></a>嵌套查询与嵌套结果</h3><h4 id="嵌套查询"><a href="#嵌套查询" class="headerlink" title="嵌套查询"></a>嵌套查询</h4><ul>
+<li><strong>关联通过select属性指定另一条SQL</strong></li>
+<li><strong>存在N+1查询问题</strong></li>
+<li><strong>每次查询关联都触发新SQL</strong></li>
+</ul>
+<h4 id="嵌套结果"><a href="#嵌套结果" class="headerlink" title="嵌套结果"></a>嵌套结果</h4><ul>
+<li><strong>关联对象通过一次SQL联表查询</strong></li>
+<li><strong>由resultMap内联映射</strong></li>
+<li><strong>性能更优</strong></li>
+</ul>
+<h4 id="推荐使用嵌套结果"><a href="#推荐使用嵌套结果" class="headerlink" title="推荐使用嵌套结果"></a>推荐使用嵌套结果</h4><ul>
+<li><strong>配合延迟加载和fetchType</strong></li>
+</ul>
+<h2 id="缓存机制"><a href="#缓存机制" class="headerlink" title="缓存机制"></a>缓存机制</h2><h3 id="一级缓存"><a href="#一级缓存" class="headerlink" title="一级缓存"></a>一级缓存</h3><h4 id="SqlSession级别"><a href="#SqlSession级别" class="headerlink" title="SqlSession级别"></a>SqlSession级别</h4><h4 id="基于PerpetualCache的HashMap本地缓存"><a href="#基于PerpetualCache的HashMap本地缓存" class="headerlink" title="基于PerpetualCache的HashMap本地缓存"></a>基于PerpetualCache的HashMap本地缓存</h4><h4 id="默认开启"><a href="#默认开启" class="headerlink" title="默认开启"></a>默认开启</h4><h4 id="各个SqlSession间缓存隔离"><a href="#各个SqlSession间缓存隔离" class="headerlink" title="各个SqlSession间缓存隔离"></a>各个SqlSession间缓存隔离</h4><h4 id="清空时机"><a href="#清空时机" class="headerlink" title="清空时机"></a>清空时机</h4><ul>
+<li><strong>Session执行flush时</strong></li>
+<li><strong>Session执行close时</strong></li>
+<li><strong>执行更新操作后自动清空</strong></li>
+<li><strong>更新操作包括insert、update、delete</strong></li>
+</ul>
+<h3 id="二级缓存"><a href="#二级缓存" class="headerlink" title="二级缓存"></a>二级缓存</h3><h4 id="Mapper级别"><a href="#Mapper级别" class="headerlink" title="Mapper级别"></a>Mapper级别</h4><h4 id="在多个SqlSession间共享"><a href="#在多个SqlSession间共享" class="headerlink" title="在多个SqlSession间共享"></a>在多个SqlSession间共享</h4><h4 id="默认不开启"><a href="#默认不开启" class="headerlink" title="默认不开启"></a>默认不开启</h4><h4 id="开启方式"><a href="#开启方式" class="headerlink" title="开启方式"></a>开启方式</h4><ul>
+<li><strong>映射文件中配置&lt;cache&#x2F;&gt;标签</strong></li>
+<li><strong>实体类需实现Serializable接口</strong></li>
+<li><strong>用于保存对象状态</strong></li>
+</ul>
+<h4 id="可自定义存储源"><a href="#可自定义存储源" class="headerlink" title="可自定义存储源"></a>可自定义存储源</h4><ul>
+<li><strong>如Ehcache</strong></li>
+</ul>
+<h4 id="配置属性"><a href="#配置属性" class="headerlink" title="配置属性"></a>配置属性</h4><ul>
+<li><strong>flushInterval刷新间隔</strong></li>
+<li><strong>size引用数目</strong></li>
+<li><strong>readOnly只读状态</strong></li>
+<li><strong>eviction回收策略</strong></li>
+<li><strong>如LRU最近最少使用</strong></li>
+</ul>
+<h3 id="缓存共享与注意事项"><a href="#缓存共享与注意事项" class="headerlink" title="缓存共享与注意事项"></a>缓存共享与注意事项</h3><h4 id="跨namespace共享"><a href="#跨namespace共享" class="headerlink" title="跨namespace共享"></a>跨namespace共享</h4><ul>
+<li><strong>使用&lt;cache-ref&gt;标签</strong></li>
+<li><strong>引用其他namespace的缓存</strong></li>
+</ul>
+<h4 id="适用场景-1"><a href="#适用场景-1" class="headerlink" title="适用场景"></a>适用场景</h4><ul>
+<li><strong>读多写少</strong></li>
+<li><strong>数据不频繁修改</strong></li>
+<li><strong>不要求实时一致性</strong></li>
+</ul>
+<h4 id="更新操作使缓存失效"><a href="#更新操作使缓存失效" class="headerlink" title="更新操作使缓存失效"></a>更新操作使缓存失效</h4><ul>
+<li><strong>确保数据一致性</strong></li>
+<li><strong>需重新加载最新数据</strong></li>
+</ul>
+<h2 id="插件与拦截器"><a href="#插件与拦截器" class="headerlink" title="插件与拦截器"></a>插件与拦截器</h2><h3 id="插件原理"><a href="#插件原理" class="headerlink" title="插件原理"></a>插件原理</h3><h4 id="拦截四大核心对象"><a href="#拦截四大核心对象" class="headerlink" title="拦截四大核心对象"></a>拦截四大核心对象</h4><ul>
+<li><strong>Executor执行器</strong></li>
+<li><strong>StatementHandler数据库会话器</strong></li>
+<li><strong>ParameterHandler参数处理器</strong></li>
+<li><strong>ResultSetHandler结果处理器</strong></li>
+</ul>
+<h4 id="使用JDK动态代理"><a href="#使用JDK动态代理" class="headerlink" title="使用JDK动态代理"></a>使用JDK动态代理</h4><ul>
+<li><strong>为目标对象生成代理对象</strong></li>
+<li><strong>提供工具类Plugin</strong></li>
+<li><strong>实现InvocationHandler接口</strong></li>
+</ul>
+<h4 id="方法调用流程"><a href="#方法调用流程" class="headerlink" title="方法调用流程"></a>方法调用流程</h4><ul>
+<li><strong>代理对象调用方法进入invoke</strong></li>
+<li><strong>存在签名拦截方法时调用intercept</strong></li>
+<li><strong>不存在签名方法时反射调用目标方法</strong></li>
+<li><strong>返回结果</strong></li>
+</ul>
+<h3 id="编写步骤"><a href="#编写步骤" class="headerlink" title="编写步骤"></a>编写步骤</h3><h4 id="实现Interceptor接口"><a href="#实现Interceptor接口" class="headerlink" title="实现Interceptor接口"></a>实现Interceptor接口</h4><ul>
+<li><strong>重写intercept()方法</strong></li>
+<li><strong>在方法中编写自定义逻辑</strong></li>
+<li><strong>调用invocation.proceed()执行目标方法</strong></li>
+<li><strong>可在调用前后执行额外操作</strong></li>
+</ul>
+<h4 id="编写-Intercepts注解"><a href="#编写-Intercepts注解" class="headerlink" title="编写@Intercepts注解"></a>编写@Intercepts注解</h4><ul>
+<li><strong>使用@Signature注解</strong></li>
+<li><strong>指定拦截对象type</strong></li>
+<li><strong>指定拦截方法method</strong></li>
+<li><strong>指定拦截方法参数args</strong></li>
+</ul>
+<h4 id="配置plugin标签"><a href="#配置plugin标签" class="headerlink" title="配置plugin标签"></a>配置plugin标签</h4><ul>
+<li><strong>在mybatis-config.xml中配置</strong></li>
+<li><strong>指定interceptor全路径类名</strong></li>
+<li><strong>可设置property属性</strong></li>
+<li><strong>如数据库类型参数</strong></li>
+</ul>
+<h3 id="常用场景"><a href="#常用场景" class="headerlink" title="常用场景"></a>常用场景</h3><h4 id="分页插件"><a href="#分页插件" class="headerlink" title="分页插件"></a>分页插件</h4><ul>
+<li><strong>如PageHelper</strong></li>
+<li><strong>拦截Executor的query方法</strong></li>
+<li><strong>重写SQL实现物理分页</strong></li>
+</ul>
+<h4 id="SQL性能监控"><a href="#SQL性能监控" class="headerlink" title="SQL性能监控"></a>SQL性能监控</h4><ul>
+<li><strong>统计SQL执行时间</strong></li>
+<li><strong>记录慢查询日志</strong></li>
+</ul>
+<h4 id="权限控制"><a href="#权限控制" class="headerlink" title="权限控制"></a>权限控制</h4><ul>
+<li><strong>拦截SQL执行</strong></li>
+<li><strong>根据用户权限过滤数据</strong></li>
+</ul>
+<h4 id="日志记录"><a href="#日志记录" class="headerlink" title="日志记录"></a>日志记录</h4><ul>
+<li><strong>记录SQL语句和参数</strong></li>
+<li><strong>便于调试和审计</strong></li>
+</ul>
+<h2 id="分页机制"><a href="#分页机制" class="headerlink" title="分页机制"></a>分页机制</h2><h3 id="内存分页"><a href="#内存分页" class="headerlink" title="内存分页"></a>内存分页</h3><h4 id="使用RowBounds对象"><a href="#使用RowBounds对象" class="headerlink" title="使用RowBounds对象"></a>使用RowBounds对象</h4><h4 id="针对ResultSet结果集执行"><a href="#针对ResultSet结果集执行" class="headerlink" title="针对ResultSet结果集执行"></a>针对ResultSet结果集执行</h4><h4 id="不推荐大数据量"><a href="#不推荐大数据量" class="headerlink" title="不推荐大数据量"></a>不推荐大数据量</h4><ul>
+<li><strong>性能差</strong></li>
+<li><strong>消耗大量内存</strong></li>
+</ul>
+<h3 id="物理分页"><a href="#物理分页" class="headerlink" title="物理分页"></a>物理分页</h3><h4 id="SQL中直接写分页参数"><a href="#SQL中直接写分页参数" class="headerlink" title="SQL中直接写分页参数"></a>SQL中直接写分页参数</h4><ul>
+<li><strong>如limit、offset</strong></li>
+<li><strong>数据库原生支持</strong></li>
+<li><strong>性能好</strong></li>
+</ul>
+<h4 id="使用分页插件"><a href="#使用分页插件" class="headerlink" title="使用分页插件"></a>使用分页插件</h4><ul>
+<li><strong>如PageHelper</strong></li>
+<li><strong>自动生成物理分页SQL</strong></li>
+<li><strong>支持多种数据库方言</strong></li>
+</ul>
+<h3 id="分页插件原理"><a href="#分页插件原理" class="headerlink" title="分页插件原理"></a>分页插件原理</h3><h4 id="拦截Executor的query方法"><a href="#拦截Executor的query方法" class="headerlink" title="拦截Executor的query方法"></a>拦截Executor的query方法</h4><h4 id="在执行查询时拦截待执行SQL"><a href="#在执行查询时拦截待执行SQL" class="headerlink" title="在执行查询时拦截待执行SQL"></a>在执行查询时拦截待执行SQL</h4><h4 id="根据方言dialect重写SQL"><a href="#根据方言dialect重写SQL" class="headerlink" title="根据方言dialect重写SQL"></a>根据方言dialect重写SQL</h4><h4 id="添加物理分页语句和参数"><a href="#添加物理分页语句和参数" class="headerlink" title="添加物理分页语句和参数"></a>添加物理分页语句和参数</h4><h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><ul>
+<li><strong>select * from student</strong></li>
+<li><em><em>重写为select t.</em> from (select * from student) t limit 0,10</em>*</li>
+</ul>
+<h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><h3 id="构建会话工厂"><a href="#构建会话工厂" class="headerlink" title="构建会话工厂"></a>构建会话工厂</h3><h4 id="读取配置文件"><a href="#读取配置文件" class="headerlink" title="读取配置文件"></a>读取配置文件</h4><ul>
+<li><strong>读取mybatis-config.xml基础配置</strong></li>
+<li><strong>读取映射文件映射器</strong></li>
+<li><strong>解析生成Configuration对象</strong></li>
+<li><strong>初始化别名、插件、映射器、ObjectFactory等</strong></li>
+<li><strong>初始化环境变量如数据源</strong></li>
+</ul>
+<h4 id="构建SqlSessionFactory"><a href="#构建SqlSessionFactory" class="headerlink" title="构建SqlSessionFactory"></a>构建SqlSessionFactory</h4><ul>
+<li><strong>通过SqlSessionFactoryBuilder.build方法</strong></li>
+<li><strong>传入Configuration对象</strong></li>
+<li><strong>创建DefaultSqlSessionFactory实现类</strong></li>
+</ul>
+<h3 id="会话运行"><a href="#会话运行" class="headerlink" title="会话运行"></a>会话运行</h3><h4 id="SqlSession门面接口"><a href="#SqlSession门面接口" class="headerlink" title="SqlSession门面接口"></a>SqlSession门面接口</h4><ul>
+<li><strong>对外提供API</strong></li>
+<li><strong>实际执行由Executor完成</strong></li>
+</ul>
+<h4 id="Executor执行器"><a href="#Executor执行器" class="headerlink" title="Executor执行器"></a>Executor执行器</h4><ul>
+<li><strong>SimpleExecutor</strong></li>
+<li><strong>每次执行创建新Statement对象</strong></li>
+<li><strong>用完立刻关闭</strong></li>
+<li><strong>ReuseExecutor</strong></li>
+<li><strong>以SQL为key查找Statement对象</strong></li>
+<li><strong>存在则复用，不存在则创建</strong></li>
+<li><strong>用完后不关闭，放入Map中</strong></li>
+<li><strong>供下次使用</strong></li>
+<li><strong>BatchExecutor</strong></li>
+<li><strong>执行update语句</strong></li>
+<li><strong>将所有SQL添加到批处理中</strong></li>
+<li><strong>调用addBatch()方法</strong></li>
+<li><strong>等待统一执行executeBatch()</strong></li>
+<li><strong>缓存多个Statement对象</strong></li>
+<li><strong>特性严格限制在SqlSession生命周期内</strong></li>
+</ul>
+<h4 id="StatementHandler"><a href="#StatementHandler" class="headerlink" title="StatementHandler"></a>StatementHandler</h4><ul>
+<li><strong>处理数据库会话</strong></li>
+<li><strong>串起参数映射和结果映射处理</strong></li>
+<li><strong>预编译SQL语句</strong></li>
+<li><strong>执行SQL语句</strong></li>
+</ul>
+<h4 id="ParameterHandler"><a href="#ParameterHandler" class="headerlink" title="ParameterHandler"></a>ParameterHandler</h4><ul>
+<li><strong>设置预编译SQL语句的参数</strong></li>
+<li><strong>使用TypeHandler类型处理器</strong></li>
+<li><strong>处理参数类型转换</strong></li>
+</ul>
+<h4 id="ResultSetHandler"><a href="#ResultSetHandler" class="headerlink" title="ResultSetHandler"></a>ResultSetHandler</h4><ul>
+<li><strong>处理执行结果</strong></li>
+<li><strong>包装结果集</strong></li>
+<li><strong>使用TypeHandler处理类型</strong></li>
+<li><strong>使用ObjectFactory组装对象</strong></li>
+<li><strong>返回目标对象</strong></li>
+</ul>
+<h3 id="功能架构"><a href="#功能架构" class="headerlink" title="功能架构"></a>功能架构</h3><h4 id="API接口层"><a href="#API接口层" class="headerlink" title="API接口层"></a>API接口层</h4><ul>
+<li><strong>提供给外部使用的接口API</strong></li>
+<li><strong>开发人员通过本地API操作数据库</strong></li>
+<li><strong>接收调用请求后调用数据处理层</strong></li>
+</ul>
+<h4 id="数据处理层"><a href="#数据处理层" class="headerlink" title="数据处理层"></a>数据处理层</h4><ul>
+<li><strong>负责SQL查找</strong></li>
+<li><strong>负责SQL解析</strong></li>
+<li><strong>负责SQL执行</strong></li>
+<li><strong>负责执行结果映射处理</strong></li>
+<li><strong>完成一次数据库操作</strong></li>
+</ul>
+<h4 id="基础支撑层"><a href="#基础支撑层" class="headerlink" title="基础支撑层"></a>基础支撑层</h4><ul>
+<li><strong>连接管理</strong></li>
+<li><strong>事务管理</strong></li>
+<li><strong>配置加载</strong></li>
+<li><strong>缓存处理</strong></li>
+<li><strong>为上层提供最基础支撑</strong></li>
+</ul>
+<h2 id="Mapper接口与动态代理"><a href="#Mapper接口与动态代理" class="headerlink" title="Mapper接口与动态代理"></a>Mapper接口与动态代理</h2><h3 id="无需实现类原因"><a href="#无需实现类原因" class="headerlink" title="无需实现类原因"></a>无需实现类原因</h3><h4 id="使用JDK动态代理-1"><a href="#使用JDK动态代理-1" class="headerlink" title="使用JDK动态代理"></a>使用JDK动态代理</h4><h4 id="通过MapperProxyFactory生成MapperProxy"><a href="#通过MapperProxyFactory生成MapperProxy" class="headerlink" title="通过MapperProxyFactory生成MapperProxy"></a>通过MapperProxyFactory生成MapperProxy</h4><h4 id="MapperProxy是Mapper代理对象"><a href="#MapperProxy是Mapper代理对象" class="headerlink" title="MapperProxy是Mapper代理对象"></a>MapperProxy是Mapper代理对象</h4><h4 id="代理对象调用方法时进入invoke"><a href="#代理对象调用方法时进入invoke" class="headerlink" title="代理对象调用方法时进入invoke"></a>代理对象调用方法时进入invoke</h4><h3 id="调用过程"><a href="#调用过程" class="headerlink" title="调用过程"></a>调用过程</h3><h4 id="获取Mapper"><a href="#获取Mapper" class="headerlink" title="获取Mapper"></a>获取Mapper</h4><ul>
+<li><strong>session.getMapper(Class)</strong></li>
+<li><strong>获取MapperProxyFactory</strong></li>
+<li><strong>创建MapperProxy代理对象</strong></li>
+<li><strong>返回代理对象实例</strong></li>
+</ul>
+<h4 id="执行方法"><a href="#执行方法" class="headerlink" title="执行方法"></a>执行方法</h4><ul>
+<li><strong>MapperProxy.invoke方法</strong></li>
+<li><strong>生成MapperMethod对象</strong></li>
+<li><strong>通过cachedMapperMethod初始化</strong></li>
+<li><strong>调用MapperMethod.execute方法</strong></li>
+<li><strong>根据命令类型执行操作</strong></li>
+</ul>
+<h3 id="MapperMethod"><a href="#MapperMethod" class="headerlink" title="MapperMethod"></a>MapperMethod</h3><h4 id="命令模式"><a href="#命令模式" class="headerlink" title="命令模式"></a>命令模式</h4><h4 id="封装方法签名和SQL操作"><a href="#封装方法签名和SQL操作" class="headerlink" title="封装方法签名和SQL操作"></a>封装方法签名和SQL操作</h4><h4 id="最终通过SqlSession实例执行SQL"><a href="#最终通过SqlSession实例执行SQL" class="headerlink" title="最终通过SqlSession实例执行SQL"></a>最终通过SqlSession实例执行SQL</h4><h4 id="处理SELECT、INSERT、UPDATE、DELETE等类型"><a href="#处理SELECT、INSERT、UPDATE、DELETE等类型" class="headerlink" title="处理SELECT、INSERT、UPDATE、DELETE等类型"></a>处理SELECT、INSERT、UPDATE、DELETE等类型</h4><h4 id="处理返回类型判断"><a href="#处理返回类型判断" class="headerlink" title="处理返回类型判断"></a>处理返回类型判断</h4><ul>
+<li><strong>返回void</strong></li>
+<li><strong>返回List</strong></li>
+<li><strong>返回Map</strong></li>
+<li><strong>返回Cursor</strong></li>
+<li><strong>返回单个对象</strong></li>
+</ul>
+<h2 id="补充面试常考点"><a href="#补充面试常考点" class="headerlink" title="补充面试常考点"></a>补充面试常考点</h2><h3 id="存储过程支持"><a href="#存储过程支持" class="headerlink" title="存储过程支持"></a>存储过程支持</h3><h4 id="使用statementType-”CALLABLE”"><a href="#使用statementType-”CALLABLE”" class="headerlink" title="使用statementType&#x3D;”CALLABLE”"></a>使用statementType&#x3D;”CALLABLE”</h4><h4 id="在select或update标签中配置"><a href="#在select或update标签中配置" class="headerlink" title="在select或update标签中配置"></a>在select或update标签中配置</h4><h4 id="通过mode-IN-OUT处理参数"><a href="#通过mode-IN-OUT处理参数" class="headerlink" title="通过mode&#x3D;IN&#x2F;OUT处理参数"></a>通过mode&#x3D;IN&#x2F;OUT处理参数</h4><h4 id="支持输入输出参数"><a href="#支持输入输出参数" class="headerlink" title="支持输入输出参数"></a>支持输入输出参数</h4><h3 id="ObjectFactory"><a href="#ObjectFactory" class="headerlink" title="ObjectFactory"></a>ObjectFactory</h3><h4 id="用于创建结果对象实例"><a href="#用于创建结果对象实例" class="headerlink" title="用于创建结果对象实例"></a>用于创建结果对象实例</h4><h4 id="自定义对象创建逻辑"><a href="#自定义对象创建逻辑" class="headerlink" title="自定义对象创建逻辑"></a>自定义对象创建逻辑</h4><h4 id="实现ObjectFactory接口"><a href="#实现ObjectFactory接口" class="headerlink" title="实现ObjectFactory接口"></a>实现ObjectFactory接口</h4><h4 id="如使用工厂模式创建对象"><a href="#如使用工厂模式创建对象" class="headerlink" title="如使用工厂模式创建对象"></a>如使用工厂模式创建对象</h4><h3 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h3><h4 id="映射文件中的namespace属性"><a href="#映射文件中的namespace属性" class="headerlink" title="映射文件中的namespace属性"></a>映射文件中的namespace属性</h4><h4 id="绑定Mapper接口实现动态代理"><a href="#绑定Mapper接口实现动态代理" class="headerlink" title="绑定Mapper接口实现动态代理"></a>绑定Mapper接口实现动态代理</h4><h4 id="管理二级缓存作用域"><a href="#管理二级缓存作用域" class="headerlink" title="管理二级缓存作用域"></a>管理二级缓存作用域</h4><h4 id="相同namespace共享二级缓存"><a href="#相同namespace共享二级缓存" class="headerlink" title="相同namespace共享二级缓存"></a>相同namespace共享二级缓存</h4><h3 id="resultMap高级用法"><a href="#resultMap高级用法" class="headerlink" title="resultMap高级用法"></a>resultMap高级用法</h3><h4 id="继承extends"><a href="#继承extends" class="headerlink" title="继承extends"></a>继承extends</h4><ul>
+<li><strong>复用已有字段映射</strong></li>
+<li><strong>如&lt;resultMap extends&#x3D;”baseMap”&gt;</strong></li>
+</ul>
+<h4 id="鉴别器discriminator"><a href="#鉴别器discriminator" class="headerlink" title="鉴别器discriminator"></a>鉴别器discriminator</h4><ul>
+<li><strong>根据结果值选择不同resultMap</strong></li>
+<li><strong>javaType指定类型</strong></li>
+<li><strong>column指定判断列</strong></li>
+<li><strong>不同值对应不同映射</strong></li>
+</ul>
+<h4 id="sql片段"><a href="#sql片段" class="headerlink" title="sql片段"></a>sql片段</h4><ul>
+<li><strong>使用&lt;sql&gt;标签定义公用SQL</strong></li>
+<li><strong>使用&lt;include&gt;标签引用</strong></li>
+<li><strong>复用字段列表或条件</strong></li>
+</ul>
+<h3 id="日志配置"><a href="#日志配置" class="headerlink" title="日志配置"></a>日志配置</h3><h4 id="支持多种日志框架"><a href="#支持多种日志框架" class="headerlink" title="支持多种日志框架"></a>支持多种日志框架</h4><h4 id="通过setting配置logImpl"><a href="#通过setting配置logImpl" class="headerlink" title="通过setting配置logImpl"></a>通过setting配置logImpl</h4><h4 id="可选SLF4J、LOG4J、LOG4J2、JDK-LOGGING、STDOUT-LOGGING"><a href="#可选SLF4J、LOG4J、LOG4J2、JDK-LOGGING、STDOUT-LOGGING" class="headerlink" title="可选SLF4J、LOG4J、LOG4J2、JDK_LOGGING、STDOUT_LOGGING"></a>可选SLF4J、LOG4J、LOG4J2、JDK_LOGGING、STDOUT_LOGGING</h4><h4 id="便于调试和性能监控"><a href="#便于调试和性能监控" class="headerlink" title="便于调试和性能监控"></a>便于调试和性能监控</h4><h3 id="与Spring集成"><a href="#与Spring集成" class="headerlink" title="与Spring集成"></a>与Spring集成</h3><h4 id="使用SqlSessionFactoryBean"><a href="#使用SqlSessionFactoryBean" class="headerlink" title="使用SqlSessionFactoryBean"></a>使用SqlSessionFactoryBean</h4><ul>
+<li><strong>创建SqlSessionFactory</strong></li>
+<li><strong>注入数据源和配置</strong></li>
+</ul>
+<h4 id="使用MapperScannerConfigurer"><a href="#使用MapperScannerConfigurer" class="headerlink" title="使用MapperScannerConfigurer"></a>使用MapperScannerConfigurer</h4><ul>
+<li><strong>扫描Mapper接口包路径</strong></li>
+<li><strong>自动注册为Spring Bean</strong></li>
+</ul>
+<h4 id="使用SqlSessionTemplate"><a href="#使用SqlSessionTemplate" class="headerlink" title="使用SqlSessionTemplate"></a>使用SqlSessionTemplate</h4><ul>
+<li><strong>线程安全</strong></li>
+<li><strong>支持事务管理</strong></li>
+<li><strong>替代原生SqlSession</strong></li>
+</ul>
+<h3 id="延迟加载触发方法"><a href="#延迟加载触发方法" class="headerlink" title="延迟加载触发方法"></a>延迟加载触发方法</h3><h4 id="默认触发方法"><a href="#默认触发方法" class="headerlink" title="默认触发方法"></a>默认触发方法</h4><ul>
+<li><strong>equals</strong></li>
+<li><strong>clone</strong></li>
+<li><strong>hashCode</strong></li>
+<li><strong>toString</strong></li>
+</ul>
+<h4 id="可配置lazyLoadTriggerMethods"><a href="#可配置lazyLoadTriggerMethods" class="headerlink" title="可配置lazyLoadTriggerMethods"></a>可配置lazyLoadTriggerMethods</h4><ul>
+<li><strong>自定义触发方法列表</strong></li>
+<li><strong>控制延迟加载时机</strong></li>
+</ul>
+<h3 id="默认别名"><a href="#默认别名" class="headerlink" title="默认别名"></a>默认别名</h3><h4 id="MyBatis为常见类型预设别名"><a href="#MyBatis为常见类型预设别名" class="headerlink" title="MyBatis为常见类型预设别名"></a>MyBatis为常见类型预设别名</h4><ul>
+<li><strong>int对应Integer</strong></li>
+<li><strong>string对应String</strong></li>
+<li><strong>list对应List</strong></li>
+<li><strong>map对应Map</strong></li>
+<li><strong>hashmap对应HashMap</strong></li>
+</ul>
+<h4 id="简化配置文件中类型引用"><a href="#简化配置文件中类型引用" class="headerlink" title="简化配置文件中类型引用"></a>简化配置文件中类型引用</h4><h3 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h3><h4 id="使用environments标签配置多环境"><a href="#使用environments标签配置多环境" class="headerlink" title="使用environments标签配置多环境"></a>使用environments标签配置多环境</h4><h4 id="default属性指定默认环境"><a href="#default属性指定默认环境" class="headerlink" title="default属性指定默认环境"></a>default属性指定默认环境</h4><h4 id="每个环境包含事务管理器"><a href="#每个环境包含事务管理器" class="headerlink" title="每个环境包含事务管理器"></a>每个环境包含事务管理器</h4><ul>
+<li><strong>JDBC事务管理器</strong></li>
+<li><strong>MANAGED事务管理器</strong></li>
+</ul>
+<h4 id="包含数据源配置"><a href="#包含数据源配置" class="headerlink" title="包含数据源配置"></a>包含数据源配置</h4><ul>
+<li><strong>连接池参数</strong></li>
+<li><strong>数据库连接信息</strong></li>
+</ul>
+<h3 id="映射器注册方式"><a href="#映射器注册方式" class="headerlink" title="映射器注册方式"></a>映射器注册方式</h3><h4 id="resource方式"><a href="#resource方式" class="headerlink" title="resource方式"></a>resource方式</h4><ul>
+<li><strong>指定XML映射文件路径</strong></li>
+<li><strong>如&lt;mapper resource&#x3D;”mapper&#x2F;UserMapper.xml”&#x2F;&gt;</strong></li>
+</ul>
+<h4 id="class方式"><a href="#class方式" class="headerlink" title="class方式"></a>class方式</h4><ul>
+<li><strong>指定Mapper接口类</strong></li>
+<li><strong>如&lt;mapper class&#x3D;”com.example.UserMapper”&#x2F;&gt;</strong></li>
+</ul>
+<h4 id="package方式"><a href="#package方式" class="headerlink" title="package方式"></a>package方式</h4><ul>
+<li><strong>扫描包下所有Mapper接口</strong></li>
+<li><strong>如&lt;package name&#x3D;”com.example.mapper”&#x2F;&gt;</strong></li>
+</ul>
+<h3 id="Batch模式注意事项"><a href="#Batch模式注意事项" class="headerlink" title="Batch模式注意事项"></a>Batch模式注意事项</h3><h4 id="事务提交前无法获取自增主键"><a href="#事务提交前无法获取自增主键" class="headerlink" title="事务提交前无法获取自增主键"></a>事务提交前无法获取自增主键</h4><ul>
+<li><strong>需等待批量执行后</strong></li>
+<li><strong>某些业务场景不符合需求</strong></li>
+</ul>
+<h4 id="select语句不支持批处理"><a href="#select语句不支持批处理" class="headerlink" title="select语句不支持批处理"></a>select语句不支持批处理</h4><ul>
+<li><strong>批处理仅适用于update操作</strong></li>
+<li><strong>addBatch方法只对更新语句有效</strong></li>
+</ul>
+<h3 id="数据库移植性"><a href="#数据库移植性" class="headerlink" title="数据库移植性"></a>数据库移植性</h3><h4 id="SQL语句由程序员编写"><a href="#SQL语句由程序员编写" class="headerlink" title="SQL语句由程序员编写"></a>SQL语句由程序员编写</h4><h4 id="依赖具体数据库语法"><a href="#依赖具体数据库语法" class="headerlink" title="依赖具体数据库语法"></a>依赖具体数据库语法</h4><h4 id="导致移植性差"><a href="#导致移植性差" class="headerlink" title="导致移植性差"></a>导致移植性差</h4><h4 id="可用MyBatis-Plus缓解"><a href="#可用MyBatis-Plus缓解" class="headerlink" title="可用MyBatis-Plus缓解"></a>可用MyBatis-Plus缓解</h4><ul>
+<li><strong>提供通用CRUD</strong></li>
+<li><strong>自动生成SQL</strong></li>
+<li><strong>减少手动编写SQL</strong></li>
+</ul>
+<h3 id="MyBatis-Plus扩展"><a href="#MyBatis-Plus扩展" class="headerlink" title="MyBatis-Plus扩展"></a>MyBatis-Plus扩展</h3><h4 id="MyBatis增强工具"><a href="#MyBatis增强工具" class="headerlink" title="MyBatis增强工具"></a>MyBatis增强工具</h4><h4 id="提供分页插件"><a href="#提供分页插件" class="headerlink" title="提供分页插件"></a>提供分页插件</h4><h4 id="提供条件构造器"><a href="#提供条件构造器" class="headerlink" title="提供条件构造器"></a>提供条件构造器</h4><h4 id="提供通用CRUD操作"><a href="#提供通用CRUD操作" class="headerlink" title="提供通用CRUD操作"></a>提供通用CRUD操作</h4><h4 id="简化开发流程"><a href="#简化开发流程" class="headerlink" title="简化开发流程"></a>简化开发流程</h4><h2 id="ima-AI生成"><a href="#ima-AI生成" class="headerlink" title="ima AI生成"></a>ima AI生成</h2></div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Java/"># Java</a>
+          
+          <a href="/tags/MyBatis/"># MyBatis</a>
+          
+          <a href="/tags/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"># 思维导图</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/05/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/MySQL--%E9%9D%A2%E8%AF%95%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"
+        >MySQL--面试思维导图笔记</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/05/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/Spring--%E9%9D%A2%E8%AF%95%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"
+        >Spring--面试思维导图笔记</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>

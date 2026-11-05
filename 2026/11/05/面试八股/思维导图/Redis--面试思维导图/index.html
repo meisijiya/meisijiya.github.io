@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Redis--面试思维导图笔记 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Redis--面试思维导图笔记</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 5, 2026&nbsp;&nbsp;11:00:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/">思维导图</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<blockquote>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的面试思维导图（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists?sid=6589357&spm_id_from=333.788.0.0">合集·计算机专业面试总结</a>），XMind 文件转录为 Markdown。标题层级沿用导图结构，导图备注里的答案按段落排到对应标题下，原图的说法尽量保留，只补了必要的连词；个别与官方文档不符的技术说法已按规范改正，其余保持原样。</p>
+</blockquote>
+<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><h3 id="redis可以用来干什么"><a href="#redis可以用来干什么" class="headerlink" title="redis可以用来干什么"></a>redis可以用来干什么</h3><p>①、缓存<br>Redis 最常见的用途就是作为缓存，由于所有数据都存储在内存中，所以 Redis 的读写速度非常快，远超基于磁盘存储的数据库。使用 Redis 缓存可以极大地提高应用的响应速度和吞吐量。<br>②、排行榜&#x2F;计数器<br>Redis 的 ZSet 非常适合用来实现排行榜的功能，同时 Redis 的原子递增操作可以用来实现计数器功能。<br>③、分布式锁<br>Redis 可以实现分布式锁，用来控制跨多个进程或服务器的资源访问。</p>
+<h3 id="redis基本数据类型"><a href="#redis基本数据类型" class="headerlink" title="redis基本数据类型"></a>redis基本数据类型</h3><p>String是最基础的数据类型，key 是一个字符串，不用多说，value 可以是：<br>字符串（简单的字符串、复杂的字符串（例如 JSON、XML））<br>数字 （整数、浮点数）<br>甚至是二进制（图片、音频、视频），但最大不能超过 512MB。<br>字符串主要有以下几个典型的使用场景：<br>缓存功能<br>计数<br>共享 Session<br>限速<br>hash<br>键值对集合，key 是字符串，value 是一个 Map 集合，比如说 value &#x3D; {name: ‘沉默王二’, age: 18}，name 和 age 属于字段 field，沉默王二 和 18 属于值 value。<br>哈希主要有以下两个典型应用场景：<br>缓存用户信息<br>缓存对象<br>list<br>list 是一个简单的字符串列表，按照插入顺序排序。可以添加一个元素到列表的头部（左边）或者尾部（右边）。<br>列表主要有以下两个使用场景：<br>消息队列<br>文章列表<br>set<br>集合是字符串的无序集合，集合中的元素是唯一的，不允许重复。和 Java 集合框架中的 Set 有相似之处。<br>集合主要有以下两个使用场景：<br>标签（tag）<br>共同关注<br>sorted set<br>Zset，有序集合，比 set 多了一个排序属性 score（分值）。主要应用场景有：<br>用户点赞统计<br>用户排序  </p>
+<h4 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h4><ul>
+<li><strong>跳表</strong><br>跳表（skiplist）是一种有序的数据结构，它通过在每个节点中维持多个指向其它节点的指针，从而达到快速访问节点的目的。<br>跳表由 zskiplist 和 zskiplistNode 组成，zskiplist ⽤于保存跳表的基本信息（表头、表尾、⻓度、层高等）。<br>zskiplistNode ⽤于表示跳表节点，每个跳表节点的层⾼是不固定的，每个节点都有⼀个指向保存了当前节点的分值和成员对象的指针。</li>
+</ul>
+<h3 id="redis为什么快"><a href="#redis为什么快" class="headerlink" title="redis为什么快"></a>redis为什么快</h3><p>①、基于内存的数据存储，Redis 将数据存储在内存当中，使得数据的读写操作避开了磁盘 I&#x2F;O。而内存的访问速度远超硬盘，这是 Redis 读写速度快的根本原因。<br>②、单线程模型，Redis 使用单线程模型来处理客户端的请求，这意味着在任何时刻只有一个命令在执行。这样就避免了线程切换和锁竞争带来的消耗。<br>③、IO 多路复⽤，基于 Linux 的  select&#x2F;epoll 机制。该机制允许内核中同时存在多个监听套接字和已连接套接字，内核会一直监听这些套接字上的连接请求或者数据请求，一旦有请求到达，就会交给 Redis 处理，就实现了所谓的 Redis 单个线程处理个 IO 读写的请求。<br>④、高效的数据结构，Redis 提供了多种高效的数据结构，如字符串（String）、列表（List）、集合（Set）、有序集合（Sorted Set）等，这些数据结构经过了高度优化，能够支持快速的数据操作。</p>
+<h3 id="I-O多路复用"><a href="#I-O多路复用" class="headerlink" title="I&#x2F;O多路复用"></a>I&#x2F;O多路复用</h3><p>redis的性能瓶颈是网络延迟，I&#x2F;O多路复用就是实现高效网络请求，具体来说时I&#x2F;O多路复用结合事件派发<br>是利用单个线程同时监听多个Socket，并在某个socket可读可写时得到通知，避免无效等待，充分利用cpu<br>linux有三种方式实现IO多路复用：<br>整个过程只在进行 select、poll、epoll 这些调用的时候才会阻塞，收发客户消息是不会阻塞的，整个进程或者线程就被充分利用起来，这就是事件驱动，所谓的 reactor 模式。</p>
+<h4 id="select和poll"><a href="#select和poll" class="headerlink" title="select和poll"></a>select和poll</h4><p>只会通知用户进程有socket就绪，不确定是哪个具体的，需要用户进程遍历确认  </p>
+<h4 id="epoll"><a href="#epoll" class="headerlink" title="epoll"></a>epoll</h4><p>epoll 方式是将用户 socket 对应的 fd 注册进 epoll，然后 epoll 帮你监听哪些 socket 上有消息到达，这样就避免了大量的无用操作。此时的 socket 应该采用非阻塞模式。</p>
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><h3 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h3><p>RDB 持久化通过创建数据集的快照（snapshot）来工作，在指定的时间间隔内将 Redis 在某一时刻的数据状态保存到磁盘的一个 RDB 文件中。<br>可通过 save 和 bgsave 命令两个命令来手动触发 RDB 持久化操作：</p>
+<h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><ul>
+<li><strong>save</strong><br>①、save 命令：会同步地将 Redis 的所有数据保存到磁盘上的一个 RDB 文件中。这个操作会阻塞所有客户端请求直到 RDB 文件被完全写入磁盘。<br>当 Redis 数据集较大时，使用 SAVE 命令会导致 Redis 服务器停止响应客户端的请求。<br>不推荐在生产环境中使用，除非数据集非常小，或者可以接受服务暂时的不可用状态。</li>
+<li><strong>bgsave</strong><br>②、bgsave 命令：会在后台异步地创建 Redis 的数据快照，并将快照保存到磁盘上的 RDB 文件中。这个命令会立即返回，Redis 服务器可以继续处理客户端请求。<br>在 BGSAVE 命令执行期间，Redis 会继续响应客户端的请求，对服务的可用性影响较小。快照的创建过程是由一个子进程完成的，主进程不会被阻塞。是在生产环境中执行 RDB 持久化的推荐方式。</li>
+</ul>
+<h4 id="执行时机"><a href="#执行时机" class="headerlink" title="执行时机"></a>执行时机</h4><p>①、在 Redis 配置文件（通常是 redis.conf）中，可以通过save &lt;seconds&gt; &lt;changes&gt;指令配置自动触发 RDB 持久化的条件。这个指令可以设置多次，每个设置定义了一个时间间隔（秒）和该时间内发生的变更次数阈值。<br>save 900 1<br>这意味着：<br>如果至少有 1 个键被修改，900 秒后自动触发一次 RDB 持久化。<br>②、当 Redis 服务器通过 SHUTDOWN 命令正常关闭时，如果没有禁用 RDB 持久化，Redis 会自动执行一次 RDB 持久化，以确保数据在下次启动时能够恢复。<br>③、在 Redis 复制场景中，当一个 Redis 实例被配置为从节点并且与主节点建立连接时，它可能会根据配置接收主节点的 RDB 文件来初始化数据集。这个过程中，主节点会在后台自动触发 RDB 持久化，然后将生成的 RDB 文件发送给从节点。</p>
+<h3 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h3><p>AOF 持久化通过记录每个写操作命令并将其追加到 AOF 文件中来工作，恢复时通过重新执行这些命令来重建数据集。<br>AOF 的主要作用是解决了数据持久化的实时性，目前已经是 Redis 持久化的主流方式。</p>
+<h4 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h4><p>1）当 AOF 持久化功能被启用时，Redis 服务器会将接收到的所有写命令（比如 SET, LPUSH, SADD 等修改数据的命令）追加到 AOF 缓冲区（buffer）的末尾。<br>2）为了将缓冲区中的命令持久化到磁盘中的 AOF 文件，Redis 提供了几种不同的同步策略：（在后面）<br>3）随着操作的不断执行，AOF 文件会不断增长，为了减小 AOF 文件大小，Redis 可以重写 AOF 文件：<br>重写过程不会解析原始的 AOF 文件，而是将当前内存中的数据库状态转换为一系列写命令，然后保存到一个新的 AOF 文件中。<br>AOF 重写操作由 BGREWRITEAOF 命令触发，它会创建一个子进程来执行重写操作，因此不会阻塞主进程。<br>重写过程中，新的写命令会继续追加到旧的 AOF 文件中，同时也会被记录到一个缓冲区中。一旦重写完成，Redis 会将这个缓冲区中的命令追加到新的 AOF 文件中，然后切换到新的 AOF 文件上，以确保数据的完整性。<br>4）当 Redis 服务器启动时，如果配置为使用 AOF 持久化方式，它会读取 AOF 文件中的所有命令并重新执行它们，以恢复数据库的状态。</p>
+<ul>
+<li><strong>同步策略</strong><br>always：每次写命令都会同步到 AOF 文件，这提供了最高的数据安全性，但可能因为磁盘 I&#x2F;O 的延迟而影响性能。<br>everysec（默认）：每秒同步一次，这是一种折衷方案，提供了较好的性能和数据安全性。如果系统崩溃，最多可能丢失最后一秒的数据。<br>no：只会在 AOF 关闭或 Redis 关闭时执行， 或由操作系统内核触发。在这种模式下，如果发生宕机，那么丢失的数据量由操作系统内核的缓存冲洗策略决定。</li>
+</ul>
+<h3 id="RDB和AOF的区别及如何选择"><a href="#RDB和AOF的区别及如何选择" class="headerlink" title="RDB和AOF的区别及如何选择"></a>RDB和AOF的区别及如何选择</h3><h4 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h4><p>RDB 是一个非常紧凑的单文件（二进制文件 dump.rdb），代表了 Redis 在某个时间点上的数据快照。非常适合用于备份数据，比如在夜间进行备份，然后将 RDB 文件复制到远程服务器。但可能会丢失最后一次持久化后的数据。<br>AOF 的最大优点是灵活，实时性好，可以设置不同的 fsync 策略，如每秒同步一次，每次写入命令就同步，或者完全由操作系统来决定何时同步。但 AOF 文件往往比较大，恢复速度慢，因为它记录了每个写操作。</p>
+<h4 id="如何选择"><a href="#如何选择" class="headerlink" title="如何选择"></a>如何选择</h4><p>一般来说， 如果想达到足以媲美数据库的 数据安全性，应该 同时使用两种持久化功能。在这种情况下，当 Redis 重启的时候会优先载入 AOF 文件来恢复原始的数据，因为在通常情况下 AOF 文件保存的数据集要比 RDB 文件保存的数据集要完整。<br>如果 可以接受数分钟以内的数据丢失，那么可以 只使用 RDB 持久化。<br>有很多用户都只使用 AOF 持久化，但并不推荐这种方式，因为定时生成 RDB 快照（snapshot）非常便于进行数据备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快，除此之外，使用 RDB 还可以避免 AOF 程序的 bug。<br>如果只需要数据在服务器运行的时候存在，也可以不使用任何持久化方式。</p>
+<h3 id="redis数据恢复"><a href="#redis数据恢复" class="headerlink" title="redis数据恢复"></a>redis数据恢复</h3><p>恢复的过程也很简单，把 RDB 或者 AOF 文件拷贝到 Redis 的数据目录下，如果使用 AOF 恢复，配置文件开启 AOF，然后启动 redis-server 即可。<br>Redis 启动时加载数据的流程：<br>AOF 持久化开启且存在 AOF 文件时，优先加载 AOF 文件。<br>AOF 关闭或者 AOF 文件不存在时，加载 RDB 文件。<br>加载 AOF&#x2F;RDB 文件成功后，Redis 启动成功。<br>AOF&#x2F;RDB 文件存在错误时，Redis 启动失败并打印错误信息  </p>
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><h3 id="缓存异常"><a href="#缓存异常" class="headerlink" title="缓存异常"></a>缓存异常</h3><h4 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h4><p>查询不存在的数据，由于缓存没命中，请求每次都会穿过缓存查询数据库  </p>
+<ul>
+<li><strong>解决方案</strong><ul>
+<li><strong>缓存空数据</strong><br>缓存空数据，查询返回的数据为空，仍把这个空结果进行缓存<br>优点：简单<br>缺点：消耗内存，可能会发生不一致的问题  </li>
+<li><strong>布隆过滤器</strong><br>作用：检查一个元素是否在一个集合中，拦截不存在的数据  <ul>
+<li><strong>可能存在误判</strong><br>一个id哈希函数计算出来的在位图的位置刚好都为1，但这个id其实不存在<br>数组越小，误判率越大，数组越大误判率越小，但消耗更多内存</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h4><p>某一个或少数几个数据被高频访问，当数据在缓存过期的那一刻，大量数据请求到达数据库，导致瞬间压力过大  </p>
+<ul>
+<li><strong>解决方案</strong><ul>
+<li><strong>添加互斥锁</strong><br>一个线程查询未命中，获取互斥锁后查询数据库重建缓存数据，其他线程获取锁失败只能休眠一会重试<br>性能相对较低，但保证数据强一致  </li>
+<li><strong>逻辑过期</strong><br>热点的key不设置过期时间<br>一个线程查询缓存发现逻辑时间已过期，获取互斥锁成功后开一个新线程去重建缓存数据，同时会返回原来的过期数据，没重建好之前，线程都会返回过期的数据<br>性能好一些，保证了高可用但并不强一致</li>
+</ul>
+</li>
+</ul>
+<h4 id="布隆过滤器"><a href="#布隆过滤器" class="headerlink" title="布隆过滤器"></a>布隆过滤器</h4><p>布隆过滤器（Bloom Filter）是一种空间效率极高的概率型数据结构，用于快速检查一个元素是否存在于一个集合中。<br>布隆过滤器由一个长度为 m 的位数组和 k 个哈希函数组成。<br>开始时，布隆过滤器的每个位都被设置为 0。<br>当一个元素被添加到过滤器中时，它会被 k 个哈希函数分别计算得到 k 个位置，然后将位数组中对应的位设置为 1。<br>当检查一个元素是否存在于过滤器中时，同样使用 k 个哈希函数计算位置，如果任一位置的位为 0，则该元素肯定不在过滤器中；如果所有位置的位都为 1，则该元素可能在过滤器中。<br>因为布隆过滤器占用的内存空间非常小，所以查询效率也非常高，所以在 Redis 缓存中，使用布隆过滤器可以快速判断一个 key 在不在底层的数据集合里，把明显不存在的请求挡在缓存和数据库前面。它判断不了「此刻是否在缓存中」——缓存过期或被淘汰的 key，布隆过滤器照样判存在。<br>但是布隆过滤器也有一定的缺点，因为是通过哈希函数计算的，所以存在哈希冲突的问题，可能会导致误判。</p>
+<h4 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h4><p>在某一个时间点，大量缓存数据同时过期或服务器突然宕机导致所有请求落在数据库  </p>
+<ul>
+<li><strong>解决方案</strong><ul>
+<li><strong>给不同的Key的TTL添加随机值</strong><br>尽量不让key同时过期<br>TTL：过期时间  </li>
+<li><strong>利用redis集群提高服务的可用性</strong><br>防止宕机  </li>
+<li><strong>给缓存业务添加降级限流策略</strong><br>ngxin等当中设置限流规则<br>是一种系统保底策略，也能用于穿透和击穿  </li>
+<li><strong>给业务添加多级缓存</strong><br>预防大量key过期</li>
+</ul>
+</li>
+</ul>
+<h3 id="双写一致性"><a href="#双写一致性" class="headerlink" title="双写一致性"></a>双写一致性</h3><p>双写一致性：当修改了数据库的数据也要同时更新缓存的数据，缓存与数据库保持一致<br>redis作为缓存，mysql的数据如何与redis同步？<br>回答时要看自己的业务背景，是要求一致性高还是允许延迟一致  </p>
+<h4 id="读操作"><a href="#读操作" class="headerlink" title="读操作"></a>读操作</h4><p>缓存命中，直接返回，未命中查询数据库，写入缓存，设置超时时间  </p>
+<h4 id="写操作"><a href="#写操作" class="headerlink" title="写操作"></a>写操作</h4><p>延迟双删：删除缓存-&gt;修改数据库-&gt;（延时一会）删除缓存  </p>
+<ul>
+<li><strong>延迟双删</strong><br>延迟双删：删除缓存-&gt;修改数据库-&gt;（延时一会）删除缓存<br>因为无论是先删缓存还是先修改数据库都会有脏数据出现<br>延迟双删延时一会是因为数据库需要从主节点同步到从节点，这要占一定时间，但不好把握<br>延迟双删仍有脏数据风险</li>
+</ul>
+<h4 id="要求一致性高的场景"><a href="#要求一致性高的场景" class="headerlink" title="要求一致性高的场景"></a>要求一致性高的场景</h4><p>可以使用读写锁，因为缓存数据一般读多写少，读数据时加共享锁，加锁之后其他线程可以共享读操作<br>写数据时使用排他锁，加上之后阻止其他线程读写操作<br>虽然一致性高，但性能低  </p>
+<ul>
+<li><strong>使用redission提供的读写锁</strong><ul>
+<li><strong>共享锁</strong></li>
+<li><strong>排他锁</strong></li>
+</ul>
+</li>
+</ul>
+<h4 id="允许延迟（短暂不一致的情况）"><a href="#允许延迟（短暂不一致的情况）" class="headerlink" title="允许延迟（短暂不一致的情况）"></a>允许延迟（短暂不一致的情况）</h4><ul>
+<li><strong>异步通知</strong><br>保证数据最终一致性，通过MQ消息队列，数据库修改了后发送消息到MQ，缓存监听MQ的消息  <ul>
+<li><strong>MQ中间件</strong></li>
+<li><strong>canal中间件</strong><br>不需要修改业务代码，伪装成mysql的一个从节点，canal通过读取binlog数据更新缓存</li>
+</ul>
+</li>
+</ul>
+<h3 id="持久化-1"><a href="#持久化-1" class="headerlink" title="持久化"></a>持久化</h3><h4 id="RDB-1"><a href="#RDB-1" class="headerlink" title="RDB"></a>RDB</h4><p>redis数据快照，把内存中所有数据都记录到磁盘中，实例故障重启后，从磁盘读取快照文件恢复数据  </p>
+<ul>
+<li><strong>命令</strong><ul>
+<li><strong>save</strong><br>redis主进程执行RDB，阻塞所有命令  </li>
+<li><strong>bgsave</strong><br>开启子进程执行RDB，避免主进程受到影响</li>
+</ul>
+</li>
+<li><strong>执行原理</strong><br>bgsave开始时fork主进程得到子进程，子进程共享主进程的内存数据，完成fork后读取内存数据并开始写入RDB<br>子进程拷贝一份页表，记录虚拟地址与物理地址的映射关系  <ul>
+<li><strong>fork采用copy-on-write技术</strong><br>主进程执行读操作时，访问共享内存；主进程执行写操作时，拷贝一份数据执行写操作。</li>
+</ul>
+</li>
+</ul>
+<h4 id="AOF-1"><a href="#AOF-1" class="headerlink" title="AOF"></a>AOF</h4><p>追加文件，redis处理的每一个写命令都会记录在AOF文件，看作是命令日志<br>通过redis.conf配置文件开启AOF  </p>
+<ul>
+<li><strong>AOF命令记录频率配置项</strong><ul>
+<li><strong>Always同步刷盘</strong><br>每执行一次命令，立即记录到AOF<br>性能差，但可靠性高  </li>
+<li><strong>everysec每秒刷盘</strong><br>写命令执行完先放入AOF缓冲区，每隔一秒将缓冲区数据写到AOF，默认方案<br>性能适中，最多丢失1秒数据  </li>
+<li><strong>no操作系统控制</strong><br>写命令执行完先放入AOF，操作系统决定何时将缓冲区内容写回磁盘<br>可靠性差，但性能最好</li>
+</ul>
+</li>
+<li><strong>通过bgrewriteaof让AOF文件重写，用最少命令达到相同效果</strong><br>因为aof会记录对同一个key多次写操作，只有最后一次有意义</li>
+</ul>
+<h3 id="数据的过期策略"><a href="#数据的过期策略" class="headerlink" title="数据的过期策略"></a>数据的过期策略</h3><p>redis两种策略配合使用  </p>
+<h4 id="惰性删除"><a href="#惰性删除" class="headerlink" title="惰性删除"></a>惰性删除</h4><p>设置key过期时间后，当需要该key时，检查是否过期，过期了就删掉<br>优点：对CPU友好，用不到的key不用浪费时间检查<br>缺点：对内存不友好，一个key已经过期，但一直没有使用，该key就会一直在内存中永远不释放  </p>
+<h4 id="定期删除"><a href="#定期删除" class="headerlink" title="定期删除"></a>定期删除</h4><p>每隔一段时间，对key进行检查，删除里面过期的key（从一定数量的数据库取一定量的key）<br>有两种模式<br>优点：可以通过限制删除频率和时长减少对CPU影响<br>缺点：难以确定频率和时长  </p>
+<ul>
+<li><strong>SLOW模式</strong><br>定时任务，执行频率默认10hz，每次不超25ms  </li>
+<li><strong>FAST模式</strong><br>执行频率不固定，但两次间隔不低于2，ms，每次耗时不超过1ms</li>
+</ul>
+<h3 id="数据淘汰策略"><a href="#数据淘汰策略" class="headerlink" title="数据淘汰策略"></a>数据淘汰策略</h3><h4 id="八种策略"><a href="#八种策略" class="headerlink" title="八种策略"></a>八种策略</h4><p>noeviction:不淘汰任何key，但是内存满时不允许写入新数据，默认就是这种策略<br>volatile-ttl:对设置了TTL的key，比较key的剩余TTL值，TTL越小越先被淘汰<br>allkeys-random:对全体key，随机进行淘汰。<br>volatile-random:对设置了TTL的key，随机进行淘汰。<br>allkeys-lru:对全体key，基于LRU算法进行淘汰<br>volatile-lru:对设置了TTL的key，基于LRU算法进行淘汰<br>allkeys-lfu:对全体key，基于LFU算法进行淘汰<br>volatile-lfu:对设置了TTL的key，基于LFU算法进行淘汰  </p>
+<h2 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h2><p>主从复制（Master-Slave Replication）：允许一个 Redis 服务器（主节点）将数据复制到一个或多个 Redis 服务器（从节点）。这种方式可以实现读写分离，适合读多写少的场景。<br>哨兵模式（Sentinel）：用于监控主节点和从节点的状态，实现自动故障转移和系统消息通知。如果主节点发生故障，哨兵可以自动将一个从节点升级为新的主节点，保证系统的可用性。<br>集群模式（Cluster）：Redis 集群通过分片的方式存储数据，每个节点存储数据的一部分，用户请求可以并行处理。集群模式支持自动分区、故障转移，并且可以在不停机的情况下进行节点增加或删除。</p>
+<h3 id="主从复制及作用"><a href="#主从复制及作用" class="headerlink" title="主从复制及作用"></a>主从复制及作用</h3><p>主从复制，是指将一台 Redis 服务器的数据，复制到其他的 Redis 服务器。前者称为 主节点(master)，后者称为 从节点(slave)。且数据的复制是 单向 的，只能由主节点到从节点。Redis 主从复制支持 主从同步 和 从从同步 两种，后者是 Redis 后续版本新增的功能，以减轻主节点的同步负担。<br>主从复制主要的作用?<br>数据冗余： 主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式。<br>故障恢复： 当主节点出现问题时，可以由从节点提供服务，实现快速的故障恢复 (实际上是一种服务的冗余)。<br>负载均衡： 在主从复制的基础上，配合读写分离，可以由主节点提供写服务，由从节点提供读服务 （即写 Redis 数据时应用连接主节点，读 Redis 数据时应用连接从节点），分担服务器负载。尤其是在写少读多的场景下，通过多个从节点分担读负载，可以大大提高 Redis 服务器的并发量。<br>高可用基石： 除了上述作用以外，主从复制还是哨兵和集群能够实施的 基础，因此说主从复制是 Redis 高可用的基础。</p>
+<h4 id="主从数据同步流程"><a href="#主从数据同步流程" class="headerlink" title="主从数据同步流程"></a>主从数据同步流程</h4><p>保存主节点（master）信息<br>这一步只是保存主节点信息，保存主节点的 ip 和 port。<br>主从建立连接<br>从节点（slave）发现新的主节点后，会尝试和主节点建立网络连接。<br>发送 ping 命令<br>连接建立成功后从节点发送 ping 请求进行首次通信，主要是检测主从之间网络套接字是否可用、主节点当前是否可接受处理命令。<br>权限验证<br>如果主节点要求密码验证，从节点必须正确的密码才能通过验证。<br>同步数据集<br>主从复制连接正常通信后，主节点会把持有的数据全部发送给从节点。<br>命令持续复制<br>接下来主节点会持续地把写命令发送给从节点，保证主从数据一致性。</p>
+<h4 id="主从数据同步方式"><a href="#主从数据同步方式" class="headerlink" title="主从数据同步方式"></a>主从数据同步方式</h4><p>全量同步<br>从节点先建立连接，请求数据同步，主节点判断是否是第一次同步，第一次就返回master版本信息，然后执行bgsave生成rdb文件发给从节点，从节点清空本地数据加载rdb。在rdb期间主节点接收到的新的写命令放到repl_baklog，然后发给从节点<br>（通过从节点发的replid判断是否是第一次同步）<br>增量同步<br>一般发生在slave重启或后期数据变化<br>通过从节点发的replid判断主从不是第一次同步，直接从repl_baklog中获取从节点发来的offset后的命令给从节点  </p>
+<ul>
+<li><strong>全量同步</strong><br>发送 psync 命令进行数据同步，由于是第一次进行复制，从节点没有复制偏移量和主节点的运行 ID，所以发送 psync-1。<br>主节点根据 psync-1 解析出当前为全量复制，回复+FULLRESYNC 响应。<br>从节点接收主节点的响应数据保存运行 ID 和偏移量 offset<br>主节点执行 bgsave 保存 RDB 文件到本地<br>主节点发送 RDB 文件给从节点，从节点把接收的 RDB 文件保存在本地并直接作为从节点的数据文件<br>对于从节点开始接收 RDB 快照到接收完成期间，主节点仍然响应读写命令，因此主节点会把这期间写命令数据保存在复制客户端缓冲区内，当从节点加载完 RDB 文件后，主节点再把缓冲区内的数据发送给从节点，保证主从之间数据一致性。<br>从节点接收完主节点传送来的全部数据后会清空自身旧数据<br>从节点清空数据后开始加载 RDB 文件<br>从节点成功加载完 RDB 后，如果当前节点开启了 AOF 持久化功能， 它会立刻做 bgrewriteaof 操作，为了保证全量复制后 AOF 持久化文件立刻可用。</li>
+<li><strong>增量同步</strong><br>当主从节点之间网络出现中断时，如果超过 repl-timeout 时间，主节点会认为从节点故障并中断复制连接<br>主从连接中断期间主节点依然响应命令，但因复制连接中断命令无法发送给从节点，不过主节点内部存在的复制积压缓冲区，依然可以保存最近一段时间的写命令数据，默认最大缓存 1MB。<br>当主从节点网络恢复后，从节点会再次连上主节点<br>当主从连接恢复后，由于从节点之前保存了自身已复制的偏移量和主节点的运行 ID。因此会把它们当作 psync 参数发送给主节点，要求进行部分复制操作。<br>主节点接到 psync 命令后首先核对参数 runId 是否与自身一致，如果一 致，说明之前复制的是当前主节点；之后根据参数 offset 在自身复制积压缓冲区查找，如果偏移量之后的数据存在缓冲区中，则对从节点发送+CONTINUE 响应，表示可以进行部分复制。<br>主节点根据偏移量把复制积压缓冲区里的数据发送给从节点，保证主从复制进入正常状态。</li>
+</ul>
+<h3 id="哨兵"><a href="#哨兵" class="headerlink" title="哨兵"></a>哨兵</h3><p>主从复制存在一个问题，没法完成自动故障转移。哨兵就可以解决<br>它由两部分组成，哨兵节点和数据节点：<br>哨兵节点： 哨兵系统由一个或多个哨兵节点组成，哨兵节点是特殊的 Redis 节点，不存储数据，对数据节点进行监控。<br>数据节点： 主节点和从节点都是数据节点；</p>
+<h4 id="哨兵功能（故障恢复过程）"><a href="#哨兵功能（故障恢复过程）" class="headerlink" title="哨兵功能（故障恢复过程）"></a>哨兵功能（故障恢复过程）</h4><p>监控（Monitoring）： 哨兵会不断地检查主节点和从节点是否运作正常。<br>自动故障转移（Automatic failover）： 当 主节点 不能正常工作时，哨兵会开始 自动故障转移操作，它会将失效主节点的其中一个 从节点升级为新的主节点，并让其他从节点改为复制新的主节点。<br>配置提供者（Configuration provider）： 客户端在初始化时，通过连接哨兵来获得当前 Redis 服务的主节点地址。<br>通知（Notification）： 哨兵可以将故障转移的结果发送给客户端。<br>其中，监控和自动故障转移功能，使得哨兵可以及时发现主节点故障并完成转移。而配置提供者和通知功能，则需要在与客户端的交互中才能体现。</p>
+<h4 id="哨兵实现原理"><a href="#哨兵实现原理" class="headerlink" title="哨兵实现原理"></a>哨兵实现原理</h4><ul>
+<li><strong>定时监控</strong><br>过三个定时监控任务完成对各个节点发现和监控：<br>每隔 10 秒，每个 Sentinel 节点会向主节点和从节点发送 info 命令获取最新的拓扑结构<br>每隔 2 秒，每个 Sentinel 节点会向 Redis 数据节点的sentinel：hello 频道上发送该 Sentinel 节点对于主节点的判断以及当前 Sentinel 节点的信息<br>每隔 1 秒，每个 Sentinel 节点会向主节点、从节点、其余 Sentinel 节点发送一条 ping 命令做一次心跳检测，来确认这些节点当前是否可达  </li>
+<li><strong>主观下线和客观下线</strong><br>主观下线<br>每个 Sentinel 节点会每隔 1 秒对主节点、从节点、其他 Sentinel 节点发送 ping 命令做心跳检测，当这些节点超过 down-after-milliseconds 没有进行有效回复，Sentinel 节点就会对该节点做失败判定，这个行为叫做主观下线。<br>客观下线<br>当 Sentinel 主观下线的节点是主节点时，该 Sentinel 节点会通过 sentinel is- master-down-by-addr 命令向其他 Sentinel 节点询问对主节点的判断，当超过 &lt;quorum&gt;个数，Sentinel 节点认为主节点确实有问题，这时该 Sentinel 节点会做出客观下线的决定  </li>
+<li><strong>领导者Sentinel节点选举</strong><br>Sentinel 节点之间会做一个领导者选举的工作，选出一个 Sentinel 节点作为领导者进行故障转移的工作。Redis 使用了 Raft 算法实现领导者选举。<ul>
+<li><strong>raft算法实现领导者选举</strong><br>每个在线的 Sentinel 节点都有资格成为领导者，当它确认主节点主观 下线时候，会向其他 Sentinel 节点发送 sentinel is-master-down-by-addr 命令， 要求将自己设置为领导者。<br>收到命令的 Sentinel 节点，如果没有同意过其他 Sentinel 节点的 sentinel is-master-down-by-addr 命令，将同意该请求，否则拒绝。<br>如果该 Sentinel 节点发现自己的票数已经大于等于 max（quorum， num（sentinels）&#x2F;2+1），那么它将成为领导者。<br>如果此过程没有选举出领导者，将进入下一次选举。</li>
+</ul>
+</li>
+<li><strong>故障转移</strong><br>在从节点列表中选出一个节点作为新的主节点，这一步是相对复杂一些的一步<br>Sentinel 领导者节点会对第一步选出来的从节点执行 slaveof no one 命令让其成为主节点<br>Sentinel 领导者节点会向剩余的从节点发送命令，让它们成为新主节点的从节点<br>Sentinel 节点集合会将原来的主节点更新为从节点，并保持着对其关注，当其恢复后命令它去复制新的主节点  <ul>
+<li><strong>新的主节点怎么被选出来</strong><br>过滤：“不健康”（主观下线、断线）、5 秒内没有回复过 Sentinel 节 点 ping 响应、与主节点失联超过 down-after-milliseconds*10 秒。<br>选择 slave-priority（从节点优先级）最高的从节点列表，如果存在则返回，不存在则继续。<br>选择复制偏移量最大的从节点（复制的最完整），如果存在则返 回，不存在则继续。<br>选择 runid 最小的从节点。</li>
+</ul>
+</li>
+</ul>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="redis是单线程为什么那么快（I-O多路）"><a href="#redis是单线程为什么那么快（I-O多路）" class="headerlink" title="redis是单线程为什么那么快（I&#x2F;O多路）"></a>redis是单线程为什么那么快（I&#x2F;O多路）</h3><h4 id="纯内存操作，执行速度快"><a href="#纯内存操作，执行速度快" class="headerlink" title="纯内存操作，执行速度快"></a>纯内存操作，执行速度快</h4><h4 id="单线程，避免上下文切换，多线程还要考虑安全"><a href="#单线程，避免上下文切换，多线程还要考虑安全" class="headerlink" title="单线程，避免上下文切换，多线程还要考虑安全"></a>单线程，避免上下文切换，多线程还要考虑安全</h4><p>多线程的锁也占用时间  </p>
+<h4 id="使用I-O多路复用，非阻塞I-O"><a href="#使用I-O多路复用，非阻塞I-O" class="headerlink" title="使用I&#x2F;O多路复用，非阻塞I&#x2F;O"></a>使用I&#x2F;O多路复用，非阻塞I&#x2F;O</h4><ul>
+<li><strong>I&#x2F;O多路复用模型</strong><ul>
+<li><strong>select和poll</strong><br>只会通知用户进程有socket就绪，不确定是哪个具体的，需要用户进程遍历确认  </li>
+<li><strong>epoll（目前使用）</strong><br>会通知用户进程socket就绪同时把socket写入用户空间</li>
+</ul>
+</li>
+</ul>
+<h3 id="热key"><a href="#热key" class="headerlink" title="热key"></a>热key</h3><h4 id="判定热key"><a href="#判定热key" class="headerlink" title="判定热key"></a>判定热key</h4><p>所谓的热 key，就是指在很短时间内被频繁访问的键。<br>比如，热门新闻或热门商品，这类 key 通常会有大流量的访问，对存储这类信息的 Redis 来说，是不小的压力。<br>再比如说 Redis 是集群部署，热 key 可能会造成整体流量的不均衡（网络带宽、CPU 和内存资源），个别节点出现 OPS 过大的情况，极端情况下热点 key 甚至会超过 Redis 本身能够承受的 OPS。<br>OPS（Operations Per Second）是 Redis 的一个重要指标，表示 Redis 每秒钟能够处理的命令数。<br>通常以 Key 被请求的频率来判定，比如：<br>QPS 集中在特定的 Key：总的 QPS（每秒查询率）为 10000，其中一个 Key 的 QPS 飙到了 8000。<br>带宽使用率集中在特定的 Key：一个拥有上千成员且总大小为 1M 的哈希 Key，每秒发送大量的 HGETALL 请求。<br>CPU 使用率集中在特定的 Key：一个拥有数万个成员的 ZSET Key，每秒发送大量的 ZRANGE 请求。<br>HGETALL 命令用于返回哈希表中，所有的字段和值。<br>ZRANGE 命令用于返回有序集中，指定区间内的成员。</p>
+<ul>
+<li><strong>处理热key</strong><br>对热 key 的处理，最关键的是对热 key 的监控:<br>①、客户端<br>客户端其实是距离 key“最近”的地方，因为 Redis 命令就是从客户端发出的，例如在客户端设置全局字典（key 和调用次数），每次调用 Redis 命令时，使用这个字典进行记录。<br>②、代理端<br>像 Twemproxy、Codis 这些基于代理的 Redis 分布式架构，所有客户端的请求都是通过代理端完成的，可以在代理端进行监控。<br>③、Redis 服务端<br>使用 monitor 命令统计热点 key 是很多开发和运维人员首先想到的方案，monitor 命令可以监控到 Redis 执行的所有命令。<br>monitor 命令的使用：redis-cli monitor<br>只要监控到了热 key，对热 key 的处理就简单了：<br>①、把热 key 打散到不同的服务器，降低压⼒。<br>基本思路就是给热 Key 加上前缀或者后缀<br>②、加⼊⼆级缓存，当出现热 Key 后，把热 Key 加载到 JVM 中，后续针对这些热 Key 的请求，直接从 JVM 中读取。</li>
+</ul>
+<h4 id="热点key重建"><a href="#热点key重建" class="headerlink" title="热点key重建"></a>热点key重建</h4><p>开发的时候一般使用“缓存+过期时间”的策略，既可以加速数据读写，又保证数据的定期更新，这种模式基本能够满足绝大部分需求。<br>但满足下面条件可能就会出现比较大的问题：<br>当前 key 是一个热点 key（例如一个热门的娱乐新闻），并发量非常大。<br>重建缓存不能在短时间完成，可能是一个复杂计算，例如复杂的 SQL、多次 IO、多个依赖等。 在缓存失效的瞬间，有大量线程来重建缓存，造成后端负载加大，甚至可能会让应用崩溃。<br>怎么处理呢？<br>解决问题的要点在于：<br>减少重建缓存的次数。<br>数据尽可能一致。<br>较少的潜在危险。<br>所以一般采用如下方式：<br>互斥锁（mutex key）<br>这种方法只允许一个线程重建缓存，其他线程等待重建缓存的线程执行完，重新从缓存获取数据即可。<br>2. 永远不过期<br>“永远不过期”包含两层意思：<br>从缓存层面来看，确实没有设置过期时间，所以不会出现热点 key 过期后产生的问题，也就是“物理”不过期。<br>从功能层面来看，为每个 value 设置一个逻辑过期时间，当发现超过逻辑过期时间后，会使用单独的线程去构建缓存。</p>
+<h3 id="缓存预热"><a href="#缓存预热" class="headerlink" title="缓存预热"></a>缓存预热</h3><p>缓存预热是指在系统启动时，提前将一些预定义的数据加载到缓存中，以避免在系统运行初期由于缓存未命中（cache miss）导致的性能问题。<br>通过缓存预热，可以确保系统在上线后能够立即提供高效的服务，减少首次访问时的延迟。</p>
+<h3 id="大key问题"><a href="#大key问题" class="headerlink" title="大key问题"></a>大key问题</h3><p>大 key 指的是存储了大量数据的键，比如：<br>单个简单的 key 存储的 value 很大，size 超过 10KB<br>hash，set，zset，list 中存储过多的元素（以万为单位）<br>大 key 会造成什么问题呢？<br>客户端耗时增加，甚至超时<br>对大 key 进行 IO 操作时，会严重占用带宽和 CPU<br>造成 Redis 集群中数据倾斜<br>主动删除、被动删等，可能会导致阻塞  </p>
+<h4 id="如何找到大key"><a href="#如何找到大key" class="headerlink" title="如何找到大key"></a>如何找到大key</h4><p>①、bigkeys 参数：使用 bigkeys 命令以遍历的方式分析 Redis 实例中的所有 Key，并返回整体统计信息与每个数据类型中 Top1 的大 Key<br>bigkeys 命令的使用：redis-cli –bigkeys<br>②、redis-rdb-tools：redis-rdb-tools 是由 Python 语言编写的用来分析 Redis 中 rdb 快照文件的工具。</p>
+<h4 id="如何处理大key"><a href="#如何处理大key" class="headerlink" title="如何处理大key"></a>如何处理大key</h4><p>①、删除大 key<br>当 Redis 版本大于 4.0 时，可使用 UNLINK 命令安全地删除大 Key，该命令能够以非阻塞的方式，逐步地清理传入的大 Key。<br>当 Redis 版本小于 4.0 时，建议通过 SCAN 命令执行增量迭代扫描 key，然后判断进行删除。<br>②、压缩和拆分 key<br>当 vaule 是 string 时，比较难拆分，则使用序列化、压缩算法将 key 的大小控制在合理范围内，但是序列化和反序列化都会带来额外的性能消耗。<br>当 value 是 string，压缩之后仍然是大 key 时，则需要进行拆分，将一个大 key 分为不同的部分，记录每个部分的 key，使用 MGET 等批量命令一次性读回这些分片 key。<br>当 value 是 list&#x2F;set 等集合类型时，根据预估的数据规模来进行分片，不同的元素计算后分到不同的片。</p>
+<h3 id="redis事务"><a href="#redis事务" class="headerlink" title="redis事务"></a>redis事务</h3><p>Redis 支持简单的事务，可以将多个命令打包，然后一次性的，按照顺序执行。<br>主要通过 multi、exec、discard、watch 等命令来实现：<br>multi：标记一个事务块的开始<br>exec：执行所有事务块内的命令<br>discard：取消事务，放弃执行事务块内的所有命令<br>watch：监视一个或多个 key，如果在事务执行之前这个 key 被其他命令所改动，那么事务将被打断  </p>
+<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>使用 MULTI 命令开始一个事务。从这个命令执行之后开始，所有的后续命令都不会立即执行，而是被放入一个队列中。在这个阶段，Redis 只是记录下了这些命令。<br>使用 EXEC 命令触发事务的执行。一旦执行了 EXEC，之前 MULTI 后队列中的所有命令会被原子地（atomic）执行。这里的“原子”指的是命令连续执行、中间不插进别的客户端的命令，并不等于关系库那种回滚：只有入队阶段就报错（命令写错、参数个数不对）才会整体拒绝执行；EXEC 之后某条命令运行时失败，其余命令照样执行，Redis 不支持回滚。<br>如果在执行 EXEC 之前决定不执行事务，可以使用 DISCARD 命令来取消事务。这会清空事务队列并退出事务状态。<br>WATCH 命令用于实现乐观锁。WATCH 命令可以监视一个或多个键，如果在执行事务的过程中（即在执行 MULTI 之后，执行 EXEC 之前），被监视的键被其他命令改变了，那么当执行 EXEC 时，事务会被取消，EXEC 返回 nil（空回复），不是错误回复；注意监视是从 WATCH 那一刻起算的，不是 MULTI 之后。</p>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><p>适用于：集群情况下的定时任务、抢单、幂等性场景  </p>
+<h3 id="setnx命令"><a href="#setnx命令" class="headerlink" title="setnx命令"></a>setnx命令</h3><p>要设置超时时间，以防止服务器宕机后，线程没有释放锁，别的线程也拿不到锁  </p>
+<h3 id="如何合理控制锁的有效时长"><a href="#如何合理控制锁的有效时长" class="headerlink" title="如何合理控制锁的有效时长"></a>如何合理控制锁的有效时长</h3><h4 id="根据业务执行时间预估"><a href="#根据业务执行时间预估" class="headerlink" title="根据业务执行时间预估"></a>根据业务执行时间预估</h4><h4 id="给锁续期"><a href="#给锁续期" class="headerlink" title="给锁续期"></a>给锁续期</h4><p>另开一个线程监视当前线程的执行情况  </p>
+<h3 id="redission实现的分布式锁"><a href="#redission实现的分布式锁" class="headerlink" title="redission实现的分布式锁"></a>redission实现的分布式锁</h3><p>底层是setnx和lua脚本  </p>
+<h4 id="实现流程"><a href="#实现流程" class="headerlink" title="实现流程"></a>实现流程</h4><p>加锁后执行业务时开一个线程watch dog每个一段时间给业务做一次续期，更新锁时间，释放锁后通知watch dog不需要再做续期。<br>当别的线程来后想要获取锁，线程会不断while循环尝试获取锁，循环几次超过阈值就获取失败，这是重试机制  </p>
+<ul>
+<li><strong>watch dog</strong></li>
+<li><strong>重试机制</strong></li>
+<li><strong>lua脚本完成加锁、设置过期时间等操作</strong><br>保证执行的原子性</li>
+</ul>
+<h4 id="可重入"><a href="#可重入" class="headerlink" title="可重入"></a>可重入</h4><p>执行同步代码，判断当前线程id是否是同一个，同一个线程就可以获取锁成功<br>利用hash结构记录线程id和重入次数  </p>
+<h4 id="主从一致性"><a href="#主从一致性" class="headerlink" title="主从一致性"></a>主从一致性</h4><ul>
+<li><strong>RedLock红锁（不推荐）</strong><br>不能只在一个redis实例上创建锁，应该在多个实例上创建锁<br>但实现复杂，性能差  </li>
+<li><strong>zookeeper（可以保证强一致性）</strong><br>redis是ap思想，是要追求可靠，zookeeper是cp思想，强一致性</li>
+</ul>
+<h2 id="集群方案"><a href="#集群方案" class="headerlink" title="集群方案"></a>集群方案</h2><h3 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h3><h4 id="主从数据同步"><a href="#主从数据同步" class="headerlink" title="主从数据同步"></a>主从数据同步</h4><ul>
+<li><strong>主从全量同步</strong><br>从节点先建立连接，请求数据同步，主节点判断是否是第一次同步，第一次就返回master版本信息，然后执行bgsave生成rdb文件发给从节点，从节点清空本地数据加载rdb。在rdb期间主节点接收到的新的写命令放到repl_baklog，然后发给从节点<br>（通过从节点发的replid判断是否是第一次同步）  </li>
+<li><strong>主从增量同步</strong><br>一般发生在slave重启或后期数据变化<br>通过从节点发的replid判断主从不是第一次同步，直接从repl_baklog中获取从节点发来的offset后的命令给从节点</li>
+</ul>
+<h3 id="哨兵模式"><a href="#哨兵模式" class="headerlink" title="哨兵模式"></a>哨兵模式</h3><h4 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h4><ul>
+<li><strong>监控</strong><br>不断检查主从节点是否按预期工作  </li>
+<li><strong>自动故障恢复</strong><br>master故障，哨兵将一个slave提升为master，故障实例恢复后也以新的master为主  </li>
+<li><strong>通知</strong><br>哨兵充当redis客户端的服务发现来源，集群发生故障转移，将最新信息推给客户端</li>
+</ul>
+<h4 id="脑裂"><a href="#脑裂" class="headerlink" title="脑裂"></a>脑裂</h4><h3 id="分片集群"><a href="#分片集群" class="headerlink" title="分片集群"></a>分片集群</h3><h4 id="针对的问题"><a href="#针对的问题" class="headerlink" title="针对的问题"></a>针对的问题</h4><ul>
+<li><strong>海量数据存储问题</strong></li>
+<li><strong>高并发写问题</strong></li>
+</ul>
+<h4 id="数据怎么存储和读取"><a href="#数据怎么存储和读取" class="headerlink" title="数据怎么存储和读取"></a>数据怎么存储和读取</h4><p>引入了哈希槽，分配给不同实例，先计算key有小部分的哈希值在对哈希槽数量取余，余数作为插槽，寻找插槽所在实例  </p>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>数据分区： 数据分区 (或称数据分片) 是集群最核心的功能。集群将数据分散到多个节点，一方面 突破了 Redis 单机内存大小的限制，存储容量大大增加；另一方面 每个主节点都可以对外提供读服务和写服务，大大提高了集群的响应能力。<br>高可用： 集群支持主从复制和主节点的 自动故障转移 （与哨兵类似），当任一节点发生故障时，集群仍然可以对外提供服务。</p>
+<h3 id="数据分区"><a href="#数据分区" class="headerlink" title="数据分区"></a>数据分区</h3><h4 id="虚拟槽（哈希槽）分区"><a href="#虚拟槽（哈希槽）分区" class="headerlink" title="虚拟槽（哈希槽）分区"></a>虚拟槽（哈希槽）分区</h4><p>在虚拟槽（也叫哈希槽）分区中，存在固定数量的槽位（例如 Redis Cluster 有 16384 个槽），每个键通过哈希算法（CRC16）映射到这些槽上，每个集群节点负责管理一定范围内的槽。<br>这种分区可以灵活地将槽（以及槽中的数据）从一个节点迁移到另一个节点，从而实现平滑扩容和缩容；数据分布也更加均匀，Redis Cluster 采用的正是这种分区方式。<br>在虚拟槽分区中，槽是数据管理和迁移的基本单位。假设系统中有 4 个实际节点，假设为其分配了 16 个槽(0-15)；<br>槽 0-3 位于节点 node1；<br>槽 4-7 位于节点 node2；<br>槽 8-11 位于节点 node3；<br>槽 12-15 位于节点 node4。<br>如果此时删除 node2，只需要将槽 4-7 重新分配即可，例如将槽 4-5 分配给 node1，槽 6 分配给 node3，槽 7 分配给 node4，数据在节点上的分布仍然较为均衡。<br>如果此时增加 node5，也只需要将一部分槽分配给 node5 即可，比如说将槽 3、槽 7、槽 11、槽 15 迁移给 node5，节点上的其他槽位保留。<br>当然了，这取决于 CRC16(key) % 槽的个数 的具体结果。因为在 Redis Cluster 中，槽的个数固定是 2 的 14 次方，也就是 16384，和 HashMap 数组长度取 2 的幂次方是同一个思路。但槽数不随扩容变，集群扩容是把整批槽迁到新节点，跟 HashMap 重新取模、大部分元素留在原位不是一回事。<br>所以扩容时按槽整批迁移，迁移多少槽就搬多少数据，跟键的哈希值重新取模无关。</p>
+<h3 id="集群的原理"><a href="#集群的原理" class="headerlink" title="集群的原理"></a>集群的原理</h3><p>集群通过数据分区实现数据的分布式存储，通过自动故障转移实现高可用  </p>
+<h4 id="集群创建"><a href="#集群创建" class="headerlink" title="集群创建"></a>集群创建</h4><p>首先集群创建，数据分区在集群创建时完成  </p>
+<ul>
+<li><strong>设置节点</strong><br>Redis 集群一般由多个节点组成，节点数量至少为 6 个才能保证组成完整高可用的集群。每个节点需要开启配置 cluster-enabled yes，让 Redis 运行在集群模式下。</li>
+<li><strong>节点握手</strong><br>节点握手是指一批运行在集群模式下的节点通过 Gossip 协议彼此通信， 达到感知对方的过程。节点握手是集群彼此通信的第一步，由客户端发起命 令：cluster meet{ip}{port}。完成节点握手之后，一个个的 Redis 节点就组成了一个多节点的集群。</li>
+<li><strong>分配槽</strong><br>Redis 集群把所有的数据映射到 16384 个槽中。每个节点对应若干个槽，只有当节点分配了槽，才能响应和这些槽关联的键命令。通过 cluster addslots 命令为节点分配槽。</li>
+</ul>
+<h4 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h4><p>Redis 集群的故障转移和哨兵的故障转移类似，但是 Redis 集群中所有的节点都要承担状态维护的任务。</p>
+<ul>
+<li><strong>故障发现</strong><br>Redis 集群内节点通过 ping&#x2F;pong 消息实现节点通信，集群中每个节点都会定期向其他节点发送 ping 消息，接收节点回复 pong 消息作为响应。如果在 cluster-node-timeout 时间内通信一直失败，则发送节 点会认为接收节点存在故障，把接收节点标记为主观下线（pfail）状态。<br>当某个节点判断另一个节点主观下线后，相应的节点状态会跟随消息在集群内传播。通过 Gossip 消息传播，集群内节点不断收集到故障节点的下线报告。当 半数以上持有槽的主节点都标记某个节点是主观下线时。触发客观下线流程。</li>
+<li><strong>故障恢复</strong><br>故障节点变为客观下线后，如果下线节点是持有槽的主节点则需要在它 的从节点中选出一个替换它，从而保证集群的高可用。<br>资格检查。每个从节点都要检查最后与主节点断线时间，判断是否有资格替换故障 的主节点。<br>准备选举时间。当从节点符合故障转移资格后，更新触发故障选举的时间，只有到达该 时间后才能执行后续流程。<br>发起选举。当从节点定时任务检测到达故障选举时间（failover_auth_time）到达后，发起选举流程。<br>选举投票。持有槽的主节点处理故障选举消息。投票过程其实是一个领导者选举的过程，如集群内有 N 个持有槽的主节 点代表有 N 张选票。由于在每个配置纪元内持有槽的主节点只能投票给一个 从节点，因此只能有一个从节点获得 N&#x2F;2+1 的选票，保证能够找出唯一的从节点。<br>替换主节点。当从节点收集到足够的选票之后，触发替换主节点操作。</li>
+</ul>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Redis/"># Redis</a>
+          
+          <a href="/tags/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"># 思维导图</a>
+          
+          <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"># 数据库</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/05/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97--%E9%9D%A2%E8%AF%95%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"
+        >消息队列--面试思维导图笔记</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/05/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/MySQL--%E9%9D%A2%E8%AF%95%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"
+        >MySQL--面试思维导图笔记</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>
