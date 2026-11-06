@@ -421,19 +421,22 @@
     </header>
 
     <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<blockquote>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的《软件架构师》系列视频（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists/9203402?type=season">合集·软件架构师</a>）第 1 篇《【软件架构师】一小时掌握Redis(锁，消息队列，Lua，哨兵集群)》（<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1o4p568Etd/">视频链接</a>）。本篇是我学习该视频后整理的复习笔记，观点与讲解以他的视频为准，文内配图取自视频课件；感谢他的视频与资料。</p>
+</blockquote>
 <h1 id="01-Redis-核心机制"><a href="#01-Redis-核心机制" class="headerlink" title="01 Redis 核心机制"></a>01 Redis 核心机制</h1><blockquote>
 <p>📌 <strong>本篇速览</strong></p>
 <ul>
-<li>🔹 Redis 的定位与快的三个来源（1.1）</li>
-<li>🔹 五种数据结构与省空间结构（1.2）</li>
-<li>🔹 过期删除与 maxmemory 淘汰策略（1.3）</li>
-<li>🔹 缓存三大事故与 Cache Aside 一致性（1.4）</li>
-<li>🔹 分布式锁 SET NX EX 与 Redisson 看门狗（1.5）</li>
-<li>🔹 Lua 脚本原子性（1.6）</li>
-<li>🔹 Stream 削峰填谷（1.7）</li>
-<li>🔹 持久化与哨兵&#x2F;Cluster 高可用（1.8）</li>
-<li>🔹 常见错误清单（1.9）</li>
-<li>🔹 六个岗位小结（1.10）</li>
+<li>Redis 的定位与快的三个来源（1.1）</li>
+<li>五种数据结构与省空间结构（1.2）</li>
+<li>过期删除与 maxmemory 淘汰策略（1.3）</li>
+<li>缓存三大事故与 Cache Aside 一致性（1.4）</li>
+<li>分布式锁 SET NX EX 与 Redisson 看门狗（1.5）</li>
+<li>Lua 脚本原子性（1.6）</li>
+<li>Stream 削峰填谷（1.7）</li>
+<li>持久化与哨兵&#x2F;Cluster 高可用（1.8）</li>
+<li>常见错误清单（1.9）</li>
+<li>六个岗位小结（1.10）</li>
 </ul>
 </blockquote>
 <blockquote>
@@ -443,31 +446,31 @@
 <h2 id="1-1-Redis-是什么：内存中的工具箱"><a href="#1-1-Redis-是什么：内存中的工具箱" class="headerlink" title="1.1 Redis 是什么：内存中的工具箱"></a>1.1 Redis 是什么：内存中的工具箱</h2><p>🔹 很多人把 Redis 当数据库看，它的真实定位是一把工具箱。应用服务器先问 Redis 拿数据，命中就一毫秒返回，没命中才去查 MySQL。慢的根因不在 SQL 写得多差，而在于同一份不怎么变的结果被反复计算了几百遍。把算好的结果放进 Redis，应用就不再反复打扰数据库。</p>
 <p>🔹 把 Redis 名字拆开看就懂它的性格。Remote 表示它是独立进程，不是你程序里的包，会挂也要运维。Dictionary 表示给一个 key 还一个 value，没有表结构。Server 表示它长期运行，会满也会崩，所以才有后面的持久化与高可用。快来自三点：</p>
 <ul>
-<li>🔹 数据在内存</li>
-<li>🔹 省掉 SQL 的解析加锁流程</li>
-<li>🔹 单线程串行执行没有锁竞争</li>
+<li>数据在内存</li>
+<li>省掉 SQL 的解析加锁流程</li>
+<li>单线程串行执行没有锁竞争</li>
 </ul>
 <p>🔹 Redis 不替代 MySQL，它把重复查询、计数、排队这些活儿从数据库里剥离出来，让数据库专注保证数据正确。</p>
 <p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/01-redis-core-1.jpg" alt="Redis 是什么：内存中的工具箱" loading="lazy" decoding="async"></p>
 <h2 id="1-2-数据类型与命令：五种结构怎么选"><a href="#1-2-数据类型与命令：五种结构怎么选" class="headerlink" title="1.2 数据类型与命令：五种结构怎么选"></a>1.2 数据类型与命令：五种结构怎么选</h2><p>🔹 五种结构各有归属：</p>
 <ul>
-<li>🔹 单值用 string</li>
-<li>🔹 对象用 hash</li>
-<li>🔹 排队用 list</li>
-<li>🔹 去重用 set</li>
-<li>🔹 排名用 zset</li>
+<li>单值用 string</li>
+<li>对象用 hash</li>
+<li>排队用 list</li>
+<li>去重用 set</li>
+<li>排名用 zset</li>
 </ul>
 <p>🔹 把商品详情存成 hash，改库存只发一条 <code>HSET product:1001 stock 99</code>，比读出整个 JSON 再写回省事得多。zset 按分数排序，把订单号当元素、到期时间当分数，后台每秒扫一遍过期订单，就是天然的延迟队列。</p>
 <p>🔹 还有三个省空间的结构：</p>
 <ul>
-<li>🔹 bitmap 用一位记一个用户签到状态，100 万人只占 125KB</li>
-<li>🔹 HyperLogLog 最多占 12KB（元素少时用稀疏编码更省），只估 UV 不存元素</li>
-<li>🔹 GEO 把经纬度编码成分数，省掉自建空间索引</li>
+<li>bitmap 用一位记一个用户签到状态，100 万人只占 125KB</li>
+<li>HyperLogLog 最多占 12KB（元素少时用稀疏编码更省），只估 UV 不存元素</li>
+<li>GEO 把经纬度编码成分数，省掉自建空间索引</li>
 </ul>
 <h3 id="1-2-1-三个能直接跑的命令场景"><a href="#1-2-1-三个能直接跑的命令场景" class="headerlink" title="1.2.1 三个能直接跑的命令场景"></a>1.2.1 三个能直接跑的命令场景</h3><ul>
-<li>🔹 短信验证码用 <code>SET code:phone 8674 EX 300</code>，过期由 Redis 自己管，一行清理代码都不用写。</li>
-<li>🔹 阅读量用 <code>INCR article:view:1001</code>，一万并发同时加结果也不多不少。</li>
-<li>🔹 全局唯一单号用 <code>INCR order:seq</code> 做发号器，但重启会丢号，生产上用时间戳拼上 Redis 步长或雪花算法更稳。</li>
+<li>短信验证码用 <code>SET code:phone 8674 EX 300</code>，过期由 Redis 自己管，一行清理代码都不用写。</li>
+<li>阅读量用 <code>INCR article:view:1001</code>，一万并发同时加结果也不多不少。</li>
+<li>全局唯一单号用 <code>INCR order:seq</code> 做发号器，但重启会丢号，生产上用时间戳拼上 Redis 步长或雪花算法更稳。</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 短信验证码：手机号作 key，300 秒后自动消失</span></span><br><span class="line">SET code:13800001234 8674 EX 300</span><br><span class="line"><span class="comment"># 阅读量原子自增，一万并发也不重不漏</span></span><br><span class="line">INCR article:view:1001</span><br><span class="line"><span class="comment"># 全局发号器，重启可能丢号，生产用雪花算法兜底</span></span><br><span class="line">INCR order:<span class="built_in">seq</span></span><br></pre></td></tr></table></figure>
 

@@ -421,19 +421,22 @@
     </header>
 
     <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<blockquote>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的《软件架构师》系列视频（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists/9203402?type=season">合集·软件架构师</a>）第 2 篇《【软件架构师】Redis高并发与秒杀实战》（<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1DTaH6fEvR/">视频链接</a>）。本篇是我学习该视频后整理的复习笔记，观点与讲解以他的视频为准，文内配图取自视频课件；感谢他的视频与资料。</p>
+</blockquote>
 <h1 id="02-Redis-高并发与秒杀实战"><a href="#02-Redis-高并发与秒杀实战" class="headerlink" title="02 Redis 高并发与秒杀实战"></a>02 Redis 高并发与秒杀实战</h1><blockquote>
 <p>📌 <strong>本篇速览</strong></p>
 <ul>
-<li>🔹 秒杀为何要加 Redis 闸门（2.1）</li>
-<li>🔹 Redis 单线程与内存优势（2.2）</li>
-<li>🔹 五种基础结构（2.3）</li>
-<li>🔹 分布式锁防超卖（2.4）</li>
-<li>🔹 Lua 与乐观锁（2.5）</li>
-<li>🔹 六种高并发优化策略（2.6）</li>
-<li>🔹 缓存三坑（2.7）</li>
-<li>🔹 对账兜底（2.8）</li>
-<li>🔹 常见错误清单（常见错误清单）</li>
-<li>🔹 闸门与削峰小结（小结）</li>
+<li>秒杀为何要加 Redis 闸门（2.1）</li>
+<li>Redis 单线程与内存优势（2.2）</li>
+<li>五种基础结构（2.3）</li>
+<li>分布式锁防超卖（2.4）</li>
+<li>Lua 与乐观锁（2.5）</li>
+<li>六种高并发优化策略（2.6）</li>
+<li>缓存三坑（2.7）</li>
+<li>对账兜底（2.8）</li>
+<li>常见错误清单（常见错误清单）</li>
+<li>闸门与削峰小结（小结）</li>
 </ul>
 </blockquote>
 <blockquote>
@@ -451,9 +454,9 @@
 <p>🔹 把它装进系统后，原来的链路从「用户 → 程序 → MySQL」变成「用户 → 程序 → Redis → MySQL」。多出来的这一层，相当于在程序旁边多了一台跑得飞快但容量不大的小仓库。程序先去小仓库问有没有能直接用的数据，没有再去 MySQL 捞，顺手把结果写回 Redis，下次就快了。</p>
 <p>🔹 Redis 能担当这道闸门，靠的是三个天生的优势：</p>
 <ul>
-<li>🔹 所有命令串行执行，天然不会相互打架</li>
-<li>🔹 数据全部在内存，读写是微秒级</li>
-<li>🔹 每个键都能设过期时间，到点自动清理</li>
+<li>所有命令串行执行，天然不会相互打架</li>
+<li>数据全部在内存，读写是微秒级</li>
+<li>每个键都能设过期时间，到点自动清理</li>
 </ul>
 <p>🔹 它管热数据，数据库管真数据，分工就此明确。命令串行执行还有一个好处，多个客户端同时来改同一个数字时不会出现互相覆盖，这正是后续并发方案的底座。</p>
 <blockquote>

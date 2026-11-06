@@ -422,80 +422,84 @@
 
     <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
 <blockquote>
-<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的面试思维导图（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists?sid=6589357&spm_id_from=333.788.0.0">合集·计算机专业面试总结</a>），XMind 文件转录为 Markdown。标题层级沿用导图结构，导图备注里的答案按段落排到对应标题下，原图的说法尽量保留，只补了必要的连词；个别与官方文档不符的技术说法已按规范改正，其余保持原样。</p>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的面试思维导图（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists?sid=6589357&spm_id_from=333.788.0.0">合集·计算机专业面试总结</a>），XMind 文件转录为 Markdown。标题层级沿用导图结构，导图备注里的答案按段落排到对应标题下，原图的说法尽量保留，只补了必要的连词；个别与官方文档不符的技术说法已按规范改正，其余保持原样。本篇是我学习整理的复习笔记，内容以他的导图为准，感谢他的导图与资料。</p>
 </blockquote>
-<h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h2><h3 id="🔹-什么是消息队列"><a href="#🔹-什么是消息队列" class="headerlink" title="🔹 什么是消息队列"></a>🔹 什么是消息队列</h3><blockquote>
+<h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h2><h3 id="什么是消息队列"><a href="#什么是消息队列" class="headerlink" title="什么是消息队列"></a>什么是消息队列</h3><blockquote>
 <p>📌 <strong>考点</strong>：存放消息的容器，基于 FIFO 有序消费，构成生产者与消费者的异步通信模型。</p>
 </blockquote>
 <p>消息队列是存放消息的容器，基于先进先出（FIFO）数据结构实现有序消费。<br>参与消息传递的双方称为生产者和消费者，生产者负责发送消息，消费者负责处理消息。<br>生产者负责发送消息，消费者负责处理消息，构成典型的异步通信模型。</p>
-<h4 id="🔹-中间件属性"><a href="#🔹-中间件属性" class="headerlink" title="🔹 中间件属性"></a>🔹 中间件属性</h4><p>属于系统软件与应用软件之间的连接层，为分布式组件&#x2F;服务提供通信支撑。<br>不直接面向用户，而是为上层应用屏蔽底层技术差异，实现跨架构信息共享。</p>
-<h3 id="🔹-消息队列作用"><a href="#🔹-消息队列作用" class="headerlink" title="🔹 消息队列作用"></a>🔹 消息队列作用</h3><blockquote>
+<p><strong>中间件属性</strong><br>属于系统软件与应用软件之间的连接层，为分布式组件&#x2F;服务提供通信支撑。<br>不直接面向用户，而是为上层应用屏蔽底层技术差异，实现跨架构信息共享。</p>
+<h3 id="消息队列作用"><a href="#消息队列作用" class="headerlink" title="消息队列作用"></a>消息队列作用</h3><blockquote>
 <p>📌 <strong>考点</strong>：异步处理提升响应速度、削峰缓冲突发流量、降低系统耦合性。</p>
 </blockquote>
-<h4 id="🔹-异步处理"><a href="#🔹-异步处理" class="headerlink" title="🔹 异步处理"></a>🔹 异步处理</h4><p>将耗时操作解耦并异步执行，提升响应速度与用户体验，如订单提交后立即返回。<br>需配套业务流程调整，例如通过短信&#x2F;邮件通知最终结果，避免状态不一致。</p>
-<h4 id="🔹-削峰-限流"><a href="#🔹-削峰-限流" class="headerlink" title="🔹 削峰&#x2F;限流"></a>🔹 削峰&#x2F;限流</h4><p>缓冲突发高并发请求，防止后端服务被瞬时流量压垮，适用于秒杀、促销等场景。<br>通过消息队列暂存事务消息，由消费者按自身处理能力逐步消化。</p>
-<h4 id="🔹-降低系统耦合性"><a href="#🔹-降低系统耦合性" class="headerlink" title="🔹 降低系统耦合性"></a>🔹 降低系统耦合性</h4><p>模块间无直接调用依赖，新增或修改模块不影响其他系统，显著增强可扩展性。<br>比如商城下单后发布消息，财务、仓储、物流等服务按需订阅，实现松耦合协作。</p>
-<h3 id="🔹-推拉模式"><a href="#🔹-推拉模式" class="headerlink" title="🔹 推拉模式"></a>🔹 推拉模式</h3><p>推拉模式特指 Consumer（消费者）与 Broker（服务端） 之间的交互。Producer（生产者）默认都是推给 Broker，因为依赖成千上万的 Producer 自己存数据并等拉取，可靠性无法保证。</p>
-<h4 id="🔹-推模式"><a href="#🔹-推模式" class="headerlink" title="🔹 推模式"></a>🔹 推模式</h4><p>推模式指的是消息从Broker推向Consumer，即Consumer 被动的接收消息，由Broker来主导消息的发送。<br>优点：实时性极高，消息一来立即推送；且消费者使用简单（被动等待即可）。<br>致命缺点：速率难匹配。Broker 无法感知消费者能力，推送过快会像 DDoS 一样压垮消费者（“爆仓”），且 Broker 需维护每个消费者的状态，复杂度高。</p>
-<h4 id="🔹-拉模式"><a href="#🔹-拉模式" class="headerlink" title="🔹 拉模式"></a>🔹 拉模式</h4><p>拉模式指的是Consumer 主动向Broker 请求拉取消息，即Broker 被动的发送消息给Consumer。<br>优点：消费者自主可控，消费不过来就暂停拉取，能自我保护；Broker 职责轻（纯存储），且便于消费者按需批量拉取。<br>致命缺点：存在延迟和空耗。消费者不知道消息何时到，需轮询。拉取间隔大则延迟高，间隔小则变成“空请求”攻击 Broker（忙请求）。</p>
-<h4 id="🔹-主流MQ的选择"><a href="#🔹-主流MQ的选择" class="headerlink" title="🔹 主流MQ的选择"></a>🔹 主流MQ的选择</h4><p>Kafka 是纯拉模式，因为 Broker 作为中心节点应尽量轻量，不该依赖消费者状态。RocketMQ 同时提供 Push 和 Pull 两种，但 Push 其实是 SDK 内部长轮询拉取后回调业务，底层仍是拉。<br>为了弥补拉模式的缺点，它们都引入了 “长轮询（Long Polling）”：消费者请求后，若没消息，Broker 不立即返回，而是挂起等待（Kafka 由 fetch.max.wait.ms 控制，默认只有 500 毫秒；RocketMQ 拉取长轮询默认 30 秒）。一旦新消息到达或超时，再立即返回。这既实现了近实时的效果（有消息秒回），又大幅减少了无效的空轮询（没消息时请求不空跑）。</p>
-<h3 id="🔹-使用风险"><a href="#🔹-使用风险" class="headerlink" title="🔹 使用风险"></a>🔹 使用风险</h3><h4 id="🔹-可用性与复杂性"><a href="#🔹-可用性与复杂性" class="headerlink" title="🔹 可用性与复杂性"></a>🔹 可用性与复杂性</h4><p>引入MQ增加单点故障风险，需应对Broker宕机、网络分区等异常情况。<br>需额外处理重复消费、消息丢失、顺序错乱、事务一致性等复杂问题。</p>
-<h4 id="🔹-适用性判断准则"><a href="#🔹-适用性判断准则" class="headerlink" title="🔹 适用性判断准则"></a>🔹 适用性判断准则</h4><p>若调用方必须立刻获取结果，则RPC更合适；若可接受最终一致，MQ才具适配性。<br>高峰流量明显超下游处理能力、需沉淀恢复链路、团队具备运维能力时优先选MQ。</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><h3 id="🔹-分布式事务"><a href="#🔹-分布式事务" class="headerlink" title="🔹 分布式事务"></a>🔹 分布式事务</h3><p>MQ事务是分布式事务解决方案之一，但要分清覆盖范围：RocketMQ 事务消息只保证本地事务和消息发送最终一致（半消息 + 事务回查），管不到消费端；能覆盖「消费—处理—再生产」整个过程的是 Pulsar 事务，以及 Kafka 事务配合 read_committed。<br>支持消费、处理、再生产消息全过程作为单一事务单元执行。</p>
-<h4 id="🔹-2PC-二阶段提交"><a href="#🔹-2PC-二阶段提交" class="headerlink" title="🔹 2PC(二阶段提交)"></a>🔹 2PC(二阶段提交)</h4><blockquote>
+<p><strong>异步处理</strong><br>将耗时操作解耦并异步执行，提升响应速度与用户体验，如订单提交后立即返回。<br>需配套业务流程调整，例如通过短信&#x2F;邮件通知最终结果，避免状态不一致。</p>
+<p><strong>削峰&#x2F;限流</strong><br>缓冲突发高并发请求，防止后端服务被瞬时流量压垮，适用于秒杀、促销等场景。<br>通过消息队列暂存事务消息，由消费者按自身处理能力逐步消化。</p>
+<p><strong>降低系统耦合性</strong><br>模块间无直接调用依赖，新增或修改模块不影响其他系统，显著增强可扩展性。<br>比如商城下单后发布消息，财务、仓储、物流等服务按需订阅，实现松耦合协作。</p>
+<h3 id="推拉模式"><a href="#推拉模式" class="headerlink" title="推拉模式"></a>推拉模式</h3><p>推拉模式特指 Consumer（消费者）与 Broker（服务端） 之间的交互。Producer（生产者）默认都是推给 Broker，因为依赖成千上万的 Producer 自己存数据并等拉取，可靠性无法保证。</p>
+<p><strong>推模式</strong><br>推模式指的是消息从Broker推向Consumer，即Consumer 被动的接收消息，由Broker来主导消息的发送。<br>优点：实时性极高，消息一来立即推送；且消费者使用简单（被动等待即可）。<br>致命缺点：速率难匹配。Broker 无法感知消费者能力，推送过快会像 DDoS 一样压垮消费者（“爆仓”），且 Broker 需维护每个消费者的状态，复杂度高。</p>
+<p><strong>拉模式</strong><br>拉模式指的是Consumer 主动向Broker 请求拉取消息，即Broker 被动的发送消息给Consumer。<br>优点：消费者自主可控，消费不过来就暂停拉取，能自我保护；Broker 职责轻（纯存储），且便于消费者按需批量拉取。<br>致命缺点：存在延迟和空耗。消费者不知道消息何时到，需轮询。拉取间隔大则延迟高，间隔小则变成“空请求”攻击 Broker（忙请求）。</p>
+<p><strong>主流MQ的选择</strong><br>Kafka 是纯拉模式，因为 Broker 作为中心节点应尽量轻量，不该依赖消费者状态。RocketMQ 同时提供 Push 和 Pull 两种，但 Push 其实是 SDK 内部长轮询拉取后回调业务，底层仍是拉。<br>为了弥补拉模式的缺点，它们都引入了 “长轮询（Long Polling）”：消费者请求后，若没消息，Broker 不立即返回，而是挂起等待（Kafka 由 fetch.max.wait.ms 控制，默认只有 500 毫秒；RocketMQ 拉取长轮询默认 30 秒）。一旦新消息到达或超时，再立即返回。这既实现了近实时的效果（有消息秒回），又大幅减少了无效的空轮询（没消息时请求不空跑）。</p>
+<h3 id="使用风险"><a href="#使用风险" class="headerlink" title="使用风险"></a>使用风险</h3><p><strong>可用性与复杂性</strong><br>引入MQ增加单点故障风险，需应对Broker宕机、网络分区等异常情况。<br>需额外处理重复消费、消息丢失、顺序错乱、事务一致性等复杂问题。</p>
+<p><strong>适用性判断准则</strong><br>若调用方必须立刻获取结果，则RPC更合适；若可接受最终一致，MQ才具适配性。<br>高峰流量明显超下游处理能力、需沉淀恢复链路、团队具备运维能力时优先选MQ。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><h3 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h3><p>MQ事务是分布式事务解决方案之一，但要分清覆盖范围：RocketMQ 事务消息只保证本地事务和消息发送最终一致（半消息 + 事务回查），管不到消费端；能覆盖「消费—处理—再生产」整个过程的是 Pulsar 事务，以及 Kafka 事务配合 read_committed。<br>支持消费、处理、再生产消息全过程作为单一事务单元执行。</p>
+<p><strong>2PC(二阶段提交)</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：数据库层强一致性方案，分准备和提交两阶段，缺点是阻塞、单点故障、效率低。</p>
 </blockquote>
 <p>2PC是数据库层面的分布式事务，通过协调者将事务分为准备和提交两个阶段，属于强一致性方案。准备阶段参与者完成除提交外的所有操作并锁定资源，提交阶段根据所有参与者反馈决定全局提交或回滚。其缺点是同步阻塞（资源锁定期间相互等待）、单点故障（协调者宕机影响全局）以及极端情况下（如部分参与者未收到提交命令后宕机恢复）可能产生数据不一致，总体效率较低。</p>
-<h4 id="🔹-TCC-Try-Confirm-Cancel"><a href="#🔹-TCC-Try-Confirm-Cancel" class="headerlink" title="🔹 TCC(Try-Confirm-Cancel)"></a>🔹 TCC(Try-Confirm-Cancel)</h4><blockquote>
+<p><strong>TCC(Try-Confirm-Cancel)</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：业务层三阶段：try 预占、confirm 执行、cancel 回滚，confirm 和 cancel 必须幂等。</p>
 </blockquote>
 <p>TCC上升到了业务层面，能处理数据库外的操作（如上传图片、调用外部API）。它要求每个业务实现try（预占资源）、confirm（真正执行业务）、cancel（回滚预留资源）三个阶段，通过先全部try成功再confirm，或任一try失败则全部cancel，来保证最终一致性。其缺点是业务侵入性强（需改造代码实现三方法），且confirm和cancel阶段必须保证幂等，因为执行到这两步时已无退路，需要依靠重试机制来确保最终成功。</p>
-<h4 id="🔹-事务消息"><a href="#🔹-事务消息" class="headerlink" title="🔹 事务消息"></a>🔹 事务消息</h4><p>事务消息主要用于异步更新场景和对数据实时性要求不高的业务，目的是保证本地事务与消息发送的最终一致性。它不像2PC和TCC那样追求立即一致，而是通过消息队列将“业务操作”和“通知下游”解耦，确保两者要么都成功、要么都失败，典型场景如下单成功后异步删除购物车。事务消息牺牲了一定的实时性，换来了更好的系统吞吐量和可用性。</p>
+<p><strong>事务消息</strong><br>事务消息主要用于异步更新场景和对数据实时性要求不高的业务，目的是保证本地事务与消息发送的最终一致性。它不像2PC和TCC那样追求立即一致，而是通过消息队列将“业务操作”和“通知下游”解耦，确保两者要么都成功、要么都失败，典型场景如下单成功后异步删除购物车。事务消息牺牲了一定的实时性，换来了更好的系统吞吐量和可用性。</p>
 <ul>
 <li><strong>RocketMQ事务消息</strong><br>RocketMQ的事务消息可看作2PC的变种，先发送一条对消费者不可见的半消息到Broker的特殊队列，然后执行本地事务，根据本地事务结果决定提交（让消息变为可见）或回滚半消息。若提交&#x2F;回滚指令发送失败，Broker会通过反查机制定时回调生产者接口确认事务状态，从而确保最终一致性。其核心价值在于解决了“本地事务执行成功但消息发送失败”的经典分布式难题。</li>
 <li><strong>Kafka事务消息</strong><br>Kafka的事务消息与RocketMQ解决的是不同问题——它主要保证一次事务中多条消息的原子性（多条消息要么全部发送成功，要么全部失败），常配合幂等机制实现特定场景下的Exactly Once。需要特别注意的是，Kafka的Exactly Once有严格适用范围，仅限于“从Kafka消费、处理后再写入Kafka”的场景，并非我们通常理解的“每条消息恰好被消费一次”。Kafka通过事务协调者记录事务日志来管理事务状态，其设计和应用场景与RocketMQ有本质区别。</li>
 </ul>
-<h3 id="🔹-顺序保证和延时处理"><a href="#🔹-顺序保证和延时处理" class="headerlink" title="🔹 顺序保证和延时处理"></a>🔹 顺序保证和延时处理</h3><blockquote>
+<h3 id="顺序保证和延时处理"><a href="#顺序保证和延时处理" class="headerlink" title="顺序保证和延时处理"></a>顺序保证和延时处理</h3><blockquote>
 <p>📌 <strong>考点</strong>：主流 MQ 只保证分区或队列级顺序，延时消息并非所有 MQ 都原生支持。</p>
 </blockquote>
 <p>消息队列保证数据按照特定的顺序被处理，适 用于那些对数据顺序有严格要求的场景。 主流 MQ 给的是分区&#x2F;队列级顺序：Kafka 只保证分区内有序，RocketMQ 的顺序消息限定同一队列或同一顺序组，RabbitMQ 要配成单活跃消费者等条件才保序。跨分区的全局顺序得业务自己设计。<br>消息发送后不会立即被消费，而是指定一个时间，到时间后再消费。支持定时&#x2F;延时消息投递，如订单超时取消、预约提醒等业务逻辑（不是所有 MQ 都原生支持：RocketMQ 支持，默认上限 24 小时；RabbitMQ 靠 TTL 加死信队列实现；Kafka 至今没有原生延时消息）。</p>
-<h3 id="🔹-即时通讯与数据流处理"><a href="#🔹-即时通讯与数据流处理" class="headerlink" title="🔹 即时通讯与数据流处理"></a>🔹 即时通讯与数据流处理</h3><p>RabbitMQ通过MQTT插件支持物联网低带宽环境下的稳定消息传递。 MQTT（消息队列遥测传输协议）是一种轻量级的通讯协议，采用发布&#x2F;订阅模式，非常适合 于物联网（IoT）等需要在低带宽、高延迟或不可靠网络环境下工作的应用。<br>针对分布式系统产生的海量数据流，如业务日志、监控数据、用户行为等，消息队列可以实时 或批量收集这些数据，并将其导入到大数据处理引擎中，实现高效的数据流管理和处理。</p>
-<h2 id="主流MQ技术选型"><a href="#主流MQ技术选型" class="headerlink" title="主流MQ技术选型"></a>主流MQ技术选型</h2><h3 id="🔹-Kafka核心特征"><a href="#🔹-Kafka核心特征" class="headerlink" title="🔹 Kafka核心特征"></a>🔹 Kafka核心特征</h3><blockquote>
+<h3 id="即时通讯与数据流处理"><a href="#即时通讯与数据流处理" class="headerlink" title="即时通讯与数据流处理"></a>即时通讯与数据流处理</h3><p>RabbitMQ通过MQTT插件支持物联网低带宽环境下的稳定消息传递。 MQTT（消息队列遥测传输协议）是一种轻量级的通讯协议，采用发布&#x2F;订阅模式，非常适合 于物联网（IoT）等需要在低带宽、高延迟或不可靠网络环境下工作的应用。<br>针对分布式系统产生的海量数据流，如业务日志、监控数据、用户行为等，消息队列可以实时 或批量收集这些数据，并将其导入到大数据处理引擎中，实现高效的数据流管理和处理。</p>
+<h2 id="主流MQ技术选型"><a href="#主流MQ技术选型" class="headerlink" title="主流MQ技术选型"></a>主流MQ技术选型</h2><h3 id="Kafka核心特征"><a href="#Kafka核心特征" class="headerlink" title="Kafka核心特征"></a>Kafka核心特征</h3><blockquote>
 <p>📌 <strong>考点</strong>：高吞吐流处理平台，KRaft 模式摆脱 ZooKeeper 依赖，topic 过多影响性能。</p>
 </blockquote>
 <p>分布式流处理平台，支持高吞吐、容错持久化存储与流式计算，KRaft模式摆脱ZooKeeper依赖。<br>适合日志采集、实时计算等大数据场景，社区活跃、生态成熟，但topic过多影响性能。</p>
-<h3 id="🔹-RocketMQ优势定位"><a href="#🔹-RocketMQ优势定位" class="headerlink" title="🔹 RocketMQ优势定位"></a>🔹 RocketMQ优势定位</h3><blockquote>
+<h3 id="RocketMQ优势定位"><a href="#RocketMQ优势定位" class="headerlink" title="RocketMQ优势定位"></a>RocketMQ优势定位</h3><blockquote>
 <p>📌 <strong>考点</strong>：支持事务、延时、顺序消息，架构极简零外部依赖，适合交易订单类业务。</p>
 </blockquote>
 <p>阿里巴巴开源、现在是 Apache 顶级项目的云原生消息平台（Apache RocketMQ），支持事务消息、延时消息、顺序消息，金融级稳定性验证充分。<br>架构极简、零外部依赖、K8s友好，适用于交易、订单等强一致性要求的业务事件驱动。</p>
-<h3 id="🔹-RabbitMQ适用场景"><a href="#🔹-RabbitMQ适用场景" class="headerlink" title="🔹 RabbitMQ适用场景"></a>🔹 RabbitMQ适用场景</h3><blockquote>
+<h3 id="RabbitMQ适用场景"><a href="#RabbitMQ适用场景" class="headerlink" title="RabbitMQ适用场景"></a>RabbitMQ适用场景</h3><blockquote>
 <p>📌 <strong>考点</strong>：基于 Erlang 实现 AMQP，适合路由复杂、中小吞吐且要强可靠性的系统。</p>
 </blockquote>
 <p>基于 Erlang 实现 AMQP 协议，低负载下端到端延迟可以低于 1 毫秒，压到极限时延时会明显上升、灵活Exchange路由、丰富插件与管理界面。<br>适合路由复杂、接入简单、中小规模吞吐（十万级）且需强可靠性的企业内部系统。</p>
-<h3 id="🔹-Pulsar与淘汰项"><a href="#🔹-Pulsar与淘汰项" class="headerlink" title="🔹 Pulsar与淘汰项"></a>🔹 Pulsar与淘汰项</h3><p>Pulsar采用存算分离架构，支持百万级topic、多租户、跨地域复制与分层存储，面向云原生演进。<br>ActiveMQ Classic 的 5.19.x、6.3.x、6.4.x 仍在维护，只有 5.18.x 及更早 EOL；新项目更常选 RocketMQ 或 ActiveMQ Artemis，但它没被淘汰。</p>
-<h2 id="RPC与MQ对比"><a href="#RPC与MQ对比" class="headerlink" title="RPC与MQ对比"></a>RPC与MQ对比</h2><h3 id="🔹-本质差异"><a href="#🔹-本质差异" class="headerlink" title="🔹 本质差异"></a>🔹 本质差异</h3><blockquote>
+<h3 id="Pulsar与淘汰项"><a href="#Pulsar与淘汰项" class="headerlink" title="Pulsar与淘汰项"></a>Pulsar与淘汰项</h3><p>Pulsar采用存算分离架构，支持百万级topic、多租户、跨地域复制与分层存储，面向云原生演进。<br>ActiveMQ Classic 的 5.19.x、6.3.x、6.4.x 仍在维护，只有 5.18.x 及更早 EOL；新项目更常选 RocketMQ 或 ActiveMQ Artemis，但它没被淘汰。</p>
+<h2 id="RPC与MQ对比"><a href="#RPC与MQ对比" class="headerlink" title="RPC与MQ对比"></a>RPC与MQ对比</h2><h3 id="本质差异"><a href="#本质差异" class="headerlink" title="本质差异"></a>本质差异</h3><blockquote>
 <p>📌 <strong>考点</strong>：RPC 强同步响应与强契约，MQ 强解耦与缓冲，MQ 是单向存储转发通信。</p>
 </blockquote>
 <p>RPC解决远程方法调用，强调同步响应与强契约；MQ解决系统解耦与异步通信，强调松耦合与缓冲。<br>RPC为双向直连网络通信，MQ为单向经中间件的存储转发通信，天然具备消息暂存能力。</p>
-<h3 id="🔹-时效与架构"><a href="#🔹-时效与架构" class="headerlink" title="🔹 时效与架构"></a>🔹 时效与架构</h3><p>RPC调用通常即时处理，MQ消息不一定被立即消费，存在延迟容忍窗口。<br>MQ需持久化消息存储，RPC无需此环节，架构重心分别在于通信效率与系统韧性。</p>
-<h2 id="协议与模型规范"><a href="#协议与模型规范" class="headerlink" title="协议与模型规范"></a>协议与模型规范</h2><h3 id="🔹-JMS标准体系"><a href="#🔹-JMS标准体系" class="headerlink" title="🔹 JMS标准体系"></a>🔹 JMS标准体系</h3><blockquote>
+<h3 id="时效与架构"><a href="#时效与架构" class="headerlink" title="时效与架构"></a>时效与架构</h3><p>RPC调用通常即时处理，MQ消息不一定被立即消费，存在延迟容忍窗口。<br>MQ需持久化消息存储，RPC无需此环节，架构重心分别在于通信效率与系统韧性。</p>
+<h2 id="协议与模型规范"><a href="#协议与模型规范" class="headerlink" title="协议与模型规范"></a>协议与模型规范</h2><h3 id="JMS标准体系"><a href="#JMS标准体系" class="headerlink" title="JMS标准体系"></a>JMS标准体系</h3><blockquote>
 <p>📌 <strong>考点</strong>：定义五类消息体，提供点对点和发布&#x2F;订阅两种模型，ActiveMQ 是典型实现。</p>
 </blockquote>
 <p>JMS（Jakarta Messaging，Java EE 时代的包名是 javax.jms）是 Jakarta EE 平台的消息服务 API 规范，定义Stream&#x2F;Map&#x2F;Text&#x2F;Object&#x2F;Bytes五类消息体。<br>提供点对点（P2P）和发布&#x2F;订阅（Pub&#x2F;Sub）两种消息模型，ActiveMQ为其典型实现。</p>
-<h4 id="🔹-点到点P2P模型"><a href="#🔹-点到点P2P模型" class="headerlink" title="🔹 点到点P2P模型"></a>🔹 点到点P2P模型</h4><p>使用队列（Queue）作为消息通信载体；满足生产者与消费者模式，一条消息只能被一个消费 者使用，未被消费的消息在队列中保留直到被消费或超时。</p>
-<h4 id="🔹-发布-订阅模型"><a href="#🔹-发布-订阅模型" class="headerlink" title="🔹 发布&#x2F;订阅模型"></a>🔹 发布&#x2F;订阅模型</h4><p>发布订阅模型（Pub&#x2F;Sub） 使用主题（Topic）作为消息通信载体，类似于广播模式；发布者 发布一条消息，该消息通过主题传递给所有的订阅者。</p>
-<h3 id="🔹-AMQP协议特性"><a href="#🔹-AMQP协议特性" class="headerlink" title="🔹 AMQP协议特性"></a>🔹 AMQP协议特性</h3><blockquote>
+<p><strong>点到点P2P模型</strong><br>使用队列（Queue）作为消息通信载体；满足生产者与消费者模式，一条消息只能被一个消费 者使用，未被消费的消息在队列中保留直到被消费或超时。</p>
+<p><strong>发布&#x2F;订阅模型</strong><br>发布订阅模型（Pub&#x2F;Sub） 使用主题（Topic）作为消息通信载体，类似于广播模式；发布者 发布一条消息，该消息通过主题传递给所有的订阅者。</p>
+<h3 id="AMQP协议特性"><a href="#AMQP协议特性" class="headerlink" title="AMQP协议特性"></a>AMQP协议特性</h3><blockquote>
 <p>📌 <strong>考点</strong>：跨语言跨平台的二进制线路层协议，支持四种 exchange 路由模型。</p>
 </blockquote>
 <p>AdvancedMessageQueuingProtocol是跨语言、跨平台的二进制线路层协议，RabbitMQ为其代表实现。<br>支持 direct、fanout、topic、headers 四种 exchange 路由模型（system 不是第五种类型，指的是 amq.rabbitmq.log 这类系统内置 exchange，本身是 topic），比JMS更细粒度控制消息分发。</p>
 <h2 id="可靠性保证"><a href="#可靠性保证" class="headerlink" title="可靠性保证"></a>可靠性保证</h2><p>不同 MQ 的实现细节不同，但思路都一样：确认、持久化、重试、幂等、补偿  </p>
-<h3 id="🔹-全链路可靠性设计"><a href="#🔹-全链路可靠性设计" class="headerlink" title="🔹 全链路可靠性设计"></a>🔹 全链路可靠性设计</h3><p>生产者阶段：启用发送确认、失败重试，关键业务落本地消息表或使用事务消息。<br>Broker存储阶段：配置持久化、多副本、合理刷盘策略与副本确认机制。</p>
-<h3 id="🔹-消费与兜底策略"><a href="#🔹-消费与兜底策略" class="headerlink" title="🔹 消费与兜底策略"></a>🔹 消费与兜底策略</h3><p>消费者须业务成功后再ACK或提交offset，失败则重试、进死信队列或触发补偿。<br>业务层需通过对账、补偿任务、告警及人工介入兜底极端异常场景。</p>
-<h3 id="🔹-幂等与积压治理"><a href="#🔹-幂等与积压治理" class="headerlink" title="🔹 幂等与积压治理"></a>🔹 幂等与积压治理</h3><h4 id="🔹-重复消费应对"><a href="#🔹-重复消费应对" class="headerlink" title="🔹 重复消费应对"></a>🔹 重复消费应对</h4><blockquote>
+<h3 id="全链路可靠性设计"><a href="#全链路可靠性设计" class="headerlink" title="全链路可靠性设计"></a>全链路可靠性设计</h3><p>生产者阶段：启用发送确认、失败重试，关键业务落本地消息表或使用事务消息。<br>Broker存储阶段：配置持久化、多副本、合理刷盘策略与副本确认机制。</p>
+<h3 id="消费与兜底策略"><a href="#消费与兜底策略" class="headerlink" title="消费与兜底策略"></a>消费与兜底策略</h3><p>消费者须业务成功后再ACK或提交offset，失败则重试、进死信队列或触发补偿。<br>业务层需通过对账、补偿任务、告警及人工介入兜底极端异常场景。</p>
+<h3 id="幂等与积压治理"><a href="#幂等与积压治理" class="headerlink" title="幂等与积压治理"></a>幂等与积压治理</h3><p><strong>重复消费应对</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：幂等是必需项，基于业务唯一键而非 MQ 自动生成 ID 去重。</p>
 </blockquote>
 <p>幂等设计是必需项，常见方案包括唯一索引、状态机流转、消费记录表、Redis短时去重。<br>应基于业务唯一键（如订单号）而非MQ自动生成ID，确保重试&#x2F;补偿场景下仍有效。</p>
-<h4 id="🔹-消息积压处理"><a href="#🔹-消息积压处理" class="headerlink" title="🔹 消息积压处理"></a>🔹 消息积压处理</h4><blockquote>
+<p><strong>消息积压处理</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：先定位根因，再限流止血、扩容消费者和分区、优化慢消费、批处理积压。</p>
 </blockquote>
 <p>先定位根因：生产突增、消费者变慢、分区&#x2F;队列不足或Broker异常。<br>处理顺序为限流止血→扩容消费者与分区→优化慢消费逻辑→批处理历史积压。</p>

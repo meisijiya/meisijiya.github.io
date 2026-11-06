@@ -422,102 +422,116 @@
 
     <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
 <blockquote>
-<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的面试思维导图（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists?sid=6589357&spm_id_from=333.788.0.0">合集·计算机专业面试总结</a>），XMind 文件转录为 Markdown。标题层级沿用导图结构，导图备注里的答案按段落排到对应标题下，原图的说法尽量保留，只补了必要的连词；个别与官方文档不符的技术说法已按规范改正，其余保持原样。</p>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的面试思维导图（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists?sid=6589357&spm_id_from=333.788.0.0">合集·计算机专业面试总结</a>），XMind 文件转录为 Markdown。标题层级沿用导图结构，导图备注里的答案按段落排到对应标题下，原图的说法尽量保留，只补了必要的连词；个别与官方文档不符的技术说法已按规范改正，其余保持原样。本篇是我学习整理的复习笔记，内容以他的导图为准，感谢他的导图与资料。</p>
 </blockquote>
-<h2 id="大模型基础"><a href="#大模型基础" class="headerlink" title="大模型基础"></a>大模型基础</h2><h3 id="🔹-运行机制"><a href="#🔹-运行机制" class="headerlink" title="🔹 运行机制"></a>🔹 运行机制</h3><h4 id="🔹-自回归生成"><a href="#🔹-自回归生成" class="headerlink" title="🔹 自回归生成"></a>🔹 自回归生成</h4><p>自回归生成指模型根据已有上下文逐Token预测下一个Token的生成方式  </p>
-<h4 id="🔹-Token与子词切分"><a href="#🔹-Token与子词切分" class="headerlink" title="🔹 Token与子词切分"></a>🔹 Token与子词切分</h4><blockquote>
+<h2 id="大模型基础"><a href="#大模型基础" class="headerlink" title="大模型基础"></a>大模型基础</h2><h3 id="运行机制"><a href="#运行机制" class="headerlink" title="运行机制"></a>运行机制</h3><p><strong>自回归生成</strong><br>自回归生成指模型根据已有上下文逐Token预测下一个Token的生成方式  </p>
+<p><strong>Token与子词切分</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：Token 是模型处理文本的最小单位，用 BPE 或 Unigram 切成子词碎片。</p>
 </blockquote>
 <p>Token是模型处理文本的最小单位通过BPE或Unigram算法将文本切分为子词碎片  </p>
-<h4 id="🔹-上下文窗口"><a href="#🔹-上下文窗口" class="headerlink" title="🔹 上下文窗口"></a>🔹 上下文窗口</h4><p>上下文窗口是一次调用中模型可处理的总Token上限决定对话连续性与单次处理能力  </p>
-<h4 id="🔹-采样参数"><a href="#🔹-采样参数" class="headerlink" title="🔹 采样参数"></a>🔹 采样参数</h4><p>采样参数通过Temperature控制随机性Top-p和Top-k缩小候选池Penalty防止重复  </p>
-<h3 id="🔹-Prompt工程"><a href="#🔹-Prompt工程" class="headerlink" title="🔹 Prompt工程"></a>🔹 Prompt工程</h3><h4 id="🔹-四要素框架"><a href="#🔹-四要素框架" class="headerlink" title="🔹 四要素框架"></a>🔹 四要素框架</h4><p>四要素框架包括角色设定明确任务提供上下文和指定输出格式  </p>
-<h4 id="🔹-结构化输出"><a href="#🔹-结构化输出" class="headerlink" title="🔹 结构化输出"></a>🔹 结构化输出</h4><p>结构化输出通过JSON Mode约束语法JSON Schema定义契约Structured Outputs强制生成阶段贴合结构  </p>
-<h3 id="🔹-工具调用"><a href="#🔹-工具调用" class="headerlink" title="🔹 工具调用"></a>🔹 工具调用</h3><h4 id="🔹-模型生成调用意图"><a href="#🔹-模型生成调用意图" class="headerlink" title="🔹 模型生成调用意图"></a>🔹 模型生成调用意图</h4><p>模型只生成调用意图包括工具名和参数而不直接执行后端代码  </p>
-<h4 id="🔹-典型链路"><a href="#🔹-典型链路" class="headerlink" title="🔹 典型链路"></a>🔹 典型链路</h4><p>典型链路从用户问题出发模型判断是否需要工具生成参数服务端校验执行结果回填模型生成最终回答  </p>
-<h3 id="🔹-Transformer架构"><a href="#🔹-Transformer架构" class="headerlink" title="🔹 Transformer架构"></a>🔹 Transformer架构</h3><h4 id="🔹-自注意力机制"><a href="#🔹-自注意力机制" class="headerlink" title="🔹 自注意力机制"></a>🔹 自注意力机制</h4><p>自注意力机制让模型在生成每个 Token 时关注已经生成的位置（含当前这个）；解码阶段有因果掩码，看不到后面的位置，只有编码器是看全序列的  </p>
-<h4 id="🔹-多头注意力"><a href="#🔹-多头注意力" class="headerlink" title="🔹 多头注意力"></a>🔹 多头注意力</h4><p>多头注意力并行计算多个自注意力头捕捉不同子空间的特征  </p>
-<h4 id="🔹-位置编码"><a href="#🔹-位置编码" class="headerlink" title="🔹 位置编码"></a>🔹 位置编码</h4><p>位置编码为序列中每个位置添加位置信息弥补注意力机制无法感知顺序的缺陷  </p>
-<h4 id="🔹-前馈网络与层归一化"><a href="#🔹-前馈网络与层归一化" class="headerlink" title="🔹 前馈网络与层归一化"></a>🔹 前馈网络与层归一化</h4><p>前馈网络与层归一化对每个位置的表示进行非线性变换并稳定训练过程  </p>
-<h3 id="🔹-预训练与微调"><a href="#🔹-预训练与微调" class="headerlink" title="🔹 预训练与微调"></a>🔹 预训练与微调</h3><h4 id="🔹-预训练学习通用知识"><a href="#🔹-预训练学习通用知识" class="headerlink" title="🔹 预训练学习通用知识"></a>🔹 预训练学习通用知识</h4><p>预训练通过大规模自监督学习（next-token prediction，标签由文本自己构造）让模型掌握通用语言知识  </p>
-<h4 id="🔹-微调适配下游任务"><a href="#🔹-微调适配下游任务" class="headerlink" title="🔹 微调适配下游任务"></a>🔹 微调适配下游任务</h4><p>微调使用监督数据适配下游任务使模型表现更精准  </p>
-<h4 id="🔹-监督微调与RLHF"><a href="#🔹-监督微调与RLHF" class="headerlink" title="🔹 监督微调与RLHF"></a>🔹 监督微调与RLHF</h4><p>监督微调与RLHF分别通过有监督学习和人类反馈强化学习优化模型行为<br>SFT用标注数据直接优化，RLHF 通过人类反馈强化学习（如 PPO）进一步对齐人类偏好；DPO 是不训练奖励模型、也不做强化学习的直接偏好优化，和 RLHF 并列，不算 RLHF 的一种。</p>
-<h2 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h2><h3 id="🔹-定义与公式"><a href="#🔹-定义与公式" class="headerlink" title="🔹 定义与公式"></a>🔹 定义与公式</h3><blockquote>
+<p><strong>上下文窗口</strong><br>上下文窗口是一次调用中模型可处理的总Token上限决定对话连续性与单次处理能力  </p>
+<p><strong>采样参数</strong><br>采样参数通过Temperature控制随机性Top-p和Top-k缩小候选池Penalty防止重复  </p>
+<h3 id="Prompt工程"><a href="#Prompt工程" class="headerlink" title="Prompt工程"></a>Prompt工程</h3><p><strong>四要素框架</strong><br>四要素框架包括角色设定明确任务提供上下文和指定输出格式  </p>
+<p><strong>结构化输出</strong><br>结构化输出通过JSON Mode约束语法JSON Schema定义契约Structured Outputs强制生成阶段贴合结构  </p>
+<h3 id="工具调用"><a href="#工具调用" class="headerlink" title="工具调用"></a>工具调用</h3><p><strong>模型生成调用意图</strong><br>模型只生成调用意图包括工具名和参数而不直接执行后端代码  </p>
+<p><strong>典型链路</strong><br>典型链路从用户问题出发模型判断是否需要工具生成参数服务端校验执行结果回填模型生成最终回答  </p>
+<h3 id="Transformer架构"><a href="#Transformer架构" class="headerlink" title="Transformer架构"></a>Transformer架构</h3><p><strong>自注意力机制</strong><br>自注意力机制让模型在生成每个 Token 时关注已经生成的位置（含当前这个）；解码阶段有因果掩码，看不到后面的位置，只有编码器是看全序列的  </p>
+<p><strong>多头注意力</strong><br>多头注意力并行计算多个自注意力头捕捉不同子空间的特征  </p>
+<p><strong>位置编码</strong><br>位置编码为序列中每个位置添加位置信息弥补注意力机制无法感知顺序的缺陷  </p>
+<p><strong>前馈网络与层归一化</strong><br>前馈网络与层归一化对每个位置的表示进行非线性变换并稳定训练过程  </p>
+<h3 id="预训练与微调"><a href="#预训练与微调" class="headerlink" title="预训练与微调"></a>预训练与微调</h3><p><strong>预训练学习通用知识</strong><br>预训练通过大规模自监督学习（next-token prediction，标签由文本自己构造）让模型掌握通用语言知识  </p>
+<p><strong>微调适配下游任务</strong><br>微调使用监督数据适配下游任务使模型表现更精准  </p>
+<p><strong>监督微调与RLHF</strong><br>监督微调与RLHF分别通过有监督学习和人类反馈强化学习优化模型行为<br>SFT用标注数据直接优化，RLHF 通过人类反馈强化学习（如 PPO）进一步对齐人类偏好；DPO 是不训练奖励模型、也不做强化学习的直接偏好优化，和 RLHF 并列，不算 RLHF 的一种。</p>
+<h2 id="Agent"><a href="#Agent" class="headerlink" title="Agent"></a>Agent</h2><h3 id="定义与公式"><a href="#定义与公式" class="headerlink" title="定义与公式"></a>定义与公式</h3><blockquote>
 <p>📌 <strong>考点</strong>：Agent &#x3D; LLM + 规划 + 记忆 + 工具，会持续观察、判断、执行直到任务结束。</p>
 </blockquote>
 <p>Agent等于LLM加规划加记忆加工具是一个能感知环境做决策执行动作的软件系统<br>Agent &#x3D; LLM + Planning + Memory + Tools<br>Agent是能感知环境、做决策、执行动作的软件系统，与普通聊天机器人的区别在于它会持续观察、判断、执行直到任务结束。</p>
-<h3 id="🔹-核心架构"><a href="#🔹-核心架构" class="headerlink" title="🔹 核心架构"></a>🔹 核心架构</h3><h4 id="🔹-推理与规划"><a href="#🔹-推理与规划" class="headerlink" title="🔹 推理与规划"></a>🔹 推理与规划</h4><p>推理与规划使用思维链分析任务状态拆解目标决定下一步行动，是Agent的决策核心  </p>
-<h4 id="🔹-记忆"><a href="#🔹-记忆" class="headerlink" title="🔹 记忆"></a>🔹 记忆</h4><p>记忆分为短期记忆保持对话连续性和长期记忆沉淀跨会话的个性化经验<br>短期记忆保持对话连续性，长期记忆沉淀跨会话的个性化经验（如用户偏好、历史决策）。</p>
-<h4 id="🔹-工具"><a href="#🔹-工具" class="headerlink" title="🔹 工具"></a>🔹 工具</h4><p>通过Function Calling或MCP协议让模型操作外部世界如查数据调API执行代码  </p>
-<h4 id="🔹-观察"><a href="#🔹-观察" class="headerlink" title="🔹 观察"></a>🔹 观察</h4><p>将工具执行结果作为反馈放回上下文驱动下一轮，形成感知-决策-执行的闭环  </p>
-<h3 id="🔹-运行循环"><a href="#🔹-运行循环" class="headerlink" title="🔹 运行循环"></a>🔹 运行循环</h3><blockquote>
+<h3 id="核心架构"><a href="#核心架构" class="headerlink" title="核心架构"></a>核心架构</h3><p><strong>推理与规划</strong><br>推理与规划使用思维链分析任务状态拆解目标决定下一步行动，是Agent的决策核心  </p>
+<p><strong>记忆</strong><br>记忆分为短期记忆保持对话连续性和长期记忆沉淀跨会话的个性化经验<br>短期记忆保持对话连续性，长期记忆沉淀跨会话的个性化经验（如用户偏好、历史决策）。</p>
+<p><strong>工具</strong><br>通过Function Calling或MCP协议让模型操作外部世界如查数据调API执行代码  </p>
+<p><strong>观察</strong><br>将工具执行结果作为反馈放回上下文驱动下一轮，形成感知-决策-执行的闭环  </p>
+<h3 id="运行循环"><a href="#运行循环" class="headerlink" title="运行循环"></a>运行循环</h3><blockquote>
 <p>📌 <strong>考点</strong>：Agent 反复推理、调用工具、获取反馈，直到任务完成或触发停止条件。</p>
 </blockquote>
-<p>推理行动观察循环指Agent反复执行推理调用工具获取反馈直到任务完成或触发停止条件<br>🔸 <strong>推理→行动→观察循环</strong><br>Agent反复执行推理、调用工具、获取反馈，直到任务完成或触发停止条件（如最大轮次）。</p>
-<h3 id="🔹-工作模式"><a href="#🔹-工作模式" class="headerlink" title="🔹 工作模式"></a>🔹 工作模式</h3><h4 id="🔹-ReAct模式"><a href="#🔹-ReAct模式" class="headerlink" title="🔹 ReAct模式"></a>🔹 ReAct模式</h4><p>ReAct模式让推理和行动交替进行模型每走一步就根据工具返回结果再判断下一步<br>Reasoning + Acting交替进行，模型每走一步就根据工具返回结果再判断下一步，减少幻觉，适合动态任务。</p>
-<h4 id="🔹-计划与执行模式"><a href="#🔹-计划与执行模式" class="headerlink" title="🔹 计划与执行模式"></a>🔹 计划与执行模式</h4><p>计划与执行模式先由LLM制定全局分步计划再由执行器按步骤完成适合长任务<br>先由LLM制定全局分步计划，再由执行器按步骤完成，适合步骤多、依赖关系明确的长期任务。</p>
-<h3 id="🔹-工作流与图"><a href="#🔹-工作流与图" class="headerlink" title="🔹 工作流与图"></a>🔹 工作流与图</h3><h4 id="🔹-有向图节点边状态"><a href="#🔹-有向图节点边状态" class="headerlink" title="🔹 有向图节点边状态"></a>🔹 有向图节点边状态</h4><p>AI工作流的数据结构，节点负责执行，边负责流转，状态在节点间共享上下文。</p>
-<h4 id="🔹-全局工作流与局部子循环"><a href="#🔹-全局工作流与局部子循环" class="headerlink" title="🔹 全局工作流与局部子循环"></a>🔹 全局工作流与局部子循环</h4><p>在全局工作流中嵌入Agent子循环，让模型在不确定节点中自行探索，兼具全局结构与局部活性。</p>
-<h3 id="🔹-上下文工程"><a href="#🔹-上下文工程" class="headerlink" title="🔹 上下文工程"></a>🔹 上下文工程</h3><h4 id="🔹-有限窗口内管理信息"><a href="#🔹-有限窗口内管理信息" class="headerlink" title="🔹 有限窗口内管理信息"></a>🔹 有限窗口内管理信息</h4><p>在上下文窗口限制内合理组织系统提示、用户输入、RAG结果、工具描述等，确保模型在合适时机获取正确信息。</p>
-<h3 id="🔹-记忆系统"><a href="#🔹-记忆系统" class="headerlink" title="🔹 记忆系统"></a>🔹 记忆系统</h3><h4 id="🔹-事实记忆与经验记忆"><a href="#🔹-事实记忆与经验记忆" class="headerlink" title="🔹 事实记忆与经验记忆"></a>🔹 事实记忆与经验记忆</h4><blockquote>
+<p>推理行动观察循环指Agent反复执行推理调用工具获取反馈直到任务完成或触发停止条件<br><strong>推理→行动→观察循环</strong></p>
+<p>Agent反复执行推理、调用工具、获取反馈，直到任务完成或触发停止条件（如最大轮次）。</p>
+<h3 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h3><p><strong>ReAct模式</strong><br>ReAct模式让推理和行动交替进行模型每走一步就根据工具返回结果再判断下一步<br>Reasoning + Acting交替进行，模型每走一步就根据工具返回结果再判断下一步，减少幻觉，适合动态任务。</p>
+<p><strong>计划与执行模式</strong><br>计划与执行模式先由LLM制定全局分步计划再由执行器按步骤完成适合长任务<br>先由LLM制定全局分步计划，再由执行器按步骤完成，适合步骤多、依赖关系明确的长期任务。</p>
+<h3 id="工作流与图"><a href="#工作流与图" class="headerlink" title="工作流与图"></a>工作流与图</h3><p><strong>有向图节点边状态</strong><br>AI工作流的数据结构，节点负责执行，边负责流转，状态在节点间共享上下文。</p>
+<p><strong>全局工作流与局部子循环</strong><br>在全局工作流中嵌入Agent子循环，让模型在不确定节点中自行探索，兼具全局结构与局部活性。</p>
+<h3 id="上下文工程"><a href="#上下文工程" class="headerlink" title="上下文工程"></a>上下文工程</h3><p><strong>有限窗口内管理信息</strong><br>在上下文窗口限制内合理组织系统提示、用户输入、RAG结果、工具描述等，确保模型在合适时机获取正确信息。</p>
+<h3 id="记忆系统"><a href="#记忆系统" class="headerlink" title="记忆系统"></a>记忆系统</h3><p><strong>事实记忆与经验记忆</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：事实记忆存用户偏好和显式事实，经验记忆存决策轨迹和成败教训。</p>
 </blockquote>
 <p>事实记忆存储用户偏好和显式事实，经验记忆存储历史决策轨迹和成败教训。</p>
-<h4 id="🔹-工作记忆与长期记忆"><a href="#🔹-工作记忆与长期记忆" class="headerlink" title="🔹 工作记忆与长期记忆"></a>🔹 工作记忆与长期记忆</h4><p>工作记忆处理当前推理上下文和任务进展，长期记忆跨会话复用个性化经验，与RAG（外部知识库）有本质区别。</p>
-<h2 id="工程实践"><a href="#工程实践" class="headerlink" title="工程实践"></a>工程实践</h2><h3 id="🔹-系统工程"><a href="#🔹-系统工程" class="headerlink" title="🔹 系统工程"></a>🔹 系统工程</h3><p>🔸 <strong>模型外整套系统</strong><br>Harness Engineering指模型之外的整套系统，包括系统提示词、工具调用、文件系统、沙箱环境、反馈回路等，类比CPU和操作系统。</p>
-<h3 id="🔹-三层工程关系"><a href="#🔹-三层工程关系" class="headerlink" title="🔹 三层工程关系"></a>🔹 三层工程关系</h3><blockquote>
+<p><strong>工作记忆与长期记忆</strong><br>工作记忆处理当前推理上下文和任务进展，长期记忆跨会话复用个性化经验，与RAG（外部知识库）有本质区别。</p>
+<h2 id="工程实践"><a href="#工程实践" class="headerlink" title="工程实践"></a>工程实践</h2><h3 id="系统工程"><a href="#系统工程" class="headerlink" title="系统工程"></a>系统工程</h3><p><strong>模型外整套系统</strong></p>
+<p>Harness Engineering指模型之外的整套系统，包括系统提示词、工具调用、文件系统、沙箱环境、反馈回路等，类比CPU和操作系统。</p>
+<h3 id="三层工程关系"><a href="#三层工程关系" class="headerlink" title="三层工程关系"></a>三层工程关系</h3><blockquote>
 <p>📌 <strong>考点</strong>：提示工程把指令说清，上下文工程给对信息，执行工程管持续执行、纠偏和恢复。</p>
 </blockquote>
-<h4 id="🔹-提示工程"><a href="#🔹-提示工程" class="headerlink" title="🔹 提示工程"></a>🔹 提示工程</h4><p>Prompt Engineering解决如何把指令说清楚，让模型理解意图。</p>
-<h4 id="🔹-上下文工程-1"><a href="#🔹-上下文工程-1" class="headerlink" title="🔹 上下文工程"></a>🔹 上下文工程</h4><p>Context Engineering解决该给Agent看什么信息，确保在合适时机提供正确且必要的信息。</p>
-<h4 id="🔹-执行工程"><a href="#🔹-执行工程" class="headerlink" title="🔹 执行工程"></a>🔹 执行工程</h4><p>Harness Engineering解决系统如何持续执行、纠偏、观测和恢复，长链路任务中持续正确。</p>
-<h3 id="🔹-循环工程"><a href="#🔹-循环工程" class="headerlink" title="🔹 循环工程"></a>🔹 循环工程</h3><p>🔸 <strong>设计可持续反馈循环</strong><br>Loop Engineering围绕Agent设计触发、目标、上下文、行动、观察、状态、停止等机制，反复运行直到任务完成或需要人工接管。</p>
-<h3 id="🔹-常见面试考点"><a href="#🔹-常见面试考点" class="headerlink" title="🔹 常见面试考点"></a>🔹 常见面试考点</h3><h4 id="🔹-解决幻觉方法"><a href="#🔹-解决幻觉方法" class="headerlink" title="🔹 解决幻觉方法"></a>🔹 解决幻觉方法</h4><blockquote>
+<p><strong>提示工程</strong><br>Prompt Engineering解决如何把指令说清楚，让模型理解意图。</p>
+<p><strong>上下文工程</strong><br>Context Engineering解决该给Agent看什么信息，确保在合适时机提供正确且必要的信息。</p>
+<p><strong>执行工程</strong><br>Harness Engineering解决系统如何持续执行、纠偏、观测和恢复，长链路任务中持续正确。</p>
+<h3 id="循环工程"><a href="#循环工程" class="headerlink" title="循环工程"></a>循环工程</h3><p><strong>设计可持续反馈循环</strong></p>
+<p>Loop Engineering围绕Agent设计触发、目标、上下文、行动、观察、状态、停止等机制，反复运行直到任务完成或需要人工接管。</p>
+<h3 id="常见面试考点"><a href="#常见面试考点" class="headerlink" title="常见面试考点"></a>常见面试考点</h3><p><strong>解决幻觉方法</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：RAG、外部知识源、可控生成、引用校验、拒答机制和人工反馈闭环。</p>
 </blockquote>
 <p>RAG、外部知识源、可控生成、引用校验、拒答机制和人工反馈闭环等  </p>
-<h4 id="🔹-可靠Agent设计"><a href="#🔹-可靠Agent设计" class="headerlink" title="🔹 可靠Agent设计"></a>🔹 可靠Agent设计</h4><blockquote>
+<p><strong>可靠Agent设计</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：关注上下文管理、工具质量、错误处理、最大轮次限制和状态持久化。</p>
 </blockquote>
 <p>关注上下文管理、工具质量、错误处理、最大轮次限制、状态持久化等  </p>
-<h4 id="🔹-RAG系统评估"><a href="#🔹-RAG系统评估" class="headerlink" title="🔹 RAG系统评估"></a>🔹 RAG系统评估</h4><p>包括端到端评估、组件级评估（检索、生成）和A&#x2F;B测试。</p>
-<h4 id="🔹-多模态与模型部署"><a href="#🔹-多模态与模型部署" class="headerlink" title="🔹 多模态与模型部署"></a>🔹 多模态与模型部署</h4><p>涉及图文理解、语音交互、以及模型量化、蒸馏、推理加速等部署技术。</p>
-<h2 id="Skills"><a href="#Skills" class="headerlink" title="Skills"></a>Skills</h2><h3 id="🔹-定义"><a href="#🔹-定义" class="headerlink" title="🔹 定义"></a>🔹 定义</h3><p>🔸 <strong>任务说明与经验沉淀</strong><br>Skill是一份可被Agent发现、按需加载的任务说明，沉淀某类任务的经验、约束和执行顺序，类似“老员工脑子里的规矩  </p>
-<h3 id="🔹-与Prompt关系"><a href="#🔹-与Prompt关系" class="headerlink" title="🔹 与Prompt关系"></a>🔹 与Prompt关系</h3><p>不同分工的组件Prompt给任务Skill给方法Function Calling和MCP支撑工具执行四者分工明确  </p>
-<h2 id="MCP"><a href="#MCP" class="headerlink" title="MCP"></a>MCP</h2><h3 id="🔹-定义-1"><a href="#🔹-定义-1" class="headerlink" title="🔹 定义"></a>🔹 定义</h3><p>标准化工具通信协议是MCP Client和MCP Server之间的标准协议让宿主发现和连接工具  </p>
-<h3 id="🔹-三层关系"><a href="#🔹-三层关系" class="headerlink" title="🔹 三层关系"></a>🔹 三层关系</h3><blockquote>
+<p><strong>RAG系统评估</strong><br>包括端到端评估、组件级评估（检索、生成）和A&#x2F;B测试。</p>
+<p><strong>多模态与模型部署</strong><br>涉及图文理解、语音交互、以及模型量化、蒸馏、推理加速等部署技术。</p>
+<h2 id="Skills"><a href="#Skills" class="headerlink" title="Skills"></a>Skills</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p><strong>任务说明与经验沉淀</strong></p>
+<p>Skill是一份可被Agent发现、按需加载的任务说明，沉淀某类任务的经验、约束和执行顺序，类似“老员工脑子里的规矩  </p>
+<h3 id="与Prompt关系"><a href="#与Prompt关系" class="headerlink" title="与Prompt关系"></a>与Prompt关系</h3><p>不同分工的组件Prompt给任务Skill给方法Function Calling和MCP支撑工具执行四者分工明确  </p>
+<h2 id="MCP"><a href="#MCP" class="headerlink" title="MCP"></a>MCP</h2><h3 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h3><p>标准化工具通信协议是MCP Client和MCP Server之间的标准协议让宿主发现和连接工具  </p>
+<h3 id="三层关系"><a href="#三层关系" class="headerlink" title="三层关系"></a>三层关系</h3><blockquote>
 <p>📌 <strong>考点</strong>：Agent 是任务编排层，MCP 是通信协议层，Function Calling 是模型能力层。</p>
 </blockquote>
-<h4 id="🔹-任务编排层"><a href="#🔹-任务编排层" class="headerlink" title="🔹 任务编排层"></a>🔹 任务编排层</h4><p>Agent负责如何完成任务，是任务编排层。</p>
-<h4 id="🔹-通信协议层"><a href="#🔹-通信协议层" class="headerlink" title="🔹 通信协议层"></a>🔹 通信协议层</h4><p>MCP负责工具怎么被发现和连接，是通信协议层。</p>
-<h4 id="🔹-模型能力层"><a href="#🔹-模型能力层" class="headerlink" title="🔹 模型能力层"></a>🔹 模型能力层</h4><p>Function Calling负责模型如何表达调用工具的意图，是模型能力层。</p>
-<h3 id="🔹-MCP-Server"><a href="#🔹-MCP-Server" class="headerlink" title="🔹 MCP Server"></a>🔹 MCP Server</h3><p>🔸 <strong>暴露具体能力</strong><br>笔记：将文件系统、数据库、API等外部能力通过标准接口暴露给AI应用，是能力的具体提供者  </p>
-<h2 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h2><h3 id="🔹-定义与目标"><a href="#🔹-定义与目标" class="headerlink" title="🔹 定义与目标"></a>🔹 定义与目标</h3><blockquote>
+<p><strong>任务编排层</strong><br>Agent负责如何完成任务，是任务编排层。</p>
+<p><strong>通信协议层</strong><br>MCP负责工具怎么被发现和连接，是通信协议层。</p>
+<p><strong>模型能力层</strong><br>Function Calling负责模型如何表达调用工具的意图，是模型能力层。</p>
+<h3 id="MCP-Server"><a href="#MCP-Server" class="headerlink" title="MCP Server"></a>MCP Server</h3><p><strong>暴露具体能力</strong></p>
+<p>笔记：将文件系统、数据库、API等外部能力通过标准接口暴露给AI应用，是能力的具体提供者  </p>
+<h2 id="RAG"><a href="#RAG" class="headerlink" title="RAG"></a>RAG</h2><h3 id="定义与目标"><a href="#定义与目标" class="headerlink" title="定义与目标"></a>定义与目标</h3><blockquote>
 <p>📌 <strong>考点</strong>：先检索再生成，缓解知识时效和私有数据问题，检索不充分时幻觉仍会出现。</p>
 </blockquote>
-<p>🔸 <strong>检索后生成弥补知识短板</strong><br>系统先从知识库检索相关片段，再交由LLM生成答案，缓解知识时效性与私有数据访问的问题，并降低幻觉（检索不充分时模型照样编，根除不了）。</p>
-<h3 id="🔹-工作链路"><a href="#🔹-工作链路" class="headerlink" title="🔹 工作链路"></a>🔹 工作链路</h3><h4 id="🔹-离线索引"><a href="#🔹-离线索引" class="headerlink" title="🔹 离线索引"></a>🔹 离线索引</h4><blockquote>
+<p><strong>检索后生成弥补知识短板</strong></p>
+<p>系统先从知识库检索相关片段，再交由LLM生成答案，缓解知识时效性与私有数据访问的问题，并降低幻觉（检索不充分时模型照样编，根除不了）。</p>
+<h3 id="工作链路"><a href="#工作链路" class="headerlink" title="工作链路"></a>工作链路</h3><p><strong>离线索引</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：文档清洗、分块、向量化后存入向量数据库，变成可检索结构。</p>
 </blockquote>
-<p>包括文档清洗分块嵌入向量化并存入向量数据库<br>文档清洗→Chunking（分块）→Embedding（向量化）→存入向量数据库，将原始文档变为可检索结构。</p>
-<h4 id="🔹-在线检索"><a href="#🔹-在线检索" class="headerlink" title="🔹 在线检索"></a>🔹 在线检索</h4><blockquote>
+<p><strong>包括文档清洗分块嵌入向量化并存入向量数据库</strong></p>
+<p>文档清洗→Chunking（分块）→Embedding（向量化）→存入向量数据库，将原始文档变为可检索结构。</p>
+<p><strong>在线检索</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：查询改写、相似度检索、重排序、上下文构建，最后由 LLM 生成答案。</p>
 </blockquote>
 <p>包括查询改写相似度检索重排序上下文构建和LLM生成<br>查询改写→相似度检索→Rerank&#x2F;过滤→上下文构建→LLM生成答案，将用户问题变为可回答结果。</p>
-<h3 id="🔹-Embedding"><a href="#🔹-Embedding" class="headerlink" title="🔹 Embedding"></a>🔹 Embedding</h3><h4 id="🔹-文本映射语义向量"><a href="#🔹-文本映射语义向量" class="headerlink" title="🔹 文本映射语义向量"></a>🔹 文本映射语义向量</h4><p>将文本转换为高维稠密向量，使语义相近的文本在向量空间中距离更近，是向量检索的基础。</p>
-<h3 id="🔹-向量检索与数据库"><a href="#🔹-向量检索与数据库" class="headerlink" title="🔹 向量检索与数据库"></a>🔹 向量检索与数据库</h3><h4 id="🔹-近似最近邻搜索"><a href="#🔹-近似最近邻搜索" class="headerlink" title="🔹 近似最近邻搜索"></a>🔹 近似最近邻搜索</h4><p>通过HNSW、IVF等算法在百万级甚至亿级向量中快速找到最相似的结果，平衡速度和精度。</p>
-<h4 id="🔹-常见产品"><a href="#🔹-常见产品" class="headerlink" title="🔹 常见产品"></a>🔹 常见产品</h4><p>Milvus、Pinecone、Qdrant、pgvector等，提供元数据过滤、混合检索、增量写入等生产级能力。</p>
-<h3 id="🔹-文档处理与切分"><a href="#🔹-文档处理与切分" class="headerlink" title="🔹 文档处理与切分"></a>🔹 文档处理与切分</h3><h4 id="🔹-切分策略"><a href="#🔹-切分策略" class="headerlink" title="🔹 切分策略"></a>🔹 切分策略</h4><p>包括固定长度、递归切分、语义切分、结构切分、Parent-Child（父子分块）等，需根据文档类型和查询任务选择。</p>
-<h4 id="🔹-关键原则"><a href="#🔹-关键原则" class="headerlink" title="🔹 关键原则"></a>🔹 关键原则</h4><p>兼顾语义完整性、Embedding模型输入长度和召回粒度，小块召回准但上下文易残缺，大块保留完整但噪声大。</p>
-<h3 id="🔹-混合检索"><a href="#🔹-混合检索" class="headerlink" title="🔹 混合检索"></a>🔹 混合检索</h3><h4 id="🔹-向量检索加关键词检索"><a href="#🔹-向量检索加关键词检索" class="headerlink" title="🔹 向量检索加关键词检索"></a>🔹 向量检索加关键词检索</h4><blockquote>
+<h3 id="Embedding"><a href="#Embedding" class="headerlink" title="Embedding"></a>Embedding</h3><p><strong>文本映射语义向量</strong><br>将文本转换为高维稠密向量，使语义相近的文本在向量空间中距离更近，是向量检索的基础。</p>
+<h3 id="向量检索与数据库"><a href="#向量检索与数据库" class="headerlink" title="向量检索与数据库"></a>向量检索与数据库</h3><p><strong>近似最近邻搜索</strong><br>通过HNSW、IVF等算法在百万级甚至亿级向量中快速找到最相似的结果，平衡速度和精度。</p>
+<p><strong>常见产品</strong><br>Milvus、Pinecone、Qdrant、pgvector等，提供元数据过滤、混合检索、增量写入等生产级能力。</p>
+<h3 id="文档处理与切分"><a href="#文档处理与切分" class="headerlink" title="文档处理与切分"></a>文档处理与切分</h3><p><strong>切分策略</strong><br>包括固定长度、递归切分、语义切分、结构切分、Parent-Child（父子分块）等，需根据文档类型和查询任务选择。</p>
+<p><strong>关键原则</strong><br>兼顾语义完整性、Embedding模型输入长度和召回粒度，小块召回准但上下文易残缺，大块保留完整但噪声大。</p>
+<h3 id="混合检索"><a href="#混合检索" class="headerlink" title="混合检索"></a>混合检索</h3><p><strong>向量检索加关键词检索</strong></p>
+<blockquote>
 <p>📌 <strong>考点</strong>：向量检索管语义相似，BM25 管精确词匹配，用 RRF 合并结果。</p>
 </blockquote>
 <p>向量检索擅长语义相似，BM25擅长精确词匹配，两者互补，通过RRF（倒数排名融合）合并结果。</p>
-<h3 id="🔹-查询改写"><a href="#🔹-查询改写" class="headerlink" title="🔹 查询改写"></a>🔹 查询改写</h3><h4 id="🔹-多种改写策略"><a href="#🔹-多种改写策略" class="headerlink" title="🔹 多种改写策略"></a>🔹 多种改写策略</h4><p>包括规范化改写、Multi-Query（多查询）、Query Decomposition（分解）、Step-back（后退）、HyDE（假设文档嵌入）等。</p>
-<h3 id="🔹-重排序"><a href="#🔹-重排序" class="headerlink" title="🔹 重排序"></a>🔹 重排序</h3><h4 id="🔹-精细打分提升相关性"><a href="#🔹-精细打分提升相关性" class="headerlink" title="🔹 精细打分提升相关性"></a>🔹 精细打分提升相关性</h4><p>使用Cross-Encoder对召回候选进行更细粒度的相关性判断，向量相似度看“像不像”，Rerank看“能不能回答”。</p>
-<h3 id="🔹-GraphRAG"><a href="#🔹-GraphRAG" class="headerlink" title="🔹 GraphRAG"></a>🔹 GraphRAG</h3><h4 id="🔹-检索实体关系路径"><a href="#🔹-检索实体关系路径" class="headerlink" title="🔹 检索实体关系路径"></a>🔹 检索实体关系路径</h4><p>将文档中的实体、关系显式建模，查询时沿图关系收集证据，适合多跳推理和跨文档归纳，检索对象是节点、边、路径和社区摘要。</p>
-<h3 id="🔹-评估指标"><a href="#🔹-评估指标" class="headerlink" title="🔹 评估指标"></a>🔹 评估指标</h3><h4 id="🔹-召回率与命中率"><a href="#🔹-召回率与命中率" class="headerlink" title="🔹 召回率与命中率"></a>🔹 召回率与命中率</h4><p>衡量检索系统找到相关文档的能力，顶部排序质量可用MRR（平均倒数排名）评估。</p>
-<h4 id="🔹-答案质量指标"><a href="#🔹-答案质量指标" class="headerlink" title="🔹 答案质量指标"></a>🔹 答案质量指标</h4><p>包括忠实度（Faithfulness，答案是否基于检索内容）和答案相关性（Answer Relevancy）等。</p>
+<h3 id="查询改写"><a href="#查询改写" class="headerlink" title="查询改写"></a>查询改写</h3><p><strong>多种改写策略</strong><br>包括规范化改写、Multi-Query（多查询）、Query Decomposition（分解）、Step-back（后退）、HyDE（假设文档嵌入）等。</p>
+<h3 id="重排序"><a href="#重排序" class="headerlink" title="重排序"></a>重排序</h3><p><strong>精细打分提升相关性</strong><br>使用Cross-Encoder对召回候选进行更细粒度的相关性判断，向量相似度看“像不像”，Rerank看“能不能回答”。</p>
+<h3 id="GraphRAG"><a href="#GraphRAG" class="headerlink" title="GraphRAG"></a>GraphRAG</h3><p><strong>检索实体关系路径</strong><br>将文档中的实体、关系显式建模，查询时沿图关系收集证据，适合多跳推理和跨文档归纳，检索对象是节点、边、路径和社区摘要。</p>
+<h3 id="评估指标"><a href="#评估指标" class="headerlink" title="评估指标"></a>评估指标</h3><p><strong>召回率与命中率</strong><br>衡量检索系统找到相关文档的能力，顶部排序质量可用MRR（平均倒数排名）评估。</p>
+<p><strong>答案质量指标</strong><br>包括忠实度（Faithfulness，答案是否基于检索内容）和答案相关性（Answer Relevancy）等。</p>
 <h2 id="ima-AI生成"><a href="#ima-AI生成" class="headerlink" title="ima AI生成"></a>ima AI生成</h2></div>
 
     <div id="highlight-nav" class="highlight-nav">
