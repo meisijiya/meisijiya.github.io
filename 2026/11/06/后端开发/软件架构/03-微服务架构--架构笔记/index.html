@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>微服务架构 — 拆分、治理与演进 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">微服务架构 — 拆分、治理与演进</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 6, 2026&nbsp;&nbsp;9:03:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/">软件架构</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="03-微服务架构"><a href="#03-微服务架构" class="headerlink" title="03 微服务架构"></a>03 微服务架构</h1><blockquote>
+<p>📌 <strong>本篇速览</strong></p>
+<ul>
+<li>🔹 单体应用的得与失（3.1）</li>
+<li>🔹 微服务定义与边界（3.2）</li>
+<li>🔹 服务拆分三原则（3.3）</li>
+<li>🔹 同步异步与数据一致（3.4）</li>
+<li>🔹 Spring Cloud 全家桶与版本（3.5）</li>
+<li>🔹 注册配置中心 Nacos（3.6）</li>
+<li>🔹 网关调用与熔断限流（3.7）</li>
+<li>🔹 链路追踪消息安全（3.8）</li>
+<li>🔹 上线部署与演进（3.9）</li>
+<li>🔹 常见错误清单（3.10）</li>
+<li>🔹 微服务小结（3.11）</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>这篇从一次全站故障讲起，理清为什么要拆、怎么拆、拆完要补哪些治理能力，以及一条能落地的演进路线。</p>
+</blockquote>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/03-microservice-arch-1.jpg" alt="微服务架构开篇" loading="lazy" decoding="async"></p>
+<hr>
+<h2 id="3-1-单体应用的得与失"><a href="#3-1-单体应用的得与失" class="headerlink" title="3.1 单体应用的得与失"></a>3.1 单体应用的得与失</h2><p>🔹 想象一个把订单商品库存会员打成一个包的应用，大促前开发改了一行优惠券判断，要走全量回归，再灰度，最后审批，凌晨才上线。第二天优惠券抛空指针，所有模块共享同一 JVM 线程池，线程被占满，商品页打不开、下单挂掉，全站不可用几十分钟。根因和写错代码无关。所有代码属于同一个部署单元，没有只发优惠券的选项，这才是全站不可用的真正原因。</p>
+<p>🔹 单体本身是好东西。一次打包一次部署，本地起个 main 方法就跑。调用是方法调用，不走网络无超时，一条堆栈从 controller 打到 mapper 秒级定位。一个 <code>@Transactional</code> 注解保证扣库存和扣余额要么都成要么都败。改类名 IDE 一键重命名全项目生效，重构成本最低。十人以内、流量平稳、产品处于验证期，单体就是最优解。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：单体共享同一 JVM 线程池与部署单元，一处错全站不可用；能否单独重启、发版、扩容是判断要不要拆的标准。</p>
+</blockquote>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/03-microservice-arch-2.jpg" alt="为什么要微服务" loading="lazy" decoding="async"></p>
+<h2 id="3-2-微服务的定义与边界"><a href="#3-2-微服务的定义与边界" class="headerlink" title="3.2 微服务的定义与边界"></a>3.2 微服务的定义与边界</h2><p>🔹 微服务的判断标准只有一条：能不能单独重启、单独发版、单独扩容。它把一个大应用拆成一组微服务，每个独立开发部署运行，服务间用轻量协议调用。独立部署让改优惠券只发优惠券，十分钟内上线，回归只跑自己范围。独立部署让故障有隔离墙，优惠券崩了不影响商品页。按业务能力划分而非技术分层，订单库存账户各是一个服务。</p>
+<p>🔹 拆的是运行时边界，不是代码目录。包分得再清仍在同一个 JVM、同一份数据库连接池，崩的还是整个进程，那叫模块化不是微服务。五个服务连同一个库、发版必须凑齐，那是分布式单体，把耦合原封不动留了五份还附赠网络不稳定，比单体更糟。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：判断标准是能否单独重启、单独发版、单独扩容；模块化（同 JVM 同连接池）不是微服务，连同一库必须凑齐发版是分布式单体。</p>
+</blockquote>
+<h2 id="3-3-服务拆分的三条原则"><a href="#3-3-服务拆分的三条原则" class="headerlink" title="3.3 服务拆分的三条原则"></a>3.3 服务拆分的三条原则</h2><p>🔹 服务拆分的三条原则：</p>
+<ul>
+<li>🔹 按业务能力拆而非技术分层：订单服务里装着 controller&#x2F;service&#x2F;DAO 全套，独立完成下单取消查询，而不是把 controller 拆成接口服务、service 拆成逻辑服务</li>
+<li>🔹 高内聚：经常一起改的代码放一块，回想最近三个需求都动哪些代码，它们该属于同一服务；每次改需求要跨三个服务发版就是边界画错了</li>
+<li>🔹 边界看数据归属：谁拥有这份数据谁就是主人，订单表归订单服务，别人改只能调接口</li>
+</ul>
+<p>🔹 起步先拆三到五个天然独立的，别一上来拆二三十个。一个服务配两到八人小团队从头负责到底，这呼应康威定律：系统结构最终会长成组织的沟通结构。拆错了比不拆更贵，共享数据库必须一起发版的微服务就是分布式单体。</p>
+<h2 id="3-4-同步、异步与数据一致性"><a href="#3-4-同步、异步与数据一致性" class="headerlink" title="3.4 同步、异步与数据一致性"></a>3.4 同步、异步与数据一致性</h2><p>🔹 服务之间怎么说话？同步像打电话，下单调库存必须等返回，实时直观但对方慢你也慢、对方挂你也挂，必须配超时重试熔断。异步像发消息，下单成功发条订单已创建的消息就返回，通知积分报表各自消费，解耦且可削峰，结果最终一致，积分晚几秒到账能接受。判断口诀：这一步失败业务还能继续吗？库存没扣成订单不能继续就同步，短信晚发十秒无所谓就异步。</p>
+<p>🔹 数据库拆开后 <code>@Transactional</code> 管不了两张表。三策略按推荐序：</p>
+<ul>
+<li>🔹 先质疑业务本身，能不能冻结后确认，各自本地事务</li>
+<li>🔹 其次用最终一致，发消息扣减、失败重试、不行反向补偿</li>
+<li>🔹 最后才用框架如 Seata 套全局事务<br>🔹 两条铁律：</li>
+<li>🔹 一个数据只有一个主人，不许幻想强一致</li>
+<li>🔹 网络会超时、消息会重复、服务会重启，方案必须假设它们发生并能自愈<blockquote>
+<p>📌 <strong>考点</strong>：强依赖用同步，可延迟的用异步；网络会超时、消息会重复、服务会重启，方案必须假设它们发生并能自愈。</p>
+</blockquote>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>同步调用</th>
+<th>异步消息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实时性</td>
+<td>立即拿到结果</td>
+<td>最终一致，有延迟</td>
+</tr>
+<tr>
+<td>故障传播</td>
+<td>对方挂你也挂</td>
+<td>解耦，下游崩不影响主流程</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>扣库存这类强依赖</td>
+<td>发短信、加积分与统计</td>
+</tr>
+</tbody></table>
+<h2 id="3-5-Spring-Cloud-全家桶与版本"><a href="#3-5-Spring-Cloud-全家桶与版本" class="headerlink" title="3.5 Spring Cloud 全家桶与版本"></a>3.5 Spring Cloud 全家桶与版本</h2><p>🔹 Spring Cloud 不是新框架，是一组解决前面六个麻烦的工具集，你的 Spring Boot 写法不变，多引几个 starter 加几行配置。三层版本联动：Spring Boot、Spring Cloud、Spring Cloud Alibaba，官方有版本对应表，配错常见 <code>NoSuchMethodError</code>、<code>NoClassDefFoundError</code> 等运行期错误，指向你没写过的类。新项目直接用 Spring Cloud Alibaba 套件：Nacos 管注册和配置，Sentinel 管熔断和限流，Seata 管分布式事务，中文资料多。Netflix 那套 Hystrix&#x2F;Ribbon 已进入维护模式，Eureka 仍在维护，别再引入 Hystrix&#x2F;Ribbon 背技术债。</p>
+<p>🔹 刚起步的微服务项目通常只需注册中心和网关，链路、配置中心后面补，熔断事务等真出故障再引。技术不是越全越安全，多余能力本身也是负担。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：Spring Cloud 全家桶里 Nacos 管注册与配置、Sentinel 管熔断限流、Seata 管分布式事务；Netflix 的 Hystrix&#x2F;Ribbon 已进入维护模式。</p>
+</blockquote>
+<p>下表列出组件与它们解决的麻烦。</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>解决的麻烦</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nacos</td>
+<td>地址会变、配置满天飞</td>
+</tr>
+<tr>
+<td>Gateway</td>
+<td>入口没人把守</td>
+</tr>
+<tr>
+<td>OpenFeign</td>
+<td>服务间调用写法繁琐</td>
+</tr>
+<tr>
+<td>Sentinel</td>
+<td>调用会失败、雪崩</td>
+</tr>
+<tr>
+<td>Seata</td>
+<td>跨服务数据不一致</td>
+</tr>
+</tbody></table>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/03-microservice-arch-3.jpg" alt="微服务技术全景" loading="lazy" decoding="async"></p>
+<h2 id="3-6-注册中心与配置中心"><a href="#3-6-注册中心与配置中心" class="headerlink" title="3.6 注册中心与配置中心"></a>3.6 注册中心与配置中心</h2><p>🔹 地址会变是微服务的第一个麻烦。Nacos 工作机制：服务启动上报服务名加 IP 加端口；维护一份活着实例名单；靠心跳打卡维持存活，超时未打卡先标不健康、再摘掉，阈值由配置决定；调用方按服务名拉名单缓存在本地；调用时挑一台。服务重启期间调用方可能短暂找不到人，心跳还没超时名单没更新，调用代码必须容忍偶尔找不到加重试，这不是 bug 是机制属性。服务名要全局唯一稳定，是服务互认的唯一凭据。</p>
+<p>🔹 配置中心还是 Nacos 第二个身份。二十个服务三套环境配置散在几十文件，改个库地址要改二十处重发二十次。配置放 Nacos 统一管，控制台改一条长轮询秒级通知服务动态刷新不重启。用 namespace 隔环境，group 隔业务线，data id 对应服务名。好处是可审计可回滚，谁改的何时改的一键回滚。Spring Boot 2.4+ 起默认禁用 bootstrap，Nacos 配置可用 <code>spring.config.import</code> 写在 <code>application.yml</code>；只有引入 spring-cloud-starter-bootstrap 后才用 <code>bootstrap.yml</code>。敏感信息仍要配合加密，Nacos 控制台谁登录都能看。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：Nacos 靠心跳判活，超时未打卡先标不健康、再摘掉，阈值由配置决定；配置改一条长轮询秒级通知动态刷新。</p>
+</blockquote>
+<h3 id="3-6-1-bootstrap-yml-示例"><a href="#3-6-1-bootstrap-yml-示例" class="headerlink" title="3.6.1 bootstrap.yml 示例"></a>3.6.1 bootstrap.yml 示例</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 服务注册与配置中心地址，bootstrap 方式示例（需引入 spring-cloud-starter-bootstrap）</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">order-service</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">      <span class="attr">config:</span></span><br><span class="line">        <span class="attr">namespace:</span> <span class="string">dev</span>   <span class="comment"># 填命名空间 ID 而非显示名，新建默认为 UUID，此值仅当 ID 恰为 dev 时生效</span></span><br><span class="line">        <span class="attr">group:</span> <span class="string">DEFAULT_GROUP</span></span><br><span class="line">        <span class="attr">file-extension:</span> <span class="string">yaml</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-7-网关、调用与熔断限流"><a href="#3-7-网关、调用与熔断限流" class="headerlink" title="3.7 网关、调用与熔断限流"></a>3.7 网关、调用与熔断限流</h2><p>🔹 网关是唯一入口，把鉴权限流日志跨域这些每个服务都要做的事集中做一次。一条路由等于一个断言（Predicate）加一组过滤器（Filter）加一个目标。<code>Predicate</code> 判断请求走不走这条路由，<code>Filter</code> 转发前验 token 记日志限流、响应后改头，还能把 user id 塞进请求头免去下游再解析。目标写 <code>lb://order-service</code> 按服务名去注册中心拿实例表再负载均衡，地址不写死。网关只做与业务无关的事，把判断优惠券能否用写进过滤器就危险了，它是门卫不是业务员。</p>
+<p>🔹 服务间调用用 OpenFeign，声明接口加 <code>@FeignClient</code> 注解，方法签名照对方接口写，业务里注入后像调本地方法。<code>Feign</code> 启动生成动态代理，拼 HTTP、拿服务名查注册中心、负载均衡挑机器、解析响应。超时必须显式配置，默认超时对生产太宽，下游一卡线程全卡导致雪崩。雪崩是故障沿调用链放大。库存慢成五秒，订单每请求卡五秒，200 线程全卡死整个订单服务瘫。Sentinel 熔断器像保险丝，错误率超阈值进入打开状态直接拒绝快速失败释放线程，半开状态放小撮请求试探恢复。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：网关只做鉴权限流等无关业务的事；Feign 必须显式配超时，否则下游卡住线程跟着卡引发雪崩。</p>
+</blockquote>
+<h2 id="3-8-链路追踪、消息与安全"><a href="#3-8-链路追踪、消息与安全" class="headerlink" title="3.8 链路追踪、消息与安全"></a>3.8 链路追踪、消息与安全</h2><p>🔹 一次下单穿过四五个服务，日志散在多台机器，用户投诉失败你总不能登四台机器按时间戳拼日志。给每个请求发个 trace id，进门生成、每经一服务跟着写进每条日志，查失败只搜这个 id，四台机器日志按顺序排好。trace 是一次完整调用链，span 是其中一环，trace id 靠 HTTP 头传递，框架自动做，但线程池里跑的异步代码 id 不自动跟过去要手动传，SkyWalking、OpenTelemetry Java agent 这类探针增强过的线池除外。存储展示用 Zipkin 轻量或 SkyWalking 带告警拓扑，日志聚合收进一处。</p>
+<p>🔹 下单成功还要发短信加积分更统计，串在下单接口里下单变三秒还耦合，短信通道挂了下单跟着报错。放消息队列，订单服务发条消息立刻返回，消费者各自订阅。收益是解耦、削峰，达到最终一致。消息不免费。不能丢（生产者确认、MQ 持久化与消费者手动 ACK）、重复消费要幂等（数据库唯一键兜底）、顺序和积压要监控。安全上公网只进网关，认证服务签 JWT，网关验签解析把 user id 角色写进请求头转发下游，鉴权逻辑写一次，下游只管业务。JWT 前两段不加密谁都能看，手机号身份证别放 payload。</p>
+<h2 id="3-9-上线部署与演进路线"><a href="#3-9-上线部署与演进路线" class="headerlink" title="3.9 上线部署与演进路线"></a>3.9 上线部署与演进路线</h2><p>🔹 起步用单仓库多模块。shop-common 放 DTO 和工具，shop-api 放 Feign 接口定义，gateway 等各一模块。单仓库改公共代码一次提交全模块编译可见，拆五个仓库要改五次发五次。每个服务结构跟 Spring Boot 一样，只多一个放注册配置中心地址的 <code>bootstrap.yml</code>。四条约定：</p>
+<ul>
+<li>🔹 每服务只连自己库</li>
+<li>🔹 common 只放 DTO 和工具别写业务规则</li>
+<li>🔹 Feign 接口统一放 shop-api 防循环依赖</li>
+<li>🔹 Spring 版本只在 pom 改一次</li>
+</ul>
+<p>🔹 一次真实下单走九步：</p>
+<ul>
+<li>🔹 网关验 token 判权限限流记 trace id 路由</li>
+<li>🔹 订单服务建订单本地事务</li>
+<li>🔹 Feign 调库存查注册中心负载均衡</li>
+<li>🔹 库存受 Sentinel 保护，熔断则快速失败</li>
+<li>🔹 调账户扣款</li>
+<li>🔹 Seata 全局事务账户失败按 undo log 反向补偿</li>
+<li>🔹 成功发订单已创建消息返回</li>
+<li>🔹 下游各自消费幂等</li>
+<li>🔹 返回订单号，trace id 贯穿<br>🔹 中间件全用 docker compose 一条命令起，每服务一库从第一天遵守，启动先中间件再被依赖服务再订单最后网关。</li>
+</ul>
+<p>🔹 Kubernetes 是运行平台，微服务是架构风格，两件事。三个演进阶段：</p>
+<ul>
+<li>🔹 一台机器多 jar 包靠手动</li>
+<li>🔹 docker 容器化环境一致但不管调度自愈</li>
+<li>🔹 K8S 接管自愈、滚动发布、弹性伸缩，和 Nacos 不冲突，一个管生死一个管地址<br>🔹 三五人四个服务没专职运维先用 docker compose 加脚本，K8S 出问题整集群没人兜底时复杂度大于收益。落地分三阶段：</li>
+<li>🔹 头三个月单体里按业务域划包边界禁跨域访问</li>
+<li>🔹 三到九月拆三五个核心服务建注册配置网关</li>
+<li>🔹 九个月后补链路熔断统一鉴权 CICD，最后才 K8S，治理能力跟着服务数量走</li>
+</ul>
+<h2 id="3-10-常见错误清单"><a href="#3-10-常见错误清单" class="headerlink" title="3.10 常见错误清单"></a>3.10 常见错误清单</h2><p>⚠️ 为拆而拆切太细，一次下单跨好几个服务，排查一个 bug 开十几个窗口。<br>⚠️ 图省事让多服务共享数据库，得到比单体还难维护的分布式单体。<br>⚠️ 只拆服务不改组织，团队仍按技术分层，康威定律以故障形式讨回来。<br>⚠️ 没可观测性就上线，无 trace id 无告警，出问题靠用户投诉才发现。<br>⚠️ 一步到位上 K8S，服务和集群两头学，两头都没学明白。<br>⚠️ 网关里写业务逻辑，把判断优惠券能否用塞进过滤器，门卫变成业务员。<br>⚠️ Feign 不显式配超时，下游卡住线程跟着卡引发雪崩。<br>⚠️ 用 Seata 前不先问业务能否容忍不一致，热点高并发被全局锁排队。</p>
+<h2 id="3-11-小结"><a href="#3-11-小结" class="headerlink" title="3.11 小结"></a>3.11 小结</h2><p>🔹 微服务用来治病，不是补品，项目没中单体那几道坎就继续写单体。拆的是进程和边界不是文件夹，能不能单独重启是判断标准。共享数据库的微服务是更贵的分布式单体。复杂度不会消失只会转移，把代码复杂度转成运维治理协作复杂度，必须按阶段走配得上团队规模。框架会更替，边界怎么画、代价怎么权衡永远是架构师自己的事。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Spring-Cloud/"># Spring Cloud</a>
+          
+          <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"># 分布式</a>
+          
+          <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"># 微服务</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"># 架构笔记</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"># 架构设计</a>
+          
+          <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/"># 高可用</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/06/%E8%BF%90%E7%BB%B4%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/Docker/04-%E4%BA%91%E5%8E%9F%E7%94%9F%E6%9E%B6%E6%9E%84%E5%8F%8A%E5%BA%94%E7%94%A8--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >云原生架构及应用 — 容器、编排与交付</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/06/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E4%B8%AD%E9%97%B4%E4%BB%B6/02-Redis%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B8%8E%E7%A7%92%E6%9D%80%E5%AE%9E%E6%88%98--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >Redis 高并发与秒杀实战</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>

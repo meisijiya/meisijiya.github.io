@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>边缘计算架构 — 把算力推到离用户最近处 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">边缘计算架构 — 把算力推到离用户最近处</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 6, 2026&nbsp;&nbsp;9:09:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/">软件架构</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="09-边缘计算架构"><a href="#09-边缘计算架构" class="headerlink" title="09 边缘计算架构"></a>09 边缘计算架构</h1><blockquote>
+<p>📌 <strong>本篇速览</strong></p>
+<ul>
+<li>🔹 9.1 凌晨四点的四小时瘫痪</li>
+<li>🔹 9.2 三道坎与边缘定义</li>
+<li>🔹 9.3 冷热路径</li>
+<li>🔹 9.4 五层骨架与 K3S</li>
+<li>🔹 9.5 反向隧道</li>
+<li>🔹 9.6 Outbox 断网收银</li>
+<li>🔹 9.7 落地分仓与推进</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>边缘计算给云补一条腿：该集中的数据继续集中，该就近处理的就近处理，只把必要结果送出去。</p>
+</blockquote>
+<hr>
+<p>凌晨两点十分，郊区门店旁市政施工挖断了光缆。到四点整客服电话被打爆，三千多家门店的 POS 机集体转圈，收银员扫码屏幕却在转圈，顾客站柜台前尴尬等待，直到六点半才陆续恢复，前后瘫痪四小时，正好覆盖早高峰。</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/09-edge-computing-arch-1.jpg" alt="边缘计算开篇" loading="lazy" decoding="async"></p>
+<h2 id="9-1-凌晨四点的四小时瘫痪"><a href="#9-1-凌晨四点的四小时瘫痪" class="headerlink" title="9.1 凌晨四点的四小时瘫痪"></a>9.1 凌晨四点的四小时瘫痪</h2><p>🔹 这套系统本是标准云中心架构：门店 POS 机每刷一笔卡，请求走专线跑到几百公里外的云机房，在云端数据库记账再返回支付成功。POS 机本质上只是带屏幕的浏览器，自己不记账，云不通就收不了钱，这是四小时瘫痪的技术根源。月底还有一张带宽账单：三千家店每家四路摄像头，共一万二千路视频流全量回传云端存储，专线费加云存储费加转码算力费一个月三四十万，其中九成以上视频没人看过一眼。</p>
+<h2 id="9-2-云中心的三道坎与边缘的定义"><a href="#9-2-云中心的三道坎与边缘的定义" class="headerlink" title="9.2 云中心的三道坎与边缘的定义"></a>9.2 云中心的三道坎与边缘的定义</h2><p>🔹 云中心没做错事，它有统一运维、弹性伸缩、数据强一致三大优点。但三条物理规律躲不开。带宽账单：一万二千路摄像头每路两兆码流全天回传，一路一天二十多 G，一天二百多 T，九成多是空镜头，却要为「什么也没发生」付几十万。延迟红线：POS 机刷卡走专线一个来回八十毫秒起步，客流识别要几百毫秒内提示店员迎客，回云一个来回早误了事。断网瘫痪：核心链路挂专线，专线一断门店从收银机退化成计算器。三道坎共同点是中间都隔着一条回云的路，带宽嫌它贵，延迟嫌它长，断网嫌它脆。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：边缘三道坎是带宽、延迟、断网；三个关键词是下沉、就地、只送结果。</p>
+</blockquote>
+<p>边缘计算的定义是把计算和存储从集中云机房下沉到靠近数据产生的网络边缘，让数据就近处理，只把必要结果送出去。三个关键词是下沉、就地、只送结果，少一个都不叫边缘。云仍是大脑负责统一管理、版本下发、模型训练与长期归档，只是学会了放权。</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/09-edge-computing-arch-2.jpg" alt="为什么需要边缘计算" loading="lazy" decoding="async"></p>
+<h2 id="9-3-冷热路径：什么该下沉，什么回云"><a href="#9-3-冷热路径：什么该下沉，什么回云" class="headerlink" title="9.3 冷热路径：什么该下沉，什么回云"></a>9.3 冷热路径：什么该下沉，什么回云</h2><p>🔹 判断标准三个：数据在哪产生、响应要多快、断网能不能容忍。热路径留边缘：POS 机收银记账，数据店里产生、响应要秒级、断网必须能忍，本地数据库先落账；摄像头事件识别，原始视频海量，有价值的只是发生了什么；冷柜温度联动，本地告警规则直接触发；短周期数据缓存，七天内的监控录像本地存即可。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：热路径留边缘、冷路径回云；Outbox 保证本地先成功。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>内容</th>
+<th>位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>热路径</td>
+<td>收银记账、事件识别，温度联动，短期缓存</td>
+<td>边缘节点</td>
+</tr>
+<tr>
+<td>冷路径</td>
+<td>结构化事件上行、全国报表对账，模型训练，配置版本下发</td>
+<td>云端</td>
+</tr>
+</tbody></table>
+<p>冷路径是热路径处理完的结果作为冷路径输入送回云端：结构化事件一句话加切片指针上行，全国报表对账回云端汇总，训练需大算力边缘只推理，配置和版本由云端统一下发。边缘省下的是带宽与延迟，多出来的是分布式运维这门新功课。</p>
+<h2 id="9-4-五层骨架与-K3S-减重版"><a href="#9-4-五层骨架与-K3S-减重版" class="headerlink" title="9.4 五层骨架与 K3S 减重版"></a>9.4 五层骨架与 K3S 减重版</h2><p>🔹 端边云自下而上五层。L1 设备层即端，摄像头、POS 机、传感器在此产生数据，算力弱只做采集与最原始过滤。L2 边缘节点是主角，店里配一台盒子，跑 K3S、Spring Boot 容器，还有本地库与推理服务，是断网自制关键层，数据待七天滚动覆盖。L3 边缘网关做协议转换与汇聚，把蓝牙、Zigbee 等非 IP 协议统一成 IP 流量。L4 区域边缘是运营商或云厂商城市级机房，离用户典型几到几十毫秒，多数用户十毫秒内可达、尾部用户可达数十上百毫秒需按地区和运营商实测，放多门店共享能力。L5 云中心大机房，全局的数据库、报表，模型训练，版本仓库与统一管控，大脑地位不变。</p>
+<p>K3S 是 Kubernetes 的减重版，名字直白：中间少了五个字母。它是不到一百兆的单二进制文件，一条命令装完；内存五百一十二兆就能跑，完整 Kubernetes 控制面起步就两 G；默认用 SQLite 代替 etcd，门店一台盒子不用选主。断网自制是本地自主，云断了照样调度容器、重启应用、读写本地库，恢复联网后增量数据按队列补传。学习成本近零，会 Kubernetes 就会 K3S，Spring Boot 打成镜像代码一行不改就能部署进去。</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/09-edge-computing-arch-3.jpg" alt="边缘计算五层骨架与 K3S" loading="lazy" decoding="async"></p>
+<h2 id="9-5-反向隧道与云在墙外管墙内"><a href="#9-5-反向隧道与云在墙外管墙内" class="headerlink" title="9.5 反向隧道与云在墙外管墙内"></a>9.5 反向隧道与云在墙外管墙内</h2><p>🔹 三千家店节点全躲在运营商 NAT 和门店防火墙后，云端在公网根本找不到它们。解决思路反过来：节点开机主动向云端发起一条长连接 WebSocket 或 gRPC 双向流，云端指令都从这条隧道下发，谁主动外联谁安全。隧道里有四类流量：心跳和指标每十秒报平安，指令下发改配置发版本，日志采样回传，K3S 控制面同步。隧道断了三件事：指数退避重连封顶五分钟，离线指令在云端排队重连后按序补投，通信专线断了切 4G 备用卡只保心跳与关键指令，控制面永远优先于数据面。</p>
+<h2 id="9-6-实战：断网也能收银的-Outbox"><a href="#9-6-实战：断网也能收银的-Outbox" class="headerlink" title="9.6 实战：断网也能收银的 Outbox"></a>9.6 实战：断网也能收银的 Outbox</h2><p>🔹 边缘应用第一戒律是本地先成功、云端后知晓，用户可见的成功绝不能依赖回云的路。POS 机返回支付成功只依赖店里盒子。pay 接口三行：DAO 把交易写本地库，outbox 表插一条待上报记录，return OK，三行包在同一本地事务里，落账与记下待上报要么都成要么都败。若落账成功却没记下待上报，这单永远到不了云端，对账就出鬼账。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：本地先成功、云端后知晓；outbox 与业务写在同一事务。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">pay</span><span class="params">(Order order)</span> &#123;</span><br><span class="line">    dao.insertSale(order);              <span class="comment">// 写本地库，落账</span></span><br><span class="line">    outbox.push(order.toEvent());       <span class="comment">// 记一笔待上报，同事务</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;OK&quot;</span>;                        <span class="comment">// 立即返回，不依赖回云</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>outbox 是本地消息表方案，原封不动搬到边缘。发送器只发一次不放心，网络超时不等于失败，靠幂等键兜底；云端确认成功才删 outbox 记录，不确认就留着；乱序没关系，每条带 txnId，云端见过就丢弃。断网期间 outbox 越积越多不用慌，磁盘够大，恢复后按批次补传。视频账单从每月三十万变三千，思路是原始视频不出店门，出门的只有发生了什么。抽帧去噪在店门口丢掉空镜头，轻量模型在盒子跑事件识别，只传「几点几分什么人逗留」一句话，原视频留本地七天。</p>
+<h2 id="9-7-落地分仓与推进节奏"><a href="#9-7-落地分仓与推进节奏" class="headerlink" title="9.7 落地分仓与推进节奏"></a>9.7 落地分仓与推进节奏</h2><p>🔹 分仓是落地第一个决定，判定顺序固定两问加兜底。端上能做吗：延迟压到十毫秒内、数据绝不出口、逻辑简单且几年不变，如温度传感器本地阈值联动，就烧进固件。边上能做吗：断网可用、毫秒级响应、数据量大不值得回传或逻辑频繁迭代，如收银、视频事件识别，outbox 上报，本地缓存，就下沉容器走云端下发。剩下一切放云上：全局聚合的全国报表对账，需大算力的模型训练，长期合规归档，统一管控的版本与配置下发。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：分仓判定顺序：端上能做吗 → 边上能做吗 → 剩下放云。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>落地形态</th>
+<th>适合</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>自建 K3S 集群</td>
+<td>有平台工程团队、节点量大、深度定制</td>
+<td>运维面爆炸自己扛，换最高自由度</td>
+</tr>
+<tr>
+<td>云厂商边缘服务</td>
+<td>团队小、快速上线、接受托管</td>
+<td>按台计费，节点越多越贵，形态受制于人</td>
+</tr>
+<tr>
+<td>纯端测固件</td>
+<td>逻辑极稳、点位海量、单点成本敏感</td>
+<td>升级逐台刷机，迭代按月计</td>
+</tr>
+</tbody></table>
+<p>推进三阶段：单店试点一到两个月全链路跑通断网演练与对账闭环，看账单降多少；区域推广三到六个月五十到一百家店，验证下发灰度与硬件异构适配；规模化六个月后全量铺开谈容量规划与成本模型。五个坑都来自用云的思维做边缘。把云应用直接搬边导致内存超限整店瘫痪；拿门店本地时间排序对账，断电时钟漂移账永远对不平；下发不做灰度，坏配置三千店同时生效；日志全量回传把专线变日志专线；硬件采购即锁死，软件三年迁就硬件。</p>
+<h2 id="常见错误清单"><a href="#常见错误清单" class="headerlink" title="常见错误清单"></a>常见错误清单</h2><ul>
+<li>把云应用直接搬到边缘盒子，不设内存上限，JVM 一伸缩吃掉三 G 拖垮整店。只有 request 和 limit 都不设才是 BestEffort、节点压力下最先被驱逐，只设 request 不设 limit 属 Burstable。</li>
+<li>用门店本地时间排序对账，断电时钟漂移，账本乱成一团永远对不平。</li>
+<li>下发不灰度，一个坏配置三千店同时生效，收银全部停止。</li>
+<li>日志全量回传，把昂贵的专线变成日志专线，存储先爆。</li>
+<li>硬件采购即锁死，首批盒子定下三年换不动，软件永远迁就硬件。</li>
+<li>以为边缘节点是小号云，照搬云上玩法到无人值守、随时断电的盒子上。</li>
+<li>只传视频不传结果，原始流全量回传，带宽账单大到无法承受。</li>
+<li>断网期间指令在云端排队后重连补投却不做幂等，同一条指令到达两次。</li>
+</ul>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>边缘计算先问数据为什么不能走远，再问要不要上边缘。本地先成功、云端后知晓这条不成立，断网就是事故；成立，断网只是延迟。省下的带宽钱会变成运维债退回来，所以要用反向隧道、冷热路径与 Outbox，还有双架构镜像和灰度下发，把这套机制咬合清楚再谈落地。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/K3S/"># K3S</a>
+          
+          <a href="/tags/%E5%AE%B9%E7%81%BE/"># 容灾</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84/"># 架构</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"># 架构笔记</a>
+          
+          <a href="/tags/%E8%BE%B9%E7%BC%98%E8%AE%A1%E7%AE%97/"># 边缘计算</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+       
+      <a class="next" rel="next" href="/2026/11/06/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/08-%E9%AB%98%E6%80%A7%E8%83%BD%E6%9E%B6%E6%9E%84--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >高性能架构 — 缓存、异步与并行</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>

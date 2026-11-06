@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>云原生架构及应用 — 容器、编排与交付 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">云原生架构及应用 — 容器、编排与交付</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 6, 2026&nbsp;&nbsp;9:04:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E8%BF%90%E7%BB%B4%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/">运维与中间件</a>
+          
+          <a href="/categories/%E8%BF%90%E7%BB%B4%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/Docker/">Docker</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="04-云原生架构及应用"><a href="#04-云原生架构及应用" class="headerlink" title="04 云原生架构及应用"></a>04 云原生架构及应用</h1><blockquote>
+<p>📌 <strong>本篇速览</strong></p>
+<ul>
+<li>🔹 交付、伸缩、治理做成标准件，告别手工发布</li>
+<li>🔹 容器化、微服务化、持续交付、可观测性四件事</li>
+<li>🔹 五条设计原则与 Kubernetes 七个对象</li>
+<li>🔹 数据一致性三解法与弹性伸缩的延迟真相</li>
+<li>🔹 韧性六手段与三种发布策略</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>云原生让软件从设计第一天起就为云环境而生，把交付、伸缩与治理都做成标准件。</p>
+</blockquote>
+<hr>
+<p>🔹 一座系统凌晨上线，三个人花了一整夜只为了换三行代码。走到第24步发现一台生产服务器的配置文件漏改了，只能全部回滚从头再来。问题不在有人偷懒，而在把软件当成了手工艺品，每一次上线都要靠人手工雕一遍。</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/04-cloud-native-arch-1.jpg" alt="云原生开篇" loading="lazy" decoding="async"></p>
+<h2 id="4-1-从一次凌晨发布事故说起"><a href="#4-1-从一次凌晨发布事故说起" class="headerlink" title="4.1 从一次凌晨发布事故说起"></a>4.1 从一次凌晨发布事故说起</h2><p>🔹 那次事故里全是没有人在偷懒的熟练工，可流程本身会重复出错。根源是「软件当手工艺品雕」：上线要走二十七步，停服务、做备份，替换文件，改配置，重启验证，全靠人一步一步执行。这引出了云原生要解决的第一个命题，也就是如何让交付不再依赖手工。</p>
+<h2 id="4-2-云原生到底在管哪四件事"><a href="#4-2-云原生到底在管哪四件事" class="headerlink" title="4.2 云原生到底在管哪四件事"></a>4.2 云原生到底在管哪四件事</h2><p>🔹 把云的本质想清楚，它相当于把机房交给别人管。传统自建机房要提前买够用三四年的机器，扩容要走采购流程，以周为单位，机器不忙时还在空转。租云则是网页点几下机器到手，扩容改个数字，用多少付多少。</p>
+<p>🔹 但上云不等于云原生。把原封不动的应用搬到云服务器，只是换了住的地方。云原生是软件生下来就为云而造，它管四件事：怎么装、怎么拆，怎么发，怎么看。怎么装是容器化，把应用和环境打包成集装箱，搬到哪都能原样跑。怎么拆是微服务化，把臃肿应用拆成小服务独立部署。怎么发是持续交付，用流水线代替手工上传。日志、指标、链路都留痕，才谈得上可观测性。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：云原生管四件事——怎么装（容器化）、怎么拆（微服务化）、怎么发（持续交付）、怎么看（可观测性）。</p>
+</blockquote>
+<p>🔹 传统方式与云原生方式在七个维度上拉开差距：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>传统方式</th>
+<th>云原生方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>交付单位</td>
+<td>几十兆的发包</td>
+<td>自带环境的容器镜像</td>
+</tr>
+<tr>
+<td>运行环境</td>
+<td>人工逐台配装 JDK</td>
+<td>镜像内全部自带</td>
+</tr>
+<tr>
+<td>部署方式</td>
+<td>手工多步，易出错</td>
+<td>流水线自动，业务不中断</td>
+</tr>
+<tr>
+<td>扩容方式</td>
+<td>采购机器，按周计</td>
+<td>自动扩缩容，按秒计</td>
+</tr>
+<tr>
+<td>故障处理</td>
+<td>人工登录查日志</td>
+<td>监控告警加自动重启</td>
+</tr>
+<tr>
+<td>发布节奏</td>
+<td>一月一次，如临大敌</td>
+<td>一天多次，随时回滚</td>
+</tr>
+<tr>
+<td>系统结构</td>
+<td>单体，牵一发而动全身</td>
+<td>微服务，各管各的</td>
+</tr>
+</tbody></table>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/04-cloud-native-arch-2.jpg" alt="云原生管哪四件事" loading="lazy" decoding="async"></p>
+<h2 id="4-3-五条设计原则"><a href="#4-3-五条设计原则" class="headerlink" title="4.3 五条设计原则"></a>4.3 五条设计原则</h2><p>🔹 云原生的骨架有五条，每一条都在防一类事故，可用十五个字记：拆得开、伸得缩，看得见，扛得住，少动手。自动化这一条强调先标准化再自动化，流程本身不确定，机器就学不会，人只能继续手工救火。</p>
+<p>🔹 服务化要在代码规模超出小团队协作范围时拆分，按业务边界和生命周期切，拆完面向接口编程、功能高内聚、公共模块复用。弹性让容量跟着业务走，设定规则由 Kubernetes 自动完成扩缩容。可观测让内部状态可被外部看到，指标告诉你哪里不对，日志告诉你错在哪一行，链路告诉你卡在哪一环。<br>|—|—|—|<br>| 服务化 | 改一处要全量回归 | 微服务、领域驱动、API 网关 |<br>| 弹性 | 大促撑不住、平时空转 | Kubernetes、自动扩缩容、负载均衡 |<br>| 可观测 | 出事只能靠猜 | ELK、Prometheus、SkyWalking |<br>| 韧性 | 依赖一抖全线崩 | 熔断、限流、降级 |<br>| 自动化 | 手工发布易错熬通宵 | CI&#x2F;CD、蓝绿、灰度 |</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/04-cloud-native-arch-3.jpg" alt="云原生五条设计原则" loading="lazy" decoding="async"></p>
+<h2 id="4-4-连锁零售中台改造"><a href="#4-4-连锁零售中台改造" class="headerlink" title="4.4 连锁零售中台改造"></a>4.4 连锁零售中台改造</h2><p>🔹 一个连锁零售企业的订单履约中台改造，目标支撑三年业务涨四倍，大促不人工扩容，全年可用性不低于 99.99%。改造前核心单体有八十万行代码，十二个模块挤在一个工程，任何改动要跑三小时全量回归，四个小组共用一条流水线。</p>
+<p>🔹 改造按五条原则落地。服务化把单体按业务域拆成订单、库存与支付、会员四个服务，需求交付周期从四周变一周。弹性按 CPU 超阈值触发自动扩容，月账单从四十二万降到二十六万。可观测接入链路追踪后，平均故障定位时间从两小时压到八分钟。韧性用熔断、限流、多可用区容灾，可用性从 99.9% 提升到 99.99%。自动化把发布从四十分钟手工缩到六分钟全自动。</p>
+<p>🔹 一个微服务系统可切成五层。入口层是浏览器、App 与小程序，还有开放 API，只认一个域名。网关层是请求唯一入口，做路由、鉴权，限流，熔断与灰度。业务层是订单、库存与支付、用户各管一摊。支撑层是注册发现、配置中心、链路追踪。数据层原则上一个服务管自己的库，不直接连别人的表，这是微服务拆得干不干净的分水岭。</p>
+<p>🔹 Kubernetes 里要记住七个对象。Pod 是共享网络和存储的最小家。Deployment 管无状态服务，要几份补几份。StatefulSet 管有身份的服务，如 MySQL、Kafka，重启后数据不丢，前提是用 volumeClaimTemplates 挂了持久卷，持久化由持久卷保证、不是 StatefulSet 对象本身。Service 给随时会变的 Pod 配一个固定入口。Ingress 是集群对外的大门与前台，但它只是路由规则，要跑起 Ingress Controller（如 ingress-nginx）才真正生效。ConfigMap 把配置从镜像里抽出来单独管理。HPA 按 CPU、内存、QPS 自动扩缩容，CPU、内存由 metrics-server 提供，QPS 这类自定义指标还要另装 prometheus-adapter 暴露 custom.metrics.k8s.io。</p>
+<h2 id="4-5-架构深潜：分层、拆分与七个对象"><a href="#4-5-架构深潜：分层、拆分与七个对象" class="headerlink" title="4.5 架构深潜：分层、拆分与七个对象"></a>4.5 架构深潜：分层、拆分与七个对象</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 声明式：只描述想要的状态，剩下的交给控制面</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">autoscaling/v2</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">HorizontalPodAutoscaler</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">scaleTargetRef:</span></span><br><span class="line">    <span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">order-service</span></span><br><span class="line">  <span class="attr">minReplicas:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">maxReplicas:</span> <span class="number">20</span></span><br><span class="line">  <span class="attr">metrics:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">Resource</span></span><br><span class="line">    <span class="attr">resource:</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">cpu</span></span><br><span class="line">      <span class="attr">target:</span></span><br><span class="line">        <span class="attr">type:</span> <span class="string">Utilization</span></span><br><span class="line">        <span class="attr">averageUtilization:</span> <span class="number">70</span></span><br></pre></td></tr></table></figure>
+
+<p>🔹 注意 Utilization 按实际用量除以 request 计算，目标 Pod 的容器必须设 cpu request，否则 HPA 算不出平均利用率。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：HPA 需 metrics-server 提供 CPU&#x2F;内存指标；自定义指标（如 QPS）需 prometheus-adapter。</p>
+</blockquote>
+<h2 id="4-6-数据一致性与弹性伸缩的真相"><a href="#4-6-数据一致性与弹性伸缩的真相" class="headerlink" title="4.6 数据一致性与弹性伸缩的真相"></a>4.6 数据一致性与弹性伸缩的真相</h2><p>🔹 把一件事拆到三个服务后，它不再是一个事务。一次下单可能动订单库、库存库、用户库，订单写完库存没扣时服务挂了，数据就不一致。三种解法：两阶段提交全程锁资源，性能差，仅银行内部转账这类强一致场景用；可靠消息把写库和发消息绑在同一本地事务，最终一致，最常用；补偿事务哪步失败反向补偿已完成的步骤。两条铁律是幂等和对账，每天定时比对两边数据兜底。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：服务拆分后不再是单事务，三解法：两阶段提交&#x2F;可靠消息&#x2F;补偿事务；铁律是幂等与对账。</p>
+</blockquote>
+<p>🔹 弹性伸缩不是一键变快，它有延迟。缩容默认有 300 秒稳定窗口，要连续低于阈值一段时间才触发、防止抖动，扩容默认没有稳定窗口、到阈值立即触发；调度器找机器拉镜像要十几秒到几分钟；启动应用含 JVM 预热往往更久；健康检查通过才挂负载均衡。所以真实项目里弹性是三件事一块做。提前按日历扩、日常水位控在五成左右、缩容比扩容慢。</p>
+<h2 id="4-7-韧性六手段与发布策略"><a href="#4-7-韧性六手段与发布策略" class="headerlink" title="4.7 韧性六手段与发布策略"></a>4.7 韧性六手段与发布策略</h2><p>🔹 韧性是别人家的服务一定会挂、会慢，我们能控制的只有自己怎么反应。六手段：超时设且比上游更短，逐层递减；重试只做幂等操作，配退避与次数上限；熔断在下游持续失败时切断，有关闭、打开、半开三态；限流不能只设总闸，接口和用户得分开设；降级保核心功能，提前备兜底数据；隔离是前面五手段的前提，从第一天就做。顺序不能乱。先限流，设超时，有限度重试，再熔断，按预案降级，从第一天就要隔离。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：韧性六手段顺序——先限流、设超时、有限重试、再熔断、按预案降级、从第一天隔离。</p>
+</blockquote>
+<p>🔹 发布有三种打法。滚动发布一批一批换，最省资源，新旧版本会同时跑。蓝绿发布两套环境一切换，回滚最快，代价是资源翻倍。灰度金丝雀先放百分之一到五的用户看指标，正常再放量，是现在主流选择。共同前提是数据库变更必须向后兼容，先加字段、再改代码、最后删旧字段。</p>
+<p>🔹 常见错误清单：</p>
+<p>🔹 以为上云就是云原生，把原程序原封不动搬上云服务器，只换了住的地方。</p>
+<ul>
+<li>服务拆得越细越好，结果改一下仍要全体协调，退化成分布式单体。</li>
+<li>把治理逻辑写进业务代码，语言被绑死，SDK 升级要所有服务重发。</li>
+<li>自动扩容前不提前扩，洪峰瞬间新实例还在路上，老实例已经倒了。</li>
+<li>数据库变更不与代码兼容，先删旧字段，发布即事故。</li>
+<li>镜像用不可信源且不扫漏洞，容器用 root，口令写进代码仓库。</li>
+<li>可观测只配监控不设追踪，遇到没见过的问题无法一步步追问下去。</li>
+<li>限流只设一个总闸，不从接口和用户维度分别设，保护不到位。</li>
+</ul>
+<p>🔹 云原生用十五个字作尺子：拆得开、伸得缩，看得见，扛得住，少动手。它把交付、伸缩、治理做成标准件，让团队从手工雕软件走向流水线，也让系统从「怕出事」走向「出了事也能原地爬起来」。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Docker/"># Docker</a>
+          
+          <a href="/tags/Kubernetes/"># Kubernetes</a>
+          
+          <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/"># 云原生</a>
+          
+          <a href="/tags/%E5%AE%B9%E5%99%A8%E5%8C%96/"># 容器化</a>
+          
+          <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"># 微服务</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"># 架构笔记</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/06/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/RAG/05-AI%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >AI 大模型应用架构 — RAG 与 Agent 的工程落地</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/06/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/03-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >微服务架构 — 拆分、治理与演进</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>

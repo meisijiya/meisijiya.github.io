@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>Redis 高并发与秒杀实战 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">Redis 高并发与秒杀实战</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 6, 2026&nbsp;&nbsp;9:02:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="02-Redis-高并发与秒杀实战"><a href="#02-Redis-高并发与秒杀实战" class="headerlink" title="02 Redis 高并发与秒杀实战"></a>02 Redis 高并发与秒杀实战</h1><blockquote>
+<p>📌 <strong>本篇速览</strong></p>
+<ul>
+<li>🔹 秒杀为何要加 Redis 闸门（2.1）</li>
+<li>🔹 Redis 单线程与内存优势（2.2）</li>
+<li>🔹 五种基础结构（2.3）</li>
+<li>🔹 分布式锁防超卖（2.4）</li>
+<li>🔹 Lua 与乐观锁（2.5）</li>
+<li>🔹 六种高并发优化策略（2.6）</li>
+<li>🔹 缓存三坑（2.7）</li>
+<li>🔹 对账兜底（2.8）</li>
+<li>🔹 常见错误清单（常见错误清单）</li>
+<li>🔹 闸门与削峰小结（小结）</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>秒杀场景里 Redis 不是用来替代数据库的，它是在数据库前面加的一道闸门，把绝大多数请求拦在真正的数据源之外。</p>
+</blockquote>
+<hr>
+<p>秒杀一开始是平静的。监控大盘上 CPU 正常，内存平稳，各项指标都和往常一样。可到了开抢那一秒，下单接口的响应时间从八十毫秒直接拉到八秒。这八秒足以让六成用户在移动端白屏时转身离开。</p>
+<h2 id="2-1-为什么秒杀必须加一道闸门"><a href="#2-1-为什么秒杀必须加一道闸门" class="headerlink" title="2.1 为什么秒杀必须加一道闸门"></a>2.1 为什么秒杀必须加一道闸门</h2><p>🔹 电商系统在秒杀开场那一瞬间的流量，往往是平时的上百倍。如果这股请求直接砸到 MySQL，结果不会只是变慢，数据库会直接拒绝服务。原因很直接：数据库的连接数一旦被打满，响应会越来越慢，最后干脆拒绝服务。用户看到的是页面一直转圈，随后报错。</p>
+<p>🔹 更麻烦的是，数据库是全站公用的。它一旦趴下，商品列表打不开，订单查不了，个人中心转圈，连登录都进不去。中间加一层 Redis，正是为了挡住绝大多数请求，别让秒杀把整个系统拖下水。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：秒杀开场流量是平时的上百倍，请求直接砸 MySQL 会连接数打满、拒绝服务，所以必须加 Redis 闸门。</p>
+</blockquote>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/02-redis-seckill-1.jpg" alt="秒杀链路为何要加 Redis 闸门" loading="lazy" decoding="async"></p>
+<h2 id="2-2-Redis-是什么"><a href="#2-2-Redis-是什么" class="headerlink" title="2.2 Redis 是什么"></a>2.2 Redis 是什么</h2><p>🔹 Redis 全称是 Remote Dictionary Server，意思是远程字典服务。远程说明它不在你的程序里，而是跑在另一台机器上的独立进程，程序通过网络去连它。字典说明它存数据的方式就是查字典：给一个键，立刻还一个值。服务器说明它是一个独立进程，要启动、要占内存，也可能挂掉。</p>
+<p>🔹 把它装进系统后，原来的链路从「用户 → 程序 → MySQL」变成「用户 → 程序 → Redis → MySQL」。多出来的这一层，相当于在程序旁边多了一台跑得飞快但容量不大的小仓库。程序先去小仓库问有没有能直接用的数据，没有再去 MySQL 捞，顺手把结果写回 Redis，下次就快了。</p>
+<p>🔹 Redis 能担当这道闸门，靠的是三个天生的优势：</p>
+<ul>
+<li>🔹 所有命令串行执行，天然不会相互打架</li>
+<li>🔹 数据全部在内存，读写是微秒级</li>
+<li>🔹 每个键都能设过期时间，到点自动清理<br>🔹 它管热数据，数据库管真数据，分工就此明确。命令串行执行还有一个好处，多个客户端同时来改同一个数字时不会出现互相覆盖，这正是后续并发方案的底座。<blockquote>
+<p>📌 <strong>考点</strong>：Redis 单线程串行执行命令，天然无锁竞争，多个客户端改同一数字也不会互相覆盖。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="2-3-五种基础结构"><a href="#2-3-五种基础结构" class="headerlink" title="2.3 五种基础结构"></a>2.3 五种基础结构</h2><p>🔹 Redis 提供五种基础结构，每种适合放什么数据，比背命令更关键。</p>
+<table>
+<thead>
+<tr>
+<th>结构</th>
+<th>形状</th>
+<th>秒杀场景用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>String</td>
+<td>一个键一个值</td>
+<td>库存计数、验证码、登录令牌</td>
+</tr>
+<tr>
+<td>Hash</td>
+<td>一个键一组字段</td>
+<td>商品详情、购物车</td>
+</tr>
+<tr>
+<td>List</td>
+<td>一列可双向进出的队伍</td>
+<td>订单排队、简单消息队列</td>
+</tr>
+<tr>
+<td>Set</td>
+<td>不重复的无序名单</td>
+<td>已购用户去重</td>
+</tr>
+<tr>
+<td>ZSet</td>
+<td>带分数的自动排行榜</td>
+<td>延迟队列、限流窗口</td>
+</tr>
+</tbody></table>
+<p>🔹 String 用得最多，八成以上的场景都是它。Hash 存商品详情很合适，一个商品有标题、价格与库存，凑成一条 hash 取用方便，改价格只动一个字段，比整体存取省流量也更安全。Set 是防一个人抢十次的锁，谁已购写多少遍都只有一条。ZSet 把时间戳当分数就能做延迟队列，订单十五分钟未支付自动取消就是这么实现的，但要靠后台消费者轮询 <code>ZRANGEBYSCORE</code> 取出到期成员去投递，Redis 本身不会自动触发。</p>
+<h2 id="2-4-分布式锁"><a href="#2-4-分布式锁" class="headerlink" title="2.4 分布式锁"></a>2.4 分布式锁</h2><p>🔹 超卖的根源只有一句话：读和写之间被别人插了一脚。最朴素的写法先 get 查库存再 set 扣减，两步之间留有空隙，两个请求同时进来都读到库存为一，扣完还是一，超卖就此发生。</p>
+<p>🔹 Redis 给的答案是一条命令 <code>SET key value NX EX</code>。NX 表示键不存在才设置，实现了互斥，只有第一个请求能成功，第二个请求键已存在直接失败。EX 表示自动过期，防止持有锁的进程崩溃或忘了释放，锁会自动到期，不会把整条业务线卡死。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：加锁用 <code>SET key value NX EX</code> 一条命令完成；NX 互斥、EX 自动过期防崩溃卡死。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加锁：键不存在才设置，并自动过期</span></span><br><span class="line">SET lock:sku:1001 &lt;requestId&gt; NX EX 30</span><br></pre></td></tr></table></figure>
+
+<p>🔹 解锁必须用 Lua 脚本，先判断这把锁是不是自己的再删。因为锁可能已超时自动释放，别人已经拿了锁，你直接删就会误删别人的锁。生产环境更推荐用 Redisson，它解决了可重入，并在未显式设定 leaseTime 时通过看门狗（默认锁超时 30 秒）自动续期。手写锁最容易错的地方，就是业务还没跑完锁就过期了。</p>
+<h2 id="2-5-Lua-脚本与乐观锁"><a href="#2-5-Lua-脚本与乐观锁" class="headerlink" title="2.5 Lua 脚本与乐观锁"></a>2.5 Lua 脚本与乐观锁</h2><p>🔹 Lua 脚本是防超卖的终极答案。脚本在 Redis 里整体执行，中间不会插入任何别的命令。我们查库存、扣库存、记录用户这三步永远不会被打断。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 原子扣减：查库存、扣库存、记录已购，三步合一</span></span><br><span class="line"><span class="keyword">if</span> redis.call(<span class="string">&#x27;SISMEMBER&#x27;</span>, KEYS[<span class="number">2</span>], ARGV[<span class="number">1</span>]) == <span class="number">1</span> <span class="keyword">then</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>   <span class="comment">-- 重复下单，幂等拦截</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">local</span> stock = <span class="built_in">tonumber</span>(redis.call(<span class="string">&#x27;GET&#x27;</span>, KEYS[<span class="number">1</span>])) <span class="keyword">or</span> <span class="number">0</span>   <span class="comment">-- GET 不存在返回 false，tonumber 后是 nil，兜底成 0</span></span><br><span class="line"><span class="keyword">if</span> stock &lt;= <span class="number">0</span> <span class="keyword">then</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>   <span class="comment">-- 库存不足，已售罄</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">redis.call(<span class="string">&#x27;DECR&#x27;</span>, KEYS[<span class="number">1</span>])</span><br><span class="line">redis.call(<span class="string">&#x27;SADD&#x27;</span>, KEYS[<span class="number">2</span>], ARGV[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">return</span> <span class="number">1</span>     <span class="comment">-- 抢购成功</span></span><br></pre></td></tr></table></figure>
+
+<p>🔹 脚本先检查用户是否在已购集合中，在就返回重复下单；再 get 库存，小于等于零返回售罄；最后 decrease 扣库存并把用户加进集合，返回成功。一个脚本把超卖、少卖、重复下单三个问题一起解决。</p>
+<p>🔹 Lua 脚本的代价是会阻塞 Redis，因为脚本原子执行期间别的命令都得排队，所以脚本要短要快，不能带大循环，几万行的遍历就是生产事故。</p>
+<p>🔹 乐观锁的思路是不锁门，谁想进谁进，出来时核对期间有没有人动过，动过这次就不算。具体用 watch 监视、multi 开事务、exec 提交，exec 返回 none 说明期间被改过，本次失败，自己决定重试还是放弃。stream 则解决别挤爆的问题：扣减成功只是抢到名额，真正的下单请求扔进队列，后台慢慢消费落库，数据库承受的压力被拉平。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：Lua 脚本原子执行杜绝读—写空隙，一个脚本解决超卖、少卖、重复下单；乐观锁用 watch&#x2F;multi&#x2F;exec，exec 返回 none 即本次失败。</p>
+</blockquote>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/02-redis-seckill-2.jpg" alt="库存预扣与热点 Key" loading="lazy" decoding="async"></p>
+<h2 id="2-6-六种高并发优化策略"><a href="#2-6-六种高并发优化策略" class="headerlink" title="2.6 六种高并发优化策略"></a>2.6 六种高并发优化策略</h2><p>🔹 回答「结合 Redis 列举高并发优化策略」，至少能答三组，按请求从上游到下游排：</p>
+<table>
+<thead>
+<tr>
+<th>手段</th>
+<th>解决的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>网关限流</td>
+<td>挡住刷单脚本与恶意流量</td>
+</tr>
+<tr>
+<td>热点数据预加载</td>
+<td>挡掉九成读请求</td>
+</tr>
+<tr>
+<td>库存预扣减（原子操作）</td>
+<td>防超卖</td>
+</tr>
+<tr>
+<td>分布式锁</td>
+<td>同一商品互斥修改</td>
+</tr>
+<tr>
+<td>消息队列削峰</td>
+<td>拉平瞬时洪峰</td>
+</tr>
+<tr>
+<td>数据库条件更新</td>
+<td>最后兜底，不扣成负数</td>
+</tr>
+</tbody></table>
+<p>🔹 整条链路可以这样理解：请求先到网关做限流，再到 Redis 缓存，商品详情和库存多数在此返回；第三站 Redis 原子扣减，扣不动直接返回售罄；第四站消息队列，扣减成功的请求扔进去；第五站后台消费者慢慢写订单、扣数据库；最后一站 MySQL，用 <code>WHERE number &gt; 0</code> 做兜底，就算前面全出问题也不会扣成负数。</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/02-redis-seckill-3.jpg" alt="六种高并发优化策略" loading="lazy" decoding="async"></p>
+<h2 id="2-7-缓存三坑"><a href="#2-7-缓存三坑" class="headerlink" title="2.7 缓存三坑"></a>2.7 缓存三坑</h2><p>🔹 缓存穿透是查一个根本不存在的数据，缓存永远不命中，每次都打穿数据库。有人拿不存在的商品 id 疯狂刷，成本低却能打穿数据库。解法两招：缓存空值并设短过期，再加布隆过滤器拦一道；布隆过滤器有假阳性，仍会有少量不存在的 key 漏到数据库，所以空值缓存这层不能省。</p>
+<p>🔹 缓存击穿是某个热点键刚好过期，那一瞬间几万个请求同时冲向数据库。它和穿透不同，穿透是查不存在的数据，击穿是数据存在但热点键过期了。</p>
+<p>🔹 缓存雪崩是一大批键在同一秒过期，或者整个 Redis 挂掉。根因常是大家统一设了三十分钟过期，到点集体过期。解法给过期时间加随机值打散，再配本地缓存兜底或哨兵集群。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：穿透（数据不存在）、击穿（热点 key 过期）、雪崩（大批 key 同时过期或 Redis 挂）三者区别；雪崩用随机过期时间 + 多级缓存兜底。</p>
+</blockquote>
+<h2 id="2-8-对账兜底"><a href="#2-8-对账兜底" class="headerlink" title="2.8 对账兜底"></a>2.8 对账兜底</h2><p>🔹 Redis 只做预扣，数据库才是真正的数据源。扣减和落库不一致时，一律以数据库为准做对账回补。Redis 崩了，账对不上，没关系，MySQL 里的账是真的，我们拿数据库去修 Redis，而不是反过来。缓存可以丢，账不能错。记住，Redis 不解决并发，它只是把并发挡在数据库前面。</p>
+<h2 id="常见错误清单"><a href="#常见错误清单" class="headerlink" title="常见错误清单"></a>常见错误清单</h2><p>⚠️ 把「先 get 再 set」当成原子扣减，忘了两步之间有空隙，埋下超卖隐患。<br>⚠️ 用普通删除解锁，锁过期以后误删别人持有的锁，导致并发失控。<br>⚠️ Lua 脚本里写大循环遍历海量键，阻塞 Redis 拖垮整站。<br>⚠️ 把强一致的库存余额也放心放进缓存，缓存与库不一致引发超卖。<br>⚠️ 所有键设统一过期时间，到点集体失效，触发缓存雪崩。<br>⚠️ 不看命中率，命中率跌破阈值仍不告警，数据库压力悄悄爬升。<br>⚠️ 把 Redis 当成数据库替代，忘了它断电会丢、容量小、只能按键查。<br>⚠️ 扣减成功就以为下单完成，跳过消息队列落库，洪峰直接打爆数据库。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>🔹 Redis 在秒杀里扮演的是闸门，不是仓库。它把绝大多数请求挡在数据库之前，用原子操作、分布式锁、Lua 脚本堵住超卖与重复下单，再用消息队列把瞬时洪峰削平。真正兜底的永远是 <code>WHERE number &gt; 0</code> 这行条件更新，以及以数据库为准的对账回补。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Redis/"># Redis</a>
+          
+          <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/"># 分布式锁</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"># 架构笔记</a>
+          
+          <a href="/tags/%E7%A7%92%E6%9D%80/"># 秒杀</a>
+          
+          <a href="/tags/%E7%BC%93%E5%AD%98/"># 缓存</a>
+          
+          <a href="/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/"># 高并发</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/06/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/03-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >微服务架构 — 拆分、治理与演进</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/06/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E4%B8%AD%E9%97%B4%E4%BB%B6/01-Redis%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >Redis 核心机制 — 锁、消息队列、Lua 与哨兵集群</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>

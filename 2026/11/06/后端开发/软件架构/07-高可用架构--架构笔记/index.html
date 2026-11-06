@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>高可用架构 — 冗余、隔离与故障自愈 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+
+            <div class="main">
+                
+<div class="container">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">高可用架构 — 冗余、隔离与故障自愈</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 6, 2026&nbsp;&nbsp;9:07:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/">软件架构</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<h1 id="07-高可用架构"><a href="#07-高可用架构" class="headerlink" title="07 高可用架构"></a>07 高可用架构</h1><blockquote>
+<p>📌 <strong>本篇速览</strong></p>
+<ul>
+<li>🔹 7.1 可用性数字与单点致命</li>
+<li>🔹 7.2 容量崩塌与过载连锁</li>
+<li>🔹 7.3 五层冗余与三种备胎力度</li>
+<li>🔹 7.4 故障检测与自动转移</li>
+<li>🔹 7.5 雪崩四断路器</li>
+<li>🔹 7.6 舱壁隔离与混沌演练</li>
+<li>🔹 7.7 机房级冗余</li>
+<li>🔹 7.8 选型与落地</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>高可用不是靠运气，靠的是冗余、自动切换与演练。本文从可用性数字讲到五层冗余，再到雪崩断路器与混沌演练。</p>
+</blockquote>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/07-high-availability-arch-1.jpg" alt="高可用架构开篇" loading="lazy" decoding="async"></p>
+<hr>
+<h2 id="7-1-先把可用性变成一个数字"><a href="#7-1-先把可用性变成一个数字" class="headerlink" title="7.1 先把可用性变成一个数字"></a>7.1 先把可用性变成一个数字</h2><p>🔹 可用性等于一年里系统真正能干活的时间比例。三个九 99.9% 一年允许停机几小时，是很多业务系统的常见目标。四个九 99.99% 一年只允许几十分钟故障，是支付与交易类系统的及格线。五个九 99.999% 一年停机约五分钟，代价高。</p>
+<p>大促当天的五分钟故障，损失比平时零散的五分钟大得多。先定目标再谈架构，先把三个九坐稳，别一上来就追几个九。</p>
+<p>🔹 单实例看着岁月静好：八核十六 G 跑应用，旁边一个数据库，日常七八百 QPS、RT 四十毫秒，监控全线绿。它有两个致命设定。任何一处故障用户立刻白屏，应用挂、库挂、断电都白屏，没有缓冲。所有修复必须停业务，发布、改配置与重启都要停机，业务越好越不敢动。整机可用性是应用乘数据库乘机器，任一失手全盘归零。问题在它没有第二套方案。</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/07-high-availability-arch-2.jpg" alt="为什么需要高可用" loading="lazy" decoding="async"></p>
+<h2 id="7-2-故障一定会来，且会链式传染"><a href="#7-2-故障一定会来，且会链式传染" class="headerlink" title="7.2 故障一定会来，且会链式传染"></a>7.2 故障一定会来，且会链式传染</h2><p>🔹 单实例压测有一条断崖曲线。起点八百 QPS、RT 四十毫秒很稳，流量爬到一万五变慢仍在服务，到一万八、两万时曲线断崖跳水，整台消失。前一毫秒还在服务上万个用户，后一毫秒一个也服务不了，这叫容量崩塌，特征是它非线性，是悬崖。</p>
+<p>🔹 崩塌后最气人的是流量回落还瘫痪，堆积的请求把机器按在水底，除非重启爬不出来。根因是过载连锁。请求在连接池排队，每个请求等别的请求，占满线程，新请求包括健康检查都超时。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：容量崩塌是非线性悬崖；过载连锁的根因是连接池排队占满线程，健康检查也超时。</p>
+</blockquote>
+<h3 id="7-2-1-四类故障"><a href="#7-2-1-四类故障" class="headerlink" title="7.2.1 四类故障"></a>7.2.1 四类故障</h3><p>🔹 故障分四类。硬件如磁盘内存网卡整机，上云后机器仍会坏只是少。软件如 bug 与内存泄漏，阴险在不报错只变慢，一条慢 SQL 大促会拖死连接池。流量如大促热点与恶意刷量，不可预测。人祸如误操作错配置，行业占比高。单独每类不致命，串联才致命，而越往后越必然，没灰度没回滚几乎排着队来。</p>
+<h2 id="7-3-五层冗余与三种备胎力度"><a href="#7-3-五层冗余与三种备胎力度" class="headerlink" title="7.3 五层冗余与三种备胎力度"></a>7.3 五层冗余与三种备胎力度</h2><p>🔹 一个请求从用户手机到数据落盘穿过五层，任一层只活一份就会变成全栈死穴。接入层单点是一台 Nginx 或公网 IP，挂了后面应用再多也没用，冗余要多台加 DNS 多入口。应用层单点部署，解法是多实例加负载均衡，无状态是命门。缓存层单点 Redis 挂了全部请求砸向数据库，要哨兵或集群，并做缓存全灭演练保证库裸奔也能扛。数据库层优先级最高，单点主库造过无数事故，要主从复制加自动切换。机房层单点怕断电火灾光缆挖断，要同城双活或异地多活。</p>
+<h3 id="7-3-1-三种备胎力度"><a href="#7-3-1-三种备胎力度" class="headerlink" title="7.3.1 三种备胎力度"></a>7.3.1 三种备胎力度</h3><p>每一层至少活两份，但活两份之间差距很大。</p>
+<table>
+<thead>
+<tr>
+<th align="left">力度</th>
+<th align="left">RTO</th>
+<th align="left">RPO</th>
+<th align="left">适用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">冷备</td>
+<td align="left">小时级</td>
+<td align="left">可能丢一段</td>
+<td align="left">内部系统、报表</td>
+</tr>
+<tr>
+<td align="left">热备</td>
+<td align="left">秒到分钟级</td>
+<td align="left">趋零</td>
+<td align="left">多数业务标配</td>
+</tr>
+<tr>
+<td align="left">多活</td>
+<td align="left">短、用户无感</td>
+<td align="left">秒级趋零</td>
+<td align="left">城市级灾难保险</td>
+</tr>
+</tbody></table>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/07-high-availability-arch-3.jpg" alt="高可用五层冗余全景" loading="lazy" decoding="async"></p>
+<p>选力度看 RTO（恢复要多久）与 RPO（最多丢多久数据），答案越严账单越贵，多数业务选热备。</p>
+<h2 id="7-4-故障检测与自动转移"><a href="#7-4-故障检测与自动转移" class="headerlink" title="7.4 故障检测与自动转移"></a>7.4 故障检测与自动转移</h2><p>🔹 一切切换的前提是先发现故障。健康检查每五秒发一次请求，正常返回 200，出问题超时或 500，连续 N 次失败才判定死亡，一次失败就摘除等于把喷嚏当病危。检查分被动式（进程在不在、端口通不通）和主动式（数据库连得上吗、依赖通吗、线程池有余量吗）。最容易踩的坑是只查进程不查依赖：数据库挂了应用进程活着、端口通，健康检查全过，假活的实例继续接流量，用户得到更彻底的白屏。健康检查必须覆盖核心依赖，依赖挂就承认自己也挂。多次失败才判死加自动摘除，两者配合才合格。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：健康检查必须覆盖核心依赖；只查进程会导致假活实例继续接流量。</p>
+</blockquote>
+<p>故障转移全程约三十秒，分五步：探测死亡并告警；摘除故障节点让新请求不再发给他；备胎顶上，从库提主库或请求路由到备胎实例；验证新主库健康后放开写流量；事后原节点修好以从库身份悄悄回归，择机演练回切。回切本身也要演练过，不能在生产首次练习。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用健康与网关摘除（被动式）</span></span><br><span class="line"><span class="attr">management:</span></span><br><span class="line">  <span class="attr">endpoint:</span></span><br><span class="line">    <span class="attr">health:</span></span><br><span class="line">      <span class="attr">show-details:</span> <span class="string">always</span>   <span class="comment"># 自动检查 DB、磁盘、Redis，任一挂返回 503</span></span><br><span class="line"><span class="string">upstream</span> <span class="string">app</span> &#123;</span><br><span class="line">  <span class="string">server</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8081</span> <span class="string">max_fails=3</span> <span class="string">fail_timeout=10s;</span>  <span class="comment"># 连续3次失败摘10秒</span></span><br><span class="line">  <span class="string">server</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8082</span> <span class="string">max_fails=3</span> <span class="string">fail_timeout=10s;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-5-雪崩四断路器：限流、熔断、降级、重试"><a href="#7-5-雪崩四断路器：限流、熔断、降级、重试" class="headerlink" title="7.5 雪崩四断路器：限流、熔断、降级、重试"></a>7.5 雪崩四断路器：限流、熔断、降级、重试</h2><p>🔹 限流是压测曲线的答案。与其被两万 QPS 打死，不如一次只接一万二，多的请稍后再试。令牌桶四行配置就够，发放周期一秒、每周期发八千令牌、请求最多等两百毫秒拿令牌，拿到正常处理，拿不到快速失败绝不让排队到死。配额用压测找崩塌点再留两成余量，分层在网关、服务与用户级设卡，任一层失误有下层兜底。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：限流配额用压测找崩塌点再留两成余量；熔断打开后走降级。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">断路器</th>
+<th align="left">管什么</th>
+<th align="left">动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">限流</td>
+<td align="left">入口流量过多</td>
+<td align="left">超额快速拒绝</td>
+</tr>
+<tr>
+<td align="left">熔断</td>
+<td align="left">下游挂了</td>
+<td align="left">失败率超阈值断开走降级</td>
+</tr>
+<tr>
+<td align="left">降级</td>
+<td align="left">用户体验</td>
+<td align="left">返回兜底、简化流程</td>
+</tr>
+<tr>
+<td align="left">重试</td>
+<td align="left">瞬时抖动</td>
+<td align="left">指数退避，带预算</td>
+</tr>
+</tbody></table>
+<h3 id="7-5-1-熔断与降级"><a href="#7-5-1-熔断与降级" class="headerlink" title="7.5.1 熔断与降级"></a>7.5.1 熔断与降级</h3><p>熔断管下游挂了的情况。推荐服务挂了，商品页每调一次等死三十秒超时，还傻等就是陪葬。熔断像电闸，烧了先打开。熔断器统计最近二十次调用，失败率超一半就打开，十秒后进半开放几个试探。打开后给用户什么靠降级：推荐挂返回热销榜，评价挂隐藏入口，残缺但能下单付款好过白屏。降级前先问功能挂了用户还能走完主流程吗，据此把依赖分主链路（下单库存支付，降不起）和边缘链路（推荐评价，放心降级）。熔断把等死三十秒变成拒绝一毫秒，雪崩链条从这儿剪断。</p>
+<p>重试本是好东西，剂量不对变毒药。下单抖动十秒成功率掉八成，上游都配失败重试三次，到下游流量变三倍，把虚弱的下游压垮，十秒抖动放大成四十分钟瘫痪，叫重试风暴。原则是重试要幂等且值得，下单扣款必须带幂等键，业务报错如库存不足别重试。三件套是指数退避、退避加随机抖动打散，以及全链路重试占比超一成主动熔断。</p>
+<h2 id="7-6-舱壁隔离与混沌演练"><a href="#7-6-舱壁隔离与混沌演练" class="headerlink" title="7.6 舱壁隔离与混沌演练"></a>7.6 舱壁隔离与混沌演练</h2><p>🔹 舱壁隔离取自轮船密封隔间，一舱进水关闸船照航。系统把线程池按依赖切成独立小池，Tomcat 两百线程切三舱：下单一百二、推荐四十、评价四十。推荐挂只占满推荐舱四十线程，被关在自己船舱，下单一百二线程一寸没被占，购物车照常下单付款。对照雪崩链第三步线程池耗尽，灾难之所以传染是因为所有功能共享一个池。主链路给大池，边缘链路给小池，按降不起的程度分舱，分错舱代价翻倍。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：舱壁隔离把线程池按依赖分仓，主链路大池、边缘链路小池。</p>
+</blockquote>
+<p>没演练过的高可用是空中楼阁，要主动把系统搞挂验证自动切换真自动。三个入门演练：杀应用实例看 Nginx 能否自动摘除；给网卡加两秒延迟看熔断器是否一秒内打开切降级；把主库磁盘塞满看从库能否顶上。演练三要素是提前声明、一分钟能叫停、盯错误率与切换时间出结论。每次演练几乎必翻车，在演练时踩坑是排练，在大促踩是事故。</p>
+<h2 id="7-7-机房级冗余：双活与多活"><a href="#7-7-机房级冗余：双活与多活" class="headerlink" title="7.7 机房级冗余：双活与多活"></a>7.7 机房级冗余：双活与多活</h2><p>🔹 前面的冗余都在同一机房，机房级灾难防不住。同城双活如上海浦东与外环两机房同时接流量，双向同步 binlog，专线延迟几毫秒无感，任挂流量换另一机房，RTO 分钟级 RPO 趋零。异地多活按城市分站点，按用户分片让同一行数据只有一个写点避免冲突，跨城异步复制复杂度高，双向写的数据冲突要专门仲裁。</p>
+<p>双活核心难题是数据，两地同时写一行用谁的业务主流答案是按用户分片。不是每家公司都需要多活，先问 RTO、RPO 多低，机房级故障概率怎么估，多花的复杂度谁扛。多数业务做好同城双活够用，多活投入常是单活加主从的三到四倍，买的是城市级灾难保险。起步路径是先坐稳单机房五层，再做同城双活，最后有真实需求才碰异地多活。</p>
+<h2 id="7-8-选型与落地"><a href="#7-8-选型与落地" class="headerlink" title="7.8 选型与落地"></a>7.8 选型与落地</h2><p>🔹 选型先问挂了损失多少。停机每分钟损失一千以下的内部系统，单实例加每日备份加冷备够，别浪费钱。交易类每分钟损失几万，才值多付一个九到 99.99%。这叫预算思维，先定价再购物。再问哪一环最先挂，用五层检查法走一遍，应用层常被云平台兜底，真正脆弱在数据库和缓存击穿，资源有限先给最脆弱层加冗余。还要问谁在值班、演练过吗，切换脚本没人懂、演练从没跑过，这套高可用就是纸糊的。多数系统的答案都是主从热备加双实例加限流熔断再加季度演练，四样做到位基本达标。</p>
+<p>部署形态三选：自建主从加演练适合有 DBA 与 SRE 的团队，完全可控但运维全自己弄；云托管适合中小团队，主从备份自动切换全托管，代价是费用溢价与厂商锁定；混合日常用托管自建一条逃生通道，灾难时验证自建真能接管，代价是两条体系都养。<br>落地分三阶段。阶段一消灭单点：应用双实例加 Nginx 自动摘除，数据库主从复制，每日备份异地存放。阶段二切断雪崩：限流、熔断、降级、重试预算与舱壁隔离逐个上线。阶段三演练常态化：混沌演练进排期，每月一次故障演习，大促前全链路压测。</p>
+<h2 id="7-9-常见错误清单"><a href="#7-9-常见错误清单" class="headerlink" title="7.9 常见错误清单"></a>7.9 常见错误清单</h2><ol>
+<li>健康检查只查进程不查依赖，数据库挂了实例假活继续接流量，用户得到更彻底的白屏。</li>
+<li>重试不设预算，每层乘三在长链路放大两百多倍，把十秒抖动变成四十分钟瘫痪。</li>
+<li>切换脚本从未演练，真要切时发现还要人工改配置，应每次变更后必演练。</li>
+<li>降级预案没有文案，降级生效用户却看到未定义字样，应把降级响应当产品需求验收。</li>
+<li>备份跑了两年没验证，第一次恢复发现缺表，应每月挑一天做恢复演习。</li>
+<li>把主链路依赖放进小舱壁，稍一抖动就拒绝，或把边缘链路放进大舱壁，挂了拖死全系统。</li>
+<li>只做同机房冗余，遇断电光缆挖断这类机房级灾难整体失效，应按需上双活。</li>
+<li>限流配额拍脑袋定，没用压测找崩塌点，系统该挡的没挡住。</li>
+<li>多活一步到位，数据冲突与双向写仲裁都没解决，应先坐稳单机房五层再做双活。</li>
+</ol>
+<h2 id="7-10-小结"><a href="#7-10-小结" class="headerlink" title="7.10 小结"></a>7.10 小结</h2><p>故障是必然的，无感是设计出来的。架构把故障概率做成用户无感知的手艺，靠的是冗余、自动切换与反复演练三件事。配置会过期，人员会流动，只有演练排期和值班制度能让这套高可用活到下一个季度。现在就用五层检查法给自己的系统画张图，把最脆弱的那层先加上备胎。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%86%97%E4%BD%99/"># 冗余</a>
+          
+          <a href="/tags/%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/"># 故障转移</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"># 架构笔记</a>
+          
+          <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/"># 软件架构</a>
+          
+          <a href="/tags/%E9%99%90%E6%B5%81/"># 限流</a>
+          
+          <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/"># 高可用</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/06/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/08-%E9%AB%98%E6%80%A7%E8%83%BD%E6%9E%B6%E6%9E%84--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >高性能架构 — 缓存、异步与并行</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/06/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/06-%E9%AB%98%E5%B9%B6%E5%8F%91%E6%9E%B6%E6%9E%84--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >高并发架构 — 流量分层与削峰填谷</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>
