@@ -1,5 +1,5 @@
 /*
- * AI 阅读助手 · 组件样式
+ * 12 助手 · 组件样式
  *
  * 作用域：.ai-root（类名与令牌都限定在这里，不外泄到博客主题）
  * 依赖：source/ai-assistant/ai-assistant-tokens.css 提供两套令牌
@@ -151,8 +151,8 @@
 .ai-head-row {
     display: flex;
     align-items: center;
-    /* 放不下时允许换行：上下文提示整体挪到第二行，而不是被挤成「（不…」 */
-    flex-wrap: wrap;
+    /* 标题栏只留一行：标题 + 会话入口 + 标签栏 + 关闭，放不下时由标题自己省略 */
+    flex-wrap: nowrap;
     gap: 8px;
     width: 100%;
 }
@@ -240,29 +240,6 @@
     stroke: currentColor;
     stroke-width: 1.7;
     stroke-linecap: round;
-}
-
-/* 上下文提示：独占一整行。
- * 头部一行里还挤着标题、会话入口、标签栏和关闭键，
- * 上下文提示跟它们抢宽度只会被压成「（不…」，看不出在读哪一篇；
- * 排到第二行后标题行保持整齐，提示也能完整显示。 */
-.ai-panel-context {
-    margin: 0;
-    /* order 排到最后：标题行先排完（标题/会话/标签/关闭），上下文提示落到下一行 */
-    order: 10;
-    flex: 1 0 100%;
-    min-width: 0;
-    font-size: var(--ai-fs-meta);
-    line-height: 1.5;
-    color: var(--ai-ink-3);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.ai-panel-context:hover {
-    color: var(--ai-ink-2);
 }
 
 /* 会话入口：标题栏里一个能点的当前会话名，点开是历史会话 */
@@ -1069,8 +1046,26 @@
 
 .ai-composer {
     flex: none;
+    position: relative;
     padding: 12px 16px 14px;
     border-top: 1px solid var(--ai-border);
+}
+
+/* 开关切换的瞬时反馈：绝对定位贴在输入区上方，不撑高底栏 */
+.ai-toast {
+    position: absolute;
+    right: 16px;
+    bottom: calc(100% + 6px);
+    margin: 0;
+    padding: 6px 10px;
+    border-radius: var(--ai-r-chip);
+    background: var(--ai-ink);
+    color: var(--ai-surface);
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: var(--ai-shadow-pop);
 }
 
 .ai-quote {
@@ -1126,11 +1121,62 @@
     color: var(--ai-ink);
 }
 
-.ai-input-row {
+/*
+ * 输入区一行：灰底输入框 + 框外的发送按钮。
+ * 按钮不进灰框，输入框随行数长高时只有灰框变高，按钮原地不动。
+ */
+.ai-composer-row {
     display: flex;
     align-items: flex-end;
     gap: 8px;
-    padding: 6px 6px 6px 12px;
+}
+
+/*
+ * 上下文开关：灰框内左侧的图标按钮，开着是墨色、关掉是次级色加半透明。
+ * 放在框里而不是框外加一列按钮——那一列比单行输入框高，顶上会留一条空白。
+ */
+.ai-context-toggle {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    margin: 0 0 5px 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ai-ink);
+    display: grid;
+    place-items: center;
+    align-self: flex-end;
+    cursor: pointer;
+    transition: background-color var(--ai-t-quick) linear, color var(--ai-t-quick) linear;
+}
+
+.ai-context-toggle:hover {
+    background: var(--ai-raised);
+}
+
+.ai-context-toggle[aria-checked="false"] {
+    color: var(--ai-ink-3);
+    opacity: 0.6;
+}
+
+.ai-context-toggle svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ai-input-row {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: 6px 8px 6px 12px;
     border: 1px solid var(--ai-border);
     border-radius: var(--ai-r-control);
     background: var(--ai-field);
@@ -1146,7 +1192,9 @@
     flex: 1;
     min-width: 0;
     min-height: 26px;
-    max-height: 140px;
+    /* 最多三行：正文 16px × 行高 1.5 = 24px/行，加上下内边距 8px。
+       再多就在框里滚动，不再顶着面板长高。 */
+    max-height: 80px;
     padding: 4px 0;
     border: 0;
     background: transparent;
@@ -1155,6 +1203,9 @@
     line-height: 1.5;
     color: var(--ai-ink);
     resize: none;
+    /* 默认不出滚动条：JS 只在内容顶到三行上限时才打开 */
+    overflow-y: hidden;
+    box-sizing: border-box;
 }
 
 .ai-input::placeholder {
@@ -1191,6 +1242,12 @@
     cursor: default;
 }
 
+/* 回答期间同一个按钮变成停止键：用危险色，按下去会立刻中止这一轮 */
+.ai-send.is-stop,
+.ai-send.is-stop:hover:not(:disabled) {
+    background: var(--ai-danger);
+}
+
 .ai-send svg {
     width: 16px;
     height: 16px;
@@ -1218,14 +1275,21 @@
     background: var(--ai-code);
     white-space: pre;
     overflow-x: auto;
+    /* 长代码在块内横向滚动：宽度被气泡夹住，不能按内容宽度撑开 */
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .ai-code-wrap {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    /* stretch 不是 flex-end：按内容宽度排会把超宽代码块从左侧顶出气泡（手机上最明显） */
+    align-items: stretch;
     gap: 2px;
     margin: 0 0 8px;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .ai-code-wrap:last-child {
@@ -1235,6 +1299,7 @@
 /* 复制按钮是第三级动作：纯文字，不加边框不加底色 */
 .ai-code-copy {
     appearance: none;
+    align-self: flex-end;
     margin: 0;
     padding: 2px 4px;
     border: 0;
@@ -1638,6 +1703,7 @@
 .ai-select-btn:focus-visible,
 .ai-secret-toggle:focus-visible,
 .ai-quote-clear:focus-visible,
+.ai-context-toggle:focus-visible,
 .ai-tool-head:focus-visible,
 .ai-selection-bubble:focus-visible {
     outline: 2px solid var(--ai-ink);
@@ -1670,6 +1736,15 @@
 
     .ai-panel.is-open {
         transform: translateY(0);
+    }
+
+    /*
+     * 点浮窗外面：抽屉往下压，只留头部一条（抓手 + 标题行 ≈ 64px）。
+     * 只改 transform，不动 height——再点一下浮窗就能回到原来的高度。
+     * 这和关闭是两回事：关闭会摘掉 is-open 并在过渡后补 hidden。
+     */
+    .ai-panel.is-open.is-peek {
+        transform: translateY(calc(100% - 64px));
     }
 
     /* 抽屉打开时悬浮球让位 */
@@ -1748,6 +1823,13 @@
     background: var(--ai-danger-soft);
     border: 1px solid var(--ai-danger);
     color: var(--ai-danger);
+}
+
+/* 中断后的续写动作：贴着错误气泡排，不跟着错误色走 */
+.ai-msg--error .ai-error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 /* 保存配置失败时把原因染成危险色 */

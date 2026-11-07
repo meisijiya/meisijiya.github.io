@@ -1,5 +1,5 @@
 /**
- * AI 阅读助手 —— Provider 适配层（浏览器侧 classic script）。
+ * 12 助手 —— Provider 适配层（浏览器侧 classic script）。
  *
  * 职责边界：只做「配置归一 / 错误分型 / 流式协议翻译」三件事，不碰 DOM、不持有 UI 状态。
  * 外部只认 window.AIAssistant.provider 上的三个函数：
@@ -135,6 +135,9 @@
      * 错误分型。浏览器直连最大的坑是「分不清 CORS 与鉴权失败」，
      * 所以每类都给出可执行的下一步，而不是笼统的「请求失败」。
      */
+    // 上下文超长（413 或 400 里的同类错误）修法只有这两条，措辞只写一处
+    var CONTEXT_TOO_LONG_HINT = '注入的正文与历史超过了模型上限。开一条新会话，或在输入区关掉「携带博客上下文」后重试。';
+
     function classifyError(info) {
         var input = info || {};
         var bodyText = redact(input.bodyText == null ? '' : String(input.bodyText), input.apiKey || '');
@@ -146,12 +149,17 @@
         var title;
         var hint;
 
-        if (input.streamBroken) {
+        if (input.aborted) {
+            kind = 'abort';
+            title = '已停止生成';
+            // 续写按钮由主流程按「有没有半截正文」决定，这里不承诺按钮存在
+            hint = '这一轮是你手动停下的。';
+        } else if (input.streamBroken) {
             // 响应已经开始才断：是连接中途断了，不是浏览器不让读。
             // 不分清就会把用户引去查 CORS 配置，而真正的原因是流被掐断。
             kind = 'stream';
             title = '回复中途断开';
-            hint = '模型已经开口，但连接在回复中途断了（常见于本地网关或模型侧超时）。重试一次，或换更短的提问。';
+            hint = '模型已经开口，但连接在回复中途断了（常见于本地网关或模型侧超时）。换一个更短的提问重试。';
         } else if (hasNetworkError || status === 0) {
             if (input.reachable === false) {
                 kind = 'network';
@@ -164,20 +172,55 @@
             }
         } else if (status === 401 || status === 403) {
             kind = 'auth';
-            title = '密钥无效或权限不足';
+            title = '密钥无效或权限不足（HTTP ' + status + '）';
             hint = '检查 API Key 与协议是否匹配：OpenAI 兼容端点与 MiniMax 兼容端点用 Authorization: Bearer，Anthropic 官方 API 用 x-api-key。';
+        } else if (status === 402) {
+            kind = 'quota';
+            title = '账户额度不足（HTTP 402）';
+            hint = '这次请求被计费拦住：检查 Provider 账户余额或套餐额度，换一个可用密钥或模型后重试。';
+        } else if (status === 404) {
+            kind = 'not_found';
+            title = '接口地址不存在（HTTP 404）';
+            hint = 'Base URL 与协议拼不出正确的接口：OpenAI 兼容要能拼出 /chat/completions（Base URL 通常以 /v1 结尾），Anthropic 要能拼出 /v1/messages。检查地址与模型名。';
+        } else if (status === 408 || status === 504) {
+            kind = 'timeout';
+            title = status === 408 ? '请求超时（HTTP 408）' : '网关响应超时（HTTP 504）';
+            hint = 'Provider 迟迟没有响应。稍后重试，或换更近的网关、更短的提问。';
+        } else if (status === 413) {
+            kind = 'context';
+            title = '一次发送的内容太长（HTTP 413）';
+            hint = CONTEXT_TOO_LONG_HINT;
+        } else if (status === 422) {
+            kind = 'bad_request';
+            title = 'Provider 不接受这次请求的参数（HTTP 422）';
+            hint = detail || '检查模型名与该 Provider 支持的参数。';
         } else if (status === 429) {
             kind = 'rate';
-            title = '额度不足或触发限流';
+            title = '额度不足或触发限流（HTTP 429）';
             hint = '稍后重试，或更换模型与 Provider。';
+        } else if (status === 502 || status === 503) {
+            kind = 'server';
+            title = 'Provider 暂时不可用（HTTP ' + status + '）';
+            hint = '模型侧或网关暂时不可用。稍后重试，或更换模型与 Provider。';
         } else if (status >= 500 && status <= 599) {
             kind = 'server';
-            title = 'Provider 服务异常';
+            title = 'Provider 服务异常（HTTP ' + status + '）';
             hint = '可稍后重试，或更换模型与 Provider。';
         } else if (status >= 400 && status <= 499) {
-            kind = 'bad_request';
-            title = '请求被拒绝';
-            hint = detail || '检查模型名与请求体格式';
+            // 400 里最常撞的两类有各自的修法，分出来比笼统的「请求被拒绝」有用得多
+            if (/context|too long|maximum.*token|max_tokens|input is too long/i.test(bodyText)) {
+                kind = 'context';
+                title = '一次发送的内容太长';
+                hint = CONTEXT_TOO_LONG_HINT;
+            } else if (/model/i.test(bodyText) && /(not found|does not exist|invalid|unknown|unsupported)/i.test(bodyText)) {
+                kind = 'model';
+                title = '模型名不可用';
+                hint = '该 Provider 没有这个模型。检查模型名拼写，或换一个它支持的模型。';
+            } else {
+                kind = 'bad_request';
+                title = '请求被拒绝（HTTP ' + status + '）';
+                hint = detail || '检查模型名与请求体格式';
+            }
         } else {
             kind = 'network';
             title = '网络请求失败';
@@ -539,6 +582,12 @@
             try {
                 response = await fetch(conf.endpoint, init);
             } catch (err) {
+                // 用户按 Esc 主动中止：这不是网络问题，别拿连通性去试探，
+                // 更别把「停止生成」误报成「连不上 Provider」
+                if (err && err.name === 'AbortError') {
+                    yield {type: 'error', error: classifyError({aborted: true, apiKey: conf.apiKey})};
+                    return;
+                }
                 var reachable = await probeReachable(conf.endpoint);
                 lastError = classifyError({
                     networkError: err,
@@ -804,6 +853,11 @@
                 try {
                     chunk = await reader.read();
                 } catch (err) {
+                    if (err && err.name === 'AbortError') {
+                        // 停止生成不是连接断开：分清了才配得上「继续生成」这个动作
+                        yield {type: 'error', error: classifyError({aborted: true, apiKey: conf.apiKey})};
+                        return;
+                    }
                     yield {
                         type: 'error',
                         error: classifyError({

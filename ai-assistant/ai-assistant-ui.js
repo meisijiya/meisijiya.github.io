@@ -67,7 +67,11 @@
     var ICONS = {
         close: ['M6.5 6.5l11 11M17.5 6.5l-11 11'],
         send: ['M12 19.5V5', 'M6.5 10.5 12 5l5.5 5.5'],
+        // 停止：实心方块（描边图标在这里看不出「按下去会停」）
+        stop: ['M7.5 7.5h9v9h-9z'],
         chevron: ['M6.5 9.5l5.5 5.5 5.5-5.5'],
+        // 上下文：一叠层，表示「这次带哪些资料」
+        context: ['M12 4.5l7 3.4-7 3.4-7-3.4z', 'M5 12l7 3.4 7-3.4', 'M5 15.6l7 3.4 7-3.4'],
         source: ['M6.5 3.5h8l4 4v13h-12z', 'M14.5 3.5v4h4']
     };
 
@@ -752,7 +756,7 @@
     function buildFab() {
         var fab = el('button', 'ai-fab');
         fab.type = 'button';
-        fab.setAttribute('aria-label', '打开 AI 阅读助手');
+        fab.setAttribute('aria-label', '打开 12 助手');
         fab.setAttribute('aria-expanded', 'false');
         fab.setAttribute('aria-controls', 'ai-panel');
         // 悬浮球用用户给的图（source/ai-assistant/fab.jpg），不再用矢量图标
@@ -778,19 +782,7 @@
         head.appendChild(grip);
 
         var row = el('div', 'ai-head-row');
-        row.appendChild(el('h2', 'ai-panel-title', 'AI 阅读助手'));
-
-        /*
-         * 上下文提示跟标题排同一行、紧跟标题右边：它说的是「当前读到哪」，
-         * 占一整行反而把标题和标签栏挤散了。
-         */
-        var context = el('p', 'ai-panel-context', '（不在文章页）');
-        context.dataset.act = 'toggle-context';
-        context.setAttribute('role', 'button');
-        context.setAttribute('tabindex', '0');
-        context.title = '点击切换是否携带上下文';
-        refs.contextLine = context;
-        row.appendChild(context);
+        row.appendChild(el('h2', 'ai-panel-title', '12 助手'));
 
         // 会话入口：当前会话标题 + 历史会话下拉
         row.appendChild(buildSessionPanel(panel));
@@ -980,13 +972,35 @@
         refs.quoteText = quoteText;
         composer.appendChild(quote);
 
-        var row = el('div', 'ai-input-row');
+        /*
+         * 灰底输入框只包住多行输入区，按钮都在框外：
+         * 输入区随行数长高时只有它变，右边这一列按钮位置与大小不变。
+         */
+        var row = el('div', 'ai-composer-row');
+        var box = el('div', 'ai-input-row');
+        /*
+         * 上下文开关放在灰框里、紧挨发送键：它决定这一问带不带博客内容
+         * （关掉就是纯聊天，既不注入当前小节，也不提供站内工具）。
+         * 不进框外的按钮列——那一列会比单行输入框高，顶上会多出一条空白。
+         */
+        var context = el('button', 'ai-context-toggle');
+        context.type = 'button';
+        context.dataset.act = 'toggle-context';
+        context.setAttribute('role', 'switch');
+        context.setAttribute('aria-checked', 'true');
+        context.setAttribute('aria-label', '携带博客上下文');
+        context.setAttribute('title', '携带博客上下文（关闭后纯聊天，不查博客）');
+        context.appendChild(icon(ICONS.context));
+        refs.contextToggle = context;
+
         var input = el('textarea', 'ai-input');
         input.rows = 1;
         input.setAttribute('aria-label', '输入问题');
         input.placeholder = '就本文提问，Enter 发送，Shift+Enter 换行';
         refs.composer = input;
-        row.appendChild(input);
+        box.appendChild(input);
+        box.appendChild(context);
+        row.appendChild(box);
 
         var send = el('button', 'ai-send');
         send.type = 'button';
@@ -998,6 +1012,11 @@
         row.appendChild(send);
 
         composer.appendChild(row);
+        // 切换开关的瞬时反馈：2 秒后自己消失，不占固定高度
+        var toast = el('p', 'ai-toast');
+        toast.hidden = true;
+        refs.toast = toast;
+        composer.appendChild(toast);
         // 设置视图下要整块收起输入区，只藏 textarea 会剩一个孤零零的发送按钮
         refs.composerBox = composer;
         return composer;
@@ -1025,7 +1044,7 @@
         var panel = el('section', 'ai-panel');
         panel.id = 'ai-panel';
         panel.setAttribute('role', 'dialog');
-        panel.setAttribute('aria-label', 'AI 阅读助手');
+        panel.setAttribute('aria-label', '12 助手');
         panel.setAttribute('tabindex', '-1');
         panel.hidden = true;
 
@@ -1123,6 +1142,23 @@
 
     /* ------------------------------------------------------------ 状态切换 */
 
+    /*
+     * 窄屏「压下去」：点浮窗外面的区域时，把抽屉往下推、只留头部一条，
+     * 再点一下浮窗就回到原高度。它和关闭是两件事——不隐藏、不卸载，
+     * 高度也不变，只是 transform 位移，所以恢复时不用重新测量。
+     */
+    var peeked = false;
+
+    function setPeek(on) {
+        var next = !!on && isNarrow();
+        peeked = next;
+        if (refs.panel) refs.panel.classList.toggle('is-peek', next);
+    }
+
+    function isPeek() {
+        return peeked;
+    }
+
     function setOpen(open) {
         if (open) {
             if (closeTimer) {
@@ -1137,8 +1173,11 @@
                 if (!refs.panel.hidden) refs.panel.classList.add('is-open');
             });
             refs.fab.setAttribute('aria-expanded', 'true');
+            // 重新打开就是完整展开，不带着上一次的压下去状态
+            setPeek(false);
             return;
         }
+        setPeek(false);
         refs.panel.classList.remove('is-open');
         refs.root.classList.remove('is-open');
         refs.fab.setAttribute('aria-expanded', 'false');
@@ -1180,6 +1219,8 @@
     function syncViewport() {
         var narrow = isNarrow();
         refs.root.classList.toggle('is-mobile', narrow);
+        // 压下去只属于窄屏抽屉；跨到宽屏就恢复成普通浮窗
+        if (!narrow) setPeek(false);
         /*
          * 抽屉高度只对窄屏生效：宽屏要把内联 height 摘掉，
          * 否则窄屏拖出来的那一档高度会跟着浮窗一路带到宽屏去。
@@ -1355,18 +1396,67 @@
         var quote = (info && info.quote) || '';
         var enabled = info && info.enabled === false ? false : true;
 
-        if (!enabled) {
-            refs.contextLine.textContent = '（未携带上下文）';
-        } else {
-            var parts = [];
-            if (article) parts.push('《' + article + '》');
-            if (section) parts.push(section);
-            refs.contextLine.textContent = parts.length ? parts.join(' ') : '（不在文章页）';
+        // 开关在输入区：这里只同步状态与说明，标题栏不再显示读数
+        if (refs.contextToggle) {
+            refs.contextToggle.setAttribute('aria-checked', enabled ? 'true' : 'false');
+            refs.contextToggle.setAttribute('title', enabled
+                ? '携带博客上下文（关闭后纯聊天，不查博客）'
+                : '纯聊天：不注入文章，也不查博客（点击恢复）');
         }
 
         refs.quotePath.textContent = section || article || '';
         refs.quoteText.textContent = quote;
         refs.quoteBox.hidden = !quote;
+    }
+
+    /*
+     * 开关切换后的瞬时反馈：2 秒后自动收起。
+     * 用一次性提示而不是固定一行状态字——固定行会把输入区整体顶高。
+     */
+    var toastTimer = null;
+    function showToast(text) {
+        if (!refs.toast) return;
+        refs.toast.textContent = text || '';
+        refs.toast.hidden = false;
+        if (toastTimer) window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+            toastTimer = null;
+            if (refs.toast) refs.toast.hidden = true;
+        }, 2000);
+    }
+
+    /* 统一写输入框：值、可点状态、高度（要回填时再抢焦点）一次处理 */
+    function setComposerValue(text) {
+        var input = refs.composer;
+        if (!input) return;
+        input.value = text == null ? '' : String(text);
+        if (refs.sendBtn) refs.sendBtn.disabled = !input.value.trim();
+        growComposer();
+        if (input.value) input.focus();
+    }
+
+    /*
+     * 输入框随内容长高：先把 height 归零再读 scrollHeight，
+     * 否则内容变短（发出去之后）高度降不回去。上限三行由样式的 max-height 兜住。
+     *
+     * 空输入框固定回一行：占位文案在窄屏会折行，按 scrollHeight 定高会凭空多出
+     * 一截高度，看起来像输入框上方多了一块留白。滚动条同理——内容没顶到上限就
+     * 关掉 overflow，免得半行高度差把滚动条挤出来。
+     */
+    function growComposer() {
+        var input = refs.composer;
+        if (!input) return;
+        if (!input.value) {
+            input.style.height = '';
+            input.style.overflowY = 'hidden';
+            return;
+        }
+        input.style.height = 'auto';
+        var max = parseFloat(window.getComputedStyle(input).maxHeight);
+        if (!(max > 0)) max = 80;
+        var next = input.scrollHeight;
+        input.style.height = next + 'px';
+        input.style.overflowY = next > max ? 'auto' : 'hidden';
     }
 
     /* -------------------------------------------------------------- 消息区 */
@@ -1739,9 +1829,50 @@
             ? (err.hint ? err.title + '：' + err.hint : err.title)
             : String(err);
         msg.appendChild(bubble);
+        // 中断时历史里留着半截回答：给「继续」和「回退」两个明确动作，
+        // 比让人手打「继续」或在脑子里还原上一问靠谱
+        if (err.resumable) {
+            var actions = el('div', 'ai-error-actions');
+            var resume = el('button', 'ai-btn ai-btn-primary ai-resume', '继续生成');
+            resume.type = 'button';
+            resume.dataset.act = 'resume';
+            actions.appendChild(resume);
+            var rewind = el('button', 'ai-btn ai-rewind', '回退本轮');
+            rewind.type = 'button';
+            rewind.dataset.act = 'rewind';
+            actions.appendChild(rewind);
+            msg.appendChild(actions);
+        }
         errorNode = msg;
         refs.stream.appendChild(msg);
         scrollToBottom();
+    }
+
+    /*
+     * 回退本轮：从最后一条用户消息起，把它之后的节点全部撤掉
+     * （半截回答、错误气泡、过程分组都在它后面）。
+     * 消息区撤完是空的就把空状态接回来。
+     */
+    function rewindStream() {
+        if (!refs.stream) return;
+        var nodes = Array.prototype.slice.call(refs.stream.children);
+        var anchor = -1;
+        for (var i = nodes.length - 1; i >= 0; i--) {
+            if (nodes[i].classList && nodes[i].classList.contains('ai-msg-user')) {
+                anchor = i;
+                break;
+            }
+        }
+        if (anchor < 0) return;
+        for (var j = nodes.length - 1; j >= anchor; j--) {
+            nodes[j].remove();
+        }
+        errorNode = null;
+        pendingNode = null;
+        // 前面还有别的问答时不能说「还没有对话」
+        if (refs.emptyState) {
+            refs.emptyState.hidden = !!refs.stream.querySelector('.ai-msg');
+        }
     }
 
     /* 保存配置的反馈：成功给「已保存」，失败把原因写在这条上 */
@@ -1755,7 +1886,19 @@
         // 回答进行中把会话入口锁住：半路换会话会把正在输出的回答搅乱
         sessionBusy = !!busy;
         refs.composer.disabled = busy;
-        refs.sendBtn.disabled = busy || !refs.composer.value.trim();
+        /*
+         * 发送键在回答期间变成停止键：同一个位置、同一个按钮，
+         * 用户想提前中断不用先找 Esc。停用（disabled）在这里是反的——
+         * 忙碌时必须可点，空闲时才由「有没有输入」决定。
+         */
+        var send = refs.sendBtn;
+        send.dataset.act = busy ? 'stop' : 'send';
+        send.classList.toggle('is-stop', !!busy);
+        send.setAttribute('aria-label', busy ? '停止生成' : '发送');
+        send.disabled = busy ? false : !refs.composer.value.trim();
+        send.innerHTML = '';
+        send.appendChild(icon(busy ? ICONS.stop : ICONS.send));
+        // 停止态要真的能按下去：只切图标不换 action 等于按了没反应
         refs.stream.setAttribute('aria-busy', busy ? 'true' : 'false');
         applySessionBusyState();
     }
@@ -2132,6 +2275,8 @@
         setState: setState,
         syncViewport: syncViewport,
         isNarrow: isNarrow,
+        setPeek: setPeek,
+        isPeek: isPeek,
         isCompact: isCompact,
         setFabPosition: setFabPosition,
         getFabPosition: getFabPosition,
@@ -2140,6 +2285,10 @@
         placePanel: placePanel,
         setSideLock: function (locked) { sideLock = !!locked; },
         setContext: setContext,
+        growComposer: growComposer,
+        setComposerValue: setComposerValue,
+        showToast: showToast,
+        rewindStream: rewindStream,
         appendMessage: appendMessage,
         appendThinking: appendThinking,
         setPending: setPending,

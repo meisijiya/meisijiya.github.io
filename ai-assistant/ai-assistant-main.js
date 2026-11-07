@@ -13,36 +13,52 @@
     var AI = window.AIAssistant = window.AIAssistant || {};
 
     var STORAGE_KEY = 'ai-assistant.config';
+    // 上下文开关是「每问带不带博客内容」，不跟配置一起等「保存配置」：
+    // 单独落一个键，切一下立刻生效、下次打开还是这个状态
+    var CONTEXT_KEY = 'ai-assistant.context';
     var MAX_TOOL_ROUNDS = 3;
     var MAX_INJECTED_CHARS = 12000;
     var SECTION_CHARS = 1200;
     var HEADINGS_LIMIT = 80;
+    /*
+     * 历史预算：工具结果与思考块留在历史里只对「那一轮」有用，
+     * 但每轮都会把它们重新发给模型。超预算就整轮丢最早的对话。
+     */
+    var HISTORY_CHAR_BUDGET = 24000;
+    var TOOL_RESULT_STUB_CHARS = 120;
+    var FOLDED_MARK = '\n…（正文已折叠，需要细节请重新调用工具读取）';
+
+    /*
+     * 断点续传的引导语：只挂在中断后那一轮的 system 上。
+     * 光靠历史里那半截 assistant 消息不够——模型很容易重新开头再写一遍。
+     */
+    var RESUME_GUIDANCE = '上一轮回答在中途断了。接着已经写出来的那段往下写：不要重复已写内容，不要重新开头，也不要写「继续」两个字。';
 
     /*
      * 预设只调语气，不定人设、也不限字数：
-     * 人设由 buildSystemPrompt 的 base 给，字数上限会和「写明出自哪篇哪一节」打架，
-     * 模型多半为了压字数把出处砍掉。
+     * 人设与精简要求由 buildSystemLayers 的稳定前缀统一给，
+     * 预设再写一遍就等于同一段要求说两次，模型反而更容易写长。
      */
     var PRESETS = [
         {
             id: 'default',
             name: '默认讲解',
-            prompt: '语气：先给结论，再按「是什么、为什么、怎么用」展开。'
+            prompt: '语气：先给结论，再给解释；一句话能说清就不展开。'
         },
         {
             id: 'interview',
             name: '面试视角',
-            prompt: '语气：按面试官口吻——先给追问点，再给标准答案和常见翻车点，句子短，不要铺垫。'
+            prompt: '语气：按面试官口吻——先说会被追问的点，再给标准答案和常见翻车点，每条一两句。'
         },
         {
             id: 'source',
             name: '源码视角',
-            prompt: '语气：从实现细节讲问题——先讲数据流与调用链，再给结论，涉及代码时给出关键片段。'
+            prompt: '语气：先讲数据流与调用链，再给结论；代码只贴关键几行。'
         },
         {
             id: 'plain',
             name: '通俗类比',
-            prompt: '语气：先用一个日常类比讲清原理，再补技术定义，避免术语堆砌。'
+            prompt: '语气：先用一句日常类比讲清原理，再补技术定义，不堆术语。'
         },
         {
             id: 'custom',
@@ -91,6 +107,23 @@
             }
         } catch (e) {
             /* 配置损坏时用默认值，别把用户挡在门外 */
+        }
+    }
+
+    function loadContextPref() {
+        try {
+            return window.localStorage.getItem(CONTEXT_KEY) !== 'off';
+        } catch (e) {
+            /* 隐私模式读不到就按默认（携带上下文）走 */
+            return true;
+        }
+    }
+
+    function saveContextPref(enabled) {
+        try {
+            window.localStorage.setItem(CONTEXT_KEY, enabled ? 'on' : 'off');
+        } catch (e) {
+            /* 存不下只影响下次打开的默认值 */
         }
     }
 
@@ -150,6 +183,96 @@
             state.messages = providerHistory(id);
         }
         return id;
+    }
+
+    /* 一条消息近似占多少字符：用于历史预算，不做精确 token 估算 */
+    function messageChars(msg) {
+        var content = msg && msg.content;
+        if (typeof content === 'string') return content.length;
+        var total = 0;
+        if (Array.isArray(content)) {
+            for (var i = 0; i < content.length; i++) {
+                var part = content[i] || {};
+                if (part.type === 'text') total += String(part.text || '').length;
+                else if (part.type === 'thinking') total += String(part.thinking || '').length;
+                else if (part.type === 'tool_result') total += JSON.stringify(part.content || '').length;
+                else if (part.type === 'tool_use') total += JSON.stringify(part.input || {}).length;
+            }
+        }
+        return total;
+    }
+
+    function hasTextPart(msg) {
+        var content = msg && msg.content;
+        if (typeof content === 'string') return !!content;
+        if (!Array.isArray(content)) return false;
+        for (var i = 0; i < content.length; i++) {
+            if (content[i] && content[i].type === 'text') return true;
+        }
+        return false;
+    }
+
+    /*
+     * 历史压缩：只在每轮开始时做一次，绝不在流式过程中改——
+     * 同一轮里改历史会让前后两次请求的前缀不一致，缓存与协议配对都会乱。
+     *
+     *   1. 思考块只留最后一条 assistant 轮（Anthropic 续写要它），其余丢掉；
+     *   2. 旧轮次的工具结果折成首行的摘要，正文不留在提示词里；
+     *   3. 仍超预算就按整轮丢掉最早的对话。
+     *
+     * 系统提示的稳定前缀不受影响：它永远在第一段，压缩只动 messages。
+     */
+    function compactHistory() {
+        var msgs = state.messages;
+        if (!msgs.length) return;
+
+        var lastAssistant = -1;
+        for (var a = msgs.length - 1; a >= 0; a--) {
+            if (msgs[a] && msgs[a].role === 'assistant') {
+                lastAssistant = a;
+                break;
+            }
+        }
+
+        for (var i = 0; i < msgs.length; i++) {
+            var content = msgs[i] && msgs[i].content;
+            if (!Array.isArray(content)) continue;
+            var next = [];
+            for (var j = 0; j < content.length; j++) {
+                var part = content[j] || {};
+                if (part.type === 'thinking' && i !== lastAssistant) continue;
+                if (part.type === 'tool_result' && typeof part.content === 'string' &&
+                    part.content.length > TOOL_RESULT_STUB_CHARS &&
+                    part.content.indexOf(FOLDED_MARK) === -1) {
+                    // 折叠过的不能再折一次：截断 + 提示会一轮轮变长
+                    part.content = part.content.slice(0, TOOL_RESULT_STUB_CHARS) + FOLDED_MARK;
+                }
+                next.push(part);
+            }
+            msgs[i].content = next;
+        }
+
+        var total = 0;
+        for (var t = 0; t < msgs.length; t++) total += messageChars(msgs[t]);
+        while (total > HISTORY_CHAR_BUDGET) {
+            // 第二段「真正的提问」就是可以整轮丢掉的起点：前面那一轮连同它的
+            // 工具结果与回答一起走，协议配对不会被拆散
+            var cut = -1;
+            var seen = 0;
+            for (var k = 0; k < msgs.length; k++) {
+                if (msgs[k] && msgs[k].role === 'user' && hasTextPart(msgs[k])) {
+                    seen += 1;
+                    if (seen === 2) {
+                        cut = k;
+                        break;
+                    }
+                }
+            }
+            if (cut <= 0) break; // 只剩最后一轮，不能再丢
+            msgs.splice(0, cut);
+            total = 0;
+            for (var d = 0; d < msgs.length; d++) total += messageChars(msgs[d]);
+        }
     }
 
     function onSessionChange(info) {
@@ -242,24 +365,15 @@
      */
     function buildSystemLayers() {
         var stable = [
-            '你是「老江湖的博客」里的 AI 阅读助手，服务于正在读这篇文章的读者。',
+            '你是「老江湖的博客」里的 12 助手，读者正在读一篇文章。',
             '',
-            '工作方式（按这个顺序做）：',
-            '1. 先判断问题需不需要站内资料。不需要就直接答，别绕工具。要查就现在调用工具，不要只说「我去找一下」就停下。',
-            '2. 需要站内资料时：search_articles 找候选 → read_section 读出候选里真正相关的那几段正文。只读必要的几段（通常 1 到 3 段），别把整篇灌进来。',
-            '3. 取正文要逐级下钻，不要一次性注入整篇文章：',
-            '   - 先只取目录（只看标题层级），在目录里定位到目标标题；',
-            '   - 再按标题取该标题的直属正文；父标题下还有子标题时，正文只取直属那部分；',
-            '   - 需要更细的内容，再按子标题继续查，一次只下一层。',
-            '4. 读到的正文就是你作答的事实来源：先给结论，再引用正文里的关键点，并写明出自哪篇哪一节。',
-            '5. 读完够用的几段就立刻作答：不要为了「更全面」继续往下钻，答案的质量不取决于读了多少段。',
-            '6. 正文没读到就直说没读到，不许只罗列链接或标题冒充答案。',
-            '7. 找不到就说找不到，并列出可能相关的标题供读者自己判断。',
-            '8. 工具没拿到内容时不要原样重复同一个调用：先看结果里给的候选标题或替代建议，换一个更接近的标题、换一个关键词重查，或者停下来用已经读到的内容作答。',
-            '',
-            '回答要求：',
-            '9. 以读者当前阅读的小节为背景；用简体中文回答，代码放进代码块。',
-            '10. 不要贴一长串链接：最多引用 3 篇，并说清每篇适合谁看。'
+            '回答要求（从高到低）：',
+            '1. 直接回答被问的那一点：先给结论，再给最短的必要解释。默认不超过 200 字（代码不计），不复述问题、不写导语、不写「希望这有帮助」这类客套。',
+            '2. 需要展开时分点，最多 3 条；不铺无关背景，不写「首先/其次/最后」式流水账。',
+            '3. 以读者当前阅读的小节为背景；用简体中文回答，代码放进代码块。',
+            '4. 只有答案依赖站内其他文章时才查资料：search_articles 找候选 → read_section 先看目录、再按标题取直属正文，一次只下一层（通常 1~3 段就够）。不要只说「我去找一下」就停下，也不要为求全面广撒网。',
+            '5. 引用站内内容时写明出自哪篇哪一节，最多引 3 篇。没读到就直说没读到，不拿链接或标题冒充答案；找不到就列出可能相关的标题。',
+            '6. 工具没拿到内容时换标题或换关键词重查，不要原样重发同一个调用；换不动就用已经读到的内容作答。'
         ];
 
         var preset = presetById(state.config.presetId);
@@ -307,6 +421,20 @@
     // 兼容旧调用：完整系统提示（稳定前缀 + 变动段），不带任何追加引导
     function buildSystemPrompt() {
         return composeSystem('');
+    }
+
+    /*
+     * 上下文开关：鼠标点击与键盘触发共用这一处，
+     * 免得两条路径一条保存、一条只改内存（上一版就漏了保存与提示）。
+     */
+    function toggleContext() {
+        state.useContext = !state.useContext;
+        saveContextPref(state.useContext);
+        refreshContextBar();
+        // 切一下就有 2 秒反馈：这块没有常驻状态字
+        safeUi(AI.ui.showToast, state.useContext
+            ? '已开启：携带本文上下文，可查站内'
+            : '已关闭：纯聊天，不注入文章也不查站内');
     }
 
     function refreshContextBar() {
@@ -552,12 +680,25 @@
         return (total == null ? 0 : total) + num;
     }
 
-    async function runTurn() {
+    function turnAllowsTools() {
+        // 纯聊天模式（上下文开关关闭）连工具一起关：读者要的是不查博客的直答
+        return state.useContext !== false;
+    }
+
+    async function runTurn(options) {
+        var resume = !!(options && options.resume);
+        var allowTools = turnAllowsTools();
         var cfg = configForRequest();
         if (!cfg.endpoint || !cfg.apiKey || !cfg.model) {
             AI.ui.setError({ title: '配置不完整', hint: '请先填写 Base URL、API 密钥与模型。' });
             return;
         }
+
+        // 这一轮必须有会话：没有会话时后续「落历史」会顺手建会话，
+        // 建会话那次回调会把 state.messages 换成存储里的新数组，半截回答就丢了
+        ensureSession();
+        // 每轮开始压缩一次历史：工具正文与旧思考不再跟着请求走
+        compactHistory();
 
         var controller = new AbortController();
         state.controller = controller;
@@ -589,7 +730,7 @@
         // 本轮追加引导（计划催办用）：只挂进这一轮的 system，用完即弃。
         // 不写进 state.messages——写进历史的话，下一轮模型还会读到上一轮的催办，
         // 容易照着过期指令继续跑。
-        var pendingGuidance = '';
+        var pendingGuidance = resume ? RESUME_GUIDANCE : '';
         // 循环轮次硬上限：模型一直要工具时不能让页面卡住
         var iterations = 0;
         // 本轮最终答案（纯文字）：会话历史只存读者看到的那段话
@@ -644,18 +785,21 @@
                 var remaining = MAX_TOOL_ROUNDS - rounds;
                 var guidanceParts = [];
                 if (pendingGuidance) guidanceParts.push(pendingGuidance);
+                // 纯聊天模式：没有工具也没有文章，直接答，别让模型去「查一下」
+                if (!allowTools) guidanceParts.push('本轮是纯聊天模式：没有站内工具，也没有文章上下文，直接回答问题。');
                 // 预算快用完就逼模型换策略：只读最相关的一节，或者干脆停手作答
-                if (remaining <= 1) guidanceParts.push(strategyGuidance(remaining));
+                if (allowTools && remaining <= 1) guidanceParts.push(strategyGuidance(remaining));
                 // 收尾轮的话最具体，放最后
-                if (forceFinal) guidanceParts.push(finalNudge(finalReason));
+                if (allowTools && forceFinal) guidanceParts.push(finalNudge(finalReason));
                 var systemText = composeSystem(guidanceParts.join('\n\n'));
                 pendingGuidance = '';
 
                 var iterator = AI.provider.streamChat(cfg, {
                     system: systemText,
                     messages: state.messages,
-                    tools: AI.tools.definitions(),
-                    toolChoice: forceFinal ? 'none' : 'auto',
+                    // 纯聊天模式下不提供工具：请求里连工具定义都不带，模型无从查站内
+                    tools: allowTools ? AI.tools.definitions() : [],
+                    toolChoice: allowTools ? (forceFinal ? 'none' : 'auto') : undefined,
                     signal: controller.signal
                 });
 
@@ -702,12 +846,32 @@
                 }
                 paint();
 
+                // 纯聊天模式没提供工具，兼容层仍可能续写 tool_use：
+                // 不执行也不写回历史，按这一轮已经写出的正文收尾
+                if (!allowTools && toolCalls.length) toolCalls = [];
+
                 if (failure) {
-                    if (failure.kind === 'cors' || failure.kind === 'network') {
-                        AI.ui.setError(failure);
-                    } else {
-                        body.innerHTML = AI.ui.renderMarkdown('**' + failure.title + '**\n\n' + (failure.hint || ''));
+                    /*
+                     * 断点续传：中断前已经写出来的那半截留在历史里，
+                     * 模型下一轮才知道该从哪儿接；不留在历史里，
+                     * 点「继续生成」也只能把答案从头再写一遍。
+                     */
+                    var partial = (buffer || '').trim();
+                    var shown = failure;
+                    if (partial) {
+                        state.messages.push({
+                            role: 'assistant',
+                            content: [{type: 'text', text: partial}]
+                        });
+                        finalText = partial;
+                        shown = {
+                            kind: failure.kind,
+                            title: failure.title,
+                            hint: (failure.hint ? failure.hint + ' ' : '') + '已经写出的内容保留着，点「继续生成」就能从中断处接着写。',
+                            resumable: true
+                        };
                     }
+                    AI.ui.setError(shown);
                     break;
                 }
 
@@ -886,9 +1050,6 @@
             AI.ui.setError(AI.provider.classifyError({ networkError: err }));
         } finally {
             AI.ui.setPending(false);
-            AI.ui.setBusy(false);
-            AI.ui.setSources(state.sources);
-            state.controller = null;
 
             // 收尾统计：一个正文 token 都没吐出来时思考耗时按 0 记
             var totalMs = Date.now() - turnStart;
@@ -906,8 +1067,16 @@
                 totalMs: totalMs
             });
             safeUi(AI.ui.endProcess, { toolCalls: toolCallCount, thinkMs: thinkSpan });
-            // 回答落进会话历史：读者回头看时能看到自己问过什么、答了什么
+            /*
+             * 回答落进会话历史：读者回头看时能看到自己问过什么、答了什么。
+             * 必须排在 setBusy(false) 之前——写入若顺手建了会话，
+             * 那份回调在非忙碌态下会重画消息区，把刚写完的答案抹成空白。
+             */
             if (finalText) persistTurn('assistant', finalText);
+
+            AI.ui.setBusy(false);
+            AI.ui.setSources(state.sources);
+            state.controller = null;
         }
     }
 
@@ -917,6 +1086,61 @@
         var value = (text || '').trim();
         if (!value) return;
         state.messages.push({ role: 'user', content: [{ type: 'text', text: value }] });
+    }
+
+    /*
+     * 回退本轮：把最后一问及之后的一切撤掉（半截回答、工具块、错误气泡），
+     * 问题文本放回输入框——用户想改个说法重问，不该自己重打一遍。
+     * 历史与界面必须一起回退，只撤一边就会出现「界面上没了、模型还记得」。
+     */
+    function lastUserTextIndex() {
+        for (var i = state.messages.length - 1; i >= 0; i--) {
+            var msg = state.messages[i];
+            if (!msg || msg.role !== 'user' || !Array.isArray(msg.content)) continue;
+            for (var j = 0; j < msg.content.length; j++) {
+                if (msg.content[j] && msg.content[j].type === 'text') return i;
+            }
+        }
+        return -1;
+    }
+
+    function rewindLastTurn() {
+        // 正在回答时不许回退：那一轮的上下文还在写
+        if (state.controller) return;
+        var index = lastUserTextIndex();
+        if (index < 0) return;
+        var question = '';
+        var content = state.messages[index].content;
+        for (var j = 0; j < content.length; j++) {
+            if (content[j] && content[j].type === 'text') {
+                question = String(content[j].text || '');
+                break;
+            }
+        }
+        state.messages.splice(index);
+
+        // 会话存储同步截断：留到这一问之前，否则刷新后模型还记得被撤掉的那一轮
+        if (AI.sessions) {
+            var stored = AI.sessions.getMessages(state.sessionId);
+            var cut = -1;
+            for (var k = stored.length - 1; k >= 0; k--) {
+                if (stored[k].role === 'user') {
+                    cut = k;
+                    break;
+                }
+            }
+            if (cut >= 0) AI.sessions.setMessages(stored.slice(0, cut));
+        }
+
+        safeUi(AI.ui.rewindStream);
+        state.sources = [];
+        AI.ui.setSources([]);
+        AI.ui.setError(null);
+
+        // 提问里可能挂着划词引用，回填时只还原用户自己打的那部分
+        var mark = question.indexOf('\n\n（我划选的内容：');
+        if (mark >= 0) question = question.slice(0, mark);
+        safeUi(AI.ui.setComposerValue, question);
     }
 
     function send(text) {
@@ -1083,6 +1307,26 @@
         var view = hit && hit.dataset.state ? hit.dataset.state : null;
         var refs = AI.ui.refs;
 
+        /*
+         * 窄屏：点浮窗外面只是把它压下去，不是关闭——读者要一边看文章一边
+         * 让它留在手边。点浮窗本体（包括压下去后露出的头部那一条）恢复原样。
+         * 选中文字后的「问 AI」气泡与悬浮球不算外面：那两个动作就是要用它。
+         */
+        if (AI.ui.isNarrow() && AI.ui.isOpen()) {
+            var inPanel = target && target.closest ? target.closest('.ai-panel') : null;
+            var keepOpen = target && target.closest
+                ? target.closest('.ai-fab, .ai-selection-bubble')
+                : null;
+            if (!inPanel && !keepOpen) {
+                AI.ui.setPeek(true);
+                return;
+            }
+            if (inPanel && AI.ui.isPeek && AI.ui.isPeek()) {
+                AI.ui.setPeek(false);
+                // 不 return：这一次点击可能还落在面板里的某个按钮上
+            }
+        }
+
         // 下拉展开时，点别处先收起（按钮与选项本身除外）
         if (!refs.presetList.hidden &&
             !refs.presetList.contains(target) &&
@@ -1163,14 +1407,27 @@
         if (action === 'send') {
             var value = refs.composer.value.trim();
             if (!value) return;
-            refs.composer.value = '';
-            refs.sendBtn.disabled = true;
+            safeUi(AI.ui.setComposerValue, '');
             send(value);
             return;
         }
+        if (action === 'stop') {
+            // 回答期间发送键就是停止键：点一下立刻中止这一轮
+            if (state.controller) state.controller.abort();
+            return;
+        }
+        if (action === 'rewind') {
+            rewindLastTurn();
+            return;
+        }
+        if (action === 'resume') {
+            // 断点续传：历史里已经有中断前那半截回答，再跑一轮把它写完
+            if (state.controller) return;
+            AI.ui.setError(null);
+            return runTurn({resume: true});
+        }
         if (action === 'toggle-context') {
-            state.useContext = !state.useContext;
-            refreshContextBar();
+            toggleContext();
             return;
         }
         if (action === 'clear-quote') {
@@ -1185,6 +1442,8 @@
         // 输入框里没有字时发送按钮不可点
         if (target === AI.ui.refs.composer) {
             AI.ui.refs.sendBtn.disabled = !target.value.trim();
+            // 输入框随行数长高，最多三行（上限在样式里），超出的部分内部滚动
+            safeUi(AI.ui.growComposer);
             return;
         }
         var field = target.dataset ? target.dataset.field : null;
@@ -1211,14 +1470,16 @@
             AI.ui.hideBubble();
             return;
         }
-        // 上下文行是 role=button，回车与空格都能切换
+        /*
+         * 上下文开关是真实 button，键盘回车/空格会被这里先拦下（preventDefault
+         * 挡掉原生 click），所以保存与提示必须和鼠标点走同一个函数。
+         */
         var toggle = event.target && event.target.closest
             ? event.target.closest('[data-act="toggle-context"]')
             : null;
         if (toggle && (event.key === 'Enter' || event.key === ' ')) {
             event.preventDefault();
-            state.useContext = !state.useContext;
-            refreshContextBar();
+            toggleContext();
             return;
         }
         /*
@@ -1233,8 +1494,7 @@
             event.preventDefault();
             var value = AI.ui.refs.composer.value.trim();
             if (!value) return;
-            AI.ui.refs.composer.value = '';
-            AI.ui.refs.sendBtn.disabled = true;
+            safeUi(AI.ui.setComposerValue, '');
             send(value);
         }
     }
@@ -1453,6 +1713,7 @@
 
     function init() {
         loadConfig();
+        state.useContext = loadContextPref();
         AI.ui.mount();
         AI.context.init();
 
@@ -1591,6 +1852,7 @@
         systemLayers: buildSystemLayers,
         composeSystem: composeSystem,
         compactToolResult: compactToolResult,
+        compactHistory: compactHistory,
         strategyGuidance: strategyGuidance,
         finalNudge: finalNudge,
         // 回合自证：门禁要能驱动真实的主流程，逐轮观察发给 Provider 的 system/messages
