@@ -24,7 +24,9 @@
     var AI = window.AIAssistant = window.AIAssistant || {};
 
     var ANTHROPIC_VERSION = '2023-06-01';
-    var ANTHROPIC_MAX_TOKENS = 2048;
+    // Anthropic 协议必须带 max_tokens，这里给到够写长答案的额度：
+    // 长度约束交给系统提示词，接口这一侧不该成为截断源
+    var ANTHROPIC_MAX_TOKENS = 8192;
     var MAX_DETAIL_LENGTH = 200;
 
     // 版本段（/v1、/v1beta、/v2 …）出现即视为调用方已自带路径前缀，再补 /v1 会拼出 /v1/v1
