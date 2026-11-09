@@ -630,9 +630,10 @@
 <p>我当时处在第一档和第二档之间——<strong>花 20 分钟就能升到第二档</strong>，见下。</p>
 <h3 id="真跑一次（bench-py，纯标准库，无需-JMeter）"><a href="#真跑一次（bench-py，纯标准库，无需-JMeter）" class="headerlink" title="真跑一次（bench.py，纯标准库，无需 JMeter）"></a>真跑一次（<code>bench.py</code>，纯标准库，无需 JMeter）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 起本地服务，然后：</span></span><br><span class="line">python bench.py http://127.0.0.1:8000/api/parse 20 400 5</span><br><span class="line"><span class="comment">#                  接口地址                    线程 总请求 ramp-up 秒</span></span><br></pre></td></tr></table></figure>
 
-<p>实测输出（对本地测试服务）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">请求 400  成功 400  失败 0</span><br><span class="line">总耗时 5.02s  QPS 79.7</span><br><span class="line">P50 2.3ms  P95 23.9ms  P99 25.8ms</span><br></pre></td></tr></table></figure>
+<p>实测输出（对本地测试服务，一次运行的样例）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">请求 400  成功 400  失败 0  错误类型 -</span><br><span class="line">总耗时 5.02s  QPS 79.7</span><br><span class="line">P50 15.4ms  P95 23.4ms  P99 25.8ms</span><br></pre></td></tr></table></figure>
 
+<p>QPS 基本固定，由线程数与 ramp-up 决定；延迟随本机服务与机器负载波动，P50 在 2–16ms、P95 在 23–24ms 之间都出现过。所以这套数字只能证明脚本可用与口径正确，不能当性能结论。</p>
 <p>拿到真实数字后，面试直接说这个数字，并主动交代”本机回环、单机、没有参考价值，我用它验证口径”。</p>
 <p><strong>Windows 坑</strong>：<code>urllib</code>&#x2F;<code>requests</code> 默认读系统代理，压本地服务会被代理截成 400。脚本里已经用 <code>ProxyHandler(&#123;&#125;)</code> 绕开，<code>requests</code> 则要传 <code>trust_env=False</code>。</p>
 <h3 id="压测口径（面试能立刻显得懂行）"><a href="#压测口径（面试能立刻显得懂行）" class="headerlink" title="压测口径（面试能立刻显得懂行）"></a>压测口径（面试能立刻显得懂行）</h3><table>
@@ -762,8 +763,8 @@
 </tr>
 <tr>
 <td>压测脚本可用性</td>
-<td>单进程起 HTTP 服务，<code>bench.py</code> 打 400 次</td>
-<td>成功 400、QPS 79.7、P50 2.3ms、P95 23.9ms</td>
+<td>单进程起 HTTP 服务，<code>bench.py</code> 打 400 次，重复运行两次</td>
+<td>成功 400、QPS 稳定 79.7，P95 23–24ms，P50 在 2–16ms 间波动（本机回环，仅验证口径）</td>
 </tr>
 <tr>
 <td>系统代理坑</td>
