@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>软件测试实习笔试速通（第一轮）--基础概念、用例设计、排序与输出题 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <!-- 在电脑端的导航链接区域添加搜索功能 -->
+        <div class="search-container" data-root="/">
+          <button
+            type="button"
+            class="search-icon-btn"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-desktop"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-desktop" class="nav-search-result"></div>
+        </div>
+
+        <a
+          class="nav-back"
+          href="/"
+          aria-label="返回上一页"
+          onclick="return navBack()"
+        >
+          <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+          <span>返回</span>
+        </a>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="navbar-actions">
+          <a
+            class="nav-back"
+            href="/"
+            aria-label="返回上一页"
+            onclick="return navBack()"
+          >
+            <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+            </svg>
+          </a>
+          <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+        <!-- 手机模式搜索框 -->
+        <div
+          class="search-container mobile-container"
+          data-root="/"
+        >
+          <button
+            type="button"
+            class="search-icon-btn menu-item"
+            aria-label="搜索"
+            onclick="toggleSearchInput()"
+          >
+            🔍
+          </button>
+          <input
+            type="text"
+            id="nav-search-input-mobile"
+            class="nav-search-input"
+            placeholder="想知道我什么秘密呢，搜搜看吧"
+            oninput="navSearch(this)"
+          />
+          <button class="clear-search" onclick="clearSearch(this)">×</button>
+          <div id="nav-search-result-mobile" class="nav-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<script src="/js/search.js" defer></script>
+<script>
+  // 目录小节的锚点链接（href="#标题"）会给浏览器留一条同文档历史记录，
+  // history.back() 于是退回跳转前的滚动位置，而不是「上一个页面」。
+  // 这里直接回到 document.referrer（同源的上一个页面）；没有同源来源时返回 true，
+  // 由 <a> 的 href（站点首页）兜底。
+  function navBack() {
+    var ref = document.referrer.split('#')[0];
+    var self = location.href.split('#')[0];
+    if (ref && ref !== self && ref.indexOf(location.origin + '/') === 0) {
+      location.href = ref;
+      return false;
+    }
+    return true;
+  }
+</script>
+
+            <div class="main">
+                
+
+<div class="container with-toc">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">软件测试实习笔试速通（第一轮）--基础概念、用例设计、排序与输出题</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 9, 2026&nbsp;&nbsp;21:30:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/">软件测试</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<p>实习岗笔试不会为难人，考的是”这些词你认不认识、给个界面会不会设计用例、排序能不能手写出八九不离十”。基础薄弱也能靠七天补出来，因为范围就那么几块，题型也固定。</p>
+<p>先说清楚笔试和面试的分工。笔试筛的是记忆与手写，面试问的是判断与表达。所以这份笔记只准备笔试：概念要能默写，用例要能当场列，排序要能手写，输出题要能一眼看穿。</p>
+<h2 id="零、笔试大概长这样"><a href="#零、笔试大概长这样" class="headerlink" title="零、笔试大概长这样"></a>零、笔试大概长这样</h2><table>
+<thead>
+<tr>
+<th>题型</th>
+<th>分值占比</th>
+<th>常见问法</th>
+<th>拿分难度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单选 &#x2F; 多选</td>
+<td>20%–30%</td>
+<td>定义辨析、生命周期、哪一步该做什么</td>
+<td>低，背了就有</td>
+</tr>
+<tr>
+<td>判断</td>
+<td>10%</td>
+<td>“边界值只需要测边界”这类绝对化表述</td>
+<td>低，先怀疑绝对词</td>
+</tr>
+<tr>
+<td>填空</td>
+<td>10%</td>
+<td>补全流程、补全 SQL、补全命令</td>
+<td>中，靠熟练</td>
+</tr>
+<tr>
+<td>简答</td>
+<td>15%</td>
+<td>什么是软件测试、测试和调试的区别、怎么保证质量</td>
+<td>中，背模板</td>
+</tr>
+<tr>
+<td>用例设计</td>
+<td>20%</td>
+<td>给个登录框 &#x2F; 输入框 &#x2F; 优惠券，列测试点</td>
+<td>中高，是最能拉分的一题</td>
+</tr>
+<tr>
+<td>代码题</td>
+<td>15%–20%</td>
+<td>排序、查找、字符串处理、Python 输出题</td>
+<td>中，取决于手写熟练度</td>
+</tr>
+<tr>
+<td>SQL &#x2F; Linux</td>
+<td>10%</td>
+<td>写一条查询、说出命令作用</td>
+<td>低，背几条就够</td>
+</tr>
+</tbody></table>
+<p>时间一般 60–90 分钟。策略是先把概念题和判断题扫完（十分钟内），用例设计留 20 分钟，代码题留 25 分钟，剩下时间回头检查。</p>
+<h2 id="一、测试基础：十个必背概念"><a href="#一、测试基础：十个必背概念" class="headerlink" title="一、测试基础：十个必背概念"></a>一、测试基础：十个必背概念</h2><p>每个概念记两样东西，”一句话定义”和”一个反例”。反例比定义好记，笔试判断、面试追问都用得上。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>一句话定义</th>
+<th>容易记错的地方</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>软件测试</td>
+<td>用人工或自动手段运行或评价软件，检验它是否满足规定需求</td>
+<td>目的是尽早发现问题；”证明软件没问题”这个想法本身就不成立</td>
+</tr>
+<tr>
+<td>测试用例</td>
+<td>描述输入、操作、预期结果的一组说明，用来判定某功能是否正常</td>
+<td>缺”预期结果”的用例是无效用例</td>
+</tr>
+<tr>
+<td>需求评审</td>
+<td>在开发之前检查需求是否有歧义、遗漏、不可测</td>
+<td>它是测试介入最早的一步</td>
+</tr>
+<tr>
+<td>冒烟测试</td>
+<td>提测后先跑主干功能，通不过就打回</td>
+<td>目的在判断”能不能测”，不在找细碎缺陷</td>
+</tr>
+<tr>
+<td>回归测试</td>
+<td>修改之后重跑原有用例，确认没改坏其他功能</td>
+<td>回归不等于全部重跑，覆盖改动影响面即可</td>
+</tr>
+<tr>
+<td>验收测试</td>
+<td>由用户或客户按需求验收，判断能不能交付</td>
+<td>α 在开发场地由用户测，β 在用户现场测</td>
+</tr>
+<tr>
+<td>缺陷（Bug）</td>
+<td>软件不符合需求，或用户认为不可接受</td>
+<td>需求没写清但用户不满意，也算缺陷</td>
+</tr>
+<tr>
+<td>缺陷生命周期</td>
+<td>新建 → 指派 → 修复 → 验证 → 关闭（不通过则重新打开）</td>
+<td>“关闭”之后仍可能被重新打开</td>
+</tr>
+<tr>
+<td>严重程度 &#x2F; 优先级</td>
+<td>前者看对系统的影响，后者看修复的先后</td>
+<td>影响小但必须先修的，优先级高、严重度低</td>
+</tr>
+<tr>
+<td>测试覆盖率</td>
+<td>被测试覆盖到的部分占总体的比例</td>
+<td>功能覆盖率看需求，代码覆盖率看语句&#x2F;分支</td>
+</tr>
+</tbody></table>
+<p>补充三个常考的关系题：</p>
+<ol>
+<li><strong>测试与调试的区别</strong>：测试由测试人员发起，目的是发现问题，有计划和用例；调试由开发发起，目的是定位并修好问题，无固定步骤。</li>
+<li><strong>为什么不能穷尽测试</strong>：输入空间与执行路径是无限的，时间与成本有限，所以按风险排优先级，选择测什么、测到什么程度。</li>
+<li><strong>测试能保证质量吗</strong>：测试只能发现缺陷、提供质量信息，质量是设计和生产出来的。这句话在简答题里能直接拿到分。</li>
+</ol>
+<h2 id="二、测试分类：别只背名字，按”维度”记"><a href="#二、测试分类：别只背名字，按”维度”记" class="headerlink" title="二、测试分类：别只背名字，按”维度”记"></a>二、测试分类：别只背名字，按”维度”记</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>分类</th>
+<th>记忆抓手</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>是否看代码</td>
+<td>黑盒、白盒、灰盒</td>
+<td>黑盒看输入输出，白盒看代码逻辑，灰盒看接口与部分实现</td>
+</tr>
+<tr>
+<td>是否运行程序</td>
+<td>静态测试、动态测试</td>
+<td>静态靠评审与走查，不跑程序</td>
+</tr>
+<tr>
+<td>测试阶段</td>
+<td>单元、集成、系统、验收</td>
+<td>从小到大：函数 → 接口之间 → 整系统 → 用户手上</td>
+</tr>
+<tr>
+<td>测试目的</td>
+<td>功能、性能、兼容、安全、易用、可靠性</td>
+<td>功能问”对不对”，性能问”快不快”，兼容问”换环境坏不坏”</td>
+</tr>
+<tr>
+<td>是否手工</td>
+<td>手工测试、自动化测试</td>
+<td>自动化适合稳定、重复的回归</td>
+</tr>
+</tbody></table>
+<p>流程按 V 模型背最省力：需求分析 → 概要设计 → 详细设计 → 编码，右边对应验收测试 → 系统测试 → 集成测试 → 单元测试。W 模型把”测试与开发同步开始”讲得更清楚，需求阶段就写系统测试计划。</p>
+<p>实际工作里的顺序：需求评审 → 测试计划 → 用例设计与评审 → 开发提测跑冒烟 → 执行用例 → 提缺陷 → 回归 → 上线前回归与冒烟清单 → 复盘补用例。</p>
+<h2 id="三、用例设计：四件套-两道例题"><a href="#三、用例设计：四件套-两道例题" class="headerlink" title="三、用例设计：四件套 + 两道例题"></a>三、用例设计：四件套 + 两道例题</h2><h3 id="3-1-四个方法，各记一句"><a href="#3-1-四个方法，各记一句" class="headerlink" title="3.1 四个方法，各记一句"></a>3.1 四个方法，各记一句</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>什么时候用</th>
+<th>一句话例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>等价类划分</td>
+<td>输入取值多，不必逐个测</td>
+<td>年龄 1–120 分成”小于 1””1–120””大于 120”三堆</td>
+</tr>
+<tr>
+<td>边界值</td>
+<td>有区间或长度限制，错都在边界上</td>
+<td>输入 1–100 就测 0、1、100、101</td>
+</tr>
+<tr>
+<td>判定表</td>
+<td>多个条件组合决定一个结果</td>
+<td>优惠券能否使用：满减门槛 × 会员等级 × 有效期</td>
+</tr>
+<tr>
+<td>场景法</td>
+<td>走完一整条业务链路</td>
+<td>注册 → 登录 → 下单 → 支付 → 退款</td>
+</tr>
+<tr>
+<td>错误推测</td>
+<td>凭经验补漏</td>
+<td>断网提交、连点两次、提交中杀进程</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-例题一：登录框怎么设计用例（笔试最爱）"><a href="#3-2-例题一：登录框怎么设计用例（笔试最爱）" class="headerlink" title="3.2 例题一：登录框怎么设计用例（笔试最爱）"></a>3.2 例题一：登录框怎么设计用例（笔试最爱）</h3><p>按四类铺，别只盯输入框：</p>
+<ol>
+<li><strong>输入校验</strong>：账号空、密码空、全空格、长度边界（7&#x2F;8&#x2F;20&#x2F;21）、特殊字符、中文、超长粘贴、SQL 注入串 <code>&#39; or 1=1</code>、XSS 串 <code>&lt;script&gt;</code>。</li>
+<li><strong>业务规则</strong>：账号不存在、密码错误、账号锁定、密码错误 5 次后锁定、验证码错误与过期、密码明文与密文切换。</li>
+<li><strong>交互与状态</strong>：按钮在未填时是否禁用、连点是否只发一次请求、回车能否提交、登录后回调原页面、token 过期回登录页、多端登录互踢。</li>
+<li><strong>界面与兼容</strong>：提示文案是否明确、Tab 顺序、密码可见性图标、分辨率缩放不错位、主流浏览器表现一致。</li>
+</ol>
+<p>写答案按这个格式走：编号、用例标题、前置条件、步骤、预期结果。哪怕列十条，也要把预期结果写全，这是评分点。</p>
+<h3 id="3-3-例题二：输入框类通用模板"><a href="#3-3-例题二：输入框类通用模板" class="headerlink" title="3.3 例题二：输入框类通用模板"></a>3.3 例题二：输入框类通用模板</h3><p>凡是”给一个输入框”的题，套这五步：空值、格式非法、长度边界、特殊字符、业务语义。业务语义因场景不同，比如金额要测 0、负数、两位小数、超上限；手机号要测 10 位、11 位、12 位、带空格、带横线、+86 前缀。</p>
+<h2 id="四、缺陷与覆盖率：两道必考细节"><a href="#四、缺陷与覆盖率：两道必考细节" class="headerlink" title="四、缺陷与覆盖率：两道必考细节"></a>四、缺陷与覆盖率：两道必考细节</h2><h3 id="4-1-缺陷报告六要素"><a href="#4-1-缺陷报告六要素" class="headerlink" title="4.1 缺陷报告六要素"></a>4.1 缺陷报告六要素</h3><p>标题（一句话说清现象）、复现步骤、预期结果、实际结果、环境与版本、附件（日志与截图）。加分项是补”复现概率”和”影响面”。</p>
+<p>严重程度分四级：致命（系统崩溃、数据丢失）、严重（主功能不可用）、一般（次要功能异常）、轻微（文案与样式）。优先级分高中低，看修复排期。</p>
+<h3 id="4-2-覆盖率怎么算"><a href="#4-2-覆盖率怎么算" class="headerlink" title="4.2 覆盖率怎么算"></a>4.2 覆盖率怎么算</h3><ul>
+<li>语句覆盖率：执行过的语句占总语句的比例。</li>
+<li>分支（判定）覆盖率：每个判断的真假两支都走过。</li>
+<li>路径覆盖率：所有可能路径都走到，代价最高，实际很少要求。</li>
+</ul>
+<p>自测一个小例子：<code>if (a &gt; 0) &#123; x = 1; &#125; else &#123; x = 2; &#125;</code>。只跑 a&#x3D;1 时执行到 <code>x = 1</code>，语句覆盖 1&#x2F;2，即 50%；要语句覆盖 100% 必须 a&gt;0 与 a&lt;&#x3D;0 各跑一次。分支覆盖 100% 同样要求两支都走，所以分支覆盖 100% 一定带来语句覆盖 100%，反过来不成立（跑过所有语句不等于走遍所有分支）。</p>
+<h2 id="五、算法：只要五个排序-一个查找"><a href="#五、算法：只要五个排序-一个查找" class="headerlink" title="五、算法：只要五个排序 + 一个查找"></a>五、算法：只要五个排序 + 一个查找</h2><p>笔试不会要求最优解，要求的是”能写出能跑的代码，说得清复杂度”。</p>
+<h3 id="5-1-复杂度与稳定性速记"><a href="#5-1-复杂度与稳定性速记" class="headerlink" title="5.1 复杂度与稳定性速记"></a>5.1 复杂度与稳定性速记</h3><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>平均时间</th>
+<th>最坏时间</th>
+<th>空间</th>
+<th>稳定</th>
+<th>记忆点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>冒泡</td>
+<td>O(n²)</td>
+<td>O(n²)</td>
+<td>O(1)</td>
+<td>稳定</td>
+<td>相邻比较交换，一趟冒一个最大值</td>
+</tr>
+<tr>
+<td>选择</td>
+<td>O(n²)</td>
+<td>O(n²)</td>
+<td>O(1)</td>
+<td>不稳定</td>
+<td>每轮选最小放到前面，交换会打乱相等元素</td>
+</tr>
+<tr>
+<td>插入</td>
+<td>O(n²)</td>
+<td>O(n²)</td>
+<td>O(1)</td>
+<td>稳定</td>
+<td>像摸牌，把当前牌插到合适位置</td>
+</tr>
+<tr>
+<td>快速</td>
+<td>O(n log n)</td>
+<td>O(n²)</td>
+<td>O(log n)</td>
+<td>不稳定</td>
+<td>选基准分区递归，最坏出现在已有序</td>
+</tr>
+<tr>
+<td>归并</td>
+<td>O(n log n)</td>
+<td>O(n log n)</td>
+<td>O(n)</td>
+<td>稳定</td>
+<td>分成两半排好再合并，代价是要额外空间</td>
+</tr>
+<tr>
+<td>二分查找</td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+<td>O(1)</td>
+<td>—</td>
+<td>前提是数组有序</td>
+</tr>
+</tbody></table>
+<p>口诀：<strong>冒泡插入逐位排，选择每轮挑最小，快排分区看基准，归并分治要空间。</strong> 稳定性记两个例外就够：选择、快排不稳定，其余三种稳定。</p>
+<h3 id="5-2-冒泡（手写要能一次过）"><a href="#5-2-冒泡（手写要能一次过）" class="headerlink" title="5.2 冒泡（手写要能一次过）"></a>5.2 冒泡（手写要能一次过）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">bubble</span>(<span class="params">a</span>):</span><br><span class="line">    n = <span class="built_in">len</span>(a)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n - <span class="number">1</span>):</span><br><span class="line">        swapped = <span class="literal">False</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(n - <span class="number">1</span> - i):</span><br><span class="line">            <span class="keyword">if</span> a[j] &gt; a[j + <span class="number">1</span>]:</span><br><span class="line">                a[j], a[j + <span class="number">1</span>] = a[j + <span class="number">1</span>], a[j]</span><br><span class="line">                swapped = <span class="literal">True</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> swapped:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> a</span><br></pre></td></tr></table></figure>
+
+<p>拿 <code>[3,1,2]</code> 走一遍：第一趟 3 与 1 换，3 与 2 换，得 <code>[1,2,3]</code>；第二趟无交换，<code>swapped</code> 为假直接退出。笔试常让人写”带优化的冒泡”，就是这句 <code>swapped</code>。</p>
+<h3 id="5-3-快排"><a href="#5-3-快排" class="headerlink" title="5.3 快排"></a>5.3 快排</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">quick</span>(<span class="params">a</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(a) &lt;= <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> a</span><br><span class="line">    pivot = a[<span class="built_in">len</span>(a) // <span class="number">2</span>]</span><br><span class="line">    left = [x <span class="keyword">for</span> x <span class="keyword">in</span> a <span class="keyword">if</span> x &lt; pivot]</span><br><span class="line">    mid = [x <span class="keyword">for</span> x <span class="keyword">in</span> a <span class="keyword">if</span> x == pivot]</span><br><span class="line">    right = [x <span class="keyword">for</span> x <span class="keyword">in</span> a <span class="keyword">if</span> x &gt; pivot]</span><br><span class="line">    <span class="keyword">return</span> quick(left) + mid + quick(right)</span><br></pre></td></tr></table></figure>
+
+<p>这个写法好记但费空间，答题时补一句”原地分区版本用双指针，空间从 O(n) 降到 O(log n)”就够专业了。</p>
+<h3 id="5-4-二分查找（注意边界）"><a href="#5-4-二分查找（注意边界）" class="headerlink" title="5.4 二分查找（注意边界）"></a>5.4 二分查找（注意边界）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">bsearch</span>(<span class="params">a, t</span>):</span><br><span class="line">    lo, hi = <span class="number">0</span>, <span class="built_in">len</span>(a) - <span class="number">1</span></span><br><span class="line">    <span class="keyword">while</span> lo &lt;= hi:</span><br><span class="line">        mid = (lo + hi) // <span class="number">2</span></span><br><span class="line">        <span class="keyword">if</span> a[mid] == t:</span><br><span class="line">            <span class="keyword">return</span> mid</span><br><span class="line">        <span class="keyword">if</span> a[mid] &lt; t:</span><br><span class="line">            lo = mid + <span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            hi = mid - <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>三处最容易写错：<code>lo &lt;= hi</code> 写成 <code>&lt;</code>（漏掉最后一个元素）、<code>mid + 1</code> 写成 <code>mid</code>（死循环）、数组未排序就用二分（前提不成立）。</p>
+<h3 id="5-5-字符串与数组常考题"><a href="#5-5-字符串与数组常考题" class="headerlink" title="5.5 字符串与数组常考题"></a>5.5 字符串与数组常考题</h3><p>反转字符串、判断回文、统计字符出现次数、两数之和、去重保序、斐波那契（递推比递归好，递归会重复计算）。每题能手写十行以内就够。</p>
+<h2 id="六、SQL-与-Linux：各背八条"><a href="#六、SQL-与-Linux：各背八条" class="headerlink" title="六、SQL 与 Linux：各背八条"></a>六、SQL 与 Linux：各背八条</h2><h3 id="6-1-SQL"><a href="#6-1-SQL" class="headerlink" title="6.1 SQL"></a>6.1 SQL</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1 条件查询</span></span><br><span class="line"><span class="keyword">SELECT</span> name, salary <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> dept <span class="operator">=</span> <span class="string">&#x27;测试&#x27;</span> <span class="keyword">AND</span> salary <span class="operator">&gt;</span> <span class="number">8000</span>;</span><br><span class="line"><span class="comment">-- 2 排序取前几</span></span><br><span class="line"><span class="keyword">SELECT</span> name <span class="keyword">FROM</span> employee <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span> LIMIT <span class="number">3</span>;</span><br><span class="line"><span class="comment">-- 3 去重</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> dept <span class="keyword">FROM</span> employee;</span><br><span class="line"><span class="comment">-- 4 分组统计</span></span><br><span class="line"><span class="keyword">SELECT</span> dept, <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> cnt, <span class="built_in">AVG</span>(salary) <span class="keyword">AS</span> avg_sal <span class="keyword">FROM</span> employee <span class="keyword">GROUP</span> <span class="keyword">BY</span> dept <span class="keyword">HAVING</span> cnt <span class="operator">&gt;</span> <span class="number">2</span>;</span><br><span class="line"><span class="comment">-- 5 模糊查询</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> name <span class="keyword">LIKE</span> <span class="string">&#x27;张%&#x27;</span>;</span><br><span class="line"><span class="comment">-- 6 区间</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> create_time <span class="keyword">BETWEEN</span> <span class="string">&#x27;2026-01-01&#x27;</span> <span class="keyword">AND</span> <span class="string">&#x27;2026-01-31&#x27;</span>;</span><br><span class="line"><span class="comment">-- 7 关联查询</span></span><br><span class="line"><span class="keyword">SELECT</span> o.id, u.name <span class="keyword">FROM</span> orders o <span class="keyword">JOIN</span> users u <span class="keyword">ON</span> o.user_id <span class="operator">=</span> u.id <span class="keyword">WHERE</span> o.status <span class="operator">=</span> <span class="string">&#x27;PAID&#x27;</span>;</span><br><span class="line"><span class="comment">-- 8 子查询</span></span><br><span class="line"><span class="keyword">SELECT</span> name <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> salary <span class="operator">&gt;</span> (<span class="keyword">SELECT</span> <span class="built_in">AVG</span>(salary) <span class="keyword">FROM</span> employee);</span><br></pre></td></tr></table></figure>
+
+<p>常考细节：<code>WHERE</code> 在分组前过滤，<code>HAVING</code> 在分组后过滤；<code>COUNT(*)</code> 含空行，<code>COUNT(col)</code> 不计 NULL；<code>LEFT JOIN</code> 保留左表全部行，<code>INNER JOIN</code> 只留匹配行。</p>
+<h3 id="6-2-Linux"><a href="#6-2-Linux" class="headerlink" title="6.2 Linux"></a>6.2 Linux</h3><table>
+<thead>
+<tr>
+<th>目的</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>看日志尾部并实时跟踪</td>
+<td><code>tail -f app.log</code></td>
+</tr>
+<tr>
+<td>搜关键字带上下文</td>
+<td><code>grep -n -C 3 &quot;ERROR&quot; app.log</code></td>
+</tr>
+<tr>
+<td>统计出现次数</td>
+<td><code>grep -c &quot;ERROR&quot; app.log</code></td>
+</tr>
+<tr>
+<td>看进程</td>
+<td><code>ps -ef | grep java</code></td>
+</tr>
+<tr>
+<td>看端口监听</td>
+<td><code>ss -lntp | grep 8080</code></td>
+</tr>
+<tr>
+<td>看磁盘</td>
+<td><code>df -h</code>；目录占用 <code>du -sh *</code></td>
+</tr>
+<tr>
+<td>改权限</td>
+<td><code>chmod 755 file</code>；<code>chmod +x run.sh</code></td>
+</tr>
+<tr>
+<td>找文件</td>
+<td><code>find /var/log -name &quot;*.log&quot; -mtime +7</code></td>
+</tr>
+</tbody></table>
+<h3 id="6-3-网络与-HTTP"><a href="#6-3-网络与-HTTP" class="headerlink" title="6.3 网络与 HTTP"></a>6.3 网络与 HTTP</h3><p>TCP 三次握手：SYN → SYN+ACK → ACK，目的是双方确认收发能力并同步序列号。四次挥手多一步是因为 TCP 全双工，两个方向要分别关闭。</p>
+<p>状态码常考：200 成功、301 永久重定向、302 临时重定向、304 命中缓存、400 参数错、401 未认证、403 无权限、404 找不到、405 方法不允许、500 服务端异常、502 网关收到无效响应、504 网关超时。</p>
+<p>GET 与 POST 的差别：语义不同（取资源 vs 提交数据）、参数位置不同（URL vs 请求体）、幂等性不同（GET 幂等）、缓存行为不同。</p>
+<h2 id="七、Python-输出题：八个坑，全部实测过"><a href="#七、Python-输出题：八个坑，全部实测过" class="headerlink" title="七、Python 输出题：八个坑，全部实测过"></a>七、Python 输出题：八个坑，全部实测过</h2><p>笔试里的 Python 题多半问”输出是什么”，考的是边界认知。下面每条都在本机跑过。</p>
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>输出</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>def f(a, b=[]): b.append(a); return b</code> 调 <code>f(1)</code>、<code>f(2)</code></td>
+<td><code>[1]</code> 然后 <code>[1, 2]</code></td>
+<td>默认参数只求值一次，两次调用共用一个列表</td>
+</tr>
+<tr>
+<td><code>[1,2] == [1,2]</code> 与 <code>[1,2] is [1,2]</code></td>
+<td><code>True</code>、<code>False</code></td>
+<td><code>==</code> 比值，<code>is</code> 比内存地址，两个字面量是两个对象</td>
+</tr>
+<tr>
+<td><code>a = int(&quot;257&quot;); b = int(&quot;257&quot;); a is b</code></td>
+<td><code>False</code></td>
+<td>小整数只有 -5 到 256 被缓存，257 每次新建</td>
+</tr>
+<tr>
+<td><code>m = [[0]*2]*2; m[0][0] = 1</code></td>
+<td><code>[[1,0],[1,0]]</code></td>
+<td>外层乘号复制的是引用，两行指向同一个列表</td>
+</tr>
+<tr>
+<td><code>[1,2].append(3)</code></td>
+<td><code>None</code></td>
+<td><code>append</code> 原地修改，返回 None，写成 <code>x = a.append()</code> 就丢了列表</td>
+</tr>
+<tr>
+<td><code>[lambda: i for i in range(3)][0]()</code></td>
+<td><code>2</code></td>
+<td>lambda 晚绑定，调用时才取 i，循环结束时 i 是 2</td>
+</tr>
+<tr>
+<td><code>7//2</code>、<code>-7//2</code>、<code>-7%3</code></td>
+<td><code>3</code>、<code>-4</code>、<code>2</code></td>
+<td>向下取整，取模符号跟除数走</td>
+</tr>
+<tr>
+<td><code>round(2.5)</code>、<code>round(3.5)</code></td>
+<td><code>2</code>、<code>4</code></td>
+<td>银行家舍入，恰好一半时取偶数</td>
+</tr>
+</tbody></table>
+<p>再补两个：<code>0.1 + 0.2 == 0.3</code> 是 <code>False</code>（浮点误差，比较要写 <code>abs(a-b) &lt; 1e-9</code>）；<code>sorted</code> 是稳定排序，相同键的先后顺序保持原序。</p>
+<h2 id="八、五道简答模板（照抄能拿多半分）"><a href="#八、五道简答模板（照抄能拿多半分）" class="headerlink" title="八、五道简答模板（照抄能拿多半分）"></a>八、五道简答模板（照抄能拿多半分）</h2><ol>
+<li><strong>什么是软件测试</strong>：用人工或自动化手段运行或评价软件，检验是否满足需求，目的是尽早发现缺陷，为质量提供依据。</li>
+<li><strong>测试与调试的区别</strong>：发起人不同、目的不同、是否有计划与用例不同、结论不同（测试找问题，调试解决问题）。</li>
+<li><strong>如何保证测试质量</strong>：需求评审提前介入、用例评审与覆盖率检查、环境与数据可控、缺陷闭环跟踪、回归与上线前冒烟、复盘补用例。</li>
+<li><strong>怎么设计一个好的用例</strong>：能复现、有明确预期结果、步骤简洁、不依赖其他用例、覆盖一个测试点、可自动化。</li>
+<li><strong>发现缺陷后怎么处理</strong>：确认能复现 → 缩小范围（接口还是界面、必现还是偶现）→ 提缺陷单（步骤、预期、实际、日志）→ 跟踪修复 → 按影响面回归 → 关闭或打回。</li>
+</ol>
+<h2 id="九、易混清单：笔试选择题高频二十对"><a href="#九、易混清单：笔试选择题高频二十对" class="headerlink" title="九、易混清单：笔试选择题高频二十对"></a>九、易混清单：笔试选择题高频二十对</h2><table>
+<thead>
+<tr>
+<th>A</th>
+<th>B</th>
+<th>分清的关键</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>验证（Verification）</td>
+<td>确认（Validation）</td>
+<td>前者问”做得对不对”，后者问”做的是不是用户要的”</td>
+</tr>
+<tr>
+<td>错误（Error）</td>
+<td>缺陷（Defect）</td>
+<td>错误是人犯的，缺陷是代码里的，故障是运行表现</td>
+</tr>
+<tr>
+<td>缺陷严重程度</td>
+<td>缺陷优先级</td>
+<td>影响大小 vs 修复先后</td>
+</tr>
+<tr>
+<td>冒烟测试</td>
+<td>回归测试</td>
+<td>能不能测 vs 改完有没有改坏</td>
+</tr>
+<tr>
+<td>α 测试</td>
+<td>β 测试</td>
+<td>开发场地用户测 vs 用户现场测</td>
+</tr>
+<tr>
+<td>静态测试</td>
+<td>动态测试</td>
+<td>不跑程序 vs 跑程序</td>
+</tr>
+<tr>
+<td>黑盒</td>
+<td>白盒</td>
+<td>看输入输出 vs 看代码逻辑</td>
+</tr>
+<tr>
+<td>语句覆盖</td>
+<td>分支覆盖</td>
+<td>执行过 vs 两支都走过</td>
+</tr>
+<tr>
+<td>等价类</td>
+<td>边界值</td>
+<td>分堆取代表 vs 专挑边界点</td>
+</tr>
+<tr>
+<td>功能测试</td>
+<td>性能测试</td>
+<td>对不对 vs 快不快、稳不稳</td>
+</tr>
+<tr>
+<td>负载测试</td>
+<td>压力测试</td>
+<td>逐步加压找拐点 vs 超负荷看会不会崩</td>
+</tr>
+<tr>
+<td>单元测试</td>
+<td>集成测试</td>
+<td>单个函数 vs 模块之间</td>
+</tr>
+<tr>
+<td>系统测试</td>
+<td>验收测试</td>
+<td>测试团队 vs 用户或客户</td>
+</tr>
+<tr>
+<td>缺陷密度</td>
+<td>缺陷收敛</td>
+<td>每千行代码缺陷数 vs 后期新增缺陷变少</td>
+</tr>
+<tr>
+<td>测试计划</td>
+<td>测试方案</td>
+<td>做什么、谁做、何时做 vs 具体怎么测</td>
+</tr>
+<tr>
+<td>缺陷验证</td>
+<td>缺陷回归</td>
+<td>修的那处对不对 vs 有没有连带影响</td>
+</tr>
+<tr>
+<td>阻塞缺陷</td>
+<td>一般缺陷</td>
+<td>无法继续测 vs 不影响继续测</td>
+</tr>
+<tr>
+<td>需求覆盖率</td>
+<td>代码覆盖率</td>
+<td>需求条目被用例覆盖 vs 代码被用例执行</td>
+</tr>
+<tr>
+<td>预置条件</td>
+<td>测试步骤</td>
+<td>开始前的状态 vs 操作的顺序</td>
+</tr>
+<tr>
+<td>缺陷打回</td>
+<td>缺陷关闭</td>
+<td>验证不通过退回开发 vs 验证通过收尾</td>
+</tr>
+</tbody></table>
+<h2 id="十、七天刷题计划"><a href="#十、七天刷题计划" class="headerlink" title="十、七天刷题计划"></a>十、七天刷题计划</h2><table>
+<thead>
+<tr>
+<th>天</th>
+<th>内容</th>
+<th>验收物</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D1</td>
+<td>一、二节概念与分类，自己默写十个定义</td>
+<td>默写纸一张，错的地方标红</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>三节用例设计，写登录框 20 条 + 输入框模板 10 条</td>
+<td>用例表，每条有预期结果</td>
+</tr>
+<tr>
+<td>D3</td>
+<td>四、五节缺陷与覆盖率，手算两道覆盖率题</td>
+<td>两道题的过程</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>五种排序各手写一遍，掐表 15 分钟写完三个</td>
+<td>三个排序代码，跑通</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>二分、字符串五题、两数之和</td>
+<td>代码文件，带测试用例</td>
+</tr>
+<tr>
+<td>D6</td>
+<td>SQL 八条 + Linux 八条 + 状态码，全部背一遍</td>
+<td>默写检查</td>
+</tr>
+<tr>
+<td>D7</td>
+<td>七节输出题八条，全部手推一遍再跑一遍</td>
+<td>对照表，能说出原因</td>
+</tr>
+</tbody></table>
+<p>错题本只要三列：题目、我错在哪（概念不清 &#x2F; 边界漏了 &#x2F; 语法记错）、下次怎么避免。笔试做完当天就补，隔三天再翻一遍。</p>
+<h2 id="十一、答题技巧"><a href="#十一、答题技巧" class="headerlink" title="十一、答题技巧"></a>十一、答题技巧</h2><ul>
+<li>判断题先怀疑绝对词：”只需要””一定””全部”多半是错的。</li>
+<li>简答题按”定义 + 目的 + 做法”三段写，哪怕不会也把关键词写上去，按点给分。</li>
+<li>用例设计题先写一句”我会从功能、边界、异常、兼容四类设计”，再列用例，阅卷人一眼能看到结构。</li>
+<li>代码题写不出来时，把思路用注释写清（”此处二分查找左边界”），有时候能拿到步骤分。</li>
+<li>时间不够就先做用例设计和简答，这两块分值密度最高。</li>
+</ul>
+<h2 id="十二、这份笔记的边界"><a href="#十二、这份笔记的边界" class="headerlink" title="十二、这份笔记的边界"></a>十二、这份笔记的边界</h2><p>概念与算法部分属于通用知识，随时可查可核；Python 输出题的八个结论都在本机跑过。用例设计的两道例题是模板，换业务要换语义。真正上考场前，把第五节五个排序在纸上各写一遍，比看十遍强。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Python/"># Python</a>
+          
+          <a href="/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"># 排序算法</a>
+          
+          <a href="/tags/%E7%AC%94%E8%AF%95/"># 笔试</a>
+          
+          <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/"># 软件测试</a>
+          
+          <a href="/tags/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/"># 面试八股</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+       
+      <a class="next" rel="next" href="/2026/11/09/%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98/%E6%B7%B1%E5%9C%B3%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E6%B7%B1%E5%9C%B3%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E5%B2%97%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98--11-09--%E7%AE%80%E5%8E%86%E5%83%8F%E5%BC%80%E5%8F%91%E5%B2%97%E4%B8%8E%E8%87%AA%E6%88%91%E4%BB%8B%E7%BB%8D/"
+        >深圳软件测试岗面试复盘（11-09）--简历像开发岗，自我介绍只有十秒</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>
