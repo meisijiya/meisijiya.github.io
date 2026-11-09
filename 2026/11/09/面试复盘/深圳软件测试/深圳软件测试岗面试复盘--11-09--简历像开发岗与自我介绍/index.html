@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>支付退款与高并发场景题复盘 | 欢迎来到老江湖的博客</title>
+<title>深圳软件测试岗面试复盘（11-09）--简历像开发岗，自我介绍只有十秒 | 欢迎来到老江湖的博客</title>
 
 
 
@@ -434,7 +434,7 @@
 </script>  
   <article class="post-wrap">
     <header class="post-header">
-      <h1 class="post-title">支付退款与高并发场景题复盘</h1>
+      <h1 class="post-title">深圳软件测试岗面试复盘（11-09）--简历像开发岗，自我介绍只有十秒</h1>
       
       <div class="post-meta">
          作者:
@@ -443,16 +443,16 @@
         <span class="post-time">
           <br />日期:
           <a href="#"
-            >十一月 5, 2026&nbsp;&nbsp;19:34:13</a
+            >十一月 9, 2026&nbsp;&nbsp;20:10:00</a
           >
         </span>
          
         <span class="post-category"
           ><br />
           分类: 
-          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98/">面试复盘</a>
           
-          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91/">软件开发</a>
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98/%E6%B7%B1%E5%9C%B3%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/">深圳软件测试</a>
           
         </span>
         
@@ -461,316 +461,79 @@
     </header>
 
     <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
-<p>岗位是跨境广告代运营公司的全栈开发实习生，业务是广告代运营加支付结算。技术面全程围着<strong>支付退回、高并发、消息队列</strong>转，没有问 Go 语法。这次失分不在语言，在三块：支付概念空白、场景题没答到点上、压测口径没底。</p>
-<hr>
-<h2 id="零、三处硬伤"><a href="#零、三处硬伤" class="headerlink" title="零、三处硬伤"></a>零、三处硬伤</h2><table>
+<p><strong>结论：机会输在第一分钟，不在技术。</strong> 自我介绍拿十秒概括了三个项目，面试官手里没有可追问的东西，于是全程绕开我的项目，改问基础题和动机题。动机题我又答错了方向，把”开发偏业务、测试也偏业务”这种自相矛盾的话说了出去，面试官当场帮我圆，我只能顺着下台阶。</p>
+<p>这篇把这次翻车拆成五处，每处给出改法与下次的口径。简历部分已经重做，见文末。</p>
+<h2 id="一、五处失分"><a href="#一、五处失分" class="headerlink" title="一、五处失分"></a>一、五处失分</h2><table>
 <thead>
 <tr>
 <th>现场问题</th>
-<th>我的答法</th>
-<th>失分点</th>
+<th>我怎么答的</th>
+<th>问题在哪</th>
 <th>改法</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>支付平台与支付方式了解多少</td>
-<td>“Redis 加 Luna 的一个时间命名”</td>
-<td>①<code>Lua</code> 说成 <code>Luna</code>；②Redis+Lua 是扣减与限流的实现手段，不是支付概念</td>
-<td>背第二节的支付五接口与状态机</td>
+<td>一分钟自我介绍</td>
+<td>在校期间团队参与过项目开发，课余也做过一些项目</td>
+<td>十秒讲完，测试能力零露出，项目名一个没提</td>
+<td>背 90 秒稿，结构固定：测试基础、工具、落地项目、团队协作、AI</td>
 </tr>
 <tr>
-<td>已支付订单被取消退款怎么办</td>
-<td>“消息队列异步落盘、延时落盘”</td>
-<td>方向对了一半（异步 + 最终一致），但<strong>没戳中最关键的一句：钱已经出去了，不能撤销，只能退款</strong></td>
-<td>用第一节的四时序答法</td>
+<td>简历第一印象</td>
+<td>——</td>
+<td>三条项目的主语都是”我实现了什么”，读起来是开发简历</td>
+<td>每条 bullet 首词改成测试动作；项目身份后缀改成”接口与自动化测试”这类定位词</td>
 </tr>
 <tr>
-<td>高并发怎么做的</td>
-<td>单机部署、说了一个 JMeter 线程数</td>
-<td>没有真实数据支撑，一问 Ramp-up、思考时间、P95、瓶颈在哪就露</td>
-<td>用 <code>bench.py</code> 真跑一次，拿本机真数据</td>
+<td>QQ 登录界面怎么设计用例</td>
+<td>只说了账号框和密码框的等价类、边界值</td>
+<td>漏掉账号切换、忘记密码、注册、第三方登录、登录态这些隐藏入口，场景覆盖太窄</td>
+<td>先澄清需求，再按功能、兼容、接口、安全、性能分层的框架答，最后才落到输入框</td>
+</tr>
+<tr>
+<td>为什么选测试不选开发</td>
+<td>开发岗偏业务，我算法不太好</td>
+<td>测试也偏业务，这句话自己否定了测试；顺带贬低自己</td>
+<td>说强项：我强在挑毛病和盯边界；开发背景让我能读源码与日志定位问题</td>
+</tr>
+<tr>
+<td>简历上没有 AI</td>
+<td>——</td>
+<td>岗位 JD 明写 AI 工具辅助用例、大模型评测、Prompt 与 RAG，简历一个字没有</td>
+<td>技能段补一行 AI+测试，项目段补”验收口径拆解”与”AI 输出评测”</td>
 </tr>
 </tbody></table>
-<p>第三条最危险。技术面的人天天看压测报告，临时凑的数字撑不过两个追问。<strong>诚实说”没做过严谨压测”不会扣分，硬凑数字会被直接看穿。</strong></p>
-<hr>
-<h2 id="一、”支付成功又取消退款”的标准答法"><a href="#一、”支付成功又取消退款”的标准答法" class="headerlink" title="一、”支付成功又取消退款”的标准答法"></a>一、”支付成功又取消退款”的标准答法</h2><h3 id="先给结论句（这句必须有）"><a href="#先给结论句（这句必须有）" class="headerlink" title="先给结论句（这句必须有）"></a>先给结论句（这句必须有）</h3><blockquote>
-<p>支付一旦成功，资金已经到商户或平台账户，<strong>不存在”撤销支付”，只能走退款</strong>。所以这个场景不是取消订单，是生成退款单，把已收的钱退回去。真正要解决的是两件事：退款请求不能重复执行，退款结果必须和渠道对得上。</p>
+<p>另外两处小的。简历里 Linux 写在技能行，面试官就顺着问 Linux 命令，我只报了 <code>ls</code>、<code>cat</code>、<code>tail</code>、<code>grep</code>、<code>rm</code>、<code>chmod</code>，散着报没有层次。测试岗要 Linux 是为了上服务器找证据：日志在哪、服务活没活、端口通不通、磁盘满没满。按”看日志、查进程端口、看资源、改文件权限”四层答，比背命令表管用。</p>
+<p>还有个信号值得记下来。面试官说我这简历看起来像开发岗，随后好几家都问”计算机专业能做开发也能做别的方向，为什么选测试”。同一个问题反复出现，说明简历的定位没写死，投开发也能投测试也能，于是每家都要确认一次。现在简历标题直接写”软件测试实习生 · 功能 &#x2F; 接口 &#x2F; 自动化”，项目后缀也带测试定位，这个问法应该会少。</p>
+<h2 id="二、自我介绍-90-秒稿（新）"><a href="#二、自我介绍-90-秒稿（新）" class="headerlink" title="二、自我介绍 90 秒稿（新）"></a>二、自我介绍 90 秒稿（新）</h2><blockquote>
+<p>面试官好，我叫 meisijiya，广东海洋大学计算机科学与技术专业，2027 届，投的是软件测试实习生。</p>
+<p>我的测试能力分三块。第一块是测试基础：从需求评审到用例设计我按流程走，等价类、边界值、场景法都会用，写用例前先拿 Xmind 把测试点铺开，防漏场景。</p>
+<p>第二块是工具：接口测试用 Postman，会写断言、环境变量、请求关联和 CSV 数据驱动，用 Collection Runner 跑回归；抓包用 Charles，改包和弱网都试过；自动化是 Python 加 pytest；性能这块 JMeter 能搭线程组、看聚合报告。</p>
+<p>第三块是落地：我自己做过一个视频解析平台，按 OpenAPI 契约把云端和端侧的接口铺成用例，pytest 里两百多条，一条命令跑全量回归。写完断言我还会改坏一处实现，看对应用例会不会报错，因为用例通过不等于能发现问题。</p>
+<p>另外我在校级团队做后端组长，兼测试和质量，版本按需求评审、用例评审、提测、回归、上线复盘推进。AI 这块我在用结构化 Prompt 先生成测试点，再人工补场景。</p>
+<p>我选测试，是因为我更擅长把风险提前挖出来，而不是只把功能写出来。谢谢。</p>
 </blockquote>
-<p>我当时答的”异步、延时”讲的是手段，缺的是这层判断。</p>
-<h3 id="四种时序，分别答"><a href="#四种时序，分别答" class="headerlink" title="四种时序，分别答"></a>四种时序，分别答</h3><table>
-<thead>
-<tr>
-<th>时序</th>
-<th>现场状态</th>
-<th>正确做法</th>
-<th>不这么做会怎样</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>A. 订单未支付</td>
-<td>超时未付款，用户点取消</td>
-<td>关闭订单。<strong>关单前先查单</strong></td>
-<td>用户其实刚付款成功、回调还没到，直接关单 → 钱收了单没了</td>
-</tr>
-<tr>
-<td>B. 回调未到</td>
-<td>用户说付了，系统还没收到通知</td>
-<td>主动调渠道<strong>查询接口</strong>，查到已支付就按已支付处理</td>
-<td>直接退款 → 退了一笔系统以为没付过的钱</td>
-</tr>
-<tr>
-<td>C. 已支付</td>
-<td>状态已置”已支付”</td>
-<td>生成退款单 → 调渠道退款接口 → 等异步回调 → 置”已退款”</td>
-<td>同步改状态 → 渠道退款失败，本地状态和资金对不上</td>
-</tr>
-<tr>
-<td>D. 退款失败&#x2F;超时</td>
-<td>渠道返回失败或没回调</td>
-<td>按退款单号<strong>重试</strong>（幂等）＋ T+1 <strong>对账</strong>兜底</td>
-<td>单边账，用户投诉才被发现</td>
-</tr>
-</tbody></table>
-<h3 id="一致性四件套（面试官想听的骨架）"><a href="#一致性四件套（面试官想听的骨架）" class="headerlink" title="一致性四件套（面试官想听的骨架）"></a>一致性四件套（面试官想听的骨架）</h3><ol>
-<li><strong>状态机</strong>：待支付 → 已支付 → 退款中 → 已退款；失败回滚到已支付。状态只能往前走，不允许跳变。所有写操作带状态前置条件（<code>WHERE status=&#39;已支付&#39;</code>）。</li>
-<li><strong>本地消息表（outbox）</strong>：改订单状态、插退款单、写待发消息，<strong>同一个本地事务</strong>提交。再由投递器把 outbox 的消息发到 MQ。这样不会出现”数据库改了但消息没发”。</li>
-<li><strong>幂等</strong>：两次幂等键——下单用 <code>out_trade_no</code>，退款用 <code>out_refund_no</code>，都建唯一索引。同一单号重复请求，第二次直接返回第一次的结果。渠道回调也可能重复推送，所以回调处理也要判状态。</li>
-<li><strong>对账</strong>：每天 T+1 下载渠道对账单，和本地流水逐笔比。差异分三类——本地有渠道无（长款）、渠道有本地无（短款）、金额不一致。差异单进人工或自动补偿任务。</li>
+<h2 id="三、QQ-登录界面怎么答（下次照这个说）"><a href="#三、QQ-登录界面怎么答（下次照这个说）" class="headerlink" title="三、QQ 登录界面怎么答（下次照这个说）"></a>三、QQ 登录界面怎么答（下次照这个说）</h2><p>开场先澄清：Web 还是客户端、支持手机号还是邮箱还是 QQ 号、有没有验证码和第三方登录、密码错几次锁定。然后分层。</p>
+<p>功能这一层覆盖：账号框、密码框、登录按钮、验证码、账号切换、忘记密码、注册入口、第三方登录、登录后的免登录与 token 过期状态。测试点用等价类加边界值铺输入，用场景法串”注册、登录、切换账号、忘记密码、重置后用新密码登录”，再用状态迁移看登录态怎么变。</p>
+<p>安全这一层容易被追问：密码是否明文传输、连续错误是否锁定、验证码能否绕过、有没有越权看到别人的信息、SQL 注入与 XSS。</p>
+<p>兼容与性能各一句就够：主流浏览器与分辨率不错位；并发登录响应时间在两秒内。</p>
+<p>最后收一句：我会先出测试点清单，P0 是登录成功与失败主干加安全项，P1 是切换账号、忘记密码这类隐藏入口，P2 是兼容与文案。</p>
+<h2 id="四、Linux-四层答法"><a href="#四、Linux-四层答法" class="headerlink" title="四、Linux 四层答法"></a>四、Linux 四层答法</h2><ol>
+<li>看日志：<code>tail -f</code> 跟日志，<code>grep -n -C 3</code> 捞关键字上下文，大文件用 <code>less</code> 搜索，按时间切用 <code>sed -n &#39;/起/,/止/p&#39;</code>。</li>
+<li>查服务与端口：<code>ps -ef | grep java</code> 看进程，<code>ss -lntp | grep 8080</code> 看监听，<code>lsof -i:8080</code> 看谁占着，<code>curl -i</code> 探活。</li>
+<li>看资源：<code>df -h</code> 看磁盘，<code>du -sh * | sort -h</code> 找大户，<code>free -m</code> 与 <code>top</code> 看内存负载。</li>
+<li>文件与权限：<code>ls -al</code> 看权限位，<code>chmod 644/755</code>，<code>chown</code> 改属主，<code>find</code> 按时间找旧日志。</li>
 </ol>
-<h3 id="45-秒现场版（背这段）"><a href="#45-秒现场版（背这段）" class="headerlink" title="45 秒现场版（背这段）"></a>45 秒现场版（背这段）</h3><blockquote>
-<p>支付成功之后不存在撤销，只能退款。我会先看订单处于哪个状态：<br>如果还没支付，关单前一定先查一次渠道，防止钱到了单被关了；<br>如果已经支付，就生成退款单，用商户退款单号做幂等键，调渠道退款接口，退款是异步的，等回调再改状态；<br>退款失败就按单号重试，同时靠每日对账兜住单边账。<br>状态迁移我写成状态机，改库和发消息用本地消息表放在同一个事务里，避免状态改了消息没发出去。</p>
-</blockquote>
-<h3 id="已经在本地跑通的最小实现"><a href="#已经在本地跑通的最小实现" class="headerlink" title="已经在本地跑通的最小实现"></a>已经在本地跑通的最小实现</h3><p><code>refund_demo.py</code>（同目录）用 SQLite 实现了这套骨架，实测输出：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1) 首次退款请求   -&gt; (True, &#x27;已受理，退款中&#x27;)</span><br><span class="line">2) 同一单号重发   -&gt; (False, &#x27;重复请求，已存在退款单状态=处理中&#x27;)</span><br><span class="line">3) 换单号再退一次 -&gt; (False, &#x27;状态不允许退款：退款中&#x27;)</span><br><span class="line">4) 渠道回调成功   -&gt; 回调处理完成：退款成功</span><br><span class="line">5) 回调重复推送   -&gt; 重复回调，忽略（当前 退款成功）</span><br><span class="line">6) 未知单号回调   -&gt; 未知退款单，落异常表待查</span><br><span class="line"></span><br><span class="line">退款单条数 = 1   订单状态 = 已退款   outbox 未发 = 1</span><br></pre></td></tr></table></figure>
-
-<p>面试可以直说：”我本地写过一版，同一个退款单号重复提交只落一条，重复回调只迁移一次状态。” 这比背概念可信得多。</p>
-<hr>
-<h2 id="二、支付基础：面试前-30-分钟能补上的概念"><a href="#二、支付基础：面试前-30-分钟能补上的概念" class="headerlink" title="二、支付基础：面试前 30 分钟能补上的概念"></a>二、支付基础：面试前 30 分钟能补上的概念</h2><table>
-<thead>
-<tr>
-<th>概念</th>
-<th>一句话</th>
-<th>常被追问</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>支付方式</td>
-<td>网关支付（银行卡）、第三方钱包、余额、代扣、聚合支付</td>
-<td>代扣和主动支付的区别：无需用户每次确认，靠签约</td>
-</tr>
-<tr>
-<td>三方角色</td>
-<td>商户（我方）、渠道（微信&#x2F;支付宝&#x2F;银行）、清算机构</td>
-<td>资金流和信息流是两条线</td>
-</tr>
-<tr>
-<td>五类接口</td>
-<td>下单、支付、查询、退款、回调通知</td>
-<td>每个都要幂等＋签名</td>
-</tr>
-<tr>
-<td>幂等键</td>
-<td><code>out_trade_no</code> 下单，<code>out_refund_no</code> 退款</td>
-<td>重复请求返回首次结果，不是报错</td>
-</tr>
-<tr>
-<td>回调验签</td>
-<td>用渠道公钥验签，再判状态做幂等</td>
-<td>回调可能重复、可能乱序</td>
-</tr>
-<tr>
-<td>退款</td>
-<td><strong>异步</strong>：渠道受理 ≠ 到账；原路退回；支持部分退款</td>
-<td>受理后要等结果通知或主动查</td>
-</tr>
-<tr>
-<td>对账</td>
-<td>T+1 下载对账单，逐笔比对，差异单分类处理</td>
-<td>长款&#x2F;短款&#x2F;金额不符</td>
-</tr>
-<tr>
-<td>结算</td>
-<td>平台按 T+N 结算给商家，可含分账与佣金</td>
-<td>结算单与订单不是一对一</td>
-</tr>
-<tr>
-<td>多币种</td>
-<td>币种最小单位不同（日元无小数），汇率要留快照</td>
-<td><strong>金额用整数最小单位或 Decimal，禁止 double</strong></td>
-</tr>
-<tr>
-<td>状态机</td>
-<td>待支付&#x2F;已支付&#x2F;退款中&#x2F;已退款&#x2F;已关闭</td>
-<td>状态不可跳变，写操作带前置校验</td>
-</tr>
-</tbody></table>
-<p>面试答题时的关键取舍：<strong>能说出”金额不能用浮点”和”退款是异步的”这两点，比背十个支付方式管用</strong>，因为这两条是踩过坑的人才会强调的。</p>
-<hr>
-<h2 id="三、高并发：不要临时凑数字"><a href="#三、高并发：不要临时凑数字" class="headerlink" title="三、高并发：不要临时凑数字"></a>三、高并发：不要临时凑数字</h2><h3 id="为什么不要凑"><a href="#为什么不要凑" class="headerlink" title="为什么不要凑"></a>为什么不要凑</h3><p>技术面的追问链是固定的：线程数多少 → Ramp-up 多久 → 有没有思考时间 → P95 多少 → 瓶颈在应用还是数据库 → 怎么确认的。”100 线程”答完，第二个问题就会卡住。</p>
-<h3 id="三档诚实答案"><a href="#三档诚实答案" class="headerlink" title="三档诚实答案"></a>三档诚实答案</h3><table>
-<thead>
-<tr>
-<th>真实情况</th>
-<th>怎么说</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>完全没压过</td>
-<td>“我没做过容量压测。我知道压测要看 P95 和错误率，不看平均 RT，也知道线程数不等于并发数。如果给我一个接口，我今天能跑出第一版数据。”</td>
-</tr>
-<tr>
-<td>跑过小规模</td>
-<td>“我在本机压过一个接口，20 线程 400 次请求，QPS 大约 80，P95 20 毫秒出头。这是本机回环，没有参考价值，主要用来验证脚本和指标口径。”</td>
-</tr>
-<tr>
-<td>跑过链路</td>
-<td>讲清楚压测目标、瓶颈定位顺序、优化前后对比</td>
-</tr>
-</tbody></table>
-<p>我当时处在第一档和第二档之间——<strong>花 20 分钟就能升到第二档</strong>，见下。</p>
-<h3 id="真跑一次（bench-py，纯标准库，无需-JMeter）"><a href="#真跑一次（bench-py，纯标准库，无需-JMeter）" class="headerlink" title="真跑一次（bench.py，纯标准库，无需 JMeter）"></a>真跑一次（<code>bench.py</code>，纯标准库，无需 JMeter）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 起本地服务，然后：</span></span><br><span class="line">python bench.py http://127.0.0.1:8000/api/parse 20 400 5</span><br><span class="line"><span class="comment">#                  接口地址                    线程 总请求 ramp-up 秒</span></span><br></pre></td></tr></table></figure>
-
-<p>实测输出（对本地测试服务）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">请求 400  成功 400  失败 0</span><br><span class="line">总耗时 5.02s  QPS 79.7</span><br><span class="line">P50 2.3ms  P95 23.9ms  P99 25.8ms</span><br></pre></td></tr></table></figure>
-
-<p>拿到真实数字后，面试直接说这个数字，并主动交代”本机回环、单机、没有参考价值，我用它验证口径”。</p>
-<p><strong>Windows 坑</strong>：<code>urllib</code>&#x2F;<code>requests</code> 默认读系统代理，压本地服务会被代理截成 400。脚本里已经用 <code>ProxyHandler(&#123;&#125;)</code> 绕开，<code>requests</code> 则要传 <code>trust_env=False</code>。</p>
-<h3 id="压测口径（面试能立刻显得懂行）"><a href="#压测口径（面试能立刻显得懂行）" class="headerlink" title="压测口径（面试能立刻显得懂行）"></a>压测口径（面试能立刻显得懂行）</h3><table>
-<thead>
-<tr>
-<th>口径</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>线程数 ≠ 并发数</td>
-<td>线程按 Ramp-up 逐步启动，没有思考时间时并发才逼近线程数</td>
-</tr>
-<tr>
-<td>思考时间</td>
-<td>模拟真实用户停顿，否则并发被高估</td>
-</tr>
-<tr>
-<td>看 P95&#x2F;P99，不看平均</td>
-<td>平均值被长尾掩盖，SLA 一般按 P95 承诺</td>
-</tr>
-<tr>
-<td>错误率必须一起看</td>
-<td>高 QPS 伴随超时，等于没压</td>
-</tr>
-<tr>
-<td>压测环境</td>
-<td>生产数据量、同等机器规格，否则数字没意义</td>
-</tr>
-</tbody></table>
-<h3 id="瓶颈定位顺序"><a href="#瓶颈定位顺序" class="headerlink" title="瓶颈定位顺序"></a>瓶颈定位顺序</h3><p>应用（线程池&#x2F;GC&#x2F;日志）→ 连接池 → 数据库（慢查询、锁、连接数）→ 缓存（命中率、大 key）→ 网络与带宽 → 下游依赖。</p>
-<h3 id="秒杀-高峰期四板斧"><a href="#秒杀-高峰期四板斧" class="headerlink" title="秒杀&#x2F;高峰期四板斧"></a>秒杀&#x2F;高峰期四板斧</h3><p>限流（网关或令牌桶）、缓存（热点数据前置）、异步（下单落 MQ 削峰）、降级（非核心功能关掉）。这岗 JD 写”节假日高峰期”——<strong>这一点是送分题，主动提一句预案，比等他问更好</strong>。</p>
-<hr>
-<h2 id="四、Vapor-项目怎么讲给高并发岗"><a href="#四、Vapor-项目怎么讲给高并发岗" class="headerlink" title="四、Vapor 项目怎么讲给高并发岗"></a>四、Vapor 项目怎么讲给高并发岗</h2><p>不要说”这是个学习项目、单机部署”。同一个项目，换成链路语言讲，含金量完全不同：</p>
-<blockquote>
-<p>秒杀这条链路我拆成四层。<br>接入层先做限流，超出的流量直接拒绝，不打到后端；<br>应用层把资格校验和库存扣减压进一次 Redis + Lua 原子执行，避免”查完还有货、扣的时候没了”的超卖；<br>异步层把下单落库放进消息队列削峰，接口先返回受理成功；<br>数据层按”先更库后删缓存”改造，删缓存失败用消息补偿加 TTL 兜底。<br>幂等靠请求唯一标识加唯一索引，超时重试只会生成一单。</p>
-</blockquote>
-<p>每一句后面都能接”不做会怎样”：不限流 → 打穿数据库；不原子 → 超卖；不削峰 → 峰值写库雪崩；不补偿 → 缓存脏数据。</p>
-<p><strong>单机部署不是缺点，讲清楚边界就行</strong>：”单机能跑通链路，多实例要处理的是分布式锁和库存分片，这部分我只做过设计和验证，没有在集群上跑过。”</p>
-<hr>
-<h2 id="五、HR-面：商用化、落地、获客、业务了解"><a href="#五、HR-面：商用化、落地、获客、业务了解" class="headerlink" title="五、HR 面：商用化、落地、获客、业务了解"></a>五、HR 面：商用化、落地、获客、业务了解</h2><h3 id="三问框架"><a href="#三问框架" class="headerlink" title="三问框架"></a>三问框架</h3><p>任何”这个项目怎么商用”都用这三问接：<strong>谁付钱 → 为什么付 → 怎么获客</strong>。答不上第三问就诚实说没想过商业化。</p>
-<h3 id="VidDigest-的商用答法（诚实版）"><a href="#VidDigest-的商用答法（诚实版）" class="headerlink" title="VidDigest 的商用答法（诚实版）"></a>VidDigest 的商用答法（诚实版）</h3><blockquote>
-<p>这个项目目前的定位是技术验证，没有商用。如果要商用，三件事必须先解决：一是内容版权，抓取他人视频做摘要涉及授权；二是成本，模型调用按次计费，免费用户会直接把成本拉爆，需要配额和付费分层；三是获客，工具类产品靠搜索和社区扩散，我的方案是先做垂直场景，比如只服务某类内容创作者。</p>
-<p>我没有做过真正的商业化，所以这块只能给思路，不能给结果。</p>
-</blockquote>
-<p><strong>主动说”没做过”比硬编一套增长方案更稳</strong>，HR 面考的是判断力不是业绩。</p>
-<h3 id="对方这块业务怎么接话"><a href="#对方这块业务怎么接话" class="headerlink" title="对方这块业务怎么接话"></a>对方这块业务怎么接话</h3><p>岗位描述写的是跨境广告代运营，做店铺管理、广告开户、账号管理、佣金与广告费结算、多币种对账与权限校验。可以这样接：</p>
-<blockquote>
-<p>我理解你们是帮商家在海外短视频平台开店和投广告，收入来自服务费或佣金分成。所以系统里钱有两个方向：一边是商家充值投广告，另一边是平台结算回来再分给商家。这两边都要对账，多币种还要处理汇率和币种精度。我没做过跨境电商，但支付这块的通用问题——幂等、状态机、对账——我能对上。</p>
-</blockquote>
-<p>不要硬说”我研究过海外广告后台”，JD 里”了解跨境广告&#x2F;跨境电商”是加分项，不是必需。</p>
-<hr>
-<h2 id="六、为什么这次笔记没派上用场"><a href="#六、为什么这次笔记没派上用场" class="headerlink" title="六、为什么这次笔记没派上用场"></a>六、为什么这次笔记没派上用场</h2><p>判断是对的：<strong>语言基础题属于笔试，项目追问和场景题属于面试，两套东西</strong>。前面那份 Go&#x2F;React 速通笔记回答了”Go 的 map 是不是并发安全”，但没回答”退款怎么办”。</p>
-<table>
-<thead>
-<tr>
-<th>旧路线</th>
-<th>新路线</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>语言语法、框架 API</td>
-<td>项目的每个技术选择”为什么这么选、不做会怎样”</td>
-</tr>
-<tr>
-<td>知识点罗列</td>
-<td>场景题：给一个业务现象，讲判定和处理顺序</td>
-</tr>
-<tr>
-<td>单点正确</td>
-<td>一致性、幂等、对账这类跨模块问题</td>
-</tr>
-<tr>
-<td>背结论</td>
-<td>能说出被追问三层的细节</td>
-</tr>
-</tbody></table>
-<p>写新笔记的自检标准只有一条：**这篇里的每一节，能不能直接回答”面试官问我项目里的某某，我怎么答”**。答不上就不该写。</p>
-<hr>
-<h2 id="七、下次面试前的-20-分钟清单"><a href="#七、下次面试前的-20-分钟清单" class="headerlink" title="七、下次面试前的 20 分钟清单"></a>七、下次面试前的 20 分钟清单</h2><table>
-<thead>
-<tr>
-<th>顺序</th>
-<th>动作</th>
-<th>验收</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>背第一节的 45 秒版退款答法</td>
-<td>不看稿连续说完</td>
-</tr>
-<tr>
-<td>2</td>
-<td>背第二节里”金额用整数&#x2F;Decimal””退款是异步的”两句</td>
-<td>能主动提出来</td>
-</tr>
-<tr>
-<td>3</td>
-<td>跑一次 <code>bench.py</code>，记下 QPS 和 P95</td>
-<td>手上有真实数字</td>
-</tr>
-<tr>
-<td>4</td>
-<td>用第四节的四层法讲一遍 Vapor</td>
-<td>90 秒讲完，每层能接”不做会怎样”</td>
-</tr>
-<tr>
-<td>5</td>
-<td>想清楚 HR 三问的答案</td>
-<td>每个项目一句实话</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="附：本次实测记录"><a href="#附：本次实测记录" class="headerlink" title="附：本次实测记录"></a>附：本次实测记录</h2><table>
-<thead>
-<tr>
-<th>验证项</th>
-<th>方法</th>
-<th>结果</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>退款状态机与幂等</td>
-<td><code>refund_demo.py</code>，6 个动作（首退&#x2F;重发&#x2F;换单号&#x2F;回调&#x2F;重复回调&#x2F;未知单号）</td>
-<td>退款单恒为 1 条，订单终态”已退款”，outbox 待发 1 条</td>
-</tr>
-<tr>
-<td>压测脚本可用性</td>
-<td>单进程起 HTTP 服务，<code>bench.py</code> 打 400 次</td>
-<td>成功 400、QPS 79.7、P50 2.3ms、P95 23.9ms</td>
-</tr>
-<tr>
-<td>系统代理坑</td>
-<td><code>urllib.request.getproxies()</code></td>
-<td>返回 127.0.0.1:33210，未绕开会得 400</td>
-</tr>
-</tbody></table>
+<p>面试官问”接口报 500 你怎么定位”，就用这套串：先看应用日志的报错栈，再查进程与端口，接着排除磁盘与内存，最后看依赖服务通不通。</p>
+<h2 id="五、下次的口径清单"><a href="#五、下次的口径清单" class="headerlink" title="五、下次的口径清单"></a>五、下次的口径清单</h2><ul>
+<li>自我介绍不背”参与过项目”，直接报项目名、契约数、用例规模和一句判断力证明。</li>
+<li>被问”为什么不做开发”时，不评价开发岗，只讲自己的强项和开发背景的用处。</li>
+<li>任何场景题先给框架再落细节，先问需求再列测试点。</li>
+<li>简历上每一个工具都要能说出”我做过什么”，只说了解的地方主动声明是了解。</li>
+<li>AI 相关的问题按五步讲：怎么拆任务、哪些交给 AI、输出怎么验证、出问题怎么修、哪个场景选择不用 AI。最忌只报工具名。</li>
+</ul>
+<h2 id="六、这次改了什么"><a href="#六、这次改了什么" class="headerlink" title="六、这次改了什么"></a>六、这次改了什么</h2><p>简历重做成单页，四个项目按”课程实战、商城后端验证、AI 功能测试、自研平台自动化”排时间线，每条 bullet 首词是测试动作。数字只用能当场核对的：契约基线 26 加 16 条路径、48 个操作，用例规模说基线条数，仓库后来增长了就说明”数字随版本走，我报的是基线”。</p>
+<p>配套复盘材料留在本地，包含 QQ 登录完整用例分层、工具最小可讲清单、数字口径表和七天补齐计划。下一步是把课程实战那套 Postman 集合跑出报告，这样第四段经历被追问时能给出实物。</p>
 </div>
 
     <div id="highlight-nav" class="highlight-nav">
@@ -820,13 +583,13 @@
            
           <a href="/tags/%E5%A4%8D%E7%9B%98/"># 复盘</a>
           
-          <a href="/tags/%E6%94%AF%E4%BB%98/"># 支付</a>
+          <a href="/tags/%E6%B1%82%E8%81%8C/"># 求职</a>
           
-          <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/"># 消息队列</a>
+          <a href="/tags/%E7%AE%80%E5%8E%86/"># 简历</a>
+          
+          <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/"># 软件测试</a>
           
           <a href="/tags/%E9%9D%A2%E8%AF%95/"># 面试</a>
-          
-          <a href="/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/"># 高并发</a>
            
         </span>
       </div>
@@ -837,13 +600,9 @@
       </div>
     </section>
     <section class="post-nav">
-      
-      <a class="prev" rel="prev" href="/2026/11/06/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E4%B8%AD%E9%97%B4%E4%BB%B6/01-Redis%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
-        >Redis 核心机制 — 锁、消息队列、Lua 与哨兵集群</a
-      >
        
-      <a class="next" rel="next" href="/2026/11/05/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98%E4%B8%8E%E8%A1%A5%E6%BC%8F--%E8%AF%9D%E6%9C%AF%E4%B8%8E%E8%80%83%E7%82%B9/"
-        >软件测试面试复盘与补漏--话术与考点</a
+      <a class="next" rel="next" href="/2026/11/08/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E4%B8%8E%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80--%E9%9D%A2%E8%AF%95%E9%80%9F%E9%80%9A%E5%AE%9D%E5%85%B8/"
+        >软件测试与语言基础--面试速通宝典</a
       >
       
     </section>
