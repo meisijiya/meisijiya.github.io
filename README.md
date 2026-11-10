@@ -21,7 +21,7 @@
 - **时间线** - 时光轴展示
 - **网站统计** - 访客数据分析
 - **照片墙** - 图片画廊
-- **本地搜索** - 基于 hexo-generator-searchdb
+- **站内搜索** - 命令面板式浮层，检索标题、标签、分类目录、小节目录与正文，索引由构建期生成、客户端检索
 - **代码复制** - 一键复制代码块功能
 - **MathJax** - 数学公式支持
 - **评论系统** - 集成评论功能
@@ -35,7 +35,6 @@
   - hexo-generator-archive
   - hexo-generator-category
   - hexo-generator-index
-  - hexo-generator-searchdb
   - hexo-generator-tag
   - hexo-renderer-marked
   - hexo-deployer-git

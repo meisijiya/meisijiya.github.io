@@ -34,6 +34,8 @@
     
     <link rel="stylesheet" href="/css/search.css">
     
+    <link rel="stylesheet" href="/css/search-panel.css">
+    
 
 <!-- highlight.js 样式（默认亮色） -->
 <!-- highlight.js 自动上色功能 -->
@@ -90,26 +92,9 @@
         <a href="/">老江湖的博客</a>
       </div>
       <div class="menu navbar-right">
-        <!-- 在电脑端的导航链接区域添加搜索功能 -->
-        <div class="search-container" data-root="/">
-          <button
-            type="button"
-            class="search-icon-btn"
-            aria-label="搜索"
-            onclick="toggleSearchInput()"
-          >
-            🔍
-          </button>
-          <input
-            type="text"
-            id="nav-search-input-desktop"
-            class="nav-search-input"
-            placeholder="想知道我什么秘密呢，搜搜看吧"
-            oninput="navSearch(this)"
-          />
-          <button class="clear-search" onclick="clearSearch(this)">×</button>
-          <div id="nav-search-result-desktop" class="nav-search-result"></div>
-        </div>
+        <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
 
         <a
           class="nav-back"
@@ -165,6 +150,9 @@
               <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
             </svg>
           </a>
+          <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          </button>
           <div class="menu-toggle" onclick="mobileBtn()">
           <svg
             class="menu-icon"
@@ -211,34 +199,26 @@
         
         <a class="menu-item" href="/about">关于</a>
         
-        <!-- 手机模式搜索框 -->
-        <div
-          class="search-container mobile-container"
-          data-root="/"
-        >
-          <button
-            type="button"
-            class="search-icon-btn menu-item"
-            aria-label="搜索"
-            onclick="toggleSearchInput()"
-          >
-            🔍
-          </button>
-          <input
-            type="text"
-            id="nav-search-input-mobile"
-            class="nav-search-input"
-            placeholder="想知道我什么秘密呢，搜搜看吧"
-            oninput="navSearch(this)"
-          />
-          <button class="clear-search" onclick="clearSearch(this)">×</button>
-          <div id="nav-search-result-mobile" class="nav-search-result"></div>
-        </div>
       </div>
     </div>
   </nav>
 </header>
+<div class="scrim" data-root="/"></div>
+<div class="panel" data-root="/">
+  <div class="grip"></div>
+  <div class="phead">
+    <div class="prow">
+      <svg class="sicon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input class="sinput" type="search" placeholder="搜索标题、标签、目录、正文" />
+      <button class="xbtn" type="button" aria-label="关闭">×</button>
+    </div>
+  </div>
+  <div class="cats-wrap"><div class="cats"></div></div>
+  <div class="results"><div class="empty">没有结果，换个关键词试试</div></div>
+  <p class="sr-only" aria-live="polite"></p>
+</div>
 <script src="/js/search.js" defer></script>
+<script src="/js/search-panel.js" defer></script>
 <script>
   // 目录小节的锚点链接（href="#标题"）会给浏览器留一条同文档历史记录，
   // history.back() 于是退回跳转前的滚动位置，而不是「上一个页面」。
@@ -254,7 +234,6 @@
     return true;
   }
 </script>
-
             <div class="main">
                 
 
@@ -621,6 +600,7 @@
       <span class="count" aria-live="polite">0/0</span>
       <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
       <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+      <button type="button" class="close-highlight" aria-label="关闭高亮" onclick="clearHighlights()"><span aria-hidden="true">×</span></button>
     </div>
 
     
