@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>软件测试速通--07-性能测试入门 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+    <link rel="stylesheet" href="/css/search-panel.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+
+        <a
+          class="nav-back"
+          href="/"
+          aria-label="返回上一页"
+          onclick="return navBack()"
+        >
+          <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+          <span>返回</span>
+        </a>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="navbar-actions">
+          <a
+            class="nav-back"
+            href="/"
+            aria-label="返回上一页"
+            onclick="return navBack()"
+          >
+            <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+            </svg>
+          </a>
+          <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          </button>
+          <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="scrim" data-root="/"></div>
+<div class="panel" data-root="/">
+  <div class="grip"></div>
+  <div class="phead">
+    <div class="prow">
+      <svg class="sicon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input class="sinput" type="search" placeholder="搜索标题、标签、目录、正文" />
+      <button class="xbtn" type="button" aria-label="关闭">×</button>
+    </div>
+  </div>
+  <div class="cats-wrap"><div class="cats"></div></div>
+  <div class="results"><div class="empty">没有结果，换个关键词试试</div></div>
+  <p class="sr-only" aria-live="polite"></p>
+</div>
+<script src="/js/search.js" defer></script>
+<script src="/js/search-panel.js" defer></script>
+<script>
+  // 目录小节的锚点链接（href="#标题"）会给浏览器留一条同文档历史记录，
+  // history.back() 于是退回跳转前的滚动位置，而不是「上一个页面」。
+  // 这里直接回到 document.referrer（同源的上一个页面）；没有同源来源时返回 true，
+  // 由 <a> 的 href（站点首页）兜底。
+  function navBack() {
+    var ref = document.referrer.split('#')[0];
+    var self = location.href.split('#')[0];
+    if (ref && ref !== self && ref.indexOf(location.origin + '/') === 0) {
+      location.href = ref;
+      return false;
+    }
+    return true;
+  }
+</script>
+            <div class="main">
+                
+
+<div class="container with-toc">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">软件测试速通--07-性能测试入门</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 11, 2026&nbsp;&nbsp;10:10:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/">软件测试</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A%E6%95%99%E7%A8%8B/">软件测试速通教程</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<hr>
+<p>性能测试最容易在面试里翻车的地方是<strong>说不清口径</strong>：并发用户数怎么来的、TPS 和 QPS 差在哪、响应时间不达标怎么办。这一篇先把口径立住，再讲五类性能测试的区别、JMeter 元件的执行顺序与作用域、线程组三个关键参数怎么填、一个完整场景怎么设计、聚合报告怎么读。最后有一节诚实边界：小样本压测的结论该怎么写才不说谎。JMeter 的 UI 操作步骤见本文 05 §JMeter 8 步，这里只讲原理与口径。</p>
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#%E4%B8%80%E3%80%81%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E5%8F%A3%E5%BE%84%E8%A1%A8">一、性能指标口径表</a></li>
+<li><a href="#%E4%BA%8C%E3%80%81%E4%BA%94%E7%B1%BB%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95">二、五类性能测试</a></li>
+<li><a href="#%E4%B8%89%E3%80%81JMeter-%E5%85%83%E4%BB%B6%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F%E4%B8%8E%E4%BD%9C%E7%94%A8%E5%9F%9F">三、JMeter 元件执行顺序与作用域</a></li>
+<li><a href="#%E5%9B%9B%E3%80%81%E7%BA%BF%E7%A8%8B%E7%BB%84%E4%B8%89%E4%B8%AA%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0%E6%80%8E%E4%B9%88%E5%A1%AB">四、线程组三个关键参数怎么填</a></li>
+<li><a href="#%E4%BA%94%E3%80%81%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E5%9C%BA%E6%99%AF%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%AD%A5%E9%AA%A4">五、一个完整场景的设计步骤</a></li>
+<li><a href="#%E5%85%AD%E3%80%81%E8%81%9A%E5%90%88%E6%8A%A5%E5%91%8A%E6%80%8E%E4%B9%88%E8%AF%BB">六、聚合报告怎么读</a></li>
+<li><a href="#%E4%B8%83%E3%80%818-%E4%B8%AA%E9%AB%98%E9%A2%91%E9%97%AE%E7%AD%94">七、8 个高频问答</a></li>
+<li><a href="#%E5%85%AB%E3%80%81%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E7%9A%84%E8%AF%9A%E5%AE%9E%E8%BE%B9%E7%95%8C">八、性能测试的诚实边界</a></li>
+<li><a href="#%F0%9F%97%A3%EF%B8%8F-%E9%9D%A2%E8%AF%95%E6%80%8E%E4%B9%88%E8%AF%B4">🗣️ 面试怎么说</a></li>
+<li><a href="#%E2%9C%85-%E8%87%AA%E6%B5%8B-5-%E9%A2%98">✅ 自测 5 题</a></li>
+<li><a href="#%F0%9F%93%9A-%E6%9D%A5%E6%BA%90">📚 来源</a></li>
+</ul>
+<hr>
+<h2 id="一、性能指标口径表"><a href="#一、性能指标口径表" class="headerlink" title="一、性能指标口径表"></a>一、性能指标口径表</h2><p>性能测试关注两件事：<strong>时间</strong>（响应快不快）和<strong>资源</strong>（服务器消耗多少）。所有指标都从这两件事派生。</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>定义</th>
+<th>计算 &#x2F; 判断口径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>响应时间</td>
+<td>从客户端发起请求到收到结果的总时间</td>
+<td>&#x3D; 服务器处理时间 + 网络传输时间；看平均值更要看 P90&#x2F;P95</td>
+</tr>
+<tr>
+<td>并发用户数</td>
+<td>某一时刻同时向服务器发送请求的用户数</td>
+<td>同一时刻在发请求的用户数，不等于在线用户数</td>
+</tr>
+<tr>
+<td>吞吐量</td>
+<td>单位时间内服务器处理的请求数量</td>
+<td>统计窗口内请求总数 ÷ 窗口秒数</td>
+</tr>
+<tr>
+<td>TPS</td>
+<td>Transactions Per Second，每秒事务数</td>
+<td>一个事务可以包含多个请求；统计窗口内完成的事务数 ÷ 窗口秒数</td>
+</tr>
+<tr>
+<td>QPS</td>
+<td>Queries Per Second，每秒查询数</td>
+<td>偏「一次查询请求」的速率；单请求接口场景下 QPS ≈ TPS</td>
+</tr>
+<tr>
+<td>错误率</td>
+<td>负载情况下失败业务的概率</td>
+<td>失败请求数 ÷ 总请求数 × 100%</td>
+</tr>
+<tr>
+<td>资源利用率</td>
+<td>系统资源占用比例</td>
+<td>常见 CPU、内存、磁盘 IO、网络 IO、连接数</td>
+</tr>
+<tr>
+<td>点击数</td>
+<td>页面元素请求总数量</td>
+<td>一次页面点击可能触发多个元素请求，是请求数不是一次点击</td>
+</tr>
+</tbody></table>
+<p><strong>TPS 和 QPS 的区别</strong>（高频追问）：TPS 统计的是「事务」，一个事务可能包含多个请求；QPS 统计的是「查询&#x2F;请求」次数。一个下单事务里含查库存、锁库存、创建订单三个请求，那么 TPS&#x3D;1 时 QPS 可能是 3。单接口压测场景里两者数值接近，但不能互相替代口径。</p>
+<hr>
+<h2 id="二、五类性能测试"><a href="#二、五类性能测试" class="headerlink" title="二、五类性能测试"></a>二、五类性能测试</h2><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>目的</th>
+<th>时长</th>
+<th>关注点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基准测试</td>
+<td>单用户跑一遍，记录各项指标作为基线</td>
+<td>短（几分钟）</td>
+<td>建立对照基线，后续版本与它比</td>
+</tr>
+<tr>
+<td>负载测试</td>
+<td>逐步加压，找到满足需求前提下的最大负载</td>
+<td>一般 1–2 小时（课件口径，非行业标准）</td>
+<td>资源消耗随负载的变化曲线</td>
+</tr>
+<tr>
+<td>压力测试</td>
+<td>高负载下看容错与可恢复能力</td>
+<td>短到中</td>
+<td>极限在哪、崩了能不能自动恢复</td>
+</tr>
+<tr>
+<td>稳定性测试</td>
+<td>正常业务负载下长时间运行，看能否稳定</td>
+<td>1 天 – 7 天（课件口径，非行业标准）</td>
+<td>内存泄漏、连接池耗尽、日志膨胀</td>
+</tr>
+<tr>
+<td>并发测试</td>
+<td>极短时间内发大量请求，看资源争抢</td>
+<td>极短（秒级）</td>
+<td>秒杀、抢红包这类瞬时争抢场景</td>
+</tr>
+</tbody></table>
+<p><strong>负载 vs 并发</strong>：负载测的是「高负载下的资源消耗」，并发测的是「瞬时争抢与并发处理」。一个看长，一个看快。</p>
+<hr>
+<h2 id="三、JMeter-元件执行顺序与作用域"><a href="#三、JMeter-元件执行顺序与作用域" class="headerlink" title="三、JMeter 元件执行顺序与作用域"></a>三、JMeter 元件执行顺序与作用域</h2><p>JMeter 的元件按「配置 → 前置 → 定时 → 取样 → 后置 → 断言 → 监听」的顺序执行。记这张表：</p>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>元件</th>
+<th>作用</th>
+<th>压测时要不要开</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>配置元件（Config Element）</td>
+<td>提供默认&#x2F;公共配置，如 HTTP 请求默认值、CSV、变量</td>
+<td>要</td>
+</tr>
+<tr>
+<td>2</td>
+<td>前置处理器（Pre Processors）</td>
+<td>取样器执行前预处理请求</td>
+<td>按需</td>
+</tr>
+<tr>
+<td>3</td>
+<td>定时器（Timer）</td>
+<td>控制取样器执行前的等待&#x2F;节奏（思考时间）</td>
+<td>要</td>
+</tr>
+<tr>
+<td>4</td>
+<td>取样器（Sampler）</td>
+<td>向服务器发请求的核心元件</td>
+<td>要</td>
+</tr>
+<tr>
+<td>5</td>
+<td>后置处理器（Post Processors）</td>
+<td>取样后处理响应，如提取 token</td>
+<td>按需</td>
+</tr>
+<tr>
+<td>6</td>
+<td>断言（Assertions）</td>
+<td>校验响应是否符合预期</td>
+<td>要</td>
+</tr>
+<tr>
+<td>7</td>
+<td>监听器（Listener）</td>
+<td>收集与展示结果</td>
+<td>压测时只留聚合报告</td>
+</tr>
+</tbody></table>
+<p>同一作用域内，<strong>同类元件按从上到下顺序执行</strong>；不同类元件按上表顺序执行。</p>
+<h3 id="作用域规则（存量弱项，面试常问）"><a href="#作用域规则（存量弱项，面试常问）" class="headerlink" title="作用域规则（存量弱项，面试常问）"></a>作用域规则（存量弱项，面试常问）</h3><table>
+<thead>
+<tr>
+<th>情况</th>
+<th>作用范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>取样器</td>
+<td>是核心元件，本身没有作用域</td>
+</tr>
+<tr>
+<td>逻辑控制器</td>
+<td>只对其子节点中的取样器和逻辑控制器起作用</td>
+</tr>
+<tr>
+<td>元件的父节点是取样器</td>
+<td>该元件只对其父节点（这一个取样器）起作用</td>
+</tr>
+<tr>
+<td>元件的父节点不是取样器</td>
+<td>作用于该父节点下的<strong>所有后代</strong>取样器</td>
+</tr>
+</tbody></table>
+<p>一句话记法：<strong>挂在取样器下 &#x3D; 只管它一个；挂在别的节点下 &#x3D; 管所有后代。</strong></p>
+<h3 id="线程组三种"><a href="#线程组三种" class="headerlink" title="线程组三种"></a>线程组三种</h3><table>
+<thead>
+<tr>
+<th>线程组</th>
+<th>执行时机</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>setUp Thread Group</td>
+<td>所有脚本之前</td>
+<td>预测试操作：登录取 token、准备数据</td>
+</tr>
+<tr>
+<td>Thread Group</td>
+<td>主体</td>
+<td>执行测试用例，可 1 个或多个（并行&#x2F;串行）</td>
+</tr>
+<tr>
+<td>tearDown Thread Group</td>
+<td>所有脚本之后</td>
+<td>测试后操作：清理数据</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="四、线程组三个关键参数怎么填"><a href="#四、线程组三个关键参数怎么填" class="headerlink" title="四、线程组三个关键参数怎么填"></a>四、线程组三个关键参数怎么填</h2><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+<th>填法建议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>线程数（Number of Threads）</td>
+<td>虚拟用户数，越多负载越大</td>
+<td>按并发估算结果填，先小后大</td>
+</tr>
+<tr>
+<td>Ramp-Up（秒）</td>
+<td>在多少秒内启动完所有线程</td>
+<td>别设 0，模拟用户陆续进场</td>
+</tr>
+<tr>
+<td>循环次数（Loop Count）</td>
+<td>线程组内元素遍历一遍的次数（每个线程各循环一遍）</td>
+<td>可勾选 Infinite，配合调度器用</td>
+</tr>
+</tbody></table>
+<h3 id="并发怎么估算（面试必问口径）"><a href="#并发怎么估算（面试必问口径）" class="headerlink" title="并发怎么估算（面试必问口径）"></a>并发怎么估算（面试必问口径）</h3><p>三个常用口径，按场景选：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">口径一（在线用户推算）：并发用户数 = 在线用户数 × 并发率</span><br><span class="line">口径二（峰值推算） ：并发用户数 ≈ 峰值 QPS × 平均响应时间(秒)；峰值 QPS = 峰值请求数 ÷ 峰值持续时间(秒)</span><br><span class="line">口径三（经验系数，经验值，需自行论证依据）：并发用户数 ≈ 在线用户数的 10% ~ 20%；并发率 = 并发用户数 ÷ 在线用户数，不能乘 QPS</span><br></pre></td></tr></table></figure>
+
+<p>举例（<strong>示例数字，仅用于说明算法</strong>）：某系统日活 10 万，早高峰 1 小时集中 40% 流量，则峰值 QPS ≈ 100000 × 40% ÷ 3600 ≈ 11；若平均响应时间 0.2 秒，则并发用户数 ≈ 11 × 0.2 ≈ 2~3。<strong>关键是报出你的估算依据，而不是直接报一个数字。</strong></p>
+<p>Ramp-Up 与循环次数的配合：</p>
+<ul>
+<li>Ramp-Up 起步取「线程数」秒（即每秒启动一个线程）再按需上调；要做长思考时间场景用定时器补间隔；</li>
+<li>要压「瞬时并发」就把 Ramp-Up 设小（但别为 0，避免压测机自己先崩）；</li>
+<li>要压「持续负载」就配调度器 Duration，循环次数勾 Infinite。</li>
+</ul>
+<h3 id="参数化方式怎么选"><a href="#参数化方式怎么选" class="headerlink" title="参数化方式怎么选"></a>参数化方式怎么选</h3><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>数据来源</th>
+<th>适用</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用户定义的变量（UDV）</td>
+<td>脚本内定义</td>
+<td>全局固定值，如域名、路径前缀</td>
+<td>用 <code>$&#123;name&#125;</code> 引用</td>
+</tr>
+<tr>
+<td>用户参数（User Parameters）</td>
+<td>脚本内按线程分配</td>
+<td>每个虚拟用户不同值</td>
+<td>适合模拟不同账号</td>
+</tr>
+<tr>
+<td>CSV Data Set Config</td>
+<td>外部 CSV 文件</td>
+<td>大量批量外部数据</td>
+<td>用相对路径、编码选 UTF-8</td>
+</tr>
+<tr>
+<td>函数助手</td>
+<td>运行时生成</td>
+<td>动态唯一值</td>
+<td><code>$&#123;__Random(1,100,)&#125;</code>、<code>$&#123;__counter(TRUE,my)&#125;</code>、<code>$&#123;__time(yyyy-MM-dd,,)&#125;</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="五、一个完整场景的设计步骤"><a href="#五、一个完整场景的设计步骤" class="headerlink" title="五、一个完整场景的设计步骤"></a>五、一个完整场景的设计步骤</h2><p>八步，照着做就能出一个场景：</p>
+<ol>
+<li><strong>定目标</strong>：这次压什么？最大并发、目标响应时间、错误率上限，先写下来。</li>
+<li><strong>选场景</strong>：挑核心业务链路，例如「登录 → 查列表 → 查详情」，别一上来压全系统。</li>
+<li><strong>定业务比例</strong>：多个接口按真实流量比例分配，例如查列表 70%、查详情 30%。</li>
+<li><strong>建脚本</strong>：建线程组 → 加 HTTP 请求（协议&#x2F;域名&#x2F;方法&#x2F;路径&#x2F;参数）→ 加断言。</li>
+<li><strong>参数化</strong>：账号、商品 ID 从 CSV 读；动态值用函数助手 <code>__Random</code>、<code>__counter</code>、<code>__time</code>。</li>
+<li><strong>加关联</strong>：登录提取 token，后续请求用 <code>$&#123;token&#125;</code> 带上。</li>
+<li><strong>加思考时间</strong>：定时器补上用户操作间隔，别让请求连成一条直线。</li>
+<li><strong>执行与监控</strong>：先 GUI 调试单线程，再非 GUI 模式压：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmeter -n -t scene.jmx -l result.jtl -e -o report</span><br></pre></td></tr></table></figure>
+
+<p><code>-n</code> 非 GUI、<code>-t</code> 指定脚本、<code>-l</code> 存结果、<code>-e -o</code> 生成 HTML 报告。压测时<strong>不要</strong>开着「查看结果树」，它很吃内存。</p>
+<hr>
+<h2 id="六、聚合报告怎么读"><a href="#六、聚合报告怎么读" class="headerlink" title="六、聚合报告怎么读"></a>六、聚合报告怎么读</h2><p>聚合报告（Aggregate Report）是性能结果的核心统计表，每一行是一个取样器。</p>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>含义</th>
+<th>什么值算异常</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Label</td>
+<td>取样器名称</td>
+<td>—</td>
+</tr>
+<tr>
+<td>#Samples</td>
+<td>样本数（请求数）</td>
+<td>数量过少，结论不可信</td>
+</tr>
+<tr>
+<td>Average</td>
+<td>平均响应时间（ms）</td>
+<td>超出目标响应时间</td>
+</tr>
+<tr>
+<td>Median</td>
+<td>中位数响应时间（ms）</td>
+<td>与平均值差距过大，说明有长尾</td>
+</tr>
+<tr>
+<td>90% Line &#x2F; 95% Line &#x2F; 99% Line</td>
+<td>百分位响应时间（ms）</td>
+<td>尾延迟超标，用户体感差</td>
+</tr>
+<tr>
+<td>Min &#x2F; Max</td>
+<td>最小 &#x2F; 最大响应时间</td>
+<td>Max 特别大说明有抖动</td>
+</tr>
+<tr>
+<td>Error %</td>
+<td>错误率</td>
+<td>明显高于预期（如 &gt; 1%）</td>
+</tr>
+<tr>
+<td>Throughput</td>
+<td>吞吐量（请求&#x2F;秒·分·时，JMeter 自动选单位使显示值 ≥ 1.0）</td>
+<td>加负载不再上涨，说明到瓶颈</td>
+</tr>
+<tr>
+<td>Received &#x2F; Sent KB&#x2F;sec</td>
+<td>每秒收发数据量</td>
+<td>网络带宽接近上限</td>
+</tr>
+</tbody></table>
+<p>读报告的顺序：<strong>先看错误率 → 再看 P90&#x2F;P95 → 再看吞吐量是否随负载上涨 → 最后看资源利用率。</strong> 吞吐量上不去 + CPU 打满，瓶颈在应用；吞吐量上不去 + CPU 空闲，瓶颈可能在数据库或网络。</p>
+<p>持续时间断言（Duration Assertion）用来做性能判定：设置最大允许响应时间（ms），超过即失败。比如设 500ms，压测里凡是超过这个值的请求都算失败——<strong>示例阈值，实际按需求定</strong>。</p>
+<h3 id="瓶颈定位：四层往下查"><a href="#瓶颈定位：四层往下查" class="headerlink" title="瓶颈定位：四层往下查"></a>瓶颈定位：四层往下查</h3><p>流程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">聚合报告异常（错误率升 / 响应变慢 / 吞吐量不涨）</span><br><span class="line"> → 第 1 层 应用：CPU、内存、GC、线程池、慢方法</span><br><span class="line"> → 第 2 层 中间件：连接池、线程池、JVM 参数、超时配置</span><br><span class="line"> → 第 3 层 数据库：慢 SQL、索引、锁等待、连接数</span><br><span class="line"> → 第 4 层 网络与依赖：带宽、丢包、第三方接口耗时</span><br></pre></td></tr></table></figure>
+
+<p>调优方向对应四层：应用与数据库改慢 SQL 和索引、减少多余查询、合理用缓存；中间件调连接池与线程池；架构层横向扩容、负载均衡、限流降级。</p>
+<p>监控维度固定四项：服务器 CPU、内存、磁盘 IO、网络 IO，外加连接数。<strong>压测时必须同步采监控数据</strong>，只看客户端报告无法定位瓶颈。</p>
+<p>单机压不出更高压力时，再上分布式：控制机（JMeter client &#x2F; Controller）发起并汇总，负载机（JMeter server &#x2F; Engine）执行脚本；注意远程模式下负载不均分，线程总数 &#x3D; 线程数 × 服务器台数，数据文件不随脚本分发，需自行同步到各机。控制机的 <code>jmeter.properties</code> 配 <code>remote_hosts</code> 列出负载机地址，负载机跑 <code>jmeter-server</code> 等调度；各机 JDK 与 JMeter 版本、脚本、依赖文件保持一致。</p>
+<hr>
+<h2 id="七、8-个高频问答"><a href="#七、8-个高频问答" class="headerlink" title="七、8 个高频问答"></a>七、8 个高频问答</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>问题</th>
+<th>一句话答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>TPS 和 QPS 有什么区别？</td>
+<td>TPS 统计事务（一个事务可含多个请求），QPS 统计请求次数。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>并发用户数怎么定？</td>
+<td>用在线用户数 × 并发率，或峰值 QPS（&#x3D; 峰值请求数 ÷ 峰值持续时间(秒)）× 平均响应时间(秒)，报出估算依据。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>响应时间不达标怎么办？</td>
+<td>先看资源与慢查询定位瓶颈，再从 SQL 索引、缓存、连接池、扩容逐层优化。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Think Time 有什么作用？</td>
+<td>模拟用户操作间隔，让压力更接近真实，避免请求连成直线。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>压力测试和负载测试怎么分？</td>
+<td>负载找最大可承受负载，压力看极限与恢复能力。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>内存泄漏和内存溢出怎么分？</td>
+<td>泄漏是不用了不释放、缓慢增长；溢出是一次申请超上限、直接报错。</td>
+</tr>
+<tr>
+<td>7</td>
+<td>吞吐量和负载是什么关系？</td>
+<td>负载增加吞吐量先涨后平，平了就是到瓶颈。</td>
+</tr>
+<tr>
+<td>8</td>
+<td>压测环境怎么选？</td>
+<td>尽量接近生产：同配置、同网络、同数据量，否则结论只能标「示例」。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="八、性能测试的诚实边界"><a href="#八、性能测试的诚实边界" class="headerlink" title="八、性能测试的诚实边界"></a>八、性能测试的诚实边界</h2><p>本机跑出来的数字，不能当生产结论。写结论时守住三条：</p>
+<ol>
+<li><strong>只报口径与环境</strong>：写清「多少线程、Ramp-Up 多少秒、压了多久、什么机器配置、什么网络环境」，再给数字。</li>
+<li><strong>不吹 QPS</strong>：本机回环地址的压测结果没有参考价值，只能用来验证口径和脚本正确性。要报就报「本课程示例环境，仅验证脚本链路」。</li>
+<li><strong>小样本不下结论</strong>：样本数太少、只压了几分钟，就写「本次仅验证场景可跑通，不构成容量结论」。</li>
+</ol>
+<p>对照一下错误答法：「JMeter 100 线程」——数字是编的，追问 Ramp-Up、思考时间、P95、瓶颈在哪就会露馅。<strong>诚实说法是：本机跑过，报真实参数，交代本机回环、无参考价值，只用来验证口径。</strong></p>
+<hr>
+<h2 id="🗣️-面试怎么说"><a href="#🗣️-面试怎么说" class="headerlink" title="🗣️ 面试怎么说"></a>🗣️ 面试怎么说</h2><ol>
+<li>性能指标我按口径讲：响应时间是服务器处理加网络传输，并发用户数是同一时刻在发请求的用户数。</li>
+<li>TPS 是每秒事务数、QPS 是每秒查询数；一个事务可能含多个请求，所以两者不能互相替代。</li>
+<li>五类测试：基准建基线、负载找最大负载、压力看极限与恢复、稳定性看长时运行、并发看瞬时争抢。</li>
+<li>JMeter 元件执行顺序是配置 → 前置 → 定时 → 取样 → 后置 → 断言 → 监听，同类元件从上到下。</li>
+<li>作用域记一句：挂在取样器下只管它一个，挂在别的节点下管所有后代。</li>
+<li>线程数按并发估算填，Ramp-Up 别设 0，持续负载配调度器 Duration。</li>
+<li>聚合报告先看错误率，再看 P90&#x2F;P95，再看吞吐量是否随负载上涨，最后看资源。</li>
+<li>本机压测结论只报口径与环境，不吹 QPS，样本不足就写「不构成容量结论」。</li>
+</ol>
+<h2 id="✅-自测-5-题"><a href="#✅-自测-5-题" class="headerlink" title="✅ 自测 5 题"></a>✅ 自测 5 题</h2><ol>
+<li><strong>TPS 和 QPS 有什么区别？</strong> TPS 统计事务，QPS 统计请求次数，一个事务可含多个请求。</li>
+<li><strong>JMeter 元件的执行顺序？</strong> 配置 → 前置处理器 → 定时器 → 取样器 → 后置处理器 → 断言 → 监听器。</li>
+<li><strong>并发用户数怎么估算？</strong> 在线用户数 × 并发率，或峰值 QPS × 平均响应时间(秒)（峰值 QPS &#x3D; 峰值请求数 ÷ 峰值持续时间(秒)），报出依据。</li>
+<li><strong>聚合报告先看哪一列？</strong> 先看 Error %，再看 90% Line &#x2F; 95% Line，再看 Throughput。</li>
+<li><strong>本机压测结论怎么写才诚实？</strong> 只报口径与环境，说明本机回环无参考价值，样本不足不构成容量结论。</li>
+</ol>
+<h2 id="📚-来源"><a href="#📚-来源" class="headerlink" title="📚 来源"></a>📚 来源</h2><ul>
+<li>素材：黑马 2026 AI+软件测试课件·性能测试线（四天课堂笔记）：概念与指标、JMeter 元件与线程组、断言与关联、控制器与报告</li>
+<li>素材：黑马 2026 AI+软件测试课件·接口测试线（第 01 天课堂笔记）：HTTP 与状态码口径</li>
+<li>素材：本人 2026 年 11 月面试复盘与补漏记录（JMeter 线程数口径与纠正）</li>
+<li>存量指路：博客《性能测试–面试》（JMeter 与性能指标、测试方法与关注点）</li>
+<li>存量指路：博客《自动化测试–JMeter 面试笔记》（JMeter 是什么）</li>
+</ul>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+      <button type="button" class="close-highlight" aria-label="关闭高亮" onclick="clearHighlights()"><span aria-hidden="true">×</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/JMeter/"># JMeter</a>
+          
+          <a href="/tags/%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/"># 性能测试</a>
+          
+          <a href="/tags/%E6%8C%87%E6%A0%87%E5%8F%A3%E5%BE%84/"># 指标口径</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/11/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A%E6%95%99%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A--08-AI%E6%97%B6%E4%BB%A3%E7%9A%84%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/"
+        >软件测试速通--08-AI时代的软件测试</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/11/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A%E6%95%99%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A--06-%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%E8%90%BD%E5%9C%B0/"
+        >软件测试速通--06-接口测试与自动化落地</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>

@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>软件测试速通--05-测试工具实操手册 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+    <link rel="stylesheet" href="/css/search-panel.css">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+
+        <a
+          class="nav-back"
+          href="/"
+          aria-label="返回上一页"
+          onclick="return navBack()"
+        >
+          <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+          <span>返回</span>
+        </a>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="navbar-actions">
+          <a
+            class="nav-back"
+            href="/"
+            aria-label="返回上一页"
+            onclick="return navBack()"
+          >
+            <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+            </svg>
+          </a>
+          <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          </button>
+          <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="scrim" data-root="/"></div>
+<div class="panel" data-root="/">
+  <div class="grip"></div>
+  <div class="phead">
+    <div class="prow">
+      <svg class="sicon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input class="sinput" type="search" placeholder="搜索标题、标签、目录、正文" />
+      <button class="xbtn" type="button" aria-label="关闭">×</button>
+    </div>
+  </div>
+  <div class="cats-wrap"><div class="cats"></div></div>
+  <div class="results"><div class="empty">没有结果，换个关键词试试</div></div>
+  <p class="sr-only" aria-live="polite"></p>
+</div>
+<script src="/js/search.js" defer></script>
+<script src="/js/search-panel.js" defer></script>
+<script>
+  // 目录小节的锚点链接（href="#标题"）会给浏览器留一条同文档历史记录，
+  // history.back() 于是退回跳转前的滚动位置，而不是「上一个页面」。
+  // 这里直接回到 document.referrer（同源的上一个页面）；没有同源来源时返回 true，
+  // 由 <a> 的 href（站点首页）兜底。
+  function navBack() {
+    var ref = document.referrer.split('#')[0];
+    var self = location.href.split('#')[0];
+    if (ref && ref !== self && ref.indexOf(location.origin + '/') === 0) {
+      location.href = ref;
+      return false;
+    }
+    return true;
+  }
+</script>
+            <div class="main">
+                
+
+<div class="container with-toc">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">软件测试速通--05-测试工具实操手册</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 11, 2026&nbsp;&nbsp;9:50:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/">面试八股</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/">软件测试</a>
+          
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A%E6%95%99%E7%A8%8B/">软件测试速通教程</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<hr>
+<p>工具是测试岗的门槛。面试问「Linux 会哪些命令」，答「ls、cat、rm」等于没答；问「Postman 怎么关联」，答「会用断言」等于没答。这篇按工具分节，每节四段：<strong>一句定位 → 装什么&#x2F;在哪用 → 步骤表（步骤 | 命令或操作 | 预期结果）→ 3 个高频面试问题的一句话答案</strong>。命令和代码都写成能直接跑的形式，示例地址统一用 <code>&#123;&#123;base_url&#125;&#125;</code> 占位。</p>
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#%E4%B8%80%E3%80%81Linux%EF%BC%9A%E6%9F%A5%E6%97%A5%E5%BF%97%E3%80%81%E7%9C%8B%E8%BF%9B%E7%A8%8B%E3%80%81%E6%9F%A5%E7%A3%81%E7%9B%98%E3%80%81%E4%BC%A0%E6%96%87%E4%BB%B6%E3%80%81%E6%94%B9%E6%9D%83%E9%99%90">一、Linux：查日志、看进程、查磁盘、传文件、改权限</a></li>
+<li><a href="#%E4%BA%8C%E3%80%81MySQL%EF%BC%9A6-%E7%B1%BB%E5%BF%85%E4%BC%9A%E6%9F%A5%E8%AF%A2">二、MySQL：6 类必会查询</a></li>
+<li><a href="#%E4%B8%89%E3%80%81%E6%8A%93%E5%8C%85%EF%BC%9A%E6%B5%8F%E8%A7%88%E5%99%A8-F12-%E4%B8%8E-Charles">三、抓包：浏览器 F12 与 Charles</a></li>
+<li><a href="#%E5%9B%9B%E3%80%81ADB%EF%BC%9A8-%E6%9D%A1%E5%91%BD%E4%BB%A4">四、ADB：8 条命令</a></li>
+<li><a href="#%E4%BA%94%E3%80%81Postman%EF%BC%9A8-%E6%AD%A5%E8%B7%91%E9%80%9A%E6%8E%A5%E5%8F%A3">五、Postman：8 步跑通接口</a></li>
+<li><a href="#%E5%85%AD%E3%80%81JMeter%EF%BC%9A8-%E6%AD%A5%E5%81%9A%E6%80%A7%E8%83%BD">六、JMeter：8 步做性能</a></li>
+<li><a href="#%E4%B8%83%E3%80%81Selenium-Playwright%EF%BC%9A%E5%AE%9A%E4%BD%8D%E3%80%81%E7%AD%89%E5%BE%85%E4%B8%8E-PO-%E6%A8%A1%E5%BC%8F">七、Selenium &#x2F; Playwright：定位、等待与 PO 模式</a></li>
+<li><a href="#%E5%85%AB%E3%80%81pytest%EF%BC%9A6-%E4%B8%AA%E8%A3%85%E9%A5%B0%E5%99%A8">八、pytest：6 个装饰器</a></li>
+<li><a href="#%E4%B9%9D%E3%80%81Git%EF%BC%9A5-%E6%9D%A1%E5%91%BD%E4%BB%A4">九、Git：5 条命令</a></li>
+<li><a href="#%E5%8D%81%E3%80%81Allure-%E4%B8%8E-Jenkins%EF%BC%9A%E6%8A%A5%E5%91%8A%E4%B8%8E%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90">十、Allure 与 Jenkins：报告与持续集成</a></li>
+<li><a href="#%F0%9F%97%A3%EF%B8%8F-%E9%9D%A2%E8%AF%95%E6%80%8E%E4%B9%88%E8%AF%B4">🗣️ 面试怎么说</a></li>
+<li><a href="#%E2%9C%85-%E8%87%AA%E6%B5%8B-5-%E9%A2%98">✅ 自测 5 题</a></li>
+<li><a href="#%F0%9F%93%9A-%E6%9D%A5%E6%BA%90">📚 来源</a></li>
+</ul>
+<hr>
+<h2 id="一、Linux：查日志、看进程、查磁盘、传文件、改权限"><a href="#一、Linux：查日志、看进程、查磁盘、传文件、改权限" class="headerlink" title="一、Linux：查日志、看进程、查磁盘、传文件、改权限"></a>一、Linux：查日志、看进程、查磁盘、传文件、改权限</h2><p><strong>定位</strong>：测试在 Linux 上干三件事——搭环境、看服务日志、查资源，占用全部 Linux 场景。面试按「查日志 &#x2F; 看进程端口 &#x2F; 查磁盘 &#x2F; 传文件 &#x2F; 权限」五组答，比报一串命令有层次。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：Windows 装 XShell 或 MobaXterm 远程连服务器；Mac&#x2F;Linux 直接用终端。本地演练用虚拟机或 WSL。服务日志一般在 <code>/var/log</code> 或应用自己的 <code>logs</code> 目录，Tomcat 在 <code>$CATALINA_HOME/logs</code>。</p>
+<p>命令分五组记，共 20 条：<strong>查日志</strong>看服务报了什么错，<strong>看进程端口</strong>确认服务起没起，<strong>查磁盘</strong>确认机器还撑得住，<strong>传文件</strong>把包送上去，<strong>改权限</strong>把脚本跑起来。</p>
+<h3 id="1-1-查日志（4-条）"><a href="#1-1-查日志（4-条）" class="headerlink" title="1.1 查日志（4 条）"></a>1.1 查日志（4 条）</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>命令</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跟日志</td>
+<td><code>tail -f app.log</code></td>
+<td>终端持续输出新日志，Ctrl+C 退出</td>
+</tr>
+<tr>
+<td>找报错</td>
+<td><code>tail -n 5000 app.log | grep -n -C 3 &quot;ERROR&quot;</code></td>
+<td>打印 ERROR 在 tail 输出里的行号与前后 3 行上下文；要看原文件行号用 <code>grep -n -C 3 &quot;ERROR&quot; app.log</code></td>
+</tr>
+<tr>
+<td>看开头</td>
+<td><code>head -n 100 app.log</code></td>
+<td>打印前 100 行，确认服务启动顺序</td>
+</tr>
+<tr>
+<td>数次数</td>
+<td><code>grep -c &quot;NullPointerException&quot; app.log</code></td>
+<td>输出匹配行数，同一行多次出现只计 1 行</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-看进程与端口（4-条）"><a href="#1-2-看进程与端口（4-条）" class="headerlink" title="1.2 看进程与端口（4 条）"></a>1.2 看进程与端口（4 条）</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>命令</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>找进程</td>
+<td><code>ps -ef | grep java | grep -v grep</code></td>
+<td>只列出 java 进程行</td>
+</tr>
+<tr>
+<td>看端口占用</td>
+<td><code>ss -lntp</code></td>
+<td>列出监听端口与进程 PID；非 root 只能看到自己进程的 PID，看别人进程需 sudo</td>
+</tr>
+<tr>
+<td>连通性</td>
+<td><code>curl -i http://&lt;主机&gt;:&lt;端口&gt;/health</code></td>
+<td>返回状态码与响应体，判断服务是否活着</td>
+</tr>
+<tr>
+<td>看资源</td>
+<td><code>top -p &lt;PID&gt;</code></td>
+<td>实时显示该进程的 CPU 与内存</td>
+</tr>
+</tbody></table>
+<h3 id="1-3-查磁盘（4-条）"><a href="#1-3-查磁盘（4-条）" class="headerlink" title="1.3 查磁盘（4 条）"></a>1.3 查磁盘（4 条）</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>命令</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>看分区</td>
+<td><code>df -h</code></td>
+<td>各挂载点已用&#x2F;可用百分比</td>
+</tr>
+<tr>
+<td>找大文件</td>
+<td><code>du -sh /var/log/* | sort -h | tail</code></td>
+<td>列出最大的 10 个日志目录</td>
+</tr>
+<tr>
+<td>看内存</td>
+<td><code>free -m</code></td>
+<td>输出内存与 swap 使用量（MB）</td>
+</tr>
+<tr>
+<td>看磁盘 IO</td>
+<td><code>iostat -x 1 3</code></td>
+<td>每 1 秒输出一次共 3 次；首次是开机以来累计值，看瞬时 IO 取后两次或加 <code>-y</code></td>
+</tr>
+</tbody></table>
+<h3 id="1-4-传文件（4-条）"><a href="#1-4-传文件（4-条）" class="headerlink" title="1.4 传文件（4 条）"></a>1.4 传文件（4 条）</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>命令</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>拷一个</td>
+<td><code>scp app.jar user@host:/opt/app/</code></td>
+<td>远端出现该文件</td>
+</tr>
+<tr>
+<td>传目录</td>
+<td><code>rsync -avz --delete ./dist/ user@host:/opt/dist/</code></td>
+<td>目录同步，远端与本地一致</td>
+</tr>
+<tr>
+<td>打包</td>
+<td><code>tar -czf logs.tar.gz logs/</code></td>
+<td>生成压缩包 logs.tar.gz</td>
+</tr>
+<tr>
+<td>解压</td>
+<td><code>tar -xzf logs.tar.gz -C /opt/</code></td>
+<td>解出 logs 目录</td>
+</tr>
+</tbody></table>
+<h3 id="1-5-改权限（4-条）"><a href="#1-5-改权限（4-条）" class="headerlink" title="1.5 改权限（4 条）"></a>1.5 改权限（4 条）</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>命令</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>看权限</td>
+<td><code>ls -al app.sh</code></td>
+<td>显示 <code>-rwxr-xr-x</code> 与属主</td>
+</tr>
+<tr>
+<td>改执行权</td>
+<td><code>chmod +x app.sh</code></td>
+<td>文件多出 x 权限</td>
+</tr>
+<tr>
+<td>改属主</td>
+<td><code>chown appuser:appgroup app.sh</code></td>
+<td>属主属组变为指定值</td>
+</tr>
+<tr>
+<td>看当前用户</td>
+<td><code>id</code></td>
+<td>输出当前 uid、gid 与所属组</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>面试三问：<strong>Linux 在测试里干什么？</strong>（查日志定位问题、看进程端口确认服务起没起、看磁盘内存定位资源瓶颈、传包部署）；<strong>日志怎么看？</strong>（先 tail 看尾部，再用 grep 带上下文筛关键字，配合 grep -c 统计匹配行数）；<strong>权限命令有哪些？</strong>（ls -al 看、chmod 改、chown 改属主、id 看当前用户）。</p>
+</blockquote>
+<hr>
+<h2 id="二、MySQL：6-类必会查询"><a href="#二、MySQL：6-类必会查询" class="headerlink" title="二、MySQL：6 类必会查询"></a>二、MySQL：6 类必会查询</h2><p><strong>定位</strong>：MySQL 是测试的「验数据」工具——接口返回对不对，最终要看库里那行数据；造数据、查库比对、统计口径全靠它。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：装 MySQL 5.7&#x2F;8.0 客户端，命令行 <code>mysql -h &lt;主机&gt; -P &lt;端口&gt; -u &lt;用户&gt; -p</code>，或用 Navicat、DataGrip 图形化连库。本篇示例表：<code>students</code>（学号、姓名、性别、年龄、班级）和 <code>scores</code>（学号、科目、分数）。</p>
+<h3 id="2-1-六类查询与可跑-SQL"><a href="#2-1-六类查询与可跑-SQL" class="headerlink" title="2.1 六类查询与可跑 SQL"></a>2.1 六类查询与可跑 SQL</h3><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>目的</th>
+<th>可跑 SQL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单表条件</td>
+<td>按条件筛行</td>
+<td><code>SELECT * FROM students WHERE sex=&#39;男&#39; AND age BETWEEN 18 AND 20;</code></td>
+</tr>
+<tr>
+<td>聚合分组</td>
+<td>统计口径</td>
+<td><code>SELECT class, COUNT(*) AS cnt, AVG(score) AS avg_score FROM students s JOIN scores sc ON s.student_no=sc.student_no GROUP BY class HAVING cnt&gt;1;</code></td>
+</tr>
+<tr>
+<td>关联</td>
+<td>多表拼信息</td>
+<td><code>SELECT st.name, sc.score FROM students st INNER JOIN scores sc ON st.student_no=sc.student_no;</code></td>
+</tr>
+<tr>
+<td>子查询</td>
+<td>嵌套条件</td>
+<td><code>SELECT name FROM students WHERE student_no IN (SELECT student_no FROM scores WHERE score &lt; 60);</code></td>
+</tr>
+<tr>
+<td>更新校验</td>
+<td>改数据再核对</td>
+<td><code>UPDATE students SET age = age + 1 WHERE student_no = &#39;S001&#39;;</code> 然后 <code>SELECT age FROM students WHERE student_no=&#39;S001&#39;;</code></td>
+</tr>
+<tr>
+<td>看索引</td>
+<td>排查慢查询</td>
+<td><code>EXPLAIN SELECT * FROM students WHERE student_no=&#39;S001&#39;;</code></td>
+</tr>
+</tbody></table>
+<h3 id="2-2-分页、去重与五个易错点"><a href="#2-2-分页、去重与五个易错点" class="headerlink" title="2.2 分页、去重与五个易错点"></a>2.2 分页、去重与五个易错点</h3><table>
+<thead>
+<tr>
+<th>易错点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>where</code> 与 <code>having</code></td>
+<td><code>where</code> 筛行（聚合前），<code>having</code> 筛分组（聚合后）</td>
+</tr>
+<tr>
+<td><code>NULL</code> 比较</td>
+<td>用 <code>IS NULL</code>，不能用 <code>= NULL</code>；空串与 NULL 不同</td>
+</tr>
+<tr>
+<td><code>update</code> 忘 <code>where</code></td>
+<td>全表更新先跑一遍 <code>SELECT</code> 确认命中行数，再执行 UPDATE</td>
+</tr>
+<tr>
+<td>分页与去重</td>
+<td><code>LIMIT 0,10</code> 取第 1 页 10 条；<code>DISTINCT</code> 去重，和 <code>GROUP BY</code> 选一个</td>
+</tr>
+<tr>
+<td>排序稳定性</td>
+<td><code>ORDER BY</code> 多字段时把唯一字段放最后，防止同值行顺序漂移</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>面试三问：<strong>怎么用 SQL 验证接口返回？</strong>（按业务主键查那一行，比对关键字段和状态）；**<code>group by</code> 后怎么筛？<strong>（用 having，不能用 where）；</strong>怎么看一条 SQL 有没有走索引？**（<code>EXPLAIN</code> 看 type、key、rows，type 到 range 以上、key 非 NULL 才算走到索引）。</p>
+</blockquote>
+<hr>
+<h2 id="三、抓包：浏览器-F12-与-Charles"><a href="#三、抓包：浏览器-F12-与-Charles" class="headerlink" title="三、抓包：浏览器 F12 与 Charles"></a>三、抓包：浏览器 F12 与 Charles</h2><p><strong>定位</strong>：抓包是在客户端与服务端之间设代理，把请求和响应截下来看。测试用它做三件事：定位前后端 bug、模拟弱网、绕过界面直接测接口。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：浏览器 F12 零成本，优先用它。Charles 需要装并装根证书，能抓 HTTPS 和手机流量。Charles 本身收费，试用期有限；Fiddler 是同类替代。</p>
+<h3 id="3-1-浏览器-F12-抓一个接口（5-步）"><a href="#3-1-浏览器-F12-抓一个接口（5-步）" class="headerlink" title="3.1 浏览器 F12 抓一个接口（5 步）"></a>3.1 浏览器 F12 抓一个接口（5 步）</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>打开面板</td>
+<td>浏览器按 F12，切到 Network 标签</td>
+<td>下方出现请求列表</td>
+</tr>
+<tr>
+<td>清空并录制</td>
+<td>点清空图标，勾选 Preserve log，再操作页面</td>
+<td>新请求实时出现在列表</td>
+</tr>
+<tr>
+<td>看细节</td>
+<td>点目标请求 → Headers &#x2F; Payload &#x2F; Response</td>
+<td>看到请求行、请求体、响应体</td>
+</tr>
+<tr>
+<td>看耗时</td>
+<td>看 Timing 里的 Duration 与各阶段耗时</td>
+<td>判断慢在排队还是服务端</td>
+</tr>
+<tr>
+<td>看响应</td>
+<td>切 Response 标签看 Body，切 Headers 看响应头</td>
+<td>和数据库值比对，判断责任方</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-Charles-抓-HTTPS（6-步）"><a href="#3-2-Charles-抓-HTTPS（6-步）" class="headerlink" title="3.2 Charles 抓 HTTPS（6 步）"></a>3.2 Charles 抓 HTTPS（6 步）</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>开代理</td>
+<td>启动 Charles，Proxy → Proxy Settings → 勾选 HTTP Proxy</td>
+<td>状态栏显示代理已开</td>
+</tr>
+<tr>
+<td>设浏览器</td>
+<td>浏览器&#x2F;系统代理指向本机 Charles 默认监听端口</td>
+<td>浏览器能正常上网，Charles 出现数据</td>
+</tr>
+<tr>
+<td>装证书</td>
+<td>Help → SSL Proxying → Install Charles Root Certificate，再开 SSL Proxying</td>
+<td>原本灰白的 HTTPS 请求变可读</td>
+</tr>
+<tr>
+<td>抓手机</td>
+<td>手机与电脑同一 WiFi，手机 WiFi 代理填电脑地址与端口；HTTPS 需手机装同一证书</td>
+<td>Charles 出现手机请求</td>
+</tr>
+<tr>
+<td>筛包</td>
+<td>用 Structure 按域名分组，右键域名设 Focus</td>
+<td>列表只剩目标域名流量</td>
+</tr>
+<tr>
+<td>筛域名</td>
+<td>用 Structure 或 Filter 只留目标域名</td>
+<td>列表只剩目标接口</td>
+</tr>
+</tbody></table>
+<h3 id="3-3-改请求与模拟弱网（3-步）"><a href="#3-3-改请求与模拟弱网（3-步）" class="headerlink" title="3.3 改请求与模拟弱网（3 步）"></a>3.3 改请求与模拟弱网（3 步）</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>改参数重放</td>
+<td>右键请求 → Edit → 改参数或 body → 重新发送</td>
+<td>服务端按新参数返回，用来测后端边界</td>
+</tr>
+<tr>
+<td>模拟弱网</td>
+<td>Proxy → Throttle Settings → 选 3G 或自定义延时&#x2F;带宽</td>
+<td>页面加载明显变慢，接口 Duration 变长</td>
+</tr>
+<tr>
+<td>定位前后端</td>
+<td>请求错 → 前端；响应与库不一致 → 后端；请求响应都对但页面错 → 前端</td>
+<td>给出归属结论而不是「前端好像有问题」</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>面试三问：<strong>抓包能解决什么问题？</strong>（定位前后端 bug、模拟弱网、绕过界面做接口测试）；<strong>怎么判断是前端还是后端的锅？</strong>（看请求参数对不对，再看响应与库是否一致，页面显示再对一次）；<strong>F12 和 Charles 怎么选？</strong>（F12 零成本查接口，Charles 能改请求、能模拟弱网、能抓手机流量）。</p>
+</blockquote>
+<hr>
+<h2 id="四、ADB：8-条命令"><a href="#四、ADB：8-条命令" class="headerlink" title="四、ADB：8 条命令"></a>四、ADB：8 条命令</h2><p><strong>定位</strong>：ADB 是 Android 调试桥，测试用它装包、启应用、抓日志、看内存、做稳定性压测。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：装 Android SDK Platform-Tools，把 <code>platform-tools</code> 加进 PATH，命令行 <code>adb</code> 可用。真机需在开发者选项里打开 USB 调试并信任本机；模拟器用 <code>adb connect &lt;设备地址&gt;</code> 连。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>命令</th>
+<th>用途</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>adb devices</code></td>
+<td>查连接的设备</td>
+<td>列出设备号与状态（device 表示正常）</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>adb connect &lt;设备地址&gt;</code></td>
+<td>连无线设备或模拟器</td>
+<td>输出 connected to</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>adb install -r app.apk</code> &#x2F; <code>adb uninstall &lt;包名&gt;</code></td>
+<td>装包与卸包</td>
+<td>装包输出 Success；卸包输出 Success</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>adb shell am start -n &lt;包名&gt;/&lt;启动页&gt;</code></td>
+<td>启动应用</td>
+<td>应用被拉起</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>adb shell screencap -p /sdcard/s.png</code></td>
+<td>截屏</td>
+<td>手机相册出现截图</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>adb logcat -c</code> → <code>adb logcat &gt; log.txt</code></td>
+<td>清日志并保存</td>
+<td>log.txt 持续写入崩溃信息</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>adb shell monkey -p &lt;包名&gt; -v 3000</code></td>
+<td>随机操作做稳定性压测</td>
+<td>输出事件注入统计（3000 是事件数，<code>-v</code> 是日志详细度，可叠加 -v -v）</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>adb shell dumpsys meminfo &lt;包名&gt;</code></td>
+<td>看应用内存占用</td>
+<td>输出 PSS、Java Heap 等分项</td>
+</tr>
+</tbody></table>
+<p><strong>稳定性排查链</strong>：<code>monkey</code> 压测 → <code>grep -E &quot;CRASH|ANR|Exception|timeout&quot; log.txt</code> 找关键词 → 用日志里的堆栈定位到具体代码行。</p>
+<blockquote>
+<p>面试三问：<strong>ADB 是干什么的？</strong>（连接设备、装卸包、拉起应用、抓日志看内存，做黑盒专项测试）；<strong>APP 崩溃怎么定位？</strong>（logcat 抓日志找 CRASH&#x2F;ANR 关键字，看堆栈定位代码行）；<strong>怎么做 APP 稳定性测试？</strong>（monkey 随机操作几千次，同时抓 logcat 看有没有崩溃和 ANR）。</p>
+</blockquote>
+<hr>
+<h2 id="五、Postman：8-步跑通接口"><a href="#五、Postman：8-步跑通接口" class="headerlink" title="五、Postman：8 步跑通接口"></a>五、Postman：8 步跑通接口</h2><p><strong>定位</strong>：Postman 是接口测试的事实标准工具，用来做接口用例的组织、断言、关联和批量执行。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：官网下载桌面版，装完直接登录账号即可用；也可装 Apifox 做类似的事。下面示例环境统一用 <code>&#123;&#123;base_url&#125;&#125;</code> 变量。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>步骤</th>
+<th>操作</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>建环境</td>
+<td>Environments → New，写 <code>base_url</code> 指向测试环境</td>
+<td>环境列表出现该环境，可切换</td>
+</tr>
+<tr>
+<td>2</td>
+<td>建请求</td>
+<td>Collections → New Collection → Add Request，URL 写 <code>&#123;&#123;base_url&#125;&#125;/api/user/login</code></td>
+<td>请求保存进集合</td>
+</tr>
+<tr>
+<td>3</td>
+<td>配方法与体</td>
+<td>选 POST，Body → raw → JSON，填账号密码字段</td>
+<td>Send 后返回响应体</td>
+</tr>
+<tr>
+<td>4</td>
+<td>写断言</td>
+<td>Tests 标签写断言脚本，Send 后看 Test Results</td>
+<td>每条断言显示 pass&#x2F;fail</td>
+</tr>
+<tr>
+<td>5</td>
+<td>前置脚本</td>
+<td>Pre-request Script 生成时间戳或随机值，赋给变量</td>
+<td>请求参数里带上刚生成的值</td>
+</tr>
+<tr>
+<td>6</td>
+<td>参数化</td>
+<td>Runner 里选 Data file（CSV 或 JSON），参数引用 <code>&#123;&#123;字段名&#125;&#125;</code></td>
+<td>按数据行数批量执行</td>
+</tr>
+<tr>
+<td>7</td>
+<td>跑批量</td>
+<td>Runner 选集合与环境，点 Run</td>
+<td>汇总显示通过&#x2F;失败条数</td>
+</tr>
+<tr>
+<td>8</td>
+<td>出报告</td>
+<td>导出 Collection 为 JSON，用 Newman（或官方现在主推的 Postman CLI）跑并出 HTML 报告</td>
+<td>生成可归档的报告文件</td>
+</tr>
+</tbody></table>
+<h3 id="5-1-断言与关联脚本（≤15-行）"><a href="#5-1-断言与关联脚本（≤15-行）" class="headerlink" title="5.1 断言与关联脚本（≤15 行）"></a>5.1 断言与关联脚本（≤15 行）</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Tests：状态码 + 业务字段断言</span></span><br><span class="line">pm.<span class="title function_">test</span>(<span class="string">&quot;状态码是200&quot;</span>, <span class="keyword">function</span> (<span class="params"></span>) &#123; pm.<span class="property">response</span>.<span class="property">to</span>.<span class="property">have</span>.<span class="title function_">status</span>(<span class="number">200</span>); &#125;);</span><br><span class="line">pm.<span class="title function_">test</span>(<span class="string">&quot;业务字段正确&quot;</span>, <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"> <span class="keyword">var</span> j = pm.<span class="property">response</span>.<span class="title function_">json</span>();</span><br><span class="line"> pm.<span class="title function_">expect</span>(j.<span class="property">code</span>).<span class="property">to</span>.<span class="title function_">eql</span>(<span class="number">10000</span>);</span><br><span class="line"> pm.<span class="title function_">expect</span>(j.<span class="property">data</span>).<span class="property">to</span>.<span class="property">have</span>.<span class="title function_">property</span>(<span class="string">&quot;token&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 关联：把 token 存进环境变量</span></span><br><span class="line"><span class="keyword">var</span> j = pm.<span class="property">response</span>.<span class="title function_">json</span>();</span><br><span class="line">pm.<span class="property">environment</span>.<span class="title function_">set</span>(<span class="string">&quot;token&quot;</span>, j.<span class="property">data</span>.<span class="property">token</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-下一请求引用-token"><a href="#5-2-下一请求引用-token" class="headerlink" title="5.2 下一请求引用 token"></a>5.2 下一请求引用 token</h3><p>在后续请求的 Authorization 请求头填 <code>Bearer &#123;&#123;token&#125;&#125;</code>，或用 Pre-request Script 拼进变量：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Pre-request Script：为后续请求准备带 token 的头</span></span><br><span class="line">pm.<span class="property">environment</span>.<span class="title function_">set</span>(<span class="string">&quot;authHeader&quot;</span>, <span class="string">&quot;Bearer &quot;</span> + pm.<span class="property">environment</span>.<span class="title function_">get</span>(<span class="string">&quot;token&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>面试三问：<strong>Postman 断言怎么写？</strong>（Tests 标签写 JS，断言状态码、业务 code、关键字段三层，只断 200 等于没断）；<strong>接口之间怎么传值？</strong>（前置接口 Tests 里 <code>pm.environment.set</code> 存变量，后续用 <code>&#123;&#123;变量名&#125;&#125;</code> 引用）；<strong>参数化用什么文件？</strong>（CSV 简单但不支持布尔和复杂结构，JSON 支持数组对象；批量跑用 Runner，CI 里用 Newman 出报告）。</p>
+</blockquote>
+<hr>
+<h2 id="六、JMeter：8-步做性能"><a href="#六、JMeter：8-步做性能" class="headerlink" title="六、JMeter：8 步做性能"></a>六、JMeter：8 步做性能</h2><p><strong>定位</strong>：JMeter 是压测工具，模拟大量虚拟用户并发请求，看响应时间、错误率和吞吐量，找出瓶颈。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：装 JDK 并配好 <code>JAVA_HOME</code>，再解压 JMeter（<strong>安装路径避免空格</strong>——官方原文：路径含空格可能出问题，尤其 client-server 模式；中文路径非官方警告但同样建议避开），运行 <code>bin/jmeter</code> 启动。命令行模式 <code>jmeter -n -t test.jmx -l result.jtl -e -o report</code> 跑 GUI 不开，减小压测自身开销。</p>
+<h3 id="6-1-八步操作表"><a href="#6-1-八步操作表" class="headerlink" title="6.1 八步操作表"></a>6.1 八步操作表</h3><table>
+<thead>
+<tr>
+<th>#</th>
+<th>步骤</th>
+<th>操作</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>建线程组</td>
+<td>右键测试计划 → 添加 → 线程组，设线程数、Ramp-Up、循环次数</td>
+<td>出现线程组节点</td>
+</tr>
+<tr>
+<td>2</td>
+<td>加 HTTP 请求</td>
+<td>线程组下添加 HTTP 请求，填协议&#x2F;域名&#x2F;端口&#x2F;路径与参数</td>
+<td>请求节点出现</td>
+</tr>
+<tr>
+<td>3</td>
+<td>加断言</td>
+<td>请求上右键 → 添加 → 断言 → 响应断言，填期望字符串</td>
+<td>断言节点挂在请求下</td>
+</tr>
+<tr>
+<td>4</td>
+<td>加监听器</td>
+<td>添加 → 监听器 → 聚合报告</td>
+<td>跑完出统计表</td>
+</tr>
+<tr>
+<td>5</td>
+<td>参数化</td>
+<td>添加 → 配置元件 → CSV Data Set Config，请求里用 <code>$&#123;变量名&#125;</code></td>
+<td>每线程读到不同数据行</td>
+</tr>
+<tr>
+<td>6</td>
+<td>关联</td>
+<td>添加 → 后置处理器 → 正则提取器，下个请求引用 <code>$&#123;变量名&#125;</code></td>
+<td>提取值传给后续请求</td>
+</tr>
+<tr>
+<td>7</td>
+<td>定时器</td>
+<td>添加 → 定时器 → 固定&#x2F;同步定时器，模拟思考时间或集合点</td>
+<td>请求节奏变慢或并发集中</td>
+</tr>
+<tr>
+<td>8</td>
+<td>出报告</td>
+<td>跑完看聚合报告；命令行加 <code>-e -o report</code> 生成 HTML 报告</td>
+<td>得到可归档报告</td>
+</tr>
+</tbody></table>
+<h3 id="6-2-参数化与关联片段"><a href="#6-2-参数化与关联片段" class="headerlink" title="6.2 参数化与关联片段"></a>6.2 参数化与关联片段</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CSV Data Set Config：Filename=data/users.csv，Variable Names=phone,pwd，Recycle on EOF=True</span><br><span class="line">HTTP 请求参数：phone=$&#123;phone&#125; pwd=$&#123;pwd&#125;</span><br><span class="line">正则提取器：Name=title，Regular Expression=&lt;title&gt;(.*?)&lt;/title&gt;，Template=$1$</span><br><span class="line">后续请求引用：$&#123;title&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>元件执行顺序（同一作用域）</strong>：配置元件 → 前置处理器 → 定时器 → 取样器 → 后置处理器 → 断言 → 监听器。</p>
+<p><strong>作用域规则</strong>：取样器本身没有作用域；逻辑控制器只对子节点生效；父节点是取样器时，元件只作用于这个父取样器；父节点不是取样器时，作用于其下所有后代。</p>
+<blockquote>
+<p>面试三问：<strong>JMeter 的线程数是什么？</strong>（虚拟用户数，越多负载越大，Ramp-Up 决定多久起完）；<strong>聚合报告看哪几个字段？</strong>（Samples 样本数、Average&#x2F;Median 平均与中位响应时间、90% Line&#x2F;99% Line 分位（99% 才是尾延迟）、Error% 错误率、Throughput 吞吐）；<strong>为什么压测要关掉查看结果树？</strong>（监听器本身耗资源，会压低测出来的性能数据）。</p>
+</blockquote>
+<hr>
+<h2 id="七、Selenium-Playwright：定位、等待与-PO-模式"><a href="#七、Selenium-Playwright：定位、等待与-PO-模式" class="headerlink" title="七、Selenium &#x2F; Playwright：定位、等待与 PO 模式"></a>七、Selenium &#x2F; Playwright：定位、等待与 PO 模式</h2><p><strong>定位</strong>：Web UI 自动化靠两件事——找得到元素（定位）、等得到元素（等待）；再用 PO 模式把页面元素和操作封装起来，改页面不改用例。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：Selenium 需浏览器驱动（ChromeDriver），Selenium 4.6+ 自带 Selenium Manager，会自动发现并下载匹配浏览器版本的驱动；驱动版本需与浏览器大版本一致这条仍然成立，但一般不用手动下载和配 PATH。Playwright 装 <code>pip install playwright</code> 后执行 <code>playwright install</code> 下载浏览器，省去驱动匹配问题。</p>
+<h3 id="7-1-八种定位与优先级"><a href="#7-1-八种定位与优先级" class="headerlink" title="7.1 八种定位与优先级"></a>7.1 八种定位与优先级</h3><p>常见经验排序（非官方结论）：<strong>ID &gt; Name &gt; CSS Selector &gt; XPath &gt; Class Name &gt; Link Text &gt; Partial Link Text &gt; Tag Name</strong>。ID 唯一最快最稳。绝对 XPath 脆且慢，别写 <code>/html/body/div[1]/...</code>；动态 ID 用 <code>starts-with()</code>、<code>contains()</code> 匹配。</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>语法示例</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ID</td>
+<td><code>find_element(By.ID, &quot;username&quot;)</code></td>
+<td>元素有唯一 ID，首选</td>
+</tr>
+<tr>
+<td>Name</td>
+<td><code>find_element(By.NAME, &quot;password&quot;)</code></td>
+<td>表单 name 属性</td>
+</tr>
+<tr>
+<td>CSS</td>
+<td><code>find_element(By.CSS_SELECTOR, &quot;input[name=&#39;email&#39;]&quot;)</code></td>
+<td>结构化、性能高</td>
+</tr>
+<tr>
+<td>XPath</td>
+<td><code>find_element(By.XPATH, &quot;//button[contains(text(),&#39;提交&#39;)]&quot;)</code></td>
+<td>复杂层级、动态元素</td>
+</tr>
+<tr>
+<td>Class Name</td>
+<td><code>find_element(By.CLASS_NAME, &quot;btn-primary&quot;)</code></td>
+<td>类名有辨识度</td>
+</tr>
+<tr>
+<td>Link Text</td>
+<td><code>find_element(By.LINK_TEXT, &quot;登录&quot;)</code></td>
+<td>超链接完整文本</td>
+</tr>
+<tr>
+<td>Partial Link Text</td>
+<td><code>find_element(By.PARTIAL_LINK_TEXT, &quot;注册&quot;)</code></td>
+<td>超链接部分文本</td>
+</tr>
+<tr>
+<td>Tag Name</td>
+<td><code>find_elements(By.TAG_NAME, &quot;input&quot;)</code></td>
+<td>批量取同类元素</td>
+</tr>
+</tbody></table>
+<h3 id="7-2-三种等待与显式等待写法"><a href="#7-2-三种等待与显式等待写法" class="headerlink" title="7.2 三种等待与显式等待写法"></a>7.2 三种等待与显式等待写法</h3><table>
+<thead>
+<tr>
+<th>等待</th>
+<th>写法</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>隐式等待</td>
+<td><code>driver.implicitly_wait(10)</code></td>
+<td>全局设置，作用于每次元素定位；超时内轮询查找，找到即返回，超时才报错</td>
+</tr>
+<tr>
+<td>显式等待</td>
+<td><code>WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, &quot;x&quot;)))</code></td>
+<td>按条件精准等待，推荐</td>
+</tr>
+<tr>
+<td>强制等待</td>
+<td><code>time.sleep(2)</code></td>
+<td>固定卡秒，慢且不稳，只在排查时临时用</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.common.by <span class="keyword">import</span> By</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support <span class="keyword">import</span> expected_conditions <span class="keyword">as</span> EC</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support.wait <span class="keyword">import</span> WebDriverWait</span><br><span class="line"></span><br><span class="line">driver = webdriver.Chrome()</span><br><span class="line">driver.get(<span class="string">&quot;http://example.com/login&quot;</span>)</span><br><span class="line">loc = (By.ID, <span class="string">&quot;username&quot;</span>)</span><br><span class="line">WebDriverWait(driver, <span class="number">10</span>).until(EC.visibility_of_element_located(loc)).send_keys(<span class="string">&quot;test&quot;</span>)</span><br><span class="line">driver.find_element(*loc).clear() <span class="comment"># 输入前先 clear，避免默认值拼接</span></span><br><span class="line">WebDriverWait(driver, <span class="number">10</span>).until(EC.element_to_be_clickable((By.ID, <span class="string">&quot;submit&quot;</span>))).click()</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-3-PO-模式三步"><a href="#7-3-PO-模式三步" class="headerlink" title="7.3 PO 模式三步"></a>7.3 PO 模式三步</h3><ol>
+<li>Page 类抽元素（定义实例属性）和业务操作（定义方法）。</li>
+<li>Base 类做公共动作：找元素、显式等待、截图、日志。</li>
+<li>用例脚本只调方法，不直接写定位。</li>
+</ol>
+<p>分层目录通常是 <code>base / page / data / script / report / log</code> 加 <code>config.py</code> 和 <code>pytest.ini</code>：页面一改，只动 page 层，用例和报告不用动。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium.webdriver.common.by <span class="keyword">import</span> By</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support <span class="keyword">import</span> expected_conditions <span class="keyword">as</span> EC</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support.wait <span class="keyword">import</span> WebDriverWait</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LoginPage</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, driver</span>):</span><br><span class="line">        <span class="variable language_">self</span>.driver = driver</span><br><span class="line">        <span class="variable language_">self</span>.user = (By.ID, <span class="string">&quot;username&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.pwd = (By.ID, <span class="string">&quot;password&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">login</span>(<span class="params">self, u, p</span>):</span><br><span class="line">        WebDriverWait(<span class="variable language_">self</span>.driver, <span class="number">10</span>).until(</span><br><span class="line">            EC.visibility_of_element_located(<span class="variable language_">self</span>.user)).send_keys(u)</span><br><span class="line">        <span class="variable language_">self</span>.driver.find_element(*<span class="variable language_">self</span>.pwd).send_keys(p)</span><br><span class="line">        <span class="variable language_">self</span>.driver.find_element(By.ID, <span class="string">&quot;submit&quot;</span>).click()</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-4-Playwright-的两个差异"><a href="#7-4-Playwright-的两个差异" class="headerlink" title="7.4 Playwright 的两个差异"></a>7.4 Playwright 的两个差异</h3><p>Playwright 自带浏览器管理，省掉「驱动版本和浏览器版本不匹配」这个坑；等待是默认自动的，通常不用手写等待。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> playwright.sync_api <span class="keyword">import</span> sync_playwright</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> sync_playwright() <span class="keyword">as</span> p:</span><br><span class="line"> browser = p.chromium.launch()</span><br><span class="line"> page = browser.new_page()</span><br><span class="line"> page.goto(<span class="string">&quot;http://example.com/login&quot;</span>)</span><br><span class="line"> page.fill(<span class="string">&quot;#username&quot;</span>, <span class="string">&quot;test&quot;</span>) <span class="comment"># 自带等待，元素没出来会等到超时</span></span><br><span class="line"> page.click(<span class="string">&quot;#submit&quot;</span>)</span><br><span class="line"> <span class="keyword">assert</span> page.locator(<span class="string">&quot;.tip&quot;</span>).inner_text() == <span class="string">&quot;ok&quot;</span></span><br><span class="line"> browser.close()</span><br></pre></td></tr></table></figure>
+
+<p>取舍：Selenium 生态成熟、企业存量脚本多；Playwright 写新脚本更省心，自带等待让脚本更稳。面试说「都会，Selenium 为主」即可，别硬说自己精通。</p>
+<blockquote>
+<p>面试三问：<strong>元素定位有哪些方式？</strong>（八种：id、name、class_name、tag_name、link_text、partial_link_text、xpath、css_selector）；<strong>为什么用显式等待不用隐式等待？</strong>（隐式是全局设置，每次元素定位都轮询等待，显式按条件轮询更准更稳）；<strong>PO 模式好处？</strong>（页面元素和业务操作封装在 Page 层，用例只调方法，改页面不用改用例）。</p>
+</blockquote>
+<hr>
+<h2 id="八、pytest：6-个装饰器"><a href="#八、pytest：6-个装饰器" class="headerlink" title="八、pytest：6 个装饰器"></a>八、pytest：6 个装饰器</h2><p><strong>定位</strong>：pytest 是 Python 测试框架，装饰器用来管前置后置、数据驱动、跳过和分类标记。这 6 个是笔试高频。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：<code>pip install pytest</code>；项目根目录建 <code>pytest.ini</code> 放配置，<code>conftest.py</code> 放共享 fixture（放在测试目录同级或子目录会被自动发现，不用 import）。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>装饰器</th>
+<th>作用</th>
+<th>关键点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>@pytest.fixture</code></td>
+<td>定义前置&#x2F;后置与共享数据</td>
+<td><code>scope</code> 可取 function&#x2F;class&#x2F;module&#x2F;package&#x2F;session，最常用前四个；<code>autouse=True</code> 自动生效；<code>yield</code> 之前是前置、之后是后置</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>@pytest.mark.parametrize</code></td>
+<td>同一逻辑多组数据</td>
+<td>参数名与数据列表对应，减少重复代码</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>@pytest.mark.skip</code></td>
+<td>无条件跳过</td>
+<td>建议填 <code>reason</code> 说明原因（可选）</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>@pytest.mark.skipif</code></td>
+<td>条件满足才跳过</td>
+<td>按版本、环境跳过；条件在测试收集阶段求值</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>@pytest.mark.xfail</code></td>
+<td>已知问题，预期失败</td>
+<td>默认失败记 XFAIL 不影响套件结果；意外通过记 XPASS；开 strict 后 XPASS 算失败</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>@pytest.mark.&lt;自定义&gt;</code></td>
+<td>分类标记，配合 <code>-m</code> 筛选执行</td>
+<td>在 <code>pytest.ini</code> 里注册减少告警</td>
+</tr>
+</tbody></table>
+<p><code>conftest.py</code> 是共享 fixture 的落点：放在测试目录同级或其子目录会被自动发现，测试文件按参数名直接注入，不用 import。<code>pytest.ini</code> 里注册自定义 mark 后，用 <code>pytest -m smoke</code> 就能只跑冒烟用例。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture(<span class="params">scope=<span class="string">&quot;class&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">browser</span>():</span><br><span class="line"> driver = webdriver.Chrome()</span><br><span class="line"> <span class="keyword">yield</span> driver <span class="comment"># 前置：造数据</span></span><br><span class="line"> driver.quit() <span class="comment"># 后置：清理</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.parametrize(<span class="params"><span class="string">&quot;user,expect&quot;</span>, [(<span class="params"><span class="string">&quot;user_a&quot;</span>, <span class="string">&quot;ok&quot;</span></span>), (<span class="params"><span class="string">&quot;user_b&quot;</span>, <span class="string">&quot;fail&quot;</span></span>)]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_login</span>(<span class="params">browser, user, expect</span>):</span><br><span class="line"> <span class="keyword">assert</span> browser.title <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.smoke</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_smoke</span>(): ...</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.skip(<span class="params">reason=<span class="string">&quot;用例未实现&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_skip_me</span>(): ...</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.skipif(<span class="params">sys.version_info &lt; (<span class="params"><span class="number">3</span>, <span class="number">10</span></span>), reason=<span class="string">&quot;需要 Python 3.10+&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_skipif_me</span>(): ...</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.xfail(<span class="params">reason=<span class="string">&quot;已知缺陷，等修复&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_xfail_me</span>(): ...</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>面试三问：<strong>fixture 是什么？</strong>（pytest 的依赖注入机制，定义前置后置与共享数据，按名字注入）；<strong>scope 有哪几种？</strong>（function、class、module、package、session，越大复用越高但状态隔离要注意）；<strong>skip、skipif、xfail 有什么区别？</strong>（skip 无条件不跑，skipif 条件不跑，xfail 预期失败、跑了失败也不算挂）。</p>
+</blockquote>
+<hr>
+<h2 id="九、Git：5-条命令"><a href="#九、Git：5-条命令" class="headerlink" title="九、Git：5 条命令"></a>九、Git：5 条命令</h2><p><strong>定位</strong>：Git 是版本控制工具。测试用它管理用例和脚本、留痕变更、跑分支还能回滚。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：装 Git 本地客户端，配置 <code>user.name</code> 与 <code>user.email</code>；远端用 Gitee 或 GitHub 托管。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>命令</th>
+<th>用途</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>git status</code></td>
+<td>看当前改动</td>
+<td>列出已改未跟踪文件</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>git add &lt;文件&gt;</code> → <code>git commit -m &quot;说明&quot;</code></td>
+<td>提交改动</td>
+<td>生成一个 commit</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>git branch</code> &#x2F; <code>git switch -c feature/login</code></td>
+<td>看分支 &#x2F; 建分支</td>
+<td>分支列表出现新分支</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>git pull</code></td>
+<td>拉取远端更新</td>
+<td>出现 Fast-forward 或合并信息</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>git revert &lt;commit&gt;</code></td>
+<td>回滚一个已提交改动</td>
+<td>生成一条新的撤销提交，历史不丢</td>
+</tr>
+</tbody></table>
+<p><strong>push 被拒怎么办</strong>：提示 <code>push rejected</code> 时，先 <code>git pull</code> 把远端改动合进来再推。git 2.27+ 遇到分叉默认不再自动合并，需显式选 <code>git pull --no-rebase</code>（merge）或 <code>--rebase</code>；可用 <code>git config pull.rebase false</code> 固化为 merge 默认，不要直接覆盖别人的提交。</p>
+<blockquote>
+<p>面试三问：<strong>git 的三个区是什么？</strong>（工作区、暂存区、仓库区，add 把改动放进暂存区，commit 提交进仓库）；<strong>怎么撤销修改？</strong>（未提交用 <code>git checkout -- 文件</code> 或 <code>git restore</code>，已提交用 <code>git revert</code> 生成反向提交）；<strong>push 冲突了怎么办？</strong>（先 pull 合并解决冲突再 push，默认 merge 不覆盖）。</p>
+</blockquote>
+<hr>
+<h2 id="十、Allure-与-Jenkins：报告与持续集成"><a href="#十、Allure-与-Jenkins：报告与持续集成" class="headerlink" title="十、Allure 与 Jenkins：报告与持续集成"></a>十、Allure 与 Jenkins：报告与持续集成</h2><p><strong>定位</strong>：Allure 把测试结果渲染成可读 HTML 报告；Jenkins 负责在代码提交后自动跑测试并归档报告。两者合起来就是持续集成（CI，频繁合并代码并自动验证）。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：Allure 装命令行工具并配进 PATH，另装 <code>allure-pytest</code> 插件；Jenkins 装好后进 <code>Manage Jenkins → System Configuration → Global Tool Configuration</code> 配 Allure 工具路径。</p>
+<h3 id="10-1-Allure-三步"><a href="#10-1-Allure-三步" class="headerlink" title="10.1 Allure 三步"></a>10.1 Allure 三步</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>命令&#x2F;操作</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>pip install allure-pytest</code></td>
+<td>插件装好，pytest 跑完自动产出结果文件</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>pytest --alluredir=./report -q</code></td>
+<td>生成 <code>report</code> 目录，里面是结果 JSON</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>allure generate ./report -o ./new_report --clean</code> 后 <code>allure open ./new_report</code></td>
+<td>浏览器打开 HTML 报告</td>
+</tr>
+</tbody></table>
+<h3 id="10-2-Jenkins-三步"><a href="#10-2-Jenkins-三步" class="headerlink" title="10.2 Jenkins 三步"></a>10.2 Jenkins 三步</h3><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Global Tool Configuration 里配 Allure 路径</td>
+<td>任务里可选该工具</td>
+</tr>
+<tr>
+<td>2</td>
+<td>新建 Freestyle 项目，添加构建步骤执行 pytest 命令</td>
+<td>点构建后自动跑测试</td>
+</tr>
+<tr>
+<td>3</td>
+<td>构建后操作里填 Allure 报告路径（结果 JSON 目录）</td>
+<td>构建页面出现报告链接</td>
+</tr>
+</tbody></table>
+<p><strong>执行链路</strong>：代码拉取 → 装依赖与环境 → pytest 执行 → 产出结果 → Allure 生成报告 → Jenkins 归档展示。</p>
+<blockquote>
+<p>面试三问：<strong>Allure 有什么用？</strong>（把 pytest 等框架的结果渲染成带分类、图表、失败详情的 HTML 报告）；<strong>CI 是什么？</strong>（持续集成，代码一提交就自动构建和跑测试，尽早发现问题）；<strong>Jenkins 里一般配哪几步？</strong>（配工具路径、配置构建命令跑测试、构建后归档报告）。</p>
+</blockquote>
+<hr>
+<h2 id="🗣️-面试怎么说"><a href="#🗣️-面试怎么说" class="headerlink" title="🗣️ 面试怎么说"></a>🗣️ 面试怎么说</h2><ol>
+<li>「Linux 我按五组用：查日志 <code>tail -f</code> 加 <code>grep -n -C 3</code> 定位报错、看进程端口 <code>ps -ef</code> 和 <code>ss -lntp</code>、看磁盘内存 <code>df -h</code> 和 <code>free -m</code>、传文件用 <code>scp</code> 和 <code>rsync</code>、权限用 <code>ls -al</code> 和 <code>chmod</code>。」</li>
+<li>「MySQL 我用六类查询：单表条件、聚合分组、关联、子查询、更新后校验、<code>EXPLAIN</code> 看索引；<code>where</code> 筛行、<code>having</code> 筛分组，<code>update</code> 一定先 <code>select</code> 确认命中行数。」</li>
+<li>「抓包优先用浏览器 F12 看请求响应，要改请求或模拟弱网才用 Charles；定位前后端 bug 就三步：请求有没有问题、响应和库是否一致、页面显示对不对。」</li>
+<li>「ADB 我常用八条：<code>devices</code> 看连接、<code>connect</code> 连无线设备、<code>install</code> 装包、<code>am start</code> 启动、<code>screencap</code> 截图、<code>logcat</code> 抓日志、<code>monkey</code> 压测、<code>dumpsys meminfo</code> 看内存。」</li>
+<li>「Postman 我按八步走：建环境变量、写请求、Tests 写断言、前置脚本造数据、关联提取 token、参数化批量、Runner 跑、出报告。」</li>
+<li>「UI 自动化我用 Selenium 的八种定位，优先 ID 再 CSS，XPath 只在必要时用；等待一律用显式等待；页面按 PO 模式封装，用例只调方法。」</li>
+<li>「pytest 我重点掌握 fixture、parametrize、skip、skipif、xfail 和自定义 mark 六个装饰器，共享数据放 conftest.py。」</li>
+</ol>
+<hr>
+<h2 id="✅-自测-5-题"><a href="#✅-自测-5-题" class="headerlink" title="✅ 自测 5 题"></a>✅ 自测 5 题</h2><ol>
+<li><strong>Linux 查日志定位报错的命令链是什么？</strong><br> <code>tail -f app.log</code> 跟日志，<code>grep -n -C 3 &quot;ERROR&quot;</code> 找上下文，<code>grep -c &quot;Exception&quot; app.log</code> 统计匹配行数。</li>
+<li><strong><code>where</code> 和 <code>having</code> 的区别？</strong><br> <code>where</code> 在聚合前筛行，<code>having</code> 在聚合后筛分组。</li>
+<li><strong>Postman 里怎么把登录接口的 token 传给下一个接口？</strong><br> 登录接口 Tests 里 <code>pm.environment.set(&quot;token&quot;, j.data.token)</code>，下一个请求 Header 写 <code>Bearer &#123;&#123;token&#125;&#125;</code>。</li>
+<li><strong>隐式等待和显式等待的区别？</strong><br> 隐式是全局设置，每次元素定位都在超时时间内轮询查找，找到即返回；显式用 <code>WebDriverWait</code> 按条件轮询，更准更稳，推荐用显式。</li>
+<li><strong>pytest 里 skip、skipif、xfail 的区别？</strong><br> skip 无条件跳过，skipif 条件满足才跳过，xfail 标记预期失败（已知缺陷），跑了失败也不算用例挂。</li>
+</ol>
+<hr>
+<h2 id="📚-来源"><a href="#📚-来源" class="headerlink" title="📚 来源"></a>📚 来源</h2><ul>
+<li>素材：黑马 2026 AI+软件测试课件·功能测试线（day01–day05 课堂笔记与 xmind）：测试辅助技能（Linux 基础与文件命令、MySQL 查询与项目实战、抓包原理与场景与弱网、埋点）、命令与 SQL；APP 测试（性能与稳定性、monkey 与 logcat 关键词）。</li>
+<li>素材：黑马 2026 AI+软件测试课件·Python 与 Web 自动化线（day06–day10 课堂笔记、Selenium 定位对比表 PDF）：pytest（装饰器用法、fixture 作用域、conftest）、Web 自动化 Selenium（八种定位、显式等待、PO 三步、框架分层）、App 自动化（ADB 命令）、Git 与持续集成（Jenkins 与 Allure 路径）、抓包与调试（F12&#x2F;Charles、弱网、绕过界面）。</li>
+<li>素材：黑马 2026 AI+软件测试课件·接口测试线（第 1–4 天课堂笔记）与性能测试线（四天课堂笔记 PDF）：Postman 实操（集合、断言、关联、参数化、Newman 报告）；JMeter 元件与线程组参数、断言与正则提取器、定时器与监听器与聚合报告。</li>
+<li>已有文章：博客《自动化测试–元素定位》八种定位问答体、《自动化测试–WebDriver 操作与等待》操作与三种等待问答体；本篇按可照做步骤改写。</li>
+<li>相关篇目：本文 04「一、案例库使用说明（四段式与测试点树）」、06「一、接口是什么：一次请求的完整链路」、07「一、性能指标口径表」。</li>
+</ul>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+      <button type="button" class="close-highlight" aria-label="关闭高亮" onclick="clearHighlights()"><span aria-hidden="true">×</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Linux/"># Linux</a>
+          
+          <a href="/tags/%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/"># 测试工具</a>
+          
+          <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/"># 软件测试</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/11/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A%E6%95%99%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A--06-%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%E8%90%BD%E5%9C%B0/"
+        >软件测试速通--06-接口测试与自动化落地</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/11/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A%E6%95%99%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A--04-Web%E4%B8%8EApp%E5%8A%9F%E8%83%BD%E6%B5%8B%E8%AF%95%E6%A1%88%E4%BE%8B%E5%BA%93/"
+        >软件测试速通--04-Web与App功能测试案例库</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>
