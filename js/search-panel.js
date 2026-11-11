@@ -498,12 +498,12 @@
         renderBodyGroup();
     }
 
-    // bodyKey 记录已算过的 (查询, ascii 就绪, cn 就绪) 组合，避免重复渲染把用户的展开态折叠掉
+    // bodyKey 记录已算过的 (查询, 分类, ascii 就绪, cn 就绪) 组合，避免重复渲染把用户的展开态折叠掉
     var bodyKey = null;
 
     function rerunBody() {
         if (!curQuery || !IDX.meta) return;
-        var key = curQuery + '|' + (IDX.ascii ? 1 : 0) + '|' + (IDX.cn ? 1 : 0);
+        var key = curQuery + '|' + selectedCat + '|' + (IDX.ascii ? 1 : 0) + '|' + (IDX.cn ? 1 : 0);
         if (key === bodyKey) return;
         bodyKey = key;
         runBody(curQuery, ++bodySeq);
@@ -520,7 +520,8 @@
         if (cand.asciiPending || cand.cnPending) { bodyNote('正文索引加载中'); return; }
 
         var set = combineSets(cand.asciiSet, cand.cnSet);
-        var keys = set ? Object.keys(set).map(Number) : [];
+        // 限定分类：倒排候选是全站的，不在这里过滤就把别的分类正文结果原样搬过来
+        var keys = (set ? Object.keys(set).map(Number) : []).filter(function (d) { return inCat(meta[d]); });
         if (!keys.length) { bodySlot.innerHTML = ''; return; }
         keys.sort(function (a, b) {
             var x = cand.approx[b] || 0, y = cand.approx[a] || 0;
@@ -642,7 +643,7 @@
         metaTotal = titleHits.length + tagHits.length + sectionHits.length + catHits.length;
         announce(metaTotal);
         ensureBodyIndex();
-        bodyKey = q + '|' + (IDX.ascii ? 1 : 0) + '|' + (IDX.cn ? 1 : 0);
+        bodyKey = q + '|' + selectedCat + '|' + (IDX.ascii ? 1 : 0) + '|' + (IDX.cn ? 1 : 0);
         runBody(q, ++bodySeq);
     }
 
