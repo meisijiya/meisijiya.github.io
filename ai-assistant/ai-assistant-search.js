@@ -21,6 +21,144 @@
     var docStats = null;
     var modelCaller = null;
 
+    /*
+     * 跨文章读正文：走主题侧站内搜索的分片，不再下整页 HTML。
+     * 契约只有三个字段：manifest.v、meta[i].f、分片 {v,u,t,s:[{i,t,l,x}]}。
+     * 缓存与站内搜索面板共用同一个 Cache Storage 名与同一套 key 拼法。
+     */
+    /*
+     * 索引路径跟站内搜索面板一致：根路径取页面上的 data-root（主题的
+     * .panel/.scrim 上带 data-root），不是写死 '/'——站点换子路径部署时
+     * 写死会 404，而面板照常用。
+     */
+    function siteRoot() {
+        var host = document.querySelector('.panel[data-root], .scrim[data-root]');
+        var root = host && host.getAttribute('data-root') ? host.getAttribute('data-root') : '/';
+        if (!root) root = '/';
+        if (root.charAt(root.length - 1) !== '/') root += '/';
+        return root;
+    }
+
+    var SEARCH_ROOT = siteRoot() + 'search/';
+    var CACHE_NAME = 'search-index-v1';
+    var ARTICLE_CACHE = Object.create(null);
+    var metaCache = null;
+    var metaLoading = null;
+    var manifestSig = null;
+
+    function cacheGet(key) {
+        if (typeof caches === 'undefined' || !caches || !caches.open) return Promise.resolve(null);
+        return caches.open(CACHE_NAME)
+            .then(function (cache) { return cache.match(key); })
+            .then(function (hit) { return hit ? hit.json() : null; })
+            .catch(function () { return null; });
+    }
+
+    function cachePut(key, data) {
+        if (typeof caches === 'undefined' || !caches || !caches.open) return;
+        try {
+            caches.open(CACHE_NAME).then(function (cache) {
+                return cache.put(key, new Response(JSON.stringify(data), {
+                    headers: { 'Content-Type': 'application/json' }
+                }));
+            }).catch(function () { /* 缓存失败不影响本次读取 */ });
+        } catch (e) { /* 同上 */ }
+    }
+
+    function fetchJson(url) {
+        return fetch(url, { credentials: 'same-origin' }).then(function (res) {
+            if (!res.ok) throw new Error('索引请求失败：HTTP ' + res.status);
+            return res.json();
+        });
+    }
+
+    function loadJson(url) {
+        return cacheGet(url).then(function (hit) {
+            if (hit) return hit;
+            return fetchJson(url).then(function (data) {
+                cachePut(url, data);
+                return data;
+            });
+        });
+    }
+
+    /*
+     * 清单走 network-first：站点重建后清单文件名会变，
+     * cache-first 会一直喂旧清单，助手从此「站内索引里没有这篇文章」。
+     * 网络不通才回落缓存。
+     */
+    function loadManifest() {
+        var url = SEARCH_ROOT + 'manifest.json';
+        return fetchJson(url).then(function (data) {
+            cachePut(url, data);
+            return data;
+        }).catch(function (err) {
+            return cacheGet(url).then(function (hit) {
+                if (hit) return hit;
+                throw err;
+            });
+        });
+    }
+
+    function loadMeta() {
+        if (metaCache) return Promise.resolve(metaCache);
+        if (metaLoading) return metaLoading;
+        metaLoading = loadManifest().then(function (manifest) {
+            if (!manifest || manifest.v !== 2) throw new Error('站内索引格式已变');
+            // 清单变了：旧的分片缓存作废（同一 URL 的文章内容可能已经变了）
+            var sig = String(manifest.meta || '');
+            if (manifestSig !== null && manifestSig !== sig) {
+                ARTICLE_CACHE = Object.create(null);
+            }
+            manifestSig = sig;
+            return loadJson(SEARCH_ROOT + manifest.meta);
+        }).then(function (meta) {
+            metaCache = meta;
+            return meta;
+        }).catch(function (err) {
+            metaLoading = null;
+            throw err;
+        });
+        return metaLoading;
+    }
+
+    function normalizeUrl(url) {
+        var value = String(url || '');
+        // location.pathname 里的中文是百分号编码的，索引里的 u 是原样中文；不解码就对不上
+        if (value.indexOf('%') !== -1) {
+            try { value = decodeURIComponent(value); } catch (e) { /* 解不开就按原样比 */ }
+        }
+        return value.length > 1 && value.charAt(value.length - 1) === '/' ? value.slice(0, -1) : value;
+    }
+
+    function findEntry(meta, url) {
+        var wanted = normalizeUrl(url);
+        var keys = Object.keys(meta || {});
+        for (var i = 0; i < keys.length; i++) {
+            var entry = meta[keys[i]];
+            if (entry && normalizeUrl(entry.u) === wanted) return entry;
+        }
+        return null;
+    }
+
+    /* 读一篇文章的小节：{ title, sections: [{i,t,l,x}] }，按 url 缓存 Promise */
+    function loadArticle(url) {
+        var key = normalizeUrl(url);
+        if (ARTICLE_CACHE[key]) return ARTICLE_CACHE[key];
+        ARTICLE_CACHE[key] = loadMeta().then(function (meta) {
+            var entry = findEntry(meta, key);
+            if (!entry || !entry.f) throw new Error('站内索引里没有这篇文章');
+            return loadJson(SEARCH_ROOT + entry.f);
+        }).then(function (shard) {
+            if (!shard || shard.v !== 2 || !Array.isArray(shard.s)) throw new Error('站内索引格式已变');
+            return { title: shard.t || '', sections: shard.s };
+        }).catch(function (err) {
+            delete ARTICLE_CACHE[key];
+            throw err;
+        });
+        return ARTICLE_CACHE[key];
+    }
+
     function tokenize(text) {
         var tokens = [];
         var lower = (text || '').toLowerCase();
@@ -243,6 +381,8 @@
         loadIndex: loadIndex,
         tokenize: tokenize,
         search: search,
+        loadArticle: loadArticle,
+        cacheName: CACHE_NAME,
         setModelCaller: function (fn) {
             modelCaller = fn;
         },

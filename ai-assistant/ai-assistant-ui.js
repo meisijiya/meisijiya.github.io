@@ -72,7 +72,12 @@
         chevron: ['M6.5 9.5l5.5 5.5 5.5-5.5'],
         // 上下文：一叠层，表示「这次带哪些资料」
         context: ['M12 4.5l7 3.4-7 3.4-7-3.4z', 'M5 12l7 3.4 7-3.4', 'M5 15.6l7 3.4 7-3.4'],
-        source: ['M6.5 3.5h8l4 4v13h-12z', 'M14.5 3.5v4h4']
+        source: ['M6.5 3.5h8l4 4v13h-12z', 'M14.5 3.5v4h4'],
+        // 滚动导航：一上一下
+        chevronUp: ['M6.5 14.5 12 9l5.5 5.5'],
+        chevronDown: ['M6.5 9.5 12 15l5.5-5.5'],
+        // 回退：向左的折角箭头
+        rewind: ['M10 6 5 11l5 5', 'M5 11h8a6 6 0 0 1 0 12h-1']
     };
 
     /* ---------------------------------------------------------- 会话存储 */
@@ -96,6 +101,8 @@
     var sessionBusy = false;
     // 消息区当前画的是哪条会话，同一条不画第二次
     var paintedSessionId = null;
+    // 主流程注册回退处理：界面只知道「回退第几条用户消息」，改上下文是它的事
+    var rewindHandler = null;
     // 会话下拉里的临时状态：正在改名 / 正在等确认删除
     var renamingSessionId = null;
     var confirmingSessionId = null;
@@ -120,8 +127,8 @@
     }
 
     /*
-     * 落盘的数据一律重新洗一遍结构：只认 role/content，
-     * 消息只留文字（工具过程不进历史），条数超上限的丢最旧的。
+     * 落盘的数据一律重新洗一遍结构：正文只认 role/content，
+     * 过程留档走 sanitizeProcess（工具块与结果原文一律丢掉），条数超上限的丢最旧的。
      */
     function normalizeSession(raw) {
         if (!raw || typeof raw !== 'object') return null;
@@ -130,10 +137,14 @@
         for (var i = 0; i < list.length; i++) {
             var one = list[i];
             if (!one || (one.role !== 'user' && one.role !== 'assistant')) continue;
-            messages.push({
+            var entry = {
                 role: one.role,
                 content: typeof one.content === 'string' ? one.content : ''
-            });
+            };
+            // 刷新后要能把时间线与来源重画出来，所以过程留档必须放行
+            var proc = sanitizeProcess(one.process);
+            if (proc) entry.process = proc;
+            messages.push(entry);
         }
         if (messages.length > SESSION_MESSAGE_LIMIT) {
             messages = messages.slice(messages.length - SESSION_MESSAGE_LIMIT);
@@ -186,13 +197,50 @@
         return sessionStore;
     }
 
+    /*
+     * 落盘失败（配额满）时不能默默吞掉：一条长会话的过程留档就能顶到 5MB，
+     * 之后所有会话的正文都存不进去，用户却什么都不知道。
+     * 退让顺序：先砍旧会话的过程留档，再砍旧会话本身，当前会话最后动。
+     */
+    function pruneForQuota(data) {
+        var sessions = data.sessions || [];
+        var currentId = data.currentId;
+        for (var i = 0; i < sessions.length; i++) {
+            if (sessions[i].id === currentId) continue;
+            for (var j = 0; j < sessions[i].messages.length; j++) {
+                delete sessions[i].messages[j].process;
+            }
+        }
+        // 还装不下就丢最旧的会话（当前会话与最近 8 条留着）
+        var recent = sessions.slice().sort(function (a, b) { return b.updatedAt - a.updatedAt; }).slice(0, 8);
+        var kept = [];
+        for (var k = 0; k < sessions.length; k++) {
+            var one = sessions[k];
+            if (one.id === currentId || recent.indexOf(one) !== -1) kept.push(one);
+        }
+        if (kept.length < sessions.length) {
+            data.sessions = kept;
+            return true;
+        }
+        return false;
+    }
+
     function saveNow() {
+        var data = store();
         try {
-            window.localStorage.setItem(SESSION_KEY, JSON.stringify(store()));
+            window.localStorage.setItem(SESSION_KEY, JSON.stringify(data));
             return true;
         } catch (e) {
-            // 配额满或存储被禁：留在内存里继续用
-            return false;
+            // 配额满：砍旧数据再试一次
+            if (!pruneForQuota(data)) return false;
+            try {
+                window.localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+                if (typeof showToast === 'function') showToast('本机存储已满：旧会话的过程记录已清理');
+                return true;
+            } catch (e2) {
+                // 存储被禁或还是装不下：留在内存里继续用
+                return false;
+            }
         }
     }
 
@@ -207,8 +255,98 @@
     function copyMessages(session) {
         if (!session) return [];
         return session.messages.map(function (m) {
-            return { role: m.role, content: m.content };
+            var out = { role: m.role, content: m.content };
+            // 过程留档要拷一份：直接把 store 里的对象给出去，调用方一改就改了存储
+            if (m.process) {
+                out.process = {
+                    think: m.process.think || '',
+                    tools: (m.process.tools || []).map(function (t) {
+                        return { name: t.name, status: t.status, detail: t.detail };
+                    }),
+                    sources: (m.process.sources || []).map(function (src) {
+                        return { url: src.url, title: src.title, kind: src.kind };
+                    }),
+                    toolTotal: m.process.toolTotal || 0,
+                    links: (m.process.links || []).map(function (l) {
+                        return { text: l.text, url: l.url };
+                    })
+                };
+            }
+            return out;
         });
+    }
+
+    /*
+     * 过程数据只用来「回头看」，永远不发给模型。
+     * 上限写死在这里：思考留首 4000 字、工具留最近 12 次、来源留 20 条，
+     * 否则一个长会话的 localStorage 会顶到配额，连正文都存不进去。
+     */
+    var PROCESS_TEXT_LIMIT = 4000;
+    var PROCESS_TOOL_LIMIT = 12;
+    var PROCESS_SOURCE_LIMIT = 50;
+    var PROCESS_LINK_LIMIT = 40;
+
+    function clip(value, limit) {
+        var text = typeof value === 'string' ? value : String(value == null ? '' : value);
+        text = text.trim();
+        return text.length > limit ? text.slice(0, limit) + '…' : text;
+    }
+
+    function sanitizeProcess(input) {
+        if (!input || typeof input !== 'object') return null;
+        var proc = {};
+
+        var think = clip(input.think, PROCESS_TEXT_LIMIT);
+        if (think) proc.think = think;
+
+        var tools = [];
+        var toolTotal = 0;
+        if (Array.isArray(input.tools)) {
+            toolTotal = input.tools.length;
+            input.tools.slice(-PROCESS_TOOL_LIMIT).forEach(function (one) {
+                if (!one) return;
+                var entry = { name: clip(one.name, 40), status: clip(one.status, 20) };
+                var detail = clip(one.detail, 200);
+                if (detail) entry.detail = detail;
+                if (entry.name) tools.push(entry);
+            });
+        }
+        if (tools.length) proc.tools = tools;
+        // 真实次数与留档条数可能不同（只留最近 12 次），摘要要写真实次数
+        if (toolTotal) proc.toolTotal = toolTotal;
+
+        // 实时包上的链接清单：回看时原样恢复，保证刷新前后一致
+        var links = [];
+        if (Array.isArray(input.links)) {
+            input.links.slice(0, PROCESS_LINK_LIMIT).forEach(function (one) {
+                if (!one) return;
+                var text = clip(one.text, 120);
+                var url = clip(one.url, 300);
+                if (text && url) links.push({ text: text, url: url });
+            });
+        }
+        if (links.length) proc.links = links;
+
+        var sources = [];
+        if (Array.isArray(input.sources)) {
+            // 引用过的来源排在前面再截断：候选满了 20 条时，
+            // 真正读过的正文不能被截掉
+            var orderedSources = input.sources.slice().sort(function (a, b) {
+                return (a && a.kind === 'quoted' ? 0 : 1) - (b && b.kind === 'quoted' ? 0 : 1);
+            });
+            orderedSources.slice(0, PROCESS_SOURCE_LIMIT).forEach(function (one) {
+                if (!one) return;
+                var url = clip(one.url, 300);
+                // 标题别截太短：截断后正文里的标题就匹配不上了，链接会消失
+                var title = clip(one.title, 200);
+                if (!url && !title) return;
+                sources.push({ url: url, title: title, kind: one.kind === 'quoted' ? 'quoted' : 'candidate' });
+            });
+        }
+        if (sources.length) proc.sources = sources;
+
+        if (!proc.think && !proc.tools && !proc.sources && !proc.links) return null;
+        return proc;
     }
 
     /*
@@ -217,6 +355,8 @@
      * 追加消息不重画——正文正在流式输出，重画会把流打断。
      */
     function handleStoreChange(reason, session, extra) {
+        // 换会话/删会话时确认框必须收掉：它挂在 .ai-root 上，不收会浮在博客页面上
+        if (reason === 'select' || reason === 'remove' || reason === 'create') closeRewindConfirm();
         // 回答进行中不重画消息区：主流程这时会把会话切回原来那条，
         // 重画等于把正在流式输出的回答抹掉
         if (!sessionBusy) {
@@ -379,7 +519,10 @@
         }
         if (!msg || (msg.role !== 'user' && msg.role !== 'assistant')) return null;
         var content = typeof msg.content === 'string' ? msg.content : '';
-        session.messages.push({ role: msg.role, content: content });
+        var entry = { role: msg.role, content: content };
+        var proc = sanitizeProcess(msg.process);
+        if (proc) entry.process = proc;
+        session.messages.push(entry);
         if (session.messages.length > SESSION_MESSAGE_LIMIT) {
             session.messages.splice(0, session.messages.length - SESSION_MESSAGE_LIMIT);
         }
@@ -403,10 +546,13 @@
         for (var i = 0; i < list.length; i++) {
             var one = list[i];
             if (!one || (one.role !== 'user' && one.role !== 'assistant')) continue;
-            clean.push({
+            var kept = {
                 role: one.role,
                 content: typeof one.content === 'string' ? one.content : ''
-            });
+            };
+            var keptProcess = sanitizeProcess(one.process);
+            if (keptProcess) kept.process = keptProcess;
+            clean.push(kept);
         }
         if (clean.length > SESSION_MESSAGE_LIMIT) {
             clean = clean.slice(clean.length - SESSION_MESSAGE_LIMIT);
@@ -462,13 +608,47 @@
             if (!one || (one.role !== 'user' && one.role !== 'assistant')) continue;
             var isUser = one.role === 'user';
             var msg = el('article', 'ai-msg ' + (isUser ? 'ai-msg-user ai-msg--user' : 'ai-msg-ai ai-msg--assistant'));
+            // 过程在答案上方：思考与工具调用结束时只折叠、不搬位置。
+            // 时间线是消息流的兄弟节点（与实时一致）——塞进气泡容器里，
+            // 两套布局的间距规则不同，刷新前后会长得不一样。
+            var timeline = null;
+            if (!isUser && one.process) {
+                timeline = renderStoredProcess(one.process);
+            }
             var body = el('div', 'ai-bubble');
-            msg.appendChild(body);
+            // 空正文（这一轮只留下了过程）不画空气泡，只留时间线与来源
+            if (!isUser && !one.content) {
+                if (timeline) refs.stream.appendChild(timeline);
+                if (one.process && one.process.sources && one.process.sources.length) {
+                    msg.appendChild(renderSourceList(one.process.sources));
+                }
+                refs.stream.appendChild(msg);
+                continue;
+            }
+            if (isUser) {
+                var row = el('div', 'ai-msg-row');
+                row.appendChild(attachRewind(msg, body, i));
+                row.appendChild(body);
+                msg.appendChild(row);
+            } else {
+                msg.appendChild(body);
+            }
             body.innerHTML = renderMarkdown(one.content || '');
+            // 回看时也要能点：先按留档的链接清单原样恢复（与实时完全一致），
+            // 再用来源兜底（老会话没有清单时才走这条）
+            if (!isUser && one.process) {
+                if (one.process.links && one.process.links.length) {
+                    applyStoredLinks(body, one.process.links);
+                } else if (one.process.sources) {
+                    linkifySources(body, one.process.sources);
+                }
+            }
+            if (!isUser && one.process && one.process.sources && one.process.sources.length) {
+                // 历史来源同样按 5 条一组铺开，不一口气全展开
+                msg.appendChild(renderSourceList(one.process.sources));
+            }
+            if (timeline) refs.stream.appendChild(timeline);
             refs.stream.appendChild(msg);
-        }
-        if (list.length) {
-            refs.stream.appendChild(el('p', 'ai-session-note', '历史会话只保留文字，工具过程未保留'));
         }
         // 旧节点都被清掉了，指向它们的引用要跟着清
         errorNode = null;
@@ -476,6 +656,8 @@
         processNode = null;
         processBody = null;
         refs.answerMsg = null;
+        // 重画完落在最新一条：读者要的是刚问的那轮答案，
+        // 停在最早一条就得一路往下滑才看得到
         scrollToBottom();
     }
 
@@ -908,6 +1090,58 @@
         return { section: section, card: card };
     }
 
+
+    /* --------------------------------------------------------- 最近用过的模型 */
+    var RECENT_MODELS_KEY = 'ai-assistant.recent-models';
+
+    function readRecentModels() {
+        try {
+            var list = JSON.parse(window.localStorage.getItem(RECENT_MODELS_KEY) || '[]');
+            if (!Array.isArray(list)) return [];
+            return list.filter(function (item) { return typeof item === 'string' && item; }).slice(0, 5);
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function writeRecentModels(list) {
+        try {
+            window.localStorage.setItem(RECENT_MODELS_KEY, JSON.stringify(list.slice(0, 5)));
+        } catch (e) {
+            /* 存不下就只影响下次的胶囊 */
+        }
+    }
+
+    /* 保存配置时把当前模型推到最前面，去重后留 5 个 */
+    function rememberModel(name) {
+        var value = String(name || '').trim();
+        if (!value) return;
+        var list = readRecentModels().filter(function (item) { return item !== value; });
+        list.unshift(value);
+        writeRecentModels(list);
+        renderModelChips();
+    }
+
+    function renderModelChips() {
+        var host = refs.modelChips;
+        if (!host) return;
+        var list = readRecentModels();
+        host.innerHTML = '';
+        host.hidden = !list.length;
+        list.slice(0, 3).forEach(function (name) {
+            var chip = el('button', 'ai-model-chip', name);
+            chip.type = 'button';
+            chip.dataset.model = name;
+            chip.addEventListener('click', function () {
+                var input = document.querySelector('.ai-input-line[data-field="model"]');
+                if (!input) return;
+                input.value = name;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            host.appendChild(chip);
+        });
+    }
+
     function buildSettings() {
         var wrap = el('div', 'ai-settings');
 
@@ -940,7 +1174,15 @@
         conn.card.appendChild(base);
 
         conn.card.appendChild(keyField());
-        conn.card.appendChild(lineField('模型', 'model', 'text', 'gpt-4o-mini'));
+        var modelField = lineField('模型', 'model', 'text', 'gpt-4o-mini');
+        conn.card.appendChild(modelField);
+        // 最近用过的模型：点了就填。存在独立键里——loadConfig 只回填字符串字段，
+        // 数组塞进 ai-assistant.config 刷新后会被静默丢掉。
+        var chips = el('div', 'ai-model-chips');
+        chips.hidden = true;
+        modelField.appendChild(chips);
+        refs.modelChips = chips;
+        renderModelChips();
         wrap.appendChild(conn.section);
 
         /* 提示词：预设 + 可以直接改写的正文 */
@@ -1066,6 +1308,18 @@
         stream.appendChild(empty);
         refs.stream = stream;
         chat.appendChild(stream);
+
+        /*
+         * 滚动导航：底部一个「回到最新」，顶部一个「上一条回复」。
+         * 顶部箭头每点一次往上跳一条助手回答，连点就能一路翻上去。
+         */
+        var scrollUp = el('button', 'ai-scroll-up');
+        scrollUp.type = 'button';
+        scrollUp.setAttribute('aria-label', '跳到上一条回复');
+        scrollUp.appendChild(icon(ICONS.chevronUp, 'ai-scroll-mark'));
+        scrollUp.hidden = true;
+        refs.scrollUp = scrollUp;
+        chat.appendChild(scrollUp);
         views.appendChild(chat);
         refs.chatView = chat;
 
@@ -1079,12 +1333,83 @@
         views.appendChild(settings);
         refs.settingsView = settings;
 
+        var scrollDown = el('button', 'ai-scroll-down');
+        scrollDown.type = 'button';
+        scrollDown.setAttribute('aria-label', '回到最新消息');
+        scrollDown.appendChild(icon(ICONS.chevronDown, 'ai-scroll-mark'));
+        scrollDown.hidden = true;
+        refs.scrollDown = scrollDown;
+
+        chat.appendChild(scrollDown);
         main.appendChild(views);
         main.appendChild(buildComposer());
         main.appendChild(buildSettingsFoot());
         body.appendChild(main);
         panel.appendChild(body);
         return panel;
+    }
+
+    /*
+     * 滚动导航的两个箭头：不在底部就冒出「回到最新」，
+     * 往上滑就冒出「上一条回复」。顶部箭头每点一次往上跳一条助手回答。
+     */
+    function atBottom() {
+        if (!refs.stream) return true;
+        return refs.stream.scrollHeight - refs.stream.scrollTop - refs.stream.clientHeight <= 4;
+    }
+
+    function previousReplyAbove(top) {
+        if (!refs.stream) return null;
+        var replies = refs.stream.querySelectorAll('.ai-msg-ai');
+        var target = null;
+        for (var i = 0; i < replies.length; i++) {
+            if (replyTop(replies[i]) < top - 4) target = replies[i];
+        }
+        return target;
+    }
+
+    function replyTop(node) {
+        // offsetTop 是相对 offsetParent（.ai-view-chat），而 scrollTop 是
+        // .ai-stream 的内容坐标，两者差一个 padding——用 rect 换算才不会每次差 16px
+        if (!refs.stream) return node.offsetTop;
+        return node.getBoundingClientRect().top - refs.stream.getBoundingClientRect().top + refs.stream.scrollTop;
+    }
+
+    function updateScrollArrows() {
+        if (!refs.stream) return;
+        var bottom = atBottom();
+        if (refs.scrollDown) refs.scrollDown.hidden = bottom;
+        if (refs.scrollUp) {
+            // 顶部箭头只在真的能往上跳时才出现
+            refs.scrollUp.hidden = refs.stream.scrollTop <= 4 || !previousReplyAbove(refs.stream.scrollTop);
+        }
+    }
+
+    function jumpToPreviousReply() {
+        if (!refs.stream) return false;
+        var target = previousReplyAbove(refs.stream.scrollTop);
+        if (!target) return false;
+        refs.stream.scrollTop = Math.max(0, replyTop(target) - 8);
+        updateScrollArrows();
+        return true;
+    }
+
+    function wireScrollArrows() {
+        if (!refs.stream) return;
+        refs.stream.addEventListener('scroll', function () {
+            updateScrollArrows();
+        }, { passive: true });
+        if (refs.scrollDown) {
+            refs.scrollDown.addEventListener('click', function () {
+                scrollToBottom();
+                updateScrollArrows();
+            });
+        }
+        if (refs.scrollUp) {
+            refs.scrollUp.addEventListener('click', function () {
+                jumpToPreviousReply();
+            });
+        }
     }
 
     function mount() {
@@ -1106,6 +1431,7 @@
         root.appendChild(bubble);
 
         document.body.appendChild(root);
+        wireScrollArrows();
         // 标题栏要显示当前会话名，进来就得先对一次
         updateSessionLabel();
         // 设置区滚动时，下拉要跟着按钮走，否则会脱离按钮悬在半空
@@ -1160,6 +1486,7 @@
     }
 
     function setOpen(open) {
+        if (!open) closeRewindConfirm();
         if (open) {
             if (closeTimer) {
                 window.clearTimeout(closeTimer);
@@ -1175,6 +1502,9 @@
             refs.fab.setAttribute('aria-expanded', 'true');
             // 重新打开就是完整展开，不带着上一次的压下去状态
             setPeek(false);
+            // 重开落在最新一条：读者回来就是要看刚问的那轮，
+            // 停在最早一条得一路往下滑才看得到
+            if (!sessionBusy) scrollToBottom();
             return;
         }
         setPeek(false);
@@ -1463,15 +1793,114 @@
 
     function scrollToBottom() {
         refs.stream.scrollTop = refs.stream.scrollHeight;
+        updateScrollArrows();
     }
 
-    function appendMessage(role, text) {
+    /*
+     * 回退的二次确认：回退会物理删掉后面的内容，没有撤销入口，
+     * 所以点一下只是弹确认框，不立刻动手。
+     */
+    function showRewindConfirm(anchor, index) {
+        closeRewindConfirm();
+        var box = el('div', 'ai-rewind-confirm');
+        box.appendChild(el('span', 'ai-rewind-confirm-text', '回退到这一问之前？后面的内容会删掉。'));
+        var actions = el('div', 'ai-rewind-confirm-actions');
+
+        var ok = el('button', 'ai-btn ai-btn-primary', '确认回退');
+        ok.type = 'button';
+        ok.addEventListener('click', function (event) {
+            event.stopPropagation();
+            closeRewindConfirm();
+            if (rewindHandler) rewindHandler(index);
+        });
+        actions.appendChild(ok);
+
+        var cancel = el('button', 'ai-btn', '取消');
+        cancel.type = 'button';
+        cancel.addEventListener('click', function (event) {
+            event.stopPropagation();
+            closeRewindConfirm();
+        });
+        actions.appendChild(cancel);
+
+        box.appendChild(actions);
+        /*
+         * 挂在 .ai-root 里，不挂 body：助手令牌（--ai-surface 等）只定义在
+         * .ai-root 上，挂在 body 下会拿不到底色（框变成透明的），
+         * 而且 .ai-root 的 z-index 是 10000，body 下的框会被整块助手压在下面。
+         */
+        (refs.root || document.body).appendChild(box);
+
+        // 贴着按钮放：面板有 overflow，弹到面板里会被裁掉，所以挂到 body 上
+        var rect = anchor.getBoundingClientRect();
+        var width = box.offsetWidth || 240;
+        var left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
+        var top = rect.bottom + 6;
+        if (top + (box.offsetHeight || 90) > window.innerHeight) {
+            top = Math.max(8, rect.top - (box.offsetHeight || 90) - 6);
+        }
+        box.style.left = left + 'px';
+        box.style.top = top + 'px';
+        refs.rewindConfirm = box;
+
+        // 点外面或按 Esc 都算取消
+        setTimeout(function () {
+            document.addEventListener('click', onRewindConfirmOutside, true);
+            document.addEventListener('keydown', onRewindConfirmKey);
+        }, 0);
+        return box;
+    }
+
+    function onRewindConfirmOutside(event) {
+        if (refs.rewindConfirm && refs.rewindConfirm.contains(event.target)) return;
+        closeRewindConfirm();
+    }
+
+    function onRewindConfirmKey(event) {
+        if (event.key === 'Escape') closeRewindConfirm();
+    }
+
+    function closeRewindConfirm() {
+        if (refs.rewindConfirm && refs.rewindConfirm.parentNode) {
+            refs.rewindConfirm.parentNode.removeChild(refs.rewindConfirm);
+        }
+        refs.rewindConfirm = null;
+        document.removeEventListener('click', onRewindConfirmOutside, true);
+        document.removeEventListener('keydown', onRewindConfirmKey);
+    }
+
+    /*
+     * 每条用户消息左侧的回退键：点了先把这一问及其之后的全部内容撤掉。
+     * 不做分支——直接删，存储与上下文都干净，省掉一套分支管理。
+     */
+    function attachRewind(msg, bubble, index) {
+        var btn = el('button', 'ai-rewind-msg');
+        btn.type = 'button';
+        btn.dataset.act = 'rewind-msg';
+        btn.dataset.rewindIndex = String(index);
+        btn.setAttribute('aria-label', '回退到这一轮之前');
+        btn.appendChild(icon(ICONS.rewind, 'ai-rewind-mark'));
+        btn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            // 二次确认：回退没有撤销，先问一句
+            showRewindConfirm(btn, index);
+        });
+        return btn;
+    }
+
+    function appendMessage(role, text, opts) {
         var isUser = role === 'user';
         var msg = el('article', 'ai-msg ai-msg-' + (isUser ? 'user' : 'ai'));
         var body = el('div', 'ai-bubble');
-        msg.appendChild(body);
-        // 助手消息竖排：气泡在上，来源行在下
-        if (!isUser) {
+        if (isUser) {
+            // 用户消息：回退键在气泡左边
+            var row = el('div', 'ai-msg-row');
+            row.appendChild(attachRewind(msg, body, opts && typeof opts.rewindIndex === 'number' ? opts.rewindIndex : -1));
+            row.appendChild(body);
+            msg.appendChild(row);
+        } else {
+            msg.appendChild(body);
+            // 助手消息竖排：气泡在上，来源行在下
             var sourceList = el('div', 'ai-source-list');
             sourceList.hidden = true;
             msg.appendChild(sourceList);
@@ -1481,6 +1910,7 @@
         if (text) body.innerHTML = renderMarkdown(text);
         if (refs.emptyState) refs.emptyState.hidden = true;
         scrollToBottom();
+        updateScrollArrows();
         return { root: msg, body: body };
     }
 
@@ -1491,20 +1921,13 @@
     function appendThinking(text) {
         if (!text) return null;
         var host = processBody;
-        var box = host ? host.querySelector('.ai-thinking') : null;
+        // 没有时间线就丢弃：思考绝不能塞进正文气泡里，那正是旧版的老毛病
+        if (!host) return null;
+        var box = host.querySelector('.ai-thinking');
         if (!box) {
-            box = el('details', 'ai-thinking');
-            box.appendChild(el('summary', 'ai-thinking__summary', '思考过程'));
+            box = el('div', 'ai-thinking');
             box.appendChild(el('div', 'ai-thinking__body'));
-            if (host) {
-                host.appendChild(box);
-            } else {
-                var msg = refs.answerMsg;
-                if (!msg || !msg.parentNode) {
-                    msg = appendMessage('assistant', '').root;
-                }
-                msg.insertBefore(box, msg.firstChild);
-            }
+            host.appendChild(box);
         }
         var holder = box.querySelector('.ai-thinking__body');
         holder.textContent += text;
@@ -1642,25 +2065,37 @@
     /* ------------------------------------------------------------ 过程分组 */
 
     /*
-     * 过程分组：工具调用与思考都收在这里，结束时整体挪到消息流末尾并折叠。
-     * 分组默认展开——用户要先看见「调了哪些工具」，再决定要不要看细节。
+     * 时间线：思考步骤与工具调用按真实顺序挂在答案上方，一轮一条。
+     * 流式期间展开、逐行落地；回答结束后整条折成一行摘要，点开还原。
      */
     function beginProcess() {
-        var details = el('details', 'ai-process');
-        details.open = true;
-        details.appendChild(el('summary', 'ai-process__summary', '过程'));
-        var body = el('div', 'ai-process__body');
-        details.appendChild(body);
-        refs.stream.appendChild(details);
-        processNode = details;
+        var wrap = el('div', 'ai-timeline');
+        wrap.classList.add('is-open');
+        var head = el('button', 'ai-timeline__head');
+        head.type = 'button';
+        head.setAttribute('aria-expanded', 'true');
+        head.appendChild(el('span', 'ai-timeline__summary', '正在思考'));
+        head.appendChild(el('span', 'ai-timeline__toggle', '收起'));
+        head.addEventListener('click', function () {
+            var open = !wrap.classList.contains('is-open');
+            wrap.classList.toggle('is-open', open);
+            head.setAttribute('aria-expanded', open ? 'true' : 'false');
+            var label = head.querySelector('.ai-timeline__toggle');
+            if (label) label.textContent = open ? '收起' : '展开';
+        });
+        var body = el('div', 'ai-timeline__body');
+        wrap.appendChild(head);
+        wrap.appendChild(body);
+        refs.stream.appendChild(wrap);
+        processNode = wrap;
         processBody = body;
         scrollToBottom();
-        return details;
+        return wrap;
     }
 
     /*
-     * 收尾：把过程条挪到消息流最后（答案气泡才是本轮正身），
-     * 折起来并把摘要写成「查看过程 · N 次工具调用 · 思考 X.Xs」。
+     * 收尾：只折叠，不搬位置——时间线本来就在答案上方。
+     * 摘要写成「思考 X.X 秒 · N 次工具调用」，没有的数字不编。
      */
     function endProcess(meta) {
         var node = processNode;
@@ -1669,20 +2104,30 @@
         var toolCalls = (typeof stats.toolCalls === 'number' && isFinite(stats.toolCalls)) ? stats.toolCalls : 0;
         var thinkMs = (typeof stats.thinkMs === 'number' && isFinite(stats.thinkMs)) ? stats.thinkMs : 0;
 
-        var text = '查看过程';
-        if (toolCalls > 0) {
-            text += ' · ' + toolCalls + ' 次工具调用';
-            if (thinkMs > 0) text += ' · 思考 ' + (thinkMs / 1000).toFixed(1) + 's';
+        var parts = [];
+        if (thinkMs > 0) parts.push('思考 ' + (thinkMs / 1000).toFixed(1) + ' 秒');
+        if (toolCalls > 0) parts.push(toolCalls + ' 次工具调用');
+
+        // 没有思考也没有工具：整条时间线不落地，正文上面不留一行噪音
+        if (!parts.length) {
+            node.remove();
+            processNode = null;
+            processBody = null;
+            return null;
         }
-        var summary = node.querySelector('.ai-process__summary');
+        var text = parts.join(' · ');
+
+        var summary = node.querySelector('.ai-timeline__summary');
         if (summary) summary.textContent = text;
+        var head = node.querySelector('.ai-timeline__head');
+        if (head) head.setAttribute('aria-expanded', 'false');
+        var label = node.querySelector('.ai-timeline__toggle');
+        if (label) label.textContent = '展开';
+        node.classList.remove('is-open');
 
-        // 折叠：摘掉 open 属性，浏览器与辅助技术都读作「已收起」
-        node.open = false;
-        node.removeAttribute('open');
-
-        refs.stream.appendChild(node);
         processNode = null;
+        // 折叠后内容高度变了，滚动箭头的显隐要跟着更新
+        updateScrollArrows();
         processBody = null;
         scrollToBottom();
         return node;
@@ -1769,8 +2214,234 @@
      * 来源行按原型挂在助手消息气泡下面，所以先清掉上一轮的来源，
      * 再把这一轮的挂到本轮最后一条助手消息上。
      */
+    function renderSource(item) {
+        var link = el('a', 'ai-source');
+        if (item.url && safeUrl(item.url)) {
+            link.href = item.url;
+            // 站内来源同页跳转；只有外链才开新标签
+            if (!isInternalHref(item.url)) {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            }
+        }
+        link.appendChild(icon(ICONS.source, 'ai-source-mark'));
+        // 标题单独包一层：裸文本节点在 flex 容器里是匿名项，
+        // 省略号不会生效，只能硬切
+        link.appendChild(el('span', 'ai-source-title', '来源《' + (item.title || '') + '》'));
+        return link;
+    }
+
+    /*
+     * 历史消息的过程区：和流式时的时间线同一套结构，只是数据来自会话存储。
+     * 落地就是收起状态（点开才看），摘要写明「思考 · N 次工具调用」。
+     */
+    function renderStoredProcess(proc) {
+        var wrap = el('div', 'ai-timeline');
+        var head = el('button', 'ai-timeline__head');
+        head.type = 'button';
+        head.setAttribute('aria-expanded', 'false');
+        var parts = [];
+        if (proc.think) parts.push('思考 ' + proc.think.length + ' 字');
+        if (proc.tools && proc.tools.length) {
+            var total = proc.toolTotal || proc.tools.length;
+            parts.push(total + ' 次工具调用');
+        }
+        head.appendChild(el('span', 'ai-timeline__summary', parts.join(' · ')));
+        head.appendChild(el('span', 'ai-timeline__toggle', '展开'));
+        var body = el('div', 'ai-timeline__body');
+        if (proc.think) {
+            var box = el('div', 'ai-thinking');
+            var thinkBody = el('div', 'ai-thinking__body');
+            thinkBody.textContent = proc.think;
+            box.appendChild(thinkBody);
+            body.appendChild(box);
+        }
+        (proc.tools || []).forEach(function (one) {
+            var card = el('div', 'ai-tool');
+            var row = el('div', 'ai-tool-head');
+            row.appendChild(el('span', 'ai-tool-name', toolLabel(one.name)));
+            var status = el('span', 'ai-tool-status', one.status || '');
+            row.appendChild(status);
+            card.appendChild(row);
+            if (one.detail) card.appendChild(el('p', 'ai-tool-note', one.detail));
+            body.appendChild(card);
+        });
+        head.addEventListener('click', function () {
+            var open = !wrap.classList.contains('is-open');
+            wrap.classList.toggle('is-open', open);
+            head.setAttribute('aria-expanded', open ? 'true' : 'false');
+            var label = head.querySelector('.ai-timeline__toggle');
+            if (label) label.textContent = open ? '收起' : '展开';
+        });
+        wrap.appendChild(head);
+        wrap.appendChild(body);
+        return wrap;
+    }
+
+    /* 工具执行结果的展示口径：状态文字与一行摘要，主流程存会话时直接取用 */
+    function toolSummary(result) {
+        var status = toolStatus(result);
+        var detail = '';
+        var hits = toolHits(result);
+        if (result && result.note) detail = result.note;
+        else if (hits.length) detail = '命中 ' + hits.length + ' 条';
+        else if (result && result.complete) detail = '已读';
+        return { status: status.text, detail: detail };
+    }
+
+    /*
+     * 来源列表：一次只铺 5 条，剩下的收进「还有 N 篇候选」按钮里，点一次再放 5 条。
+     * 流式时和历史回看共用这一套——几十条来源全铺出来会把整屏占满。
+     */
+    function renderSourceList(items) {
+        var list = el('div', 'ai-source-list');
+        var ordered = (items || []).slice().sort(function (a, b) {
+            return (a.kind === 'quoted' ? 0 : 1) - (b.kind === 'quoted' ? 0 : 1);
+        });
+        // 来源只展示前几条：一次检索能命中十几篇，全列出来是噪音，
+        // 真正该被引用的是模型正文里提到的那几篇。
+        var MAX_SHOWN_SOURCES = 5;
+        var shown = ordered.slice(0, MAX_SHOWN_SOURCES);
+        shown.forEach(function (item) {
+            list.appendChild(renderSource(item));
+        });
+
+        // 多出来的候选要能真的展开：每次再放 5 条，放完就把按钮摘掉
+        var rest = ordered.slice(MAX_SHOWN_SOURCES);
+        if (rest.length) {
+            var index = 0;
+            var more = el('button', 'ai-source-more', '还有 ' + rest.length + ' 篇候选');
+            more.type = 'button';
+            more.addEventListener('click', function () {
+                var batch = rest.slice(index, index + 5);
+                batch.forEach(function (item) {
+                    list.insertBefore(renderSource(item), more);
+                });
+                index += batch.length;
+                if (index >= rest.length) more.remove();
+                else more.textContent = '还有 ' + (rest.length - index) + ' 篇候选';
+                scrollToBottom();
+            });
+            list.appendChild(more);
+        }
+        return list;
+    }
+
+    /*
+     * 正文里的文章标题要能点：模型只会写《Python 基础入门 — 从零开始的语法之旅》，
+     * 不会自己贴地址。标题与来源里的文件名常有一字之差（「—」对「--」），
+     * 所以按「去掉书名号后取前缀」去正文里找，找到就把那一段包成站内链接。
+     */
+    function titleCandidates(title) {
+        var out = [];
+        var base = String(title || '').replace(/[《》]/g, '').trim();
+        if (!base) return out;
+        out.push(base);
+        var parts = base.split(/\s+[—–]{1,2}\s+|\s+--\s+|\s*[：:]\s*/);
+        for (var i = 0; i < parts.length; i++) {
+            var one = parts[i].trim();
+            // 短片段（「简介」「概述」）在正文里太常见，够长才拿来匹配
+            if (one.length >= 6) out.push(one);
+        }
+        // 长标题优先：先包住完整标题，匹配不上再退到前缀
+        out.sort(function (a, b) { return b.length - a.length; });
+        var seen = {};
+        var unique = [];
+        for (var k = 0; k < out.length; k++) {
+            if (seen[out[k]]) continue;
+            seen[out[k]] = true;
+            unique.push(out[k]);
+        }
+        return unique;
+    }
+
+    function blockedAncestor(node) {
+        // 往上找：已有链接、代码、按钮里的文字不动
+        // 只看直接父元素不够——<a><strong>标题</strong></a> 里的文本父级是 STRONG，
+        // 在那儿插 <a> 会产出嵌套链接（非法 HTML）
+        var cur = node.parentNode;
+        while (cur && cur !== node.ownerDocument) {
+            var tag = cur.tagName ? cur.tagName.toUpperCase() : '';
+            if (tag === 'A' || tag === 'CODE' || tag === 'PRE' || tag === 'BUTTON') return true;
+            if (cur.classList && cur.classList.contains('ai-article-link')) return true;
+            cur = cur.parentNode;
+        }
+        return false;
+    }
+
+    function linkFirstOccurrence(container, text, url) {
+        if (!container || !text || !url) return false;
+        if (!safeUrl(url)) return false;
+        var walker = document.createTreeWalker(container, 4, null, false);
+        var node = walker.nextNode();
+        while (node) {
+            if (!blockedAncestor(node)) {
+                var at = node.nodeValue.indexOf(text);
+                if (at !== -1) {
+                    var after = node.splitText(at);
+                    after.splitText(text.length);
+                    var link = document.createElement('a');
+                    link.className = 'ai-article-link';
+                    link.href = url;
+                    if (!isInternalHref(url)) {
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                    }
+                    link.textContent = text;
+                    after.parentNode.replaceChild(link, after);
+                    return true;
+                }
+            }
+            node = walker.nextNode();
+        }
+        return false;
+    }
+
+    /*
+     * 把正文里的文章标题按来源包成链接。
+     * 返回实际包上的链接清单（文本 + 地址）：实时与回看要用同一份清单，
+     * 否则刷新后按来源重新匹配可能对不上（标题被截断、来源没进留档），
+     * 读者会看到「刷新前是链接、刷新后变回普通文字」。
+     */
+    function linkifySources(container, items) {
+        var applied = [];
+        if (!container || !items || !items.length) return applied;
+        var ordered = items.slice().sort(function (a, b) {
+            return (a.kind === 'quoted' ? 0 : 1) - (b.kind === 'quoted' ? 0 : 1);
+        });
+        var MAX_LINKS = 8;
+        for (var i = 0; i < ordered.length && applied.length < MAX_LINKS; i++) {
+            var item = ordered[i];
+            if (!item || !item.url) continue;
+            var names = titleCandidates(item.title);
+            for (var j = 0; j < names.length; j++) {
+                if (linkFirstOccurrence(container, names[j], item.url)) {
+                    applied.push({ text: names[j], url: item.url });
+                    break;
+                }
+            }
+        }
+        return applied;
+    }
+
+    /* 回看时按留档的链接清单原样恢复：实时包过什么，刷新后还是什么 */
+    function applyStoredLinks(container, links) {
+        var applied = [];
+        if (!container || !links || !links.length) return applied;
+        for (var i = 0; i < links.length; i++) {
+            var one = links[i];
+            if (!one || !one.text || !one.url) continue;
+            if (linkFirstOccurrence(container, one.text, one.url)) {
+                applied.push({ text: one.text, url: one.url });
+            }
+        }
+        return applied;
+    }
+
     function setSources(items) {
-        var old = refs.stream.querySelectorAll('.ai-source-list');
+        // 只清当前那条回答的来源行：历史消息的来源也存在同样的 class，
+        // 全清会把回看时画出来的来源一起抹掉
+        var old = refs.answerMsg ? refs.answerMsg.querySelectorAll('.ai-source-list') : [];
         for (var i = 0; i < old.length; i++) {
             old[i].innerHTML = '';
             old[i].hidden = true;
@@ -1781,35 +2452,14 @@
         if (!host || !host.parentNode) {
             host = appendMessage('assistant', '').root;
         }
-        var list = host.querySelector('.ai-source-list');
-        if (!list) {
-            list = el('div', 'ai-source-list');
+        // 整块换掉：按钮的展开逻辑要绑在活的列表上，
+        // 把子节点搬过来会让「还有 N 篇候选」把内容插到已经脱离文档的旧列表里
+        var old = host.querySelector('.ai-source-list');
+        var list = renderSourceList(items);
+        if (old && old.parentNode) {
+            old.parentNode.replaceChild(list, old);
+        } else {
             host.appendChild(list);
-        }
-        // 来源只展示前几条：一次检索能命中十几篇，全列出来是噪音，
-        // 真正该被引用的是模型正文里提到的那几篇。
-        // 引用过的（kind='quoted'）排在前面，否则上限一截，
-        // 用户看到的全是没读过的候选。
-        var MAX_SHOWN_SOURCES = 5;
-        var ordered = items.slice().sort(function (a, b) {
-            return (a.kind === 'quoted' ? 0 : 1) - (b.kind === 'quoted' ? 0 : 1);
-        });
-        var shown = ordered.slice(0, MAX_SHOWN_SOURCES);
-        shown.forEach(function (item) {
-            var link = el('a', 'ai-source');
-            if (item.url) {
-                link.href = item.url;
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
-            }
-            link.appendChild(icon(ICONS.source, 'ai-source-mark'));
-            // 标题单独包一层：裸文本节点在 flex 容器里是匿名项，
-            // 省略号不会生效，只能硬切
-            link.appendChild(el('span', 'ai-source-title', '来源《' + (item.title || '') + '》'));
-            list.appendChild(link);
-        });
-        if (items.length > shown.length) {
-            list.appendChild(el('span', 'ai-source-more', '还有 ' + (items.length - shown.length) + ' 篇候选'));
         }
         list.hidden = false;
         // 来源行是最后一段内容，补完滚到底，否则它会被输入区压住看不见
@@ -1975,9 +2625,24 @@
      * javascript:、data: 这类原样吐回去，不进 href/src。
      */
     function safeUrl(url) {
+
+
         if (!url) return false;
         if (/^[a-z][a-z0-9+.-]*:/i.test(url)) return /^https?:\/\//i.test(url);
         return true;
+    }
+
+    /*
+     * 站内链接同页跳转、外链才开新标签：站内路径（/ 开头）与同源链接都不带 target，
+     * 免得点一下来源就弹一个重复的标签页。
+     */
+    function isInternalHref(href) {
+        var value = String(href || '');
+        if (!value) return false;
+        // 协议相对地址 //example.com/x 也是外站，别被首字符 '/' 骗了
+        if (value.slice(0, 2) === '//') return false;
+        if (value.charAt(0) === '/') return true;
+        return value.indexOf(window.location.origin + '/') === 0;
     }
 
     /*
@@ -1998,7 +2663,19 @@
         });
         out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, label, href) {
             if (!safeUrl(href)) return m;
-            return '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
+            var attrs = isInternalHref(href) ? '' : ' target="_blank" rel="noopener noreferrer"';
+            return '<a href="' + href + '"' + attrs + '>' + label + '</a>';
+        });
+        // 模型常常直接甩一个裸地址（不带 [文字](地址)），不认它就等于链接不显示。
+        // 已经在 markdown 链接里的地址前面紧挨着 `](`，生成的 href 前面是引号，两种都要跳过。
+        out = out.replace(/https?:\/\/[^\s<>"'\u3002\uFF0C\uFF09]+/g, function (m, offset, whole) {
+            var before = whole.slice(0, offset);
+            if (/\]\($/.test(before) || /[="'><]$/.test(before)) return m;
+            var href = m.replace(/[.,;:!?]+$/, '');
+            var tail = m.slice(href.length);
+            if (!safeUrl(href)) return m;
+            var attrs = isInternalHref(href) ? '' : ' target="_blank" rel="noopener noreferrer"';
+            return '<a href="' + href + '"' + attrs + '>' + href + '</a>' + tail;
         });
         out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
         out = out.replace(/~~([^~]+)~~/g, '<del>$1</del>');
@@ -2293,12 +2970,20 @@
         appendThinking: appendThinking,
         setPending: setPending,
         appendToolCard: appendToolCard,
+        rememberModel: rememberModel,
+        renderModelChips: renderModelChips,
         beginProcess: beginProcess,
         endProcess: endProcess,
         setUsage: setUsage,
         setDrawerHeight: setDrawerHeight,
         getDrawerHeight: getDrawerHeight,
         setSources: setSources,
+        toolSummary: toolSummary,
+        linkifySources: linkifySources,
+        applyStoredLinks: applyStoredLinks,
+        setRewindHandler: function (fn) {
+            rewindHandler = typeof fn === 'function' ? fn : null;
+        },
         setError: setError,
         setSaved: setSaved,
         setBusy: setBusy,

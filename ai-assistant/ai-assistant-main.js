@@ -17,7 +17,7 @@
     // 单独落一个键，切一下立刻生效、下次打开还是这个状态
     var CONTEXT_KEY = 'ai-assistant.context';
     var MAX_TOOL_ROUNDS = 3;
-    var MAX_INJECTED_CHARS = 12000;
+    var MAX_INJECTED_CHARS = 16000;
     var SECTION_CHARS = 1200;
     var HEADINGS_LIMIT = 80;
     /*
@@ -133,6 +133,7 @@
         } catch (e) {
             /* 存不下就算了，本次会话仍然可用 */
         }
+        if (AI.ui && AI.ui.rememberModel) AI.ui.rememberModel(state.config.model);
     }
 
     function presetById(id) {
@@ -146,10 +147,11 @@
 
     /*
      * 会话（聊天历史）与 provider 历史是两套东西：
-     *  - 会话存储在 ui.js 的 AI.sessions 里，本机 localStorage，只存纯文字；
+     *  - 会话存储在 ui.js 的 AI.sessions 里，本机 localStorage：正文是纯文字，
+     *    另挂一份过程留档（思考、工具摘要、来源），只给读者回看；
      *  - provider 历史（state.messages）是真正发给模型的消息数组，含工具块，
      *    内存里按会话 id 分开存，切走再切回来能接着上次继续；
-     *  - 页面刷新后 provider 历史从存储里的纯文字重建（工具过程不跨刷新保留）。
+     *  - 页面刷新后 provider 历史从存储里的纯文字重建（工具块与思考块不进请求）。
      */
 
     // 正在回答时不允许换会话：这一轮的上下文属于原会话
@@ -160,6 +162,8 @@
             var stored = AI.sessions ? AI.sessions.getMessages(id) : [];
             var list = [];
             for (var i = 0; i < stored.length; i++) {
+                // 空正文（只留了过程）不进请求：空 assistant 消息会被协议拒
+                if (!stored[i].content) continue;
                 list.push({
                     role: stored[i].role,
                     content: [{ type: 'text', text: stored[i].content }]
@@ -305,13 +309,18 @@
         AI.ui.setSources([]);
     }
 
-    // 存一条会话消息（纯文字）：显示给读者的那段话
-    function persistTurn(role, text) {
+    /*
+     * 存一条会话消息：正文是纯文字，过程（思考、工具摘要、来源）另挂一份。
+     * 过程只给读者回头看，providerHistory 从存储重建时只读 content，
+     * 所以它永远不会被发给模型。
+     */
+    function persistTurn(role, text, process) {
         if (!AI.sessions) return;
         var content = String(text || '').trim();
-        if (!content) return;
+        // 正文可以为空（这一轮没写出一个字），但过程留档仍要存
+        if (!content && !process) return;
         try {
-            AI.sessions.appendMessage({ role: role, content: content });
+            AI.sessions.appendMessage({ role: role, content: content, process: process || null });
         } catch (e) {
             // 存不下就算了，界面照常
         }
@@ -371,7 +380,7 @@
             '1. 直接回答被问的那一点：先给结论，再给最短的必要解释。默认不超过 200 字（代码不计）；读者要求详细、展开或写完整时按需写长，不受此限。任何时候都不复述问题、不写导语、不写「希望这有帮助」这类客套。',
             '2. 需要展开时分点，最多 3 条（读者要求长文时按内容分节，不受 3 条限制）；不铺无关背景，不写「首先/其次/最后」式流水账。',
             '3. 以读者当前阅读的小节为背景；用简体中文回答，代码放进代码块。',
-            '4. 只有答案依赖站内其他文章时才查资料：search_articles 找候选 → read_section 先看目录、再按标题取直属正文，一次只下一层（通常 1~3 段就够）。不要只说「我去找一下」就停下，也不要为求全面广撒网。',
+            '4. 先 read_section(query=问题里的术语或名词) 在本篇定位，命中就用它答；本篇没有才 search_articles 一次，再 read_section 取正文。一次只下一层，通常 1~3 段就够；不要只说「我去找一下」就停下，也不要为求全面广撒网。',
             '5. 引用站内内容时写明出自哪篇哪一节，最多引 3 篇。没读到就直说没读到，不拿链接或标题冒充答案；找不到就列出可能相关的标题。',
             '6. 工具没拿到内容时换标题或换关键词重查，不要原样重发同一个调用；换不动就用已经读到的内容作答。'
         ];
@@ -714,6 +723,11 @@
         var thinkStartedAt = null;
         var usage = { input: null, output: null, cache: null };
         var toolCallCount = 0;
+        // 过程留档：思考文本与工具摘要随回答一起进会话存储，只供回看，不进请求
+        var turnThink = '';
+        var turnTools = [];
+        // 实时包上的链接清单：刷新后按它原样恢复，避免「刷新前是链接、刷新后变文字」
+        var turnLinks = [];
         // 这轮读到的内容留个底：收尾轮模型没写出正文时用它兜底
         var readNotes = [];
         // 过程分组：工具卡与思考块都挂进去，收尾时折叠并排到答案之后
@@ -754,6 +768,18 @@
                 function paint() {
                     renderQueued = false;
                     body.innerHTML = AI.ui.renderMarkdown(buffer);
+                    // 模型只写文章标题不写地址：拿这一轮读到的来源把标题包成链接
+                    if (AI.ui.linkifySources) {
+                        var applied = AI.ui.linkifySources(body, state.sources);
+                        for (var li = 0; li < applied.length; li++) {
+                            var one = applied[li];
+                            var dup = false;
+                            for (var lj = 0; lj < turnLinks.length; lj++) {
+                                if (turnLinks[lj].text === one.text && turnLinks[lj].url === one.url) { dup = true; break; }
+                            }
+                            if (!dup) turnLinks.push({ text: one.text, url: one.url });
+                        }
+                    }
                     // 重绘是整体覆盖气泡内容，用量行会被抹掉，得补回来
                     // （rAF 排队的重绘可能落在 finally 的 setUsage 之后）
                     if (usage.input != null || usage.output != null || usage.cache != null) {
@@ -830,6 +856,7 @@
                         usage.output = addUsage(usage.output, ev.output);
                     } else if (ev.type === 'thinking') {
                         if (thinkStartedAt === null) thinkStartedAt = Date.now();
+                        turnThink += ev.text || '';
                         // 思考内容单独成块，不混进正文气泡
                         AI.ui.appendThinking(ev.text);
                     } else if (ev.type === 'thinking_blocks') {
@@ -858,16 +885,27 @@
                      */
                     var partial = (buffer || '').trim();
                     var shown = failure;
+                    /*
+                     * 能不能续：手动停、服务端中途断、超时、服务异常都算「暂停」，
+                     * 点「继续生成」接着跑；只有认证、额度、参数这类硬错才不给续。
+                     * 一个字都没写出来也能续——那相当于重跑这一轮。
+                     */
+                    var resumableKinds = { abort: 1, stream: 1, timeout: 1, server: 1, rate: 1 };
+                    var canResume = !!partial || !!resumableKinds[failure.kind];
                     if (partial) {
                         state.messages.push({
                             role: 'assistant',
                             content: [{type: 'text', text: partial}]
                         });
                         finalText = partial;
+                    }
+                    if (canResume) {
                         shown = {
                             kind: failure.kind,
                             title: failure.title,
-                            hint: (failure.hint ? failure.hint + ' ' : '') + '已经写出的内容保留着，点「继续生成」就能从中断处接着写。',
+                            hint: (failure.hint ? failure.hint + ' ' : '') +
+                                (partial ? '已经写出的内容保留着，' : '') +
+                                '点「继续生成」就能从中断处接着写。',
                             resumable: true
                         };
                     }
@@ -1020,6 +1058,8 @@
                     if (note) readNotes.push(note);
                     collectSources(result);
                     AI.ui.appendToolCard(call, result);
+                    var summary = AI.ui.toolSummary ? AI.ui.toolSummary(result) : { status: '', detail: '' };
+                    turnTools.push({ name: call.name, status: summary.status, detail: summary.detail });
                     results.push({
                         type: 'tool_result',
                         tool_use_id: call.id,
@@ -1072,7 +1112,23 @@
              * 必须排在 setBusy(false) 之前——写入若顺手建了会话，
              * 那份回调在非忙碌态下会重画消息区，把刚写完的答案抹成空白。
              */
-            if (finalText) persistTurn('assistant', finalText);
+            if (finalText) {
+                persistTurn('assistant', finalText, {
+                    think: turnThink,
+                    tools: turnTools,
+                    links: turnLinks,
+                    sources: state.sources
+                });
+            } else if (turnThink || turnTools.length) {
+                // 一个字都没写出来就中断了：思考与工具摘要仍然要留档，
+                // 否则回看时那条时间线是空的（正文留空，不往上下文里塞假句子）
+                persistTurn('assistant', '', {
+                    think: turnThink,
+                    tools: turnTools,
+                    links: turnLinks,
+                    sources: state.sources
+                });
+            }
 
             AI.ui.setBusy(false);
             AI.ui.setSources(state.sources);
@@ -1102,6 +1158,63 @@
             }
         }
         return -1;
+    }
+
+    /*
+     * 回退到第 index 条用户消息：这一问及其之后的全部内容都撤掉。
+     * 会话存储与 provider 历史一起截断——只撤一边就会出现
+     * 「界面上没了、模型还记得」。
+     * 两边的对齐口径是「有正文的 user 消息」：工具结果那条 user 不算提问。
+     */
+    function rewindTo(index) {
+        // 正在回答时不许回退：那一轮的上下文还在写
+        if (state.controller) return false;
+        if (!AI.sessions) return false;
+        var stored = AI.sessions.getMessages(state.sessionId);
+        if (typeof index !== 'number' || index < 0 || index >= stored.length) return false;
+        var target = stored[index];
+        if (!target || target.role !== 'user') return false;
+
+        var question = String(target.content || '');
+        /*
+         * 定位这一问在 provider 历史里的位置：按内容找，不按序号。
+         * 序号会错位——compactHistory 丢过最早的整轮对话，存储却没同步丢，
+         * 序号对不上就会「界面清了、模型还记得」。
+         */
+        var cut = -1;
+        for (var k = 0; k < state.messages.length; k++) {
+            var msg = state.messages[k];
+            if (!msg || msg.role !== 'user' || !hasTextPart(msg)) continue;
+            var text = '';
+            for (var p = 0; p < msg.content.length; p++) {
+                if (msg.content[p] && msg.content[p].type === 'text') {
+                    text = String(msg.content[p].text || '');
+                    break;
+                }
+            }
+            if (text && (text === question || text.indexOf(question) === 0)) { cut = k; break; }
+        }
+        if (cut >= 0) {
+            state.messages.splice(cut);
+        } else {
+            // 定位不到（历史被压缩过）：按截断后的存储重建，保证没有残留
+            delete state.histories[state.sessionId];
+        }
+
+        AI.sessions.setMessages(stored.slice(0, index));
+        if (cut < 0) {
+            state.messages = providerHistory(state.sessionId);
+        }
+        state.sources = [];
+        safeUi(AI.ui.setSources, []);
+        safeUi(AI.ui.setError, null);
+        safeUi(AI.ui.renderSessionMessages, AI.sessions.getMessages(state.sessionId));
+
+        // 被撤掉的那一问放回输入框：多数时候是打错了字，改一改再问
+        var mark = question.indexOf('\n\n（我划选的内容：');
+        if (mark >= 0) question = question.slice(0, mark);
+        safeUi(AI.ui.setComposerValue, question);
+        return true;
     }
 
     function rewindLastTurn() {
@@ -1143,6 +1256,13 @@
         safeUi(AI.ui.setComposerValue, question);
     }
 
+    /* 界面上的回退键走这里：撤掉第 index 条用户消息及其之后的全部内容 */
+    function registerRewind() {
+        if (AI.ui && typeof AI.ui.setRewindHandler === 'function') {
+            AI.ui.setRewindHandler(rewindTo);
+        }
+    }
+
     function send(text) {
         var value = (text || '').trim();
         if (!value) return;
@@ -1154,7 +1274,12 @@
         ensureSession();
         state.messages.push({ role: 'user', content: [{ type: 'text', text: message }] });
         persistTurn('user', message);
-        AI.ui.appendMessage('user', message);
+        var rewindIndex = -1;
+        if (AI.sessions) {
+            var storedNow = AI.sessions.getMessages(state.sessionId);
+            rewindIndex = storedNow.length - 1;
+        }
+        AI.ui.appendMessage('user', message, { rewindIndex: rewindIndex });
         state.sources = [];
         AI.ui.setSources([]);
         return runTurn();
@@ -1465,6 +1590,8 @@
 
     function onKeyDown(event) {
         if (event.key === 'Escape') {
+            // 回退确认框开着时，Esc 只关确认框：顺带把整个面板关掉是误伤
+            if (AI.ui.refs && AI.ui.refs.rewindConfirm) return;
             // 请求还在跑时先中止请求，否则收起浮窗
             if (state.controller) {
                 state.controller.abort();
@@ -1720,6 +1847,7 @@
         state.useContext = loadContextPref();
         AI.ui.mount();
         AI.context.init();
+        registerRewind();
 
         fillSettings();
         AI.ui.setOpen(false);
