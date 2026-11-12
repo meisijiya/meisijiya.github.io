@@ -2650,6 +2650,18 @@
      * 行内代码先抠成占位符，等其它语法都替完再放回去——
      * 否则代码里的 ** 会先被粗体吃掉。
      */
+    /*
+     * 清理地址：模型爱把地址包在尖括号里（<https://...>），
+     * 转义后尖括号变成 &lt; &gt;，不清掉就会把 &gt; 带进 href——
+     * 点过去就是一个不存在的页面（路径尾巴多一段 %3E）。
+     */
+    function cleanHref(href) {
+        var value = String(href || '');
+        value = value.replace(/&(?:gt|lt);/gi, '');
+        value = value.replace(/[<>]/g, '');
+        return value;
+    }
+
     function inline(text) {
         var codes = [];
         var out = escapeHtml(text);
@@ -2661,19 +2673,29 @@
             if (!safeUrl(src)) return m;
             return '<img class="ai-img" src="' + src + '" alt="' + alt + '" loading="lazy">';
         });
-        out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, label, href) {
-            if (!safeUrl(href)) return m;
-            var attrs = isInternalHref(href) ? '' : ' target="_blank" rel="noopener noreferrer"';
-            return '<a href="' + href + '"' + attrs + '>' + label + '</a>';
+        // markdown 的尖括号自动链接：<https://...> 整段成链，尖括号不留在正文里
+        out = out.replace(/&lt;(https?:\/\/[^\s"'<>]+)&gt;/g, function (m, href) {
+            var target = cleanHref(href);
+            if (!target || !safeUrl(target)) return m;
+            var attrs = isInternalHref(target) ? '' : ' target="_blank" rel="noopener noreferrer"';
+            return '<a href="' + target + '"' + attrs + '>' + target + '</a>';
         });
-        // 模型常常直接甩一个裸地址（不带 [文字](地址)），不认它就等于链接不显示。
-        // 已经在 markdown 链接里的地址前面紧挨着 `](`，生成的 href 前面是引号，两种都要跳过。
+        out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, label, href) {
+            var target = cleanHref(href);
+            if (!target || !safeUrl(target)) return m;
+            var attrs = isInternalHref(target) ? '' : ' target="_blank" rel="noopener noreferrer"';
+            return '<a href="' + target + '"' + attrs + '>' + label + '</a>';
+        });
+        /*
+         * 模型常常直接甩一个裸地址（不带 [文字](地址)），不认它就等于链接不显示。
+         * 已经在 markdown 链接里的地址前面紧挨着 `](`，生成的 href 前面是引号，两种都要跳过。
+         */
         out = out.replace(/https?:\/\/[^\s<>"'\u3002\uFF0C\uFF09]+/g, function (m, offset, whole) {
             var before = whole.slice(0, offset);
             if (/\]\($/.test(before) || /[="'><]$/.test(before)) return m;
-            var href = m.replace(/[.,;:!?]+$/, '');
-            var tail = m.slice(href.length);
-            if (!safeUrl(href)) return m;
+            var href = cleanHref(m).replace(/[.,;:!?]+$/, '');
+            var tail = m.slice(m.indexOf(href) + href.length);
+            if (!href || !safeUrl(href)) return m;
             var attrs = isInternalHref(href) ? '' : ' target="_blank" rel="noopener noreferrer"';
             return '<a href="' + href + '"' + attrs + '>' + href + '</a>' + tail;
         });
