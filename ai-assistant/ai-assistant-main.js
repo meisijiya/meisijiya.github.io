@@ -1667,8 +1667,11 @@
     var DRAWER_MAX_RATIO = 0.92;
 
     function clampDrawerHeight(px) {
-        var min = Math.round(window.innerHeight * DRAWER_MIN_RATIO);
-        var max = Math.round(window.innerHeight * DRAWER_MAX_RATIO);
+        // 用「看得见的高度」而不是布局视口：iOS 上浏览器工具栏压住页面时，
+        // 布局视口比可见区域高，抽屉按它算会把顶部顶到工具栏底下（头部看不见）
+        var vh = safeUi(AI.ui.visibleHeight) || window.innerHeight;
+        var min = Math.round(vh * DRAWER_MIN_RATIO);
+        var max = Math.round(vh * DRAWER_MAX_RATIO);
         return Math.min(max, Math.max(min, Math.round(px)));
     }
 
@@ -1678,7 +1681,8 @@
         if (typeof saved === 'number' && isFinite(saved) && saved > 0) return saved;
         var box = panel.getBoundingClientRect();
         if (box && box.height) return box.height;
-        return Math.round(window.innerHeight * 0.74);
+        var vh = safeUi(AI.ui.visibleHeight) || window.innerHeight;
+        return Math.round(vh * 0.74);
     }
 
     /* 浮窗本身也能拖：宽屏拖头部挪窗，窄屏拖头部调抽屉高度 */

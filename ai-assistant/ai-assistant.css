@@ -25,13 +25,15 @@
     -webkit-font-smoothing: antialiased;
     /* 面板高度跟着视图走：聊天短，设置是整张表单单子，用满高度才不被折叠线切控件 */
     /*
-     * --ai-vh 是「当前可见视口高度」，由 JS 按 visualViewport.height
-     * （缺省 window.innerHeight）写进来。
-     * 不能直接用 100vh：iOS Safari 的 100vh 是工具栏收起时的大视口，
+     * --ai-vh 是「当前可见视口高度」，单位是 px（名字里的 vh 不是单位）。
+     * 不能用 100vh：iOS Safari 的 100vh 是工具栏收起时的大视口，
      * 比实际能看到的区域高出一截（iPad 横屏尤其明显），面板照它撑高，
      * 底部的「保存配置」就被顶到屏幕外，既看不见也点不到。
+     * JS 用 visualViewport.height（缺省 window.innerHeight）把它覆盖成精确值；
+     * 下面两行是 JS 还没跑时的兜底：dvh 跟着浏览器工具栏收放，老浏览器退回 vh。
      */
     --ai-vh: 100vh;
+    --ai-vh: 100dvh;
     --ai-panel-h-chat: calc(var(--ai-vh) * 0.7);
     --ai-panel-h-settings: min(calc(var(--ai-vh) - 24px), 900px);
 }

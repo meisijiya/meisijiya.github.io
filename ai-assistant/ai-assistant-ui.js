@@ -1462,6 +1462,17 @@
         // 面板高度带 140ms 过渡，过渡过程中要逐帧重新落位，否则浮窗会停在按旧高度
         // 算出来的位置（离球很远）。这件事由 placePanel 自己的「高度变了就再排一次」
         // 循环负责，这里不再另挂 transitionend 监听，两套机制只留一套。
+        /*
+         * 软键盘弹起/收起时布局视口不变（iOS 不触发 window.resize），
+         * 但「看得见的高度」变了：视觉视口会缩小。跟着它收，
+         * 底栏的「保存配置」才不会被键盘盖住。
+         */
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', function () {
+                syncVisibleHeight();
+                placePanel();
+            });
+        }
         syncViewport();
         return refs;
     }
@@ -1556,10 +1567,8 @@
     }
 
     /*
-     * 可见视口高度写进 --ai-vh，CSS 侧的面板高度按它算。
-     * 不能用 100vh：iOS Safari 的 100vh 是工具栏收起时的大视口，比真正看得见的
-     * 那块高出一截（iPad 横屏最明显），面板照大视口撑高，底部的「保存配置」
-     * 会被顶到屏幕外，既看不见也点不到。
+     * 可见视口高写进 --ai-vh，CSS 侧的面板高度按它算；
+     * 为什么不能用 100vh，见 ai-assistant.css 里 --ai-vh 的注释。
      */
     function syncVisibleHeight() {
         if (!refs.root) return;
@@ -2999,6 +3008,7 @@
         isOpen: isOpen,
         setState: setState,
         syncViewport: syncViewport,
+        visibleHeight: visibleHeight,
         isNarrow: isNarrow,
         setPeek: setPeek,
         isPeek: isPeek,
