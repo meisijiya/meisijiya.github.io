@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>区块链架构 — 从互不信任到多方共识 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+    <link rel="stylesheet" href="/css/search-panel.css?v=a3edd450ed6d">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+
+        <a
+          class="nav-back"
+          href="/"
+          aria-label="返回上一页"
+          onclick="return navBack()"
+        >
+          <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+          <span>返回</span>
+        </a>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="navbar-actions">
+          <a
+            class="nav-back"
+            href="/"
+            aria-label="返回上一页"
+            onclick="return navBack()"
+          >
+            <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+            </svg>
+          </a>
+          <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          </button>
+          <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="scrim" data-root="/"></div>
+<div class="panel" data-root="/">
+  <div class="grip"></div>
+  <div class="phead">
+    <div class="prow">
+      <svg class="sicon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input class="sinput" type="search" placeholder="搜索标题、标签、目录、正文" />
+      <button class="xbtn" type="button" aria-label="关闭">×</button>
+    </div>
+  </div>
+  <div class="cats-wrap"><div class="cats"></div></div>
+  <div class="results"><div class="empty">没有结果，换个关键词试试</div></div>
+  <p class="sr-only" aria-live="polite"></p>
+</div>
+<script src="/js/search.js" defer></script>
+<script src="/js/search-panel.js?v=2da4475351e5" defer></script>
+<script>
+  // 目录小节的锚点链接（href="#标题"）会给浏览器留一条同文档历史记录，
+  // history.back() 于是退回跳转前的滚动位置，而不是「上一个页面」。
+  // 这里直接回到 document.referrer（同源的上一个页面）；没有同源来源时返回 true，
+  // 由 <a> 的 href（站点首页）兜底。
+  function navBack() {
+    var ref = document.referrer.split('#')[0];
+    var self = location.href.split('#')[0];
+    if (ref && ref !== self && ref.indexOf(location.origin + '/') === 0) {
+      location.href = ref;
+      return false;
+    }
+    return true;
+  }
+</script>
+            <div class="main">
+                
+
+<div class="container with-toc">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">区块链架构 — 从互不信任到多方共识</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 12, 2026&nbsp;&nbsp;9:10:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a>
+          
+          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/">软件架构</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><hr>
+<p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<blockquote>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的《软件架构师》系列视频（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists/9203402?type=season">合集·软件架构师</a>）第 10 篇《【软件架构】一小时掌握区块链架构》（<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1EZ4x6CELV/">视频链接</a>）。本篇是我学习该视频后整理的复习笔记，观点与讲解以他的视频为准，文内配图取自视频课件；感谢他的视频与资料。</p>
+</blockquote>
+<h1 id="10-区块链架构"><a href="#10-区块链架构" class="headerlink" title="10 区块链架构"></a>10 区块链架构</h1><blockquote>
+<p>📌 <strong>本篇速览</strong></p>
+<ul>
+<li>10.1 引言与本课定位</li>
+<li>10.2 为什么需要区块链</li>
+<li>10.3 区块链架构基础</li>
+<li>10.4 区块链实战</li>
+<li>10.5 从 demo 到生产</li>
+<li>10.6 常见错误清单</li>
+<li>10.7 小结</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>这门课不要求密码学基础，会 Java、用过 Spring Boot 就能跟。四段路：先从天天写的 insert 出发把区块链拼出来，再把术语理清楚，然后动手做一遍，最后走完从 demo 到生产的工程路。</p>
+</blockquote>
+<hr>
+<p>建材集团一批特种钢材出了质量问题要追责。采购方掏出电子合同，写的是国标。供应商也掏出一份，写的是按样品交付，两份都有电子签章，都说自己才是原件。物流方说温控记录完好，但系统是自建的、数据自己存自己管，这话在追责现场没人认。质检方说报告确实出过，可它在几个渠道里转了好几手，说不清哪份没改过。最后打到鉴定机构，鉴定机构能证明文件现在的哈希值是多少，证明不了它从签的那天起就没被改过。</p>
+<p>🔹 这个事故浓缩成一句话：四个相关方，四份数据库，零份共识。每一次对峙问的都是同一句——你那份我凭什么信。</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/10-blockchain-arch-1.jpg" alt="封面页「区块链架构精讲」与区块哈希链示意图" loading="lazy" decoding="async"></p>
+<h2 id="10-1-引言与本课定位"><a href="#10-1-引言与本课定位" class="headerlink" title="10.1 引言与本课定位"></a>10.1 引言与本课定位</h2><p>🔹 视频是《软件架构》系列的继续，开场先划边界：不需要懂密码学，不需要研究过比特币，连区块链这三个字是什么意思都不要求。门槛只有一条——会 Java 这样的语言，用过 Spring Boot，做过哪怕很小的项目，知道 Controller、Service 怎么一层层调。</p>
+<p>🔹 第二个边界：不聊投资，一个字都不聊，只讲技术本身——区块链这个框架在什么场景下有价值、架构长什么样、代价是什么，最后怎么装进熟悉的 Spring Boot 项目里。</p>
+<p>🔹 课程路线四段。第一段从每天写的代码说起，从数据库的 insert 出发一步步把区块链拼出来。第二段是术语，账本、共识、智能合约这些词要列一张表扫清。第三段是实战，从一个 Spring Boot 加 MySQL 的存证系统升级成区块链架构。第四段从 demo 到生产，给工程化的答案。</p>
+<h2 id="10-2-为什么需要区块链"><a href="#10-2-为什么需要区块链" class="headerlink" title="10.2 为什么需要区块链"></a>10.2 为什么需要区块链</h2><p>🔹 第一章的四个问题：你每天写的 insert 离区块链差几步。账本抄给所有人为什么就改不动了。区块链和比特币、发币是什么关系。什么代价，什么时候不该用。</p>
+<p>🔹 先替 MySQL 说句公道话。中心化数据库有四个好处：快，一次主键查询毫秒级返回，吞吐上万是家常便饭。能改数据，一个 update 搞定，错了还能事务回滚。权限、备份、审计都在自家运维手里。便宜，一台八核 16G 就能撑起日活百万的业务。这四条区块链都给不了，链比数据库慢得多、贵得多、还不能改。</p>
+<p>🔹 数据库在四种场景里就是最优解。数据只在一家机构内部流转。参与方愿意认一个共同的担保人，比如平台、银行、监管。业务要求可修正可修改，比如用户注销、错账冲正。只是单纯想让日志不可改——这种情况在数据库审计日志加一次写入多读的 WORM 存储就够，又便宜又合规。</p>
+<p>⚠️ 把区块链用在这四类场景上，视频的说法是杀鸡用牛刀。区块链的价值只有一个出口：多方互不信任，又没有人有资格当担保人的时候。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：区块链慢、贵、不能改，这三条在单机构场景全是缺点。数据库在这些场景是最优解。</p>
+</blockquote>
+<p>🔹 什么时候互信会变成刚需？视频给了中心化世界的三道坎。第一道是多方不信任，跨机构各存各的账，同一批货四份记录四个版本，只能靠对账人工对比，出错就开始扯皮。第二道是自证清白，账在立方手里，签章能证明文件是谁签的，证明不了签完之后有没有被改过，数据躺在利害相关方的服务器上，日志记得再全也是自己证明自己。第三道是历史追责，找中立平台记账听着不错，但平台收费要吃掉交易额的 1% 到 3%，平台需要授权还可能跑路，本身仍是单点，接着就是谁来监督这个担保人——无限套娃。</p>
+<p>🔹 三道坎的共同点：问题出在信任对象没有架构层面的答案。数据库解决的是记得准，解决不了大家信。还有两笔隐形成本：跨机构对账的时间差，两边财务每月兑一次账差一笔就要拉群打电话翻存证，好几天，这笔钱不在任何报表上却真实发生。跨机构共享数据还牵涉谁能看谁的什么东西，一旦集中就等于全部可见，中心化架构在这点上无解。</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/10-blockchain-arch-2.jpg" alt="「从你每天写的代码说起」四问页" loading="lazy" decoding="async"></p>
+<p>🔹 解法第一步，把账抄给所有人。正式名字叫分布式账本：四家每家存一份全量，新增一笔记录就立刻广播给所有人，谁手里都是全量，谁也不比谁多一份原始数据。落到工程上就是每一方部署一个记录服务，一个 Spring Boot 加一张表，业务发生一笔就同步调用所有参与方的服务，各自插一条，相当于把数据库的 log 全量互推给对方，还要立下铁规矩——这张表只允许 insert，没有 update 没有 delete，写错了追加一条更正记录。这个形态像 git，人人都有一份完整克隆，谁在本地改了什么一眼就能看出来。</p>
+<p>🔹 光抄账本不够，每一份副本还要可验证，工具是哈希。定义：把任意内容压缩成一个固定长度的指纹，比如 SHA-256，输入一部电影还是一个字，输出永远是 64 个 16 进制字符，内容变一点点指纹面目全非。视频的说法是内容定指纹、指纹验内容。三条性质：确定性，同样输入永远同样输出。雪崩效应，改一个字输出的 64 位整个变掉，与原来毫无关联。单向，由内容算指纹瞬间完成，指纹反推内容数学上做不到，比作能通过指纹认出一个人，却没法通过指纹长出一个人。</p>
+<p>🔹 怎么发现有人偷偷改了副本？存指纹。每条重要记录额外存一份哈希，对峙时把双方账本重新算一遍指纹，跟当初存的一比，一样就是没改过。</p>
+<p>🔹 账本那么长，逐条核对太琐碎。工程上的做法是攒一批打个包，像批量提交一样，一万条 insert 攒成一批一起提交省成本，这个包就叫区块。区块有四个字段：本块的数据 data、上一块的指纹 previous hash、本块自己的指纹 hash，以及出块时间 time。其中 previous hash 是整个设计的灵魂。链就是这些包按指纹首尾相扣排成一串：块一的 hash 是 AAA，块二存着 previous hash 等于 AAA，算出自己 BBB，块三存 BBB。有人偷偷改块二里的一个字，块二的 hash 就变了，块三的 previous hash 对不上，块三连着块四，后面所有块连环失效——改一个字等于同时伪造后面所有块的指纹，还要瞒过所有人手里的副本，理论上可能，工程上不可能。</p>
+<p>🔹 完整定义：多方各存一份全量账本、只允许追加、页与页之间用哈希相扣的账本，改任何一条历史记录都会被全体立刻发现。回到事故：正确做法是签署合同的瞬间就把文件的哈希值写入多方共同维护的链，原文各自留存，日后任何一方拿出原文重算哈希跟链上记录对比，相等就证明从签下那一刻起一个字都没改过。这个证明依赖数学，司法存证平台底层就有类似结构。</p>
+<p>🔹 视频接着泼两盆冷水。区块链比不过中心化数据库，查询、统计、事务样样不如 MySQL。它也不是防泄密的保险箱，链上数据人人有份大家都看得见，敏感数据放上去等于公开。它也不是万能的，只保证记上去的没被改，不保证记上去的是真的，塞进假的垃圾，取出来的还是垃圾。</p>
+<p>🔹 代价有四个。慢：写一条数据要经过全网广播、共识确认、多节点落盘，比 MySQL 只需本机事务提交慢很多，MySQL 轻松上万 TPS，区块链大多数情况是上千级别。膨胀：每个节点都存全量账本，历史只增不减，不能像普通数据库那样清理归档，图片视频这类大文件绝对不要上链，只存哈希。隐私：账本人人一份，采购价与成本价这类数据不能让对手和利益相关方看到，客户名单也一样，谁能看到多少要在架构层重新设计，要考虑群组隔离、权限和加密。改不了：这是最容易被低估的一条，业务写错了怎么办，用户想行使删除权怎么办，链上没有 update 没有 delete，纠错只能追加更正记录，旧数据永远躺在那里，所以上链前要严格把关，纠错靠冲正记录。</p>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/10-blockchain-arch-3.jpg" alt="先泼冷水：区块链的三个「不是」与四个代价" loading="lazy" decoding="async"></p>
+<blockquote>
+<p>📌 <strong>考点</strong>：课件把三件事分开了——区块链是多方记账的架构，是中性工具；比特币是区块链的第一个应用，2009 年诞生；虚拟货币是链上的激励代币，波动极大。企业用的链可以一分钱的代币都没有，激励靠联盟规则，不靠挖矿发币。</p>
+</blockquote>
+<h2 id="10-3-区块链架构基础"><a href="#10-3-区块链架构基础" class="headerlink" title="10.3 区块链架构基础"></a>10.3 区块链架构基础</h2><p>🔹 术语先扫清。共识机制的定义：两个节点的账不一样时，按什么规则定输赢。它回答两个问题：谁来记账，几个节点同意才算数。</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>怎么定输赢</th>
+<th>性能与能耗</th>
+<th>视频给的定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POW 工作量证明</td>
+<td>全网算力竞赛，谁先解出难题谁拿到记账权，其余只做验证</td>
+<td>TPS 个位数到十几，能耗很高</td>
+<td>比特币的选择，为完全匿名的陌生公网设计</td>
+</tr>
+<tr>
+<td>POS 权益证明</td>
+<td>按质押权益加随机选记账人，作恶被发现罚没质押</td>
+<td>公链方案</td>
+<td>公网上用，企业场景基本碰不到</td>
+</tr>
+<tr>
+<td>PBFT 实用拜占庭容错</td>
+<td>点名投票一个提案，2&#x2F;3 以上同意才通过</td>
+<td>上千到上万级 TPS（视频口径），能耗低</td>
+<td>企业级联盟链首选</td>
+</tr>
+<tr>
+<td>Raft 及其变体</td>
+<td>领导者选举加日志复制</td>
+<td>上万级 TPS（视频口径）</td>
+<td>Nacos、etcd 底层都是这一组协议</td>
+</tr>
+</tbody></table>
+<p>🔹 拜占庭的来历是几个将军围城靠传令兵沟通，其中可能有叛徒传假消息，翻译到计算机状态就是有的节点作恶账还能不能记对。PBFT 的答案很朴素：2&#x2F;3 以上同意才通过。四方里叛徒不超过一个就拦不住其他三家把账记对，也就是能容忍 1&#x2F;3 的坏节点。</p>
+<p>🔹 挖矿到底在挖什么。每一块账本只能由一个节点来记，这个名额叫记账权，挖矿就是抢这个名额，不同共识机制是不同的抢法。POW 的想法是一道算术题：找一个数，让块内容加上它进行哈希之后，开头指定的位数全是零，前 N 位为零。哈希没有规律，只能一个数一个数地试，普通电脑大概几十毫秒，要求前六位都是零可能要秒级，比特币全网平均 10 分钟才解出来一次，还要烧掉巨额电费。挖矿的真相就是用电费换记账权，比拼算力，谁先找到这个数谁拿到记账权。</p>
+<p>🔹 公链可以想成一个完全开放的公共广场，有电脑有网络随时加入，下载数据、发起交易，记账权人人可争，比特币挖矿和以太坊质押都是这样。它是任何人都能提交写操作的超级大型公共数据库，数据公开透明，效率非常低。比特币的难度按视频说法是找前十几位都是零的数（实际难度约是前 20 位十六进制零），全网矿机一起算，平均 10 分钟一块，电费真金白银在烧。公链慢是故意的，用出块速度换作恶成本——十分钟出一块意味着要篡改历史就得在十分钟内追平全网算力重挖后面所有块，几乎不可能。</p>
+<p>🔹 私链是企业内部的闭门会议室，准入需要许可，完全由某一个组织控制，外人进不来，记账权高度集中，只有指定节点能记账，本质上也是中心化的，写入速度非常快，隐私性很强，跟 MySQL 集群这类传统分布式数据库没太大区别，只是多了一个防篡改的链式账本结构。</p>
+<p>🔹 联盟链是行业俱乐部，准入半开放，由多个企业或机构组成联盟，成员审批才能加入，记账权由联盟内指定节点共同参与，比如十家银行里五家作为节点共同确认交易。特点是多中心化，兼顾隐私、效率和一定的去中心化信任，TPS 远高于公链。</p>
+<p>🔹 智能合约就是一段部署在链上的公共代码，所有节点共同执行，规则提前写死谁都改不了，相当于 MySQL 的存储过程，区别是它跑在每家机构的节点上，而不是某一家的数据库里。还可以类比自动售货机：规则印在机器上人人可见，投币就出货，没有人能暗箱操作，因为机器不偏心。四家机构调同一个合约，不用互相写接口也不用互相信任。什么时候才需要真写合约：多方的业务规则经常变，又都要认账。合约一旦上线改不了，业务规则经常变就要特别小心，可变的参数做成链外配置，或者干脆别放合约。</p>
+<p>🔹 剩下的词一并过一遍。节点是跑着账本的一台服务器，或者一个 Spring Boot 实例。钱包是管密钥的工具，里面装的是钥匙不是钱。签名是用私钥给数据盖章，证明这笔确实是我发的。分叉是两份账对不上。出块是打包一批记录成一块。gas 是公链上执行代码的手续费，联盟链保留计量但不收费，企业级场景基本不用管。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：公链谁都能进，用的是抢答赛那套，慢但关不掉。联盟链是机构实名准入，投票那套，快能追责，所以企业落地几乎都选联盟链。私链一家公司自己玩，本质是带审计的高级数据库，视频的建议是别浪费这个钱。</p>
+</blockquote>
+<h2 id="10-4-区块链实战"><a href="#10-4-区块链实战" class="headerlink" title="10.4 区块链实战"></a>10.4 区块链实战</h2><p>🔹 实战章节只有两小段代码加一堆图和流程：一段 14 行的迷你链，一段 18 行的 Spring Boot 接口，每行都带中文翻译。</p>
+<p>🔹 起点是存证系统：本质是一套防篡改的电子证据保管箱，用密码学和区块链把易被修改、易丢失的电子数据固定下来，合同、交易日志这类数据固定后具备法律效力，能在纠纷中当证据用。普通电子数据存在硬盘或中心化服务器里容易被篡改、伪造、删除，一旦发生纠纷，自己提供的截图或后台数据对方可以不信。存证系统的核心任务是解决自证清白。</p>
+<p>🔹 传统流程先看清楚：用户上传合同，后台算出文件的 SHA-256 指纹，原文存对象存储，指纹存到存证表，返回一个回执——你的文件我收到了。每个项目都是这个结构，没有一行你不了解的东西。它有两个致命缺口：数据库在你手里，别人凭什么信，DBA、运维甚至一个工单都能改这行记录，对手方要的是你没改过的证明，你自己说了不算。只有你一家存，历史说不清，中间有没有被替换过没有任何机制能回答。升级成链补的就是这两条：账本各方各存一份谁也改不了，指纹连成链互相验证，改一处就全线报警。这两个缺口也是很多存证平台招标文件里的需求，比如第三方可验证、历史可追溯。</p>
+<p>🔹 迷你链的三个关键点：previous hash 是灵魂，没有它你只是个列表。出生就算指纹，篡改立刻暴露。只追加不修改，没有 update 也没有 delete，这个限制换来的是互相取得信任的来源。视频给的是带中文注释的片段，下面按它的结构整理，完整实现留给自己补。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 区块：四个字段，previousHash 上一块的指纹、data 本块业务数据、hash 本块自己的指纹、time 出块时间</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Block</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String previousHash;  <span class="comment">// 上一块的指纹</span></span><br><span class="line">    <span class="keyword">private</span> String data;          <span class="comment">// 本块的业务数据</span></span><br><span class="line">    <span class="keyword">private</span> String hash;          <span class="comment">// 本块自己的指纹</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> time;            <span class="comment">// 出块时间</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 构造函数里就把指纹算死，对象一出生指纹就锁死</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Block</span><span class="params">(String previousHash, String data)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.previousHash = previousHash;</span><br><span class="line">        <span class="built_in">this</span>.data = data;</span><br><span class="line">        <span class="built_in">this</span>.time = System.currentTimeMillis();</span><br><span class="line">        <span class="built_in">this</span>.hash = sha256(previousHash + data + time);  <span class="comment">// 出生即算指纹，写死不再变</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>🔹 往链上追加一个块，新块的 previousHash 填当前末尾块的 hash，这一行就把所有块串成一条链。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 追加一块：previousHash 取末尾块的 hash，链就串起来了</span></span><br><span class="line"><span class="keyword">public</span> Block <span class="title function_">addBlock</span><span class="params">(String data)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">lastHash</span> <span class="operator">=</span> chain.get(chain.size() - <span class="number">1</span>).getHash();  <span class="comment">// 上一块的 hash</span></span><br><span class="line">    <span class="type">Block</span> <span class="variable">block</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Block</span>(lastHash, data);                   <span class="comment">// 只追加，不改旧块</span></span><br><span class="line">    chain.add(block);</span><br><span class="line">    <span class="keyword">return</span> block;                                              <span class="comment">// 返回新块，接口层拿它出回执</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>🔹 亲手弄坏一次，验证不可篡改是不是真的好。三步：偷偷改第一块的数据。重新算哈希，新的指纹和块里存的旧指纹对不上，第一块当场报警。第三块里记的 previous hash 对不上第一块，第三块和第四块全线报警。神不知鬼不觉地改就得把后面每一块全部重算一遍，改一块相当于重做整条链。公链还嫌不够，加一道工作量证明，重算每块都要做几亿次哈希运算，篡改成本从改一个字段变成烧几百万电费。POW 证明的是成本，企业链节点实名、作恶可以追责，用投票就够，这是联盟链快、公链慢的根本原因。</p>
+<p>🔹 单机链有单点风险，一条链只在一个节点上和普通账本没区别，四家各跑一份互相通报才算分布式账本。流程五步：A 节点记 B 块，先校验，重算指纹对应 previous hash，对不上直接丢。广播给同伴节点，行话叫 peer，一个 HTTP 调用就能解决。收到的人再转给认识的人，像纯八卦，行话叫 gossip 协议，全网秒级同步。最后四家各存一份完整账本。用微服务的经验理解，每个节点就是一个 Spring Boot 实例，节点之间互相 HTTP 调用，没有 MQ 也没有注册中心。安全底线只有一条：先校验再转发，不校验就转发，一个坏块可能污染全网。</p>
+<p>🔹 新问题随之出现：A 和 B 同时各写一块同时广播，有的节点收到 A 的有的收到 B 的，账本出现两个版本，分叉了。转发解决不了，必须有一条大家都服的裁决规则，那就是共识。真正的区块链把共识内置了，写代码的人不用操心这个问题。</p>
+<p>🔹 18 行的接口代码把链包进熟悉的三层结构：一个 Controller，两个接口。存证接口收到文件算指纹，调用 addBlock 上链，把块哈希和时间戳当返回值返回。验证接口传一个哈希进来，链上查有没有、什么时候存的。加上按哈希回溯查询，三个接口构成一套最小的存证系统。下面是按视频描述整理的片段。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Controller 片段：存证 + 验证两个接口</span></span><br><span class="line"><span class="comment">// 说明：sha256、chainService、Receipt 是我按视频描述补的命名，不是视频里的原名</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/store&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Receipt <span class="title function_">store</span><span class="params">(MultipartFile file)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">hash</span> <span class="operator">=</span> sha256(file.getBytes());              <span class="comment">// 算 SHA-256 指纹</span></span><br><span class="line">    <span class="type">Block</span> <span class="variable">block</span> <span class="operator">=</span> chainService.addBlock(hash);          <span class="comment">// 调用 addBlock 上链</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Receipt</span>(block.getHash(), block.getTime()); <span class="comment">// 块哈希 + 时间戳当返回值</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@GetMapping(&quot;/verify&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">verify</span><span class="params">(<span class="meta">@RequestParam</span> String hash)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> chainService.exists(hash, chain);  <span class="comment">// 链上查有没有、什么时候存的</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>🔹 生产前必须补三件事，都是工程基本功，上链不能豁免：接口加鉴权限流。存证按文件指纹做幂等，重复上链直接返回原回执。每次调用写审计日志。</p>
+<p>🔹 链挂在哪一层？把它当成一个特殊的持久层，以前背后是 MySQL，现在换成 chain service，背后的业务代码一行都不用改。换持久层不换业务，这是链能落地的一个关键。</p>
+<p>🔹 业务规则老是要改的时候智能合约上场。存证合约两个按钮：store 登记一次存证并统一指纹，重复投币会被拒，机器替你做幂等。verify 查询谁什么时候存过。登记成功还会喊一嗓子通知链下系统，这叫事件。Java 侧对接四步：引官方 SDK 和客户端、配数据源。用合约地址加载出一个 Java 对象，之后调它像调本地 service 一样。写操作走共识大概几百毫秒，读操作本机毫秒级，跟读写分离是一个思路。监听事件、落库回执，私钥放到密钥管理服务里，不放进 git。什么时候才需要真写合约：多方规则常常都变，又互相认账。四步里最容易出事的是监听事件——它是异步的，服务一重启可能漏消息，生产上要配漏单补偿，定期拿本地待确认的记录去链上反查询。链给了事件，可靠性还得靠自己的工程兜底。</p>
+<p>🔹 跨机构怎么搭联盟链，有现成开源轮子：FISCO BCOS，国产的、免费、文档比较全。就四步：一条命令生成四个节点的链，本机就能模拟四家机构，一键启动看到四个节点进程都在，链就活了。用官方控制台敲两行命令看块高、发一笔存证，几百毫秒就能出块。最后装一个网页控制台，点几下就能管链、发合约、看交易。</p>
+<p>🔹 四个必须理解的概念。准入靠证书，谁能连这条链是机构们投票定的管理问题。群组是一条链上切出多个独立账本，像 MySQL 实例可以分多个库，不同合作圈不同群组的数据天然隔离。共识节点参与投票，观察节点只看不投，适合监管方接入。为什么至少四个节点：PBFT 只容忍 1&#x2F;3 作恶，要容忍一个坏节点至少需要四个。可以自己演示，停掉一个节点链照常出块，停两个共识就停了。</p>
+<p>🔹 什么东西放链上，什么放链下。链上慢、贵、改不了，就只放存在证明——文件指纹、谁、什么时候，就一条几十个字。链下是快的、便宜的、归你管的：合同原文放对象存储，业务数据放 MySQL 查统计，全在链下。个人信息删除权怎么办：链下原文可以删，链上的哈希追加一条失效记录，既遵守个人信息保护规则，又保证审计连续。</p>
+<p>🔹 四步串起来：用户存合同原文进存储，指纹写上链几秒出块，拿到区块号和交易号。链上事件异步通知 Java，监听后把回执落库。再加一个每天凌晨的对账定时任务，逐条比对链下记录和链上的回执，漏记或篡改立刻暴露。</p>
+<p>🔹 判断一个字段要不要上链，只问一句：将来争议的时候第三方需要验证它的什么？只要验证它存在过没改过，哈希上链就够。要频繁读内容就留链下，前端展示永远查库不上链，链每秒只能写上千这种 TPS，拿它当查询库会非常慢。</p>
+<p>🔹 性能上，联盟链出块大概是百毫秒级别，每秒大概千笔交易（视频口径），够大多数多方业务用，前提是链上只放凭证，大文件和大字段一律放链下，写之前先做幂等，重复数据别浪费共识。安全上，私钥进密钥管理服务，绝不落代码库。证书定期轮换。合约代码能短则短，上限改不了，短就是安全。审计日志照常记，上链不能豁免工程纪律。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：一条存证请求的落点判断只有一句——第三方将来要验证什么。存证系统两个致命缺口：库在自己手里、只有自己一家存。</p>
+</blockquote>
+<h2 id="10-5-从-demo-到生产"><a href="#10-5-从-demo-到生产" class="headerlink" title="10.5 从 demo 到生产"></a>10.5 从 demo 到生产</h2><p>🔹 demo 能跑和生产之间隔着一堆工程问题：代码怎么分模块、一次请求怎么走完全程、哪些场景值得上、怎么部署运维落地、怎么排期。</p>
+<p>🔹 分模块给了五个目录，四个模块加一个公共库。chain-core 是领域模型，Block、哈希工具这些不依赖 Spring 的纯 Java。chain-contract 是合约源码和部署脚本，独立构建，产物放到配置里。chain-api 是 Spring Boot 应用，REST 接口、鉴权、幂等这些。chain-sink 是事件监听、对账、回执落库。chain-common 是 DTO、异常、工具类，只被依赖，不依赖别人。</p>
+<p>🔹 三条理由。chain-sink 独立成模块，因为事件监听和对账是长期运行的后台任务，伸缩节奏和 API 完全不一样——API 白天高峰晚上空闲，SINK 二十四小时匀速跑，放一个进程里扩容 API 时会顺手多起几个 SINK 重复消费事件，分开将来能拆成独立进程。chain-contract 独立发布，因为合约改一次要多方评审、重新部署、还要更新地址，节奏和 Java 服务完全不同。把合约版本化，地址进配置中心，不重启就能切到新合约，合约升级时不需要停业务。chain-core 不依赖 Spring，领域逻辑保持纯 Java，单元测试毫秒级就能跑完，前面那条迷你链就是它的一个雏形，不需要启动 Spring 容器就能测。</p>
+<p>🔹 一次请求走完全程，视频给的是合同签署场景：甲公司、乙公司、公证处、监管方四方，签完存证，将来有纠纷能当证据。九步。第一步网关收请求，做三件事——鉴权确认是这家机构，限流防止有人刷流量，校验格式和大小，比如限制 20 兆以内、只收 PDF 和图片，这是上链前的第一道关，别把垃圾扔进链里。第二步服务端算 SHA-256 得到 64 位码，原文进对象存储，业务记录落数据库，记住的只有 key 没有原文。第三步幂等检查，拿哈希查是不是已经存过，同一份合同甲乙双方可能各传一次，已存在就直接返回原回执，不用重复上链。第四步签名发交易，SDK 从 KMS 里取这家机构的私钥签这笔交易，把哈希写进合约，私钥不在应用内存里在 KMS 里，应用只请求签名。第五步共识出块，交易广播到四个节点，视频说 PBFT 是两阶段投票，FISCO BCOS 官方流程是预准备、预投票、预提交三阶段，拿到 2&#x2F;3 同意就出块，大概几百毫秒。第六步合约执行，四个节点各自执行同一份 store 函数，校验、写 mapping、emit 事件，注意各自执行不是一台机器算完广播结果，是每台机器都算一遍、算完对答案。第七步回执落库，chain-sink 监听到 store 事件，拿到区块号、交易哈希、合约地址和时间落进回执表，它是异步的，可能比第八步晚几秒。第八步返回给用户的回执编号在业务侧生成，不是在链上生成的，这张回执包含编号、时间、哈希、区块号。第九步日后验证，任何一方（甲公司、乙公司、公证处、法院）把手上的合同重新算一遍 SHA-256，和链上记录比对，一致就证明从签署那天到现在一个字都没改过。</p>
+<p>🔹 场景不同的做法差很远，视频举了四个落地场景，每个都问三句：痛点是什么、链在其中扮演什么角色、是不是非链不可。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>痛点</th>
+<th>链的角色</th>
+<th>判断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>司法存证</td>
+<td>电子证据一改一失效，自己证明自己法院难采信</td>
+<td>签署瞬间哈希上链加时间戳，法院认链上记录作为证据</td>
+<td>非链莫属，同时满足多方与防篡改两个刚需</td>
+</tr>
+<tr>
+<td>供应链溯源</td>
+<td>批次信息各环节自己上报，出问题查不到源头</td>
+<td>每环节把批次号加校验哈希上链，全程可回溯，责任可定位</td>
+<td>可以做，但别承诺上链就保真——链只保证记录没被改过，不保证记录是真的</td>
+</tr>
+<tr>
+<td>供应链金融</td>
+<td>核心企业信用传不到二级三级供应商，中小企业融资贵融资难</td>
+<td>应收账款凭证上链流转，可拆分，金融机构据此放款</td>
+<td>多方互信加监管要求下非常合适，天生是联盟；链上唯一重复质押被杜绝</td>
+</tr>
+<tr>
+<td>数字身份证书徽章</td>
+<td>资质验证靠打电话靠发函，慢且不可靠</td>
+<td>颁发机构把证书哈希上链，任何验证方秒级核验真伪，机构解散后证书依然可验</td>
+<td>规模小时中心化发证系统更便宜，跨机构长生命周期才值得上链</td>
+</tr>
+</tbody></table>
+<p>🔹 衡量值不值得用区块链，视频给了三问：跨机构吗、需要防篡改背书吗、数据源头可信吗。三问下来会发现很多场景下不用区块链才是更正常的答案。</p>
+<p>🔹 部署分环境。本地和测试环境用一条 docker 命令把几个组件全部起起来，测试链按脚本建，本地永远不能手工搭链，手工搭的链第二天自己都复现不出来，要用脚本一键重置。生产分两种：优先用云厂商的 BaaS，节点托管、证书轮换、监控告警都是现成的，能省下运维成本。必须自建就上 K8S，注意链节点是有状态服务，需要数据盘、需要稳定的网络标识，不要当成无状态服务让它到处漂移。业务应用 chain-api 和 chain-sink 才是无状态的，可以随便弹性伸缩扩容。原则是节点要稳，节点频繁重启会触发视图切换，出块间隔会抖动，严重时整条链卡住，所以链节点的副本数、调度策略、滚动升级都要按稳定需求设计，不能按弹性需求设计。</p>
+<p>🔹 监控定四类指标。第一类出块：高度是否在增长，出块间隔抖不抖，高度不涨这条链就是死的。第二类节点：进程在不在，磁盘满没满，peers 数够不够。第三类交易：TPS、失败率、有没有积压队列。第四类业务：回执落库延迟、对账差异条数，这些从业务视角看链的健康度。</p>
+<p>🔹 治理技术上解决不了，必须落到书面章程上：新成员准入流程谁来批准、要多久、要什么材料。作恶或违约怎么处置，罚多少、怎么退出。合约升级要有多方签名规则，需要几个人签、谁有否决权。这些都是通过章程约束人。</p>
+<p>🔹 路线三段。第一阶段 0<del>3 个月，存证先行、单场景验证，挑一个最痛的场景，比如合同、检测报告、验收单，把哈希上链，起步可以用 BaaS 或者本机四节点小集群，产出一条有背书的完整链路。第二阶段 3</del>9 个月，多方扩源、立好规矩，让更多机构入网，群组划分、治理章程、WeBASE 运维体系和告警建起来，产出是一个能自我运转的联盟。第三阶段九个月以后，深化集成、治理净化，合约升级体系、隐私计算、跨链互认、和业务系统深度集成、数据产品化一步步来，到这里链才真正变成基础设施。</p>
+<p>⚠️ 顺序反了会天天出事：一上来就让八家机构入网，章程还没签，结果一家想退一家作恶一家说数据不能给别人看，项目直接停摆。顺序是先证明单点价值，再扩源，再深化。</p>
+<p>🔹 五个坑。第一个坑是为了链而链，老板说上就上，单机构场景硬上，维护成本全打水漂。解法是自查数据是不是只在内部流转、有没有共同担保人、业务要不要可删可改。第二个坑是原文上链，大文件直接塞到链上，存储爆炸、同步变慢、隐私全无。解法是哈希上链、原文入库。第三个坑是先搭链后立规矩，节点谁出钱、作恶怎么罚没说清楚就开张，后面的扯皮只是时间问题。解法是先签章程再搭链。第四个坑是密钥放到 git，开发密钥顺手提交，身份可以被冒用，事故不只自己出事整个联盟都出事。解法是 KMS 加 CI 私钥扫描。第五个坑是赌合约不会改，上线前发现有 bug，合约不可热修，业务被迫停摆。解法是数据逻辑分离加多方签名升级，而且要在第一版就设计进去，不能等出了事再补。</p>
+<h2 id="10-6-常见错误清单"><a href="#10-6-常见错误清单" class="headerlink" title="10.6 常见错误清单"></a>10.6 常见错误清单</h2><p>🔹 前五条是视频点名的五个坑，后三条是其他章节顺带提到的坑。</p>
+<p>⚠️ 为了链而链。单机构内部流转、有共同担保人、业务本身要可删可改的场景硬上链，慢、贵、还不能改，维护成本全打水漂。<br>⚠️ 把合同原文、大图片大文件直接塞上链。每个节点都存全量账本且只增不减，存储膨胀、同步变慢、隐私全无，只该把哈希上链。<br>⚠️ 先搭链后立规矩。节点谁出钱、作恶怎么罚、怎么退出都没写进章程就开张，后面的扯皮只是时间问题。<br>⚠️ 把私钥提交进 git。身份可以被冒用，事故不只自己出事，整个联盟一起出事，私钥必须进 KMS 并做 CI 私钥扫描。<br>⚠️ 赌合约不会改。合约上线即不可热修，上线前发现 bug 业务只能停摆，升级方案要在第一版就设计进去。<br>⚠️ 链上放原文和敏感字段。链上人人有份谁都看得见，采购价成本价客户名单上链等于公开给对手。<br>⚠️ 用链当查询库。前端展示也去链上查，链每秒只能写上千这种 TPS，查询会非常慢，展示永远查链下库。<br>⚠️ 忽略事件异步和消息丢失。监听事件服务一重启就可能漏消息，生产上不配漏单补偿机制，回执表会和链上对不上。</p>
+<h2 id="10-7-小结"><a href="#10-7-小结" class="headerlink" title="10.7 小结"></a>10.7 小结</h2><p>🔹 先问多方互不信任，再问要不要链。没有多方的情况，区块链就是一个昂贵的摆设。</p>
+<p>🔹 链上存共识，链下存业务。哈希上链是工程和法务的共同语言，在工程上是最省成本的证据，在法务上是可采信的凭证。</p>
+<p>🔹 不可篡改是数学给的，信任是人管出来的。密钥、章程、治理一个都不能少，技术能保证改了会被发现，保证不了没人敢改。</p>
+<p>🔹 让联盟活下来的是章程、准入和处置机制，链只是把规矩写成了代码。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+      <button type="button" class="close-highlight" aria-label="关闭高亮" onclick="clearHighlights()"><span aria-hidden="true">×</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/%E5%85%B1%E8%AF%86/"># 共识</a>
+          
+          <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/"># 区块链</a>
+          
+          <a href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/"># 智能合约</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84/"># 架构</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"># 架构笔记</a>
+          
+          <a href="/tags/%E8%81%94%E7%9B%9F%E9%93%BE/"># 联盟链</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+      
+      <a class="prev" rel="prev" href="/2026/11/12/%E8%BF%90%E7%BB%B4%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/11-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%9E%B6%E6%9E%84--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >消息队列架构 — 从叫车接口到 Redis Streams 与选型</a
+      >
+       
+      <a class="next" rel="next" href="/2026/11/11/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A%E6%95%99%E7%A8%8B/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%80%9F%E9%80%9A--09-%E9%9D%A2%E8%AF%95%E6%BC%94%E7%BB%83%E4%B8%8E%E7%AC%94%E8%AF%95%E9%80%9F%E9%80%9A/"
+        >软件测试速通--09-面试演练与笔试速通</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>

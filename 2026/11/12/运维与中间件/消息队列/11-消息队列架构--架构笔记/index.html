@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="老江湖">
+
+
+    <meta name="subtitle" content="记录进入房间门后的美好">
+
+
+    <meta name="description" content="一年前，孤苦伶仃的老江湖，偶然间发现一处房间门，推门而入，从此进入了充满幸福的世界。">
+
+
+    <meta name="keywords" content="老江湖,博客,房间门">
+
+
+<title>消息队列架构 — 从叫车接口到 Redis Streams 与选型 | 欢迎来到老江湖的博客</title>
+
+
+
+    <link rel="icon" href="/images/%E9%87%91%E6%AF%9B.png?_t=1758006391547">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/css/search.css">
+    
+    <link rel="stylesheet" href="/css/search-panel.css?v=a3edd450ed6d">
+    
+
+<!-- highlight.js 样式（默认亮色） -->
+<!-- highlight.js 自动上色功能 -->
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+    <script src="/js/lazy-img.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-header header-logo">
+        <a href="/">老江湖的博客</a>
+      </div>
+      <div class="menu navbar-right">
+        <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+
+        <a
+          class="nav-back"
+          href="/"
+          aria-label="返回上一页"
+          onclick="return navBack()"
+        >
+          <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+          <span>返回</span>
+        </a>
+
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+
+        <input id="switch_default" type="checkbox" class="switch_default" />
+        <label for="switch_default" class="toggleBtn"></label>
+      </div>
+    </div>
+  </nav>
+
+  
+  <nav class="navbar-mobile" id="nav-mobile">
+    <div class="container">
+      <div class="navbar-header">
+        <div>
+          <a href="/">老江湖的博客</a
+          ><a id="mobile-toggle-theme">·&nbsp;Light</a>
+        </div>
+
+        <div class="navbar-actions">
+          <a
+            class="nav-back"
+            href="/"
+            aria-label="返回上一页"
+            onclick="return navBack()"
+          >
+            <svg class="nav-back-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+            </svg>
+          </a>
+          <button type="button" class="search-entry" aria-label="搜索" onclick="window.SearchPanel&&window.SearchPanel.open()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          </button>
+          <div class="menu-toggle" onclick="mobileBtn()">
+          <svg
+            class="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"
+            />
+          </svg>
+          <svg
+            class="close-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+          >
+            <!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE -->
+            <path
+              fill="currentColor"
+              d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"
+            />
+          </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu" id="mobile-menu">
+        
+        <a class="menu-item" href="/archives">归档</a>
+        
+        <a class="menu-item" href="/category">分类</a>
+        
+        <a class="menu-item" href="/tag">标签</a>
+        
+        <a class="menu-item" href="/Timer">任务计时器</a>
+        
+        <a class="menu-item" href="/timeLine">时间线</a>
+        
+        <a class="menu-item" href="/tongji">网站统计</a>
+        
+        <a class="menu-item" href="/about">关于</a>
+        
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="scrim" data-root="/"></div>
+<div class="panel" data-root="/">
+  <div class="grip"></div>
+  <div class="phead">
+    <div class="prow">
+      <svg class="sicon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input class="sinput" type="search" placeholder="搜索标题、标签、目录、正文" />
+      <button class="xbtn" type="button" aria-label="关闭">×</button>
+    </div>
+  </div>
+  <div class="cats-wrap"><div class="cats"></div></div>
+  <div class="results"><div class="empty">没有结果，换个关键词试试</div></div>
+  <p class="sr-only" aria-live="polite"></p>
+</div>
+<script src="/js/search.js" defer></script>
+<script src="/js/search-panel.js?v=2da4475351e5" defer></script>
+<script>
+  // 目录小节的锚点链接（href="#标题"）会给浏览器留一条同文档历史记录，
+  // history.back() 于是退回跳转前的滚动位置，而不是「上一个页面」。
+  // 这里直接回到 document.referrer（同源的上一个页面）；没有同源来源时返回 true，
+  // 由 <a> 的 href（站点首页）兜底。
+  function navBack() {
+    var ref = document.referrer.split('#')[0];
+    var self = location.href.split('#')[0];
+    if (ref && ref !== self && ref.indexOf(location.origin + '/') === 0) {
+      location.href = ref;
+      return false;
+    }
+    return true;
+  }
+</script>
+            <div class="main">
+                
+
+<div class="container with-toc">
+    <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">展开所有</a>
+        <a onclick="go_top()">返回顶部</a>
+        <a onclick="go_bottom()">返回底部</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var toc_visible_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    // 断点需与 source/css/_page/_post/post_toc_mobile.styl 里的 1023px 保持一致
+    var toc_mobile_media = window.matchMedia('(max-width: 1023px)');
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        // 正文位于 .post-wrap（position: relative）内，标题的 offsetTop 是相对它算的；
+        // 不开启这一项，高亮位置会整体比标题的真实位置滞后 .post-wrap 的偏移量。
+        hasInnerContainers: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(tocbot_default_config);
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+        toc_relocate();
+        toc_mobile_media.addEventListener('change', toc_relocate);
+        var list = document.querySelector('.tocbot-list');
+        if (window.MutationObserver) {
+            // tocbot 每次刷新高亮都会改写链接的 class，据此把目录滚到能看见高亮项的位置
+            new MutationObserver(toc_sync_active).observe(list, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class'],
+            });
+        }
+    });
+
+    // 桌面边栏与移动抽屉共用同一份目录 DOM 和同一个 tocbot 实例：
+    // 视口变窄时把 .tocbot-list 挂进抽屉，变宽时挂回右侧边栏。
+    function toc_relocate() {
+        var list = document.querySelector('.tocbot-list');
+        var host = toc_mobile_media.matches
+            ? document.querySelector('.tocbot-list-mobile')
+            : document.querySelector('.post-toc');
+        if (list && host && list.parentNode !== host) {
+            host.insertBefore(list, host.firstChild);
+        }
+        toc_sync_active();
+    }
+
+    // 目录盒只有 450px 高，长文章里高亮项常常落在可视区外，需要把盒子滚过去
+    function toc_sync_active() {
+        toc_scroll_to_active();
+        // 展开动画有 300ms 过渡，过渡结束后高亮项的位置还会变，稍后再校正一次
+        clearTimeout(toc_visible_timer);
+        toc_visible_timer = setTimeout(toc_scroll_to_active, 350);
+    }
+
+    function toc_scroll_to_active() {
+        var list = document.querySelector('.tocbot-list');
+        if (!list) return;
+        var active = list.querySelector('.is-active-link');
+        if (!active) return;
+        var box = toc_scroll_box(list);
+        var box_rect = box.getBoundingClientRect();
+        var active_rect = active.getBoundingClientRect();
+        if (active_rect.top < box_rect.top) {
+            box.scrollTop -= box_rect.top - active_rect.top;
+        } else if (active_rect.bottom > box_rect.bottom) {
+            box.scrollTop += active_rect.bottom - box_rect.bottom;
+        }
+    }
+
+    // 真正可滚动的容器：桌面是 .tocbot-list 自身，移动端是抽屉里的 .tocbot-list-mobile
+    function toc_scroll_box(list) {
+        var node = list;
+        while (node) {
+            if (node.clientHeight > 0 && node.scrollHeight > node.clientHeight) {
+                if (/(auto|scroll)/.test(window.getComputedStyle(node).overflowY)) return node;
+            }
+            node = node.parentElement;
+        }
+        return list;
+    }
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? '展开所有' : '折叠所有';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script> <button type="button" class="toc-mobile-fab" aria-label="打开文章目录" aria-expanded="false" onclick="toggleMobileToc()">
+  <span class="toc-mobile-icon" aria-hidden="true">☰</span>
+</button>
+
+<div class="toc-mobile-overlay" onclick="toggleMobileToc()"></div>
+
+<div class="toc-mobile-drawer">
+  <div class="toc-mobile-header">
+    <span class="toc-mobile-title">目录</span>
+  </div>
+  <!-- 目录内容由 _partial/toc.ejs 里的 tocbot 实例渲染，按视口宽度搬进/搬出这里 -->
+  <div class="tocbot-list-mobile"></div>
+</div>
+
+<script>
+  function toggleMobileToc() {
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    var drawer = document.querySelector('.toc-mobile-drawer');
+    var fab = document.querySelector('.toc-mobile-fab');
+
+    if (overlay.classList.contains('active')) {
+      overlay.classList.remove('active');
+      drawer.classList.remove('active');
+      fab.classList.remove('active');
+      fab.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    } else {
+      overlay.classList.add('active');
+      drawer.classList.add('active');
+      fab.classList.add('active');
+      fab.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // 点抽屉里的目录项时先收起抽屉，再由 tocbot 做平滑滚动。
+  // 监听挂在 document 的捕获阶段：它早于 tocbot 挂在 body 上的冒泡监听，
+  // 这样抽屉关掉、body 的 overflow 复位之后，滚动目标才是最终布局里的位置。
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest
+      ? e.target.closest('.tocbot-list-mobile .toc-link')
+      : null;
+    if (!link) return;
+    var overlay = document.querySelector('.toc-mobile-overlay');
+    if (overlay && overlay.classList.contains('active')) toggleMobileToc();
+  }, true);
+</script>  
+  <article class="post-wrap">
+    <header class="post-header">
+      <h1 class="post-title">消息队列架构 — 从叫车接口到 Redis Streams 与选型</h1>
+      
+      <div class="post-meta">
+         作者:
+        <a itemprop="author" rel="author" href="/">老江湖</a>
+         
+        <span class="post-time">
+          <br />日期:
+          <a href="#"
+            >十一月 12, 2026&nbsp;&nbsp;9:20:00</a
+          >
+        </span>
+         
+        <span class="post-category"
+          ><br />
+          分类: 
+          <a href="/categories/%E8%BF%90%E7%BB%B4%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/">运维与中间件</a>
+          
+          <a href="/categories/%E8%BF%90%E7%BB%B4%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">消息队列</a>
+          
+        </span>
+        
+      </div>
+      
+    </header>
+
+    <div class="post-content"><hr>
+<p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
+<blockquote>
+<p>原始资料：B 站 UP 主 <a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912">程序员小Dan</a> 的《软件架构师》系列视频（<a target="_blank" rel="noopener" href="https://space.bilibili.com/3493134174521912/lists/9203402?type=season">合集·软件架构师</a>）第 11 篇《【软件架构】一小时掌握消息队列(生产者,消费者,broker…)》（<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1g4W26yEtd/">视频链接</a>）。本篇是我学习该视频后整理的复习笔记，观点与讲解以他的视频为准，文内配图取自视频课件；感谢他的视频与资料。</p>
+</blockquote>
+<h1 id="11-消息队列架构"><a href="#11-消息队列架构" class="headerlink" title="11 消息队列架构"></a>11 消息队列架构</h1><blockquote>
+<p>📌 <strong>本篇速览</strong></p>
+<ul>
+<li>引言：3.2 秒的叫车接口（11.1）</li>
+<li>认识消息队列：角色、数据流与代价（11.2）</li>
+<li>消息队列实战：Redis Streams 四段代码（11.3）</li>
+<li>可靠性：不丢失、不重复、不乱序（11.4）</li>
+<li>生产与选型：三大产品与 Redis 队列的边界（11.5）</li>
+<li>常见错误清单（11.6）</li>
+<li>消息队列小结（11.7）</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>这篇从一个转圈 3.2 秒的叫车接口讲起，把消息队列的角色、代价、Redis Streams 写法和选型口径一次讲完。</p>
+</blockquote>
+<p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/11-mq-arch-1.jpg" alt="消息队列架构精讲封面" loading="lazy" decoding="async"></p>
+<hr>
+<h2 id="11-1-引言：一个转圈-3-2-秒的叫车接口"><a href="#11-1-引言：一个转圈-3-2-秒的叫车接口" class="headerlink" title="11.1 引言：一个转圈 3.2 秒的叫车接口"></a>11.1 引言：一个转圈 3.2 秒的叫车接口</h2><p>🔹 视频开场给了一个事故。网约车平台「飞驰出行」，乘客点「叫车」后 App 白转了 3.2 秒，才跳到「正在为你派单」页面。深究底层，这 3.2 秒是五步串出来的：</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>耗时</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>校验乘客定位</td>
+<td>120ms</td>
+</tr>
+<tr>
+<td>写行程单</td>
+<td>180ms</td>
+</tr>
+<tr>
+<td>派单给司机</td>
+<td>900ms</td>
+</tr>
+<tr>
+<td>记行程积分</td>
+<td>800ms</td>
+</tr>
+<tr>
+<td>更新乘客画像</td>
+<td>1200ms</td>
+</tr>
+</tbody></table>
+<p>🔹 慢不在等司机。早晚高峰运力紧张，等一会儿用户能接受。慢在接口。点了按钮页面没反应，用户不知道发生了什么。普通时段都这样，晚高峰五步叠加可能涨到十来秒，甚至报错。</p>
+<p>🔹 两个细节值得注意。积分和画像排在主链路上，可积分晚 10 分钟到账、画像晚一小时更新，用户当下感知不大。五步又是串联的，任何一步抛异常，整个叫车就回滚。晚高峰网络抖一下、某个服务发个版，超时率就飙升，用户投诉的是「用 App 叫不到车」。</p>
+<p>🔹 根源在于这个接口把用户当下没在等的事情干完了才返回。一个跟叫车成败无关的服务挂了，凭什么拖累整个叫车。要解决它，就要用到今天的主角——消息队列。</p>
+<h2 id="11-2-认识消息队列：是什么、为什么能治病、代价是什么"><a href="#11-2-认识消息队列：是什么、为什么能治病、代价是什么" class="headerlink" title="11.2 认识消息队列：是什么、为什么能治病、代价是什么"></a>11.2 认识消息队列：是什么、为什么能治病、代价是什么</h2><p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/11-mq-arch-2.jpg" alt="认识消息队列章节页" loading="lazy" decoding="async"></p>
+<h3 id="11-2-1-五步串成一条链，三宗罪"><a href="#11-2-1-五步串成一条链，三宗罪" class="headerlink" title="11.2.1 五步串成一条链，三宗罪"></a>11.2.1 五步串成一条链，三宗罪</h3><p>🔹 叫车接口从上到下五步：校验定位、写行程单、派单、记积分、更新画像，合计 3.2 秒。前三步是用户真的在等叫车时要等的，后两步晚一点用户也能接受。这五件事重要性有差别，现在却排成一队同生共死。排成一队就有三宗罪：</p>
+<ul>
+<li><strong>慢</strong>：串行调用下总耗时是加法，每一步加起来就是用户等待的时长。没有任何一步慢得离谱，加起来却明显慢了。</li>
+<li><strong>脆</strong>：可用性是乘法。五步每步都能达到 99% 可用，乘起来是 95% 可用。积分服务抖一下，前面的活儿全白干，整个叫车失败。</li>
+<li><strong>崩</strong>：晚高峰每秒可能来上万个请求，接口里的调用全怼到数据库上。多出来的请求只能排队，压垮连接池和 CPU。同步系统没有缓冲的概念，流量什么形状，压力就什么形状。</li>
+</ul>
+<p>🔹 三宗罪的病根，是所有事不管多急多慢、靠不靠谱，都挤在同一个管道里，必须同一时刻按顺序干完。病根不在某一步慢，在排队这个结构本身。结构的问题改配置解决不了，要换的是结构。</p>
+<h3 id="11-2-2-快递柜比喻：四个角色"><a href="#11-2-2-快递柜比喻：四个角色" class="headerlink" title="11.2.2 快递柜比喻：四个角色"></a>11.2.2 快递柜比喻：四个角色</h3><p>🔹 把消息队列想成小区里的快递柜，四个画面就能对上：</p>
+<ul>
+<li><strong>生产者 Producer</strong>：快递员把包裹放进格子，关上柜门就去送下一单，不等收件人拆、不等签收。对应代码里叫车服务不直接调积分服务，而是把「行程已创建」写成一条消息塞进柜子，塞完就返回，乘客很快看到「派单中」。</li>
+<li><strong>Broker</strong>：柜子自己负责暂存，有电源有锁，24 小时都在。它是独立运行、先把消息存下来的中转程序。关键在「独立」两个字，寄件人和取件人从不见面，放下就走、有空来取，谁也不等谁。</li>
+<li><strong>消费者 Consumer</strong>：取件人有空来取，下班顺路取件，六点下班还是加班到十点都行。定义是订阅并且处理消息的那一方。积分服务抖动或宕机，柜子里的消息原封不动等着，叫车本身一点不受影响。</li>
+<li><strong>重试与死信</strong>：取件人拆开发现商品是坏的，退回去重发一次，这叫重试。重发几次都不行，就有一个坏件专柜，消息进死信，等人工处理。</li>
+</ul>
+<p>🔹 设计原则只有一条：消息永远不会凭空消失。四个画面合起来就能下定义——消息队列是一个独立运行的中转程序，发送方把消息塞进去就返回，接收方按照自己的节奏取出来去处理。</p>
+<h3 id="11-2-3-核心模型：topic、点对点、发布订阅、推拉"><a href="#11-2-3-核心模型：topic、点对点、发布订阅、推拉" class="headerlink" title="11.2.3 核心模型：topic、点对点、发布订阅、推拉"></a>11.2.3 核心模型：topic、点对点、发布订阅、推拉</h3><p>🔹 柜子的内部结构就是消息队列的核心模型。生产者把「行程已创建」打包成一条消息交给柜子就返回。柜子不是一整片格子混着放，它是有分栏的：行程事件一栏、支付事件一栏、用户事件一栏，每一栏只放一类消息。这个分类栏在行业黑话里叫主题，也就是 topic。分栏是为了让积分服务只收行程事件，混着放它得一条条挑出支付消息扔掉，白费功夫。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>视频里的定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主题 topic</td>
+<td>柜子的分类栏，每栏只放一类消息</td>
+</tr>
+<tr>
+<td>点对点</td>
+<td>一件包裹只能一个人取走</td>
+</tr>
+<tr>
+<td>发布订阅</td>
+<td>行程事件这一栏，积分、画像、推荐各拿一份复印件</td>
+</tr>
+<tr>
+<td>推</td>
+<td>快递员把包裹送到你本人手上、送到家里</td>
+</tr>
+<tr>
+<td>拉</td>
+<td>你去快递柜里取，按自己的消化能力来，不会被撑死</td>
+</tr>
+<tr>
+<td>消费者组</td>
+<td>同一栏的件分给组内几台机器各处理一部分</td>
+</tr>
+</tbody></table>
+<p>🔹 业务消息基本都是发布订阅模式，一次发布多方各自订阅。消费者自己拉，按自己的消化能力来，不会被撑死，主流也是拉模式。扩容有两条路：换更强的机器是纵向扩容，多加几台普通机器是横向扩容。</p>
+<p>🔹 对常见产品，界面五花八门，骨架都是这张图。主题在不同产品里叫法不同：Kafka 叫 topic，Redis 可以记成 stream。</p>
+<h3 id="11-2-4-位点与消费者组"><a href="#11-2-4-位点与消费者组" class="headerlink" title="11.2.4 位点与消费者组"></a>11.2.4 位点与消费者组</h3><p>🔹 柜子怎么记住每个取件人取到哪了？给每个取件人发一张取件进度卡，上面记着「你已经取到第三件了」，取一件确认一件，卡片上的数字往后挪一格。重启或断电恢复后照着卡片继续取，取过的不会重来，没取的也不会漏掉。这张进度卡在消息队列术语里叫位点，英文 offset，是后面不丢失、不重复的第一根支柱。</p>
+<p>🔹 画像服务一台机器处理不过来怎么办？纵向扩容很可能很快到天花板，那就多来三台普通机器，把行程事件栏里的件分着取，这叫横向扩容。一条消息只给一台机器处理，三台就是三倍速度，坏一台也只是停了三分之一。这几台机器组成一个消费者组，共享同一张进度卡。画像组和积分组是两张不同的卡，画像取完了积分才取一半，互不拖累。这就是发布订阅，一条消息，每组各拿一份。</p>
+<blockquote>
+<p>📌 <strong>考点</strong>：位点 offset 是取件进度卡，保证取过的不会重来、没取的不会漏掉；消费者组共享同一张进度卡，组内一条消息只给一台机器，不同组各收一份。</p>
+</blockquote>
+<h3 id="11-2-5-代价与「什么时候不要用」"><a href="#11-2-5-代价与「什么时候不要用」" class="headerlink" title="11.2.5 代价与「什么时候不要用」"></a>11.2.5 代价与「什么时候不要用」</h3><p>🔹 消息队列不是免费引进来就能用的，四个代价要摆上台面：</p>
+<ul>
+<li><strong>一致性变慢</strong>：同步时积分画像当场做完，叫车才算成功；异步后叫车先成功，积分可能晚几分钟才到。中间有一段数据暂时不一致的窗口。业务能容忍就没关系，不能容忍还得放回同步。</li>
+<li><strong>会重复</strong>：队列的保命设计是宁可重复、不可丢失，同一封信息可能推送两遍。收件方必须认得出「这单我已经处理过了」，这个能力叫幂等。</li>
+<li><strong>可能积压</strong>：消费者慢了或挂了，柜子里的件越堆越多，必须有人盯着堆积量配告警。</li>
+<li><strong>多一摊运维</strong>：原来只管数据库，现在要多一套部署、监控和扩容的集群。</li>
+</ul>
+<p>🔹 什么时候不要用，也有三条标准：用户要立刻拿到结果的操作不要用，查余额、支付确认异步了会影响使用；只有一个系统在用的话，没必要自己跟自己解耦；流量平稳的小系统，一天只有几千单，没有流量洪峰，也没必要削峰填谷。</p>
+<p>🔹 用消息队列，付出的是及时一致性和简单性，换回的是主链路飞快、故障隔离、洪峰缓冲。这笔账在不同系统上算的结果不一样。消息队列的使用应该是一个架构决策，不是每个系统默认的操作。</p>
+<h3 id="11-2-6-一条消息的一生：五站"><a href="#11-2-6-一条消息的一生：五站" class="headerlink" title="11.2.6 一条消息的一生：五站"></a>11.2.6 一条消息的一生：五站</h3><p>🔹 一条消息从生产到被处理完，一共经历五站。每一站都要问两个问题：可能出什么事，保障机制是什么。</p>
+<table>
+<thead>
+<tr>
+<th>站</th>
+<th>风险</th>
+<th>保障机制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>发送</td>
+<td>网络抖动，消息没进柜子</td>
+<td>发送确认：柜子收到后回一个消息编号，拿到才算放进去，没拿到再发一次</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>硬盘坏了</td>
+<td>刷盘加备份，主柜坏了备用柜子顶上，两个柜子互为副本</td>
+</tr>
+<tr>
+<td>投递</td>
+<td>消费者刚拿到就掉线</td>
+<td>没有确认就一直算没送出去，消息在柜子挂着，回头再次投递</td>
+</tr>
+<tr>
+<td>处理</td>
+<td>代码抛异常，处理到一半失败</td>
+<td>自动重投机制</td>
+</tr>
+<tr>
+<td>签收</td>
+<td>处理完了要回一句「这条我处理完了」</td>
+<td>回完这句，进度卡才往前挪</td>
+</tr>
+</tbody></table>
+<p>🔹 签收之前，消息都不算处理完。处理之后、签收之前这段时间万一崩了，队列以为你做完了，这单就可能永远丢在半路。宁可迈一步去签收，也不能让它丢掉。</p>
+<p>🔹 排查故障有口诀：消息丢了，查第一站、第二站；消息卡住不动，查第四站；消息重复了，看第五站。</p>
+<h3 id="11-2-7-自动重投与死信"><a href="#11-2-7-自动重投与死信" class="headerlink" title="11.2.7 自动重投与死信"></a>11.2.7 自动重投与死信</h3><p>🔹 消费者处理失败，队列要走四步：</p>
+<ol>
+<li><strong>消费失败</strong>：画像服务处理一条消息要调推荐引擎，推荐超时，代码抛异常，这条没处理完也没签收。</li>
+<li><strong>自动重投</strong>：队列没收到「处理完了」的确认，就把消息再交出去一次，失败了再试，全程自动。值得重试是因为很多故障是暂时的，数据库正在重启、网络抖动一下，过十秒再试一次就好。但重试不能无限去重试。</li>
+<li><strong>死信</strong>：重试了三次都失败，说明多半是代码有 bug 或数据本身有问题，再试一万次也没用。把这条消息挪进专门的死信专区单独存放，不再挡路，配上告警，有人之后来查询，修好后重新投递。</li>
+<li><strong>人工闭环</strong>：值班运维看死信，定位原因是 bug 就修完重投，是脏数据就登记结案。每条坏件都有下落、有闭环。</li>
+</ol>
+<p>🔹 中间有一把尺子叫投递计数：队列给每条消息记被送过几次。一次可能是抖动，三次失败就可能是真的坏了，这个次数是区分暂时故障和真正坏件的分界线。</p>
+<p>🔹 重试有副作用。上次可能已经干了一半，积分已经加过一次，再投一次就再加一次。</p>
+<h2 id="11-3-消息队列实战：Redis-Streams-四段代码"><a href="#11-3-消息队列实战：Redis-Streams-四段代码" class="headerlink" title="11.3 消息队列实战：Redis Streams 四段代码"></a>11.3 消息队列实战：Redis Streams 四段代码</h2><p><img src="/images/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/11-mq-arch-3.jpg" alt="实战章节页：给飞驰出行装上 Redis 队列" loading="lazy" decoding="async"></p>
+<p>🔹 视频讲这四段代码时，给的是方法名和对应的 Redis 原生命令，代码本身在画面上。下面按它讲的调用顺序还原，参数与签名对着 Spring Data Redis 的 <code>StreamOperations</code> 写，实际项目照抄前还是要跑一遍。</p>
+<h3 id="11-3-1-为什么拿-Redis-练手"><a href="#11-3-1-为什么拿-Redis-练手" class="headerlink" title="11.3.1 为什么拿 Redis 练手"></a>11.3.1 为什么拿 Redis 练手</h3><p>🔹 队列软件有很多，这里用 Redis 练手有三个原因：项目里很可能已经有 Redis 在跑缓存，不用再装一套新的东西；Redis 的命令就几个，一个下午就能上手，概念和理念却跟很多消息队列产品完全相通，在这里学会了去哪儿都能很快上手；中小系统的消息量，Redis 的消息队列就扛得住。</p>
+<p>🔹 对应关系要记住：前面说的主题，在 Redis 里叫流 stream，一条流就是一个主题。改造判断依据也只有一条：这一步的结果，用户当下要不要看到。校验定位、写行程单、派单给司机留在主链路；积分和画像搬到消息队列。</p>
+<h3 id="11-3-2-第一段：生产者发消息"><a href="#11-3-2-第一段：生产者发消息" class="headerlink" title="11.3.2 第一段：生产者发消息"></a>11.3.2 第一段：生产者发消息</h3><p>🔹 代码头三行是校验定位、写行程单、派单给司机。中间两行注释是原来调积分、调画像的同步调用，都注释掉。删掉的位置换成一行 <code>redis.opsForStream().add</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 叫车主链路：前三步保留，原来的积分/画像同步调用注释掉，换成往流里追加一条消息</span></span><br><span class="line">redis.opsForStream().add(</span><br><span class="line">        <span class="string">&quot;trip-created&quot;</span>,                 <span class="comment">// 第一个参数：流名，对应主题 topic，行程事件全进这条流</span></span><br><span class="line">        Map.of(<span class="string">&quot;tripId&quot;</span>, tripId,        <span class="comment">// 第二个参数：消息内容，只放线索</span></span><br><span class="line">               <span class="string">&quot;riderId&quot;</span>, riderId));    <span class="comment">// tripId 行程号，riderId 乘客号</span></span><br></pre></td></tr></table></figure>
+
+<p>🔹 这个方法底层对应 Redis 命令 <code>XADD</code>。<code>X</code> 是 Redis 消息队列这套命令的统一前缀，<code>ADD</code> 是追加。其他方法 <code>XREAD</code>、<code>XGROUP</code>、<code>XACK</code> 也都是 X 前缀加动作。<code>add</code> 方法干三件事：把消息追加到流末尾；自动生成消息 id，格式是毫秒时间戳加序号，同一毫秒内自增，先来的编号小，天然按先后排好；返回这个 id，生产者拿到它就知道消息真正进入流里了。</p>
+<p>🔹 消息设计有取舍。消息里只放线索，不能放全部内容。积分要算里程、画像要算行为明细，可以拿着 trip id 回查数据库。消息是事件通知，不是数据搬家，把数据放进消息体，消息会越滚越大，柜子就变成数据库了。</p>
+<p>🔹 生产者这三步加 <code>add</code> 这一行，一共花 1.2 秒，对比前面 3.2 秒的总耗时少了很多。这里埋一个伏笔：如果 <code>add</code> 方法失败了，行程建了、事件却没进流，怎么办？后面有三道防线回应。</p>
+<h3 id="11-3-3-第二段：消费者组读、干活、划账"><a href="#11-3-3-第二段：消费者组读、干活、划账" class="headerlink" title="11.3.3 第二段：消费者组读、干活、划账"></a>11.3.3 第二段：消费者组读、干活、划账</h3><p>🔹 以画像服务为例，方法整个是一个死循环，分三步走：读、干活、划账。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 消费者死循环：读、干活、划账</span></span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="comment">// 读：对应原生命令 XREADGROUP，按组读；组要先用 XGROUP CREATE 建好，组内 worker 第一次读时自动创建</span></span><br><span class="line">    List&lt;MapRecord&gt; msgs = redis.opsForStream().read(</span><br><span class="line">            Consumer.from(<span class="string">&quot;profile-group&quot;</span>, <span class="string">&quot;worker-1&quot;</span>),  <span class="comment">// 组内身份：一条消息只给组内一个工人</span></span><br><span class="line">            StreamReadOptions.empty().count(<span class="number">10</span>),</span><br><span class="line">            StreamOffset.create(<span class="string">&quot;trip-created&quot;</span>, ReadOffset.lastConsumed())); <span class="comment">// 从组上次读到的地方继续</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (MapRecord msg : msgs) &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">tripId</span> <span class="operator">=</span> (String) msg.getValue().get(<span class="string">&quot;tripId&quot;</span>);</span><br><span class="line">        profileService.update(tripId);                  <span class="comment">// 干活：真正的业务就这一行</span></span><br><span class="line">        redis.opsForStream().acknowledge(<span class="string">&quot;profile-group&quot;</span>, msg.getId()); <span class="comment">// 划账：对应 XACK，告诉 Redis 这条处理完了</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>🔹 这一长串 Java 调用对应原生命令 <code>XREADGROUP</code>。三个关键参数：<code>profile-group</code> 是组名，视频说 Redis 看到新组名就会自动建组，官方文档反着：组不存在时 <code>XREADGROUP</code> 直接报 <code>NOGROUP</code>，得先 <code>XGROUP CREATE trip-created profile-group $ MKSTREAM</code> 建组，组内的 worker 名字才是第一次读时自动创建的；<code>worker-1</code> 是组内身份，一条消息只会给组内一个工人，有两个 worker 就是两倍速度；<code>lastConsumed</code> 是从组上次读到的地方继续读，新消息在等着，读过了就不再来。</p>
+<p>🔹 <code>acknowledge</code> 对应原生命令 <code>XACK</code>，ACK 是 acknowledge 的缩写，意味着确认和签收机制。告诉 Redis 这条已经处理完了，挂账单上划掉，位点前移一格。要注意精确传消息 id，Redis 不会记得你刚处理的是哪条，它只认编号。</p>
+<p>🔹 位点保证消息不漏，没读过的下次还会读到。挂账单保证消息不丢失，在 Redis 里叫 PEL，也就是待确认列表。干了活儿没有划账的消息都挂在上面，还能再领出来处理。进程在干完活但还没划账之间崩溃，重启后这条会被再次投递。</p>
+<h3 id="11-3-4-幂等：SETNX-加唯一索引"><a href="#11-3-4-幂等：SETNX-加唯一索引" class="headerlink" title="11.3.4 幂等：SETNX 加唯一索引"></a>11.3.4 幂等：SETNX 加唯一索引</h3><p>幂等要防的就是这份重复。前面重试了两次，第三次已经成功，位点还没来得及提交，柜子又投递第四次，画像服务就重复计算。消费者自己要会确认「我是不是已经干过了」。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 幂等第一板斧：Redis setIfAbsent，键不存在就写入并返回 true，已存在就返回 false</span></span><br><span class="line"><span class="type">Boolean</span> <span class="variable">first</span> <span class="operator">=</span> redis.opsForValue().setIfAbsent(</span><br><span class="line">        <span class="string">&quot;done:trip:&quot;</span> + tripId,          <span class="comment">// 键 = 业务动作 + 单号：同一行程的积分和画像是两个键，互不干扰</span></span><br><span class="line">        <span class="string">&quot;1&quot;</span>,</span><br><span class="line">        Duration.ofHours(<span class="number">24</span>));          <span class="comment">// 带过期时间，键不会无限堆积</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (Boolean.FALSE.equals(first)) &#123;</span><br><span class="line">    <span class="keyword">return</span>;                              <span class="comment">// 已处理过，跳过正事，但照样走到 XACK 划账</span></span><br><span class="line">&#125;</span><br><span class="line">pointService.add(tripId);                <span class="comment">// 第一次收到，干正事</span></span><br></pre></td></tr></table></figure>
+
+<p>🔹 这一行代码就是 <code>SET NX</code> 加过期时间。键不存在就写入，已存在就什么也不做；不存在写入后返回 true，什么也不做就返回 false。查询和写入一步完成，中间没有缝隙。Redis 单线程处理命令，两个请求同时到也必然一前一后，不存在「查到没有但都写入了」的情况。</p>
+<p>🔹 键的设计比代码重要。业务动作加单号，这里是 <code>done:trip:</code> 加行程 id。同一个行程的积分和画像是两个键，互不干扰；不同的行程天然就是不同的键。想清楚什么时候算重复，再动手。</p>
+<p>🔹 判断主逻辑：<code>first</code> 是 false 就代表已经处理过，直接 return 跳过正事，但照样走到最后的 <code>XACK</code> 划账，不然它永远待在待确认表里被反复重投。<code>first</code> 是 true 就是第一遍收到，用 <code>pointService.add</code> 处理。Redis 能挡掉可能 90% 以上的重复，还设置 24 小时过期让键不会无限堆积。Redis 也宕机的话，还有数据库的唯一索引兜底，核心业务把这两层都上了，通知类业务只上一层就够。这样就保证了至少送达一次和只生效一次。</p>
+<h3 id="11-3-5-第四段：死信清扫定时任务"><a href="#11-3-5-第四段：死信清扫定时任务" class="headerlink" title="11.3.5 第四段：死信清扫定时任务"></a>11.3.5 第四段：死信清扫定时任务</h3><p>🔹 坏件最后去哪？进坏件专柜。每分钟跑一次的定时任务，分五步：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 死信清扫：每分钟跑一次</span></span><br><span class="line"><span class="comment">// 第一步：XPENDING 查出 profile-group 在 trip-created 流上超时未划账的消息，一次最多十条</span></span><br><span class="line"><span class="comment">// 注意 pending 的签名是 (流名, 消费组, Range, 条数, 最小空闲时间)，最后一项用来筛超时</span></span><br><span class="line"><span class="type">PendingMessages</span> <span class="variable">pending</span> <span class="operator">=</span> redis.opsForStream()</span><br><span class="line">        .pending(<span class="string">&quot;trip-created&quot;</span>, <span class="string">&quot;profile-group&quot;</span>, Range.unbounded(), <span class="number">10</span>, Duration.ofMinutes(<span class="number">1</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (PendingMessage p : pending) &#123;</span><br><span class="line">    <span class="comment">// 第二步：投递计数 &gt;= 3，说明不是暂时故障，是 bug 或脏数据</span></span><br><span class="line">    <span class="keyword">if</span> (p.getTotalDeliveryCount() &gt;= <span class="number">3</span>) &#123;</span><br><span class="line">        <span class="comment">// 第三步：XCLAIM 领回，把消息所有权从原工人转到清扫人 sweeper 名下</span></span><br><span class="line">        <span class="comment">// 领回后返回完整消息体，待确认表里的条目本身不带内容</span></span><br><span class="line">        List&lt;MapRecord&gt; claimed = redis.opsForStream()</span><br><span class="line">                .claim(<span class="string">&quot;trip-created&quot;</span>, <span class="string">&quot;profile-group&quot;</span>, <span class="string">&quot;sweeper&quot;</span>, Duration.ofMinutes(<span class="number">1</span>), p.getId());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第四步：消息内容通过 XADD 进入 trip-dead 死信流，原流上 XACK 划账，从 PEL 清除</span></span><br><span class="line">        redis.opsForStream().add(<span class="string">&quot;trip-dead&quot;</span>, Map.of(<span class="string">&quot;messageId&quot;</span>, p.getId()));</span><br><span class="line">        redis.opsForStream().acknowledge(<span class="string">&quot;trip-created&quot;</span>, <span class="string">&quot;profile-group&quot;</span>, p.getId());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第五步：告警推给值班运维群</span></span><br><span class="line">        alertGroup.push(<span class="string">&quot;坏件进入死信流: &quot;</span> + p.getId());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>🔹 第一步 <code>XPENDING</code> 查出 <code>profile-group</code> 在 <code>trip-created</code> 流上超时未划账的消息，一次最多十条，这些是领了件但没签收的。第二步用投递计数判断坏没坏，大于等于三说明有三个清扫周期还挂着，不是暂时故障。这一步是整个任务里唯一的策略，通过次数定多少，重试的耐心和坏件的滞留时间要有平衡。第三步 <code>XCLAIM</code> 领回，把消息所有权从原工人转到清扫人 <code>sweeper</code> 名下。为什么要先领回？待确认表里的消息不一定读得出来，得让它先成为你的，才能转去投递。第四步把消息内容通过 <code>add</code> 进入 <code>trip-dead</code> 死信流，原流上通过 <code>XACK</code> 划账，从待确认表清除，PEL 就不会无限堆积。第五步告警推给值班运维群，运维看消息体和日志定位原因，修好后把消息通过 <code>add</code> 回到源流再走一遍，脏数据就登记结案。每条坏件都有下落、有闭环。</p>
+<h3 id="11-3-6-削峰填谷与对账"><a href="#11-3-6-削峰填谷与对账" class="headerlink" title="11.3.6 削峰填谷与对账"></a>11.3.6 削峰填谷与对账</h3><p>🔹 削峰总结就两句：上游照单全收，下游匀速消化。早晚高峰每秒可能上万个叫车请求，改造前峰值流量直冲数据库，不扩容就会崩溃。改造后通过 <code>add</code> 方法每秒 1 万个照单全收，Redis 追加写这个量级毫无压力；消费者每秒以 2000 的速度匀速消化。10 分钟洪峰达到几十万条，排队花 50 分钟到一个小时清理完，积分和画像最晚半个小时或一个小时更新，系统不会崩溃。</p>
+<p>🔹 这几个数按公式算并不闭合：几十万条除以每秒 2000 只有几分钟到十几分钟。视频给的是课堂上的量级，真正定容量要拿自己压测出来的洪峰量除以消化速度，别照抄。</p>
+<p>🔹 两个要注意的点：上游也要限流，网关要限制单机 QPS，别让洪峰先打垮叫车服务本身；容量要提前算，洪峰量除以消化速度等于积压时长，超过业务容忍度就要提前加消费者，或者在组内加 worker。</p>
+<p>🔹 对账结果：接口耗时从 3.2 秒变成 1.2 秒，砍掉的全是用户不想等的，留下的全是真的在等的。积分服务宕机一小时，改造前叫车事件全挂，改造后叫车不受影响，恢复后还能追着消费补齐。晚高峰上万 QPS，改造前直冲数据库，改造后排队匀速处理。新增下游，改造前要改叫车服务代码发版，改造后它自己去订阅，上游零改动。可靠性上，改造前一步失败全部回滚，改造后有自动重试加死信兜底。异步的代价是积分和画像从当场完成变成晚一段时间完成，用户当下叫车时影响不大。快只是副产品，挂了也不怕才是主菜。</p>
+<h2 id="11-4-可靠性：不丢失、不重复、不乱序"><a href="#11-4-可靠性：不丢失、不重复、不乱序" class="headerlink" title="11.4 可靠性：不丢失、不重复、不乱序"></a>11.4 可靠性：不丢失、不重复、不乱序</h2><h3 id="11-4-1-不丢失：三道防线"><a href="#11-4-1-不丢失：三道防线" class="headerlink" title="11.4.1 不丢失：三道防线"></a>11.4.1 不丢失：三道防线</h3><p>🔹 第一道防线在发送端。<code>XADD</code> 网络超时，消息根本没放到柜子。要确认回执加失败重发：<code>add</code> 方法返回值是消息 id，拿到 id 才算真的进流，没拿到就捕获异常重发一次。寄件人要看到柜门真关上才走。</p>
+<p>🔹 第二道防线在存储端 broker。消息进了柜子，Redis 掉电宕机怎么办？Redis 有 AOF 持久化加主从复制。写操作先记到 AOF 日志再应答，主从结构下主库再复制一份，主库挂了从库顶上。代价是如果设置 <code>appendfsync everysec</code> 每秒刷一次盘，极端掉电最多丢最后一秒的数据。这是 Redis 队列和专职消息队列拉开差距的地方。专职队列能配到一条不丢，代价是吞吐和复杂度，前提是 Kafka 那边 <code>acks=all</code> 配上 <code>min.insync.replicas</code> 且副本活着，RocketMQ 那边要同步刷盘加同步复制，默认配置下并不保证。</p>
+<p>🔹 第三道防线在消费端。业务处理到一半断电，划账没发出去，怎么办？处理完才划账，用 <code>XACK</code>，没划账的消息挂在待确认表，重启后重新读出来处理。划账之前消息都不算处理完。</p>
+<p>🔹 三道防线配齐，Redis 消息队列在极端情况下最多丢最后刷盘的那一秒。要考虑资产损失级别的业务就不用 Redis 队列，用专职消息队列；通知、积分这类丢一条也能接受的业务，用 Redis 刚刚好。不丢的代价是可能重复，所以还要幂等机制保证不重复。</p>
+<h3 id="11-4-2-不重复：幂等三板斧"><a href="#11-4-2-不重复：幂等三板斧" class="headerlink" title="11.4.2 不重复：幂等三板斧"></a>11.4.2 不重复：幂等三板斧</h3><table>
+<thead>
+<tr>
+<th>板斧</th>
+<th>做法</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第一板斧：Redis 查重</td>
+<td><code>setIfAbsent</code> 那几行代码，拦住大多数重复</td>
+<td>通知类、可接受偶发重复</td>
+</tr>
+<tr>
+<td>第二板斧：数据库唯一索引</td>
+<td>积分流水表给行程 id 加唯一约束，第二条重复插入直接报错，捕获后跳过</td>
+<td>扣钱这类没状态但怕出事的</td>
+</tr>
+<tr>
+<td>第三板斧：状态机</td>
+<td>带着条件的更新，全靠数据库行锁和 SQL 语句</td>
+<td>订单、行程这类本身有状态流转的</td>
+</tr>
+</tbody></table>
+<p>🔹 第一板斧是 Redis 查重，前面讲过的 <code>setIfAbsent</code> 代码能拦住大多数重复。第二板斧是数据库唯一索引，积分流水表给行程 id 加唯一约束，第二条重复消息插入直接报错，捕获后跳过，Redis 挂了也拦得住。第三板斧是状态机，说白是带着条件的更新，不依赖 Redis，也不依赖额外的唯一索引，全靠数据库自带的行锁和 SQL 语句实现。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 状态机写法：加前置条件，靠数据库行锁保证重复消息第二次影响行数为零</span></span><br><span class="line"><span class="keyword">UPDATE</span> orders <span class="keyword">SET</span> status <span class="operator">=</span> <span class="string">&#x27;已发货&#x27;</span></span><br><span class="line"><span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="number">123</span> <span class="keyword">AND</span> status <span class="operator">=</span> <span class="string">&#x27;已支付&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>🔹 平时更新状态可能写 <code>UPDATE orders SET status = &#39;已发货&#39; WHERE id = 123</code>，重复消息来两次就执行两次。状态机写法加一个前置条件 <code>AND status = &#39;已支付&#39;</code>。第一次来时数据库状态是已支付，满足条件，更新成功；第二次重复消息来时状态已是已发货，<code>WHERE</code> 条件不满足，数据库直接忽略，影响行数为零，天然跳过。它稳定、零成本，适用场景是业务对象本身有状态流转，比如订单的已支付、已发货。</p>
+<p>🔹 三板斧怎么配合：业务有状态，比如订单、行程，优先用第三板斧，低价且能实现防重复；没有状态但怕出事，比如扣钱，用第一板斧加第二板斧双重保险；只是发个通知，无所谓重复不重复，只用第一板斧，Redis 轻量挡一下就行。</p>
+<h3 id="11-4-3-不乱序"><a href="#11-4-3-不乱序" class="headerlink" title="11.4.3 不乱序"></a>11.4.3 不乱序</h3><p>🔹 好消息是 Redis 一条流天然有序，消息 id 是时间戳加序号，先 <code>ADD</code> 的永远排在前面。专职队列像 Kafka 可能为了吞吐把一个主题拆成很多分区并行做，并行才是乱序的来源，那套要拿 offset 去分区，属于产品范畴，讲专门的 Kafka 时再讲。</p>
+<p>🔹 Redis 真正的坑在消费端。组内多个 worker 并行取就可能乱序。worker-1 拿到接单，worker-2 拿到行程结束，谁先干完不一定。要严格顺序就是一组一个工人，单线程消费，一条处理完才取下一条。顺序和吞吐之间二选一，这是物理规律。</p>
+<p>🔹 什么时候需要顺序？消息之间有前后依赖才需要，比如行程状态流转要先接单后结束，账户流水要先加后减。两条推送类消息谁先到谁后到，用户根本不关心，没必要为顺序牺牲并行度。</p>
+<h2 id="11-5-生产与选型：三大产品与-Redis-队列的边界"><a href="#11-5-生产与选型：三大产品与-Redis-队列的边界" class="headerlink" title="11.5 生产与选型：三大产品与 Redis 队列的边界"></a>11.5 生产与选型：三大产品与 Redis 队列的边界</h2><h3 id="11-5-1-三大消息队列产品"><a href="#11-5-1-三大消息队列产品" class="headerlink" title="11.5.1 三大消息队列产品"></a>11.5.1 三大消息队列产品</h3><table>
+<thead>
+<tr>
+<th>产品</th>
+<th>定位</th>
+<th>吞吐</th>
+<th>代价&#x2F;边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Kafka</td>
+<td>数据管道，顺序写磁盘、成批搬运</td>
+<td>单集群每秒上万到上百万条（视频口径）</td>
+<td>生来搬日志，回执、重试、死信要自己搭积木</td>
+</tr>
+<tr>
+<td>RocketMQ</td>
+<td>业务消息专家，事务消息、延迟消息、消息轨迹</td>
+<td>10 万级别（视频口径）</td>
+<td>不如 Kafka 极致，可靠性开箱即用</td>
+</tr>
+<tr>
+<td>RabbitMQ</td>
+<td>灵活路由，规则最丰富，管理界面友好</td>
+<td>上万级别（视频口径）</td>
+<td>超大规模场景不适合</td>
+</tr>
+</tbody></table>
+<p>🔹 Kafka 可以理解为一个数据管道。LinkedIn 当年每天都有上亿条用户行为日志要搬运，用传统消息队列可能直接趴下。用 Kafka 的思路是别把消息当一封信，要当成一股水流，顺序写磁盘、成批搬运，就能快到飞起来，单个集群每秒能处理上万上百万条。代价是它生来就是搬日志的，不太关心这一条有没有被处理完，业务消息要的回执、重试、死信都得自己在上面搭积木。日志采集、数据管道用 Kafka，因为它就是干这个的。</p>
+<p>🔹 RocketMQ 像是一个业务消息专家。阿里双 11 交易链路，订单、支付、库存这些场景要的全都有：事务消息，下单和扣库存要么都成要么都不成；延迟消息，30 分钟没有支付就自动关闭订单；消息轨迹，这条消息谁发的谁消费全要记着。RocketMQ 是 Java 写的，Java 团队看源码毫无障碍。吞吐 10 万级别，不如 Kafka 极致，但业务消息要的可靠性在 RocketMQ 这里开箱即用。</p>
+<p>🔹 RabbitMQ 是灵活路由，也是比较老的产品。路由规则最丰富，一条消息可以按规则同时投给多个队列，复杂分发逻辑一行配置，管理界面友好，入门简单，中小系统常选它。吞吐上万级别，超大规模场景不适合。</p>
+<h3 id="11-5-2-Redis-队列的边界与判断线"><a href="#11-5-2-Redis-队列的边界与判断线" class="headerlink" title="11.5.2 Redis 队列的边界与判断线"></a>11.5.2 Redis 队列的边界与判断线</h3><p>🔹 Redis 队列的边界有三条：</p>
+<ul>
+<li><strong>消息全在内存</strong>：堆积几百万条内存就紧张。专职消息队列像 Kafka 写硬盘，堆一年也不怕。</li>
+<li><strong>持久化有秒级窗口</strong>：AOF 配 <code>everysec</code>，极端掉电丢最后一秒。可能造成资产损失级别的业务不能接受。</li>
+<li><strong>高可用要自己搭</strong>：Redis 侧的哨兵能做故障转移，不用人工介入，但复制是异步的，主节点挂了仍可能丢掉已确认的写入。专职消息队列自带集群，切换和副本管理都在产品里。</li>
+</ul>
+<p>🔹 什么时候 Redis 队列刚刚好？每天几万条到几十万条，公司本来也有 Redis，丢几条也能接受，比如中小系统的通知、积分、画像，省下一整套中间件的部署、监控和值班。判断线就一句话：消息丢了会赔钱、造成很大损失吗？会就用专职 MQ，不会 Redis 就够用。</p>
+<p>🔹 最后画等号：今天学的三个角色、消费者组、位点、划账、幂等、死信，到 Kafka 或 RocketMQ 里一个词都不用换。Redis 的 <code>XADD</code> 在 Kafka 里换成 <code>send</code>，<code>XACK</code> 换成 offset commit。概念是通用的，产品只是实现。先学原理再学产品。</p>
+<h2 id="11-6-常见错误清单"><a href="#11-6-常见错误清单" class="headerlink" title="11.6 常见错误清单"></a>11.6 常见错误清单</h2><p>⚠️ 把用户当下不需要的结果留在主链路，接口被积分、画像拖成 3.2 秒。<br>⚠️ 以为上了消息队列就自动可靠，不配生产者确认、持久化和手动划账。<br>⚠️ 消息体塞全量数据，越滚越大，把消息队列用成数据库。<br>⚠️ 消费者不做幂等，重试导致积分加两次、画像更新两遍。<br>⚠️ 重试无限进行，没有投递计数和死信兜底，坏件永远挡路。<br>⚠️ 消费者组多 worker 并行消费有前后依赖的消息，接单和结束乱序。<br>⚠️ 只看快慢上队列，不评估一致性窗口、积压告警和运维成本。<br>⚠️ 资产损失级别业务用 Redis 队列，<code>everysec</code> 极端掉电丢最后一秒。</p>
+<h2 id="11-7-小结"><a href="#11-7-小结" class="headerlink" title="11.7 小结"></a>11.7 小结</h2><p>🔹 消息队列不解决并发，它把必须现在做完的事变成可以之后慢慢做的事。三宗罪（慢、脆、崩）的病根是排队结构本身，换结构才有异步、解耦、削峰。代价是及时一致性和简单性，换来主链路飞快、故障隔离、洪峰缓冲。</p>
+<p>🔹 Redis Streams 四段代码把这套结构落到了地上：生产者 <code>XADD</code> 发事件、消费者组 <code>XREADGROUP</code> 读并 <code>XACK</code> 划账、<code>setIfAbsent</code> 幂等、定时任务把投递三次失败的消息投进死信流。三道防线保证不丢失，幂等三板斧保证不重复，单流天然有序。</p>
+<p>🔹 选型就一条判断线：消息丢了会赔钱吗。会就换 Kafka、RocketMQ 这类专职队列，不会 Redis 就够用。概念是通用的，产品只是实现，先学原理再学产品。</p>
+</div>
+
+    <div id="highlight-nav" class="highlight-nav">
+      <span class="count" aria-live="polite">0/0</span>
+      <button type="button" aria-label="上一个高亮" onclick="scrollToHighlight(currentHighlightIndex - 1)"><span aria-hidden="true">↑</span></button>
+      <button type="button" aria-label="下一个高亮" onclick="scrollToHighlight(currentHighlightIndex + 1)"><span aria-hidden="true">↓</span></button>
+      <button type="button" class="close-highlight" aria-label="关闭高亮" onclick="clearHighlights()"><span aria-hidden="true">×</span></button>
+    </div>
+
+    
+    <section class="post-copyright">
+      
+      <p class="copyright-item">
+        <span>作者:</span>
+        <span>老江湖</span>
+      </p>
+        
+      <p class="copyright-item">
+        <span>许可证:</span>
+        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+      </p>
+       
+      <p class="copyright-item">
+        <span>口号:</span>
+        <span><strong>代码是开源的,我们只是它的搬运工。</strong></span>
+      </p>
+       
+        <p class="copyright-item">
+        <span>如果觉得我的文章对你有所帮助，请随意转载，感谢支持！</span>
+      </p>
+      
+             
+        <p class="copyright-item">
+        <span>如有侵权请告知删除🙏</span>
+      </p>
+             
+        <p class="copyright-item">
+        <span>如果你有很好的想法💡，请务必联系我。 </span>
+        <br>
+         <span>2292360909@qq.com</span>
+      </p>
+    </section>
+    
+    <section class="post-tags">
+      <div>
+        <span>标签:</span>
+        <span class="tag">
+           
+          <a href="/tags/Redis/"># Redis</a>
+          
+          <a href="/tags/%E5%8F%AF%E9%9D%A0%E6%80%A7/"># 可靠性</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"># 架构笔记</a>
+          
+          <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"># 架构设计</a>
+          
+          <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/"># 消息队列</a>
+           
+        </span>
+      </div>
+      <div>
+        <a href="javascript:window.history.back();">返回</a>
+        <span>· </span>
+        <a href="/">首页</a>
+      </div>
+    </section>
+    <section class="post-nav">
+       
+      <a class="next" rel="next" href="/2026/11/12/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/10-%E5%8C%BA%E5%9D%97%E9%93%BE%E6%9E%B6%E6%9E%84--%E6%9E%B6%E6%9E%84%E7%AC%94%E8%AE%B0/"
+        >区块链架构 — 从互不信任到多方共识</a
+      >
+      
+    </section>
+
+    <!-- Giscus 评论区挂载点 -->
+<div id="giscus-container" style="margin-top: 2.5rem"></div>
+
+<!-- Giscus 动态加载脚本：初始加载 + 明暗主题切换 -->
+<script>
+  function createGiscus(theme) {
+    const giscusContainer = document.getElementById("giscus-container");
+    if (!giscusContainer) return;
+
+    // 清除旧的评论 iframe
+    giscusContainer.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+
+    // 替换为你的 GitHub 仓库信息（格式：username/repo）
+    script.setAttribute("data-repo", "meisijiya/meisijiya.github.io");
+
+    // 替换为你的 repo-id 和 category-id（在 giscus.app 配置页面生成）
+    script.setAttribute("data-repo-id", "R_kgDOPwTrpQ");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "DIC_kwDOPwTrpc4CviGR");
+
+    // 其他常规推荐设置
+    script.setAttribute("data-mapping", "pathname"); // 用页面路径匹配评论帖
+    script.setAttribute("data-strict", "0"); // 若无匹配帖则创建新帖
+    script.setAttribute("data-reactions-enabled", "1"); // 启用表情反应
+    script.setAttribute("data-emit-metadata", "0"); // 不输出元数据
+    script.setAttribute("data-input-position", "top"); // 输入框在评论上方
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN"); // 中文界面
+    script.setAttribute("crossorigin", "anonymous"); // 跨域资源安全
+    script.async = true;
+    // 本次重建的脚本加载完毕后再冲刷可能被连击守卫拦下的待办，保证评论区最终与当前主题一致
+    script.addEventListener("load", flushGiscusRebuild);
+
+    giscusContainer.appendChild(script);
+  }
+
+  function getCurrentTheme() {
+    return document.body.classList.contains("dark-theme") ? "dark" : "light";
+  }
+
+  // 连击守卫的时间窗口（毫秒），理由见 requestGiscusRebuild 的注释
+  const GISCUS_REBUILD_THROTTLE = 800;
+  let lastGiscusRebuildAt = 0; // 上次真正发起重建的时刻，初值 0 保证首次必定放行
+  let giscusRebuildPending = false; // 窗口内被拦下的点击合并成一个待办，最多补建一次
+
+  /**
+   * 申请重建 giscus，并做连击合并。
+   * 每次重建都会清空容器并重载一次 giscus iframe，代价不低；用户连续点击主题开关时，
+   * 不应把每一次点击都变成一次重建。这里用「时间窗口 + pending 标记」合并：
+   *   - 距上次重建已超过阈值：立即重建；
+   *   - 落在窗口内：只置 pending，既不重建也不排队，因此最多只会补建最后一次。
+   * 补建时机有两处，保证不会漏掉：当前这次重建脚本的 load 事件，或用户的下一次点击。
+   * 阈值取 800ms：人连续点击的间隔通常在 150–300ms，800ms 足以把一串快速连点合并成一次；
+   * 同时它短于「切完主题停下来看一眼评论区」的自然停顿，不会吞掉一次有意识的切换。
+   */
+  function requestGiscusRebuild() {
+    giscusRebuildPending = true;
+    flushGiscusRebuild();
+  }
+
+  /** 若有待办且已过时间窗口，则按当前主题重建一次并清掉待办。 */
+  function flushGiscusRebuild() {
+    if (!giscusRebuildPending) return;
+    if (Date.now() - lastGiscusRebuildAt < GISCUS_REBUILD_THROTTLE) return;
+    giscusRebuildPending = false;
+    lastGiscusRebuildAt = Date.now();
+    createGiscus(getCurrentTheme());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // 页面首次加载，根据当前主题挂载评论
+    let commentsMounted = false;
+    const mountComments = () => {
+      if (commentsMounted) return;
+      commentsMounted = true;
+      requestGiscusRebuild();
+    };
+    if (document.readyState === "complete") mountComments();
+    else {
+      window.addEventListener("load", mountComments);
+      setTimeout(mountComments, 3000);
+    }
+
+    // 主题切换只保留这一条触发路径：按钮点击。
+    // script.js 的 _Blog.toggleTheme 是同步 classList.add/remove('dark-theme')，
+    // 所以本监听执行时新主题的 class 一定已经写好，直接读即可，无需任何延时等待。
+    // 监听挂在 document 的冒泡阶段，保证排在这个按钮自身的处理器之后执行——
+    // 无论两个脚本谁先注册监听，读到的都是切换完成后的 class，不会读旧值。
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest(".toggleBtn, #mobile-toggle-theme")) return;
+      requestGiscusRebuild();
+    });
+  });
+</script>
+
+  </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 老江湖 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+
+<script src="/js/code-copy.js"></script>
+
+
+
+    </div>
+<link rel="stylesheet" href="/ai-assistant/ai-assistant-tokens.css">
+<link rel="stylesheet" href="/ai-assistant/ai-assistant.css">
+<script src="/ai-assistant/ai-assistant-provider.js" defer></script>
+<script src="/ai-assistant/ai-assistant-context.js" defer></script>
+<script src="/ai-assistant/ai-assistant-search.js" defer></script>
+<script src="/ai-assistant/ai-assistant-tools.js" defer></script>
+<script src="/ai-assistant/ai-assistant-ui.js" defer></script>
+<script src="/ai-assistant/ai-assistant-main.js" defer></script>
+</body>
+<!-- umami -->
+<script>window.addEventListener("load",function(){var s=document.createElement("script");s.async=true;s.src="https://cloud.umami.is/script.js";s.setAttribute("data-website-id","91b923f2-ff2d-43d0-ba5f-bc348d82426a");document.body.appendChild(s);});</script>
+</html>
