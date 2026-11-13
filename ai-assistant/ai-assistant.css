@@ -24,8 +24,16 @@
     color: var(--ai-ink);
     -webkit-font-smoothing: antialiased;
     /* 面板高度跟着视图走：聊天短，设置是整张表单单子，用满高度才不被折叠线切控件 */
-    --ai-panel-h-chat: 70vh;
-    --ai-panel-h-settings: min(calc(100vh - 24px), 900px);
+    /*
+     * --ai-vh 是「当前可见视口高度」，由 JS 按 visualViewport.height
+     * （缺省 window.innerHeight）写进来。
+     * 不能直接用 100vh：iOS Safari 的 100vh 是工具栏收起时的大视口，
+     * 比实际能看到的区域高出一截（iPad 横屏尤其明显），面板照它撑高，
+     * 底部的「保存配置」就被顶到屏幕外，既看不见也点不到。
+     */
+    --ai-vh: 100vh;
+    --ai-panel-h-chat: calc(var(--ai-vh) * 0.7);
+    --ai-panel-h-settings: min(calc(var(--ai-vh) - 24px), 900px);
 }
 
 .ai-root *,
@@ -94,8 +102,8 @@
     flex-direction: column;
     width: 400px;
     height: var(--ai-panel-h-chat);
-    min-height: min(480px, calc(100vh - 24px));
-    max-height: calc(100vh - 24px);
+    min-height: min(480px, calc(var(--ai-vh) - 24px));
+    max-height: calc(var(--ai-vh) - 24px);
     background: var(--ai-surface);
     border: 1px solid var(--ai-border);
     border-radius: var(--ai-r-panel);
@@ -1743,8 +1751,8 @@
 @media (max-width: 767px) {
     /* 抽屉高度也跟视图走：设置项多，抽屉长高一点，表单少滚动 */
     .ai-root {
-        --ai-panel-h-chat: 74vh;
-        --ai-panel-h-settings: 88vh;
+        --ai-panel-h-chat: calc(var(--ai-vh) * 0.74);
+        --ai-panel-h-settings: calc(var(--ai-vh) * 0.88);
     }
 
     .ai-panel {
@@ -1756,7 +1764,7 @@
         /* 高度由拖拽写进内联 style，这里只留一个上限，别让抽屉高过屏幕 */
         height: var(--ai-panel-h-chat);
         min-height: 0;
-        max-height: 92vh;
+        max-height: calc(var(--ai-vh) * 0.92);
         border-radius: var(--ai-r-panel) var(--ai-r-panel) 0 0;
         border-bottom: 0;
         transform: translateY(12px);

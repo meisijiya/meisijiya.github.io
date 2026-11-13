@@ -1546,7 +1546,30 @@
         window.requestAnimationFrame(placePanel);
     }
 
+    /*
+     * 真正看得见的那块高度：浏览器工具栏压在页面上时，visualViewport 比
+     * innerHeight（布局视口）小；软键盘弹起时它也会变小。
+     */
+    function visibleHeight() {
+        var vv = window.visualViewport;
+        return vv && vv.height ? vv.height : window.innerHeight;
+    }
+
+    /*
+     * 可见视口高度写进 --ai-vh，CSS 侧的面板高度按它算。
+     * 不能用 100vh：iOS Safari 的 100vh 是工具栏收起时的大视口，比真正看得见的
+     * 那块高出一截（iPad 横屏最明显），面板照大视口撑高，底部的「保存配置」
+     * 会被顶到屏幕外，既看不见也点不到。
+     */
+    function syncVisibleHeight() {
+        if (!refs.root) return;
+        var h = visibleHeight();
+        if (!h) return;
+        refs.root.style.setProperty('--ai-vh', h + 'px');
+    }
+
     function syncViewport() {
+        syncVisibleHeight();
         var narrow = isNarrow();
         refs.root.classList.toggle('is-mobile', narrow);
         // 压下去只属于窄屏抽屉；跨到宽屏就恢复成普通浮窗
@@ -1702,10 +1725,13 @@
         left = Math.min(Math.max(left, margin), Math.max(margin, window.innerWidth - width - margin));
         // 球在上半屏时窗往下开，在下半屏时窗往上开：浮窗从球这一侧展开，
         // 不用「和球心对齐」——面板比球高时对齐会把窗顶到视口上边，看着像两块不相干的浮层
-        var top = fab.top + fab.height / 2 < window.innerHeight / 2
+        // 夹取用「看得见的那块」而不是布局视口：浏览器工具栏压住页面时，
+        // 布局视口的下沿在屏幕外，按它落位会把底栏的「保存配置」推到看不见的地方
+        var vh = visibleHeight();
+        var top = fab.top + fab.height / 2 < vh / 2
             ? fab.bottom + gap
             : fab.top - gap - height;
-        top = Math.min(Math.max(top, margin), Math.max(margin, window.innerHeight - height - margin));
+        top = Math.min(Math.max(top, margin), Math.max(margin, vh - height - margin));
         panel.style.left = Math.round(left) + 'px';
         panel.style.top = Math.round(top) + 'px';
         // 面板挪动时，会话下拉要跟着按钮走
