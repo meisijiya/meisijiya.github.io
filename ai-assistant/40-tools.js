@@ -135,6 +135,149 @@
         };
     }
 
+    /* 工具面没有删除能力：删除不可撤销，走面板 UI（见 47-tasks.js 的 remove） */
+
+    /* 清单条目精简成「标识、标题、状态、时长」：清单工具的返回值计入注入预算 */
+    function taskItem(item) {
+        var res = { id: item.id, kind: item.kind, title: item.title, status: item.status };
+        // 层级要回给模型：不加 parentId 它没法在同一棵树里继续挂子条目
+        if (item.parentId) res.parentId = item.parentId;
+        var duration = AI.tasks.elapsedOf(item);
+        if (duration > 0) res.durationMs = Math.round(duration);
+        return res;
+    }
+
+    function listTasks(args) {
+        var kind = (args && args.kind) || null;
+        if (kind !== 'task' && kind !== 'todo' && kind !== null) {
+            return Promise.resolve({
+                items: [],
+                total: 0,
+                error: 'kind 只能是 task、todo 或留空',
+                suggestion: '去掉 kind 看全部清单，或传 task / todo 分开看。'
+            });
+        }
+        var all = AI.tasks.list(kind ? { kind: kind } : {});
+        return Promise.resolve({
+            items: all.map(taskItem),
+            total: all.length
+        });
+    }
+
+    function addTasks(args) {
+        var input = (args && args.items) || [];
+        if (!Array.isArray(input) || !input.length) {
+            return Promise.resolve({
+                added: 0,
+                ids: [],
+                error: 'items 是空的',
+                suggestion: '把要加入的条目放进 items 数组（每条给 title，阅读任务另给 url），重试。'
+            });
+        }
+        if (input.length > MAX_LIST_ITEMS) {
+            return Promise.resolve({
+                added: 0,
+                ids: [],
+                error: '一次最多添加 ' + MAX_LIST_ITEMS + ' 条',
+                suggestion: '分几批添加，每批不超过 ' + MAX_LIST_ITEMS + ' 条。'
+            });
+        }
+        /*
+         * 一次调用建树：条目可以带 ref（本次调用内的临时名），子条目用 parentRef 指向它。
+         * 模型拿不到「还没创建的条目的 id」，不给临时名就只能先 add 再 list 再补一轮，
+         * 而写预算只有 3 轮。
+         */
+        var refMap = {};
+        var staged = [];
+        for (var i = 0; i < input.length; i++) {
+            var row = input[i] || {};
+            var parentId = '';
+            if (row.parentRef) {
+                parentId = refMap[row.parentRef] || '';
+            } else if (row.parentId) {
+                parentId = String(row.parentId);
+            }
+            var created = AI.tasks.add({
+                kind: row.kind === 'todo' ? 'todo' : 'task',
+                title: row.title,
+                url: row.url,
+                categories: row.categories,
+                durationMs: row.durationMs,
+                status: row.status,
+                parentId: parentId,
+                source: 'ai'
+            });
+            if (!created) {
+                staged.push(null);
+                continue;
+            }
+            if (row.ref) refMap[String(row.ref)] = created.id;
+            staged.push(created);
+        }
+        var okItems = staged.filter(function (one) { return !!one; });
+        var result = { added: okItems.length, ids: okItems.map(function (one) { return one.id; }) };
+        var added = result.added;
+        var payload = { added: added, ids: result.ids };
+        if (added < input.length) {
+            payload.note = '有 ' + (input.length - added) + ' 条没通过校验（标题为空或字段不对），已跳过。';
+        }
+        return Promise.resolve(payload);
+    }
+
+    function suggestReading(args) {
+        return (AI.suggest && AI.suggest.load ? AI.suggest.load() : Promise.reject(new Error('suggest 模块未加载')))
+            .then(function (data) {
+                var raw = (data && Array.isArray(data.items)) ? data.items : [];
+                var items = raw.slice(0, MAX_LIST_ITEMS).map(function (it) {
+                    return {
+                        title: it.title,
+                        url: it.url,
+                        categories: Array.isArray(it.categories) ? it.categories : [],
+                        durationMs: (AI.suggest && AI.suggest.estimate) ? AI.suggest.estimate(it) : 300000
+                    };
+                });
+                if (AI.suggest && typeof AI.suggest.showCard === 'function') {
+                    try { AI.suggest.showCard(items); } catch (e) { /* UI 未挂载时忽略 */ }
+                }
+                return { items: items };
+            })
+            .catch(function (err) {
+                return { items: [], error: String(err && err.message ? err.message : err), suggestion: '先跑 hexo generate 生成阅读清单，再重试。' };
+            });
+    }
+
+    function completeTask(args) {
+        var id = ((args && args.id) || '').trim();
+        if (!id) {
+            return Promise.resolve({
+                id: '',
+                done: false,
+                error: '缺少 id',
+                suggestion: '先用 list_tasks 拿到条目的 id，再带 id 调 complete_task。'
+            });
+        }
+        var item = AI.tasks.get(id);
+        if (!item) {
+            return Promise.resolve({
+                id: id,
+                done: false,
+                error: '清单里没有这个 id',
+                suggestion: '先用 list_tasks 核对 id 是否真实存在，不要把同一个 id 原样再发一遍。'
+            });
+        }
+        var done = !!(args && args.done);
+        var updated = AI.tasks.complete(id, done);
+        if (!updated) {
+            return Promise.resolve({
+                id: id,
+                done: item.status === 'done',
+                error: '当前状态是 ' + item.status + '，不能直接改成 ' + (done ? 'done' : 'todo'),
+                suggestion: '已完成与未完成之间可来回切换；先确认条目当前的状态。'
+            });
+        }
+        return Promise.resolve({ id: id, done: updated.status === 'done' });
+    }
+
     /*
      * 第二步：带上 section，取该标题的直属正文。
      * 正文只含这一层的内容，子标题的正文靠 children 再往下取。
@@ -422,8 +565,90 @@
                 },
                 required: []
             }
+        },
+        {
+            name: 'list_tasks',
+            description: '只读列出访客的清单（阅读任务与待办是同一张表，用 kind 区分）。kind 留空列出全部，kind="task" 只看带站内链接的阅读任务，kind="todo" 只看访客自己写的待办。返回每条的标识、标题、状态与已用时长，不含正文。用于回答「我今天要读什么」「清单里还有哪些没读」这类问题。',
+            parameters: {
+                type: 'object',
+                properties: {
+                    kind: { type: 'string', description: '可选：task（阅读任务）或 todo（待办）；留空列出全部' }
+                },
+                required: []
+            }
+        },
+        {
+            name: 'add_tasks',
+            description: '把一批条目加入访客的清单。items 每条给 title（标题），阅读任务另给 url（站内链接）与可选 categories、durationMs（预估时长，毫秒）；kind 默认 task。重要：未得到访客明确要求时只给建议、不得直接调本工具——先把要加的清单摆给访客看，等访客点头再落盘；访客说「都加上」「加吧」之后才调。完成可撤销，本工具面没有删除能力：清单条目只能由访客在面板里处理。要表达「先做这一步、再往下做这几步」时用层级：给条目 ref（临时名），子条目用 parentRef 指向它，一次调用就能建出树；挂到已有条目下用 parentId。层级最多 4 层，更深的拆成并列父条目。',
+            parameters: {
+                type: 'object',
+                properties: {
+                    items: {
+                        type: 'array',
+                        description: '要加入的条目列表',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                title: { type: 'string', description: '标题（必填）' },
+                                url: { type: 'string', description: '站内链接，阅读任务用；待办不要给' },
+                                categories: { type: 'array', items: { type: 'string' }, description: '可选：文章分类' },
+                                durationMs: { type: 'number', description: '可选：预估阅读时长（毫秒）' },
+                                parentId: { type: 'string', description: '可选：父条目标识（来自 list_tasks）；要挂在本次新建的条目下时改用 parentRef' },
+                                ref: { type: 'string', description: '可选：本次调用内的临时名，供子条目的 parentRef 引用' },
+                                parentRef: { type: 'string', description: '可选：父条目的临时名（同一次调用里另一个条目的 ref）' }
+                            },
+                            required: ['title']
+                        }
+                    }
+                },
+                required: ['items']
+            }
+        },
+        {
+            name: 'complete_task',
+            description: '标记清单条目完成或撤销完成。done=true 标完成，done=false 撤销（回到未完成）。只按标识操作，先用 list_tasks 拿到真实的 id。完成可以撤销；本工具面没有删除能力，不要试图删除清单条目。',
+            parameters: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', description: '条目标识，来自 list_tasks' },
+                    done: { type: 'boolean', description: 'true 标完成，false 撤销完成' }
+                },
+                required: ['id', 'done']
+            }
+        },
+        {
+            name: 'suggest_reading',
+            description: '只读：从构建期阅读清单取一份阅读建议候选，返回 {items:[{title,url,categories,durationMs}]}。只给建议、不落盘：未得到访客明确要求时不得调用 add_tasks——先把建议摆给访客看，等访客说「都加上」「加吧」再落盘；访客说「跳过」就丢弃。清单类工具，0 次模型往返。',
+            parameters: {
+                type: 'object',
+                properties: {},
+                required: []
+            }
+        },
+        {
+            name: 'update_memory',
+            description: '把读者明说过的事实写进「读者画像」（她对你的记忆）：你是在替读者记她自己说过的话，比如「我喜欢短答」「我在准备软件测试实习面试」「我关心 Redis 缓存」。用法：entries 是一组键值对，key 用短名词（偏好 / 正在准备 / 关心……），value 写读者原话里的事实；text 可选，是一段说明性文字，整体作为一条记录写入。只写读者明确说过的内容：推断出来的要以「推断：」开头写清，读者可能不会认。禁止写入密码、密钥、身份证号、住址、电话、邮箱、第三方（他人）的私密数据、健康与医疗细节——这类内容会被直接拒写，不要尝试。也不要写「称呼」（叫读者笨蛋是固定行为，不进画像）。返回 {memory, changed, chars}：memory 是当前全部画像条目，changed 表示这次写入有没有改变内容（哈希一致就是没变），chars 是当前总字数（上限 400，超限会整体拒绝、不会截断；超限时返回里带 entries 现有条目，先合并压缩再整批重写）。读者手改过的条目带保护标记，写入会被跳过并在返回的 skipped 里列出，不要重复尝试覆盖。不要用它记录临时任务或检索结果——那属于清单与检索工具。',
+            parameters: {
+                type: 'object',
+                properties: {
+                    entries: {
+                        type: 'array',
+                        description: '要写入的画像条目，每条 {key, value}；同 key 覆盖',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                key: { type: 'string', description: '短名词，如「偏好」「正在准备」' },
+                                value: { type: 'string', description: '读者说过的事实，保持原意' }
+                            },
+                            required: ['key', 'value']
+                        }
+                    },
+                    text: { type: 'string', description: '可选：整段说明文字，作为一条记录写入画像' }
+                },
+                required: ['entries']
+            }
         }
-    ];
+     ];
 
     /*
      * 工具失败也要给模型一条能走的路：
@@ -443,6 +668,75 @@
         return { error: message, suggestion: suggestion };
     }
 
+    /*
+     * 写画像：助手替读者记她自己说过的话，不需要读者点头。
+     * 拒写的原因要写进返回里（超限 / 敏感 / 保护条目），模型据此自己改写重写。
+     */
+    function updateMemory(args) {
+        var input = args || {};
+        var entries = [];
+        var list = Array.isArray(input.entries) ? input.entries : [];
+        for (var i = 0; i < list.length; i++) {
+            var one = list[i] || {};
+            var key = String(one.key == null ? '' : one.key).trim();
+            if (!key) continue;
+            entries.push({ key: key, value: String(one.value == null ? '' : one.value) });
+        }
+        var text = String(input.text == null ? '' : input.text).trim();
+        if (text) entries.push({ key: '补充', value: text });
+
+        if (!entries.length) {
+            return Promise.resolve({
+                error: '没有可写入的条目',
+                suggestion: 'entries 至少给一条 {key, value}；没有内容就不要调这个工具。',
+                memory: AI.memory ? AI.memory.get() : { entries: [] },
+                changed: false,
+                chars: AI.memory ? AI.memory.chars() : 0
+            });
+        }
+
+        var result = AI.memory.apply(entries, { source: 'ai' });
+        if (!result.ok) {
+            var payload = {
+                error: '',
+                suggestion: '',
+                memory: result.memory,
+                changed: false,
+                chars: result.chars
+            };
+            if (result.reason === 'over-limit') {
+                payload.error = '画像超出 ' + result.limit + ' 字上限，本次没有写入';
+                payload.suggestion = '先看返回里的 entries（现有条目），把能合并的合并、能缩短的缩短，再整批重写一次；不要自己截断内容，也不要只加不删。';
+                payload.chars = result.chars;
+                // 超限时要让模型看到现有条目，否则「压缩后重写」只是空话
+                payload.entries = result.entries || (result.memory && result.memory.entries) || [];
+                payload.limit = result.limit;
+            } else if (result.reason === 'sensitive') {
+                var cats = [];
+                for (var h = 0; h < result.hits.length; h++) {
+                    cats.push(result.hits[h].key + '（' + result.hits[h].categories.join('/') + '）');
+                }
+                payload.error = '以下内容属于敏感信息，没有写入：' + cats.join('、');
+                payload.suggestion = '去掉敏感信息再写，或者干脆不记这条；不要换一种说法再试。';
+            } else {
+                payload.error = '没有写入任何条目';
+                payload.suggestion = '检查 entries 的形状：每条要有 key 与 value。';
+            }
+            return Promise.resolve(payload);
+        }
+
+        var out = {
+            memory: result.memory,
+            changed: !!result.changed,
+            chars: result.chars,
+            written: result.written
+        };
+        if (result.skipped && result.skipped.length) {
+            out.skipped = result.skipped;
+            out.note = '以下条目是读者自己改过的，已跳过没有覆盖：' + result.skipped.join('、');
+        }
+        return Promise.resolve(out);
+    }
     AI.tools = {
         definitions: function () {
             return DEFINITIONS;
@@ -453,6 +747,11 @@
                 if (name === 'list_articles') promise = listArticles(args);
                 else if (name === 'search_articles') promise = searchArticles(args);
                 else if (name === 'read_section') promise = readSection(args);
+                else if (name === 'list_tasks') promise = listTasks(args);
+                else if (name === 'add_tasks') promise = addTasks(args);
+                else if (name === 'complete_task') promise = completeTask(args);
+                else if (name === 'suggest_reading') promise = suggestReading(args);
+                else if (name === 'update_memory') promise = updateMemory(args);
                 else return Promise.resolve(failureResult(new Error('未知工具：' + name), name));
             } catch (err) {
                 return Promise.resolve(failureResult(err, name));

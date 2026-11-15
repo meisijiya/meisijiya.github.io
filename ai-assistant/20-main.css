@@ -2,7 +2,7 @@
  * 12 助手 · 组件样式
  *
  * 作用域：.ai-root（类名与令牌都限定在这里，不外泄到博客主题）
- * 依赖：source/ai-assistant/ai-assistant-tokens.css 提供两套令牌
+ * 依赖：source/ai-assistant/10-tokens.css 提供两套令牌
  * 风格：framed-sheet —— 白纸面板、一档灰阶分组、不加装饰
  *
  * 三条自定的规矩：
@@ -983,7 +983,7 @@
     color: var(--ai-ink-2);
 }
 
-/* 来源标题：链接本身就是 .ai-source（ai-assistant-ui.js 里 el('a','ai-source')），
+/* 来源标题：链接本身就是 .ai-source（50-ui.js 里 el('a','ai-source')），
    所以省略号要落在标题这一层；裸文本节点在 flex 容器里只是匿名项，只能被硬切 */
 .ai-source-title {
     min-width: 0;
@@ -1406,14 +1406,14 @@
     color: var(--ai-ink);
 }
 
-.ai-settings > .ai-section:last-child,
-.ai-settings > .ai-section:last-child .ai-section-card,
-.ai-settings > .ai-section:last-child .ai-field {
+.ai-settings > .ai-section-prompt,
+.ai-settings > .ai-section-prompt .ai-section-card,
+.ai-settings > .ai-section-prompt .ai-field {
     flex: 1 0 auto;
     min-height: 0;
 }
 
-.ai-settings > .ai-section:last-child .ai-textarea {
+.ai-settings > .ai-section-prompt .ai-textarea {
     flex: 1 1 auto;
     height: 88px;
     min-height: 80px;
@@ -1593,9 +1593,13 @@
     stroke-linejoin: round;
 }
 
+/*
+ * 下拉列表：fixed 定位 + 必须高过面板（.ai-panel 是 10001）。
+ * 之前写 6，列表其实展开了却被面板整块盖住，看着像点不开。
+ */
 .ai-select-list {
     position: fixed;
-    z-index: 6;
+    z-index: 10003;
     margin: 0;
     padding: 4px;
     list-style: none;
@@ -1604,6 +1608,8 @@
     border-radius: var(--ai-r-control);
     background: var(--ai-surface);
     box-shadow: var(--ai-shadow-pop);
+    /* .ai-root 是 pointer-events: none，浮层必须自己接回来，否则列表看得见点不动 */
+    pointer-events: auto;
 }
 
 .ai-select-list li {

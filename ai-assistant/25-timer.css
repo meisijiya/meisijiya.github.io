@@ -1,0 +1,99 @@
+/*
+ * 计时视图样式（独立文件，不碰对话/设置视图的任何规则）。
+ *
+ * 计时数字用等宽数字（tabular-nums）：每秒跳一次时数字宽度不变，
+ * 不会左右抖动。28px 是本次升级新增的唯一字号档。
+ */
+
+.ai-root {
+    /* 计时视图有自己的面板高度变量：宽屏浮窗跟对话同档，窄屏抽屉另取一档 */
+    --ai-panel-h-timer: calc(var(--ai-vh) * 0.7);
+}
+
+@media (max-width: 767px) {
+    .ai-root {
+        --ai-panel-h-timer: calc(var(--ai-vh) * 0.74);
+    }
+}
+
+.ai-root[data-view="timer"] .ai-panel {
+    height: var(--ai-panel-h-timer);
+}
+
+/*
+ * 计时视图：头部（任务名/数字/控件）与底部输入条固定，只有清单区自己滚。
+ * 之前整块滚动，输入条跟着内容跑，条目一多就嵌在两行卡片之间。
+ */
+.ai-view-timer {
+    padding: 16px;
+    gap: 12px;
+    overflow: hidden;
+    align-items: stretch;
+}
+
+/*
+ * 任务名与计时数字同一行：左边条目、右边数字。
+ * 两行排下来白占一行高度，而条目名普遍比数字长，横向反而更省。
+ */
+.ai-timer-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+/* 当前任务名：没选任务时给一句占位；单行截断，完整标题在 title 里 */
+.ai-timer-task {
+    margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: var(--ai-fs-label);
+    line-height: 1.4;
+    color: var(--ai-ink-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 计时数字：本次升级新增的 28px 档，唯一一处 */
+.ai-timer-value {
+    margin: 0;
+    flex: 0 0 auto;
+    font-size: var(--ai-fs-timer);
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--ai-ink);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+}
+
+/* 到点提示：面板内的一行字，不弹系统通知 */
+.ai-timer-done {
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--ai-border-strong);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-raised);
+    font-size: var(--ai-fs-label);
+    line-height: 1.4;
+    color: var(--ai-ink);
+}
+
+.ai-timer-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* 任务列表容器：清单本身在 #63 落地，这里只留位置 */
+/* 清单区：自己滚，滚动条不占头部与输入条的位置 */
+.ai-timer-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 2px;
+}

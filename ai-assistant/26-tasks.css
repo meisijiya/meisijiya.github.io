@@ -1,0 +1,284 @@
+/*
+ * 清单样式（独立文件，不碰对话/设置/计时视图的任何规则）。
+ *
+ * 清单在计时视图里：AI 排的与我写的用徽标区分；
+ * 完成的条目用删除线 + 次级色，撤销后原样恢复。
+ */
+
+/* 清单卡片：一行条目的容器 */
+.ai-task {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 1px solid var(--ai-border);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    transition: border-color var(--ai-t-quick) linear, background-color var(--ai-t-quick) linear;
+}
+
+.ai-task + .ai-task {
+    margin-top: 6px;
+}
+
+/* 勾选按钮：自画，不用原生 checkbox 的盒子 */
+.ai-task-check {
+    appearance: none;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 0;
+    border: 1px solid var(--ai-border-strong);
+    border-radius: var(--ai-r-pill);
+    background: var(--ai-surface);
+    color: var(--ai-ink-3);
+    font-size: var(--ai-fs-meta);
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color var(--ai-t-quick) linear, border-color var(--ai-t-quick) linear;
+}
+
+.ai-task-check:hover {
+    border-color: var(--ai-accent);
+    color: var(--ai-accent);
+}
+
+.ai-task-check:focus-visible {
+    outline: 2px solid var(--ai-ring);
+    outline-offset: 2px;
+}
+
+/* 完成后：勾选键实心 */
+.ai-task[data-status="done"] .ai-task-check {
+    background: var(--ai-accent);
+    border-color: var(--ai-accent);
+    color: var(--ai-on-accent);
+}
+
+/* 条目主体：标题与附带信息一行，链接按内容宽度收缩 */
+.ai-task-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.ai-task-title {
+    margin: 0;
+    font-size: var(--ai-fs-label);
+    line-height: 1.4;
+    color: var(--ai-ink);
+    overflow-wrap: anywhere;
+}
+
+/* 标题即链接：下划线只在悬停时出现，平时靠颜色区分 */
+.ai-task-title-link {
+    color: var(--ai-accent);
+    text-decoration: none;
+}
+
+.ai-task-title-link:hover {
+    text-decoration: underline;
+}
+
+.ai-task[data-status="done"] .ai-task-title-link {
+    color: var(--ai-ink-3);
+}
+
+/* 已完成：删除线 + 次级色 */
+.ai-task[data-status="done"] .ai-task-title {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    color: var(--ai-ink-2);
+}
+
+/* 链接与时长、分类：小字一行 */
+.ai-task-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    color: var(--ai-ink-3);
+}
+
+.ai-task-url {
+    min-width: 0;
+    max-width: 100%;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.5;
+    color: var(--ai-accent);
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+}
+
+.ai-task-url:hover {
+    text-decoration: underline;
+}
+
+.ai-task[data-status="done"] .ai-task-url {
+    color: var(--ai-ink-3);
+}
+
+/* 徽标：AI 排的 / 我写的，一眼区分 */
+.ai-task-badge {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    padding: 0 7px;
+    border-radius: var(--ai-r-pill);
+    font-size: var(--ai-fs-meta);
+    line-height: 1.5;
+    background: var(--ai-field);
+    color: var(--ai-ink-2);
+}
+
+.ai-task-badge[data-source="ai"] {
+    background: var(--ai-raised);
+    color: var(--ai-accent);
+}
+
+/* 状态小字：待确认 / 计时中 / 已完成 */
+.ai-task-status {
+    font-size: var(--ai-fs-meta);
+    line-height: 1.5;
+    color: var(--ai-ink-3);
+}
+
+.ai-task[data-status="pending"] .ai-task-status {
+    color: var(--ai-accent);
+}
+
+.ai-task[data-status="running"] .ai-task-status {
+    color: var(--ai-ink);
+}
+
+/* 操作区：撤销与（仅我写的）删除 */
+.ai-task-acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    flex: none;
+}
+
+.ai-task-act {
+    appearance: none;
+    padding: 2px 9px;
+    min-height: 26px;
+    border: 1px solid var(--ai-border-strong);
+    border-radius: var(--ai-r-chip);
+    background: var(--ai-surface);
+    font-family: inherit;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    color: var(--ai-ink-2);
+    cursor: pointer;
+    transition: background-color var(--ai-t-quick) linear, border-color var(--ai-t-quick) linear;
+}
+
+.ai-task-act:hover {
+    background: var(--ai-raised);
+    color: var(--ai-ink);
+}
+
+.ai-task-act:focus-visible {
+    outline: 2px solid var(--ai-ring);
+    outline-offset: 2px;
+}
+
+/* 折叠开关：有子条目才出现，宽度固定让勾选框对齐 */
+.ai-task-fold,
+.ai-task-fold-placeholder {
+    flex: none;
+    width: 16px;
+    min-height: 22px;
+    margin-top: 1px;
+    padding: 0;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: var(--ai-fs-meta);
+    line-height: 1;
+    color: var(--ai-ink-3);
+    cursor: pointer;
+}
+
+.ai-task-fold:hover {
+    color: var(--ai-ink);
+}
+
+.ai-task-fold:focus-visible {
+    outline: 2px solid var(--ai-ring);
+    outline-offset: 2px;
+}
+
+/* 层级：每深一层左侧让一格，子条目不再和父条目同高同宽 */
+.ai-task[data-depth="1"] {
+    margin-left: 16px;
+    border-left: 2px solid var(--ai-border);
+}
+
+.ai-task[data-depth="2"] {
+    margin-left: 32px;
+    border-left: 2px solid var(--ai-border);
+}
+
+/* 待确认的提案：确认键给主色，一眼看出该点哪个 */
+.ai-task[data-depth="3"] {
+    margin-left: 48px;
+    border-left: 2px solid var(--ai-border);
+}
+
+.ai-task-act-primary {
+    border-color: var(--ai-accent);
+    background: var(--ai-accent);
+    color: var(--ai-on-accent);
+}
+
+.ai-task-act-primary:hover {
+    background: var(--ai-accent-strong);
+    color: var(--ai-on-accent);
+}
+
+/* 添加区：一条输入 + 一个按钮；钉在计时视图底部 */
+.ai-task-add {
+    display: flex;
+    gap: 8px;
+    flex: none;
+    padding-top: 10px;
+    border-top: 1px solid var(--ai-border);
+}
+
+.ai-task-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--ai-border-strong);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    font-family: inherit;
+    font-size: var(--ai-fs-label);
+    line-height: 1.5;
+    color: var(--ai-ink);
+}
+
+.ai-task-input:focus-visible {
+    outline: none;
+    border-color: var(--ai-accent);
+}
+
+.ai-task-add .ai-btn {
+    flex: none;
+}
+
+/* 列表空态：不画插画 */
+.ai-tasks-empty {
+    margin: 0;
+    padding: 2px 0;
+    font-size: var(--ai-fs-label);
+    line-height: 1.6;
+    color: var(--ai-ink-3);
+}

@@ -1,0 +1,110 @@
+/*
+ * 设置页新增三块的样式（她是谁 / 读者画像）。
+ * 只作用于这三块自己的类名，既有连接与提示词两块保持原样。
+ */
+
+.ai-identity-name {
+    margin: 0;
+    font-size: var(--ai-fs-body);
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ai-ink);
+}
+
+.ai-identity-line,
+.ai-identity-lock,
+.ai-identity-memory,
+.ai-prompt-note,
+.ai-memory-note,
+.ai-memory-empty {
+    margin: 0;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.6;
+    color: var(--ai-ink-3);
+}
+
+.ai-identity-memory {
+    color: var(--ai-ink-2);
+}
+
+.ai-memory-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ai-memory-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) auto auto;
+    align-items: center;
+    gap: 6px;
+}
+
+.ai-memory-key,
+.ai-memory-value {
+    min-width: 0;
+    font-size: var(--ai-fs-label);
+}
+
+.ai-memory-badge {
+    flex: none;
+    padding: 2px 8px;
+    border-radius: var(--ai-r-chip);
+    background: var(--ai-field);
+    color: var(--ai-ink-3);
+    font-size: var(--ai-fs-meta);
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.ai-memory-row[data-source="me"] .ai-memory-badge {
+    color: var(--ai-accent);
+}
+
+.ai-memory-del {
+    padding: 4px 10px;
+    font-size: var(--ai-fs-meta);
+}
+
+.ai-memory-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ai-memory-count {
+    margin: 0;
+    font-size: var(--ai-fs-meta);
+    line-height: 1.5;
+    color: var(--ai-ink-3);
+    font-variant-numeric: tabular-nums;
+}
+
+/* 超限：标红，同时保存按钮在脚本里被禁用 */
+.ai-memory-count.is-over {
+    color: var(--ai-danger);
+    font-weight: 600;
+}
+
+.ai-memory-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ai-memory-actions .ai-btn {
+    padding: 6px 12px;
+    font-size: var(--ai-fs-meta);
+}
+
+@media (max-width: 767px) {
+    /* 窄屏一行放不下四个格子：键与值各占一行，标记与删除并到第二行 */
+    .ai-memory-row {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+
+    .ai-memory-key {
+        grid-column: 1 / -1;
+    }
+}

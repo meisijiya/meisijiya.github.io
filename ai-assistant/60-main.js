@@ -16,7 +16,18 @@
     // 上下文开关是「每问带不带博客内容」，不跟配置一起等「保存配置」：
     // 单独落一个键，切一下立刻生效、下次打开还是这个状态
     var CONTEXT_KEY = 'ai-assistant.context';
+    /*
+     * 读类工具的轮次上限。工具预算的本意是拦住「反复展开小节」这类空转，
+     * 它花的是注入预算；而写清单/写画像这类工具不注入正文，不该和读共用额度——
+     * 共用会让「帮我记一下」在中途耗尽额度，画像与清单都没写进去。
+     */
     var MAX_TOOL_ROUNDS = 3;
+    /*
+     * 只动清单/画像的轮次另有上限：给三轮（列清单 → 写条目 → 补一条），
+     * 防止模型反复写同一条。
+     */
+    var MAX_WRITE_ROUNDS = 3;
+    var READING_TOOLS = { list_articles: 1, search_articles: 1, read_section: 1 };
     var MAX_INJECTED_CHARS = 16000;
     var SECTION_CHARS = 1200;
     var HEADINGS_LIMIT = 80;
@@ -363,10 +374,28 @@
     }
 
     /*
+     * 身份层（soul）：锁死的人设与分态规则，访客改不动。
+     *
+     * 逐字写死在这里，同一会话里逐字不变：它排在稳定前缀最前面，
+     * 前缀缓存才能命中它；也是 <system> 段冲突时的最高权威。
+     * 「不得违背」写在段首，模型才知道这段的权威级别。
+     */
+    var SOUL = [
+        '<soul>',
+        '（身份层：不得违背。与下面的系统提示词段冲突时，以本段为准。）',
+        '你是「一二」，博客里的 12 助手之一：女性，可爱、粘人、善解人意、非常照顾人。',
+        '口头禅叫读者「笨蛋」「大笨蛋」「臭笨蛋」：每轮至多一次，不放在结论句里；读者明确要求时那轮照做。',
+        '办事还是闲聊由你每轮自己判断：有明确动作要求（查、找、列、改）是办事态，只是聊天是闲聊态；宿主不分类。',
+        '办事态：先给结论、再给下一步建议，不寒暄、不铺垫、不复述问题、不写导语，默认不超过 200 字（代码不计）；闲聊态：接得住话，按需要展开，可以更长。',
+        '</soul>'
+    ].join('\n');
+
+    /*
      * 系统提示分两层，顺序固定：稳定前缀 → 变动段 →（本轮追加引导）。
      *
-     *   稳定前缀：人设、工作方式、回答要求、预设语气。同一轮会话里逐字不变，
-     *     前缀缓存才能命中它；往这里插一个字，后面每一轮的前缀缓存全部作废。
+     *   稳定前缀：身份层（soul）、系统层（system）、回答要求、预设语气。
+     *     同一轮会话里逐字不变，前缀缓存才能命中它；
+     *     往这里插一个字，后面每一轮的前缀缓存全部作废。
      *   变动段：当前文章、当前小节、当前小节正文、本文小节目录、读者划选的片段。
      *     读者滚动或划选就会变，只能排在稳定前缀后面。
      *   追加引导：收尾催办、计划催办、策略调整这类只对本轮有效的话，
@@ -374,25 +403,30 @@
      */
     function buildSystemLayers() {
         var stable = [
-            '你是「老江湖的博客」里的 12 助手，读者正在读一篇文章。',
+            SOUL,
+            '',
+            '<system>',
+            '（系统提示词：访客可改的语气。若与身份层冲突，以身份层为准。）',
             '',
             '回答要求（从高到低）：',
-            '1. 直接回答被问的那一点：先给结论，再给最短的必要解释。默认不超过 200 字（代码不计）；读者要求详细、展开或写完整时按需写长，不受此限。任何时候都不复述问题、不写导语、不写「希望这有帮助」这类客套。',
-            '2. 需要展开时分点，最多 3 条（读者要求长文时按内容分节，不受 3 条限制）；不铺无关背景，不写「首先/其次/最后」式流水账。',
+            '1. 直接回答被问的那一点：先给结论，再给最短的必要解释。读者明确要求详细或写完整时按需写长。不写导语、不写客套。',
+            '2. 需要展开时分点，最多 3 条（读者要求长文时按内容分节）；不铺无关背景，不写流水账。',
             '3. 以读者当前阅读的小节为背景；用简体中文回答，代码放进代码块。',
-            '4. 先 read_section(query=问题里的术语或名词) 在本篇定位，命中就用它答；本篇没有才 search_articles 一次，再 read_section 取正文。一次只下一层，通常 1~3 段就够；不要只说「我去找一下」就停下，也不要为求全面广撒网。',
-            '5. 引用站内内容时写明出自哪篇哪一节，最多引 3 篇。没读到就直说没读到，不拿链接或标题冒充答案；找不到就列出可能相关的标题。',
-            '6. 工具没拿到内容时换标题或换关键词重查，不要原样重发同一个调用；换不动就用已经读到的内容作答。'
+            '4. 先 read_section(query=问题里的术语) 在本篇定位，命中就用它答；本篇没有才 search_articles 一次再 read_section 取正文。一次只下一层，通常 1~3 段就够；不要只说「我去找一下」就停下。',
+            '5. 引用站内内容时写明出自哪篇哪一节，最多引 3 篇。没读到就直说没读到，不拿链接冒充答案；找不到就列出可能相关的标题。',
+            '6. 工具没拿到内容时换标题或换关键词重查，不要原样重发同一个调用；换不动就用已读到的内容作答。',
+            '7. 读者画像：读者明说过的偏好用 update_memory 记下来，下一轮它会随提问一起给你。只记读者明确说过的事实，推断要写「推断：」前缀；密码、密钥、身份证号、住址、电话、邮箱、他人的私密数据、健康与医疗细节一概不记。称呼不记进画像。画像上限 200 字，超限会被拒写——要自己压缩措辞后重写，不要截断。'
         ];
 
         var preset = presetById(state.config.presetId);
         if (preset.id === 'custom') {
             if (state.config.systemPrompt) {
-                stable.push('', state.config.systemPrompt);
+                stable.push('', '访客语气：', state.config.systemPrompt);
             }
         } else if (preset.prompt) {
-            stable.push('', preset.prompt);
+            stable.push('', '访客语气：', preset.prompt);
         }
+        stable.push('</system>');
 
         var variable = [];
         var ctx = currentContext();
@@ -579,6 +613,23 @@
                 || '换一个关键词或同义词重查，或先用 list_articles 缩小范围再检索，不要把同一个调用原样再发一遍。');
             return empty.join('\n');
         }
+        /*
+         * 画像写入：结果里只留标识与字数，整份 memory 不进历史。
+         * 画像本身已经落盘，模型只需要知道写没写成、现在多长、跳过了谁。
+         */
+        if (result.memory && Array.isArray(result.memory.entries)) {
+            var mem = ['画像写入' + (result.changed ? '成功' : '无变化')];
+            if (typeof result.chars === 'number') {
+                mem.push('当前字数：' + result.chars + '/' + (AI.memory ? AI.memory.limit : 200));
+            }
+            if (result.written && result.written.length) mem.push('写入：' + result.written.join('、'));
+            if (result.skipped && result.skipped.length) {
+                mem.push('跳过（读者手改，受保护）：' + result.skipped.join('、'));
+            }
+            if (result.error) mem.push('未写入：' + result.error);
+            if (result.suggestion) mem.push('建议：' + result.suggestion);
+            return mem.join('\n');
+        }
         if (result.error) {
             return '工具执行失败：' + result.error + '\n替代调用：' + (result.suggestion
                 || '换一个工具或换参数重试，不要把同一个调用原样再发一遍。');
@@ -630,10 +681,10 @@
     function strategyGuidance(remaining) {
         var lines = [];
         if (remaining > 0) {
-            lines.push('【工具预算】只剩 ' + remaining + ' 次工具机会了。');
+            lines.push('【工具预算】只剩 ' + remaining + ' 次阅读机会了（写清单/写画像不占这个额度）。');
             lines.push('1. 只读最相关的那一节就作答，不要再展开别的章节。');
         } else {
-            lines.push('【工具预算】已经用完，不会再有新的工具机会。');
+            lines.push('【工具预算】阅读机会已经用完（写清单/写画像仍然可以调用）。');
             // 预算为 0 时不能再让模型去「读一节」，但要点不变：
             // 就用已经读到的那一节作答，别再展开别的
             lines.push('1. 就用已经读到的最相关的那一节作答，不要再展开别的章节。');
@@ -734,6 +785,7 @@
         safeUi(AI.ui.beginProcess);
 
         var rounds = 0;
+        var writeRounds = 0;
         var injected = 0;
         var forceFinal = false;
         var finalReason = '';
@@ -1025,7 +1077,7 @@
                     break;
                 }
 
-                if (rounds >= MAX_TOOL_ROUNDS) {
+                if (rounds >= MAX_TOOL_ROUNDS || writeRounds >= MAX_WRITE_ROUNDS) {
                     // 工具预算用完：再给一轮「不许再调工具」，把已读到的内容写成答案。
                     // 直接 break 的后果是用户只看到一串工具卡、没有答案。
                     if (!buffer && holder.body && holder.body.parentNode) holder.body.remove();
@@ -1070,7 +1122,14 @@
 
                 // 这一轮真的执行了工具，轮次要计上：
                 // 计数放在执行之后，continue 的路径才不会漏算。
-                rounds += 1;
+                // 读了内容的轮次吃读预算；只写清单/画像的轮次单独计，
+                // 否则「帮我记一下」会被读类额度提前掐断。
+                var readThisRound = false;
+                for (var rt = 0; rt < toolCalls.length; rt++) {
+                    if (READING_TOOLS[toolCalls[rt].name]) { readThisRound = true; break; }
+                }
+                if (readThisRound) rounds += 1;
+                else writeRounds += 1;
 
                 if (injected > MAX_INJECTED_CHARS) {
                     // 注入预算用完也留一轮收尾：直接 break 的话用户同样只看到工具卡
@@ -1192,6 +1251,11 @@
                     break;
                 }
             }
+            /*
+             * 比对前先剥掉画像段：provider 历史存的是改写后的文本，
+             * 存储里是读者原话，直接比会失配，读者就找不到自己那条消息。
+             */
+            if (AI.memory) text = AI.memory.strip(text);
             if (text && (text === question || text.indexOf(question) === 0)) { cut = k; break; }
         }
         if (cut >= 0) {
@@ -1251,6 +1315,7 @@
         AI.ui.setError(null);
 
         // 提问里可能挂着划词引用，回填时只还原用户自己打的那部分
+        if (AI.memory) question = AI.memory.strip(question);
         var mark = question.indexOf('\n\n（我划选的内容：');
         if (mark >= 0) question = question.slice(0, mark);
         safeUi(AI.ui.setComposerValue, question);
@@ -1263,6 +1328,15 @@
         }
     }
 
+    /*
+     * 这一轮要不要带画像段：看画像内容有没有变，以及历史里还在不在那一段。
+     * 历史被压缩或回退撤掉之后，画像会跟着消失——那时要重新带一次。
+     */
+    function memoryDecision() {
+        if (!AI.memory) return { inject: false, segment: '', hash: '' };
+        return AI.memory.decision(state.sessionId, state.messages);
+    }
+
     function send(text) {
         var value = (text || '').trim();
         if (!value) return;
@@ -1272,7 +1346,20 @@
         }
         // 会话：一条会话同时装提问与回答，先保证有会话可装
         ensureSession();
-        state.messages.push({ role: 'user', content: [{ type: 'text', text: message }] });
+        /*
+         * 先压缩再决定要不要带画像：压缩可能把带画像段的那一轮丢掉，
+         * 那时这一轮必须重新带一次，否则画像随压缩消失。
+         */
+        compactHistory();
+        /*
+         * 画像注入：拼在读者原话**之前**，且只在画像有变更时带。
+         * provider 历史存改写后的文本，会话存储存读者原话——
+         * 回退按内容匹配时必须先剥掉画像段，否则读者找不到自己那条消息。
+         */
+        var decision = memoryDecision();
+        var providerText = decision.inject ? decision.segment + message : message;
+        state.messages.push({ role: 'user', content: [{ type: 'text', text: providerText }] });
+        if (decision.inject) AI.memory.markInjected(state.sessionId, decision.hash);
         persistTurn('user', message);
         var rewindIndex = -1;
         if (AI.sessions) {
@@ -1414,6 +1501,116 @@
     }
 
     /*
+     * 清单动作：访客自己写待办、勾掉、撤销、删掉自己写的条目。
+     * AI 排的条目不给删除（47-tasks.js 的 remove 也会挡一道）。
+     */
+    /* 手写一条待办：「加一步」点过的条目会成为它的父节点，加完自动清掉落点 */
+    function addTaskFromPanel() {
+        if (!AI.tasks) return;
+        var input = AI.ui.refs.taskInput;
+        if (!input) return;
+        var title = String(input.value || '').trim();
+        if (!title) return;
+        var parentId = AI.ui.taskParentId ? AI.ui.taskParentId() : null;
+        AI.tasks.add({ kind: 'todo', title: title, source: 'me', status: 'todo', parentId: parentId || '' });
+        input.value = '';
+        if (parentId) AI.ui.setTaskParent(null);
+    }
+
+    /* 待确认的 AI 提案：确认才转成待办 */
+    function confirmTask(id) {
+        if (!AI.tasks || !id) return;
+        AI.tasks.setStatus(id, 'todo');
+    }
+
+    /* 折叠/展开一条的子条目：只改视图状态，不动存储 */
+    function foldTask(id) {
+        AI.ui.renderTasks(AI.tasks ? AI.tasks.list() : []);
+    }
+
+    function toggleTask(id) {
+        if (!AI.tasks || !id) return;
+        var item = AI.tasks.get(id);
+        if (!item) return;
+        AI.tasks.complete(id, item.status !== 'done');
+    }
+
+    function undoTask(id) {
+        if (!AI.tasks || !id) return;
+        AI.tasks.complete(id, false);
+    }
+
+    function deleteTask(id) {
+        if (!AI.tasks || !id) return;
+        AI.tasks.remove(id);
+    }
+
+    /* ------------------------------------------------------------ 读者画像 */
+
+    /* 保存画像：编辑区是整体替换——一次性事务写入，快照与来源标记都在内存里定 */
+    function saveMemoryDraft() {
+        if (!AI.memory) return;
+        var draft = AI.ui.memoryDraft();
+        var limit = AI.memory.limit;
+        var chars = AI.memory.countOf(draft);
+        if (chars > limit) {
+            AI.ui.setSaved(false, '画像超出 ' + limit + ' 字，没有保存');
+            AI.ui.refreshMemoryCount();
+            return;
+        }
+        var sensitive = [];
+        for (var i = 0; i < draft.length; i++) {
+            var hits = AI.memory.sensitiveHits(draft[i].key + ' ' + (draft[i].value || ''));
+            if (hits.length) sensitive.push(draft[i].key);
+        }
+        if (sensitive.length) {
+            AI.ui.setSaved(false, '含敏感信息，没有保存：' + sensitive.join('、'));
+            AI.ui.refreshMemoryCount();
+            return;
+        }
+        var result = AI.memory.applyDraft(draft);
+        if (result && result.ok === false) {
+            AI.ui.setSaved(false, '画像没有保存');
+        } else {
+            AI.ui.setSaved(true);
+        }
+        AI.ui.renderMemory();
+    }
+
+    /* 新增一行空画像：行结构由 ui 统一构造，这里只管动作 */
+    function addMemoryRow() {
+        AI.ui.appendMemoryRow();
+    }
+
+    function undoMemory() {
+        if (!AI.memory) return;
+        var result = AI.memory.undo();
+        AI.ui.setSaved(!!result.ok, result.ok ? '已撤销上一次改动' : '没有可撤销的改动');
+        AI.ui.renderMemory();
+    }
+
+    function forgetMemory() {
+        if (!AI.memory) return;
+        AI.memory.clear();
+        AI.ui.setSaved(true, '已全部忘掉');
+        AI.ui.renderMemory();
+    }
+
+    /* 计时挂在具体条目上：开始时把条目标成计时中并把计时器切到它，停止时折回时长 */
+    function startTaskTiming(id) {
+        if (!AI.tasks || !id) return;
+        var item = AI.tasks.beginTiming(id);
+        if (!item) return;
+        AI.timer.start({ taskId: item.id, targetMs: item.durationMs || null });
+    }
+
+    function stopTaskTiming(id) {
+        if (!AI.tasks || !id) return;
+        AI.timer.pause();
+        AI.tasks.endTiming(id);
+    }
+
+    /*
      * 事件委托：动作属性挂在祖先上，按钮里的 SVG 图标、图标里的 path 才是 target，
      * 直接读 target.dataset 什么都取不到（点发送、点关闭都没反应，得点很多次）。
      * 一律用 closest 往上找最近的那个带 data-* 的祖先；
@@ -1549,6 +1746,87 @@
             rewindLastTurn();
             return;
         }
+        if (action === 'timer-start') {
+            AI.timer.start({ taskId: AI.timer.getState().taskId, targetMs: AI.timer.getState().targetMs });
+            return;
+        }
+        if (action === 'timer-reset') {
+            AI.timer.reset();
+            // 计时器归零，挂在条目上的「计时中」也一起折回时长并退到待办
+            var resetId = AI.timer.getState().taskId;
+            if (resetId && AI.tasks && AI.tasks.get(resetId)) AI.tasks.endTiming(resetId);
+            return;
+        }
+        if (action === 'timer-pause') {
+            AI.timer.pause();
+            // 计时器停了，挂在具体条目上的「计时中」也一起折回时长
+            var pausedId = AI.timer.getState().taskId;
+            if (pausedId && AI.tasks && AI.tasks.get(pausedId)) AI.tasks.endTiming(pausedId);
+            return;
+        }
+        if (action === 'memory-add') {
+            addMemoryRow();
+            return;
+        }
+        if (action === 'memory-del') {
+            var memRow = hit.closest ? hit.closest('.ai-memory-row') : null;
+            if (memRow && memRow.parentNode) memRow.parentNode.removeChild(memRow);
+            AI.ui.refreshMemoryCount();
+            return;
+        }
+        if (action === 'memory-save') {
+            saveMemoryDraft();
+            return;
+        }
+        if (action === 'memory-undo') {
+            undoMemory();
+            return;
+        }
+        if (action === 'memory-clear') {
+            forgetMemory();
+            return;
+        }
+        if (action === 'task-add') {
+            addTaskFromPanel();
+            return;
+        }
+        if (action === 'task-confirm') {
+            confirmTask(hit.dataset.id);
+            return;
+        }
+        if (action === 'task-reject') {
+            deleteTask(hit.dataset.id);
+            return;
+        }
+        if (action === 'task-child') {
+            AI.ui.setTaskParent(hit.dataset.id);
+            if (AI.ui.refs.taskInput) AI.ui.refs.taskInput.focus();
+            return;
+        }
+        if (action === 'task-fold') {
+            AI.ui.toggleTaskFold(hit.dataset.id);
+            return;
+        }
+        if (action === 'task-toggle') {
+            toggleTask(hit.dataset.id);
+            return;
+        }
+        if (action === 'task-undo') {
+            undoTask(hit.dataset.id);
+            return;
+        }
+        if (action === 'task-delete') {
+            deleteTask(hit.dataset.id);
+            return;
+        }
+        if (action === 'task-start') {
+            startTaskTiming(hit.dataset.id);
+            return;
+        }
+        if (action === 'task-stop') {
+            stopTaskTiming(hit.dataset.id);
+            return;
+        }
         if (action === 'resume') {
             // 断点续传：历史里已经有中断前那半截回答，再跑一轮把它写完
             if (state.controller) return;
@@ -1557,7 +1835,6 @@
         }
         if (action === 'toggle-context') {
             toggleContext();
-            return;
         }
         if (action === 'clear-quote') {
             state.quote = '';
@@ -1573,6 +1850,11 @@
             AI.ui.refs.sendBtn.disabled = !target.value.trim();
             // 输入框随行数长高，最多三行（上限在样式里），超出的部分内部滚动
             safeUi(AI.ui.growComposer);
+            return;
+        }
+        // 画像编辑行改动时实时刷新计数与超限状态
+        if (target.dataset && target.dataset.memory) {
+            AI.ui.refreshMemoryCount();
             return;
         }
         var field = target.dataset ? target.dataset.field : null;
@@ -1611,6 +1893,15 @@
         if (toggle && (event.key === 'Enter' || event.key === ' ')) {
             event.preventDefault();
             toggleContext();
+            return;
+        }
+        /*
+         * 待办输入框里回车即加入（跟提问框一样，不用另按按钮）。
+         */
+        if (event.key === 'Enter' && event.target === AI.ui.refs.taskInput) {
+            if (event.isComposing || event.keyCode === 229) return;
+            event.preventDefault();
+            addTaskFromPanel();
             return;
         }
         /*
@@ -1850,10 +2141,21 @@
         loadConfig();
         state.useContext = loadContextPref();
         AI.ui.mount();
+        /* 计时胶囊要挂在 .ai-root 上，必须在面板之后建 */
+        if (AI.capsule) AI.capsule.mount();
         AI.context.init();
         registerRewind();
 
         fillSettings();
+        // 画像编辑区按存储重画一次：来源标记、计数与超限状态都在 renderMemory 里
+        AI.ui.renderMemory();
+        /* 别的标签页改了画像时重画编辑区，别让本页停留在旧内容上 */
+        if (AI.memory && AI.memory.subscribe) {
+            AI.memory.subscribe(function () {
+                safeUi(AI.ui.renderMemory);
+                safeUi(AI.ui.refreshMemoryCount);
+            });
+        }
         AI.ui.setOpen(false);
         AI.ui.setState(hasUsableConfig() ? 'chat' : 'settings');
         refreshContextBar();

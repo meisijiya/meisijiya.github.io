@@ -1,0 +1,48 @@
+/*
+ * 计时胶囊样式（独立文件，不碰面板/对话/设置/计时视图的任何规则）。
+ *
+ * 13px 是 --ai-fs-meta 这一档；全圆角 = --ai-r-pill。
+ * 已停态整颗降为次级色（--ai-ink-3），文案由 57-capsule.js 写进 .ai-capsule-state。
+ */
+
+.ai-capsule {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 10003;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border: 1px solid var(--ai-border-strong);
+    border-radius: var(--ai-r-pill);
+    background: var(--ai-surface);
+    color: var(--ai-ink);
+    font-family: var(--ai-font);
+    font-size: var(--ai-fs-meta);
+    line-height: 1.4;
+    white-space: nowrap;
+    /* .ai-root 整体是 pointer-events: none，浮层自己打开 */
+    pointer-events: auto;
+    cursor: pointer;
+    box-shadow: var(--ai-shadow-pop);
+}
+
+.ai-capsule[hidden] {
+    display: none;
+}
+
+/* 暂停/停止：整颗降为次级色 */
+.ai-capsule.is-stopped {
+    color: var(--ai-ink-3);
+    border-color: var(--ai-border);
+}
+
+.ai-capsule:hover {
+    border-color: var(--ai-ink-3);
+}
+
+/* 「已停」只在停着的时候有内容，空着时不占位 */
+.ai-capsule-state:empty {
+    display: none;
+}

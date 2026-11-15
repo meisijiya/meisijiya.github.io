@@ -2,7 +2,7 @@
  * 助手界面的 DOM 与渲染
  *
  * 这一层只管「长什么样、怎么显示」，不碰网络与状态机；
- * 状态与流程在 ai-assistant-main.js。
+ * 状态与流程在 60-main.js。
  * 结构与类名对齐 Open Design 原型（ai-widget.html），样式在 ai-assistant.css。
  */
 (function () {
@@ -974,7 +974,7 @@
         var views = el('div', 'ai-tabs');
         views.setAttribute('role', 'tablist');
         views.setAttribute('aria-label', '助手视图');
-        [['chat', '对话'], ['settings', '设置']].forEach(function (item) {
+        [['chat', '对话'], ['settings', '设置'], ['timer', '计时']].forEach(function (item) {
             var seg = el('button', 'ai-seg', item[1]);
             seg.type = 'button';
             seg.setAttribute('role', 'tab');
@@ -1066,7 +1066,12 @@
         list.id = 'ai-preset-list';
         list.setAttribute('role', 'listbox');
         list.hidden = true;
-        select.appendChild(list);
+        /*
+         * 挂到 .ai-root 而不是 select 里：面板有 transform + overflow:hidden，
+         * 面板内的 fixed 元素会被按面板裁剪，列表等于看不见（点了像没反应）。
+         * 浮层一律挂 .ai-root 也是仓库既有约定。
+         */
+        (refs.root || select).appendChild(list);
 
         refs.presetButton = button;
         refs.presetList = list;
@@ -1142,6 +1147,143 @@
         });
     }
 
+    /* 「她是谁」：只读，段里不出现任何输入控件 */
+    function buildIdentity() {
+        var card = sectionCard('她是谁');
+        card.section.classList.add('ai-section-identity');
+        var name = el('p', 'ai-identity-name', '一二');
+        card.card.appendChild(name);
+        var line = el('p', 'ai-identity-line', '可爱、粘人、善解人意，非常照顾你。');
+        card.card.appendChild(line);
+        var lock = el('p', 'ai-identity-lock', '身份层锁死：她是谁不提供任何修改入口，改系统提示词也不影响这一段。');
+        card.card.appendChild(lock);
+        var preview = el('p', 'ai-identity-memory', '她还没记住什么。');
+        card.card.appendChild(preview);
+        refs.identityMemory = preview;
+        return card.section;
+    }
+
+    /* 「读者画像」：键值行可增删改，字数计数 /200，超限标红且不许保存 */
+    function buildMemoryBlock() {
+        var card = sectionCard('读者画像');
+        card.section.classList.add('ai-section-memory');
+
+        var rows = el('div', 'ai-memory-rows');
+        refs.memoryRows = rows;
+        card.card.appendChild(rows);
+
+        var foot = el('div', 'ai-memory-foot');
+        var count = el('p', 'ai-memory-count', '0/200');
+        refs.memoryCount = count;
+        foot.appendChild(count);
+        var save = el('button', 'ai-btn ai-btn-primary', '保存');
+        save.type = 'button';
+        save.dataset.act = 'memory-save';
+        refs.memorySave = save;
+        foot.appendChild(save);
+        card.card.appendChild(foot);
+
+        var actions = el('div', 'ai-memory-actions');
+        var add = el('button', 'ai-btn', '添加一条');
+        add.type = 'button';
+        add.dataset.act = 'memory-add';
+        actions.appendChild(add);
+        var undo = el('button', 'ai-btn', '撤销上一次改动');
+        undo.type = 'button';
+        undo.dataset.act = 'memory-undo';
+        refs.memoryUndo = undo;
+        actions.appendChild(undo);
+        var clear = el('button', 'ai-btn', '全部忘掉');
+        clear.type = 'button';
+        clear.dataset.act = 'memory-clear';
+        actions.appendChild(clear);
+        card.card.appendChild(actions);
+
+        var note = el('p', 'ai-memory-note', '她只记你明说过的事；密码、密钥、证件、住址、联系方式与健康细节不记。');
+        card.card.appendChild(note);
+        return card.section;
+    }
+
+    /* 一条画像行：键、值、来源标记、删除 */
+    function memoryRow(entry) {
+        var one = entry || { key: '', value: '', source: 'me' };
+        var row = el('div', 'ai-memory-row');
+        row.dataset.source = one.source === 'ai' ? 'ai' : 'me';
+        row.dataset.key = one.key;
+
+        var key = el('input', 'ai-input-line ai-memory-key');
+        key.type = 'text';
+        key.value = one.key;
+        key.placeholder = '记什么';
+        key.dataset.memory = 'key';
+        row.appendChild(key);
+
+        var value = el('input', 'ai-input-line ai-memory-value');
+        value.type = 'text';
+        value.value = one.value;
+        value.placeholder = '内容';
+        value.dataset.memory = 'value';
+        row.appendChild(value);
+
+        var badge = el('span', 'ai-memory-badge', one.source === 'ai' ? 'AI 记的' : '我改的');
+        row.appendChild(badge);
+
+        var del = el('button', 'ai-btn ai-memory-del', '删除');
+        del.type = 'button';
+        del.dataset.act = 'memory-del';
+        row.appendChild(del);
+        return row;
+    }
+
+    /* 重画画像：来源标记、计数、超限标红与保存按钮的可用状态都在这里统一 */
+    function renderMemory() {
+        if (!refs.memoryRows) return;
+        var entries = AI.memory ? AI.memory.entries() : [];
+        refs.memoryRows.innerHTML = '';
+        for (var i = 0; i < entries.length; i++) {
+            refs.memoryRows.appendChild(memoryRow(entries[i]));
+        }
+        if (!entries.length) {
+            refs.memoryRows.appendChild(el('p', 'ai-memory-empty', '还没有记下任何事。'));
+        }
+        refreshMemoryCount();
+        if (refs.identityMemory) {
+            refs.identityMemory.textContent = entries.length
+                ? '她记得你：' + entries.map(function (one) { return one.key + ' = ' + one.value; }).join('；')
+                : '她还没记住什么。';
+        }
+    }
+
+    /* 字数按「键 + 值」算，与 45-memory.js 的 charCount 同口径 */
+    function memoryDraft() {
+        var rows = refs.memoryRows ? refs.memoryRows.querySelectorAll('.ai-memory-row') : [];
+        var entries = [];
+        for (var i = 0; i < rows.length; i++) {
+            var key = rows[i].querySelector('[data-memory="key"]');
+            var value = rows[i].querySelector('[data-memory="value"]');
+            var k = key ? key.value.trim() : '';
+            if (!k) continue;
+            entries.push({
+                key: k,
+                value: value ? value.value.trim() : '',
+                source: rows[i].dataset.source === 'ai' ? 'ai' : 'me'
+            });
+        }
+        return entries;
+    }
+
+    function refreshMemoryCount() {
+        if (!refs.memoryCount) return;
+        var entries = memoryDraft();
+        var limit = AI.memory ? AI.memory.limit : 200;
+        var chars = AI.memory ? AI.memory.countOf(entries) : 0;
+        refs.memoryCount.textContent = chars + '/' + limit;
+        var over = chars > limit;
+        refs.memoryCount.classList.toggle('is-over', over);
+        if (refs.memorySave) refs.memorySave.disabled = over;
+        return over;
+    }
+
     function buildSettings() {
         var wrap = el('div', 'ai-settings');
 
@@ -1187,8 +1329,15 @@
 
         /* 提示词：预设 + 可以直接改写的正文 */
         var prompt = sectionCard('提示词');
+        prompt.section.classList.add('ai-section-prompt');
+        var promptNote = el('p', 'ai-prompt-note', '这一段只改语气与工作方式，不影响她是谁。');
+        prompt.card.appendChild(promptNote);
         prompt.card.appendChild(presetField());
         wrap.appendChild(prompt.section);
+
+        wrap.appendChild(buildMemoryBlock());
+        // 「她是谁」放最后：只读信息，不该占最上面的视线
+        wrap.appendChild(buildIdentity());
 
         return wrap;
     }
@@ -1282,6 +1431,315 @@
         return foot;
     }
 
+    /* ------------------------------------------------------------ 计时视图 */
+
+    /*
+     * 计时视图自上而下：当前任务名 → 大号计时数字 → 开始/暂停/重置
+     * → 任务列表容器 → 空态一句。
+     * 任务清单本身在 #63 落地，本票只留容器与空态，不实现清单逻辑。
+     */
+    function buildTimerView() {
+        var view = el('section', 'ai-view ai-view-timer');
+        view.dataset.view = 'timer';
+        view.setAttribute('aria-label', '计时');
+        view.hidden = true;
+
+        var head = el('div', 'ai-timer-head');
+        var task = el('p', 'ai-timer-task', '未选择任务');
+        refs.timerTask = task;
+        head.appendChild(task);
+
+        var value = el('p', 'ai-timer-value', '00:00');
+        refs.timerValue = value;
+        head.appendChild(value);
+        view.appendChild(head);
+
+        var done = el('p', 'ai-timer-done', '时间到了。');
+        done.hidden = true;
+        refs.timerDone = done;
+        view.appendChild(done);
+
+        var controls = el('div', 'ai-timer-controls');
+        var start = el('button', 'ai-btn ai-btn-primary', '开始');
+        start.type = 'button';
+        start.dataset.act = 'timer-start';
+        var pause = el('button', 'ai-btn', '暂停');
+        pause.type = 'button';
+        pause.dataset.act = 'timer-pause';
+        var reset = el('button', 'ai-btn', '重置');
+        reset.type = 'button';
+        reset.dataset.act = 'timer-reset';
+        controls.appendChild(start);
+        controls.appendChild(pause);
+        controls.appendChild(reset);
+        refs.timerStart = start;
+        refs.timerPause = pause;
+        refs.timerReset = reset;
+        view.appendChild(controls);
+
+        var list = el('div', 'ai-timer-tasks');
+        list.setAttribute('role', 'group');
+        list.setAttribute('aria-label', '任务列表');
+        refs.timerList = list;
+        view.appendChild(list);
+
+        /*
+         * 清单：任务与待办同一张表（AI 排的 / 我写的用徽标区分）。
+         * 访客在这里手写待办、勾掉、撤销；AI 条目不提供删除。
+         */
+        var add = el('div', 'ai-task-add');
+        var input = el('input', 'ai-task-input');
+        input.type = 'text';
+        input.placeholder = '写一条待办…';
+        input.dataset.field = 'task-title';
+        input.setAttribute('aria-label', '新待办');
+        refs.taskInput = input;
+        var addBtn = el('button', 'ai-btn ai-btn-primary', '加入');
+        addBtn.type = 'button';
+        addBtn.dataset.act = 'task-add';
+        add.appendChild(input);
+        add.appendChild(addBtn);
+        refs.taskAdd = add;
+        view.appendChild(add);
+
+        var empty = el('p', 'ai-tasks-empty ai-empty', '清单是空的。上面写一条，或让一二给你排阅读清单。');
+        refs.tasksEmpty = empty;
+        view.appendChild(empty);
+        return view;
+    }
+
+    var STATUS_TEXT = {
+        pending: '待确认',
+        todo: '待办',
+        running: '计时中',
+        done: '已完成'
+    };
+
+    /*
+     * 画清单：一条一个卡片，勾掉加删除线，AI 排的与我写的用徽标区分。
+     * 删除按钮只给自己写的条目——AI 排的条目不给删。
+     */
+    /* 折叠状态只在这次会话里记：刷新后重新展开，不让坏状态留着 */
+    var foldedTasks = {};
+
+    /*
+     * 清单按树渲染：兄弟节点按创建时间正序，层级最多 3 层。
+     * 一条任务下面通常还挂着「做完这步再往下做哪几步」，所以父节点带折叠开关。
+     */
+    function renderTasks(items) {
+        var list = refs.timerList;
+        if (!list) return;
+        var rows = Array.isArray(items) ? items : [];
+        while (list.firstChild) list.removeChild(list.firstChild);
+
+        var byId = {};
+        for (var b = 0; b < rows.length; b++) byId[rows[b].id] = rows[b];
+        var roots = [];
+        for (var r = 0; r < rows.length; r++) {
+            var parent = rows[r].parentId;
+            if (parent && byId[parent]) continue;
+            roots.push(rows[r]);
+        }
+        var order = function (a, b) {
+            if (a.createdAt !== b.createdAt) return a.createdAt - b.createdAt;
+            return a.id < b.id ? -1 : 1;
+        };
+        roots.sort(order);
+
+        var paint = function (item, depth) {
+            var kids = AI.tasks && AI.tasks.childrenOf ? AI.tasks.childrenOf(item.id) : [];
+            kids.sort(order);
+            list.appendChild(buildTaskRow(item, depth, kids.length > 0));
+            if (!kids.length || foldedTasks[item.id]) return;
+            for (var k = 0; k < kids.length; k++) paint(kids[k], depth + 1);
+        };
+        for (var i = 0; i < roots.length; i++) paint(roots[i], 0);
+
+        if (refs.tasksEmpty) refs.tasksEmpty.hidden = rows.length > 0;
+    }
+
+    /* 一行清单：勾选、标题、来源与状态、折叠开关、动作 */
+    function buildTaskRow(item, depth, hasKids) {
+        var row = el('div', 'ai-task');
+        row.dataset.id = item.id;
+        row.dataset.status = item.status;
+        row.dataset.source = item.source;
+        row.dataset.depth = String(depth);
+
+        /*
+         * 折叠开关放在最前面：有子条目才出现，点它只改这一次会话的展开状态，
+         * 不动存储（层级本身是数据，展开与否是视图）。
+         */
+        if (hasKids) {
+            var fold = el('button', 'ai-task-fold', foldedTasks[item.id] ? '▸' : '▾');
+            fold.type = 'button';
+            fold.dataset.act = 'task-fold';
+            fold.dataset.id = item.id;
+            fold.setAttribute('aria-label', foldedTasks[item.id] ? '展开子条目' : '折叠子条目');
+            fold.setAttribute('aria-expanded', foldedTasks[item.id] ? 'false' : 'true');
+            row.appendChild(fold);
+        } else {
+            row.appendChild(el('span', 'ai-task-fold-placeholder', ''));
+        }
+
+        var check = el('button', 'ai-task-check', item.status === 'done' ? '✓' : '');
+        check.type = 'button';
+        check.dataset.act = 'task-toggle';
+        check.dataset.id = item.id;
+        check.setAttribute('aria-label', item.status === 'done' ? '撤销完成' : '标记完成');
+        check.setAttribute('aria-pressed', item.status === 'done' ? 'true' : 'false');
+        row.appendChild(check);
+
+        var body = el('div', 'ai-task-body');
+        /*
+         * 标题本身就是链接：之前标题一行、下面再摊一条 URL，
+         * 同一个标题写两遍还占两行，面板里一条就吃掉三分之一屏。
+         */
+        var title = item.url ? el('a', 'ai-task-title ai-task-title-link', item.title) : el('p', 'ai-task-title', item.title);
+        if (item.url) {
+            title.href = item.url;
+            title.title = item.url;
+        }
+        body.appendChild(title);
+
+        var meta = el('div', 'ai-task-meta');
+        var badge = el('span', 'ai-task-badge', item.source === 'ai' ? 'AI 排的' : '我写的');
+        badge.dataset.source = item.source;
+        meta.appendChild(badge);
+        var status = el('span', 'ai-task-status', STATUS_TEXT[item.status] || item.status);
+        meta.appendChild(status);
+        var elapsed = AI.tasks ? AI.tasks.elapsedOf(item) : 0;
+        if (elapsed > 0) {
+            meta.appendChild(el('span', 'ai-task-status', '已用 ' + AI.timer.format(elapsed)));
+        }
+        body.appendChild(meta);
+
+        row.appendChild(body);
+
+        var acts = el('div', 'ai-task-acts');
+        if (item.status === 'pending') {
+            var yes = el('button', 'ai-task-act ai-task-act-primary', '确认');
+            yes.type = 'button';
+            yes.dataset.act = 'task-confirm';
+            yes.dataset.id = item.id;
+            acts.appendChild(yes);
+            var no = el('button', 'ai-task-act', '不要');
+            no.type = 'button';
+            no.dataset.act = 'task-reject';
+            no.dataset.id = item.id;
+            acts.appendChild(no);
+        }
+        if (item.status === 'todo' || item.status === 'running') {
+            var child = el('button', 'ai-task-act', '加一步');
+            child.type = 'button';
+            child.dataset.act = 'task-child';
+            child.dataset.id = item.id;
+            acts.appendChild(child);
+        }
+        if (item.status === 'todo') {
+            var startBtn = el('button', 'ai-task-act', '计时');
+            startBtn.type = 'button';
+            startBtn.dataset.act = 'task-start';
+            startBtn.dataset.id = item.id;
+            acts.appendChild(startBtn);
+        }
+        if (item.status === 'running') {
+            var stopBtn = el('button', 'ai-task-act', '停止计时');
+            stopBtn.type = 'button';
+            stopBtn.dataset.act = 'task-stop';
+            stopBtn.dataset.id = item.id;
+            acts.appendChild(stopBtn);
+        }
+        if (item.status === 'done') {
+            var undo = el('button', 'ai-task-act', '撤销');
+            undo.type = 'button';
+            undo.dataset.act = 'task-undo';
+            undo.dataset.id = item.id;
+            acts.appendChild(undo);
+        }
+        /*
+         * 删除对所有条目一视同仁：同一条清单里一半能删一半不能删，
+         * 访客得先记住这条是谁写的，认知负担比误删更贵。AI 的提案仍用「不要」否掉。
+         */
+        if (item.status !== 'pending') {
+            var del = el('button', 'ai-task-act', '删除');
+            del.type = 'button';
+            del.dataset.act = 'task-delete';
+            del.dataset.id = item.id;
+            acts.appendChild(del);
+        }
+        if (acts.childNodes.length) row.appendChild(acts);
+        return row;
+    }
+
+    /* 折叠/展开一条的子条目：只改这次会话的视图状态 */
+    function toggleTaskFold(id) {
+        foldedTasks[id] = !foldedTasks[id];
+        renderTasks(AI.tasks ? AI.tasks.list() : []);
+    }
+
+    /* 「加一步」的落点：点过哪条，输入框就写到它下面 */
+    function setTaskParent(id) {
+        refs.taskParentId = id || null;
+        if (refs.taskInput) {
+            var title = '';
+            if (id && AI.tasks) {
+                var parent = AI.tasks.get(id);
+                title = parent ? parent.title : '';
+            }
+            refs.taskInput.placeholder = id
+                ? '加到「' + title + '」下面…'
+                : '写一条待办…';
+        }
+    }
+
+    /* 清单一变就重画：面板开着时也要跟着别的标签页的改动 */
+    var tasksUnsubscribe = null;
+
+    function syncTasks() {
+        if (!AI.tasks) return;
+        if (!tasksUnsubscribe) {
+            tasksUnsubscribe = AI.tasks.subscribe(renderTasks);
+        }
+        renderTasks(AI.tasks.list());
+    }
+
+    /*
+     * 计时显示只刷新数字，不改状态：真相在 55-timer.js 的时间戳对里。
+     * 计时视图开着才跑刷新定时器，离开就停，别让后台空转。
+     */
+    function renderTimer(data) {
+        if (!refs.timerValue) return;
+        var snap = data.state;
+        refs.timerValue.textContent = snap.mode === 'down' && data.remainingMs !== null
+            ? AI.timer.format(data.remainingMs)
+            : AI.timer.format(data.elapsedMs);
+        var task = snap.taskId && AI.tasks && AI.tasks.get(snap.taskId) ? AI.tasks.get(snap.taskId) : null;
+        refs.timerTask.textContent = task ? task.title : '未选择任务';
+        refs.timerTask.title = task ? task.title : '';
+        refs.timerStart.disabled = !!data.running;
+        refs.timerStart.textContent = data.running ? '计时中' : '开始';
+        refs.timerPause.disabled = !data.running;
+        refs.timerDone.hidden = !data.done;
+    }
+
+    var timerUnsubscribe = null;
+
+    function syncTimerTicking(on) {
+        if (!AI.timer) return;
+        if (on) {
+            if (timerUnsubscribe) return;
+            timerUnsubscribe = AI.timer.subscribe(renderTimer);
+            AI.timer.startTicking(500);
+            return;
+        }
+        if (timerUnsubscribe) {
+            timerUnsubscribe();
+            timerUnsubscribe = null;
+        }
+        AI.timer.stopTicking();
+    }
+
     function buildPanel() {
         var panel = el('section', 'ai-panel');
         panel.id = 'ai-panel';
@@ -1332,6 +1790,10 @@
         settings.appendChild(settingsForm);
         views.appendChild(settings);
         refs.settingsView = settings;
+
+        var timer = buildTimerView();
+        views.appendChild(timer);
+        refs.timerView = timer;
 
         var scrollDown = el('button', 'ai-scroll-down');
         scrollDown.type = 'button';
@@ -1431,6 +1893,8 @@
         root.appendChild(bubble);
 
         document.body.appendChild(root);
+        // 清单先画一次：面板一挂上就有内容，不等切到计时视图
+        syncTasks();
         wireScrollArrows();
         // 标题栏要显示当前会话名，进来就得先对一次
         updateSessionLabel();
@@ -1535,24 +1999,30 @@
     }
 
     function setState(state) {
-        var view = state === 'settings' ? 'settings' : 'chat';
+        var view = state === 'settings' ? 'settings' : (state === 'timer' ? 'timer' : 'chat');
         refs.root.dataset.view = view;
         refs.chatView.hidden = view !== 'chat';
         refs.settingsView.hidden = view !== 'settings';
-        refs.composerBox.hidden = view === 'settings';
+        if (refs.timerView) refs.timerView.hidden = view !== 'timer';
+        // 输入区与设置底栏都只在对话/设置视图里出现，计时视图整块收起
+        refs.composerBox.hidden = view !== 'chat';
         refs.settingsFoot.hidden = view !== 'settings';
         var segs = refs.panel.querySelectorAll('.ai-seg[data-state]');
         for (var i = 0; i < segs.length; i++) {
             segs[i].setAttribute('aria-selected', segs[i].dataset.state === view ? 'true' : 'false');
         }
-        // 设置视图有自己的一套高度，窄屏下别让聊天抽屉拖出来的高度盖住它
+        // 设置视图与计时视图各有自己的一套高度，窄屏下别让聊天抽屉拖出来的高度盖住它
         if (refs.panel) {
-            if (view === 'settings') {
+            if (view === 'settings' || view === 'timer') {
                 refs.panel.style.height = '';
             } else if (isNarrow() && drawerHeight) {
                 refs.panel.style.height = drawerHeight + 'px';
             }
         }
+        // 切到计时视图时对一次清单：别的标签页改过也能看到
+        if (view === 'timer') syncTasks();
+        // 计时刷新只在计时视图开着时跑，别让后台空转
+        syncTimerTicking(view === 'timer');
         // 设置视图的面板更高，切换后重新落位，把它夹回视口内
         window.requestAnimationFrame(placePanel);
     }
@@ -2618,11 +3088,13 @@
         var box = refs.presetButton.getBoundingClientRect();
         var height = refs.presetList.offsetHeight;
         var below = window.innerHeight - box.bottom - 12;
+        var top = below >= height + 8 ? box.bottom + 4 : box.top - height - 4;
+        // 按钮被滚到视口外时（设置区自己滚），列表也不能跟着跑出屏幕：
+        // 上下都夹在视口内，宁可盖住按钮也不能挂在看不见的地方
+        top = Math.max(8, Math.min(top, window.innerHeight - height - 8));
         refs.presetList.style.left = box.left + 'px';
         refs.presetList.style.width = box.width + 'px';
-        refs.presetList.style.top = (below >= height + 8
-            ? box.bottom + 4
-            : Math.max(8, box.top - height - 4)) + 'px';
+        refs.presetList.style.top = top + 'px';
     }
 
     function openPresetList() {
@@ -3044,6 +3516,21 @@
         },
         setError: setError,
         setSaved: setSaved,
+        renderMemory: renderMemory,
+        /* 加一行空画像：DOM 构造只有 memoryRow 一份，主流程别再抄 */
+        appendMemoryRow: function () {
+            if (!refs.memoryRows) return null;
+            var empty = refs.memoryRows.querySelector('.ai-memory-empty');
+            if (empty && empty.parentNode) empty.parentNode.removeChild(empty);
+            var row = memoryRow(null);
+            refs.memoryRows.appendChild(row);
+            refreshMemoryCount();
+            var input = row.querySelector('[data-memory="key"]');
+            if (input && input.focus) input.focus();
+            return row;
+        },
+        memoryDraft: memoryDraft,
+        refreshMemoryCount: refreshMemoryCount,
         setBusy: setBusy,
         showBubble: showBubble,
         hideBubble: hideBubble,
@@ -3051,6 +3538,12 @@
         closePresetList: closePresetList,
         positionPresetList: positionPresetList,
         renderMarkdown: renderMarkdown,
+        /* 清单：渲染与同步（60-main.js 的动作分发用） */
+        renderTasks: renderTasks,
+        setTaskParent: setTaskParent,
+        toggleTaskFold: toggleTaskFold,
+        taskParentId: function () { return refs.taskParentId || null; },
+        syncTasks: syncTasks,
         /* 会话变化订阅：回调收到 {id, title, messages, reason} */
         onSessionChange: function (cb) {
             if (typeof cb !== 'function') return;
