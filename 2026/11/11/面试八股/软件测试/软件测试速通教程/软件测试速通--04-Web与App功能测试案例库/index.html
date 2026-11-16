@@ -489,7 +489,77 @@
 <p>前两支是本职工作，后三支拉开差距。拆到「操作」就停，一上线就漏。</p>
 <h3 id="1-3-用例口径怎么给"><a href="#1-3-用例口径怎么给" class="headerlink" title="1.3 用例口径怎么给"></a>1.3 用例口径怎么给</h3><p>下面每个案例给的条数是按本篇五支测试点树估算的示范，不是标准答案。实际条数取决于需求粒度与团队要求，面试时给区间并讲推导（按哪几支、每支几条）。</p>
 <p>口径就是「这个模块该覆盖多少条、优先级怎么分」，给法是<strong>按五支各定一个数再相加，实际条数按需求粒度调整</strong>。优先级一条硬规则：<strong>正向业务 P0，逆向业务 P1，非功能（兼容&#x2F;性能&#x2F;安全）P2&#x2F;P3</strong>。被问「你写多少条」时，先报总数，再报 P0 占比，最后给理由。</p>
-<h3 id="1-4-和已有文章的关系"><a href="#1-4-和已有文章的关系" class="headerlink" title="1.4 和已有文章的关系"></a>1.4 和已有文章的关系</h3><p>博客《软件测试–场景与流程面试笔记》§15–33 收录了登录、搜索、上传三类问答体答案，适合背结论。这篇合并进案例库并补上「测试点树 + 用例口径」，是<strong>改写</strong>不是重写。</p>
+<h3 id="1-4-和已有文章的关系"><a href="#1-4-和已有文章的关系" class="headerlink" title="1.4 和已有文章的关系"></a>1.4 和已有文章的关系</h3><p>博客《软件测试–场景与流程面试笔记》里也有登录、搜索、上传三类问答体答案，适合背结论。这篇把这些内容合并进案例库并补上「测试点树 + 用例口径」，是<strong>改写</strong>不是重写。</p>
+<h3 id="1-5-案例里出现的名词速查"><a href="#1-5-案例里出现的名词速查" class="headerlink" title="1.5 案例里出现的名词速查"></a>1.5 案例里出现的名词速查</h3><p>案例里出现的术语先在这里对齐，读案例时不用回头查。</p>
+<table>
+<thead>
+<tr>
+<th>名词</th>
+<th>一句话定义</th>
+<th>在本案里怎么测或怎么配</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多端互踢策略</td>
+<td>同账号多端登录时决定踢哪端的规则</td>
+<td>三种形态：只留最新端（旧端 token 立即失效，前端跳登录）、先登优先（新端登录被拒，提示已在别处登录）、允许并存（各端 token 独立有效）；按产品定的一种测：旧端调接口返 401 并跳登录，新端不受影响</td>
+</tr>
+<tr>
+<td>OAuth state</td>
+<td>第三方授权请求里带的随机串，用来验明回调对应的是自己发起的那次授权</td>
+<td>生成：发起授权前用随机数生成 state 存会话；校验：回调带回时与会话比对，不一致直接拒绝；测篡改回调 state 能否登录成功</td>
+</tr>
+<tr>
+<td>CSRF</td>
+<td>跨站请求伪造：攻击者借用户的登录态替用户发请求</td>
+<td>第三方回调不校验 state，攻击者就能构造回调把受害者账号绑到自己账号上；校验 state 即挡住</td>
+</tr>
+<tr>
+<td>状态机</td>
+<td>事物的状态集合与状态之间允许的迁移规则</td>
+<td>支付四态只前进：待支付→支付中→已支付→已关闭；测已支付回退待支付、跳级这类非法迁移要被服务端拒绝且状态不变</td>
+</tr>
+<tr>
+<td>幂等键</td>
+<td>客户端为一次操作生成的唯一键，服务端用它认出「这单我处理过」</td>
+<td>生成 UUID 或业务单号随请求提交；服务端首次执行后落库，同键重复请求返回首次结果不再执行；测同键并发两次只扣一次款</td>
+</tr>
+<tr>
+<td>防重放</td>
+<td>挡住同一个请求被截获后原样再发一次</td>
+<td>时间戳 + nonce：超出时间窗（如 5 分钟）拒绝，nonce 用过即废；与幂等的分工——幂等管业务层重复提交，防重放管请求层原样重发</td>
+</tr>
+<tr>
+<td>webshell</td>
+<td>传上去就能在服务器上执行的恶意脚本后门</td>
+<td>上传目录去掉执行权限、禁止脚本解析（对上传目录关掉 PHP&#x2F;脚本引擎）；测改后缀传 jsp&#x2F;php，访问只返回下载或 404，不能执行</td>
+</tr>
+<tr>
+<td>角色矩阵</td>
+<td>行是角色、列是功能（权限点）的对照表</td>
+<td>先画矩阵标出每角色该有&#x2F;该没有的权限；每一格出一条用例：该有的点正向走通，不该有的点越权被拒</td>
+</tr>
+<tr>
+<td>厂商通道</td>
+<td>手机厂商提供的系统级推送通道，消息由系统服务送达</td>
+<td>App 进程被杀后靠它补收；测杀进程→发推送→通知仍到达，点开后补齐数据；自建长连接只在进程活着时能收，两条通道的到达时机分开验</td>
+</tr>
+<tr>
+<td>游标分页</td>
+<td>用上一页最后一条的 id&#x2F;时间当起点取下一页，不用页码偏移</td>
+<td>替代 <code>LIMIT 偏移</code> 的深翻页写法；测第 500 页耗时与第 2 页同量级、翻页不重不漏</td>
+</tr>
+<tr>
+<td>错误推测法</td>
+<td>凭经验和历史 bug 推测「哪里容易错」来补用例的设计方法</td>
+<td>发散套路固定六路：空值、边界、并发、重复提交、断网、权限，逐路过一遍再压成 P0&#x2F;P1</td>
+</tr>
+<tr>
+<td>埋点</td>
+<td>埋点校验：客户端在关键行为处上报的统计事件，验证上报是否真实可靠</td>
+<td>测上报时机（进页&#x2F;点击&#x2F;离开该报的都报）、参数完整正确、重复上报去重、开关控制（关闭后不再上报）</td>
+</tr>
+</tbody></table>
 <hr>
 <h2 id="二、Web-案例（7-个）"><a href="#二、Web-案例（7-个）" class="headerlink" title="二、Web 案例（7 个）"></a>二、Web 案例（7 个）</h2><h3 id="2-1-登录"><a href="#2-1-登录" class="headerlink" title="2.1 登录"></a>2.1 登录</h3><h4 id="需求一句话"><a href="#需求一句话" class="headerlink" title="需求一句话"></a>需求一句话</h4><p>已注册用户输入账号、密码（部分场景带验证码），验证通过后进入首页，支持「记住我」和第三方登录。</p>
 <h4 id="测试点树"><a href="#测试点树" class="headerlink" title="测试点树"></a>测试点树</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">登录</span><br><span class="line">├── 显示：账号框/密码框/验证码框/按钮齐全；密码掩码</span><br><span class="line">├── 操作：正向 正确账号密码 → 跳首页；「记住我」免输账号</span><br><span class="line">│ 第三方登录授权后回跳</span><br><span class="line">├── 异常：三项为空 → 前端拦截；账号未注册与密码错 → 统一提示</span><br><span class="line">│ 连错 N 次锁定（常见做法是 5 次，具体看产品风控策略）；验证码过期；中断网可重试</span><br><span class="line">├── 数据：成功写会话，刷新仍在线；多端互踢策略符合需求</span><br><span class="line">│ 登录日志落库（时间/IP/设备）</span><br><span class="line">└── 安全：密码不明文传输；锁定防暴力破解</span><br><span class="line"> 接口防 SQL 注入与 XSS；第三方回调校验 state 防 CSRF</span><br></pre></td></tr></table></figure>
@@ -518,6 +588,7 @@
 <li>筛选后翻页，第 2 页按未筛选条件查，出现脏数据。</li>
 <li>每页条数切换后页码没重置，停在不存在的页。</li>
 </ol>
+<p><strong>深分页为什么崩、怎么解</strong>：<code>LIMIT 10000, 20</code> 这类写法要先扫过前 10 万行再丢掉，页码越深扫描量越大，第 500 页直接拖垮查询。三种解法：<strong>① 游标分页</strong>——用上一页最后一条的 id&#x2F;时间当起点（<code>WHERE id &gt; ? LIMIT 20</code>），代价与页码无关；<strong>② 分页上限</strong>——只允许翻到第 N 页，超出引导用搜索或筛选；<strong>③ 延迟加载</strong>——不给深跳入口，滚到哪加载哪。验证：第 500 页请求耗时与第 2 页同量级，或翻到上限页给出提示。</p>
 <h3 id="2-4-图片上传"><a href="#2-4-图片上传" class="headerlink" title="2.4 图片上传"></a>2.4 图片上传</h3><h4 id="需求一句话-3"><a href="#需求一句话-3" class="headerlink" title="需求一句话"></a>需求一句话</h4><p>用户选本地图片上传到服务器，服务端校验格式、大小、数量后存储并返回可访问地址。</p>
 <h4 id="测试点树-3"><a href="#测试点树-3" class="headerlink" title="测试点树"></a>测试点树</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">图片上传</span><br><span class="line">├── 显示：选择按钮/上传进度/预览缩略图/删除；失败原因可读</span><br><span class="line">├── 操作：单张上传成功并回显；多文件同时上传；拖拽上传</span><br><span class="line">│ 上传中取消；上传后删除与替换</span><br><span class="line">├── 异常：格式不符（exe/svg/bmp）拒绝；大小边界小于下限、等于上限、</span><br><span class="line">│ 超上限；数量为 0 与超上限；空文件与损坏文件</span><br><span class="line">│ 同名覆盖策略符合需求；中断后重传，无残留文件</span><br><span class="line">├── 数据：落库地址可访问不 404；实际大小格式与提交一致</span><br><span class="line">│ 上传记录与用户绑定；删除后存储与库记录同步清理</span><br><span class="line">└── 安全：服务端二次校验格式与大小，不只信前端</span><br><span class="line"> 上传目录不可执行防 webshell；接口鉴权防匿名传</span><br></pre></td></tr></table></figure>
 
@@ -558,6 +629,26 @@
 <h2 id="三、App-案例（4-个）"><a href="#三、App-案例（4-个）" class="headerlink" title="三、App 案例（4 个）"></a>三、App 案例（4 个）</h2><blockquote>
 <p>App 专项分五类：<strong>安装卸载升级、兼容性、交叉事件、消息推送、易用性</strong>。下面四个案例覆盖其中三类（安装卸载升级、消息推送、交叉事件），弱网属于网络专项，不在这五类里；「安全」支在 App 里通常并入「异常」，框架保留但会薄一些。</p>
 </blockquote>
+<p>兼容性、易用性这两类按下面的维度拆：</p>
+<table>
+<thead>
+<tr>
+<th>类</th>
+<th>维度</th>
+<th>测试点要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>兼容性</td>
+<td>机型 &#x2F; 系统版本 &#x2F; 分辨率 &#x2F; 网络</td>
+<td>主流机 + 低端机各选代表机型；覆盖最低支持版与最新版系统；刘海屏、横竖屏、字体放大不错位不截断；4G、WiFi、弱网切换功能正常</td>
+</tr>
+<tr>
+<td>易用性</td>
+<td>交互一致性 &#x2F; 可访问性 &#x2F; 文案</td>
+<td>同类操作的位置与反馈一致；可点区域够大、对比度可读；提示文案说清「发生了什么、下一步怎么办」，空态与错误态不甩术语</td>
+</tr>
+</tbody></table>
 <h3 id="3-1-安装与升级"><a href="#3-1-安装与升级" class="headerlink" title="3.1 安装与升级"></a>3.1 安装与升级</h3><h4 id="需求一句话-7"><a href="#需求一句话-7" class="headerlink" title="需求一句话"></a>需求一句话</h4><p>用户从应用商店或手动装包安装 App，版本升级时保留数据并平滑迁移。</p>
 <h4 id="测试点树-7"><a href="#测试点树-7" class="headerlink" title="测试点树"></a>测试点树</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">安装与升级</span><br><span class="line">├── 显示：安装进度/权限弹窗/桌面图标；升级弹窗按钮</span><br><span class="line">├── 操作：商店安装、手动 APK 安装、覆盖安装、卸载</span><br><span class="line">│ 相邻版本升级、跨版本升级、升级中取消、旧版直升最新版</span><br><span class="line">├── 异常：安装中断（关机/断网/取消）；低版本覆盖高版本</span><br><span class="line">│ 安装包损坏；存储空间不足；不兼容系统版本或架构</span><br><span class="line">│ 升级中断 → 可回退或续装</span><br><span class="line">├── 数据：升级后旧数据迁移成功（登录态/配置/缓存）；升级脚本正确</span><br><span class="line">│ 卸载后数据/缓存/数据库/图标/进程无残留</span><br><span class="line">│ 跨版本升级须覆盖（相邻版本 OK 不代表跨版本 OK）</span><br><span class="line">└── 安全：安装包签名校验；升级包来源可信</span><br></pre></td></tr></table></figure>
 
@@ -580,6 +671,7 @@
 <h4 id="测试点树-9"><a href="#测试点树-9" class="headerlink" title="测试点树"></a>测试点树</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">弱网</span><br><span class="line">├── 显示：加载状态/超时提示/重试按钮；骨架屏</span><br><span class="line">├── 操作：4G 与 WiFi 下功能正常（对照组）；弱网下提交表单</span><br><span class="line">│ 弱网下上传下载；弱网下重试</span><br><span class="line">├── 异常：延时 300ms/1s/3s；带宽限到 2G 水平；丢包 10%/30%</span><br><span class="line">│ 断网后操作给可读提示；超时重试幂等不产生重复单</span><br><span class="line">│ 弱网切回正常网络后状态自动恢复</span><br><span class="line">├── 数据：中断提交的表单不写脏数据；重试后数据一致</span><br><span class="line">│ 上传中断后无残留分片；缓存以服务器为准</span><br><span class="line">└── 安全：弱网下 token 重放不产生越权</span><br></pre></td></tr></table></figure>
 
 <h4 id="用例口径-9"><a href="#用例口径-9" class="headerlink" title="用例口径"></a>用例口径</h4><p>正向 3 条（正常网络对照、弱网提交、弱网上传下载），异常 6 条，数据 4 条，显示 2 条。<strong>约 15 条，P0 占 4 条</strong>（弱网不崩溃、断网提示、重试幂等、数据一致）。弱网用 Charles 设延时和带宽，对比同页加载时间变化。</p>
+<p><strong>Charles 弱网怎么设</strong>：菜单 Proxy → Throttle Settings 勾选 Enable Throttling，填 Delay（延时，如 1000ms）、下行带宽（限到 2G 水平，如 50KB&#x2F;s）、丢包率（如 10%），可只对目标请求生效。对照口径：同一页面、同一份数据，正常网络记一次首屏与接口总耗时，再开弱网记一次，<strong>只改网络条件不改其他</strong>；比加载时间变慢多少、是否出超时提示、超时重试会不会产生重复单。</p>
 <h4 id="常见缺陷-9"><a href="#常见缺陷-9" class="headerlink" title="常见缺陷"></a>常见缺陷</h4><ol>
 <li>弱网下点提交无 loading，连点生成重复订单。</li>
 <li>断网后 App 直接闪退或白屏。</li>

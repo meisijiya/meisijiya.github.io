@@ -513,6 +513,127 @@
 <li>按词频看，自动化测试&#x2F;自动化脚本在 15 个岗位里出现 11 次，Python 出现 9 次，接口测试与 SQL 各 6 次，测试用例设计与测试理论 8 次。所以<strong>自动化 + 接口是覆盖面最广的主线</strong>，AI 测试是增量。</li>
 <li>AI 测试方向对实习生的新增要求集中在三处：评测集构建（4 个岗位提到）、Agent 测试与智能体（4 个）、幻觉与效果评价打分（3 个）。这三样恰好是本教程 08 篇的内容，可以直接作为作品集。</li>
 </ol>
+<h3 id="六方向-JD-术语速查"><a href="#六方向-JD-术语速查" class="headerlink" title="六方向 JD 术语速查"></a>六方向 JD 术语速查</h3><p><strong>接口测试：接口十要素</strong>（每项一句验证要点）</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>要素</th>
+<th>查什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>请求方法</td>
+<td>GET&#x2F;POST&#x2F;PUT&#x2F;DELETE 用对；用错要报错，GET 不该带业务 body</td>
+</tr>
+<tr>
+<td>2</td>
+<td>请求 URL 与路径参数</td>
+<td>路径拼接正确；参数缺失、多余、类型错时报 404&#x2F;400</td>
+</tr>
+<tr>
+<td>3</td>
+<td>请求头</td>
+<td>Content-Type、鉴权 token、必填自定义头是否齐全</td>
+</tr>
+<tr>
+<td>4</td>
+<td>请求体</td>
+<td>字段名、类型、必填、长度、格式与接口文档一致</td>
+</tr>
+<tr>
+<td>5</td>
+<td>参数校验</td>
+<td>空值、越界、非法字符、注入串被拦住并有明确错误</td>
+</tr>
+<tr>
+<td>6</td>
+<td>鉴权与权限</td>
+<td>无 token、过期 token、他人 token、跨账号越权都拿不到数据</td>
+</tr>
+<tr>
+<td>7</td>
+<td>状态码</td>
+<td>200&#x2F;400&#x2F;401&#x2F;403&#x2F;404&#x2F;500 与实际语义一致，不错误地全返 200</td>
+</tr>
+<tr>
+<td>8</td>
+<td>业务码与提示</td>
+<td>业务码与 message 成对且稳定；文案不泄露内部堆栈</td>
+</tr>
+<tr>
+<td>9</td>
+<td>响应结构</td>
+<td>字段名、类型、层级、时间格式与契约一致，不多项少项</td>
+</tr>
+<tr>
+<td>10</td>
+<td>业务数据正确性</td>
+<td>返回数据与库一致，分页总数对，计算字段（金额、合计）算得对</td>
+</tr>
+</tbody></table>
+<p><strong>自动化与 CI 四个术语</strong></p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>是什么</th>
+<th>解决什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Selenium</td>
+<td>老一代 Web UI 自动化框架，用 WebDriver 驱动真实浏览器</td>
+<td>跨浏览器的页面操作与断言</td>
+</tr>
+<tr>
+<td>Playwright</td>
+<td>微软新一代自动化框架，自动等待、多浏览器、可拦截网络</td>
+<td>脚本更稳更快，API 与 UI 都能测</td>
+</tr>
+<tr>
+<td>Selenium Grid</td>
+<td>Selenium 的分布式执行组件，中心节点把任务分发到多台机器</td>
+<td>并行跑用例与跨浏览器矩阵，缩短回归时间</td>
+</tr>
+<tr>
+<td>流水线（CI Pipeline）</td>
+<td>把构建、测试、部署串成提交即触发的自动链</td>
+<td>每次提交跑回归，红了就挡合并</td>
+</tr>
+</tbody></table>
+<p><strong>测开门槛拆解</strong></p>
+<ul>
+<li>算法常考题型：手写排序（冒泡、快排）、二分查找、链表反转、去重、两数之和。考思路与边界，不考偏题。</li>
+<li>OS 常考概念：进程与线程的区别、死锁四条件、虚拟内存与分页、CPU 调度、<code>ps</code>&#x2F;<code>top</code>&#x2F;<code>netstat</code> 常用命令。</li>
+<li>数据库考察点：SQL 增删改查与分组、索引为什么快、事务 ACID、用执行计划看慢查询。</li>
+</ul>
+<p><strong>性能方向速通</strong></p>
+<ul>
+<li>口径：QPS 是每秒请求数，TPS 是每秒完成的事务数（一笔支付是一个事务，可能含多个请求）。报数先说清是哪个。</li>
+<li>场景设计：先定目标（峰值 QPS、P95 响应时间、错误率），再按业务比例混场景，阶梯加压找拐点。</li>
+<li>JMeter：线程组定并发数、Ramp-up、循环；聚合报告看 Samples、Average、90&#x2F;95&#x2F;99 Line、Error%、Throughput。</li>
+<li>瓶颈定位顺序：先看应用（线程池、连接池、慢 SQL），再看资源（CPU、内存、磁盘 IO、网络），最后看外部依赖。</li>
+<li>长稳压测：低负载持续压 2 小时以上，盯内存与连接泄漏；判据是指标不再下降并稳定。</li>
+<li>容量规划：目标 QPS ÷ 单实例压出的 QPS，再乘 1.5~2 倍冗余，定实例数与扩容阈值。</li>
+<li>云原生压测差异：本地压单机，云上要压集群与弹性伸缩，多看网关、限流、HPA 触发延迟和按量成本。</li>
+</ul>
+<p><strong>金融方向要点</strong></p>
+<ul>
+<li>对账流程：定口径（哪个系统的哪张表与哪个文件比）→ 按同一主键（订单号、流水号）拉两边数据 → 逐笔比金额、状态、笔数 → 出差异清单 → 逐条定位 → 调账后复核对平。</li>
+<li>差异四类处理：在途（未到终态，等 T+1 再核）、重复（幂等失效，查唯一键）、漏单（消息丢失，补发留痕）、金额错（舍入或费率，查计算链）。</li>
+<li>数据准确性：金额用整数最小单位或 Decimal；汇总与明细笔数、金额双向核对；跨日切账时点一致。</li>
+<li>安全与合规测试范围：越权与鉴权（跨账号、跨机构）、敏感数据加密与脱敏、审计日志不可篡改、等保与个人金融信息要求、反洗钱字段完整性。</li>
+</ul>
+<p><strong>AI 方向速通</strong></p>
+<ul>
+<li>Agent 测试维度：任务完成率、工具调用正确性（选对工具、传对参数）、步骤合理性（步数、死循环）、失败恢复、安全边界（拒答越权指令）。</li>
+<li>常用评测指标：准确率&#x2F;召回率&#x2F;F1（有标准答案时）、任务成功率、平均步数、幻觉率、多次回答一致率、人工评分。</li>
+<li>幻觉三类：事实性（能否核对事实）、忠实性（是否遵循指令与上下文）、逻辑性（推理是否自洽）。</li>
+<li>RAG 与检索&#x2F;召回：RAG 是检索增强生成，先检索文档再让模型基于检索结果回答；检索是从知识库找相关片段，召回是该找的片段有没有找回来（召回率）。</li>
+<li>提示词在评测里的作用：换提示词结果就变，评测要固定提示词版本并做对比实验；提示词本身也是被测对象（提示注入、指令遵循度）。</li>
+</ul>
 <hr>
 <h2 id="二、面经高频-20-问"><a href="#二、面经高频-20-问" class="headerlink" title="二、面经高频 20 问"></a>二、面经高频 20 问</h2><p>每题给「问法 → 30 秒答案骨架 → 加分补一句」。骨架是三到四步的顺序，不是逐字稿。</p>
 <h3 id="组一：项目与动机（5-问）"><a href="#组一：项目与动机（5-问）" class="headerlink" title="组一：项目与动机（5 问）"></a>组一：项目与动机（5 问）</h3><p><strong>1. 为什么选测试不选开发？</strong><br>骨架：承认自己做过开发 → 说强项是挑毛病、盯边界 → 开发背景对测试是加分（能读源码和日志定位）→ 一句动机收尾。<br>加分：我不只测自己的东西，验证自己写的代码更难，因为要先把「什么算失败」定义出来。</p>
@@ -520,7 +641,47 @@
 <p><strong>3. 测试开发和产品开发有什么区别？</strong><br>骨架：开发交付功能并对需求负责 → 测试交付质量信号（用例、自动化、门禁、缺陷报告）→ 对问题能不能被提前发现负责 → 两者在需求阶段就开始协作。<br>加分：不要把测试说成执行角色，也不要贬低开发。</p>
 <p><strong>4. 你现在做到什么程度了？</strong><br>骨架：分三层讲，链路跑通、单人可用、对外服务，明确说现在到哪一层 → 为什么停在这层（依赖、风控、登录态） → 下一步要补什么。<br>加分：区分「部署过」和「当前对外可用」，这句能救场。</p>
 <p><strong>5. 你怎么用 AI 做测试？</strong><br>骨架：分三段讲，生成阶段给业务上下文和边界清单 → 验收阶段只看能不能跑通、断言是否指向具体字段、异常分支是否覆盖 → 沉淀阶段把跑通的进回归集。<br>加分：一句收尾，AI 出候选，人做判定和兜底。</p>
-<h3 id="组二：测试设计与流程（5-问）"><a href="#组二：测试设计与流程（5-问）" class="headerlink" title="组二：测试设计与流程（5 问）"></a>组二：测试设计与流程（5 问）</h3><p><strong>6. 黑盒测试有哪几种方法，分别什么时候用？</strong><br>骨架：先按输入形态分，表单类用等价类加边界值；多条件用判定表或因果图；多参数组合用正交；有状态用状态迁移；有流程用场景法 → 最后错误推测补漏。<br>加分：每种方法配一句适用场景，不要只背名字。</p>
+<h3 id="组二：测试设计与流程（5-问）"><a href="#组二：测试设计与流程（5-问）" class="headerlink" title="组二：测试设计与流程（5 问）"></a>组二：测试设计与流程（5 问）</h3><p><strong>6. 黑盒测试有哪几种方法，分别什么时候用？</strong><br>骨架：先按输入形态分，表单类用等价类加边界值；多条件用判定表或因果图；多参数组合用正交；有状态用状态迁移；有流程用场景法 → 最后错误推测补漏。<br>加分：每种方法配一句适用场景，不要只背名字。<br><strong>六种方法：一句话定义与最小画法</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>一句话定义</th>
+<th>最小画法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>等价类 + 边界值</td>
+<td>把输入按有效&#x2F;无效分类取代表值，再补边界及两侧</td>
+<td>年龄 1~150：取 0、1、2、149、150、151</td>
+</tr>
+<tr>
+<td>判定表</td>
+<td>条件与动作的全部组合列成表，一行一条规则</td>
+<td>会员、有优惠券两个条件 × 打折与否，四行</td>
+</tr>
+<tr>
+<td>因果图</td>
+<td>把条件（因）与结果（果）用与或非连起来，再转判定表</td>
+<td>A 且 B 才出 C：画因到果，再落表成规则</td>
+</tr>
+<tr>
+<td>正交试验</td>
+<td>用正交表挑最少的两两组合，省用例数</td>
+<td>3 个参数各 2 值共 8 种，L4 正交表只跑 4 组</td>
+</tr>
+<tr>
+<td>状态迁移</td>
+<td>画出状态与迁移条件，测每一条迁移边</td>
+<td>待支付→已支付→已关闭，测正向与非法回退</td>
+</tr>
+<tr>
+<td>场景法</td>
+<td>按业务流把操作串起来，覆盖主干与分支</td>
+<td>注册→登录→改密码→用新密码登录，一条主干一条异常</td>
+</tr>
+</tbody></table>
+<p>最后错误推测补漏：按经验补空值、超长、特殊字符、并发重复提交各一条。</p>
 <p><strong>7. 测一个登录页你会怎么设计？</strong><br>骨架：先澄清需求（账号类型、验证码、第三方登录）→ 分层：功能、兼容、接口、安全、性能 → P0 主干加安全、P1 隐藏入口、P2 兼容与文案 → 最后才落到输入框。<br>加分：隐藏入口别漏，账号切换、忘记密码、注册入口、第三方登录、登录态保持。</p>
 <p><strong>8. 一个 bug 从发现到关闭怎么走？</strong><br>骨架：复现 → 提单（步骤、预期、实际、日志）→ 指派 → 修复 → 验证 → 关闭或打回。<br>加分：补一句「开发说这不是 bug 是设计如此」时怎么办：回需求文档拿证据，拉产品确认并记录，对方坚持且产品认可就标为已知限制并保留意见，不吵也不默默放过。</p>
 <p><strong>9. 冒烟测试是什么？回归测试测什么？</strong><br>骨架：冒烟是提测前跑主干，通不过直接打回，不浪费后面用例执行 → 回归测三样：改了的地方、影响面、固定回归集，自动化跑固定集。<br>加分：回归范围要说明依据，「因为它和登录态耦合」比「都跑一遍」专业。</p>
@@ -529,10 +690,44 @@
 <p><strong>12. 断言只断状态码够吗？</strong><br>骨架：不够 → 三层断言：状态码、业务码、业务数据 → 原因：只断 200 的用例，改坏任何业务逻辑都不会红。<br>加分：三条断言里业务数据那条最值钱，因为返回码能骗人。</p>
 <p><strong>13. token 怎么传给下一个接口？</strong><br>骨架：登录接口的返回 token 用脚本存进环境变量 → 后续请求在 Header 里引用 → 换环境换一套变量 → 变量优先级是局部 &gt; 数据文件 &gt; 环境 &gt; 集合 &gt; 全局。<br>加分：说清集合变量和环境变量的区别，面试官会点头。</p>
 <p><strong>14. 接口报 500 你怎么定位？</strong><br>骨架：固定顺序，服务端日志找异常栈 → 查进程与端口是否活着 → 看 CPU、内存、磁盘、连接数 → 查数据库慢查询与连接池 → 查第三方依赖是否变慢。<br>加分：Linux 四层（看日志、查服务端口、看资源、改权限）能直接背下来。</p>
-<p><strong>15. 抓包抓什么？改包有什么用？</strong><br>骨架：抓请求头响应头、入参返回体、状态码、耗时 → 改包是验证服务端有没有做校验 → 顺带做弱网与中断场景。<br>加分：HTTPS 抓不到的原因（证书没信任、SSL Pinning）能答出来。</p>
-<h3 id="组四：AI-与前沿（3-问）"><a href="#组四：AI-与前沿（3-问）" class="headerlink" title="组四：AI 与前沿（3 问）"></a>组四：AI 与前沿（3 问）</h3><p><strong>16. AI 测试和传统测试有什么不同？</strong><br>骨架：输出概率性 → 评价主观化 → 需持续监控漂移 → 断言从对错变成准确、有用、无害、一致四个维度的评价。<br>加分：AI 生成代码后新增的测试对象是输出的稳定性、安全性和一致性。</p>
+<p><strong>15. 抓包抓什么？改包有什么用？</strong><br>骨架：抓请求头响应头、入参返回体、状态码、耗时 → 改包是验证服务端有没有做校验 → 顺带做弱网与中断场景。<br>加分：HTTPS 抓不到的原因（证书没信任、SSL Pinning）能答出来。<br>SSL Pinning 机制：客户端把服务器证书或公钥写死，校验时不认系统证书库，所以代理工具的自签证书被拒，表现为抓不到 HTTPS 包。绕过思路：Root 后用 Frida 或 JustTrustMe 之类模块 hook 掉校验代码，或反编译删 pinning 配置重打包；都不行就改看服务端日志与接口文档。</p>
+<h3 id="组四：AI-与前沿（3-问）"><a href="#组四：AI-与前沿（3-问）" class="headerlink" title="组四：AI 与前沿（3 问）"></a>组四：AI 与前沿（3 问）</h3><p><strong>16. AI 测试和传统测试有什么不同？</strong><br>骨架：输出概率性 → 评价主观化 → 需持续监控漂移 → 断言从对错变成准确、有用、无害、一致四个维度的评价。<br>加分：AI 生成代码后新增的测试对象是输出的稳定性、安全性和一致性。<br><strong>四个评价维度各判什么、怎么判</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>判什么</th>
+<th>可执行判定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>准确</td>
+<td>答得对不对</td>
+<td>与标准答案比对，算正确率&#x2F;召回率</td>
+</tr>
+<tr>
+<td>有用</td>
+<td>答得能不能用</td>
+<td>任务是否完成，按完成率或人工打分</td>
+</tr>
+<tr>
+<td>无害</td>
+<td>有没有害</td>
+<td>红线词与注入用例命中率，有无越权泄露</td>
+</tr>
+<tr>
+<td>一致</td>
+<td>同输入稳不稳</td>
+<td>同题多次或换措辞，看关键结论是否矛盾，算一致率</td>
+</tr>
+</tbody></table>
 <p><strong>17. AI 生成的用例靠谱吗？</strong><br>骨架：铺量靠谱，业务场景不靠谱 → 必须人工评审补隐藏入口 → 我用固定格式的评审表逐条判覆盖、可执行、期望可判定。<br>加分：给判据，把「显示正常」这种不可期望改成能断的具体字段。</p>
-<p><strong>18. 大模型幻觉怎么测？</strong><br>骨架：分事实性、忠实性、逻辑性三类 → 判定四问：事实能不能验证、有没有完全遵循指令、推理自不自洽、有没有引用不存在的来源 → 检出来靠事实核查、一致性检查和对抗性测试三法。<br>加分：主动补一句「AI 测试出的是候选和线索，最终判定还是要有依据可核对」。</p>
+<p><strong>18. 大模型幻觉怎么测？</strong><br>骨架：分事实性、忠实性、逻辑性三类 → 判定四问：事实能不能验证、有没有完全遵循指令、推理自不自洽、有没有引用不存在的来源 → 检出来靠事实核查、一致性检查和对抗性测试三法。<br>加分：主动补一句「AI 测试出的是候选和线索，最终判定还是要有依据可核对」。<br><strong>三法怎么做</strong></p>
+<ul>
+<li>事实核查：先抽答案里的可验证事实成清单 → 用权威来源（文档、数据库、搜索）逐条核对 → 标「属实 &#x2F; 不属实 &#x2F; 无法验证」。</li>
+<li>一致性检查：同一问题换措辞或换温度参数多次问 → 比对关键实体与结论 → 不一致的标为矛盾点；也可让模型自问自答交叉验证。</li>
+<li>对抗性测试：按攻击面构造用例——提示注入（输入里塞指令）、越权诱导（索要他人数据）、长上下文埋矛盾信息、非法与边界输入；统计被带偏的比例。</li>
+</ul>
 <h3 id="组五：数据库与基础（2-问）"><a href="#组五：数据库与基础（2-问）" class="headerlink" title="组五：数据库与基础（2 问）"></a>组五：数据库与基础（2 问）</h3><p><strong>19. 怎么保证用例覆盖得全？</strong><br>骨架：需求 → 测试点 → 用例三级映射逐条对勾 → 用例评审补漏 → 高风险模块补探索性测试 → 覆盖说的是需求覆盖，不是用例条数。<br>加分：给一句「每条需求至少能指到一条用例，每条用例能指回一条需求」。</p>
 <p><strong>20. 数据造不出来怎么办？</strong><br>骨架：先用界面造 → 界面造不出的用 SQL 插 → 边界值、重复数据、时间序列、脏数据在库里造 → 造完要能清掉（TRUNCATE 或独立测试库）。<br>加分：依赖连不上就失败，不跳过，跳过等于把门禁变成永远绿。</p>
 <hr>
@@ -660,7 +855,11 @@
 <td>约 7 秒</td>
 </tr>
 </tbody></table>
-<h3 id="4-2-通用模板（约-320-字，示例项目占位）"><a href="#4-2-通用模板（约-320-字，示例项目占位）" class="headerlink" title="4.2 通用模板（约 320 字，示例项目占位）"></a>4.2 通用模板（约 320 字，示例项目占位）</h3><blockquote>
+<h3 id="4-2-结构化提示词最小模板"><a href="#4-2-结构化提示词最小模板" class="headerlink" title="4.2 结构化提示词最小模板"></a>4.2 结构化提示词最小模板</h3><p>四要素：角色、上下文、边界清单、输出格式。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">角色：你是资深测试工程师，只输出测试点，不写实现代码。</span><br><span class="line">上下文：下面是需求或接口契约原文 —— [粘贴原文]。</span><br><span class="line">边界清单：每个输入项至少一条有效、一条无效；必测空值、超长、非法字符、重复提交、无权限。</span><br><span class="line">输出格式：Markdown 表格，列为 编号 | 模块 | 前置条件 | 步骤 | 输入 | 预期结果；预期结果写到具体字段。</span><br></pre></td></tr></table></figure>
+
+<p>一句话记法：角色定身份，上下文定材料，边界定范围，格式定收口。</p>
+<h3 id="4-3-通用模板（约-320-字，示例项目占位）"><a href="#4-3-通用模板（约-320-字，示例项目占位）" class="headerlink" title="4.3 通用模板（约 320 字，示例项目占位）"></a>4.3 通用模板（约 320 字，示例项目占位）</h3><blockquote>
 <p>面试官您好，我叫 meisijiya，计算机科学与技术专业在校生，投软件测试实习生。我的测试能力分三块。第一块是基础：需求评审到用例设计我按流程走，等价类、边界值、判定表、场景法都会用，写用例先拿思维导图把测试点铺开再补前置条件、步骤和预期结果。第二块是工具：接口用 Postman 做断言、环境变量、请求关联和 CSV 数据驱动，用 Collection Runner 跑回归。抓包用 Charles，改包和弱网都试过。自动化是 Python 加 pytest，用参数化和 fixture 造数清数。性能能搭 JMeter 线程组看聚合报告。第三块是落地：我独立做过一个示例项目（此处替换为你自己的项目名与场景），按接口契约把测试点铺下来，pytest 一条命令跑全量回归；写完断言我还会改坏一处实现，看对应用例会不会转红，用例通过不等于能发现问题。团队经历让我熟悉版本按评审、提测、回归、复盘推进。AI 这块我在用结构化提示词先生成测试点，再人工收口补场景。我选测试是因为我更擅长把风险提前挖出来。</p>
 </blockquote>
 <p><strong>使用说明</strong>：方括号里的项目描述要换成你真做过的，数字按基线口径报，被追问时说「数字随版本走，我报的是基线那一版」。没有团队经历就把第四段换成课程项目。全文约 320 字，正常语速约 60 秒。</p>
@@ -713,7 +912,7 @@
 <tr>
 <td>7</td>
 <td><code>conftest.py</code> 的作用域</td>
-<td>放在某目录的 conftest.py 里的 fixture 对该目录及子目录所有测试模块可见；同名 fixture 优先级是类 &gt; 模块 &gt; conftest</td>
+<td>放在某目录的 conftest.py 里的 fixture 对该目录及子目录所有测试模块可见；同名 fixture 先比作用域（function &gt; class &gt; module &gt; package &gt; session），作用域相同再比位置（类内 &gt; 模块 &gt; 同目录 conftest &gt; 父目录 conftest）</td>
 <td>放公共造数与清数能避免每个文件重复；覆盖顺序要记清，否则调试时找不到用的是哪个（pytest 官方文档，同上一手）</td>
 </tr>
 <tr>
@@ -776,7 +975,76 @@
 <td><code>SELECT * FROM user ORDER BY create_time DESC LIMIT 1;</code> —— 每个用户取最新一条订单用窗口函数 <code>ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY create_time DESC) = 1</code></td>
 </tr>
 </tbody></table>
-<p>SQL 笔试的常见题型还包括：NULL 处理（<code>WHERE col IS NULL</code>，不是 <code>= NULL</code>，<code>COUNT(col)</code> 不计 NULL 而 <code>COUNT(*)</code> 计）、EXISTS 与 IN 的区别（EXISTS 找到即停）、事务 ACID 与隔离级别。题型来源：QAJobFit，<a target="_blank" rel="noopener" href="https://qajobfit.com/resources/sql-interview-questions-for-testers">https://qajobfit.com/resources/sql-interview-questions-for-testers</a> （二手）。</p>
+<p>SQL 笔试的常见题型还包括：NULL 处理（<code>WHERE col IS NULL</code>，不是 <code>= NULL</code>，<code>COUNT(col)</code> 不计 NULL 而 <code>COUNT(*)</code> 计）、EXISTS 与 IN 的区别（EXISTS 找到即停）、事务 ACID 与隔离级别。题型来源：QAJobFit，<a target="_blank" rel="noopener" href="https://qajobfit.com/resources/sql-interview-questions-for-testers">https://qajobfit.com/resources/sql-interview-questions-for-testers</a> （二手）。<br><strong>事务 ACID 与隔离级别速通</strong></p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>含义</th>
+<th>破坏后看到什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A 原子性</td>
+<td>事务内操作要么全做要么全不做</td>
+<td>转账扣了钱没到账</td>
+</tr>
+<tr>
+<td>C 一致性</td>
+<td>事务前后数据仍满足约束与业务规则</td>
+<td>总金额对不上</td>
+</tr>
+<tr>
+<td>I 隔离性</td>
+<td>并发事务互不干扰</td>
+<td>脏读、不可重复读、幻读</td>
+</tr>
+<tr>
+<td>D 持久性</td>
+<td>提交后宕机也不丢</td>
+<td>重启后数据消失</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>READ UNCOMMITTED</td>
+<td>会</td>
+<td>会</td>
+<td>会</td>
+<td>几乎不用</td>
+</tr>
+<tr>
+<td>READ COMMITTED</td>
+<td>不会</td>
+<td>会</td>
+<td>会</td>
+<td>Oracle、PostgreSQL 默认</td>
+</tr>
+<tr>
+<td>REPEATABLE READ</td>
+<td>不会</td>
+<td>不会</td>
+<td>会*</td>
+<td>MySQL InnoDB 默认；InnoDB 用间隙锁在多数场景挡住幻读</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>不会</td>
+<td>不会</td>
+<td>不会</td>
+<td>串行执行，性能最差</td>
+</tr>
+</tbody></table>
+<p>三个现象一句话：脏读是读到别人没提交的数据；不可重复读是同一行两次读不一样（别人改了）；幻读是同一条件两次查行数不一样（别人插了）。</p>
 <h3 id="5-3-排序输出-3-题"><a href="#5-3-排序输出-3-题" class="headerlink" title="5.3 排序输出 3 题"></a>5.3 排序输出 3 题</h3><p><strong>题 1：冒泡排序（带提前退出）</strong></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">bubble</span>(<span class="params">nums</span>):</span><br><span class="line">    arr = <span class="built_in">list</span>(nums)</span><br><span class="line">    n = <span class="built_in">len</span>(arr)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n - <span class="number">1</span>):</span><br><span class="line">        swapped = <span class="literal">False</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(n - <span class="number">1</span> - i):</span><br><span class="line">            <span class="keyword">if</span> arr[j] &gt; arr[j + <span class="number">1</span>]:</span><br><span class="line">                arr[j], arr[j + <span class="number">1</span>] = arr[j + <span class="number">1</span>], arr[j]</span><br><span class="line">                swapped = <span class="literal">True</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> swapped:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> arr</span><br></pre></td></tr></table></figure>
 

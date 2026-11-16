@@ -509,6 +509,75 @@
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">你以专业的AI测试工程师身份，帮我设计简历评估助手智能体功能的测试用例</span><br><span class="line">要求：</span><br><span class="line">1.用例参考手工软件测试8要素模板（用例编号、标题、所属模块、优先级、前置条件、测试步骤、测试数据、预期结果）</span><br><span class="line">2.覆盖功能测试范围，参考附件中功能设计相关内容</span><br><span class="line">输出：md格式的用例文档，需要转Excel</span><br></pre></td></tr></table></figure>
 
 <p><strong>写提示词本身的规矩</strong>（课件称 CREAM 原则）：指令清晰无歧义；给角色（专业测试工程师）；给示例对齐标准；加约束限定格式、长度、排除项；要求结构化输出便于自动处理与评审。提示词六要素是角色、任务、要求、输出、背景、示例。</p>
+<p><strong>用例 8 要素怎么写</strong>：流水线第 3 步「落成 8 要素」就是落成下面这张表，每字段有固定写法，写含糊等于用例没写。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+<th>填写要点</th>
+<th>合格示例</th>
+<th>不合格示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用例编号</td>
+<td>用例的唯一身份</td>
+<td>规则固定（如模块-类型-序号），全项目不重号，便于引用与回归</td>
+<td>LOGIN-P-001</td>
+<td>「用例一」</td>
+</tr>
+<tr>
+<td>标题</td>
+<td>一句话说清测什么</td>
+<td>「动作 + 对象 + 条件」，不写「测试登录」这种空话</td>
+<td>正确账号密码登录成功并跳转首页</td>
+<td>测试登录功能</td>
+</tr>
+<tr>
+<td>所属模块</td>
+<td>归到哪个功能模块</td>
+<td>与测试点树的模块名一致，方便按模块回勾覆盖</td>
+<td>用户登录</td>
+<td>功能</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>执行先后与覆盖底线</td>
+<td>P0 主流程必过、P1 主要分支、P2 边缘；按业务影响定，不拍脑袋</td>
+<td>P0</td>
+<td>高</td>
+</tr>
+<tr>
+<td>前置条件</td>
+<td>执行前必须成立的环境</td>
+<td>写账号、数据、状态等具体条件，缺了用例跑不起来</td>
+<td>已注册有效账号 138****0001，未登录状态</td>
+<td>环境正常</td>
+</tr>
+<tr>
+<td>测试步骤</td>
+<td>操作顺序</td>
+<td>编号分步，一步一个动作，写清操作对象与输入</td>
+<td>1. 打开登录页 2. 输入账号密码 3. 点击登录</td>
+<td>操作一下看看</td>
+</tr>
+<tr>
+<td>测试数据</td>
+<td>实际用的输入</td>
+<td>写具体值，不写「正确数据」这类代词</td>
+<td>账号 testuser001 &#x2F; 密码 Test123!</td>
+<td>正确数据</td>
+</tr>
+<tr>
+<td>预期结果</td>
+<td>可判定的通过标准</td>
+<td>拆成具体字段、状态码、文案，能断才算合格</td>
+<td>跳转首页，URL 含 &#x2F;home，页面显示用户名</td>
+<td>显示正常</td>
+</tr>
+</tbody></table>
+<p>一句话收口：<strong>8 要素不是格式模板，是「可执行、可判定、可回归」的最低要求</strong>。预期结果写「显示正常」这类不可判定的话，用例等于没写，直接退回重写。</p>
 <h3 id="1-3-人工必须收口的三件事"><a href="#1-3-人工必须收口的三件事" class="headerlink" title="1.3 人工必须收口的三件事"></a>1.3 人工必须收口的三件事</h3><p>模型能铺量，不能定标准。这三件事只能人来收口：</p>
 <table>
 <thead>
@@ -566,6 +635,67 @@
 </tr>
 </tbody></table>
 <p>工程上的硬规矩（来源：腾讯云开发者社区，<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2698252">https://cloud.tencent.com/developer/article/2698252</a> ，二手）：每条用例至少三层断言——状态码 + 业务码 + 业务数据；AI 生成的脚本不是一劳永逸，工程规范与业务逻辑校验仍要人工把关。还有一条更重要的：外部模型、抓取服务这类依赖要用替身接管，固定输出，依赖连不上就直接失败，不要跳过换绿灯——跳过等于把门禁变成永远绿。</p>
+<p><strong>脚本生成里的工具名都是什么</strong>：表里四个名词先对齐，别照着抄不知道在说啥。</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>一句话定义</th>
+<th>在测试里干什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pytest</td>
+<td>Python 主流的测试框架</td>
+<td>组织用例、跑断言、参数化批量执行、出测试报告</td>
+</tr>
+<tr>
+<td>requests</td>
+<td>Python 的 HTTP 库</td>
+<td>发 HTTP 请求，驱动接口测试脚本（pytest 里调用它）</td>
+</tr>
+<tr>
+<td>OpenAPI</td>
+<td>用 JSON&#x2F;YAML 描述接口长什么样的通用规范</td>
+<td>从接口定义自动生成参数化用例，不用人手写每个字段</td>
+</tr>
+<tr>
+<td>Playwright</td>
+<td>微软出的浏览器自动化框架</td>
+<td>驱动浏览器点页面、输文本、断言 DOM，做 UI 自动化</td>
+</tr>
+</tbody></table>
+<p>最小示例（一眼看懂各自位置）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pytest + requests：接口用例骨架（requests 发请求，pytest 跑和断）</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_login_ok</span>(<span class="params">api</span>):</span><br><span class="line">    r = api.post(<span class="string">&quot;/login&quot;</span>, json=&#123;<span class="string">&quot;u&quot;</span>: <span class="string">&quot;138****0001&quot;</span>, <span class="string">&quot;p&quot;</span>: <span class="string">&quot;x&quot;</span>&#125;)</span><br><span class="line">    <span class="keyword">assert</span> r.status_code == <span class="number">200</span></span><br><span class="line">    <span class="keyword">assert</span> r.json()[<span class="string">&quot;code&quot;</span>] == <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Playwright：UI 用例骨架（定位元素 + 操作 + 断言）</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_login_page_title</span>(<span class="params">page</span>):</span><br><span class="line">    page.goto(<span class="string">&quot;https://site.com/login&quot;</span>)</span><br><span class="line">    expect(page.locator(<span class="string">&quot;h1&quot;</span>)).to_have_text(<span class="string">&quot;用户登录&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>三层目录不变：接口只封装在 <code>api/</code> 层（requests 调用），用例只写在 <code>testcases/</code> 层，数据只放 <code>data/</code> 层，AI 生成的脚本也按这个分层落。</p>
+<p><strong>trace 是什么、怎么用来归因</strong>：trace 是把一次调用<strong>从入口到出口的完整链路记录</strong>——每一步调用了哪个模块&#x2F;工具、输入是什么、输出是什么、耗时多少、哪一步报错，一次请求一条 trace，串起来就是调用链。</p>
+<p>trace 与日志的分工：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>trace</th>
+<th>日志</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>视角</td>
+<td>一次请求的完整链路，按调用步骤串起来</td>
+<td>系统运行时的单行记录，按时间排列</td>
+</tr>
+<tr>
+<td>回答的问题</td>
+<td>请求经过了哪些步骤、在哪一步出错</td>
+<td>系统某时刻发生了什么、报了什么错</td>
+</tr>
+<tr>
+<td>归因用法</td>
+<td>看链路定位「卡在哪一步」</td>
+<td>看具体报错行确认「为什么错」</td>
+</tr>
+</tbody></table>
+<p>失败归因就是先看 trace 找到出错的那一步，再看那一步的日志和输入输出，就能判断是提示词不清、知识库缺失、逻辑分支没覆盖还是工具异常——归因结论必须落到具体配置项，不能停在「AI 抽风」。</p>
 <h3 id="1-5-一句话总结这条流水线"><a href="#1-5-一句话总结这条流水线" class="headerlink" title="1.5 一句话总结这条流水线"></a>1.5 一句话总结这条流水线</h3><p>AI 出候选，人做判定和兜底。铺量、格式统一、找遗漏，交给模型；定标准、断业务语义、担责任，留给自己。</p>
 <hr>
 <h2 id="二、测试-AI-产品与智能体"><a href="#二、测试-AI-产品与智能体" class="headerlink" title="二、测试 AI 产品与智能体"></a>二、测试 AI 产品与智能体</h2><h3 id="2-1-三大转变与五大挑战"><a href="#2-1-三大转变与五大挑战" class="headerlink" title="2.1 三大转变与五大挑战"></a>2.1 三大转变与五大挑战</h3><table>
@@ -708,6 +838,37 @@
 </tbody></table>
 <p>期望统一是：<strong>不崩溃，返回友好提示，不产生脏数据</strong>。</p>
 <h3 id="2-5-评测集怎么建"><a href="#2-5-评测集怎么建" class="headerlink" title="2.5 评测集怎么建"></a>2.5 评测集怎么建</h3><p>评测集就是「输入 + 期望答案」的集合，LangSmith 里对应 <code>inputs</code> 与 <code>outputs</code>（来源：黑马 2026 AI+软件测试课件·AI 智能体测试线（day11 课堂代码 数据集创建示例代码））。</p>
+<p><strong>LangSmith 是什么、评测对象怎么协作</strong>：LangSmith 是 LangChain 生态里的模型应用开发与观测平台，管三件事——追踪调用链路（trace）、管理数据集（dataset）、跑评测出通过率。一次评测里四个对象分工如下：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>是什么</th>
+<th>在评测里干什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据集（dataset）</td>
+<td>一批 <code>inputs</code>（问题&#x2F;输入）+ <code>outputs</code>（期望答案）的集合</td>
+<td>提供评测的输入与参考答案</td>
+</tr>
+<tr>
+<td>reference（参考答案）</td>
+<td>数据集里标注的期望答案</td>
+<td>作为比较的基准</td>
+</tr>
+<tr>
+<td>target（被测系统）</td>
+<td>被测的 Agent &#x2F; RAG 应用</td>
+<td>把每条 <code>inputs</code> 送进它，产出实际输出</td>
+</tr>
+<tr>
+<td>evaluator（评估器）</td>
+<td>比较实际输出与参考答案的判断逻辑（如 exact_match）</td>
+<td>逐条判定通过&#x2F;不通过，聚合出通过率</td>
+</tr>
+</tbody></table>
+<p>协作流程一句话：<strong>数据集给输入，target 产出实际结果，evaluator 拿实际结果与 reference 比对，汇总出通过率</strong>。失败的样本不急着重跑，先回 trace 定位是提示词、知识库还是工具的问题，改完再迭代。</p>
 <table>
 <thead>
 <tr>
@@ -766,7 +927,61 @@
 </tr>
 </tbody></table>
 <p><strong>四维测试体系</strong>：功能、准确性、鲁棒性、用户体验。第三件套（插件、知识库、工作流）各自测什么：插件测准确触发、异常、性能；知识库测检索准确与「问不到就不编」；工作流测节点、分支、变量传递与任务闭环。</p>
-<h3 id="2-8-RAG-三层与四个指标"><a href="#2-8-RAG-三层与四个指标" class="headerlink" title="2.8 RAG 三层与四个指标"></a>2.8 RAG 三层与四个指标</h3><p> 链路：用户问题 → 查询改写 → 检索（知识库&#x2F;向量库） → 重排序 → 拼上下文 → 生成 → 回答</p>
+<h3 id="2-8-RAG-三层与三个黑盒指标"><a href="#2-8-RAG-三层与三个黑盒指标" class="headerlink" title="2.8 RAG 三层与三个黑盒指标"></a>2.8 RAG 三层与三个黑盒指标</h3><p> 链路：用户问题 → 查询改写 → 检索（知识库&#x2F;向量库） → 重排序 → 拼上下文 → 生成 → 回答</p>
+<p>链路每一步干什么（前一步的输出就是后一步的输入）：</p>
+<table>
+<thead>
+<tr>
+<th>步</th>
+<th>做什么</th>
+<th>输入 → 输出</th>
+<th>为什么需要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用户问题</td>
+<td>拿到原始提问</td>
+<td>用户输入的一句话</td>
+<td>起点，整个链路的输入</td>
+</tr>
+<tr>
+<td>查询改写</td>
+<td>把口语化问题改写成更适合检索的查询</td>
+<td>问题 → 规范查询语句</td>
+<td>用户说法和知识库里的表述对不上，直接检索容易漏，改写后命中率高</td>
+</tr>
+<tr>
+<td>检索（知识库&#x2F;向量库）</td>
+<td>在知识库&#x2F;向量库里找出最相关的片段</td>
+<td>查询 → 若干候选片段</td>
+<td>模型自己没有业务知识，必须先把相关材料捞出来</td>
+</tr>
+<tr>
+<td>重排序</td>
+<td>把候选片段按相关度重新排</td>
+<td>候选片段 → 按相关性排序的片段</td>
+<td>首次检索召回多但顺序粗糙，重排把最相关的顶到前面，控制上下文质量</td>
+</tr>
+<tr>
+<td>拼上下文</td>
+<td>把排好的片段拼成提示词的一部分</td>
+<td>排序片段 → 组装好的提示词</td>
+<td>模型生成时只能看拼进来的材料，拼什么它就依据什么</td>
+</tr>
+<tr>
+<td>生成</td>
+<td>大模型基于拼好的上下文作答</td>
+<td>提示词 → 回答文本</td>
+<td>最后一步，把材料变成自然语言回答</td>
+</tr>
+<tr>
+<td>回答</td>
+<td>把生成结果返回给用户</td>
+<td>回答文本 → 用户看到的答案</td>
+<td>链路终点</td>
+</tr>
+</tbody></table>
+<p>对应上面三层测试的用法：<strong>检索层看前三步</strong>（改写、检索、重排好不好），<strong>生成层看后三步</strong>（拼的上下文是否被忠实使用、答得切不切题），<strong>端到端看整条链路</strong>（最终答得好不好）。任何一环出问题都会在最终回答上暴露，所以失败时按 trace 顺着链路逐段定位。</p>
 <table>
 <thead>
 <tr>
@@ -848,7 +1063,32 @@
 <li>OWASP 官方 GenAI 安全站点（<a target="_blank" rel="noopener" href="https://genai.owasp.org/">https://genai.owasp.org/</a> ，一手）提供 LLM&#x2F;Agent 应用的提示注入与红队测试公开资料，可用于系统化测试 LLM 集成应用的提示注入技术、绕过方法与攻击意图。</li>
 <li>腾讯朱雀实验室基于 A.I.G 对 DeepSeek Harness 做了授权、受控的端到端测评，覆盖 14,560 次真实运行，揭示了 Agent 提示注入风险（<a target="_blank" rel="noopener" href="https://matrix.tencent.com/zh/2026/08/20/deepseek-harness-agent-injection-risk">https://matrix.tencent.com/zh/2026/08/20/deepseek-harness-agent-injection-risk</a> ，二手）。</li>
 </ul>
-<h3 id="2-10-Coze-Dify-LangSmith-上各自测什么"><a href="#2-10-Coze-Dify-LangSmith-上各自测什么" class="headerlink" title="2.10 Coze &#x2F; Dify &#x2F; LangSmith 上各自测什么"></a>2.10 Coze &#x2F; Dify &#x2F; LangSmith 上各自测什么</h3><table>
+<h3 id="2-10-Coze-Dify-LangSmith-上各自测什么"><a href="#2-10-Coze-Dify-LangSmith-上各自测什么" class="headerlink" title="2.10 Coze &#x2F; Dify &#x2F; LangSmith 上各自测什么"></a>2.10 Coze &#x2F; Dify &#x2F; LangSmith 上各自测什么</h3><p><strong>三个平台是什么、核心概念有哪些</strong>：先对齐定位，再谈每个平台上测什么。</p>
+<table>
+<thead>
+<tr>
+<th>平台</th>
+<th>是什么</th>
+<th>核心概念（一句话）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Coze（扣子）</td>
+<td>字节跳动出的智能体（Agent）搭建平台，拖拽搭应用</td>
+<td><strong>工作流</strong>：按顺序编排节点的流程；<strong>插件</strong>：调用外部能力（如天气、搜索）的工具；<strong>知识库</strong>：给模型配的业务资料，回答前先检索</td>
+</tr>
+<tr>
+<td>Dify</td>
+<td>开源的 LLM 应用开发平台，做对话机器人&#x2F;RAG 应用</td>
+<td><strong>对话流</strong>：多轮对话的编排；<strong>知识库检索</strong>：回答前先查库拿资料；<strong>记忆</strong>：跨轮记住上下文；<strong>嵌入（embedding）</strong>：把文本转成向量，供向量库检索</td>
+</tr>
+<tr>
+<td>LangSmith &#x2F; LangChain</td>
+<td>模型应用的开发与观测工具链</td>
+<td><strong>trace</strong>：调用链路追踪；<strong>数据集</strong>：评测用的输入+期望答案；<strong>评测</strong>：跑通过率并定位失败</td>
+</tr>
+</tbody></table>
+<table>
 <thead>
 <tr>
 <th>平台</th>
@@ -868,6 +1108,7 @@
 <td>trace 看输入输出、链路步骤、耗时与错误；评测集跑通过率；RAG 链路验证加载→分块→向量化→入库→检索→拼上下文→生成</td>
 </tr>
 </tbody></table>
+<p><strong>对应可测点</strong>：Coze 的三个概念对应三类用例——工作流测节点与变量绑定、插件测触发与返回、知识库测召回与「问不到不编造」；Dify 的对话流测多轮承接与记忆、知识库检索测召回与重排、嵌入测向量化是否生效；LangSmith 测 trace 是否完整、评测集通过率是否可信。</p>
 <p>评测流程八步：初始化模型 → 动态提示词 → 建 Agent → 定义 target → 配环境 → 建 Client → 定义评估器 → evaluate 分析。课件示例中不同轮次出现过 0%、50%、100% 的通过率（课程示例口径），说明单次通过率不能当结论，要结合 trace 定位失败原因再迭代。</p>
 <hr>
 <h2 id="三、2026-学习路线"><a href="#三、2026-学习路线" class="headerlink" title="三、2026 学习路线"></a>三、2026 学习路线</h2><h3 id="3-1-三层路线"><a href="#3-1-三层路线" class="headerlink" title="3.1 三层路线"></a>3.1 三层路线</h3><table>
@@ -904,6 +1145,97 @@
 <td></td>
 </tr>
 </tbody></table>
+<p><strong>加分项那一行里的词都是什么</strong>：逐个对齐，别只会念名词。</p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>一句话定义</th>
+<th>在测试里的典型用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pytest 参数化</td>
+<td>一个用例用 <code>@pytest.mark.parametrize</code> 喂多组数据</td>
+<td>同一逻辑跑多组入参，用例数少、覆盖高</td>
+</tr>
+<tr>
+<td>fixture</td>
+<td>pytest 的「前置&#x2F;夹具」，<code>@pytest.fixture</code> 定义、按名注入</td>
+<td>统一准备账号、token、浏览器会话，用例只取用</td>
+</tr>
+<tr>
+<td>Charles 抓包</td>
+<td>代理工具，截获客户端与服务器的 HTTP&#x2F;HTTPS 请求</td>
+<td>看请求到底发了什么、服务回了什么，定位前后端责任</td>
+</tr>
+<tr>
+<td>改包</td>
+<td>把抓到的请求改掉再发（改参数、改返回）</td>
+<td>模拟异常返回、边界数据，验证客户端处理</td>
+</tr>
+<tr>
+<td>弱网</td>
+<td>用工具限制带宽、加延迟、丢包（Charles 里可调）</td>
+<td>验证弱网下不崩溃、有超时与重试提示</td>
+</tr>
+<tr>
+<td>JMeter 线程组</td>
+<td>压测里的一组并发用户，配线程数与循环次数</td>
+<td>模拟多人同时访问，做接口&#x2F;页面压测</td>
+</tr>
+<tr>
+<td>JMeter 聚合报告</td>
+<td>一次压测的统计汇总（吞吐、响应时间、错误率）</td>
+<td>看性能是否达标、找瓶颈</td>
+</tr>
+<tr>
+<td>Linux 排障四层</td>
+<td>从外到内四层：应用层 → 服务层 → 系统层 → 网络层</td>
+<td>报 500 时按这四层往下查，定位到具体原因</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>分布式版本控制</td>
+<td>代码版本管理、分支协作、回滚</td>
+</tr>
+<tr>
+<td>CI（持续集成）</td>
+<td>代码一提交就自动构建、跑测试</td>
+<td>把门禁挂到流水线，每次提交自动验</td>
+</tr>
+</tbody></table>
+<p><strong>Linux 排障四层具体是哪四层、什么顺序</strong>：由外到内，一层排除不了再下一层。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>查什么</th>
+<th>典型命令&#x2F;动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1 应用层</td>
+<td>应用自己的报错：看日志行、错误码、堆栈</td>
+<td><code>tail -f app.log</code>、<code>grep ERROR</code>，确认报错是应用抛的还是传上来的</td>
+</tr>
+<tr>
+<td>2 服务层</td>
+<td>服务在不在跑、有没有挂</td>
+<td><code>systemctl status app</code>、<code>ps -ef | grep app</code>，服务挂了先重启再看</td>
+</tr>
+<tr>
+<td>3 系统层</td>
+<td>机器资源够不够：CPU、内存、磁盘</td>
+<td><code>top</code>、<code>free -m</code>、<code>df -h</code>，磁盘满是常见根因</td>
+</tr>
+<tr>
+<td>4 网络层</td>
+<td>端口通不通、网络通不通</td>
+<td><code>curl</code>、<code>ping</code>、<code>telnet 端口</code>，确认请求能不能到服务</td>
+</tr>
+</tbody></table>
+<p>固定动作：报 500 时先查应用层日志行，再看服务是否存活，再看资源，最后看网络——按这个顺序走，三步之内基本能定位到日志行。</p>
 <h3 id="3-2-四周计划表"><a href="#3-2-四周计划表" class="headerlink" title="3.2 四周计划表"></a>3.2 四周计划表</h3><table>
 <thead>
 <tr>

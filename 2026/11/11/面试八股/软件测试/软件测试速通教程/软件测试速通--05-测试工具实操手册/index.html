@@ -682,7 +682,7 @@
 </blockquote>
 <hr>
 <h2 id="三、抓包：浏览器-F12-与-Charles"><a href="#三、抓包：浏览器-F12-与-Charles" class="headerlink" title="三、抓包：浏览器 F12 与 Charles"></a>三、抓包：浏览器 F12 与 Charles</h2><p><strong>定位</strong>：抓包是在客户端与服务端之间设代理，把请求和响应截下来看。测试用它做三件事：定位前后端 bug、模拟弱网、绕过界面直接测接口。</p>
-<p><strong>装什么 &#x2F; 在哪用</strong>：浏览器 F12 零成本，优先用它。Charles 需要装并装根证书，能抓 HTTPS 和手机流量。Charles 本身收费，试用期有限；Fiddler 是同类替代。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：浏览器 F12 零成本，优先用它。Charles 需要装并装根证书，能抓 HTTPS 和手机流量；它本身收费、试用期有限，同类替代是 <strong>Fiddler</strong>——Windows 免费、同样走「本机代理 + 装根证书」的路子，HTTPS 一样要信任证书，抓包与改包的操作思路可整套搬过来。切换判断：<strong>只是临时抓个包、或同事用 Windows 不想买授权，用 Fiddler</strong>；要抓手机（尤其 iOS）、要 Map Remote&#x2F;Local、要更顺手的 Structure 视图，用 Charles。其余步骤见 3.2 与 3.3。</p>
 <h3 id="3-1-浏览器-F12-抓一个接口（5-步）"><a href="#3-1-浏览器-F12-抓一个接口（5-步）" class="headerlink" title="3.1 浏览器 F12 抓一个接口（5 步）"></a>3.1 浏览器 F12 抓一个接口（5 步）</h3><table>
 <thead>
 <tr>
@@ -780,6 +780,51 @@
 <td>给出归属结论而不是「前端好像有问题」</td>
 </tr>
 </tbody></table>
+<h3 id="3-4-Fiddler-与-Charles-的差异对照"><a href="#3-4-Fiddler-与-Charles-的差异对照" class="headerlink" title="3.4 Fiddler 与 Charles 的差异对照"></a>3.4 Fiddler 与 Charles 的差异对照</h3><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Charles</th>
+<th>Fiddler</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>费用</td>
+<td>收费，试用有限</td>
+<td>Windows 版免费</td>
+</tr>
+<tr>
+<td>平台</td>
+<td>Win &#x2F; Mac &#x2F; Linux</td>
+<td>主要 Windows</td>
+</tr>
+<tr>
+<td>抓包方式</td>
+<td>本机代理 + 根证书</td>
+<td>同样是本机代理 + 根证书</td>
+</tr>
+<tr>
+<td>HTTPS</td>
+<td>装根证书后开 SSL Proxying</td>
+<td>Tools → Options → HTTPS → 勾 Decrypt HTTPS，首次自动提示装证书</td>
+</tr>
+<tr>
+<td>手机流量</td>
+<td>同 WiFi 填电脑地址端口，手机装证书</td>
+<td>手机代理指向电脑 IP:8888（默认端口），装 Fiddler 证书</td>
+</tr>
+<tr>
+<td>改包重放</td>
+<td>右键 Edit 后重新发送</td>
+<td>选中请求 → Composer 或右键 Replay</td>
+</tr>
+<tr>
+<td>弱网模拟</td>
+<td>Proxy → Throttle Settings</td>
+<td>Rules → Performance → Simulate Modem Speeds</td>
+</tr>
+</tbody></table>
+<p>结论记一句：<strong>Fiddler ≈ 免费的 Windows 版 Charles</strong>。 Charles 的安装与抓包六步（3.2）在 Fiddler 上只换菜单名：代理端口默认 8888，HTTPS 同样先装根证书再解密，所以拿本篇 Charles 的步骤直接套。</p>
 <blockquote>
 <p>面试三问：<strong>抓包能解决什么问题？</strong>（定位前后端 bug、模拟弱网、绕过界面做接口测试）；<strong>怎么判断是前端还是后端的锅？</strong>（看请求参数对不对，再看响应与库是否一致，页面显示再对一次）；<strong>F12 和 Charles 怎么选？</strong>（F12 零成本查接口，Charles 能改请求、能模拟弱网、能抓手机流量）。</p>
 </blockquote>
@@ -850,7 +895,7 @@
 </blockquote>
 <hr>
 <h2 id="五、Postman：8-步跑通接口"><a href="#五、Postman：8-步跑通接口" class="headerlink" title="五、Postman：8 步跑通接口"></a>五、Postman：8 步跑通接口</h2><p><strong>定位</strong>：Postman 是接口测试的事实标准工具，用来做接口用例的组织、断言、关联和批量执行。</p>
-<p><strong>装什么 &#x2F; 在哪用</strong>：官网下载桌面版，装完直接登录账号即可用；也可装 Apifox 做类似的事。下面示例环境统一用 <code>&#123;&#123;base_url&#125;&#125;</code> 变量。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：官网下载桌面版，装完直接登录账号即可用；国产替代是 <strong>Apifox</strong>（Win&#x2F;Mac&#x2F;Linux，个人版免费），内置接口文档与 Mock。下面示例环境统一用 <code>&#123;&#123;base_url&#125;&#125;</code> 变量，<strong>Postman 的八步在 Apifox 里都能照搬</strong>：请求（Requests）对应请求页，环境（Environments）对应环境页，Tests 断言与 Pre-request Script 用的是同一套 JS API（<code>pm.*</code>，兼容 Postman 脚本），Runner 批量执行与数据文件同理；差别在入口位置不同，且 Apifox 请求可直接一键生成&#x2F;同步在线文档。</p>
 <table>
 <thead>
 <tr>
@@ -887,7 +932,7 @@
 <tr>
 <td>5</td>
 <td>前置脚本</td>
-<td>Pre-request Script 生成时间戳或随机值，赋给变量</td>
+<td>Pre-request Script 生成时间戳或随机值，赋给变量（写法见 5.2）</td>
 <td>请求参数里带上刚生成的值</td>
 </tr>
 <tr>
@@ -905,13 +950,19 @@
 <tr>
 <td>8</td>
 <td>出报告</td>
-<td>导出 Collection 为 JSON，用 Newman（或官方现在主推的 Postman CLI）跑并出 HTML 报告</td>
+<td>导出 Collection 为 JSON，用 Newman（官方主推的 Postman CLI 同效）跑并出 HTML 报告（命令见 5.3）</td>
 <td>生成可归档的报告文件</td>
 </tr>
 </tbody></table>
 <h3 id="5-1-断言与关联脚本（≤15-行）"><a href="#5-1-断言与关联脚本（≤15-行）" class="headerlink" title="5.1 断言与关联脚本（≤15 行）"></a>5.1 断言与关联脚本（≤15 行）</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Tests：状态码 + 业务字段断言</span></span><br><span class="line">pm.<span class="title function_">test</span>(<span class="string">&quot;状态码是200&quot;</span>, <span class="keyword">function</span> (<span class="params"></span>) &#123; pm.<span class="property">response</span>.<span class="property">to</span>.<span class="property">have</span>.<span class="title function_">status</span>(<span class="number">200</span>); &#125;);</span><br><span class="line">pm.<span class="title function_">test</span>(<span class="string">&quot;业务字段正确&quot;</span>, <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"> <span class="keyword">var</span> j = pm.<span class="property">response</span>.<span class="title function_">json</span>();</span><br><span class="line"> pm.<span class="title function_">expect</span>(j.<span class="property">code</span>).<span class="property">to</span>.<span class="title function_">eql</span>(<span class="number">10000</span>);</span><br><span class="line"> pm.<span class="title function_">expect</span>(j.<span class="property">data</span>).<span class="property">to</span>.<span class="property">have</span>.<span class="title function_">property</span>(<span class="string">&quot;token&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 关联：把 token 存进环境变量</span></span><br><span class="line"><span class="keyword">var</span> j = pm.<span class="property">response</span>.<span class="title function_">json</span>();</span><br><span class="line">pm.<span class="property">environment</span>.<span class="title function_">set</span>(<span class="string">&quot;token&quot;</span>, j.<span class="property">data</span>.<span class="property">token</span>);</span><br></pre></td></tr></table></figure>
 
-<h3 id="5-2-下一请求引用-token"><a href="#5-2-下一请求引用-token" class="headerlink" title="5.2 下一请求引用 token"></a>5.2 下一请求引用 token</h3><p>在后续请求的 Authorization 请求头填 <code>Bearer &#123;&#123;token&#125;&#125;</code>，或用 Pre-request Script 拼进变量：</p>
+<h3 id="5-2-Pre-request-Script-生成时间戳与随机值"><a href="#5-2-Pre-request-Script-生成时间戳与随机值" class="headerlink" title="5.2 Pre-request Script 生成时间戳与随机值"></a>5.2 Pre-request Script 生成时间戳与随机值</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pm.<span class="property">environment</span>.<span class="title function_">set</span>(<span class="string">&quot;ts&quot;</span>, <span class="title class_">Date</span>.<span class="title function_">now</span>());                    <span class="comment">// 毫秒时间戳</span></span><br><span class="line">pm.<span class="property">environment</span>.<span class="title function_">set</span>(<span class="string">&quot;rnd&quot;</span>, <span class="title class_">Math</span>.<span class="title function_">random</span>().<span class="title function_">toString</span>(<span class="number">36</span>).<span class="title function_">slice</span>(<span class="number">2</span>, <span class="number">8</span>)); <span class="comment">// 6 位随机串</span></span><br><span class="line"><span class="comment">// 请求体里引用：&#123;&#123;ts&#125;&#125;、&#123;&#123;rnd&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>预期结果：每次发送前脚本先跑，<code>ts</code> 与 <code>rnd</code> 被赋新值，请求参数里的 <code>&#123;&#123;ts&#125;&#125;</code> 自动替换成当前时间戳，用于签名、防重放等场景。</p>
+<h3 id="5-3-Newman-安装与报告命令"><a href="#5-3-Newman-安装与报告命令" class="headerlink" title="5.3 Newman 安装与报告命令"></a>5.3 Newman 安装与报告命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">npm install -g newman newman-reporter-htmlextra   <span class="comment"># 装运行器 + 增强 HTML 报告插件</span></span><br><span class="line">newman run collection.json -e env.json --reporters cli,htmlextra \</span><br><span class="line">  --reporter-htmlextra-export ./report/newman.html    <span class="comment"># 跑集合、出 HTML</span></span><br><span class="line">newman run collection.json --folder <span class="string">&quot;登录&quot;</span> -r cli,json --reporter-json-export r.json</span><br></pre></td></tr></table></figure>
+
+<p>预期结果：命令结束打印每个请求的通过&#x2F;失败统计，<code>./report/</code> 下出现 HTML 报告文件（双击可看）。Newman 内置 reporter 只有 cli、json、junit、progress，没有 html，要出 HTML 报告得额外装 newman-reporter-html 或 newman-reporter-htmlextra。CI 场景更常用 junit 或 json 格式，或者改用官方主推的 Postman CLI（<code>postman collection run</code>）跑集合。</p>
+<h3 id="5-4-下一请求引用-token"><a href="#5-4-下一请求引用-token" class="headerlink" title="5.4 下一请求引用 token"></a>5.4 下一请求引用 token</h3><p>在后续请求的 Authorization 请求头填 <code>Bearer &#123;&#123;token&#125;&#125;</code>，或用 Pre-request Script 拼进变量：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Pre-request Script：为后续请求准备带 token 的头</span></span><br><span class="line">pm.<span class="property">environment</span>.<span class="title function_">set</span>(<span class="string">&quot;authHeader&quot;</span>, <span class="string">&quot;Bearer &quot;</span> + pm.<span class="property">environment</span>.<span class="title function_">get</span>(<span class="string">&quot;token&quot;</span>));</span><br></pre></td></tr></table></figure>
 
 <blockquote>
@@ -968,7 +1019,7 @@
 <tr>
 <td>7</td>
 <td>定时器</td>
-<td>添加 → 定时器 → 固定&#x2F;同步定时器，模拟思考时间或集合点</td>
+<td>添加 → 定时器 → 固定&#x2F;同步定时器，模拟思考时间或集合点（区别见 6.3）</td>
 <td>请求节奏变慢或并发集中</td>
 </tr>
 <tr>
@@ -980,8 +1031,30 @@
 </tbody></table>
 <h3 id="6-2-参数化与关联片段"><a href="#6-2-参数化与关联片段" class="headerlink" title="6.2 参数化与关联片段"></a>6.2 参数化与关联片段</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CSV Data Set Config：Filename=data/users.csv，Variable Names=phone,pwd，Recycle on EOF=True</span><br><span class="line">HTTP 请求参数：phone=$&#123;phone&#125; pwd=$&#123;pwd&#125;</span><br><span class="line">正则提取器：Name=title，Regular Expression=&lt;title&gt;(.*?)&lt;/title&gt;，Template=$1$</span><br><span class="line">后续请求引用：$&#123;title&#125;</span><br></pre></td></tr></table></figure>
 
-<p><strong>元件执行顺序（同一作用域）</strong>：配置元件 → 前置处理器 → 定时器 → 取样器 → 后置处理器 → 断言 → 监听器。</p>
-<p><strong>作用域规则</strong>：取样器本身没有作用域；逻辑控制器只对子节点生效；父节点是取样器时，元件只作用于这个父取样器；父节点不是取样器时，作用于其下所有后代。</p>
+<p><strong>元件执行顺序（同一作用域）</strong>：配置元件 → 前置处理器 → 定时器 → 取样器 → 后置处理器 → 断言 → 监听器。<br><strong>作用域规则</strong>：取样器本身没有作用域；逻辑控制器只对子节点生效；父节点是取样器时，元件只作用于这个父取样器；父节点不是取样器时，作用于其下所有后代。</p>
+<h3 id="6-3-两种定时器的区别与同步定时器原理"><a href="#6-3-两种定时器的区别与同步定时器原理" class="headerlink" title="6.3 两种定时器的区别与同步定时器原理"></a>6.3 两种定时器的区别与同步定时器原理</h3><table>
+<thead>
+<tr>
+<th>定时器</th>
+<th>作用对象</th>
+<th>典型参数</th>
+<th>什么时候用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>固定定时器（Constant Timer）</td>
+<td>每个线程各自延时</td>
+<td>Delay(ms)：每次请求前固定等待的毫秒数</td>
+<td>模拟用户操作间的「思考时间」，让压力平滑</td>
+</tr>
+<tr>
+<td>同步定时器（Synchronizing Timer）</td>
+<td>一组线程当集合点</td>
+<td>Number of Simulated Users to Group by：凑满多少线程才放行；Timeout in ms：最多等多久</td>
+<td>造瞬时尖峰（秒杀、整点抢券）时把分散请求压成一波并发</td>
+</tr>
+</tbody></table>
+<p>同步定时器原理一句话：<strong>它是栅栏</strong>。被它拦住的每个线程都先挂起，等凑满 <code>Number of Simulated Users</code> 个线程到齐，才在同一时刻一起放出去打下一个请求；超时（Timeout）内没凑满也会把已到的线程一起放走，避免线程永远卡死。使用要点：它必须挂在「要被同时打出的那个请求」下面或与之同级，否则拦不住东西；Number of Users 设成 0 表示按所在线程组的线程总数全部到齐才放行，适合「N 个虚拟用户同时开抢」。</p>
 <blockquote>
 <p>面试三问：<strong>JMeter 的线程数是什么？</strong>（虚拟用户数，越多负载越大，Ramp-Up 决定多久起完）；<strong>聚合报告看哪几个字段？</strong>（Samples 样本数、Average&#x2F;Median 平均与中位响应时间、90% Line&#x2F;99% Line 分位（99% 才是尾延迟）、Error% 错误率、Throughput 吞吐）；<strong>为什么压测要关掉查看结果树？</strong>（监听器本身耗资源，会压低测出来的性能数据）。</p>
 </blockquote>
@@ -1069,7 +1142,47 @@
 <li>Base 类做公共动作：找元素、显式等待、截图、日志。</li>
 <li>用例脚本只调方法，不直接写定位。</li>
 </ol>
-<p>分层目录通常是 <code>base / page / data / script / report / log</code> 加 <code>config.py</code> 和 <code>pytest.ini</code>：页面一改，只动 page 层，用例和报告不用动。</p>
+<p>分层目录通常是 <code>base / page / data / script / report / log</code> 加 <code>config.py</code> 和 <code>pytest.ini</code>：页面一改，只动 page 层，用例和报告不用动。各层放什么见下表。</p>
+<table>
+<thead>
+<tr>
+<th>目录&#x2F;文件</th>
+<th>放什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>base/</code></td>
+<td>驱动封装与公共动作（BasePage&#x2F;BaseTest：初始化 driver、找元素、显式等待、截图、日志）</td>
+</tr>
+<tr>
+<td><code>page/</code></td>
+<td>页面类，一个页面对应一个 Page 类，抽元素定位与业务操作方法</td>
+</tr>
+<tr>
+<td><code>data/</code></td>
+<td>测试数据，CSV&#x2F;YAML&#x2F;JSON，供 parametrize 或读取</td>
+</tr>
+<tr>
+<td><code>script/</code></td>
+<td>用例脚本，只调 page 方法，不写定位</td>
+</tr>
+<tr>
+<td><code>report/</code></td>
+<td>运行产物：Allure 结果、HTML 报告</td>
+</tr>
+<tr>
+<td><code>log/</code></td>
+<td>运行日志文件</td>
+</tr>
+<tr>
+<td><code>config.py</code></td>
+<td>全局配置：<code>base_url</code>、账号、超时、浏览器类型</td>
+</tr>
+<tr>
+<td><code>pytest.ini</code></td>
+<td>pytest 配置：测试路径、markers 注册、命令行默认参数</td>
+</tr>
+</tbody></table>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium.webdriver.common.by <span class="keyword">import</span> By</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support <span class="keyword">import</span> expected_conditions <span class="keyword">as</span> EC</span><br><span class="line"><span class="keyword">from</span> selenium.webdriver.support.wait <span class="keyword">import</span> WebDriverWait</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LoginPage</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, driver</span>):</span><br><span class="line">        <span class="variable language_">self</span>.driver = driver</span><br><span class="line">        <span class="variable language_">self</span>.user = (By.ID, <span class="string">&quot;username&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.pwd = (By.ID, <span class="string">&quot;password&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">login</span>(<span class="params">self, u, p</span>):</span><br><span class="line">        WebDriverWait(<span class="variable language_">self</span>.driver, <span class="number">10</span>).until(</span><br><span class="line">            EC.visibility_of_element_located(<span class="variable language_">self</span>.user)).send_keys(u)</span><br><span class="line">        <span class="variable language_">self</span>.driver.find_element(*<span class="variable language_">self</span>.pwd).send_keys(p)</span><br><span class="line">        <span class="variable language_">self</span>.driver.find_element(By.ID, <span class="string">&quot;submit&quot;</span>).click()</span><br></pre></td></tr></table></figure>
 
 <h3 id="7-4-Playwright-的两个差异"><a href="#7-4-Playwright-的两个差异" class="headerlink" title="7.4 Playwright 的两个差异"></a>7.4 Playwright 的两个差异</h3><p>Playwright 自带浏览器管理，省掉「驱动版本和浏览器版本不匹配」这个坑；等待是默认自动的，通常不用手写等待。</p>
@@ -1125,10 +1238,13 @@
 <td>6</td>
 <td><code>@pytest.mark.&lt;自定义&gt;</code></td>
 <td>分类标记，配合 <code>-m</code> 筛选执行</td>
-<td>在 <code>pytest.ini</code> 里注册减少告警</td>
+<td>在 <code>pytest.ini</code> 里注册减少告警（完整写法见下方 6.1）</td>
 </tr>
 </tbody></table>
 <p><code>conftest.py</code> 是共享 fixture 的落点：放在测试目录同级或其子目录会被自动发现，测试文件按参数名直接注入，不用 import。<code>pytest.ini</code> 里注册自定义 mark 后，用 <code>pytest -m smoke</code> 就能只跑冒烟用例。</p>
+<h3 id="8-1-在-pytest-ini-里注册自定义-mark"><a href="#8-1-在-pytest-ini-里注册自定义-mark" class="headerlink" title="8.1 在 pytest.ini 里注册自定义 mark"></a>8.1 在 pytest.ini 里注册自定义 mark</h3><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[pytest]</span></span><br><span class="line"><span class="attr">testpaths</span> = script</span><br><span class="line"><span class="attr">markers</span> =</span><br><span class="line">    smoke: 冒烟用例，快速验证主流程</span><br><span class="line">    slow: 耗时用例，默认跳过</span><br><span class="line">    ui: 需要浏览器的界面用例</span><br></pre></td></tr></table></figure>
+
+<p>预期结果：不注册直接用 <code>@pytest.mark.smoke</code> 会触发 <code>PytestUnknownMarkWarning</code> 告警；注册后告警消失，<code>pytest -m smoke</code> 只跑带该标记的用例，<code>pytest -m &quot;not slow&quot;</code> 反向排除。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture(<span class="params">scope=<span class="string">&quot;class&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">browser</span>():</span><br><span class="line"> driver = webdriver.Chrome()</span><br><span class="line"> <span class="keyword">yield</span> driver <span class="comment"># 前置：造数据</span></span><br><span class="line"> driver.quit() <span class="comment"># 后置：清理</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.parametrize(<span class="params"><span class="string">&quot;user,expect&quot;</span>, [(<span class="params"><span class="string">&quot;user_a&quot;</span>, <span class="string">&quot;ok&quot;</span></span>), (<span class="params"><span class="string">&quot;user_b&quot;</span>, <span class="string">&quot;fail&quot;</span></span>)]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_login</span>(<span class="params">browser, user, expect</span>):</span><br><span class="line"> <span class="keyword">assert</span> browser.title <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
 
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.smoke</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_smoke</span>(): ...</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.skip(<span class="params">reason=<span class="string">&quot;用例未实现&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_skip_me</span>(): ...</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.skipif(<span class="params">sys.version_info &lt; (<span class="params"><span class="number">3</span>, <span class="number">10</span></span>), reason=<span class="string">&quot;需要 Python 3.10+&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_skipif_me</span>(): ...</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.xfail(<span class="params">reason=<span class="string">&quot;已知缺陷，等修复&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_xfail_me</span>(): ...</span><br></pre></td></tr></table></figure>
@@ -1185,7 +1301,62 @@
 </blockquote>
 <hr>
 <h2 id="十、Allure-与-Jenkins：报告与持续集成"><a href="#十、Allure-与-Jenkins：报告与持续集成" class="headerlink" title="十、Allure 与 Jenkins：报告与持续集成"></a>十、Allure 与 Jenkins：报告与持续集成</h2><p><strong>定位</strong>：Allure 把测试结果渲染成可读 HTML 报告；Jenkins 负责在代码提交后自动跑测试并归档报告。两者合起来就是持续集成（CI，频繁合并代码并自动验证）。</p>
-<p><strong>装什么 &#x2F; 在哪用</strong>：Allure 装命令行工具并配进 PATH，另装 <code>allure-pytest</code> 插件；Jenkins 装好后进 <code>Manage Jenkins → System Configuration → Global Tool Configuration</code> 配 Allure 工具路径。</p>
+<p><strong>装什么 &#x2F; 在哪用</strong>：Allure 先装命令行工具（Commandline）并配进 PATH，另装 <code>allure-pytest</code> 插件；Jenkins 装好后进 <code>Manage Jenkins → System Configuration → Global Tool Configuration</code> 配 Allure 工具路径。</p>
+<p>Allure Commandline 安装三步（需先装 JDK 8+）：</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>用包管理器装：macOS <code>brew install allure</code>；Windows <code>scoop install allure</code>（或去 GitHub Releases 下 zip 解压）</td>
+<td>本机多一个 <code>allure</code> 可执行文件</td>
+</tr>
+<tr>
+<td>2</td>
+<td>zip 方式需把解压出的 <code>bin</code> 目录加进系统 PATH</td>
+<td>任意终端能识别 <code>allure</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>allure --version</code></td>
+<td>打印版本号即装好</td>
+</tr>
+</tbody></table>
+<p>Jenkins 安装启动四步：</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>预期结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>取 Jenkins：下 <code>jenkins.war</code>（需 JDK），或 Docker 跑 <code>jenkins/jenkins:lts</code> 镜像</td>
+<td>拿到可运行的 Jenkins</td>
+</tr>
+<tr>
+<td>2</td>
+<td>war 方式：<code>java -jar jenkins.war --httpPort=8080</code></td>
+<td>控制台打印启动完成</td>
+</tr>
+<tr>
+<td>3</td>
+<td>浏览器访问 <code>http://localhost:8080</code>，按向导输入初始管理员密码（<code>initialAdminPassword</code> 文件里）→ 装推荐插件 → 建管理员账号</td>
+<td>进入 Jenkins 首页</td>
+</tr>
+<tr>
+<td>4</td>
+<td>装 Allure 插件：Manage Jenkins → Plugins → Available plugins 搜 <code>Allure</code> 安装并重启</td>
+<td>构建后操作里出现 Allure Report 选项</td>
+</tr>
+</tbody></table>
 <h3 id="10-1-Allure-三步"><a href="#10-1-Allure-三步" class="headerlink" title="10.1 Allure 三步"></a>10.1 Allure 三步</h3><table>
 <thead>
 <tr>
@@ -1234,7 +1405,32 @@
 <td>构建页面出现报告链接</td>
 </tr>
 </tbody></table>
-<p><strong>执行链路</strong>：代码拉取 → 装依赖与环境 → pytest 执行 → 产出结果 → Allure 生成报告 → Jenkins 归档展示。</p>
+<p><strong>新增 Allure 工具的字段怎么填</strong>（Manage Jenkins → System Configuration → Global Tool Configuration → 下拉找到 Allure Commandline → Add Allure Commandline）：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>填什么</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Name</td>
+<td>工具别名，任务里靠它选</td>
+<td><code>allure-2.30</code></td>
+</tr>
+<tr>
+<td>Install automatically</td>
+<td>勾上则从官网自动下载；本机已装则取消勾选</td>
+<td>勾上&#x2F;不勾二选一</td>
+</tr>
+<tr>
+<td>Allure Commandline home</td>
+<td>本机 Allure 的<strong>安装根目录</strong>（含 bin 的那层），自动安装留空</td>
+<td><code>/opt/allure-2.30.0</code></td>
+</tr>
+</tbody></table>
+<p>填完点 Save。任务侧在 Build Environment 勾 <code>Allure Commandline</code> 选这个 Name，构建后操作的 <code>Allure Report</code> 里 <code>Results path</code> 填 pytest 产出的结果目录（如 <code>report</code>）即可。<br><strong>执行链路</strong>：代码拉取 → 装依赖与环境 → pytest 执行 → 产出结果 → Allure 生成报告 → Jenkins 归档展示。</p>
 <blockquote>
 <p>面试三问：<strong>Allure 有什么用？</strong>（把 pytest 等框架的结果渲染成带分类、图表、失败详情的 HTML 报告）；<strong>CI 是什么？</strong>（持续集成，代码一提交就自动构建和跑测试，尽早发现问题）；<strong>Jenkins 里一般配哪几步？</strong>（配工具路径、配置构建命令跑测试、构建后归档报告）。</p>
 </blockquote>
