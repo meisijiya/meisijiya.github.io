@@ -677,7 +677,7 @@
 </tr>
 </tbody></table>
 <h3 id="并发怎么估算（面试必问口径）"><a href="#并发怎么估算（面试必问口径）" class="headerlink" title="并发怎么估算（面试必问口径）"></a>并发怎么估算（面试必问口径）</h3><p>三个常用口径，按场景选：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">口径一（在线用户推算）：并发用户数 = 在线用户数 × 并发率</span><br><span class="line">口径二（峰值推算） ：并发用户数 ≈ 峰值 QPS × 平均响应时间(秒)；峰值 QPS = 峰值请求数 ÷ 峰值持续时间(秒)</span><br><span class="line">口径三（经验系数，经验值，需自行论证依据）：并发用户数 ≈ 在线用户数的 10% ~ 20%；并发率 = 并发用户数 ÷ 在线用户数，不能乘 QPS</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">口径一（在线用户推算）：并发用户数 = 在线用户数 × 并发率</span><br><span class="line">口径二（峰值推算） ：并发用户数 ≈ 峰值 QPS × 平均响应时间(秒)；峰值 QPS = 峰值请求数 ÷ 峰值持续时间(秒)</span><br><span class="line">口径三（经验系数，经验值，需自行论证依据）：并发用户数 ≈ 在线用户数的 10% ~ 20%；并发率 = 并发用户数 ÷ 在线用户数，是用户比例，不是 QPS 的函数</span><br></pre></td></tr></table></figure>
 
 <p>举例（<strong>示例数字，仅用于说明算法</strong>）：某系统日活 10 万，早高峰 1 小时集中 40% 流量，则峰值 QPS ≈ 100000 × 40% ÷ 3600 ≈ 11；若平均响应时间 0.2 秒，则并发用户数 ≈ 11 × 0.2 ≈ 2~3。<strong>关键是报出你的估算依据，而不是直接报一个数字。</strong></p>
 <p>Ramp-Up 与循环次数的配合：</p>
@@ -841,6 +841,33 @@
 <p>调优方向对应四层：应用与数据库改慢 SQL 和索引、减少多余查询、合理用缓存；中间件调连接池与线程池；架构层横向扩容、负载均衡、限流降级。</p>
 <p>监控维度固定四项：服务器 CPU、内存、磁盘 IO、网络 IO，外加连接数。<strong>压测时必须同步采监控数据</strong>，只看客户端报告无法定位瓶颈。</p>
 <p>单机压不出更高压力时，再上分布式：控制机（JMeter client &#x2F; Controller）发起并汇总，负载机（JMeter server &#x2F; Engine）执行脚本；注意远程模式下负载不均分，线程总数 &#x3D; 线程数 × 服务器台数，数据文件不随脚本分发，需自行同步到各机。控制机的 <code>jmeter.properties</code> 配 <code>remote_hosts</code> 列出负载机地址，负载机跑 <code>jmeter-server</code> 等调度；各机 JDK 与 JMeter 版本、脚本、依赖文件保持一致。</p>
+<h3 id="限流算法：令牌桶与漏桶"><a href="#限流算法：令牌桶与漏桶" class="headerlink" title="限流算法：令牌桶与漏桶"></a>限流算法：令牌桶与漏桶</h3><p>压测时上游常有网关限流，一旦触发，客户端看到的错误率上升可能是限流削峰造成的，不是应用扛不住，所以限流阈值必须先于压测确认。</p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>怎么工作</th>
+<th>突发容忍</th>
+<th>输出形态</th>
+<th>常见落点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>令牌桶 token bucket</td>
+<td>按固定速率往桶里放令牌，请求取到令牌才通过，桶里没令牌就拒</td>
+<td>允许，桶里攒的令牌可以一次性放出去</td>
+<td>速率稳定但允许短时突发</td>
+<td>网关、Redis 限流器、限流中间件</td>
+</tr>
+<tr>
+<td>漏桶 leaky bucket</td>
+<td>请求先进队列，按固定速率出水，超出队列长度直接拒</td>
+<td>不允许</td>
+<td>严格平滑</td>
+<td>需要匀速下游的场景，如对接第三方接口</td>
+</tr>
+</tbody></table>
+<p>选型一句话：接口要扛住短时突发用令牌桶，要保护下游匀速用漏桶。两者都能把流量整形成可控的形状，区别只在「允不允许攒」。</p>
 <hr>
 <h2 id="七、8-个高频问答"><a href="#七、8-个高频问答" class="headerlink" title="七、8 个高频问答"></a>七、8 个高频问答</h2><table>
 <thead>

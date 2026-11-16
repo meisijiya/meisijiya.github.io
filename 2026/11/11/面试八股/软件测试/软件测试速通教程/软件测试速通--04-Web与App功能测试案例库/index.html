@@ -542,7 +542,7 @@
 <tr>
 <td>厂商通道</td>
 <td>手机厂商提供的系统级推送通道，消息由系统服务送达</td>
-<td>App 进程被杀后靠它补收；测杀进程→发推送→通知仍到达，点开后补齐数据；自建长连接只在进程活着时能收，两条通道的到达时机分开验</td>
+<td>App 进程被杀后尽量补收，送达率取决于厂商通道与系统策略，用户强杀后可能不送达；测杀进程→发推送→看到达率与到达时机，点开后补齐数据；自建长连接只在进程活着时能收，两条通道分开验</td>
 </tr>
 <tr>
 <td>游标分页</td>
@@ -556,8 +556,8 @@
 </tr>
 <tr>
 <td>埋点</td>
-<td>埋点校验：客户端在关键行为处上报的统计事件，验证上报是否真实可靠</td>
-<td>测上报时机（进页&#x2F;点击&#x2F;离开该报的都报）、参数完整正确、重复上报去重、开关控制（关闭后不再上报）</td>
+<td>客户端在关键行为处上报的统计事件</td>
+<td>埋点校验查四件事：上报时机（进页&#x2F;点击&#x2F;离开该报的都报）、参数完整正确、重复上报去重、开关控制（关闭后不再上报）</td>
 </tr>
 </tbody></table>
 <hr>
@@ -668,10 +668,10 @@
 <li>跳转参数缺失，点击落首页。</li>
 </ol>
 <h3 id="3-3-弱网"><a href="#3-3-弱网" class="headerlink" title="3.3 弱网"></a>3.3 弱网</h3><h4 id="需求一句话-9"><a href="#需求一句话-9" class="headerlink" title="需求一句话"></a>需求一句话</h4><p>网络延迟高、带宽低、丢包甚至断网时，App 不崩溃、不丢数据、可恢复。</p>
-<h4 id="测试点树-9"><a href="#测试点树-9" class="headerlink" title="测试点树"></a>测试点树</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">弱网</span><br><span class="line">├── 显示：加载状态/超时提示/重试按钮；骨架屏</span><br><span class="line">├── 操作：4G 与 WiFi 下功能正常（对照组）；弱网下提交表单</span><br><span class="line">│ 弱网下上传下载；弱网下重试</span><br><span class="line">├── 异常：延时 300ms/1s/3s；带宽限到 2G 水平；丢包 10%/30%</span><br><span class="line">│ 断网后操作给可读提示；超时重试幂等不产生重复单</span><br><span class="line">│ 弱网切回正常网络后状态自动恢复</span><br><span class="line">├── 数据：中断提交的表单不写脏数据；重试后数据一致</span><br><span class="line">│ 上传中断后无残留分片；缓存以服务器为准</span><br><span class="line">└── 安全：弱网下 token 重放不产生越权</span><br></pre></td></tr></table></figure>
+<h4 id="测试点树-9"><a href="#测试点树-9" class="headerlink" title="测试点树"></a>测试点树</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">弱网</span><br><span class="line">├── 显示：加载状态/超时提示/重试按钮；骨架屏</span><br><span class="line">├── 操作：4G 与 WiFi 下功能正常（对照组）；弱网下提交表单</span><br><span class="line">│ 弱网下上传下载；弱网下重试</span><br><span class="line">├── 异常：延时 300ms/1s/3s；带宽限到 2G 水平；丢包 10%/30%（以上都是示例值，按产品 SLA 定）</span><br><span class="line">│ 断网后操作给可读提示；超时重试幂等不产生重复单</span><br><span class="line">│ 弱网切回正常网络后状态自动恢复</span><br><span class="line">├── 数据：中断提交的表单不写脏数据；重试后数据一致</span><br><span class="line">│ 上传中断后无残留分片；缓存以服务器为准</span><br><span class="line">└── 安全：弱网下 token 重放不产生越权</span><br></pre></td></tr></table></figure>
 
 <h4 id="用例口径-9"><a href="#用例口径-9" class="headerlink" title="用例口径"></a>用例口径</h4><p>正向 3 条（正常网络对照、弱网提交、弱网上传下载），异常 6 条，数据 4 条，显示 2 条。<strong>约 15 条，P0 占 4 条</strong>（弱网不崩溃、断网提示、重试幂等、数据一致）。弱网用 Charles 设延时和带宽，对比同页加载时间变化。</p>
-<p><strong>Charles 弱网怎么设</strong>：菜单 Proxy → Throttle Settings 勾选 Enable Throttling，填 Delay（延时，如 1000ms）、下行带宽（限到 2G 水平，如 50KB&#x2F;s）、丢包率（如 10%），可只对目标请求生效。对照口径：同一页面、同一份数据，正常网络记一次首屏与接口总耗时，再开弱网记一次，<strong>只改网络条件不改其他</strong>；比加载时间变慢多少、是否出超时提示、超时重试会不会产生重复单。</p>
+<p><strong>Charles 弱网怎么设</strong>：菜单 Proxy → Throttle Settings 勾选 Enable Throttling，填 Delay（延时，如 1000ms）与下行带宽（限到 2G 水平，如 50KB&#x2F;s），可只对目标请求生效。Charles 官方文档只写了带宽与延迟两项，丢包率字段在部分版本里有、官方未列，要模拟丢包得靠 Network Link Conditioner 或 tc&#x2F;netem。对照口径：同一页面、同一份数据，正常网络记一次首屏与接口总耗时，再开弱网记一次，<strong>只改网络条件不改其他</strong>；比加载时间变慢多少、是否出超时提示、超时重试会不会产生重复单。</p>
 <h4 id="常见缺陷-9"><a href="#常见缺陷-9" class="headerlink" title="常见缺陷"></a>常见缺陷</h4><ol>
 <li>弱网下点提交无 loading，连点生成重复订单。</li>
 <li>断网后 App 直接闪退或白屏。</li>
