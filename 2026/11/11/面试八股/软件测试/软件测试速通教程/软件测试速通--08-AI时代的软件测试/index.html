@@ -496,19 +496,19 @@
 <td>回归集 + 缺陷单</td>
 </tr>
 </tbody></table>
-<p><strong>为什么要分模块批量</strong>：一次性让模型出一千条，用例会重复、跑题、模块混淆。按模块拆批，每批固定模块与维度、统一编号规则和字段，评审表能直接回填到提示词。这是课件的批处理建议（来源：黑马 2026 AI+软件测试课件·AI 智能体测试线（day01–day02 课堂笔记））。</p>
+<p><strong>为什么要分模块批量</strong>：一次性让模型出一千条，用例会重复、跑题、模块混淆。按模块拆批，每批固定模块与维度、统一编号规则和字段，评审表能直接回填到提示词。这是本文的工程实践建议：课件 day01–day02 课堂笔记只给了提示词示例与测试流程，没有讲批量策略，这条是本文自拟，非课件内容。</p>
 <p><strong>执行时的一个坑</strong>：智能体有记忆，会读历史对话导致偏差。执行每一批之前要么清空会话，要么在提示词里限定「仅评估当前输入 &#x2F; 当前上传」。</p>
-<h3 id="1-2-三段可以直接抄的提示词"><a href="#1-2-三段可以直接抄的提示词" class="headerlink" title="1.2 三段可以直接抄的提示词"></a>1.2 三段可以直接抄的提示词</h3><p>下面三段是课件原文，我按原文保留，直接复制就能用。</p>
+<h3 id="1-2-三段可以直接抄的提示词"><a href="#1-2-三段可以直接抄的提示词" class="headerlink" title="1.2 三段可以直接抄的提示词"></a>1.2 三段可以直接抄的提示词</h3><p>下面三段取自课件（提示词 1、3 来自 day06&#x2F;day02 课堂笔记，提示词 2 来自 day06 课堂笔记），8 要素字段名按本文统一口径写，其余文字与课件一致，直接复制就能用。</p>
 <p><strong>提示词 1：批量产出三类幻觉测试用例（用例生成环节）</strong></p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">你以专业的AI测试工程师身份，帮我设计关于大模型幻觉测试的测试用例</span><br><span class="line">要求：</span><br><span class="line">1.用例参考手工软件测试8要素模板（用例编号、用例标题、模块/项目、优先级、预置条件、操作步骤、测试数据、预期结果）</span><br><span class="line">2.覆盖3大类型幻觉。事实性幻觉、忠实性幻觉、逻辑性幻觉</span><br><span class="line">3.覆盖场景较全面，数量控制在15条左右</span><br><span class="line">输出：md格式的用例文档，需要转Excel</span><br><span class="line">背景（可选）：当前是初入AI测试职场的小白</span><br><span class="line">示例（可选）：无</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">你以专业的AI测试工程师身份，帮我设计关于大模型幻觉测试的测试用例</span><br><span class="line">要求：</span><br><span class="line">1.用例参考手工软件测试8要素模板（用例编号、用例标题、所属模块/项目、优先级、前置条件、测试步骤、测试数据、预期结果）</span><br><span class="line">2.覆盖3大类型幻觉。事实性幻觉、忠实性幻觉、逻辑性幻觉</span><br><span class="line">3.覆盖场景较全面，数量控制在15条左右</span><br><span class="line">输出：md格式的用例文档，需要转Excel</span><br><span class="line">背景（可选）：当前是初入AI测试职场的小白</span><br><span class="line">示例（可选）：无</span><br></pre></td></tr></table></figure>
 
 <p><strong>提示词 2：评审模型输出是否通过幻觉判定（评审环节）</strong></p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">你以AI测试工程师，帮我评估附件中豆包给出的结果是否满足幻觉测试通过的标准</span><br><span class="line">要求：</span><br><span class="line">1.事实准确性：【通过/不通过，并说明原因】</span><br><span class="line">2.忠实性（指令的遵循度）：【通过/不通过，并说明原因】</span><br><span class="line">3.逻辑性（逻辑是否自洽）：【通过/不通过，并说明原因】</span><br><span class="line">4.总体评价：【通过/不通过】</span><br><span class="line">输出：以图表形式输出评估结果</span><br></pre></td></tr></table></figure>
 
 <p><strong>提示词 3：面向具体智能体生成功能用例</strong></p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">你以专业的AI测试工程师身份，帮我设计简历评估助手智能体功能的测试用例</span><br><span class="line">要求：</span><br><span class="line">1.用例参考手工软件测试8要素模板（用例编号、用例标题、模块/项目、优先级、预置条件、操作步骤、测试数据、预期结果）</span><br><span class="line">2.覆盖功能测试范围，参考附件中功能设计相关内容</span><br><span class="line">输出：md格式的用例文档，需要转Excel</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">你以专业的AI测试工程师身份，帮我设计简历评估助手智能体功能的测试用例</span><br><span class="line">要求：</span><br><span class="line">1.用例参考手工软件测试8要素模板（用例编号、用例标题、所属模块/项目、优先级、前置条件、测试步骤、测试数据、预期结果）</span><br><span class="line">2.覆盖功能测试范围，参考附件中功能设计相关内容</span><br><span class="line">输出：md格式的用例文档，需要转Excel</span><br></pre></td></tr></table></figure>
 
-<p><strong>写提示词本身的规矩</strong>（课件称 CREAM 原则）：指令清晰无歧义；给角色（专业测试工程师）；给示例对齐标准；加约束限定格式、长度、排除项；要求结构化输出便于自动处理与评审。提示词六要素是角色、任务、要求、输出、背景、示例。</p>
+<p><strong>写提示词本身的规矩</strong>：指令清晰无歧义；给角色（专业测试工程师）；给示例对齐标准；加约束限定格式、长度、排除项；要求结构化输出便于自动处理与评审。课件 Day01 课堂笔记给的提示词模板是六要素：角色、指示、输入、背景、输出、参考（示例），本文按这六项的说法写，即角色、任务、要求、输出、背景、示例。</p>
 <p><strong>用例 8 要素怎么写</strong>：流水线第 3 步「落成 8 要素」就是落成下面这张表，每字段有固定写法，写含糊等于用例没写。</p>
 <table>
 <thead>
@@ -535,7 +535,7 @@
 <td>测试登录功能</td>
 </tr>
 <tr>
-<td>模块&#x2F;项目</td>
+<td>所属模块&#x2F;项目</td>
 <td>归到哪个功能模块</td>
 <td>与测试点树的模块名一致，方便按模块回勾覆盖</td>
 <td>用户登录</td>
@@ -549,14 +549,14 @@
 <td>高</td>
 </tr>
 <tr>
-<td>预置条件</td>
+<td>前置条件</td>
 <td>执行前必须成立的环境</td>
 <td>写账号、数据、状态等具体条件，缺了用例跑不起来</td>
 <td>已注册有效账号 138****0001，未登录状态</td>
 <td>环境正常</td>
 </tr>
 <tr>
-<td>操作步骤</td>
+<td>测试步骤</td>
 <td>操作顺序</td>
 <td>编号分步，一步一个动作，写清操作对象与输入</td>
 <td>1. 打开登录页 2. 输入账号密码 3. 点击登录</td>
@@ -810,7 +810,7 @@
 </tr>
 </tbody></table>
 <p>指令遵循（instruction following）是另一类问题：没按输入的格式、范围、角色等约束回答，表现为漏项、答非所问、越界。严格说它不是幻觉。课件把两者并在一起讲（见 §1.2 提示词 2 原文「忠实性（指令的遵循度）」），本文按业界 RAG 评测口径区分忠实性与指令遵循，提示词原文保留不改。</p>
-<p><strong>判定四问</strong>（课件口径，逐项给结论）：事实可验证？完全遵循指令？推理结论逻辑自洽？未引用不存在的来源信息？</p>
+<p><strong>判定维度</strong>（按课件评估提示词的口径，逐项给结论）：事实准确性、忠实性（指令的遵循度）、逻辑性（推理是否自洽），外加总体评价。</p>
 <p>外部资料给了三种检测方法（来源：阿里云开发者社区，<a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/1712146">https://developer.aliyun.com/article/1712146</a> ，二手）：事实核查、一致性检查、对抗性测试。第三种尤其有用——故意给模型一个带细微错误的前提，看它是盲目接受还是能识别矛盾。</p>
 <h3 id="2-4-鲁棒性输入清单"><a href="#2-4-鲁棒性输入清单" class="headerlink" title="2.4 鲁棒性输入清单"></a>2.4 鲁棒性输入清单</h3><table>
 <thead>
@@ -858,13 +858,13 @@
 <td>作为比较的基准</td>
 </tr>
 <tr>
-<td>target（被测系统）</td>
-<td>被测的 Agent &#x2F; RAG 应用</td>
+<td>target（目标函数，课件原词）</td>
+<td>包装被测 Agent &#x2F; RAG 应用调用接口的函数</td>
 <td>把每条 <code>inputs</code> 送进它，产出实际输出</td>
 </tr>
 <tr>
-<td>evaluator（评估器）</td>
-<td>比较实际输出与参考答案的判断逻辑（如 exact_match）</td>
+<td>evaluator（评估函数，课件原词）</td>
+<td>比较实际输出与参考答案的评估函数（如 exact_match）</td>
 <td>逐条判定通过&#x2F;不通过，聚合出通过率</td>
 </tr>
 </tbody></table>
@@ -899,7 +899,7 @@
 </tbody></table>
 <p>公开数据集（MMLU、HELM 等）只能当基线参考，业务评测集必须自己建。</p>
 <h3 id="2-6-一致性怎么判"><a href="#2-6-一致性怎么判" class="headerlink" title="2.6 一致性怎么判"></a>2.6 一致性怎么判</h3><p>口径：<strong>同一输入重复执行，比较输出的差异</strong>。</p>
-<p>课件示例口径（课程示例口径，非通用标准）：同一份简历测三次，三次评分差异小于 1 分视为稳定一致。</p>
+<p>一致性的通用做法是同一输入重复执行、比较输出差异（本文做法见下）。课件 day06–day11 讲义与示例报告没有给出一致性判定的示例数值标准，这条是业界通用做法、非课件内容；课件真正给的示例口径是示例报告里的 88.57% 通过率与 90% 修复率。</p>
 <p>具体做法：把同一批输入跑 N 次（N 取 3 起步），逐条比对结论、评分与关键字段，把差异记成「同输入不同结论」的不一致样本，再回溯是提示词、示例还是知识库导致的。</p>
 <h3 id="2-7-Agent-四要素与四维拆法"><a href="#2-7-Agent-四要素与四维拆法" class="headerlink" title="2.7 Agent 四要素与四维拆法"></a>2.7 Agent 四要素与四维拆法</h3><p>智能体公式：<strong>Agent &#x3D; LLM（大脑）+ 记忆 + 规划 + 工具</strong>。</p>
 <table>
@@ -926,7 +926,7 @@
 <td>调用准确（该查天气不查知识库）、参数正确、触发时机、失败与超时降级</td>
 </tr>
 </tbody></table>
-<p><strong>四维测试体系</strong>：功能、准确性、鲁棒性、用户体验。第三件套（插件、知识库、工作流）各自测什么：插件测准确触发、异常、性能；知识库测检索准确与「问不到就不编」；工作流测节点、分支、变量传递与任务闭环。</p>
+<p><strong>四维测试体系</strong>：功能、准确性、鲁棒性、用户体验。第三件套（插件、知识库、工作流）按课件的组件口径展开：插件测调用外部 API 的触发与返回是否准确（课件原话：插件是智能体的「工具与手脚」，用来调用第三方工具能力）；知识库测检索准确、无命中时不编造（课件原话：知识库通过 RAG 解决模型的「幻觉」与专业不足）；工作流测节点、分支与变量传递、任务闭环（课件原话：工作流对插件、大模型、代码块做组合编排）。</p>
 <h3 id="2-8-RAG-三层与三个黑盒指标"><a href="#2-8-RAG-三层与三个黑盒指标" class="headerlink" title="2.8 RAG 三层与三个黑盒指标"></a>2.8 RAG 三层与三个黑盒指标</h3><p> 链路：用户问题 → 查询改写 → 检索（知识库&#x2F;向量库） → 重排序 → 拼上下文 → 生成 → 回答</p>
 <p>链路每一步干什么（前一步的输出就是后一步的输入）：</p>
 <table>
@@ -1294,6 +1294,7 @@
 </ol>
 <h2 id="📚-来源"><a href="#📚-来源" class="headerlink" title="📚 来源"></a>📚 来源</h2><ul>
 <li>黑马 2026 AI+软件测试课件·AI 智能体测试线（day06–day11 讲义与课堂代码）：</li>
+<li>AI 测试基础线 day01 课堂笔记（提示词模板六要素的出处）</li>
 <li>day06 AI 智能体测试基础阶段讲义与课堂笔记</li>
 <li>day07 智能体测试方案阶段讲义与课堂笔记</li>
 <li>day08 多维度测试设计执行阶段讲义与课堂笔记</li>

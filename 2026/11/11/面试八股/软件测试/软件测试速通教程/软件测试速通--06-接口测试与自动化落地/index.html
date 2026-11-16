@@ -495,8 +495,52 @@
 </tr>
 </tbody></table>
 <p>接口测试的主要目标是服务器：模拟客户端发请求，校验服务器回发的响应是否符合预期。它的价值在于<strong>绕开前端直接打后端</strong>，所以能发现页面操作发现不了的问题，比如参数校验缺失、越权、业务规则漏洞。</p>
+<h3 id="URL-拆成五段"><a href="#URL-拆成五段" class="headerlink" title="URL 拆成五段"></a>URL 拆成五段</h3><p>请求行里那个 URL，拆开就是五段（课程 day01 讲法）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://www.itcast.cn:8080/news/index.html?uid=123&amp;page=1</span><br><span class="line"> └─协议─┘└─域名──┘└端口┘└──资源路径──┘└─查询参数─┘</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>段</th>
+<th>作用</th>
+<th>分隔符</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>协议</td>
+<td>规定数据传输方式</td>
+<td><code>://</code></td>
+<td>http、https</td>
+</tr>
+<tr>
+<td>域名（IP）</td>
+<td>在网络里找到主机</td>
+<td>与协议之间用 <code>://</code></td>
+<td><a target="_blank" rel="noopener" href="http://www.itcast.cn/">www.itcast.cn</a></td>
+</tr>
+<tr>
+<td>端口</td>
+<td>在主机上标识一个进程</td>
+<td>与域名之间用 <code>:</code></td>
+<td>8080，http 默认 80、https 默认 443，域名后省略时按默认端口走</td>
+</tr>
+<tr>
+<td>资源路径</td>
+<td>标识具体资源</td>
+<td>与端口之间用 <code>/</code></td>
+<td>&#x2F;news&#x2F;index.html</td>
+</tr>
+<tr>
+<td>查询参数</td>
+<td>传给资源路径的数据</td>
+<td>与路径之间用 <code>?</code>，多个键值对之间用 <code>&amp;</code></td>
+<td>uid&#x3D;123&amp;page&#x3D;1</td>
+</tr>
+</tbody></table>
+<p>测试在这一层能抓的问题：域名或端口写错导致连不上、路径少一层或多一层斜杠、参数名大小写或拼写错、该用 POST 却写成 GET、把 token 拼到路径上而不是放在请求头。</p>
 <hr>
-<h2 id="二、HTTP-速查表"><a href="#二、HTTP-速查表" class="headerlink" title="二、HTTP 速查表"></a>二、HTTP 速查表</h2><p>HTTP 是基于请求与响应模式的应用层协议，特征是：客户端&#x2F;服务器模式、简单快速、灵活、无状态。<strong>无状态</strong>意味着服务器默认不记得你是谁，所以登录态要靠 Cookie &#x2F; Session &#x2F; Token 带回来。</p>
+<h2 id="二、HTTP-速查表"><a href="#二、HTTP-速查表" class="headerlink" title="二、HTTP 速查表"></a>二、HTTP 速查表</h2><p>HTTP 是基于请求与响应模式的应用层协议，特征是：客户端&#x2F;服务器模式、简单快速、灵活、无连接、无状态。<strong>无状态</strong>意味着服务器默认不记得你是谁，所以登录态要靠 Cookie &#x2F; Session &#x2F; Token 带回来。</p>
 <p>HTTP&#x2F;1.1 起默认持久连接（keep-alive），一次连接可承载多个请求；HTTP&#x2F;1.0 默认关闭，HTTP&#x2F;2 在 TCP 连接上做多路复用。</p>
 <h3 id="请求方法（语义）"><a href="#请求方法（语义）" class="headerlink" title="请求方法（语义）"></a>请求方法（语义）</h3><table>
 <thead>
@@ -544,7 +588,7 @@
 <td>删除员工</td>
 </tr>
 </tbody></table>
-<p>不要把「GET 不能有 body」当协议约束（RFC 9110）：GET 带 body 在协议上允许，只是语义未定义，很多服务端与网关会忽略或直接拒绝。RFC 9110 定义的幂等方法是 PUT、DELETE 以及 safe 方法（GET&#x2F;HEAD&#x2F;OPTIONS&#x2F;TRACE），POST 与 PATCH 不幂等。HTTP 方法幂等 ≠ 业务幂等，支付下单要靠业务幂等键。<br>业务幂等键的含义：客户端重试同一个业务（重复点提交、网络超时重发），带上同一个键，服务端凭这个键识别「这是同一笔请求」，直接返回上次的处理结果，不会重复下单、重复扣款。放在哪：作为请求头 <code>Idempotency-Key: &#123;唯一字符串&#125;</code>（也有系统放在请求体里，看接口文档）。服务端怎么识别：收到请求先按键查，命中就返回缓存的上次响应；没命中才执行业务，执行完把「键 → 响应」存下来，供后续重试命中。</p>
+<p>课件口径是 get 和 delete 没有请求体，post 和 put 有请求体；上表的「语义上未定义」是 RFC 层面的补充说法（RFC 9110 里 GET 带 body 在协议上允许，只是语义未定义，很多服务端与网关会忽略或直接拒绝）。RFC 9110 定义的幂等方法是 PUT、DELETE 以及 safe 方法（GET&#x2F;HEAD&#x2F;OPTIONS&#x2F;TRACE），POST 与 PATCH 不幂等。HTTP 方法幂等 ≠ 业务幂等，支付下单要靠业务幂等键。<br>业务幂等键的含义：客户端重试同一个业务（重复点提交、网络超时重发），带上同一个键，服务端凭这个键识别「这是同一笔请求」，直接返回上次的处理结果，不会重复下单、重复扣款。放在哪：作为请求头 <code>Idempotency-Key: &#123;唯一字符串&#125;</code>（也有系统放在请求体里，看接口文档）。服务端怎么识别：收到请求先按键查，命中就返回缓存的上次响应；没命中才执行业务，执行完把「键 → 响应」存下来，供后续重试命中。</p>
 <h3 id="状态码（记住分类即可）"><a href="#状态码（记住分类即可）" class="headerlink" title="状态码（记住分类即可）"></a>状态码（记住分类即可）</h3><table>
 <thead>
 <tr>
@@ -631,8 +675,8 @@
 </tr>
 <tr>
 <td>优先级</td>
-<td>P0 主干 &#x2F; P1 逆向 &#x2F; P2 边界</td>
-<td>P0</td>
+<td>课件用 p0&#x2F;p1&#x2F;p2（本文口径：P0 主干 &#x2F; P1 逆向 &#x2F; P2 边界）</td>
+<td>p0</td>
 </tr>
 <tr>
 <td>预置条件</td>
@@ -718,7 +762,10 @@
 <td>用 <code>abc</code> 代替 <code>mobile</code></td>
 </tr>
 </tbody></table>
-<h3 id="四类必测项"><a href="#四类必测项" class="headerlink" title="四类必测项"></a>四类必测项</h3><table>
+<h3 id="四类必测项"><a href="#四类必测项" class="headerlink" title="四类必测项"></a>四类必测项</h3><blockquote>
+<p>以下分类是本系列综合归纳，课件的测试点按「功能、性能、安全」三个维度组织，没给这张分类表。</p>
+</blockquote>
+<table>
 <thead>
 <tr>
 <th>类别</th>
@@ -848,7 +895,7 @@
 </tr>
 <tr>
 <td>引用</td>
-<td>请求里 <code>&#123;&#123;字段名&#125;&#125;</code>，脚本里 <code>pm.iterationData.get(&quot;字段名&quot;)</code>（旧的 <code>data.字段名</code> 仍能跑但已废弃）</td>
+<td>请求里 <code>&#123;&#123;字段名&#125;&#125;</code>，脚本里课件讲 <code>data.字段名</code>（如 <code>data.username</code>），新版 Postman 可以写 <code>pm.iterationData.get(&quot;字段名&quot;)</code>，两者等价</td>
 <td>同左，pytest 里按 <code>case[&quot;字段名&quot;]</code> 取，如 <code>case[&quot;body&quot;][&quot;mobile&quot;]</code></td>
 </tr>
 </tbody></table>
@@ -857,7 +904,7 @@
 <p><code>data/login_cases.json</code> 长这样：</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span></span><br><span class="line"> <span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;正确账号密码&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;mobile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_account&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_password&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">10000</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"> <span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;密码错误&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;mobile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_account&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wrong&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">20001</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"> <span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;缺少密码&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;mobile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_account&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">20001</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
 <p>多参&#x2F;少参&#x2F;无参&#x2F;错参怎么用 JSON 表达：字段增删就是每条的 <code>body</code> 对象不同——多参在 <code>body</code> 里加一个字段，少参直接删掉一个字段，无参写 <code>&quot;body&quot;: &#123;&#125;</code>，错参把字段名换掉：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;多参&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;mobile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_account&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_password&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;abc&quot;</span><span class="punctuation">:</span> <span class="string">&quot;多出的字段&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">20001</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;少参&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;mobile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_account&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">20001</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;无参&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">20001</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;错参&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;abc&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_account&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_password&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">20001</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;多参&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;mobile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_account&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_password&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;abc&quot;</span><span class="punctuation">:</span> <span class="string">&quot;多出的字段&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">10000</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;少参&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;mobile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_account&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">20001</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;无参&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">99999</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;title&quot;</span><span class="punctuation">:</span> <span class="string">&quot;错参&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;body&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;abc&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_account&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_password&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="attr">&quot;expect_code&quot;</span><span class="punctuation">:</span> <span class="number">20001</span><span class="punctuation">,</span> <span class="attr">&quot;expect_has_data&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
 <p>数据与脚本分离，加用例只改 JSON，不改代码——这就是数据驱动。</p>
 <hr>
@@ -894,7 +941,10 @@
 
 <p>这样加用例只改 <code>data/login_cases.json</code>，测试文件一行不动。</p>
 <hr>
-<h2 id="八、落地验收标准"><a href="#八、落地验收标准" class="headerlink" title="八、落地验收标准"></a>八、落地验收标准</h2><p>一套接口自动化「能交付」的最低标准，六条都要满足：</p>
+<h2 id="八、落地验收标准"><a href="#八、落地验收标准" class="headerlink" title="八、落地验收标准"></a>八、落地验收标准</h2><blockquote>
+<p>以下六条是本系列对「可交付」的归纳，课件只给了数据驱动与 newman 报告两个落点。</p>
+</blockquote>
+<p>一套接口自动化「能交付」的最低标准，六条都要满足：</p>
 <table>
 <thead>
 <tr>
@@ -931,7 +981,7 @@
 <tr>
 <td>6</td>
 <td>有报告</td>
-<td>能出 HTML&#x2F;Allure 报告，或 CI 里能拿到 pass&#x2F;fail 汇总</td>
+<td>课件口径：导出用例集后用 newman 出 HTML 报告（<code>newman run 用例集.json -r html --reporter-html-export 报告.html</code>）；长期维护再接 Allure 或 CI 汇总</td>
 </tr>
 </tbody></table>
 <p>自检清单（交付前过一遍）：</p>
@@ -956,7 +1006,10 @@
 </ol>
 <p>这个顺序的价值是可复现：换了人、隔了几天，照着这五步仍能定位。</p>
 <hr>
-<h2 id="九、接口测试常发现的缺陷类型"><a href="#九、接口测试常发现的缺陷类型" class="headerlink" title="九、接口测试常发现的缺陷类型"></a>九、接口测试常发现的缺陷类型</h2><p>按出现频率排，五条最典型：</p>
+<h2 id="九、接口测试常发现的缺陷类型"><a href="#九、接口测试常发现的缺陷类型" class="headerlink" title="九、接口测试常发现的缺陷类型"></a>九、接口测试常发现的缺陷类型</h2><blockquote>
+<p>以下五类是本系列归纳，课件没有列缺陷类型清单。</p>
+</blockquote>
+<p>按出现频率排，五条最典型：</p>
 <table>
 <thead>
 <tr>

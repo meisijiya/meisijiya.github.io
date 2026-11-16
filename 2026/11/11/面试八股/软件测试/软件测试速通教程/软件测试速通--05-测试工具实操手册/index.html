@@ -444,7 +444,7 @@
 <li><a href="#%E4%B8%80%E3%80%81Linux%EF%BC%9A%E6%9F%A5%E6%97%A5%E5%BF%97%E3%80%81%E7%9C%8B%E8%BF%9B%E7%A8%8B%E3%80%81%E6%9F%A5%E7%A3%81%E7%9B%98%E3%80%81%E4%BC%A0%E6%96%87%E4%BB%B6%E3%80%81%E6%94%B9%E6%9D%83%E9%99%90">一、Linux：查日志、看进程、查磁盘、传文件、改权限</a></li>
 <li><a href="#%E4%BA%8C%E3%80%81MySQL%EF%BC%9A6-%E7%B1%BB%E5%BF%85%E4%BC%9A%E6%9F%A5%E8%AF%A2">二、MySQL：6 类必会查询</a></li>
 <li><a href="#%E4%B8%89%E3%80%81%E6%8A%93%E5%8C%85%EF%BC%9A%E6%B5%8F%E8%A7%88%E5%99%A8-F12-%E4%B8%8E-Charles">三、抓包：浏览器 F12 与 Charles</a></li>
-<li><a href="#%E5%9B%9B%E3%80%81ADB%EF%BC%9A8-%E6%9D%A1%E5%91%BD%E4%BB%A4">四、ADB：8 条命令</a></li>
+<li><a href="#%E5%9B%9B%E3%80%81ADB%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%B8%85%E5%8D%95">四、ADB：常用命令清单</a></li>
 <li><a href="#%E4%BA%94%E3%80%81Postman%EF%BC%9A8-%E6%AD%A5%E8%B7%91%E9%80%9A%E6%8E%A5%E5%8F%A3">五、Postman：8 步跑通接口</a></li>
 <li><a href="#%E5%85%AD%E3%80%81JMeter%EF%BC%9A8-%E6%AD%A5%E5%81%9A%E6%80%A7%E8%83%BD">六、JMeter：8 步做性能</a></li>
 <li><a href="#%E4%B8%83%E3%80%81Selenium-Playwright%EF%BC%9A%E5%AE%9A%E4%BD%8D%E3%80%81%E7%AD%89%E5%BE%85%E4%B8%8E-PO-%E6%A8%A1%E5%BC%8F">七、Selenium &#x2F; Playwright：定位、等待与 PO 模式</a></li>
@@ -561,7 +561,7 @@
 </tr>
 <tr>
 <td>传目录</td>
-<td><code>rsync -avz --delete ./dist/ user@host:/opt/dist/</code></td>
+<td><code>rsync -avz --delete ./dist/ user@host:/opt/dist/</code>（补充，课件未讲）</td>
 <td>目录同步，远端与本地一致</td>
 </tr>
 <tr>
@@ -595,12 +595,12 @@
 </tr>
 <tr>
 <td>改属主</td>
-<td><code>chown appuser:appgroup app.sh</code></td>
+<td><code>chown appuser:appgroup app.sh</code>（补充，课件权限只讲 ls -l 与 chmod）</td>
 <td>属主属组变为指定值</td>
 </tr>
 <tr>
 <td>看当前用户</td>
-<td><code>id</code></td>
+<td><code>id</code>（补充，课件未讲）</td>
 <td>输出当前 uid、gid 与所属组</td>
 </tr>
 </tbody></table>
@@ -644,9 +644,9 @@
 <td><code>UPDATE students SET age = age + 1 WHERE student_no = &#39;S001&#39;;</code> 然后 <code>SELECT age FROM students WHERE student_no=&#39;S001&#39;;</code></td>
 </tr>
 <tr>
-<td>看索引</td>
+<td>看索引（课外补充）</td>
 <td>排查慢查询</td>
-<td><code>EXPLAIN SELECT * FROM students WHERE student_no=&#39;S001&#39;;</code></td>
+<td><code>EXPLAIN SELECT * FROM students WHERE studentNo=&#39;S001&#39;;</code>（课件未讲，属补充工具知识）</td>
 </tr>
 </tbody></table>
 <h3 id="2-2-分页、去重与五个易错点"><a href="#2-2-分页、去重与五个易错点" class="headerlink" title="2.2 分页、去重与五个易错点"></a>2.2 分页、去重与五个易错点</h3><table>
@@ -678,7 +678,7 @@
 </tr>
 </tbody></table>
 <blockquote>
-<p>面试三问：<strong>怎么用 SQL 验证接口返回？</strong>（按业务主键查那一行，比对关键字段和状态）；**<code>group by</code> 后怎么筛？<strong>（用 having，不能用 where）；</strong>怎么看一条 SQL 有没有走索引？**（<code>EXPLAIN</code> 看 type、key、rows，type 到 range 以上、key 非 NULL 才算走到索引）。</p>
+<p>面试三问：<strong>怎么用 SQL 验证接口返回？</strong>（按业务主键查那一行，比对关键字段和状态）；**<code>group by</code> 后怎么筛？<strong>（用 having，不能用 where）；</strong>怎么看一条 SQL 有没有走索引？**（用 <code>EXPLAIN</code> 看 type、key、rows，type 到 range 以上、key 非 NULL 才算走到索引。这一条是补充知识，课件只讲到 where&#x2F;having、聚合分组、连接与子查询。）</p>
 </blockquote>
 <hr>
 <h2 id="三、抓包：浏览器-F12-与-Charles"><a href="#三、抓包：浏览器-F12-与-Charles" class="headerlink" title="三、抓包：浏览器 F12 与 Charles"></a>三、抓包：浏览器 F12 与 Charles</h2><p><strong>定位</strong>：抓包是在客户端与服务端之间设代理，把请求和响应截下来看。测试用它做三件事：定位前后端 bug、模拟弱网、绕过界面直接测接口。</p>
@@ -737,23 +737,18 @@
 </tr>
 <tr>
 <td>装证书</td>
-<td>Help → SSL Proxying → Install Charles Root Certificate，再开 SSL Proxying</td>
-<td>原本灰白的 HTTPS 请求变可读</td>
+<td>Help → 安装根证书（Install Charles Root Certificate）→ 选「安装证书」→ 本地计算机 → 浏览 → 选安装位置 → 提示导入成功后关掉 Charles 重开验证；再在抓包工具里开启 SSL 代理</td>
+<td>HTTPS 请求不再是 unknown，能看到明文</td>
 </tr>
 <tr>
 <td>抓手机</td>
-<td>手机与电脑同一 WiFi，手机 WiFi 代理填电脑地址与端口；HTTPS 需手机装同一证书</td>
+<td>手机与电脑同一 WiFi，手机 WiFi 代理填电脑地址与端口；HTTPS 需手机装同一证书——Android 7.0+ 要 root 权限装，iOS 10.0+ 要在「设置-通用-关于」里开启证书信任，不生效就重启手机</td>
 <td>Charles 出现手机请求</td>
 </tr>
 <tr>
 <td>筛包</td>
-<td>用 Structure 按域名分组，右键域名设 Focus</td>
-<td>列表只剩目标域名流量</td>
-</tr>
-<tr>
-<td>筛域名</td>
-<td>用 Structure 或 Filter 只留目标域名</td>
-<td>列表只剩目标接口</td>
+<td>View → Recording Settings… → Include 里添加要显示的 URL → 在 Recording Settings 点 OK；抓包前先用工具栏的「清除会话」清掉旧包</td>
+<td>列表只剩指定 URL 的数据包</td>
 </tr>
 </tbody></table>
 <h3 id="3-3-改请求与模拟弱网（3-步）"><a href="#3-3-改请求与模拟弱网（3-步）" class="headerlink" title="3.3 改请求与模拟弱网（3 步）"></a>3.3 改请求与模拟弱网（3 步）</h3><table>
@@ -766,8 +761,8 @@
 </thead>
 <tbody><tr>
 <td>改参数重放</td>
-<td>右键请求 → Edit → 改参数或 body → 重新发送</td>
-<td>服务端按新参数返回，用来测后端边界</td>
+<td>Proxy → Breakpoints 勾选 Enable Breakpoints → Add 填 protocol&#x2F;host&#x2F;request&#x2F;response → 在 Breakpoints 改请求数据后点 Execute，再按需改响应后点 Execute</td>
+<td>请求与响应按你改的值返回，用来测后端边界与页面显示异常</td>
 </tr>
 <tr>
 <td>模拟弱网</td>
@@ -829,7 +824,7 @@
 <p>面试三问：<strong>抓包能解决什么问题？</strong>（定位前后端 bug、模拟弱网、绕过界面做接口测试）；<strong>怎么判断是前端还是后端的锅？</strong>（看请求参数对不对，再看响应与库是否一致，页面显示再对一次）；<strong>F12 和 Charles 怎么选？</strong>（F12 零成本查接口，Charles 能改请求、能模拟弱网、能抓手机流量）。</p>
 </blockquote>
 <hr>
-<h2 id="四、ADB：8-条命令"><a href="#四、ADB：8-条命令" class="headerlink" title="四、ADB：8 条命令"></a>四、ADB：8 条命令</h2><p><strong>定位</strong>：ADB 是 Android 调试桥，测试用它装包、启应用、抓日志、看内存、做稳定性压测。</p>
+<h2 id="四、ADB：常用命令清单"><a href="#四、ADB：常用命令清单" class="headerlink" title="四、ADB：常用命令清单"></a>四、ADB：常用命令清单</h2><p><strong>定位</strong>：ADB 是 Android 调试桥，测试用它装包、启应用、抓日志、看内存、做稳定性压测。</p>
 <p><strong>装什么 &#x2F; 在哪用</strong>：装 Android SDK Platform-Tools，把 <code>platform-tools</code> 加进 PATH，命令行 <code>adb</code> 可用。真机需在开发者选项里打开 USB 调试并信任本机；模拟器用 <code>adb connect &lt;设备地址&gt;</code> 连。</p>
 <table>
 <thead>
@@ -843,53 +838,90 @@
 <tbody><tr>
 <td>1</td>
 <td><code>adb devices</code></td>
-<td>查连接的设备</td>
-<td>列出设备号与状态（device 表示正常）</td>
+<td>查接入的设备</td>
+<td>列出设备号与状态（device 表示正常；offline 多半要重启 ADB 服务）</td>
 </tr>
 <tr>
 <td>2</td>
-<td><code>adb connect &lt;设备地址&gt;</code></td>
-<td>连无线设备或模拟器</td>
-<td>输出 connected to</td>
+<td><code>adb kill-server</code> → <code>adb start-server</code></td>
+<td>重启 ADB 服务</td>
+<td>设备状态异常（offline）时先重启手机或模拟器，再重启 ADB 服务</td>
 </tr>
 <tr>
 <td>3</td>
-<td><code>adb install -r app.apk</code> &#x2F; <code>adb uninstall &lt;包名&gt;</code></td>
-<td>装包与卸包</td>
-<td>装包输出 Success；卸包输出 Success</td>
+<td><code>adb connect &lt;IP:端口&gt;</code> &#x2F; <code>adb disconnect &lt;IP:端口&gt;</code></td>
+<td>连无线设备与断开</td>
+<td>输出 connected to；无线连真机要先知道手机在 WiFi 下的 IP</td>
 </tr>
 <tr>
 <td>4</td>
-<td><code>adb shell am start -n &lt;包名&gt;/&lt;启动页&gt;</code></td>
-<td>启动应用</td>
-<td>应用被拉起</td>
+<td><code>adb install &lt;apk 路径&gt;</code> &#x2F; <code>adb uninstall &lt;包名&gt;</code></td>
+<td>装包与卸包</td>
+<td>都输出 Success；装包按路径、卸包按包名</td>
 </tr>
 <tr>
 <td>5</td>
-<td><code>adb shell screencap -p /sdcard/s.png</code></td>
-<td>截屏</td>
-<td>手机相册出现截图</td>
+<td><code>adb shell pm list packages -3</code></td>
+<td>看装过的第三方应用</td>
+<td>列出第三方包名，pm 是 package manager</td>
 </tr>
 <tr>
 <td>6</td>
-<td><code>adb logcat -c</code> → <code>adb logcat &gt; log.txt</code></td>
-<td>清日志并保存</td>
-<td>log.txt 持续写入崩溃信息</td>
+<td><code>adb shell dumpsys window | findstr mCurrentFocus</code>（Windows）&#x2F; <code>| grep mCurrentFocus</code>（Mac、Linux）</td>
+<td>看当前打开的包名与 Activity</td>
+<td>输出当前窗口的包名与页面名，为启动测试取页面名做准备</td>
 </tr>
 <tr>
 <td>7</td>
-<td><code>adb shell monkey -p &lt;包名&gt; -v 3000</code></td>
+<td><code>adb shell am start -n &lt;包名&gt;/&lt;页面名&gt;</code> &#x2F; <code>adb shell am force-stop &lt;包名&gt;</code></td>
+<td>启动与停用应用</td>
+<td>am 是 activity manager；模拟人启动与停用</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>adb shell am start -W -S -R &lt;次数&gt; &lt;包名&gt;/&lt;页面名&gt;</code></td>
+<td>模拟启动并测启动性能</td>
+<td><code>-W</code> 输出耗时、<code>-S</code> 先停再起、<code>-R</code> 重复次数</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>adb logcat -c</code> → <code>adb logcat &gt; log.txt</code></td>
+<td>清日志并保存</td>
+<td>log.txt 持续写入崩溃信息；级别从低到高是 V、D、I、W、E、F、S</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>adb shell screencap -p /sdcard/s.png</code></td>
+<td>截屏（课外补充，课件未讲；课件里定位界面用 uiautomatorviewer）</td>
+<td>手机相册出现截图</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>adb shell dumpsys meminfo &lt;包名&gt;</code></td>
+<td>看应用内存占用</td>
+<td>输出 Total PSS 与 Java Heap 等分项；不带包名看的是设备总内存</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>adb shell monkey -p &lt;包名&gt; -v 3000 &gt; 日志.log</code></td>
 <td>随机操作做稳定性压测</td>
 <td>输出事件注入统计（3000 是事件数，<code>-v</code> 是日志详细度，可叠加 -v -v）</td>
 </tr>
 <tr>
-<td>8</td>
-<td><code>adb shell dumpsys meminfo &lt;包名&gt;</code></td>
-<td>看应用内存占用</td>
-<td>输出 PSS、Java Heap 等分项</td>
+<td>13</td>
+<td><code>adb pull &lt;设备路径&gt; &lt;本地路径&gt;</code> &#x2F; <code>adb push &lt;本地路径&gt; &lt;设备路径&gt;</code></td>
+<td>文件上传下载</td>
+<td>把设备上的文件拉到本地、把本地文件推到设备</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>adb shell dumpsys cpuinfo &lt;包名&gt;</code> &#x2F; 流量与电量相关命令</td>
+<td>看 CPU 占用、流量与电量</td>
+<td>APP 专项里与内存、流量、电量一起取数</td>
 </tr>
 </tbody></table>
-<p><strong>稳定性排查链</strong>：<code>monkey</code> 压测 → <code>grep -E &quot;CRASH|ANR|Exception|timeout&quot; log.txt</code> 找关键词 → 用日志里的堆栈定位到具体代码行。</p>
+<p>分组照课程 day05 的讲法：连接与状态检查、安装卸载、包管理、启动停用、日志、文件传输、内存、CPU、流量、电量，稳定性压测走 monkey。</p>
+<p><strong>稳定性排查链</strong>：<code>monkey</code> 压测 → <code>grep -E &quot;CRASH|ANR|timeout|Exception|out|leak|error&quot; log.txt</code> 找关键词 → 用日志里的堆栈定位到具体代码行。这组关键词是课程 day05 给的判据，日志里出现就发给开发，再确认是不是真 bug。</p>
 <blockquote>
 <p>面试三问：<strong>ADB 是干什么的？</strong>（连接设备、装卸包、拉起应用、抓日志看内存，做黑盒专项测试）；<strong>APP 崩溃怎么定位？</strong>（logcat 抓日志找 CRASH&#x2F;ANR 关键字，看堆栈定位代码行）；<strong>怎么做 APP 稳定性测试？</strong>（monkey 随机操作几千次，同时抓 logcat 看有没有崩溃和 ANR）。</p>
 </blockquote>
@@ -959,9 +991,9 @@
 <h3 id="5-2-Pre-request-Script-生成时间戳与随机值"><a href="#5-2-Pre-request-Script-生成时间戳与随机值" class="headerlink" title="5.2 Pre-request Script 生成时间戳与随机值"></a>5.2 Pre-request Script 生成时间戳与随机值</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pm.<span class="property">environment</span>.<span class="title function_">set</span>(<span class="string">&quot;ts&quot;</span>, <span class="title class_">Date</span>.<span class="title function_">now</span>());                    <span class="comment">// 毫秒时间戳</span></span><br><span class="line">pm.<span class="property">environment</span>.<span class="title function_">set</span>(<span class="string">&quot;rnd&quot;</span>, <span class="title class_">Math</span>.<span class="title function_">random</span>().<span class="title function_">toString</span>(<span class="number">36</span>).<span class="title function_">slice</span>(<span class="number">2</span>, <span class="number">8</span>)); <span class="comment">// 6 位随机串</span></span><br><span class="line"><span class="comment">// 请求体里引用：&#123;&#123;ts&#125;&#125;、&#123;&#123;rnd&#125;&#125;</span></span><br></pre></td></tr></table></figure>
 
 <p>预期结果：每次发送前脚本先跑，<code>ts</code> 与 <code>rnd</code> 被赋新值，请求参数里的 <code>&#123;&#123;ts&#125;&#125;</code> 自动替换成当前时间戳，用于签名、防重放等场景。</p>
-<h3 id="5-3-Newman-安装与报告命令"><a href="#5-3-Newman-安装与报告命令" class="headerlink" title="5.3 Newman 安装与报告命令"></a>5.3 Newman 安装与报告命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">npm install -g newman newman-reporter-htmlextra   <span class="comment"># 装运行器 + 增强 HTML 报告插件</span></span><br><span class="line">newman run collection.json -e env.json --reporters cli,htmlextra \</span><br><span class="line">  --reporter-htmlextra-export ./report/newman.html    <span class="comment"># 跑集合、出 HTML</span></span><br><span class="line">newman run collection.json --folder <span class="string">&quot;登录&quot;</span> -r cli,json --reporter-json-export r.json</span><br></pre></td></tr></table></figure>
+<h3 id="5-3-Newman-安装与报告命令"><a href="#5-3-Newman-安装与报告命令" class="headerlink" title="5.3 Newman 安装与报告命令"></a>5.3 Newman 安装与报告命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm install -g newman newman-reporter-htmlextra   <span class="comment"># 装运行器 + 增强 HTML 报告插件</span></span><br><span class="line">newman run collection.json -e env.json -d data.csv -r html --reporter-html-export ./report/newman.html    <span class="comment"># 跑集合、出 HTML（课件命令形状）</span></span><br><span class="line">newman run collection.json --folder <span class="string">&quot;登录&quot;</span> -r cli,json --reporter-json-export r.json</span><br></pre></td></tr></table></figure>
 
-<p>预期结果：命令结束打印每个请求的通过&#x2F;失败统计，<code>./report/</code> 下出现 HTML 报告文件（双击可看）。Newman 内置 reporter 只有 cli、json、junit、progress，没有 html，要出 HTML 报告得额外装 newman-reporter-html 或 newman-reporter-htmlextra。CI 场景更常用 junit 或 json 格式，或者改用官方主推的 Postman CLI（<code>postman collection run</code>）跑集合。</p>
+<p>预期结果：命令结束打印每个请求的通过&#x2F;失败统计，<code>./report/</code> 下出现 HTML 报告文件（双击可看）。课件口径是直接用 <code>-r html --reporter-html-export 报告名.html</code> 出 HTML，需要额外装 newman-reporter-html（课件原注：加了 -r html 就报错，说明 newman-reporter-html 安装失败）。CI 场景更常用 junit 或 json 格式，或者改用官方主推的 Postman CLI（<code>postman collection run</code>）跑集合。</p>
 <h3 id="5-4-下一请求引用-token"><a href="#5-4-下一请求引用-token" class="headerlink" title="5.4 下一请求引用 token"></a>5.4 下一请求引用 token</h3><p>在后续请求的 Authorization 请求头填 <code>Bearer &#123;&#123;token&#125;&#125;</code>，或用 Pre-request Script 拼进变量：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Pre-request Script：为后续请求准备带 token 的头</span></span><br><span class="line">pm.<span class="property">environment</span>.<span class="title function_">set</span>(<span class="string">&quot;authHeader&quot;</span>, <span class="string">&quot;Bearer &quot;</span> + pm.<span class="property">environment</span>.<span class="title function_">get</span>(<span class="string">&quot;token&quot;</span>));</span><br></pre></td></tr></table></figure>
 
@@ -1061,7 +1093,7 @@
 <hr>
 <h2 id="七、Selenium-Playwright：定位、等待与-PO-模式"><a href="#七、Selenium-Playwright：定位、等待与-PO-模式" class="headerlink" title="七、Selenium &#x2F; Playwright：定位、等待与 PO 模式"></a>七、Selenium &#x2F; Playwright：定位、等待与 PO 模式</h2><p><strong>定位</strong>：Web UI 自动化靠两件事——找得到元素（定位）、等得到元素（等待）；再用 PO 模式把页面元素和操作封装起来，改页面不改用例。</p>
 <p><strong>装什么 &#x2F; 在哪用</strong>：Selenium 需浏览器驱动（ChromeDriver），Selenium 4.6+ 自带 Selenium Manager，会自动发现并下载匹配浏览器版本的驱动；驱动版本需与浏览器大版本一致这条仍然成立，但一般不用手动下载和配 PATH。Playwright 装 <code>pip install playwright</code> 后执行 <code>playwright install</code> 下载浏览器，省去驱动匹配问题。</p>
-<h3 id="7-1-八种定位与优先级"><a href="#7-1-八种定位与优先级" class="headerlink" title="7.1 八种定位与优先级"></a>7.1 八种定位与优先级</h3><p>常见经验排序（非官方结论）：<strong>ID &gt; Name &gt; CSS Selector &gt; XPath &gt; Class Name &gt; Link Text &gt; Partial Link Text &gt; Tag Name</strong>。ID 唯一最快最稳。绝对 XPath 脆且慢，别写 <code>/html/body/div[1]/...</code>；动态 ID 用 <code>starts-with()</code>、<code>contains()</code> 匹配。</p>
+<h3 id="7-1-八种定位与优先级"><a href="#7-1-八种定位与优先级" class="headerlink" title="7.1 八种定位与优先级"></a>7.1 八种定位与优先级</h3><p>课件「Selenium元素定位方法对比表」给出的优先顺序是：<strong>ID &gt; Name &gt; CSS Selector &gt; XPath &gt; Class Name &gt; Link Text &gt; Partial Link Text &gt; Tag Name</strong>。ID 唯一最快最稳。绝对 XPath 脆且慢，别写 <code>/html/body/div[1]/...</code>；动态 ID 用 <code>starts-with()</code>、<code>contains()</code> 匹配。</p>
 <table>
 <thead>
 <tr>
@@ -1208,7 +1240,7 @@
 <td>1</td>
 <td><code>@pytest.fixture</code></td>
 <td>定义前置&#x2F;后置与共享数据</td>
-<td><code>scope</code> 可取 function&#x2F;class&#x2F;module&#x2F;package&#x2F;session，最常用前四个；<code>autouse=True</code> 自动生效；<code>yield</code> 之前是前置、之后是后置</td>
+<td><code>scope</code> 可取 session&#x2F;module&#x2F;class&#x2F;function（课件就这四种）；<code>autouse=True</code> 自动生效；<code>yield</code> 之前是前置、之后是后置</td>
 </tr>
 <tr>
 <td>2</td>
@@ -1231,7 +1263,7 @@
 <tr>
 <td>5</td>
 <td><code>@pytest.mark.xfail</code></td>
-<td>已知问题，预期失败</td>
+<td>已知问题，预期失败（补充，课件未讲）</td>
 <td>默认失败记 XFAIL 不影响套件结果；意外通过记 XPASS；开 strict 后 XPASS 算失败</td>
 </tr>
 <tr>
@@ -1278,9 +1310,9 @@
 </tr>
 <tr>
 <td>3</td>
-<td><code>git branch</code> &#x2F; <code>git switch -c feature/login</code></td>
-<td>看分支 &#x2F; 建分支</td>
-<td>分支列表出现新分支</td>
+<td><code>git branch -a</code> &#x2F; <code>git switch -c feature/login</code></td>
+<td>看分支（本地与远程）&#x2F; 建分支</td>
+<td>分支列表出现新分支（建分支命令为补充，课件只讲 git branch -a）</td>
 </tr>
 <tr>
 <td>4</td>
@@ -1291,7 +1323,7 @@
 <tr>
 <td>5</td>
 <td><code>git revert &lt;commit&gt;</code></td>
-<td>回滚一个已提交改动</td>
+<td>回滚一个已提交改动（补充，课件未讲 revert）</td>
 <td>生成一条新的撤销提交，历史不丢</td>
 </tr>
 </tbody></table>
@@ -1377,8 +1409,8 @@
 </tr>
 <tr>
 <td>3</td>
-<td><code>allure generate ./report -o ./new_report --clean</code> 后 <code>allure open ./new_report</code></td>
-<td>浏览器打开 HTML 报告</td>
+<td><code>allure generate ./report -o ./new_report --clean</code> 后 <code>allure serve report</code></td>
+<td>浏览器打开 HTML 报告（课件口径：在线报告用 <code>allure serve report</code>，离线报告用 <code>cmd_allure.py</code> 跑 <code>allure generate</code>）</td>
 </tr>
 </tbody></table>
 <h3 id="10-2-Jenkins-三步"><a href="#10-2-Jenkins-三步" class="headerlink" title="10.2 Jenkins 三步"></a>10.2 Jenkins 三步</h3><table>
@@ -1391,7 +1423,7 @@
 </thead>
 <tbody><tr>
 <td>1</td>
-<td>Global Tool Configuration 里配 Allure 路径</td>
+<td>Global Tool Configuration → Allure Commandline → 新增 Allure Commandline，填别名与本机 allure 安装根目录（课件示例 D:\tools\allure-2.32.2），保存</td>
 <td>任务里可选该工具</td>
 </tr>
 <tr>
@@ -1437,9 +1469,9 @@
 <hr>
 <h2 id="🗣️-面试怎么说"><a href="#🗣️-面试怎么说" class="headerlink" title="🗣️ 面试怎么说"></a>🗣️ 面试怎么说</h2><ol>
 <li>「Linux 我按五组用：查日志 <code>tail -f</code> 加 <code>grep -n -C 3</code> 定位报错、看进程端口 <code>ps -ef</code> 和 <code>ss -lntp</code>、看磁盘内存 <code>df -h</code> 和 <code>free -m</code>、传文件用 <code>scp</code> 和 <code>rsync</code>、权限用 <code>ls -al</code> 和 <code>chmod</code>。」</li>
-<li>「MySQL 我用六类查询：单表条件、聚合分组、关联、子查询、更新后校验、<code>EXPLAIN</code> 看索引；<code>where</code> 筛行、<code>having</code> 筛分组，<code>update</code> 一定先 <code>select</code> 确认命中行数。」</li>
+<li>「MySQL 我用六类查询：单表条件、聚合分组、关联、子查询、更新后校验，慢查询我会用 <code>EXPLAIN</code> 看执行计划；<code>where</code> 筛行、<code>having</code> 筛分组，<code>update</code> 一定先 <code>select</code> 确认命中行数。」</li>
 <li>「抓包优先用浏览器 F12 看请求响应，要改请求或模拟弱网才用 Charles；定位前后端 bug 就三步：请求有没有问题、响应和库是否一致、页面显示对不对。」</li>
-<li>「ADB 我常用八条：<code>devices</code> 看连接、<code>connect</code> 连无线设备、<code>install</code> 装包、<code>am start</code> 启动、<code>screencap</code> 截图、<code>logcat</code> 抓日志、<code>monkey</code> 压测、<code>dumpsys meminfo</code> 看内存。」</li>
+<li>「ADB 我常用这几条：<code>devices</code> 看连接、<code>connect</code> 连无线设备、<code>install</code> 装包、<code>am start</code> 启动、<code>screencap</code> 截图、<code>logcat</code> 抓日志、<code>monkey</code> 压测、<code>dumpsys meminfo</code> 看内存；设备状态异常先 <code>kill-server</code> 再 <code>start-server</code>。」</li>
 <li>「Postman 我按八步走：建环境变量、写请求、Tests 写断言、前置脚本造数据、关联提取 token、参数化批量、Runner 跑、出报告。」</li>
 <li>「UI 自动化我用 Selenium 的八种定位，优先 ID 再 CSS，XPath 只在必要时用；等待一律用显式等待；页面按 PO 模式封装，用例只调方法。」</li>
 <li>「pytest 我重点掌握 fixture、parametrize、skip、skipif、xfail 和自定义 mark 六个装饰器，共享数据放 conftest.py。」</li>
@@ -1454,8 +1486,8 @@
 </ol>
 <hr>
 <h2 id="📚-来源"><a href="#📚-来源" class="headerlink" title="📚 来源"></a>📚 来源</h2><ul>
-<li>素材：黑马 2026 AI+软件测试课件·功能测试线（day01–day05 课堂笔记与 xmind）：测试辅助技能（Linux 基础与文件命令、MySQL 查询与项目实战、抓包原理与场景与弱网、埋点）、命令与 SQL；APP 测试（性能与稳定性、monkey 与 logcat 关键词）。</li>
-<li>素材：黑马 2026 AI+软件测试课件·Python 与 Web 自动化线（day06–day10 课堂笔记、Selenium 定位对比表 PDF）：pytest（装饰器用法、fixture 作用域、conftest）、Web 自动化 Selenium（八种定位、显式等待、PO 三步、框架分层）、App 自动化（ADB 命令）、Git 与持续集成（Jenkins 与 Allure 路径）、抓包与调试（F12&#x2F;Charles、弱网、绕过界面）。</li>
+<li>素材：黑马 2026 AI+软件测试课件·第一篇（day01–day05 课堂笔记与 xmind；func-day06 抓包与 Linux、func-day07 Linux 与环境部署、func-day08&#x2F;day09 MySQL、func-day10 埋点与扩展）：测试辅助技能（Linux 基础与文件命令、MySQL 查询与项目实战、抓包原理与场景与弱网、埋点）、命令与 SQL；APP 测试（性能与稳定性、monkey 与 logcat 关键词）。</li>
+<li>素材：黑马 2026 AI+软件测试课件·第二篇（python_day05 pytest 框架、day06–day10 Web 自动化课堂笔记与「Selenium元素定位方法对比表」「第2章-web自动化框架应用」PDF、day11 Git 及持续集成课堂笔记与总结）：pytest（装饰器用法、fixture 作用域、conftest）、Web 自动化 Selenium（八种定位、显式等待、PO 三步、框架分层）、App 自动化（ADB 命令、uiautomatorviewer）、Git 与持续集成（Jenkins 与 Allure 路径）、抓包与调试（F12&#x2F;Charles、弱网、绕过界面）。</li>
 <li>素材：黑马 2026 AI+软件测试课件·接口测试线（第 1–4 天课堂笔记）与性能测试线（四天课堂笔记 PDF）：Postman 实操（集合、断言、关联、参数化、Newman 报告）；JMeter 元件与线程组参数、断言与正则提取器、定时器与监听器与聚合报告。</li>
 <li>已有文章：博客《自动化测试–元素定位》八种定位问答体、《自动化测试–WebDriver 操作与等待》操作与三种等待问答体；本篇按可照做步骤改写。</li>
 <li>相关篇目：本文 04「一、案例库使用说明（四段式与测试点树）」、06「一、接口是什么：一次请求的完整链路」、07「一、性能指标口径表」。</li>
