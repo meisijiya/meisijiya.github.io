@@ -1336,10 +1336,77 @@
         wrap.appendChild(prompt.section);
 
         wrap.appendChild(buildMemoryBlock());
+        wrap.appendChild(buildAudioBlock());
+        wrap.appendChild(buildRemindBlock());
         // 「她是谁」放最后：只读信息，不该占最上面的视线
         wrap.appendChild(buildIdentity());
 
         return wrap;
+    }
+
+    /* 到点音效开关：状态在 AI.audio 里，这里只做读出与写入口 */
+    function buildAudioBlock() {
+        var card = sectionCard('到点音效');
+        card.section.classList.add('ai-section-audio');
+        card.card.appendChild(el('p', 'ai-prompt-note', '到点响一声。静音后只留面板提示与标题标记，其余提醒照常。'));
+        var toggle = el('button', 'ai-audio-toggle');
+        toggle.type = 'button';
+        toggle.dataset.act = 'audio-toggle';
+        toggle.setAttribute('role', 'switch');
+        card.card.appendChild(toggle);
+        if (AI.audio && AI.audio.subscribe) {
+            // 订阅一次拿全：按钮文案与 aria 状态跟着同一份真相走
+            AI.audio.subscribe(function (muted) {
+                toggle.setAttribute('aria-checked', muted ? 'false' : 'true');
+                toggle.textContent = muted ? '已静音' : '到点响一声';
+            });
+        }
+        return card.section;
+    }
+
+    /*
+     * 到点提醒强度（#74）：三档分段控件，状态在 AI.remind 里，这里只做读出与写入口。
+     * 默认温和；选择存本机独立键，跨标签页由 AI.remind 的 storage 订阅对齐。
+     */
+    function buildRemindBlock() {
+        var card = sectionCard('到点提醒');
+        card.section.classList.add('ai-section-remind');
+        card.card.appendChild(el('p', 'ai-prompt-note', '到点怎么提醒你：温和出音效与提示，强制再盖一层全屏遮罩，关档只留提示。'));
+        var label = el('span', 'ai-label', '提醒强度');
+        label.id = 'ai-remind-label';
+        card.card.appendChild(label);
+        var segs = el('div', 'ai-segmented');
+        segs.setAttribute('role', 'radiogroup');
+        segs.setAttribute('aria-labelledby', 'ai-remind-label');
+        [['gentle', '温和'], ['force', '强制'], ['off', '关']].forEach(function (item) {
+            var seg = el('button', 'ai-seg', item[1]);
+            seg.type = 'button';
+            seg.setAttribute('role', 'radio');
+            seg.dataset.remind = item[0];
+            seg.setAttribute('aria-checked', 'false');
+            segs.appendChild(seg);
+        });
+        card.card.appendChild(segs);
+        // 面板在 61-remind 之前挂载：先按默认温和画选中态，
+        // 61-remind 载入后再调 paintRemindIntensity 对齐真实强度（它自己订阅存储变化）。
+        paintRemindIntensity();
+        return card.section;
+    }
+
+    /*
+     * 提醒强度选中态对齐：读 AI.remind 的当前档，只画不改。
+     * 状态真相在 61-remind，订阅也由它做（它比面板晚载入），这里只负责画。
+     */
+    function paintRemindIntensity() {
+        var kind = (AI.remind && typeof AI.remind.intensity === 'function')
+            ? AI.remind.intensity()
+            : 'gentle';
+        var section = document.querySelector('.ai-section-remind');
+        if (!section) return;
+        var nodes = section.querySelectorAll('.ai-seg');
+        for (var i = 0; i < nodes.length; i++) {
+            nodes[i].setAttribute('aria-checked', nodes[i].dataset.remind === kind ? 'true' : 'false');
+        }
     }
 
     function buildComposer() {
@@ -1444,6 +1511,12 @@
         view.setAttribute('aria-label', '计时');
         view.hidden = true;
 
+        /*
+         * 计时区：头部（任务名/数字）与暂停标签一起放在这一块里。
+         * 暂停时这一块要给出专属视觉（次级色数字 + 「已暂停」标签 + 边框强调），
+         * 所以包一层：头部内部只能有任务名与数字两个子节点，标签放不进头部。
+         */
+        var zone = el('div', 'ai-timer-zone');
         var head = el('div', 'ai-timer-head');
         var task = el('p', 'ai-timer-task', '未选择任务');
         refs.timerTask = task;
@@ -1452,12 +1525,69 @@
         var value = el('p', 'ai-timer-value', '00:00');
         refs.timerValue = value;
         head.appendChild(value);
-        view.appendChild(head);
+        zone.appendChild(head);
 
-        var done = el('p', 'ai-timer-done', '时间到了。');
+        var pausedTag = el('span', 'ai-timer-paused-tag', '已暂停');
+        pausedTag.hidden = true;
+        zone.appendChild(pausedTag);
+        refs.timerZone = zone;
+        refs.timerPausedTag = pausedTag;
+        view.appendChild(zone);
+
+        /*
+         * 到点提示：不再藏成一行小字，文案与「再来一轮」并排放在计时数字正下方。
+         */
+        var done = el('div', 'ai-timer-done');
         done.hidden = true;
+        var doneMsg = el('p', 'ai-timer-done-msg', '时间到了。');
+        var restart = el('button', 'ai-btn ai-timer-restart', '再来一轮');
+        restart.type = 'button';
+        restart.dataset.act = 'timer-restart';
+        done.appendChild(doneMsg);
+        done.appendChild(restart);
         refs.timerDone = done;
+        refs.timerDoneMsg = doneMsg;
+        refs.timerRestart = restart;
         view.appendChild(done);
+
+        /*
+         * 目标时长：一行预设按钮 + 一个自定义分钟数输入。
+         * 位置在头部数字与控件之间：它回答「这一轮打算读多久」，是开始之前要定的，
+         * 控件那行（开始/暂停/重置）管的是这一轮的进行，两行不该混在一起。
+         */
+        var target = el('div', 'ai-timer-target');
+        var label = el('p', 'ai-timer-target-label', '目标时长');
+        var presets = el('div', 'ai-timer-presets');
+        refs.timerTargetPresets = [];
+        [10, 25, 45].forEach(function (minutes) {
+            var btn = el('button', 'ai-btn ai-timer-preset', minutes + ' 分钟');
+            btn.type = 'button';
+            btn.dataset.act = 'timer-target';
+            btn.dataset.minutes = String(minutes);
+            btn.setAttribute('aria-checked', 'false');
+            presets.appendChild(btn);
+            refs.timerTargetPresets.push(btn);
+        });
+        var custom = el('div', 'ai-timer-custom');
+        var input = el('input', 'ai-timer-target-input');
+        input.type = 'text';
+        input.inputMode = 'numeric';
+        input.placeholder = '自定义分钟';
+        input.setAttribute('aria-label', '自定义目标分钟数');
+        var customBtn = el('button', 'ai-btn', '开始');
+        customBtn.type = 'button';
+        customBtn.dataset.act = 'timer-target-custom';
+        custom.appendChild(input);
+        custom.appendChild(customBtn);
+        target.appendChild(label);
+        target.appendChild(presets);
+        target.appendChild(custom);
+        view.appendChild(target);
+        refs.timerTarget = target;
+        refs.timerTargetInput = input;
+        refs.timerTargetCustom = customBtn;
+        paintTargetRow();
+
 
         var controls = el('div', 'ai-timer-controls');
         var start = el('button', 'ai-btn ai-btn-primary', '开始');
@@ -1469,12 +1599,21 @@
         var reset = el('button', 'ai-btn', '重置');
         reset.type = 'button';
         reset.dataset.act = 'timer-reset';
+        /*
+         * 结束本轮：与「暂停」分开的一个动作。暂停是歇一会儿（可恢复），
+         * 结束本轮是这一轮到此为止（条目转已完成）。
+         */
+        var endRound = el('button', 'ai-btn ai-timer-end', '结束本轮');
+        endRound.type = 'button';
+        endRound.dataset.act = 'timer-end-round';
         controls.appendChild(start);
         controls.appendChild(pause);
         controls.appendChild(reset);
+        controls.appendChild(endRound);
         refs.timerStart = start;
         refs.timerPause = pause;
         refs.timerReset = reset;
+        refs.timerEndRound = endRound;
         view.appendChild(controls);
 
         var list = el('div', 'ai-timer-tasks');
@@ -1703,7 +1842,24 @@
         }
         renderTasks(AI.tasks.list());
     }
-
+    /*
+     * 目标时长那一行只画高亮与回填，不碰计时状态：
+     * 状态由 60-main.js 的 applyTarget 写，这里只对齐按钮选中态与输入框里的数。
+     */
+    function paintTargetRow(prefs) {
+        if (!refs.timerTargetPresets) return;
+        var data = prefs || (AI.main && AI.main.readTargetPrefs ? AI.main.readTargetPrefs() : { preset: 10, custom: '' });
+        for (var i = 0; i < refs.timerTargetPresets.length; i++) {
+            var minutes = Number(refs.timerTargetPresets[i].dataset.minutes);
+            var on = minutes === Number(data.preset);
+            refs.timerTargetPresets[i].setAttribute('aria-checked', on ? 'true' : 'false');
+        }
+        // 正在输入时不回填：回填会把访客没打完的数顶掉
+        if (refs.timerTargetInput && document.activeElement !== refs.timerTargetInput && data.custom !== '') {
+            refs.timerTargetInput.value = data.custom;
+        }
+    }
+ 
     /*
      * 计时显示只刷新数字，不改状态：真相在 55-timer.js 的时间戳对里。
      * 计时视图开着才跑刷新定时器，离开就停，别让后台空转。
@@ -1720,11 +1876,25 @@
         refs.timerStart.disabled = !!data.running;
         refs.timerStart.textContent = data.running ? '计时中' : '开始';
         refs.timerPause.disabled = !data.running;
-        refs.timerDone.hidden = !data.done;
+        /*
+         * 暂停视觉：暂停态要给三样东西——次级色数字、「已暂停」标签、计时区边框强调。
+         * 恢复后全部回到计时中口径（类名摘掉、标签藏起来）。
+         */
+        var paused = !!data.paused;
+        if (refs.timerZone) refs.timerZone.classList.toggle('is-paused', paused);
+        if (refs.timerPausedTag) refs.timerPausedTag.hidden = !paused;
+        if (refs.timerEndRound) {
+            // 没有当前条目时「结束本轮」无事可做：条目流转要有个对象
+            refs.timerEndRound.disabled = !snap.taskId;
+        }
+        // 没有目标时长就没有「再来一轮」的对象：倒计时到点后才给按钮
+        // 到点提示与「再来一轮」只在真正到点（已停表）后出现：归零但还没停表不算
+        refs.timerDone.hidden = !data.finished;
+        refs.timerRestart.hidden = !data.finished;
+        refs.timerRestart.disabled = !data.finished || snap.targetMs === null;
     }
 
     var timerUnsubscribe = null;
-
     function syncTimerTicking(on) {
         if (!AI.timer) return;
         if (on) {
@@ -2020,7 +2190,10 @@
             }
         }
         // 切到计时视图时对一次清单：别的标签页改过也能看到
-        if (view === 'timer') syncTasks();
+        if (view === 'timer') {
+            syncTasks();
+            paintTargetRow();
+        }
         // 计时刷新只在计时视图开着时跑，别让后台空转
         syncTimerTicking(view === 'timer');
         // 设置视图的面板更高，切换后重新落位，把它夹回视口内
@@ -3479,6 +3652,8 @@
         setOpen: setOpen,
         isOpen: isOpen,
         setState: setState,
+        // 目标时长行自证：预设高亮与自定义回填都要能从外面驱动
+        paintTargetRow: paintTargetRow,
         syncViewport: syncViewport,
         visibleHeight: visibleHeight,
         isNarrow: isNarrow,
@@ -3535,6 +3710,7 @@
         showBubble: showBubble,
         hideBubble: hideBubble,
         openPresetList: openPresetList,
+        paintRemindIntensity: paintRemindIntensity,
         closePresetList: closePresetList,
         positionPresetList: positionPresetList,
         renderMarkdown: renderMarkdown,

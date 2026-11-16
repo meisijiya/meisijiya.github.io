@@ -1,0 +1,131 @@
+/*
+ * 到点强制遮罩样式（29-remind.css）。
+ *
+ * 作用域：.ai-overlay。它挂在 document.body 下，不在 .ai-root 里——
+ * .ai-root 自己就是 z-index 10000 的层叠上下文，主题的站内搜索浮层
+ * （.scrim 11000 / .panel 11001）会整块盖住它，遮罩压不住主题浮层。
+ * 挂到 body 下才能真的盖过一切，代价是拿不到 .ai-root 的令牌，
+ * 所以这里按助手同一套尺度复刻一遍。
+ *
+ * 层级：12000，高于主题浮层（11001）与助手面板/胶囊（10000~10003）。
+ *
+ * 字号：不新增字号档。DOM 侧只用 17/16/14 三档（与助手既有五档同值）；
+ * 大字在 SVG 里烤死（29-remind.css 不给 SVG 里的文字定样式），
+ * 不落到 DOM 的 font-size 上。
+ */
+
+.ai-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 24px;
+    background: rgba(251, 251, 251, 0.97);
+    color: #161209;
+    font-family: "PingFang SC", "HarmonyOS Sans", "Microsoft YaHei", -apple-system,
+        BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+}
+
+body.dark-theme .ai-overlay {
+    background: rgba(41, 42, 45, 0.97);
+    color: #a9a9b3;
+}
+
+/* SVG 封面：只负责承载大字，尺寸随视口收 */
+.ai-overlay-cover {
+    display: block;
+    width: min(640px, 88vw);
+    height: auto;
+    color: currentColor;
+}
+
+/* 无障碍名（对话框的可访问名），视觉上不重复大字 */
+.ai-overlay-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* 到点正文：可见文本，同时也是 aria-live 区域 */
+.ai-overlay-msg {
+    margin: 0;
+    max-width: 32em;
+    text-align: center;
+    font-size: 16px;
+}
+
+/*
+ * 无障碍名：对话框的可访问名（aria-labelledby 指向它）。
+ * 视觉上藏起来——大字已经在 SVG 封面里，再显示一遍是重复。
+ */
+.ai-overlay-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* 唯一出口 */
+.ai-overlay-exit {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    border: 1px solid #c9d3da;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1d262c;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+body.dark-theme .ai-overlay-exit {
+    border-color: #4c5158;
+    background: #33353a;
+    color: #e7e9ea;
+}
+
+.ai-overlay-exit:hover {
+    background: #f2f5f7;
+}
+
+body.dark-theme .ai-overlay-exit:hover {
+    background: #2e3034;
+}
+
+.ai-overlay-exit:focus-visible {
+    outline: 2px solid #2f6b27;
+    outline-offset: 2px;
+}
+
+/* 到点面板提示（#74）：挂在面板根上，任何视图都看得见；面板关着时由标题标记兜底 */
+.ai-remind-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--ai-success);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-success-soft);
+    color: var(--ai-ink);
+    font-family: var(--ai-font);
+    font-size: var(--ai-fs-body);
+    font-weight: 600;
+    line-height: 1.4;
+}

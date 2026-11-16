@@ -383,6 +383,67 @@
         return item;
     }
 
+    /*
+     * 再来一轮：条目从「已完成」退回「计时中」。
+     * 与 beginTiming 分开：beginTiming 不碰已完成的条目（那是「开始一个新计时」的语义），
+     * 到点后的重开需要把已完成的条目拉回进行中。
+     */
+    function resumeTiming(id) {
+        var item = get(id);
+        if (!item) return null;
+        if (item.status !== 'done') return beginTiming(id);
+        if (runningId && runningId !== id) endTiming(runningId);
+        runningId = id;
+        runningSince[id] = now();
+        return setStatus(id, 'running');
+    }
+
+    /*
+     * 到点：一次落盘把「已跑时长折进条目 + 状态转已完成」做完。
+     * 可重入：条目已是「已完成」就什么都不写——两个标签页同时到点时只流转一次。
+     */
+    function finishTiming(id, roundMs) {
+        var item = get(id);
+        if (!item) return null;
+        /*
+         * 别的标签页可能已经流转过了：按落盘的那份为准，别重复写。
+         * 这是跨标签幂等的落点——两个标签页同时到点时只有一个真正写入。
+         */
+        var stored = readStorage();
+        for (var s = 0; s < stored.length; s++) {
+            if (stored[s].id !== id) continue;
+            if (stored[s].status === 'done') {
+                item.status = 'done';
+                item.accumulatedMs = stored[s].accumulatedMs;
+                delete runningSince[id];
+                if (runningId === id) runningId = null;
+                return item;
+            }
+        }
+        if (item.status === 'done') {
+            /* 已经流转过了：只收掉计时起点，不重复写 */
+            delete runningSince[id];
+            if (runningId === id) runningId = null;
+            return item;
+        }
+        /*
+         * 折进条目只做增量，不覆盖：同一条目会跑很多轮，覆盖会把之前几轮的时长抹掉。
+         * 有计时起点就按起点折算（与 endTiming 同一条规则）；起点丢了（换标签页、
+         * 刷新）才退回计时器手里的这一轮时长。
+         */
+        var since = runningSince[id];
+        if (since) {
+            var delta = now() - since;
+            if (delta > 0) item.accumulatedMs = (item.accumulatedMs || 0) + delta;
+        } else if (typeof roundMs === 'number' && isFinite(roundMs) && roundMs > 0) {
+            item.accumulatedMs = (item.accumulatedMs || 0) + Math.floor(roundMs);
+        }
+        delete runningSince[id];
+        if (runningId === id) runningId = null;
+        /* 状态流转走 setStatus：迁移合法性由它把关，落盘也只一次 */
+        return setStatus(id, 'done');
+    }
+
     function endTiming(id) {
         var item = get(id);
         if (!item) return null;
@@ -495,6 +556,8 @@
         setStatus: setStatus,
         complete: complete,
         beginTiming: beginTiming,
+        resumeTiming: resumeTiming,
+        finishTiming: finishTiming,
         endTiming: endTiming,
         elapsedOf: elapsedOf,
         remove: remove,
