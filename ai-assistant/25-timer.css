@@ -12,7 +12,8 @@
 
 @media (max-width: 767px) {
     .ai-root {
-        --ai-panel-h-timer: calc(var(--ai-vh) * 0.74);
+        /* 计时视图比对话抽屉高一档：清单是这一屏的主角，少两条就白开 */
+        --ai-panel-h-timer: calc(var(--ai-vh) * 0.8);
     }
 }
 
@@ -71,6 +72,21 @@
     background: var(--ai-field);
 }
 
+/*
+ * 结束态：到点（is-arrived）与手动「结束本轮」（is-ended）都转结束色。
+ * 数字、边框、底色一起变——之前只有胶囊变红，面板里什么也没有。
+ */
+.ai-timer-zone.is-arrived,
+.ai-timer-zone.is-ended {
+    border-color: var(--ai-danger);
+    background: var(--ai-danger-soft);
+}
+
+.ai-timer-zone.is-arrived .ai-timer-value,
+.ai-timer-zone.is-ended .ai-timer-value {
+    color: var(--ai-danger);
+}
+
 /* 暂停时数字转次级色：一眼看出这一轮停着 */
 .ai-timer-zone.is-paused .ai-timer-value {
     color: var(--ai-ink-2);
@@ -117,7 +133,7 @@
     font-feature-settings: "tnum" 1;
 }
 
-/* 到点提示：计时数字下方一块显眼的卡片，不再是一行藏在阴影里的小字 */
+/* 到点/结束提示：计时数字下方一块显眼的卡片，不再是一行藏在阴影里的小字 */
 .ai-timer-done {
     display: flex;
     flex-wrap: wrap;
@@ -126,9 +142,9 @@
     gap: 8px;
     margin: 0;
     padding: 10px 12px;
-    border: 1px solid var(--ai-success);
+    border: 1px solid var(--ai-danger);
     border-radius: var(--ai-r-control);
-    background: var(--ai-success-soft);
+    background: var(--ai-danger-soft);
     color: var(--ai-ink);
 }
 
@@ -145,24 +161,70 @@
 .ai-timer-restart {
     flex: 0 0 auto;
 }
-/* 目标时长：一行说清「这一轮打算读多久」，排在数字与开始/暂停/重置之间 */
-.ai-timer-target {
+/*
+ * 目标时长：默认收成一条触发条，展开才是抽屉。
+ * 手机端摊开这一块要占三行（预设 + 自定义 + 开始），清单只剩一两条；
+ * 收起来只留一行高度，抽屉浮在面板上方，不占布局。
+ */
+.ai-timer-target-toggle {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    padding: 8px 10px;
+    width: 100%;
+    min-height: 34px;
+    padding: 6px 10px;
     border: 1px solid var(--ai-border);
     border-radius: var(--ai-r-control);
     background: var(--ai-field);
-}
-
-.ai-timer-target-label {
-    margin: 0;
-    flex: 0 0 auto;
+    font-family: inherit;
     font-size: var(--ai-fs-label);
     line-height: 1.4;
     color: var(--ai-ink-2);
+    cursor: pointer;
+}
+
+.ai-timer-target-toggle:hover {
+    border-color: var(--ai-border-strong);
+}
+
+.ai-timer-target-toggle .ai-chevron {
+    flex: 0 0 auto;
+    margin-left: auto;
+    transition: transform var(--ai-t-quick) linear;
+}
+
+.ai-timer-target-toggle[aria-expanded="true"] .ai-chevron {
+    transform: rotate(180deg);
+}
+
+/* 目标时长当前值：比标签重一档，一眼看到这一轮读多久 */
+.ai-timer-target-value {
+    flex: 0 0 auto;
+    color: var(--ai-ink);
+    font-weight: 500;
+}
+
+.ai-timer-target-label {
+    flex: 0 0 auto;
+}
+
+/*
+ * 抽屉：浮层。挂 .ai-root（面板有 transform + overflow:hidden，
+ * 面板内的浮层会被裁掉），z-index 要高于面板。
+ */
+.ai-timer-target-drawer {
+    position: fixed;
+    z-index: 10003;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--ai-border-strong);
+    border-radius: var(--ai-r-control);
+    background: var(--ai-surface);
+    box-shadow: var(--ai-shadow-pop);
+    /* .ai-root 是 pointer-events: none，浮层必须自己接回来，否则看得见点不动 */
+    pointer-events: auto;
 }
 
 /* 预设按钮挤在一行，选中态沿用 .ai-segmented 的口径 */
@@ -235,4 +297,17 @@
     min-height: 0;
     overflow-y: auto;
     padding-right: 2px;
+}
+
+/*
+ * 窄屏把清单挤小了：内边距与行距各收一档，
+ * 省下的高度全给清单区（条目才是这一屏的主角）。
+ * 这段必须放在文件末尾：同特异性的规则后来者胜，
+ * 放前面会被上面 .ai-view-timer 的基础值盖掉。
+ */
+@media (max-width: 767px) {
+    .ai-view-timer {
+        padding: 12px;
+        gap: 8px;
+    }
 }

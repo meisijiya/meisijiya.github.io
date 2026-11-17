@@ -1551,12 +1551,26 @@
         view.appendChild(done);
 
         /*
-         * 目标时长：一行预设按钮 + 一个自定义分钟数输入。
-         * 位置在头部数字与控件之间：它回答「这一轮打算读多久」，是开始之前要定的，
-         * 控件那行（开始/暂停/重置）管的是这一轮的进行，两行不该混在一起。
+         * 目标时长：默认收成一条触发条，展开才是抽屉。
+         * 手机端这一块原来摊开占三行（预设 + 自定义 + 开始），清单被挤到只剩一两条；
+         * 收起来只留一行高度，抽屉浮在面板上方，不占布局高度。
          */
-        var target = el('div', 'ai-timer-target');
-        var label = el('p', 'ai-timer-target-label', '目标时长');
+        var targetToggle = el('button', 'ai-timer-target-toggle');
+        targetToggle.type = 'button';
+        targetToggle.dataset.act = 'timer-target-toggle';
+        targetToggle.setAttribute('aria-expanded', 'false');
+        targetToggle.setAttribute('aria-controls', 'ai-timer-target-drawer');
+        var targetLabel = el('span', 'ai-timer-target-label', '目标时长');
+        var targetValue = el('span', 'ai-timer-target-value', '未设置');
+        targetToggle.appendChild(targetLabel);
+        targetToggle.appendChild(targetValue);
+        targetToggle.appendChild(icon(ICONS.chevronUp, 'ai-chevron'));
+        refs.timerTargetToggle = targetToggle;
+        refs.timerTargetValue = targetValue;
+
+        var target = el('div', 'ai-timer-target ai-timer-target-drawer');
+        target.id = 'ai-timer-target-drawer';
+        target.hidden = true;
         var presets = el('div', 'ai-timer-presets');
         refs.timerTargetPresets = [];
         [10, 25, 45].forEach(function (minutes) {
@@ -1579,11 +1593,16 @@
         customBtn.dataset.act = 'timer-target-custom';
         custom.appendChild(input);
         custom.appendChild(customBtn);
-        target.appendChild(label);
         target.appendChild(presets);
         target.appendChild(custom);
-        view.appendChild(target);
+        /*
+         * 抽屉挂 .ai-root：面板有 transform + overflow:hidden，
+         * 面板内的浮层会被按面板裁掉（展开后看不见，像没反应）。
+         * 浮层一律挂 .ai-root 是仓库既有约定。
+         */
+        (refs.root || view).appendChild(target);
         refs.timerTarget = target;
+        refs.timerTargetDrawer = target;
         refs.timerTargetInput = input;
         refs.timerTargetCustom = customBtn;
         paintTargetRow();
@@ -1621,6 +1640,12 @@
         list.setAttribute('aria-label', '任务列表');
         refs.timerList = list;
         view.appendChild(list);
+
+        /*
+         * 目标时长的触发条放在清单之后、输入条之前：
+         * 它是「这一轮打算读多久」的入口，次要设置就该待在不挡事的位置。
+         */
+        view.appendChild(targetToggle);
 
         /*
          * 清单：任务与待办同一张表（AI 排的 / 我写的用徽标区分）。
@@ -1881,17 +1906,39 @@
          * 恢复后全部回到计时中口径（类名摘掉、标签藏起来）。
          */
         var paused = !!data.paused;
-        if (refs.timerZone) refs.timerZone.classList.toggle('is-paused', paused);
+        /*
+         * 结束态有两种：到点（finished）与手动「结束本轮」（ended）。
+         * 两者都要一眼看出来——数字与边框转结束色，提示块给一句人话。
+         * 之前只有胶囊变红，面板里什么也没有，等于没提示。
+         */
+        var arrived = !!data.finished;
+        var ended = !arrived && !!data.ended;
+        if (refs.timerZone) {
+            refs.timerZone.classList.toggle('is-paused', paused);
+            refs.timerZone.classList.toggle('is-arrived', arrived);
+            refs.timerZone.classList.toggle('is-ended', ended);
+        }
         if (refs.timerPausedTag) refs.timerPausedTag.hidden = !paused;
         if (refs.timerEndRound) {
             // 没有当前条目时「结束本轮」无事可做：条目流转要有个对象
             refs.timerEndRound.disabled = !snap.taskId;
         }
-        // 没有目标时长就没有「再来一轮」的对象：倒计时到点后才给按钮
-        // 到点提示与「再来一轮」只在真正到点（已停表）后出现：归零但还没停表不算
-        refs.timerDone.hidden = !data.finished;
-        refs.timerRestart.hidden = !data.finished;
-        refs.timerRestart.disabled = !data.finished || snap.targetMs === null;
+        var showDone = arrived || ended;
+        refs.timerDone.hidden = !showDone;
+        if (showDone) {
+            refs.timerDoneMsg.textContent = arrived
+                ? '时间到了，本轮结束。'
+                : '本轮已结束，用时 ' + AI.timer.format(data.elapsedMs) + '。';
+        }
+        // 「再来一轮」只在有目标时长时才有意义：正计时没有「再来一轮」
+        refs.timerRestart.hidden = !showDone || snap.targetMs === null;
+        refs.timerRestart.disabled = !showDone;
+        // 触发条上写当前目标时长：真相是计时器里的目标，不看本机偏好
+        if (refs.timerTargetValue) {
+            refs.timerTargetValue.textContent = snap.targetMs === null
+                ? '未设置'
+                : Math.round(snap.targetMs / 60000) + ' 分钟';
+        }
     }
 
     var timerUnsubscribe = null;
@@ -2132,6 +2179,8 @@
 
     function setOpen(open) {
         if (!open) closeRewindConfirm();
+        // 面板收起时抽屉要跟着收：它是浮层，留在页面上会挡住文章
+        if (!open) closeTargetDrawer();
         if (open) {
             if (closeTimer) {
                 window.clearTimeout(closeTimer);
@@ -2170,6 +2219,8 @@
 
     function setState(state) {
         var view = state === 'settings' ? 'settings' : (state === 'timer' ? 'timer' : 'chat');
+        // 离开计时视图就收起抽屉：它是浮层，别飘在别的视图上
+        if (view !== 'timer') closeTargetDrawer();
         refs.root.dataset.view = view;
         refs.chatView.hidden = view !== 'chat';
         refs.settingsView.hidden = view !== 'settings';
@@ -3286,6 +3337,44 @@
         refs.presetButton.setAttribute('aria-expanded', 'false');
     }
 
+    /* -------------------------------------------------------- 目标时长抽屉 */
+
+    /*
+     * 目标时长抽屉：浮在触发条上方，不占面板高度。
+     * 触发条贴着面板底部，往下展开会被面板底边裁掉，所以默认往上开；
+     * 上方放不下（面板很矮）才翻到下方。
+     */
+    function positionTargetDrawer() {
+        var toggle = refs.timerTargetToggle;
+        var drawer = refs.timerTargetDrawer || refs.timerTarget;
+        if (!toggle || !drawer) return;
+        var box = toggle.getBoundingClientRect();
+        var width = Math.max(box.width, 240);
+        var left = Math.min(Math.max(8, box.left), Math.max(8, window.innerWidth - width - 8));
+        drawer.style.width = width + 'px';
+        drawer.style.left = left + 'px';
+        var height = drawer.offsetHeight;
+        var top = box.top - height - 6;
+        if (top < 8) top = box.bottom + 6;
+        top = Math.max(8, Math.min(top, window.innerHeight - height - 8));
+        drawer.style.top = top + 'px';
+    }
+
+    function openTargetDrawer() {
+        var drawer = refs.timerTargetDrawer || refs.timerTarget;
+        if (!drawer) return;
+        drawer.hidden = false;
+        if (refs.timerTargetToggle) refs.timerTargetToggle.setAttribute('aria-expanded', 'true');
+        positionTargetDrawer();
+    }
+
+    function closeTargetDrawer() {
+        var drawer = refs.timerTargetDrawer || refs.timerTarget;
+        if (!drawer) return;
+        drawer.hidden = true;
+        if (refs.timerTargetToggle) refs.timerTargetToggle.setAttribute('aria-expanded', 'false');
+    }
+
     /* ------------------------------------------------------ 极简 Markdown */
 
     /*
@@ -3713,6 +3802,9 @@
         paintRemindIntensity: paintRemindIntensity,
         closePresetList: closePresetList,
         positionPresetList: positionPresetList,
+        openTargetDrawer: openTargetDrawer,
+        closeTargetDrawer: closeTargetDrawer,
+        positionTargetDrawer: positionTargetDrawer,
         renderMarkdown: renderMarkdown,
         /* 清单：渲染与同步（60-main.js 的动作分发用） */
         renderTasks: renderTasks,

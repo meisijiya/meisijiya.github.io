@@ -31,7 +31,9 @@
             accumulatedMs: 0,
             targetMs: null,
             // 用户按下暂停（可恢复），与「结束本轮」（本轮收工）是两回事
-            paused: false
+            paused: false,
+            // 本轮被收掉了（手动「结束本轮」）：界面据此给结束态视觉
+            ended: false
         };
     }
 
@@ -52,6 +54,7 @@
         // 倒计时必须有目标时长，否则退化成正计时
         if (next.mode === 'down' && next.targetMs === null) next.mode = 'up';
         next.paused = raw.paused === true;
+        next.ended = raw.ended === true;
         return next;
     }
 
@@ -114,7 +117,9 @@
             done: remaining !== null && remaining <= 0,
             // 到点是发生过的一次性事件：倒计时归零且已停表才算数。
             // 归零但看门狗还没轮到停表时不算数：提示不该比停表先到。
-            finished: remaining !== null && remaining <= 0 && state.startedAt === null
+            finished: remaining !== null && remaining <= 0 && state.startedAt === null,
+            // 本轮被手动收掉（「结束本轮」）：与到点分开，界面各给一套视觉
+            ended: state.ended === true
         };
     }
 
@@ -156,6 +161,8 @@
         if (state.startedAt === null) state.startedAt = Date.now();
         // 恢复即离开暂停态：视觉回到计时中口径
         state.paused = false;
+        // 开新一轮就是没结束过：结束态视觉要跟着撤掉
+        state.ended = false;
         writeStorage();
         ensureWatchdog();
         emit();
@@ -178,6 +185,7 @@
         state.startedAt = null;
         state.accumulatedMs = 0;
         state.paused = false;
+        state.ended = false;
         writeStorage();
         ensureWatchdog();
         emit();
@@ -266,6 +274,7 @@
         state.startedAt = Date.now();
         // 与 start() 同口径：重开一轮就是离开暂停态
         state.paused = false;
+        state.ended = false;
         writeStorage();
         ensureWatchdog();
         emit();
@@ -283,6 +292,8 @@
         state.accumulatedMs = elapsed;
         state.startedAt = null;
         state.paused = false;
+        // 结束是收尾状态：界面要据此给明确的结束视觉（数字与边框转结束色）
+        state.ended = true;
         writeStorage();
         ensureWatchdog();
         if (state.taskId && AI.tasks && typeof AI.tasks.finishTiming === 'function') {

@@ -1694,9 +1694,10 @@
          */
         if (AI.ui.isNarrow() && AI.ui.isOpen()) {
             // 会话下拉挂在根节点（面板 overflow:hidden 会裁掉它），不在 .ai-panel 里，
-            // 所以点它的按钮、选项都算助手自己的界面，不能当成「点外面」
+            // 所以点它的按钮、选项都算助手自己的界面，不能当成「点外面」。
+            // 目标时长抽屉同理：它也挂在 .ai-root 上。
             var inPanel = target && target.closest
-                ? target.closest('.ai-panel, .ai-session-wrap, .ai-session-panel')
+                ? target.closest('.ai-panel, .ai-session-wrap, .ai-session-panel, .ai-timer-target-drawer')
                 : null;
             var keepOpen = target && target.closest
                 ? target.closest('.ai-fab, .ai-selection-bubble')
@@ -1716,6 +1717,14 @@
             !refs.presetList.contains(target) &&
             !refs.presetButton.contains(target)) {
             AI.ui.closePresetList();
+        }
+
+        // 目标时长抽屉展开时，点别处同样先收起
+        var targetDrawer = refs.timerTargetDrawer || refs.timerTarget;
+        if (targetDrawer && !targetDrawer.hidden &&
+            !targetDrawer.contains(target) &&
+            !(refs.timerTargetToggle && refs.timerTargetToggle.contains(target))) {
+            AI.ui.closeTargetDrawer();
         }
 
         // 协议分段控件没有 data-act，靠 data-protocol 识别
@@ -1831,16 +1840,28 @@
             if (AI.audio) AI.audio.setMuted(!AI.audio.isMuted());
             return;
         }
+        if (action === 'timer-target-toggle') {
+            var drawer = refs.timerTargetDrawer || refs.timerTarget;
+            if (drawer && !drawer.hidden) AI.ui.closeTargetDrawer();
+            else AI.ui.openTargetDrawer();
+            return;
+        }
         if (action === 'timer-target') {
             // 选完目标时长就开倒计时：与点「开始」同一个状态机，只是这次带上目标时长
             var minutes = hit.dataset.minutes;
-            if (minutes !== undefined) applyTarget(Number(minutes));
+            if (minutes !== undefined && applyTarget(Number(minutes))) {
+                // 选完就收抽屉：预设是「这一轮读多久」的设定，设完该看计时了
+                AI.ui.closeTargetDrawer();
+            }
             return;
         }
         if (action === 'timer-target-custom') {
             // 自定义分钟数：从输入框读值，回车键与按钮走同一条路径
             var targetInput = AI.ui.refs && AI.ui.refs.timerTargetInput;
-            if (targetInput && applyTarget(Number(targetInput.value))) targetInput.value = '';
+            if (targetInput && applyTarget(Number(targetInput.value))) {
+                targetInput.value = '';
+                AI.ui.closeTargetDrawer();
+            }
             return;
         }
         if (action === 'timer-reset') {
@@ -1990,6 +2011,12 @@
         if (event.key === 'Escape') {
             // 回退确认框开着时，Esc 只关确认框：顺带把整个面板关掉是误伤
             if (AI.ui.refs && AI.ui.refs.rewindConfirm) return;
+            // 目标时长抽屉开着时，Esc 先收抽屉：它是浮层，不该连带收起整个面板
+            var targetDrawer = AI.ui.refs && (AI.ui.refs.timerTargetDrawer || AI.ui.refs.timerTarget);
+            if (targetDrawer && !targetDrawer.hidden) {
+                AI.ui.closeTargetDrawer();
+                return;
+            }
             // 请求还在跑时先中止请求，否则收起浮窗
             if (state.controller) {
                 state.controller.abort();
