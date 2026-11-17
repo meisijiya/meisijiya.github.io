@@ -690,7 +690,7 @@
 <td>精准与召回的调和平均</td>
 </tr>
 </tbody></table>
-<p>⚠️ 工程上最容易出事的一条：<strong>「误报率」和「误检率」在不同团队里指的不是一回事</strong>。有的算假正率 FPR &#x3D; FP &#x2F; (FP + TN)，有的直接拿 1 − 精准率 &#x3D; FP &#x2F; (TP + FP) 当误报率，有的按事件数除以时长或里程。分母不同，三个数能差一个数量级。入职后第一份报告，先把自己用的口径写成一行公式放在报告开头，让审阅的人能对得上。</p>
+<p>⚠️ 最容易出事的地方在于，<strong>「误报率」和「误检率」在不同团队里指的不是一回事</strong>。有的算假正率 FPR &#x3D; FP &#x2F; (FP + TN)，有的直接拿 1 − 精准率 &#x3D; FP &#x2F; (TP + FP) 当误报率，有的按事件数除以时长或里程。分母不同，三个数能差一个数量级。入职后第一份报告，先把自己用的口径写成一行公式放在报告开头，让审阅的人能对得上。</p>
 <p>我在踏浪做 AI 评测时踩过同类的坑：同一批问题，按「命中率」和按「前三条命中」算，结论会反过来。口径不写清，后面所有讨论都是白费。</p>
 <h3 id="2-4-帧级指标与事件级指标，两套都要"><a href="#2-4-帧级指标与事件级指标，两套都要" class="headerlink" title="2.4 帧级指标与事件级指标，两套都要"></a>2.4 帧级指标与事件级指标，两套都要</h3><ul>
 <li><strong>帧级</strong>：每一帧判一次，算精准率、召回率、mAP。给算法同事看，用来判断模型本身强不强。</li>
@@ -765,7 +765,7 @@
 <td>疲劳判据可以换，但要做等效性说明</td>
 </tr>
 </tbody></table>
-<p>这张表说明了一件事：<strong>标准给的是「必须测什么、样本多少、怎么判」，「要多准才能出厂」是公司自己的事。</strong> 后者正是算法测试岗存在的理由。</p>
+<p>这张表说明，<strong>标准给的是「必须测什么、样本多少、怎么判」，「要多准才能出厂」是公司自己的事。</strong> 后者正是算法测试岗存在的理由。</p>
 <p><strong>PERCLOS 是什么。</strong> 它是疲劳检测里最常被引用的指标：单位时间内眼睛闭合超过 80% 的时间占比（P80 口径），最初由 NHTSA 资助的研究验证为可靠指标（<a target="_blank" rel="noopener" href="https://rosap.ntl.bts.gov/view/dot/113">NHTSA 报告</a>、<a target="_blank" rel="noopener" href="https://academic.oup.com/sleepadvances/article/4/1/zpad006/7000589">综述</a>）。</p>
 <p>⚠️ 别把论文里的阈值当标准。不同研究、不同设备、不同窗长给出的 PERCLOS 阈值都不一样，公司内部一定有自己的判定口径。你要做的是找到那份口径文档，而不是引一篇 2010 年的论文去跟同事争论。</p>
 <h3 id="2-6-场景矩阵：把「各种情况」拆成能数的格子"><a href="#2-6-场景矩阵：把「各种情况」拆成能数的格子" class="headerlink" title="2.6 场景矩阵：把「各种情况」拆成能数的格子"></a>2.6 场景矩阵：把「各种情况」拆成能数的格子</h3><p>「覆盖各种场景」等于没说。要拆成格子，一格一格数样本量。DMS 常见的几轴：</p>
@@ -899,7 +899,7 @@
 <p>三个常用概念要分清：</p>
 <ul>
 <li><strong>帧率 fps</strong>：一秒多少帧。抽帧间隔 &#x3D; 1&#x2F;fps 秒。标注通常是抽帧后标，评测要换算回原始时间轴。</li>
-<li><strong>码率与压缩</strong>：视频被压过，画质会降。算法在压缩视频上的表现和原始视频不一样，这不是缺陷而是输入差异，报告里要写清数据来源。</li>
+<li><strong>码率与压缩</strong>：视频被压过，画质会降。算法在压缩视频上的表现和原始视频不一样。这属于输入差异，不算缺陷，报告里要写清数据来源。</li>
 <li><strong>时间戳</strong>：<code>-ss</code> 放在 <code>-i</code> 前面是输入定位，按关键帧快速跳（配合 <code>-c copy</code> 时可能不准到帧）；放在 <code>-i</code> 后面是输出定位，逐帧解码丢弃直到目标位置，慢但精确。要帧级准确就用后一种。</li>
 </ul>
 <h3 id="3-3-pandas：把评测结果变成一张能看的表"><a href="#3-3-pandas：把评测结果变成一张能看的表" class="headerlink" title="3.3 pandas：把评测结果变成一张能看的表"></a>3.3 pandas：把评测结果变成一张能看的表</h3><p>评测的产出最后都是一张表：样本 ID、场景标签、真值、算法输出、判定结果。统计就是在这张表上做分组。</p>
@@ -938,15 +938,15 @@
 <td>YOLO 系列训练</td>
 </tr>
 </tbody></table>
-<p>三种格式互转时最容易错的是 YOLO 的归一化：拿到的框位置全在 0–1 之间，就是没乘回宽高。第一次转格式，画一张图叠上去看一眼，比读十遍文档快。</p>
-<h3 id="3-5-算-mAP：先弄清它回答什么问题"><a href="#3-5-算-mAP：先弄清它回答什么问题" class="headerlink" title="3.5 算 mAP：先弄清它回答什么问题"></a>3.5 算 mAP：先弄清它回答什么问题</h3><p>目标检测的主流指标是 mAP。它不是「有多少框对」，而是「在不同置信度阈值下，精准率与召回率曲线围出的面积」，再对所有类别取平均。</p>
+<p>三种格式互转时最容易错的是 YOLO 的归一化。拿到的框位置全在 0–1 之间，就是没乘回宽高。第一次转格式，画一张图叠上去看一眼，比读十遍文档快。</p>
+<h3 id="3-5-算-mAP：先弄清它回答什么问题"><a href="#3-5-算-mAP：先弄清它回答什么问题" class="headerlink" title="3.5 算 mAP：先弄清它回答什么问题"></a>3.5 算 mAP：先弄清它回答什么问题</h3><p>目标检测的主流指标是 mAP，算的是不同置信度阈值下精准率与召回率曲线围出的面积，再对所有类别取平均，不是数对了多少个框。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pycocotools.coco <span class="keyword">import</span> COCO</span><br><span class="line"><span class="keyword">from</span> pycocotools.cocoeval <span class="keyword">import</span> COCOeval</span><br><span class="line"></span><br><span class="line">coco_gt = COCO(<span class="string">&quot;annotations.json&quot;</span>)</span><br><span class="line">coco_dt = coco_gt.loadRes(<span class="string">&quot;predictions.json&quot;</span>)</span><br><span class="line">e = COCOeval(coco_gt, coco_dt, <span class="string">&quot;bbox&quot;</span>)</span><br><span class="line">e.evaluate(); e.accumulate(); e.summarize()   <span class="comment"># 打印 mAP@0.5:0.95 等 12 个数</span></span><br></pre></td></tr></table></figure>
 
 <p>三个必须分清的点：</p>
 <ul>
 <li><strong>IoU</strong>：预测框与真值框的交集除以并集。0.5 表示重叠过半才算命中。DMS 里人脸框小、目标密集，IoU 阈值定多少，指标差好几个点。</li>
-<li><strong><a href="mailto:&#x6d;&#x41;&#80;&#x40;&#48;&#46;&#53;">&#x6d;&#x41;&#80;&#x40;&#48;&#46;&#53;</a></strong>：IoU 固定 0.5 时的平均精度。宽松。</li>
-<li><strong><a href="mailto:&#x6d;&#65;&#80;&#64;&#48;&#46;&#x35;">&#x6d;&#65;&#80;&#64;&#48;&#46;&#x35;</a>:0.95</strong>：IoU 从 0.5 到 0.95 每隔 0.05 算一次再平均。严格，也更接近「框得准不准」。</li>
+<li><strong><a href="mailto:&#x6d;&#x41;&#x50;&#x40;&#x30;&#x2e;&#53;">&#x6d;&#x41;&#x50;&#x40;&#x30;&#x2e;&#53;</a></strong>：IoU 固定 0.5 时的平均精度。宽松。</li>
+<li><strong><a href="mailto:&#109;&#65;&#80;&#64;&#x30;&#x2e;&#x35;">&#109;&#65;&#80;&#64;&#x30;&#x2e;&#x35;</a>:0.95</strong>：IoU 从 0.5 到 0.95 每隔 0.05 算一次再平均。严格，也更接近「框得准不准」。</li>
 </ul>
 <p>报告里写 mAP 一定要带阈值后缀，只写「mAP 提升了」等于没说。</p>
 <h3 id="3-6-Git：只用你真正会用到的六个动作"><a href="#3-6-Git：只用你真正会用到的六个动作" class="headerlink" title="3.6 Git：只用你真正会用到的六个动作"></a>3.6 Git：只用你真正会用到的六个动作</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git status                 <span class="comment"># 我现在改了啥（每天开工第一件事）</span></span><br><span class="line">git pull --rebase          <span class="comment"># 拉最新（先 commit 再 pull）</span></span><br><span class="line">git checkout -b feat/xxx   <span class="comment"># 开分支做自己的事</span></span><br><span class="line">git add -p                 <span class="comment"># 逐块暂存，避免把调试代码提上去</span></span><br><span class="line">git commit -m <span class="string">&quot;fix: 修正夜间场景误检统计口径&quot;</span></span><br><span class="line">git <span class="built_in">log</span> --oneline -10      <span class="comment"># 看最近改了什么、谁改的</span></span><br></pre></td></tr></table></figure>
@@ -1013,7 +1013,7 @@
 <h3 id="4-4-提问的正确姿势"><a href="#4-4-提问的正确姿势" class="headerlink" title="4.4 提问的正确姿势"></a>4.4 提问的正确姿势</h3><p>新人怕问，也怕问错。规则是<strong>先自查 15 分钟，再带着选项去问</strong>。</p>
 <p>自查顺序：搜内部文档 → 翻聊天记录 → 看代码&#x2F;脚本注释 → 跑一次试试。</p>
 <p>问的时候给三个东西：我试了什么、卡在哪、我猜的两个方向。对方只需要回答「选 A」，而不是替你从零讲一遍。问完记下来，同一个问题问第二次，印象分掉一半。</p>
-<p>反过来，有一种问题必须马上问，不要自查：<strong>涉及数据权限、涉及删库删文件、涉及对外发东西</strong>。这三类错了没有补救机会。</p>
+<p>反过来，有一种问题必须马上问，不要自查：<strong>涉及数据权限、删库删文件、对外发东西</strong>。这三类错了没有补救机会。</p>
 <h3 id="4-5-保密与数据安全"><a href="#4-5-保密与数据安全" class="headerlink" title="4.5 保密与数据安全"></a>4.5 保密与数据安全</h3><p>车载数据里有人脸、有车牌、有行驶轨迹，属于个人信息，人脸还是敏感个人信息。这条线踩了不是挨批评，是法律责任。</p>
 <ul>
 <li>数据只在公司设备和内网环境里处理。不用个人网盘、不用微信传、不发到自己邮箱。</li>
