@@ -1517,6 +1517,19 @@
          * 所以包一层：头部内部只能有任务名与数字两个子节点，标签放不进头部。
          */
         var zone = el('div', 'ai-timer-zone');
+        /*
+         * 状态标签排在头部前面：左起是「这一轮的状态 → 任务名 → 计时数字」，
+         * 没有状态时标签不占位，任务名直接顶到左边。
+         */
+        var pausedTag = el('span', 'ai-timer-paused-tag', '已暂停');
+        pausedTag.hidden = true;
+        var stateTag = el('span', 'ai-timer-state-tag', '已结束');
+        stateTag.hidden = true;
+        zone.appendChild(pausedTag);
+        zone.appendChild(stateTag);
+        refs.timerPausedTag = pausedTag;
+        refs.timerStateTag = stateTag;
+
         var head = el('div', 'ai-timer-head');
         var task = el('p', 'ai-timer-task', '未选择任务');
         refs.timerTask = task;
@@ -1526,12 +1539,7 @@
         refs.timerValue = value;
         head.appendChild(value);
         zone.appendChild(head);
-
-        var pausedTag = el('span', 'ai-timer-paused-tag', '已暂停');
-        pausedTag.hidden = true;
-        zone.appendChild(pausedTag);
         refs.timerZone = zone;
-        refs.timerPausedTag = pausedTag;
         view.appendChild(zone);
 
         /*
@@ -1776,9 +1784,6 @@
         if (elapsed > 0) {
             meta.appendChild(el('span', 'ai-task-status', '已用 ' + AI.timer.format(elapsed)));
         }
-        body.appendChild(meta);
-
-        row.appendChild(body);
 
         var acts = el('div', 'ai-task-acts');
         if (item.status === 'pending') {
@@ -1832,7 +1837,20 @@
             del.dataset.id = item.id;
             acts.appendChild(del);
         }
-        if (acts.childNodes.length) row.appendChild(acts);
+        if (acts.childNodes.length) {
+            /*
+             * 标题独占一行，下面一行左边是徽标与状态、右边是操作。
+             * 操作挤在标题右边会把标题压成两行（面板最窄的地方最容易触目），
+             * 挪到第二行，标题拿回整行宽度。
+             */
+            var foot = el('div', 'ai-task-foot');
+            foot.appendChild(meta);
+            foot.appendChild(acts);
+            body.appendChild(foot);
+        } else {
+            body.appendChild(meta);
+        }
+        row.appendChild(body);
         return row;
     }
 
@@ -1920,8 +1938,13 @@
         }
         if (refs.timerPausedTag) refs.timerPausedTag.hidden = !paused;
         if (refs.timerEndRound) {
-            // 没有当前条目时「结束本轮」无事可做：条目流转要有个对象
-            refs.timerEndRound.disabled = !snap.taskId;
+            /*
+             * 没有选中条目也能结束这一轮：只是不流转条目状态。
+             * 之前按「有没有条目」禁用，访客看着按钮能点、点了没反应，
+             * 只能以为功能坏了——这一轮明明在跑就该能收。
+             */
+            var hasRound = data.running || data.elapsedMs > 0 || !!snap.taskId;
+            refs.timerEndRound.disabled = !hasRound;
         }
         var showDone = arrived || ended;
         refs.timerDone.hidden = !showDone;
@@ -1929,6 +1952,11 @@
             refs.timerDoneMsg.textContent = arrived
                 ? '时间到了，本轮结束。'
                 : '本轮已结束，用时 ' + AI.timer.format(data.elapsedMs) + '。';
+        }
+        // 结束态小标签：到点写「到点」，手动收尾写「已结束」
+        if (refs.timerStateTag) {
+            refs.timerStateTag.hidden = !showDone;
+            refs.timerStateTag.textContent = arrived ? '到点' : '已结束';
         }
         // 「再来一轮」只在有目标时长时才有意义：正计时没有「再来一轮」
         refs.timerRestart.hidden = !showDone || snap.targetMs === null;

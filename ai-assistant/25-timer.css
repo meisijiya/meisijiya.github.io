@@ -1,8 +1,9 @@
 /*
  * 计时视图样式（独立文件，不碰对话/设置视图的任何规则）。
  *
- * 计时数字用等宽数字（tabular-nums）：每秒跳一次时数字宽度不变，
- * 不会左右抖动。28px 是本次升级新增的唯一字号档。
+ * 视觉口径跟助手其它部分一致：白纸面板、一档灰阶、细线分隔，
+ * 不给每一块都套边框。计时数字是这一屏的主角（28px，本次升级新增的唯一字号档），
+ * 状态靠数字颜色加一颗小标签表达，结束靠一条色带说清楚。
  */
 
 .ai-root {
@@ -45,9 +46,8 @@
 }
 
 /*
- * 计时区：头部与暂停标签的共同容器。
- * 暂停时这一块要「看得见地在停」：数字转次级色、标签露出来、边框描一圈。
- * 边框默认透明，占位不变，暂停时描边不会让内容跳一下。
+ * 计时区：状态标签 + 头部。整块不套框，只在底下留一条细线，
+ * 把「这一轮」和下面的清单分开。状态用数字颜色和小标签说，不用边框描一圈。
  */
 .ai-timer-zone {
     /*
@@ -57,8 +57,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    border: 1px solid transparent;
-    border-radius: var(--ai-r-control);
+    min-width: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--ai-border);
 }
 
 /* 头部在计时区里占满一行，把标签挤到最右：不换行、不溢出 */
@@ -67,43 +68,39 @@
     min-width: 0;
 }
 
-.ai-timer-zone.is-paused {
-    border-color: var(--ai-border-strong);
-    background: var(--ai-field);
-}
-
-/*
- * 结束态：到点（is-arrived）与手动「结束本轮」（is-ended）都转结束色。
- * 数字、边框、底色一起变——之前只有胶囊变红，面板里什么也没有。
- */
-.ai-timer-zone.is-arrived,
-.ai-timer-zone.is-ended {
-    border-color: var(--ai-danger);
-    background: var(--ai-danger-soft);
-}
-
-.ai-timer-zone.is-arrived .ai-timer-value,
-.ai-timer-zone.is-ended .ai-timer-value {
-    color: var(--ai-danger);
-}
-
 /* 暂停时数字转次级色：一眼看出这一轮停着 */
 .ai-timer-zone.is-paused .ai-timer-value {
     color: var(--ai-ink-2);
 }
 
-/* 「已暂停」标签：排在数字右侧，只在暂停态露出来 */
-.ai-timer-paused-tag {
-    flex: 0 0 auto;
-    padding: 2px 8px;
-    border-radius: var(--ai-r-pill);
-    background: var(--ai-raised);
-    color: var(--ai-ink-2);
-    font-size: var(--ai-fs-meta);
-    line-height: 1.4;
+/*
+ * 结束态：到点（is-arrived）与手动「结束本轮」（is-ended）都转结束色。
+ * 之前只有胶囊变红，面板里什么也没有——数字转色才是一眼能看见的信号。
+ */
+.ai-timer-zone.is-arrived .ai-timer-value,
+.ai-timer-zone.is-ended .ai-timer-value {
+    color: var(--ai-danger);
 }
 
-/* 「结束本轮」：与「暂停」分开的一个动作，按钮不抢主按钮的位置 */
+/* 状态小标签：「已暂停」「到点」「已结束」 */
+.ai-timer-paused-tag,
+.ai-timer-state-tag {
+    flex: 0 0 auto;
+    padding: 1px 8px;
+    border-radius: var(--ai-r-pill);
+    background: var(--ai-field);
+    color: var(--ai-ink-2);
+    font-size: var(--ai-fs-meta);
+    line-height: 1.6;
+}
+
+/* 结束态的标签用结束色，和数字连成一句 */
+.ai-timer-state-tag {
+    background: var(--ai-danger-soft);
+    color: var(--ai-danger);
+}
+
+/* 「结束本轮」：与「暂停」分开的一个动作，排在行的最右 */
 .ai-timer-end {
     margin-left: auto;
 }
@@ -115,7 +112,7 @@
     min-width: 0;
     font-size: var(--ai-fs-label);
     line-height: 1.4;
-    color: var(--ai-ink-2);
+    color: var(--ai-ink-3);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -133,7 +130,7 @@
     font-feature-settings: "tnum" 1;
 }
 
-/* 到点/结束提示：计时数字下方一块显眼的卡片，不再是一行藏在阴影里的小字 */
+/* 到点/结束：一条色带说清楚，不是又一个带边框的卡片 */
 .ai-timer-done {
     display: flex;
     flex-wrap: wrap;
@@ -141,8 +138,7 @@
     justify-content: space-between;
     gap: 8px;
     margin: 0;
-    padding: 10px 12px;
-    border: 1px solid var(--ai-danger);
+    padding: 8px 12px;
     border-radius: var(--ai-r-control);
     background: var(--ai-danger-soft);
     color: var(--ai-ink);
@@ -152,15 +148,16 @@
     margin: 0;
     flex: 1 1 auto;
     min-width: 0;
-    font-size: var(--ai-fs-body);
+    font-size: var(--ai-fs-label);
     font-weight: 600;
     line-height: 1.4;
-    color: var(--ai-ink);
+    color: var(--ai-danger);
 }
 
 .ai-timer-restart {
     flex: 0 0 auto;
 }
+
 /*
  * 目标时长：默认收成一条触发条，展开才是抽屉。
  * 手机端摊开这一块要占三行（预设 + 自定义 + 开始），清单只剩一两条；
@@ -171,20 +168,20 @@
     align-items: center;
     gap: 8px;
     width: 100%;
-    min-height: 34px;
-    padding: 6px 10px;
-    border: 1px solid var(--ai-border);
-    border-radius: var(--ai-r-control);
-    background: var(--ai-field);
+    min-height: 30px;
+    padding: 4px 0;
+    border: none;
+    border-top: 1px solid var(--ai-border);
+    background: none;
     font-family: inherit;
     font-size: var(--ai-fs-label);
     line-height: 1.4;
-    color: var(--ai-ink-2);
+    color: var(--ai-ink-3);
     cursor: pointer;
 }
 
 .ai-timer-target-toggle:hover {
-    border-color: var(--ai-border-strong);
+    color: var(--ai-ink);
 }
 
 .ai-timer-target-toggle .ai-chevron {
@@ -281,10 +278,45 @@
     flex: none;
 }
 
+/*
+ * 控件行：主行动实心，其余是安静文字按钮。
+ * 四个并排的描边按钮是一排框，看着最像工具面板——这里拆掉边框。
+ */
 .ai-timer-controls {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    align-items: center;
+    gap: 4px 12px;
+}
+
+.ai-timer-controls .ai-btn:not(.ai-btn-primary) {
+    min-height: 30px;
+    padding: 4px 6px;
+    border-color: transparent;
+    background: transparent;
+    color: var(--ai-ink-2);
+    font-weight: 400;
+}
+
+.ai-timer-controls .ai-btn:not(.ai-btn-primary):hover:not(:disabled) {
+    background: var(--ai-field);
+    color: var(--ai-ink);
+}
+
+.ai-timer-controls .ai-btn:disabled {
+    background: transparent;
+    color: var(--ai-ink-3);
+    cursor: default;
+}
+
+/* 「结束本轮」是收尾动作：用结束色区分，不用框 */
+.ai-timer-controls .ai-timer-end {
+    color: var(--ai-danger);
+}
+
+.ai-timer-controls .ai-timer-end:hover:not(:disabled) {
+    background: var(--ai-danger-soft);
+    color: var(--ai-danger);
 }
 
 /* 任务列表容器：清单本身在 #63 落地，这里只留位置 */
@@ -292,7 +324,7 @@
 .ai-timer-tasks {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;

@@ -5,20 +5,20 @@
  * 完成的条目用删除线 + 次级色，撤销后原样恢复。
  */
 
-/* 清单卡片：一行条目的容器 */
+/* 清单条目：一条一条读下去，不再是张张卡片 */
 .ai-task {
     display: flex;
     align-items: flex-start;
     gap: 6px;
-    padding: 7px 10px;
-    border: 1px solid var(--ai-border);
-    border-radius: var(--ai-r-control);
-    background: var(--ai-surface);
-    transition: border-color var(--ai-t-quick) linear, background-color var(--ai-t-quick) linear;
+    padding: 8px 0;
+    border: none;
+    background: none;
+    transition: color var(--ai-t-quick) linear;
 }
 
+/* 条目之间一条细线：清单读起来是一列，不是一摞卡片 */
 .ai-task + .ai-task {
-    margin-top: 6px;
+    border-top: 1px solid var(--ai-border);
 }
 
 /* 勾选按钮：自画，不用原生 checkbox 的盒子 */
@@ -70,6 +70,26 @@
     line-height: 1.4;
     color: var(--ai-ink);
     overflow-wrap: anywhere;
+}
+
+/*
+ * 标题下面那一行：左边徽标与状态，右边操作。
+ * 操作挪到这里，标题才拿得回整行宽度。
+ */
+.ai-task-foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.ai-task-foot .ai-task-meta {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.ai-task-foot .ai-task-acts {
+    flex: 0 0 auto;
 }
 
 /* 标题即链接：下划线只在悬停时出现，平时靠颜色区分 */
@@ -164,23 +184,24 @@
     flex: none;
 }
 
+/* 行内操作：安静文字按钮，不再是三个小框 */
 .ai-task-act {
     appearance: none;
-    padding: 2px 9px;
+    padding: 2px 6px;
     min-height: 26px;
-    border: 1px solid var(--ai-border-strong);
+    border: 1px solid transparent;
     border-radius: var(--ai-r-chip);
-    background: var(--ai-surface);
+    background: none;
     font-family: inherit;
     font-size: var(--ai-fs-meta);
     line-height: 1.4;
     color: var(--ai-ink-2);
     cursor: pointer;
-    transition: background-color var(--ai-t-quick) linear, border-color var(--ai-t-quick) linear;
+    transition: background-color var(--ai-t-quick) linear, color var(--ai-t-quick) linear;
 }
 
 .ai-task-act:hover {
-    background: var(--ai-raised);
+    background: var(--ai-field);
     color: var(--ai-ink);
 }
 
@@ -248,8 +269,7 @@
     display: flex;
     gap: 8px;
     flex: none;
-    padding-top: 10px;
-    border-top: 1px solid var(--ai-border);
+    padding-top: 6px;
 }
 
 .ai-task-input {
