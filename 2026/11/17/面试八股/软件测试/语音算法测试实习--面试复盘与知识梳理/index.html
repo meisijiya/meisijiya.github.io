@@ -19,7 +19,7 @@
     <meta name="keywords" content="老江湖,博客,房间门">
 
 
-<title>算法测试实习速通--语音与端侧智能方向 | 欢迎来到老江湖的博客</title>
+<title>语音算法测试实习--面试复盘与知识梳理 | 欢迎来到老江湖的博客</title>
 
 
 
@@ -409,7 +409,7 @@
 </script>  
   <article class="post-wrap">
     <header class="post-header">
-      <h1 class="post-title">算法测试实习速通--语音与端侧智能方向</h1>
+      <h1 class="post-title">语音算法测试实习--面试复盘与知识梳理</h1>
       
       <div class="post-meta">
          作者:
@@ -437,7 +437,7 @@
 
     <div class="post-content"><p><em>Hi，我是 <strong>meisijiya</strong> ，也是 <strong>老江湖</strong> ，感谢你的阅读，我们一起进步。</em></p>
 <hr>
-<p>这篇按 2026 年 11 月 18 日上午的第一次面试重排过一遍。前半段是逐题复盘，把答崩的地方和面试官免费送的信息都摊开；后半段是知识点，语音方向的内容按面试官讲的实际业务重写，接口与性能那类通用内容砍掉了。</p>
+<p>这篇写的是一场真实面试的复盘，加上为它补的知识准备。前半段是逐题的问答回放，把答崩的地方和面试官免费送的信息都摊开；后半段是语音方向的知识点，接口与性能那类通用内容只留了被问到的部分。</p>
 <h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
 <li><a href="#%E9%9B%B6%E3%80%81%E9%A6%96%E8%BD%AE%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98">零、首轮面试复盘</a></li>
 <li><a href="#%E4%B8%80%E3%80%81%E5%B2%97%E4%BD%8D%E7%9C%9F%E7%9B%B8%E4%B8%8E%E5%85%AC%E5%8F%B8%E7%94%BB%E5%83%8F">一、岗位真相与公司画像</a></li>
@@ -586,7 +586,7 @@
 </tr>
 <tr>
 <td>结束评价</td>
-<td>「跟你聊的还挺顺畅的，就是感觉还是挺健聊的」</td>
+<td>说聊得比较顺畅，整体氛围不错</td>
 <td>偏正面</td>
 </tr>
 </tbody></table>
@@ -630,7 +630,7 @@
 <td>早期团队，进来要能自己开路</td>
 </tr>
 </tbody></table>
-<h3 id="0-5-对结果的判断"><a href="#0-5-对结果的判断" class="headerlink" title="0.5 对结果的判断"></a>0.5 对结果的判断</h3><p>正面信号有三个。面试官愿意花时间把业务讲一遍，通常是想让候选人愿意来；岗位是补人，用人节奏急；结尾的评价是偏正面的。风险信号有两个，他当面说了「反正语音里没有什么涉猎」，以及 Python 那段的回答。</p>
+<h3 id="0-5-对结果的判断"><a href="#0-5-对结果的判断" class="headerlink" title="0.5 对结果的判断"></a>0.5 对结果的判断</h3><p>正面信号有三个。面试官愿意花时间把业务讲一遍，通常是想让候选人愿意来；岗位是补人，用人节奏急；结尾的评价是偏正面的。风险信号有两个，他当面点出我在语音这块没有涉猎，另外 Python 那段的回答也偏弱。</p>
 <p>综合看，这次面试大概率是「流程往前走但技术面要补」的阶段。下一轮如果还有，考察点大概率就是语音评测的基本功。</p>
 <h3 id="0-6-这一轮暴露的三个缺口，对应本文的改法"><a href="#0-6-这一轮暴露的三个缺口，对应本文的改法" class="headerlink" title="0.6 这一轮暴露的三个缺口，对应本文的改法"></a>0.6 这一轮暴露的三个缺口，对应本文的改法</h3><table>
 <thead>
@@ -849,7 +849,7 @@
 <tr>
 <td>CER 字错率</td>
 <td>同上，改在字符级</td>
-<td>中文与日文没有天然的词边界，词级切分不稳定，所以主要用 CER</td>
+<td>中文与日文没有天然的词边界，词级切分不稳定，实测多用 CER；若项目约定分词口径，也可报 WER</td>
 </tr>
 <tr>
 <td>RTF 实时率</td>
@@ -876,8 +876,8 @@
 <p><strong>归一化：他们面试时提示的那一步。</strong> 转写出来之后要先归一化再算指标，目的是消掉与语义无关的书写差异，否则大小写、标点、数字与时间的写法不一致会让本来正确的字被算成错。</p>
 <p>开源实现可以直接参考 Whisper 自带的归一化器：<code>BasicTextNormalizer</code> 做语言无关的基础归一化，转小写、去括号内容、按 Unicode 类别去符号与标点、压缩空白；<code>EnglishTextNormalizer</code> 额外把拼写数字、序数、金额、年代等统一成阿拉伯数字写法，就是为了让「twenty」和「20」不被算成错误。中文场景的归一化没有统一公开标准，常见做法是把口语数字读法与阿拉伯数字统一、再统一标点与空白，各家按自己的数据集约定。</p>
 <p>工程上用现成的归一化器加业务规则，别自己从头写；但规则本身必须知道，出问题时你要能判断是模型错了还是归一化把对的判错了。还有一条纪律：<strong>比较不同版本的字错率时必须声明用的哪套归一化规则</strong>，因为归一化策略会显著改变结果，换一套规则再比就等于没比。</p>
-<p><strong>主观与客观。</strong> 主观平均意见分（MOS）的框架出自 ITU-T P.800，P.808 给的是众包方式做主观评测的方法，适合大规模听测。客观侧常用三个：PESQ 是侵入式指标，要拿参考语音做对比，输出感知质量的预测分；STOI 预测可懂度，反映降噪增强对听清的影响；MCD 是梅尔倒谱失真，比较两段语音在频谱包络层面的差异，常用于合成语音。</p>
-<p><strong>多语种与语码转换。</strong> 可用的公开资源：中文普通话基准 AISHELL-1（约 178 小时、400 说话人、安静环境）；会议场景的 AISHELL-4（211 场会议、120 小时、每场 4 到 8 人、8 通道阵列，含重叠语音与标注）；VoxCeleb 是说话人识别与验证基准，不是转写准确率基准，别用错；中英混说的语料有 SEAME（新加坡华语区的中英码转换）和 ASCEND（香港粤语与英语的多轮自发对话）。语码转换场景的常见做法是在混语语料上算整体错误率或分语种错误率，并单独看语言切换点附近的错误。</p>
+<p><strong>主观与客观。</strong> 主观平均意见分（MOS）的框架出自 ITU-T P.800，P.808 给的是众包方式做主观评测的方法，适合大规模听测，语音输出设备另有 P.85。客观侧常用三个：PESQ 是侵入式指标，要拿参考语音做对比，输出感知质量的预测分，注意它对应的 ITU-T P.862 系列已过时并于 2024 年 1 月删除，现在要引用应写 P.863 系列；STOI 预测可懂度，反映降噪增强对听清的影响；MCD 是梅尔倒谱失真，比较两段语音在频谱包络层面的差异，常用于合成语音。</p>
+<p><strong>多语种与语码转换。</strong> 可用的公开资源：中文普通话基准 AISHELL-1（400 说话人、安静室内录制，论文口径超过 170 小时）；会议场景的 AISHELL-4（211 场会议、120 小时、每场 4 到 8 人、8 通道阵列，含重叠语音与标注）；VoxCeleb 是说话人识别与验证基准，不是转写准确率基准，别用错；中英混说的语料有 SEAME（新加坡与马来西亚场景的中英码转换）和 ASCEND（香港采集的中英多轮自发对话，约 10.6 小时）。语码转换场景的常见做法是在混语语料上算整体错误率或分语种错误率，并单独看语言切换点附近的错误。</p>
 <p><strong>流式的三个延迟要分清。</strong> 首字延迟、端点检测延迟、最终结果延迟是三件事。论文里有结论说，模型大小与实时率这类算法侧指标，和设备上观测到的用户感知延迟未必强相关，端点检测行为的影响更大。这条讲出来很显专业。</p>
 <p><strong>字幕场景。</strong> SRT 用 <code>HH:MM:SS,mmm --&gt; HH:MM:SS,mmm</code> 的时间行，VTT 用点分隔毫秒并带 WEBVTT 头。字幕质量同时取决于文本、分段换行与时间对齐。测法是逐条字幕比开始与结束时间的绝对误差，报均值与分位数；更完整的做法用 SubER 这类把文本、分块与时间一起算的指标。注意毫秒级可接受阈值没有行业统一标准，属产品与规范约定。</p>
 <p><strong>测试集要素。</strong> 安静与噪声按信噪比分层、远场近场与混响、口音方言、说话人多样性与重叠语音、含数字与专有名词、不同信道与设备。CHiME 系列挑战赛代表的是远场、多通道、噪声与混响、日常多说话人这类困难场景，评测就往这个方向分片。</p>
@@ -1766,8 +1766,8 @@
 <td><a target="_blank" rel="noopener" href="https://www.itu.int/rec/T-REC-P.808-202106-I/en">ITU-T P.808</a>、<a target="_blank" rel="noopener" href="https://www.itu.int/rec/T-REC-P.800-199608-I/en">ITU-T P.800</a>、<a target="_blank" rel="noopener" href="https://www.itu.int/rec/T-REC-P.85/en">ITU-T P.85</a></td>
 </tr>
 <tr>
-<td>客观指标 PESQ、STOI、MCD 各衡量什么</td>
-<td><a target="_blank" rel="noopener" href="https://www.itu.int/rec/T-REC-P.862/en">ITU-T P.862</a>、<a target="_blank" rel="noopener" href="https://speechprocessingbook.aalto.fi/Evaluation/Objective_quality_evaluation.html">Aalto 语音处理教材 · 客观质量评估</a></td>
+<td>客观指标 PESQ、STOI、MCD 各衡量什么，以及 P.862 已过时应看 P.863</td>
+<td><a target="_blank" rel="noopener" href="https://www.itu.int/rec/T-REC-P.862/en">ITU-T P.862（状态页，标注已删除）</a>、<a target="_blank" rel="noopener" href="https://www.itu.int/rec/T-REC-P.863/en">ITU-T P.863</a>、<a target="_blank" rel="noopener" href="https://speechprocessingbook.aalto.fi/Evaluation/Objective_quality_evaluation.html">Aalto 语音处理教材 · 客观质量评估</a>、<a target="_blank" rel="noopener" href="https://github.com/stefantaubert/mel-cepstral-distance">mel-cepstral-distance 实现</a></td>
 </tr>
 <tr>
 <td>唤醒指标：正确接受率、错误接受率、FA&#x2F;h 口径</td>
@@ -1883,8 +1883,8 @@
     </section>
     <section class="post-nav">
        
-      <a class="next" rel="next" href="/2026/11/17/%E7%94%9F%E6%B4%BB%E4%B8%8E%E6%9D%82%E8%B0%88/%E8%81%8C%E5%9C%BA/%E7%AE%97%E6%B3%95%E6%B5%8B%E8%AF%95%E5%AE%9E%E4%B9%A0%E5%85%A5%E8%81%8C%E5%89%8D%E5%87%86%E5%A4%87%E6%8C%87%E5%8D%97--%E9%94%90%E6%98%8EDMS%E6%96%B9%E5%90%91/"
-        >算法测试实习入职前准备指南--锐明DMS方向</a
+      <a class="next" rel="next" href="/2026/11/17/%E7%94%9F%E6%B4%BB%E4%B8%8E%E6%9D%82%E8%B0%88/%E8%81%8C%E5%9C%BA/%E7%AE%97%E6%B3%95%E6%B5%8B%E8%AF%95%E5%AE%9E%E4%B9%A0%E5%85%A5%E8%81%8C%E5%89%8D%E5%87%86%E5%A4%87%E6%8C%87%E5%8D%97--%E8%BD%A6%E8%BD%BDDMS%E6%96%B9%E5%90%91/"
+        >算法测试实习入职前准备指南--车载DMS方向</a
       >
       
     </section>
