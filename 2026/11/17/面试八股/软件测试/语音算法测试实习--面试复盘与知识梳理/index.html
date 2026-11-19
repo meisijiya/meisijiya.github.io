@@ -1311,6 +1311,32 @@
 </tr>
 </tbody></table>
 <p>一段能直接说的：我 Java 起步，写业务时习惯强类型与分层；转 Python 之后最大的变化是脚本要自己补纪律，靠类型标注、pytest 断言和一个小函数的边界检查顶住，不能指望编译器。这也解释了我写用例为什么爱先写断言。</p>
+<h3 id="6-7c-作用域与反射：被问「Python-变量怎么找」时"><a href="#6-7c-作用域与反射：被问「Python-变量怎么找」时" class="headerlink" title="6.7c 作用域与反射：被问「Python 变量怎么找」时"></a>6.7c 作用域与反射：被问「Python 变量怎么找」时</h3><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>口径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LEGB 查找顺序</td>
+<td>先在 Local（函数内）、再 Enclosing（外层函数）、再 Global（模块级）、最后 Builtins（内置），找不到就抛 NameError</td>
+</tr>
+<tr>
+<td>global 与 nonlocal</td>
+<td>函数内改模块级变量要 <code>global</code>，改外层函数变量要 <code>nonlocal</code>；只读不用声明</td>
+</tr>
+<tr>
+<td>闭包</td>
+<td>内层函数引用外层变量，把变量一起带出来；<code>nonlocal</code> 让它可改</td>
+</tr>
+<tr>
+<td>类作用域</td>
+<td>类体里的名字不是外层作用域，方法里不能直接访问类属性，要走 <code>self</code> 或类名</td>
+</tr>
+</tbody></table>
+<p>反射三件套，脚本里很常用：<code>getattr(obj, &quot;name&quot;, default)</code> 取属性、<code>setattr</code> 设属性、<code>hasattr</code> 判断存在。接口测试里用它们按配置动态取不同厂商的处理函数，比写一长串 if 清爽。</p>
+<p>一句能加分的话：能在一个函数里改外层变量，靠的是 nonlocal；不能靠 global，那是改模块级。</p>
 <h3 id="6-8-十个速答"><a href="#6-8-十个速答" class="headerlink" title="6.8 十个速答"></a>6.8 十个速答</h3><table>
 <thead>
 <tr>
@@ -1461,6 +1487,38 @@
 <li>外部通不通：另一台机器 <code>nc -zv host port</code>，排除防火墙与安全组。</li>
 </ol>
 <p>这个顺序的价值在于「从近到远」，每一步都能独立下结论，面试官问「你会怎么查」时按这六步说，比背命令有说服力。</p>
+<h3 id="7-3b-三剑客：grep、sed、awk-的组合"><a href="#7-3b-三剑客：grep、sed、awk-的组合" class="headerlink" title="7.3b 三剑客：grep、sed、awk 的组合"></a>7.3b 三剑客：grep、sed、awk 的组合</h3><p>面试问 Linux 看日志时，只答 <code>grep</code> 不够，答出三件套怎么串起来才是加分项。</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>干什么</th>
+<th>常用写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>grep</td>
+<td>按内容过滤行</td>
+<td><code>grep -n -i &quot;error&quot; app.log</code>、<code>grep -o &quot;code=[0-9]*&quot;</code> 只留匹配片段</td>
+</tr>
+<tr>
+<td>sed</td>
+<td>按行做替换与抽取</td>
+<td><code>sed -n &#39;100,200p&#39; app.log</code> 取行区间、<code>sed -i.bak &#39;s/a/b/g&#39; f</code> 改前留备份</td>
+</tr>
+<tr>
+<td>awk</td>
+<td>按列做统计</td>
+<td><code>awk &#39;&#123;print $4&#125;&#39;</code> 取第四列、<code>awk -F, &#39;&#123;s+=$2&#125; END&#123;print s&#125;&#39;</code> 求和、<code>awk &#39;$9==500&#39;</code> 按字段过滤</td>
+</tr>
+</tbody></table>
+<p>三个真用得上的组合：</p>
+<ul>
+<li>统计接口错误码分布：<code>awk -F&#39;&quot; &#39; &#39;&#123;print $9&#125;&#39; access.log | sort | uniq -c | sort -rn | head</code></li>
+<li>抓某段时间的报错：<code>sed -n &#39;/10:0[0-9]:/p&#39; app.log | grep -i error</code></li>
+<li>算平均耗时：<code>awk &#39;&#123;s+=$NF; n++&#125; END&#123;printf &quot;%.1f\n&quot;, s/n&#125;&#39; cost.txt</code></li>
+</ul>
+<p>一句能被追问的说明：grep 负责「找」，sed 负责「改与取区间」，awk 负责「按列算」。三者用管道串起来，就是不用写脚本的日志分析。</p>
 <h3 id="7-4-MySQL：建表、索引、回表"><a href="#7-4-MySQL：建表、索引、回表" class="headerlink" title="7.4 MySQL：建表、索引、回表"></a>7.4 MySQL：建表、索引、回表</h3><table>
 <thead>
 <tr>
@@ -1531,6 +1589,39 @@
 </tbody></table>
 <p>MySQL 的 InnoDB 默认是 REPEATABLE READ。要答准的一句是：RR 下的一致性读靠 MVCC 快照（同一事务内反复读用第一次读建立的快照），而当前读（加锁读、范围查询）靠 next-key lock 与间隙锁防幻行插入。只说「MVCC 解决了幻读」会被追问，把「快照读」与「当前读」分开讲就稳。</p>
 <p>四句话打包。ACID 是原子性、一致性、隔离性、持久性。隔离靠锁和 MVCC，原子性与持久性靠 undo log 与 redo log。崩溃恢复靠 redo，回滚靠 undo。</p>
+<h3 id="7-5b-锁与三种日志：最容易答混的地方"><a href="#7-5b-锁与三种日志：最容易答混的地方" class="headerlink" title="7.5b 锁与三种日志：最容易答混的地方"></a>7.5b 锁与三种日志：最容易答混的地方</h3><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>准确说法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>行锁</td>
+<td>InnoDB 默认行级锁，但锁加在索引上；没有索引可用时退化为锁全表扫过的行，看起来像表锁</td>
+</tr>
+<tr>
+<td>间隙锁与 next-key 锁</td>
+<td>RR 下对范围条件加间隙锁，堵住新行插入，这才是 RR 能防住当前读幻读的原因</td>
+</tr>
+<tr>
+<td>快照读与当前读</td>
+<td>普通 SELECT 读快照（MVCC），<code>SELECT ... FOR UPDATE</code>、<code>UPDATE</code>、<code>DELETE</code> 读最新版本并加锁</td>
+</tr>
+<tr>
+<td>redo log</td>
+<td>物理日志，保证崩溃后能重放已提交事务，负责持久性</td>
+</tr>
+<tr>
+<td>undo log</td>
+<td>逻辑日志，保存旧版本，负责回滚与 MVCC 快照</td>
+</tr>
+<tr>
+<td>binlog</td>
+<td>Server 层的逻辑日志，记录语句或行变更，用于主从复制与恢复；它和 redo 是两套机制</td>
+</tr>
+</tbody></table>
+<p>一句能救命的话：redo 管「提交了别丢」，undo 管「没提交能回滚，提交了还能读旧版本」，binlog 管「给从库和备份用」。三者混着答，面试官立刻知道是背的。</p>
 <h3 id="7-6-EXPLAIN-怎么读"><a href="#7-6-EXPLAIN-怎么读" class="headerlink" title="7.6 EXPLAIN 怎么读"></a>7.6 EXPLAIN 怎么读</h3><table>
 <thead>
 <tr>
@@ -2447,7 +2538,28 @@
 <td>减少组合爆炸</td>
 <td>机型乘固件乘语种乘数据集切片，取代表性子集</td>
 </tr>
+<tr>
+<td>因果图</td>
+<td>输入与输出的条件关系</td>
+<td>有唤醒词且无噪声才给高分，任一不满足降档</td>
+</tr>
+<tr>
+<td>错误推测</td>
+<td>凭经验猜哪里会错</td>
+<td>说到一半断网、唤醒词后面立刻接指令</td>
+</tr>
+<tr>
+<td>基于风险</td>
+<td>按影响面排优先级</td>
+<td>数据丢失与隐私相关先测，界面细节后测</td>
+</tr>
+<tr>
+<td>探索式测试</td>
+<td>边测边学边设计</td>
+<td>拿到新设备先花一小时随便玩，记下异常再补用例</td>
+</tr>
 </tbody></table>
+<p>培训材料里常讲「十二种方法」，其中真正天天用得上的是等价类、边界值、场景法、判定表、状态迁移和错误推测这六种。其余的方法价值在于「知道什么时候掏出来」，不是背名字。被问「你会哪些方法」时，答六种常用的加一句「其余按需取用」，比背十二条更像做过事。</p>
 <h3 id="12-3-一条语音用例该写什么"><a href="#12-3-一条语音用例该写什么" class="headerlink" title="12.3 一条语音用例该写什么"></a>12.3 一条语音用例该写什么</h3><p>标题（做什么、在什么条件下）、前置条件（设备型号、固件版本、语种、噪声条件）、音频文件路径、步骤、预期结果（可判断，最好带数值）、优先级、备注。</p>
 <p>语音用例额外两栏：音频文件与期望文本、需要的人工介入（要人对着麦克风说话）。这两栏决定它能不能进自动化。</p>
 <hr>
@@ -2686,6 +2798,18 @@
 <tr>
 <td>中文与多语种语音语料</td>
 <td><a target="_blank" rel="noopener" href="https://www.openslr.org/33/">AISHELL-1</a>、<a target="_blank" rel="noopener" href="https://www.openslr.org/111/">AISHELL-4</a>、<a target="_blank" rel="noopener" href="https://www.robots.ox.ac.uk/~vgg/data/voxceleb/">VoxCeleb</a>、<a target="_blank" rel="noopener" href="https://catalog.ldc.upenn.edu/LDC2015S04">SEAME</a>、<a target="_blank" rel="noopener" href="https://github.com/HLTCHKUST/ASCEND">ASCEND</a>、<a target="_blank" rel="noopener" href="https://www.chimechallenge.org/">CHiME</a></td>
+</tr>
+<tr>
+<td>Python 作用域与名字绑定、getattr 反射</td>
+<td><a target="_blank" rel="noopener" href="https://docs.python.org/3/tutorial/classes.html#python-scopes-and-namespaces">Python 教程·类与作用域</a>、<a target="_blank" rel="noopener" href="https://docs.python.org/3/library/functions.html#getattr">内置函数 getattr</a></td>
+</tr>
+<tr>
+<td>grep、sed、awk 的用途与常用选项</td>
+<td><a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man1/grep.1.html">grep(1)</a>、<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man1/sed.1.html">sed(1)</a>、<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man1/awk.1p.html">awk(1p)</a></td>
+</tr>
+<tr>
+<td>InnoDB 锁、快照读与当前读、redo&#x2F;undo&#x2F;binlog 分工</td>
+<td><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html">InnoDB 锁</a>、<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html">一致性非锁定读</a>、<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-redo-log.html">redo log</a>、<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/binary-log.html">binlog</a></td>
 </tr>
 <tr>
 <td>字幕格式与时间戳偏移、SubER 指标</td>
