@@ -854,8 +854,8 @@
 <td>漏掉的那部分就是 FRR，漏唤醒率</td>
 </tr>
 <tr>
-<td>错误接受率（误唤醒率）</td>
-<td>没唤醒词却被唤醒的比例</td>
+<td>错误接受率（误唤醒）</td>
+<td>负样本上被误触发的比例；连续监听场景通常换成分小时次数来报</td>
 <td>越小越好，和唤醒率此消彼长</td>
 </tr>
 <tr>
@@ -955,13 +955,13 @@
 <td>字幕场景单独看</td>
 </tr>
 </tbody></table>
-<p>WER 与 CER 都属编辑距离类指标。词级会把一个字的错判成整词错，字符级只算那一个字符，所以同一段错误在词级口径下更严重。这条差别要主动说，显得你知道中文为什么用 CER。</p>
+<p>WER 与 CER 都属编辑距离类指标。词级会把一个字的错判成整词错，字符级只算那一个字符，替换类错误在词级口径下因此更重；插入删除多的时候两边差别会变小。这条差别要主动说，显得你知道中文为什么用 CER。</p>
 <p><strong>归一化：他们面试时提示的那一步。</strong> 转写出来之后要先归一化再算指标，目的是消掉与语义无关的书写差异，否则大小写、标点、数字与时间的写法不一致会让本来正确的字被算成错。</p>
-<p>开源实现可以直接参考 Whisper 自带的归一化器：<code>BasicTextNormalizer</code> 做语言无关的基础归一化，转小写、去括号内容、按 Unicode 类别去符号与标点、压缩空白；<code>EnglishTextNormalizer</code> 额外把拼写数字、序数、金额、年代等统一成阿拉伯数字写法，就是为了让「twenty」和「20」不被算成错误。中文场景的归一化没有统一公开标准，常见做法是把口语数字读法与阿拉伯数字统一、再统一标点与空白，各家按自己的数据集约定。</p>
+<p>开源实现可以直接参考 Whisper 自带的归一化器：<code>BasicTextNormalizer</code> 做语言无关的基础归一化，转小写、去括号内容、按 Unicode 类别去符号与标点、压缩空白；<code>EnglishTextNormalizer</code> 在它之上再去填充词、展开缩写、统一英美拼写，其中数字部分由 <code>EnglishNumberNormalizer</code> 把拼写数字、序数、金额、年代统一成阿拉伯数字写法，让「twenty」和「20」不被算成错误。中文场景的归一化没有统一公开标准，常见做法是把口语数字读法与阿拉伯数字统一、再统一标点与空白，各家按自己的数据集约定。</p>
 <p>工程上用现成的归一化器加业务规则，别自己从头写；但规则本身必须知道，出问题时你要能判断是模型错了还是归一化把对的判错了。还有一条纪律：<strong>比较不同版本的字错率时必须声明用的哪套归一化规则</strong>，因为归一化策略会显著改变结果，换一套规则再比就等于没比。</p>
 <p><strong>主观与客观。</strong> 主观平均意见分（MOS）的框架出自 ITU-T P.800，P.808 给的是众包方式做主观评测的方法，适合大规模听测，语音输出设备另有 P.85。客观侧常用三个：PESQ 是侵入式指标，要拿参考语音做对比，输出感知质量的预测分，注意它对应的 ITU-T P.862 系列已过时并于 2024 年 1 月删除，现在要引用应写 P.863 系列；STOI 预测可懂度，反映降噪增强对听清的影响；MCD 是梅尔倒谱失真，比较两段语音在频谱包络层面的差异，常用于合成语音。</p>
 <p><strong>多语种与语码转换。</strong> 可用的公开资源：中文普通话基准 AISHELL-1（400 说话人、安静室内录制，论文口径超过 170 小时）；会议场景的 AISHELL-4（211 场会议、120 小时、每场 4 到 8 人、8 通道阵列，含重叠语音与标注）；VoxCeleb 是说话人识别与验证基准，不是转写准确率基准，别用错；中英混说的语料有 SEAME（新加坡与马来西亚场景的中英码转换）和 ASCEND（香港采集的中英多轮自发对话，约 10.6 小时）。语码转换场景的常见做法是在混语语料上算整体错误率或分语种错误率，并单独看语言切换点附近的错误。</p>
-<p><strong>流式的三个延迟要分清。</strong> 首字延迟、端点检测延迟、最终结果延迟是三件事。论文里有结论说，模型大小与实时率这类算法侧指标，和设备上观测到的用户感知延迟未必强相关，端点检测行为的影响更大。这条讲出来很显专业。</p>
+<p><strong>流式的三个延迟要分清。</strong> 首字延迟、端点检测延迟、最终结果延迟是三件事。算法侧指标（模型大小、实时率）与用户感知到的延迟不是一一对应的，分帧、缓冲、端点策略与网络都会掺进来。这条讲出来很显专业。</p>
 <p><strong>字幕场景。</strong> SRT 用 <code>HH:MM:SS,mmm --&gt; HH:MM:SS,mmm</code> 的时间行，VTT 用点分隔毫秒并带 WEBVTT 头。字幕质量同时取决于文本、分段换行与时间对齐。测法是逐条字幕比开始与结束时间的绝对误差，报均值与分位数；更完整的做法用 SubER 这类把文本、分块与时间一起算的指标。注意毫秒级可接受阈值没有行业统一标准，属产品与规范约定。</p>
 <p><strong>测试集要素。</strong> 安静与噪声按信噪比分层、远场近场与混响、口音方言、说话人多样性与重叠语音、含数字与专有名词、不同信道与设备。CHiME 系列挑战赛代表的是远场、多通道、噪声与混响、日常多说话人这类困难场景，评测就往这个方向分片。</p>
 <p><strong>面试怎么答：</strong></p>
@@ -1458,8 +1458,8 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>LEGB 查找顺序</td>
-<td>先在 Local（函数内）、再 Enclosing（外层函数）、再 Global（模块级）、最后 Builtins（内置），找不到就抛 NameError</td>
+<td>名字查找顺序</td>
+<td>局部（含外层函数闭包）、模块全局、内置命名空间依次找，这就是常说的 LEGB；全找不到抛 NameError，函数内先引用后赋值则抛 UnboundLocalError</td>
 </tr>
 <tr>
 <td>global 与 nonlocal</td>
@@ -1922,7 +1922,7 @@
 </tr>
 </tbody></table>
 <p>四句能说清的判断。要稳定就用归并。要原地且能接受最坏退化用快排，要最坏也稳且原地用堆排。小数组用插入，因为常数小。快排最坏出现在每次选的基准都是极值，比如对已经有序的数组固定取第一个元素当基准，所以工程实现会随机化或三数取中。</p>
-<p>Python 的 <code>sorted()</code> 与 <code>list.sort()</code> 用的是 Timsort，稳定，最坏 O(n log n)，代价是额外 O(n) 空间；对部分有序的数据特别快，所以真实数据上常比手写快排表现好。这句答出来，比背复杂度表更像懂工程。</p>
+<p><code>sorted()</code> 与 <code>list.sort()</code> 保证稳定，比较次数是 O(n log n) 级；CPython 实现用的是 Timsort，会开辟额外空间（量级 O(n)，属实现特性），对部分有序数据特别快，所以真实数据上常比手写快排表现好。这句答出来，比背复杂度表更像懂工程。</p>
 <h3 id="8-2-手写快排与归并"><a href="#8-2-手写快排与归并" class="headerlink" title="8.2 手写快排与归并"></a>8.2 手写快排与归并</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">quick_sort</span>(<span class="params">xs</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(xs) &lt;= <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> xs</span><br><span class="line">    pivot, rest = xs[<span class="number">0</span>], xs[<span class="number">1</span>:]</span><br><span class="line">    left = [x <span class="keyword">for</span> x <span class="keyword">in</span> rest <span class="keyword">if</span> x &lt; pivot]</span><br><span class="line">    right = [x <span class="keyword">for</span> x <span class="keyword">in</span> rest <span class="keyword">if</span> x &gt;= pivot]</span><br><span class="line">    <span class="keyword">return</span> quick_sort(left) + [pivot] + quick_sort(right)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">merge_sort</span>(<span class="params">xs</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(xs) &lt;= <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> xs</span><br><span class="line">    mid = <span class="built_in">len</span>(xs) // <span class="number">2</span></span><br><span class="line">    left, right = merge_sort(xs[:mid]), merge_sort(xs[mid:])</span><br><span class="line">    out, i, j = [], <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> i &lt; <span class="built_in">len</span>(left) <span class="keyword">and</span> j &lt; <span class="built_in">len</span>(right):</span><br><span class="line">        <span class="keyword">if</span> left[i] &lt;= right[j]:      <span class="comment"># 取等号是为了稳定</span></span><br><span class="line">            out.append(left[i]); i += <span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            out.append(right[j]); j += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> out + left[i:] + right[j:]</span><br></pre></td></tr></table></figure>
 
 <p>面试时先说思路再说代码，边写边说边界：空数组、单元素、重复元素。写完主动补一句复杂度与稳定性，比等面试官问好。</p>
