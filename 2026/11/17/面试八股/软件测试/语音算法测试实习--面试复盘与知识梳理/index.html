@@ -1169,6 +1169,145 @@
 <p>Python 我写测试脚本写得比较久。VidDigest 里用 pytest 维护接口用例集，做过参数化、fixture 造数清数和一键回归。语音评测这块我理解是四步：批量把音频喂给模型拿回结果，用参考文本算字错率，按语种和噪声切片统计，最后导出 CSV 出报告。归一化是其中最容易出问题的一步，大小写、标点、数字和时间的写法不统一，正确的字也会被算错。我板端这边也写过串口抓日志和统计的脚本。</p>
 </blockquote>
 <hr>
+<p>pytest 高频用法按使用频率排，每段都能直接跑。</p>
+<p>评测脚本四段是「做什么」，pytest 是「怎么组织」。下面按用得频率排，每段都能直接跑。</p>
+<h3 id="5-6-最小闭环"><a href="#5-6-最小闭环" class="headerlink" title="5.6 最小闭环"></a>5.6 最小闭环</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># test_cer.py</span></span><br><span class="line"><span class="keyword">from</span> cer_utils <span class="keyword">import</span> cer</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_identical_text_has_zero_cer</span>():</span><br><span class="line">    <span class="keyword">assert</span> cer(<span class="string">&quot;今天天气不错&quot;</span>, <span class="string">&quot;今天天气不错&quot;</span>) == <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_one_wrong_character</span>():</span><br><span class="line">    <span class="keyword">assert</span> cer(<span class="string">&quot;今天天气不错&quot;</span>, <span class="string">&quot;今天天气不差&quot;</span>) == <span class="number">0.25</span>   <span class="comment"># 4 个字错 1 个</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pytest -q</span><br></pre></td></tr></table></figure>
+
+<p>三条约定要记住。文件名 <code>test_*.py</code> 或 <code>*_test.py</code>，函数名 <code>test_</code> 开头，类名 <code>Test</code> 开头且不要有无参 <code>__init__</code>。不符合这三条，pytest 根本不会收集。</p>
+<h3 id="5-7-断言：写清失败长什么样"><a href="#5-7-断言：写清失败长什么样" class="headerlink" title="5.7 断言：写清失败长什么样"></a>5.7 断言：写清失败长什么样</h3><p>pytest 直接用 <code>assert</code>，不需要自带的断言方法。写法上要注意让失败信息能定位问题。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">test_business_code</span>():</span><br><span class="line">    resp = call_api(<span class="string">&quot;/videos&quot;</span>, &#123;<span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://example.com/v/1&quot;</span>&#125;)</span><br><span class="line">    <span class="keyword">assert</span> resp[<span class="string">&quot;code&quot;</span>] == <span class="number">0</span>, <span class="string">f&quot;业务码异常: <span class="subst">&#123;resp&#125;</span>&quot;</span></span><br><span class="line">    <span class="keyword">assert</span> <span class="number">0.0</span> &lt;= resp[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;cer&quot;</span>] &lt; <span class="number">0.05</span>, <span class="string">f&quot;CER 超阈: <span class="subst">&#123;resp[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;cer&#x27;</span>]&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>浮点数必须用 <code>pytest.approx</code>，否则 0.1 + 0.2 这类会误报：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_average_cer</span>():</span><br><span class="line">    <span class="keyword">assert</span> average([<span class="number">0.1</span>, <span class="number">0.2</span>]) == pytest.approx(<span class="number">0.15</span>, <span class="built_in">abs</span>=<span class="number">1e-6</span>)</span><br></pre></td></tr></table></figure>
+
+<p>异常断言用 <code>pytest.raises</code>，最好带 <code>match</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_rejects_empty_audio</span>():</span><br><span class="line">    <span class="keyword">with</span> pytest.raises(ValueError, <span class="keyword">match</span>=<span class="string">&quot;audio.*empty&quot;</span>):</span><br><span class="line">        transcribe(<span class="string">&quot;&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-8-fixture：准备与清理"><a href="#5-8-fixture：准备与清理" class="headerlink" title="5.8 fixture：准备与清理"></a>5.8 fixture：准备与清理</h3><p>fixture 是「用例需要的东西」，用 <code>yield</code> 分前后：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture(<span class="params">scope=<span class="string">&quot;session&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">api_base</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;http://127.0.0.1:8000&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture(<span class="params">scope=<span class="string">&quot;function&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">temp_video</span>(<span class="params">tmp_path</span>):</span><br><span class="line">    path = tmp_path / <span class="string">&quot;a.txt&quot;</span></span><br><span class="line">    path.write_text(<span class="string">&quot;参考文本&quot;</span>, encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    <span class="keyword">yield</span> path</span><br><span class="line">    path.unlink(missing_ok=<span class="literal">True</span>)      <span class="comment"># 清理由 fixture 负责，用例里不写清理</span></span><br></pre></td></tr></table></figure>
+
+<p>四个 scope：<code>function</code>（默认，每例一次）、<code>class</code>、<code>module</code>、<code>package</code>、<code>session</code>（整个会话一次）。判断标准只有一条：这个资源贵不贵、脏不脏。设备连接、模型服务用 <code>session</code>；会被改的数据用 <code>function</code>。<code>conftest.py</code> 放同目录及子目录共享的 fixture，不需要 import。</p>
+<p>自动生效用 <code>autouse=True</code>，但别滥用，它会隐藏依赖，读用例的人看不出它准备了什么。</p>
+<h3 id="5-9-参数化：一份逻辑铺多组数据"><a href="#5-9-参数化：一份逻辑铺多组数据" class="headerlink" title="5.9 参数化：一份逻辑铺多组数据"></a>5.9 参数化：一份逻辑铺多组数据</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.parametrize(<span class="params"><span class="string">&quot;ref, hyp, expect&quot;</span>, [</span></span></span><br><span class="line"><span class="params"><span class="meta">    (<span class="params"><span class="string">&quot;今天天气不错&quot;</span>, <span class="string">&quot;今天天气不错&quot;</span>, <span class="number">0.0</span></span>),</span></span></span><br><span class="line"><span class="params"><span class="meta">    (<span class="params"><span class="string">&quot;今天天气不错&quot;</span>, <span class="string">&quot;今天天气不差&quot;</span>, <span class="number">0.25</span></span>),</span></span></span><br><span class="line"><span class="params"><span class="meta">    (<span class="params"><span class="string">&quot;abc&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="number">1.0</span></span>),</span></span></span><br><span class="line"><span class="params"><span class="meta">], ids=[<span class="string">&quot;完全一致&quot;</span>, <span class="string">&quot;错一个字&quot;</span>, <span class="string">&quot;全删&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_cer</span>(<span class="params">ref, hyp, expect</span>):</span><br><span class="line">    <span class="keyword">assert</span> cer(ref, hyp) == pytest.approx(expect)</span><br></pre></td></tr></table></figure>
+
+<p>三个高频技巧：</p>
+<ul>
+<li><code>ids=</code> 给每组数据起名，报告里看名字比看元组快。</li>
+<li><code>pytest.param(..., marks=pytest.mark.slow)</code> 给单组数据打标，比如只跑真实模型的用例。</li>
+<li><code>indirect=True</code> 把参数传给 fixture，适合「同一份数据要不同初始化」的场景。</li>
+</ul>
+<p>数据驱动从文件读，别在代码里堆几十组：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"><span class="keyword">import</span> pathlib</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_cases</span>():</span><br><span class="line">    <span class="keyword">with</span> pathlib.Path(<span class="string">&quot;cases/cer.csv&quot;</span>).<span class="built_in">open</span>(encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">return</span> [(r[<span class="string">&quot;ref&quot;</span>], r[<span class="string">&quot;hyp&quot;</span>], <span class="built_in">float</span>(r[<span class="string">&quot;expect&quot;</span>])) <span class="keyword">for</span> r <span class="keyword">in</span> csv.DictReader(f)]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.parametrize(<span class="params"><span class="string">&quot;ref,hyp,expect&quot;</span>, load_cases(<span class="params"></span>)</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_cer_from_csv</span>(<span class="params">ref, hyp, expect</span>):</span><br><span class="line">    <span class="keyword">assert</span> cer(ref, hyp) == pytest.approx(expect)</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-10-标记、跳过与预期失败"><a href="#5-10-标记、跳过与预期失败" class="headerlink" title="5.10 标记、跳过与预期失败"></a>5.10 标记、跳过与预期失败</h3><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pytest.ini</span></span><br><span class="line"><span class="section">[pytest]</span></span><br><span class="line"><span class="attr">markers</span> =</span><br><span class="line">    smoke: 冒烟用例</span><br><span class="line">    slow: 跑得慢、需要真模型</span><br><span class="line"><span class="attr">addopts</span> = -ra --strict-markers</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.smoke</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_health</span>():</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.skipif(<span class="params">sys.platform == <span class="string">&quot;win32&quot;</span>, reason=<span class="string">&quot;串口只在板端跑&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_serial</span>():</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.xfail(<span class="params">reason=<span class="string">&quot;厂商 300 秒上限未解决&quot;</span>, strict=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_long_audio</span>():</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p><code>skip</code> 是条件不满足不跑，<code>xfail</code> 是知道会失败、但要留下痕迹。<code>strict=True</code> 让「意外通过」也报错，否则修复之后没人知道。<strong>不要用 skip 换绿灯</strong>。依赖连不上就让它失败，这是我在 VidDigest 里立的规矩。</p>
+<h3 id="5-11-命令行速查"><a href="#5-11-命令行速查" class="headerlink" title="5.11 命令行速查"></a>5.11 命令行速查</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>只跑某个文件或某个用例</td>
+<td><code>pytest tests/test_cer.py</code>、<code>pytest tests/test_cer.py::test_one_wrong_character</code></td>
+</tr>
+<tr>
+<td>按名字筛</td>
+<td><code>pytest -k &quot;cer and not slow&quot;</code></td>
+</tr>
+<tr>
+<td>按标记筛</td>
+<td><code>pytest -m smoke</code>、<code>pytest -m &quot;not slow&quot;</code></td>
+</tr>
+<tr>
+<td>失败即停 &#x2F; 最多错几个</td>
+<td><code>pytest -x</code>、<code>pytest --maxfail=3</code></td>
+</tr>
+<tr>
+<td>只跑上次失败的</td>
+<td><code>pytest --lf</code></td>
+</tr>
+<tr>
+<td>上次失败优先跑</td>
+<td><code>pytest --ff</code></td>
+</tr>
+<tr>
+<td>输出更啰嗦 &#x2F; 更安静</td>
+<td><code>pytest -v</code>、<code>pytest -q</code></td>
+</tr>
+<tr>
+<td>最慢的十条例出来</td>
+<td><code>pytest --durations=10</code></td>
+</tr>
+<tr>
+<td>出 CI 能读的报告</td>
+<td><code>pytest --junitxml=report.xml</code></td>
+</tr>
+<tr>
+<td>覆盖率</td>
+<td><code>pytest --cov=src --cov-report=term-missing</code>（要装 pytest-cov）</td>
+</tr>
+<tr>
+<td>并行</td>
+<td><code>pytest -n 4</code>（要装 pytest-xdist，注意用例必须相互独立）</td>
+</tr>
+<tr>
+<td>失败重跑</td>
+<td><code>pytest --reruns 2</code>（要装 pytest-rerunfailures，重跑会掩盖偶现，慎用）</td>
+</tr>
+</tbody></table>
+<h3 id="5-12-两个真实例子"><a href="#5-12-两个真实例子" class="headerlink" title="5.12 两个真实例子"></a>5.12 两个真实例子</h3><p><strong>接口回归</strong>（对应视频解析项目）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture(<span class="params">scope=<span class="string">&quot;session&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">client</span>(<span class="params">api_base</span>):</span><br><span class="line">    s = requests.Session()</span><br><span class="line">    s.headers.update(&#123;<span class="string">&quot;Authorization&quot;</span>: <span class="string">&quot;Bearer test-token&quot;</span>&#125;)</span><br><span class="line">    <span class="keyword">yield</span> s</span><br><span class="line">    s.close()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.parametrize(<span class="params"><span class="string">&quot;payload, expect_code&quot;</span>, [</span></span></span><br><span class="line"><span class="params"><span class="meta">    (<span class="params">&#123;<span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://example.com/v/1&quot;</span>&#125;, <span class="number">0</span></span>),</span></span></span><br><span class="line"><span class="params"><span class="meta">    (<span class="params">&#123;&#125;, <span class="number">40001</span></span>),</span></span></span><br><span class="line"><span class="params"><span class="meta">    (<span class="params">&#123;<span class="string">&quot;url&quot;</span>: <span class="string">&quot;not-a-url&quot;</span>&#125;, <span class="number">40002</span></span>),</span></span></span><br><span class="line"><span class="params"><span class="meta">]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_create_job</span>(<span class="params">client, api_base, payload, expect_code</span>):</span><br><span class="line">    resp = client.post(<span class="string">f&quot;<span class="subst">&#123;api_base&#125;</span>/api/videos&quot;</span>, json=payload, timeout=<span class="number">10</span>)</span><br><span class="line">    <span class="keyword">assert</span> resp.status_code <span class="keyword">in</span> (<span class="number">200</span>, <span class="number">201</span>, <span class="number">400</span>, <span class="number">422</span>)</span><br><span class="line">    <span class="keyword">assert</span> resp.json()[<span class="string">&quot;code&quot;</span>] == expect_code</span><br></pre></td></tr></table></figure>
+
+<p><strong>语音评测批量断言</strong>（对应 ASR 接入）：把固定音频集跑一遍，逐片断言阈值，报告里能看出哪一片掉点。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pathlib</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> asr_client <span class="keyword">import</span> transcribe</span><br><span class="line"><span class="keyword">from</span> cer_utils <span class="keyword">import</span> cer</span><br><span class="line"></span><br><span class="line">CASES = <span class="built_in">sorted</span>(pathlib.Path(<span class="string">&quot;audio&quot;</span>).glob(<span class="string">&quot;*.wav&quot;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.mark.slow</span></span><br><span class="line"><span class="meta">@pytest.mark.parametrize(<span class="params"><span class="string">&quot;wav&quot;</span>, CASES, ids=[p.stem <span class="keyword">for</span> p <span class="keyword">in</span> CASES]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_cer_under_threshold</span>(<span class="params">wav</span>):</span><br><span class="line">    ref = wav.with_suffix(<span class="string">&quot;.txt&quot;</span>).read_text(encoding=<span class="string">&quot;utf-8&quot;</span>).strip()</span><br><span class="line">    hyp = transcribe(<span class="built_in">str</span>(wav)).strip()</span><br><span class="line">    <span class="keyword">assert</span> cer(ref, hyp) &lt; <span class="number">0.2</span>, <span class="string">f&quot;<span class="subst">&#123;wav.name&#125;</span> CER 超阈: <span class="subst">&#123;cer(ref, hyp):<span class="number">.3</span>f&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-13-六个常见坑"><a href="#5-13-六个常见坑" class="headerlink" title="5.13 六个常见坑"></a>5.13 六个常见坑</h3><table>
+<thead>
+<tr>
+<th>坑</th>
+<th>现象</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>依赖连不上就 skip</td>
+<td>回归永远绿，上线才发现</td>
+<td>直接失败，或标记成 xfail(strict&#x3D;True) 并跟缺陷单</td>
+</tr>
+<tr>
+<td>session fixture 改了数据</td>
+<td>后面的用例莫名其妙挂</td>
+<td>可变状态放 function 级，或显式复位</td>
+</tr>
+<tr>
+<td>断言只比 200</td>
+<td>业务码错了也过</td>
+<td>断业务码、关键字段、类型</td>
+</tr>
+<tr>
+<td>用例依赖执行顺序</td>
+<td>单跑能过，全量就挂</td>
+<td>每例自己准备数据，不靠前一例</td>
+</tr>
+<tr>
+<td>用真库却不清数</td>
+<td>跑几次数据就脏了</td>
+<td>造数清数放 fixture，或每例独立库</td>
+</tr>
+<tr>
+<td>报告没有退出码</td>
+<td>CI 里永远成功</td>
+<td>用 pytest 的退出码判成败，别在命令后面缀 <code>true</code> 兜底</td>
+</tr>
+</tbody></table>
+<hr>
 <h2 id="六、Python-语言考点"><a href="#六、Python-语言考点" class="headerlink" title="六、Python 语言考点"></a>六、Python 语言考点</h2><p>岗位 JD 写的是 Python 脚本开发，所以二面问语法不是为了考语言本身，是看你能不能独立把评测脚本写出来。这一章只留会被问到的。</p>
 <h3 id="6-1-数据类型与可变性"><a href="#6-1-数据类型与可变性" class="headerlink" title="6.1 数据类型与可变性"></a>6.1 数据类型与可变性</h3><table>
 <thead>
